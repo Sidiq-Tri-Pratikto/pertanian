@@ -36,7 +36,7 @@ Tautan berstatus privat hanya terbuka bagi pemiliknya sampai dibagikan lewat men
 
 Bagian bertanda kuning `[isi …]` di proposal dan surat komitmen:
 
-- **Proposal:** jenis kelamin, NIDN/NUPTK, jabatan struktural, institusi, alamat, telepon, e-mail ketua; NIK/NIP/NIM dan institusi anggota; mitra riset; status dukungan mitra (6f); kota dan tanggal; tiga tautan di Lampiran (prototipe, PRD, video).
+- **Proposal:** jenis kelamin, NIDN/NUPTK, jabatan struktural, institusi, alamat, telepon, e-mail ketua; NIK/NIP/NIM dan institusi anggota; mitra riset; kota dan tanggal; tiga tautan di Lampiran (prototipe, PRD, video).
 - **Pitch deck:** harga di slide 10; kontak dan tautan prototipe di slide 12; foto anggota di slide 11 (saat ini lingkaran inisial).
 - **Surat komitmen:** kop surat, institusi, NIDN, alamat, kontak, kota dan tanggal, meterai bila disyaratkan, tanda tangan.
 - **Video demo:** rekam dan unggah (YouTube Unlisted atau Google Drive), lalu masukkan tautannya ke formulir dan lampiran proposal.
