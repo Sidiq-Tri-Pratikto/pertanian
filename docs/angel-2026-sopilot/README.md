@@ -35,7 +35,7 @@ Tautan berstatus privat hanya terbuka bagi pemiliknya sampai dibagikan lewat men
 ## Yang masih perlu diselesaikan sebelum submit
 
 - **Tanda tangan basah Ketua** di Lembar Identitas proposal dan di Surat Komitmen (cetak, tanda tangani, pindai).
-- **Proposal:** NIP/NIDN Erwin Eko Wahyudi (satu isian kuning di tabel anggota; cek di pddikti.kemdiktisaintek.go.id atau tanya langsung); (tautan video di Lampiran sudah terisi; PRD tidak dilampirkan).
+- **Proposal:** (tautan video di Lampiran sudah terisi; PRD tidak dilampirkan).
 - **Pitch deck:** harga di slide 10 (sengaja dikosongkan); foto anggota di slide 11 (saat ini lingkaran inisial); unduh sebagai PDF/PPT dari halaman deck.
 - **Video demo:** sudah diunggah (https://youtu.be/WlIpJcgSH10); pastikan aksesnya Unlisted/Publik dan durasinya 2–3 menit, lalu masukkan tautannya ke formulir.
 - **Tautan privat:** kanvas demo dan PRD online masih privat sampai dibagikan lewat menu Share.
