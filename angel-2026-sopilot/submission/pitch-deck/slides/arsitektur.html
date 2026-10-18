@@ -1,0 +1,73 @@
+<section id="arsitektur" data-transition="fade" style="background:#F4F6F7;color:#14212B;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-size:24px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#0B6E8A">Solusi</p>
+<h2 style="font-family:'Source Serif 4', Georgia, serif;font-size:64px;font-weight:600;line-height:1.1;color:#14212B">Arsitektur: LLM memahami teks, kode menulis BPMN</h2>
+</div>
+<div style="position:absolute;left:128px;top:360px;width:170px;height:120px;background:#FBFCFC;border:2px solid #3B4A56;border-radius:16px;display:flex;flex-direction:column;justify-content:center;gap:2px;padding:8px">
+<p style="font-size:28px;font-weight:600;line-height:1.25;text-align:center;color:#14212B">SOP</p>
+<p style="font-size:24px;line-height:1.25;text-align:center;color:#3B4A56">PDF/DOCX</p>
+</div>
+<div style="position:absolute;left:342px;top:360px;width:200px;height:120px;background:#E6F2F6;border:2px solid #0B6E8A;border-radius:16px;display:flex;flex-direction:column;justify-content:center;gap:2px;padding:8px">
+<p style="font-size:28px;font-weight:600;line-height:1.25;text-align:center;color:#14212B">1. Parser</p>
+<p style="font-size:24px;line-height:1.25;text-align:center;color:#3B4A56">kalimat bernomor</p>
+</div>
+<div style="position:absolute;left:586px;top:360px;width:220px;height:120px;background:#E6F2F6;border:2px solid #0B6E8A;border-radius:16px;display:flex;flex-direction:column;justify-content:center;gap:2px;padding:8px">
+<p style="font-size:28px;font-weight:600;line-height:1.25;text-align:center;color:#14212B">2. Extractor</p>
+<p style="font-size:24px;line-height:1.25;text-align:center;color:#3B4A56">LLM</p>
+</div>
+<div style="position:absolute;left:850px;top:352px;width:380px;height:136px;background:#0B6E8A;border-radius:18px;display:flex;flex-direction:column;justify-content:center;gap:2px;padding:8px">
+<p style="font-size:28px;font-weight:700;line-height:1.25;text-align:center;color:#F2F8FA">JSON perantara</p>
+<p style="font-size:24px;line-height:1.25;text-align:center;color:#DCEDF3">+ jejak kalimat sumber</p>
+</div>
+<div style="position:absolute;left:1274px;top:360px;width:240px;height:120px;background:#E6F2F6;border:2px solid #0B6E8A;border-radius:16px;display:flex;flex-direction:column;justify-content:center;gap:2px;padding:8px">
+<p style="font-size:28px;font-weight:600;line-height:1.25;text-align:center;color:#14212B">5. Generator</p>
+<p style="font-size:24px;line-height:1.25;text-align:center;color:#3B4A56">BPMN + bpmnlint</p>
+</div>
+<div style="position:absolute;left:1558px;top:360px;width:234px;height:120px;background:#E6F2F6;border:2px solid #0B6E8A;border-radius:16px;display:flex;flex-direction:column;justify-content:center;gap:2px;padding:8px">
+<p style="font-size:28px;font-weight:600;line-height:1.25;text-align:center;color:#14212B">6. Simulator</p>
+<p style="font-size:24px;line-height:1.25;text-align:center;color:#3B4A56">log eksekusi</p>
+</div>
+<div style="position:absolute;left:342px;top:560px;width:464px;height:120px;background:#FBFCFC;border:2px dashed #3B4A56;border-radius:16px;display:flex;flex-direction:column;justify-content:center;gap:2px;padding:8px">
+<p style="font-size:28px;font-weight:600;line-height:1.25;text-align:center;color:#14212B">Adapter LLM agnostik</p>
+<p style="font-size:24px;line-height:1.25;text-align:center;color:#3B4A56">cloud API atau lokal (Ollama)</p>
+</div>
+<div style="position:absolute;left:832px;top:560px;width:200px;height:120px;background:#E6F2F6;border:2px solid #0B6E8A;border-radius:16px;display:flex;flex-direction:column;justify-content:center;gap:2px;padding:8px">
+<p style="font-size:28px;font-weight:600;line-height:1.25;text-align:center;color:#14212B">3. Checker</p>
+<p style="font-size:24px;line-height:1.25;text-align:center;color:#3B4A56">aturan + LLM</p>
+</div>
+<div style="position:absolute;left:1048px;top:560px;width:200px;height:120px;background:#E6F2F6;border:2px solid #0B6E8A;border-radius:16px;display:flex;flex-direction:column;justify-content:center;gap:2px;padding:8px">
+<p style="font-size:28px;font-weight:600;line-height:1.25;text-align:center;color:#14212B">4. Patcher</p>
+<p style="font-size:24px;line-height:1.25;text-align:center;color:#3B4A56">LLM</p>
+</div>
+<div style="position:absolute;left:1274px;top:560px;width:240px;height:120px;background:#E6F2F6;border:2px solid #0B6E8A;border-radius:16px;display:flex;flex-direction:column;justify-content:center;gap:2px;padding:8px">
+<p style="font-size:28px;font-weight:600;line-height:1.25;text-align:center;color:#14212B">7. Simplifier</p>
+<p style="font-size:24px;line-height:1.25;text-align:center;color:#3B4A56">poster pekerja</p>
+</div>
+<div style="position:absolute;left:1558px;top:560px;width:234px;height:120px;background:#FBFCFC;border:2px solid #3B4A56;border-radius:16px;display:flex;flex-direction:column;justify-content:center;gap:2px;padding:8px">
+<p style="font-size:28px;font-weight:600;line-height:1.25;text-align:center;color:#14212B">Ekspor .bpmn</p>
+<p style="font-size:24px;line-height:1.25;text-align:center;color:#3B4A56">Camunda/Flowable</p>
+</div>
+<div style="position:absolute;left:850px;top:740px;width:380px;height:110px;background:#FFF4DC;border:2px solid #8F5F00;border-radius:16px;display:flex;flex-direction:column;justify-content:center;gap:2px;padding:8px">
+<p style="font-size:28px;font-weight:600;line-height:1.25;text-align:center;color:#14212B">Klarifikasi</p>
+<p style="font-size:24px;line-height:1.25;text-align:center;color:#6B4700">admin / pemilik SOP</p>
+</div>
+<x-connector x1="298" y1="420" x2="342" y2="420" head="end" style="color:#3B4A56;border-width:3px"></x-connector>
+<x-connector x1="542" y1="420" x2="586" y2="420" head="end" style="color:#3B4A56;border-width:3px"></x-connector>
+<x-connector x1="806" y1="420" x2="850" y2="420" head="end" style="color:#3B4A56;border-width:3px"></x-connector>
+<x-connector x1="1230" y1="420" x2="1274" y2="420" head="end" style="color:#3B4A56;border-width:3px"></x-connector>
+<x-connector x1="1514" y1="420" x2="1558" y2="420" head="end" style="color:#3B4A56;border-width:3px"></x-connector>
+<x-connector x1="940" y1="488" x2="940" y2="560" head="end" style="color:#3B4A56;border-width:3px"></x-connector>
+<x-connector x1="940" y1="680" x2="940" y2="740" head="end" style="color:#3B4A56;border-width:3px"></x-connector>
+<x-connector x1="1140" y1="740" x2="1140" y2="680" head="end" style="color:#3B4A56;border-width:3px"></x-connector>
+<x-connector x1="1140" y1="560" x2="1140" y2="488" head="end" style="color:#3B4A56;border-width:3px"></x-connector>
+<x-connector x1="1394" y1="480" x2="1394" y2="560" head="end" style="color:#3B4A56;border-width:3px"></x-connector>
+<x-connector x1="1675" y1="480" x2="1675" y2="560" head="end" style="color:#3B4A56;border-width:3px"></x-connector>
+<x-connector x1="696" y1="560" x2="696" y2="480" head="none" style="color:#3B4A56;border-width:2px;border-style:dashed"></x-connector>
+<x-connector x1="806" y1="620" x2="832" y2="620" head="none" style="color:#3B4A56;border-width:2px;border-style:dashed"></x-connector>
+<p style="position:absolute;left:128px;top:760px;width:680px;font-size:24px;line-height:1.45;color:#3B4A56">Garis putus-putus: semua panggilan LLM melalui satu adapter yang dapat diganti. Generator deterministik menjamin XML BPMN selalu valid.</p>
+<div style="position:absolute;left:128px;bottom:64px;width:1664px;display:flex;flex-direction:row;justify-content:space-between">
+<p style="font-size:24px;color:#5A6A77">SOPilot · ANGEL Innovation Hackathon 2026</p>
+<p style="font-size:24px;color:#5A6A77">06</p>
+</div>
+<aside>Tujuh komponen. Parser memecah SOP jadi kalimat bernomor. Extractor (LLM) mengisi JSON perantara beserta jejak ke kalimat sumber. Checker menemukan ambiguitas dan menyusun pertanyaan; jawaban admin atau pemilik SOP diubah Patcher menjadi perubahan JSON. Generator deterministik membangkitkan BPMN executable dan memvalidasinya dengan bpmnlint; Simulator menjalankannya; Simplifier menyusun poster. Prinsip kunci: LLM tidak pernah menulis XML.</aside>
+</section>

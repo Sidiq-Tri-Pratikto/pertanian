@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>UC3.1 Tugas berpindah antar-peran</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=Source+Serif+4:wght@400;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0B6E8A}a:hover{color:#08536A}
+</style>
+</helmet>
+<div style="min-height: 800px; display: flex; flex-direction: column; background: #F2F5F7; font-family: 'IBM Plex Sans', system-ui, sans-serif; color: #14212B; font-size: 14px; line-height: 1.45">
+<header style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 10px 24px; background: #FFFFFF; border-bottom: 1px solid #D5DDE3">
+<div style="display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 16px"><svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><rect width="26" height="26" rx="7" fill="#0B6E8A"></rect><path d="M13 5.5 19.5 12 13 18.5 6.5 12z" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linejoin="round"></path><path d="M10 21h8" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round"></path></svg><span>SOPilot</span></div>
+<span style="color: #5A6A77; font-size: 13px">SOP Pengadaan Barang/Jasa (contoh)</span>
+<span style="flex: 1"></span>
+<span style="font-size: 12px; font-weight: 600; color: #0B6E8A; background: #DAEFF5; border-radius: 999px; padding: 4px 12px">Demo · UC3 · 1/3</span>
+<span style="display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; border: 1px solid #D5DDE3; background: #EAEFF3; border-radius: 999px; padding: 5px 12px"><span style="width: 8px; height: 8px; border-radius: 50%; background: #16744A"></span>Cloud · Model utama</span>
+</header>
+<div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 8px 24px; background: #FFFFFF; border-bottom: 1px solid #D5DDE3">
+<h1 style="margin: 0; font-size: 15px; font-weight: 600">SOP Pengadaan Barang/Jasa sampai Rp200 juta</h1>
+<span style="font-size: 11.5px; font-weight: 600; color: #5A6A77; background: #EAEFF3; border-radius: 999px; padding: 2px 9px">Contoh</span>
+<span style="flex: 1"></span>
+<span style="font-size: 12px; font-weight: 600; color: #16744A; background: #DCF4E7; border-radius: 999px; padding: 3px 10px">SOP lengkap 100%</span>
+<button type="button" style="font: inherit; font-size: 12.5px; border: 1px solid #D5DDE3; background: #FFFFFF; color: #14212B; border-radius: 8px; padding: 6px 12px">Bagikan ke pekerja</button>
+<button type="button" style="font: inherit; font-size: 12.5px; font-weight: 600; border: 1px solid #0B6E8A; background: #0B6E8A; color: #FFFFFF; border-radius: 8px; padding: 6px 12px">Ekspor</button>
+</div>
+<main style="flex: 1; display: flex; flex-wrap: wrap; min-height: 0; background: #FFFFFF">
+<section aria-label="Jalankan" style="flex: 999 1 600px; min-width: 0; display: flex; flex-direction: column">
+<div role="tablist" style="display: flex; border-bottom: 1px solid #D5DDE3; font-size: 13.5px">
+<span role="tab" style="padding: 11px 16px; color: #5A6A77; border-bottom: 2px solid transparent">Model proses (BPMN)</span>
+<span role="tab" aria-selected="true" style="padding: 11px 16px; font-weight: 600; border-bottom: 2px solid #0B6E8A">Jalankan</span>
+<span role="tab" style="padding: 11px 16px; color: #5A6A77; border-bottom: 2px solid transparent">Poster pekerja</span>
+</div>
+<div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 10px 14px; border-bottom: 1px solid #D5DDE3">
+<button type="button" style="font: inherit; font-weight: 600; border: 1px solid #0B6E8A; background: #0B6E8A; color: #FFFFFF; border-radius: 8px; padding: 7px 14px">Ulangi dari awal</button>
+<span style="font-size: 13px; color: #3B4A56">Sedang berjalan: <b>Verifikasi Ketersediaan Anggaran</b></span>
+</div>
+<div style="height: 250px; overflow: hidden; border-bottom: 1px solid #D5DDE3; padding: 0 14px; box-sizing: border-box">
+<div style="margin-top: -190px"><dc-import name="DiagramFinal" active="t4" done="st,t1,t3,g1" hint-size="536px,956px"></dc-import></div>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 14px; padding: 14px">
+<div style="flex: 1 1 320px; min-width: 0; border: 1.5px solid #D5DDE3; border-left: 6px solid #157A3E; border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 8px">
+<span style="display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: #5A6A77">Tugas untuk <span style="display: inline-flex; align-items: center; gap: 6px; text-transform: none; letter-spacing: 0; font-size: 12px; font-weight: 600; color: #157A3E; background: #DDF3E5; border-radius: 999px; padding: 3px 10px 3px 8px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="2"></rect><circle cx="12" cy="12" r="2.5"></circle></svg>Bagian Keuangan</span></span>
+<span style="font-size: 16px; font-weight: 600">Verifikasi Ketersediaan Anggaran</span>
+<span style="font-size: 13px; color: #3B4A56">Periksa apakah anggaran masih tersedia untuk kebutuhan ini.</span>
+<label for="sisa-anggaran" style="display: flex; flex-direction: column; gap: 3px; font-size: 12.5px; font-weight: 500; color: #3B4A56">Sisa anggaran (Rp)<input id="sisa-anggaran" value="145.000.000" style="font: inherit; font-size: 13.5px; color: #14212B; border: 1px solid #D5DDE3; border-radius: 8px; padding: 7px 10px"></label>
+<span style="font-size: 12px; color: #5A6A77">Grup pelaksana: <span style="font-family: 'IBM Plex Mono', monospace; background: #EAEFF3; border-radius: 4px; padding: 1px 5px">bagian-keuangan</span></span>
+<a href="uc3-keputusan.dc.html" style="align-self: flex-start; display: inline-flex; align-items: center; text-decoration: none; font-weight: 600; background: #0B6E8A; color: #FFFFFF; border-radius: 10px; padding: 10px 18px; min-height: 44px; box-sizing: border-box; box-shadow: 0 0 0 4px #DAEFF5">Selesaikan tugas</a>
+</div>
+<div style="flex: 1 1 280px; min-width: 0; display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #5A6A77">Log eksekusi</span>
+<ol style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 5px; font-size: 12.5px">
+<li style="display: flex; gap: 10px; border-bottom: 1px dashed #D5DDE3; padding-bottom: 5px"><span style="font-family: 'IBM Plex Mono', monospace; color: #5A6A77">09:00</span><span>Proses dimulai</span></li>
+<li style="display: flex; gap: 10px; border-bottom: 1px dashed #D5DDE3; padding-bottom: 5px"><span style="font-family: 'IBM Plex Mono', monospace; color: #5A6A77">09:02</span><span>Unit Pemohon menyelesaikan "Ajukan Permintaan Pengadaan"</span></li>
+<li style="display: flex; gap: 10px; border-bottom: 1px dashed #D5DDE3; padding-bottom: 5px"><span style="font-family: 'IBM Plex Mono', monospace; color: #5A6A77">09:04</span><span>Bagian Pengadaan menyelesaikan "Verifikasi Kelengkapan Dokumen"</span></li>
+<li style="display: flex; gap: 10px; padding-bottom: 5px"><span style="font-family: 'IBM Plex Mono', monospace; color: #5A6A77">09:06</span><span>Keputusan "Dokumen lengkap?": Ya (dokumenLengkap = true)</span></li>
+</ol>
+</div>
+</div>
+</section>
+<aside aria-label="Kotak tugas per peran" style="flex: 1 1 300px; max-width: 340px; min-width: 0; border-left: 1px solid #D5DDE3; display: flex; flex-direction: column">
+<div style="padding: 12px 14px; border-bottom: 1px solid #D5DDE3; font-size: 13px; font-weight: 600">Kotak tugas per peran</div>
+<div style="padding: 12px; display: flex; flex-direction: column; gap: 10px; font-size: 13px">
+<div style="border: 1px solid #D5DDE3; border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 4px"><span style="display: inline-flex; align-self: flex-start; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: #2160C4; background: #E2ECFA; border-radius: 999px; padding: 3px 10px">Unit Pemohon</span><span style="color: #3B4A56">1 selesai · berikutnya: Terima dan Periksa Barang</span></div>
+<div style="border: 1px solid #D5DDE3; border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 4px"><span style="display: inline-flex; align-self: flex-start; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: #B35400; background: #FDEBD6; border-radius: 999px; padding: 3px 10px">Bagian Pengadaan</span><span style="color: #3B4A56">1 selesai · 1 keputusan</span></div>
+<div style="border: 2px solid #0B6E8A; border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; background: #F4FAFC"><span style="display: inline-flex; align-self: flex-start; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: #157A3E; background: #DDF3E5; border-radius: 999px; padding: 3px 10px">Bagian Keuangan</span><span style="font-weight: 600">1 tugas aktif: Verifikasi Ketersediaan Anggaran</span></div>
+<div style="border: 1px dashed #B9C6D0; border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 12px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: #5A6A77">Variabel proses</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px">dokumenLengkap = true</span></div>
+</div>
+</aside>
+</main>
+<nav aria-label="Navigasi demo" style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding: 12px 24px; border-top: 1px solid #D5DDE3; background: #FFFFFF; font-size: 13px">
+<span style="color: #5A6A77">UC3 · Simulasi eksekusi · layar 7 dari 12</span>
+<span style="display: flex; gap: 8px; flex-wrap: wrap">
+<a href="uc2-terjawab.dc.html" style="text-decoration: none; color: #3B4A56; border: 1px solid #D5DDE3; border-radius: 8px; padding: 8px 14px; min-height: 36px; box-sizing: border-box">‹ Sebelumnya</a>
+<a href="uc3-keputusan.dc.html" style="text-decoration: none; color: #FFFFFF; background: #14212B; border-radius: 8px; padding: 8px 14px; min-height: 36px; box-sizing: border-box; font-weight: 600">Lanjut: Keputusan ›</a>
+</span>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

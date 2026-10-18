@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>UC6 Model LLM lokal</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=Source+Serif+4:wght@400;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0B6E8A}a:hover{color:#08536A}
+</style>
+</helmet>
+<div style="min-height: 800px; display: flex; flex-direction: column; background: #F2F5F7; font-family: 'IBM Plex Sans', system-ui, sans-serif; color: #14212B; font-size: 14px; line-height: 1.45">
+<header style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 10px 24px; background: #FFFFFF; border-bottom: 1px solid #D5DDE3">
+<div style="display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 16px"><svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><rect width="26" height="26" rx="7" fill="#0B6E8A"></rect><path d="M13 5.5 19.5 12 13 18.5 6.5 12z" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linejoin="round"></path><path d="M10 21h8" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round"></path></svg><span>SOPilot</span></div>
+<span style="color: #5A6A77; font-size: 13px">Pengaturan</span>
+<span style="flex: 1"></span>
+<span style="font-size: 12px; font-weight: 600; color: #0B6E8A; background: #DAEFF5; border-radius: 999px; padding: 4px 12px">Demo · UC6 · 1/1</span>
+<span style="display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; border: 1px solid #D5DDE3; background: #EAEFF3; border-radius: 999px; padding: 5px 12px"><span style="width: 8px; height: 8px; border-radius: 50%; background: #16744A"></span>Lokal · qwen2.5:14b</span>
+</header>
+<main style="flex: 1; display: flex; justify-content: center; padding: 28px 24px">
+<div style="width: 100%; max-width: 780px; display: flex; flex-direction: column; gap: 16px">
+<div>
+<h1 style="margin: 0; font-size: 24px; font-weight: 700">Pengaturan model LLM</h1>
+<p style="margin: 4px 0 0; color: #3B4A56; max-width: 64ch">SOPilot tidak terikat satu penyedia. Pilih model cloud atau model lokal; ekstraksi, klarifikasi, dan simulasi tetap bekerja sama.</p>
+</div>
+<section style="background: #FFFFFF; border: 1px solid #D5DDE3; border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 14px">
+<h2 style="margin: 0; font-size: 15px; font-weight: 600">Sumber model</h2>
+<div role="radiogroup" aria-label="Sumber model" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px">
+<div role="radio" aria-checked="false" style="border: 1.5px solid #D5DDE3; border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 2px"><b>Cloud API</b><span style="font-size: 12.5px; color: #5A6A77">Akurasi tertinggi, dokumen dikirim ke penyedia</span></div>
+<div role="radio" aria-checked="true" style="border: 2px solid #0B6E8A; background: #DAEFF5; border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 2px"><b>Lokal (Ollama)</b><span style="font-size: 12.5px; color: #3B4A56">Berjalan di server Anda</span></div>
+<div role="radio" aria-checked="false" style="border: 1.5px solid #D5DDE3; border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 2px"><b>Endpoint kustom</b><span style="font-size: 12.5px; color: #5A6A77">Kompatibel dengan API OpenAI</span></div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+<label for="ollama-url" style="display: flex; flex-direction: column; gap: 4px; font-size: 12.5px; font-weight: 500; color: #3B4A56">Alamat Ollama<input id="ollama-url" value="http://localhost:11434" style="font: inherit; font-size: 14px; color: #14212B; border: 1px solid #D5DDE3; border-radius: 8px; padding: 8px 10px"></label>
+<label for="ollama-model" style="display: flex; flex-direction: column; gap: 4px; font-size: 12.5px; font-weight: 500; color: #3B4A56">Model<select id="ollama-model" style="font: inherit; font-size: 14px; color: #14212B; border: 1px solid #D5DDE3; border-radius: 8px; padding: 8px 10px; background: #FFFFFF"><option>qwen2.5:14b</option><option>llama3.1:8b</option><option>mistral-nemo</option></select></label>
+</div>
+<div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap">
+<button type="button" style="font: inherit; border: 1px solid #D5DDE3; background: #FFFFFF; color: #14212B; border-radius: 10px; padding: 8px 14px; min-height: 40px">Uji koneksi</button>
+<span style="font-size: 12px; font-weight: 600; color: #16744A; background: #DCF4E7; border-radius: 999px; padding: 3px 10px">Terhubung (simulasi)</span>
+</div>
+</section>
+<section style="background: #FFFFFF; border: 1px solid #D5DDE3; border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 12px">
+<h2 style="margin: 0; font-size: 15px; font-weight: 600">Privasi dokumen</h2>
+<div style="border-radius: 8px; padding: 9px 12px; font-size: 13.5px; background: #DCF4E7; color: #16744A">Teks SOP diproses di server Anda dan tidak keluar dari jaringan.</div>
+<label for="no-store" style="display: flex; gap: 10px; align-items: flex-start"><input id="no-store" type="checkbox" checked style="margin-top: 4px; width: 18px; height: 18px"><span><b>Jangan simpan dokumen setelah sesi selesai</b><br><span style="color: #5A6A77; font-size: 13px">Teks SOP dan hasilnya dihapus dari server saat proyek ditutup.</span></span></label>
+</section>
+<div style="display: flex; gap: 10px; flex-wrap: wrap">
+<a href="Main.dc.html" style="display: inline-flex; align-items: center; text-decoration: none; font-weight: 600; background: #0B6E8A; color: #FFFFFF; border-radius: 10px; padding: 10px 18px; min-height: 44px; box-sizing: border-box; box-shadow: 0 0 0 4px #DAEFF5">Simpan pengaturan</a>
+</div>
+</div>
+</main>
+<nav aria-label="Navigasi demo" style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding: 12px 24px; border-top: 1px solid #D5DDE3; background: #FFFFFF; font-size: 13px">
+<span style="color: #5A6A77">UC6 · Model LLM lokal · layar 12 dari 12</span>
+<span style="display: flex; gap: 8px; flex-wrap: wrap">
+<a href="uc5-poster.dc.html" style="text-decoration: none; color: #3B4A56; border: 1px solid #D5DDE3; border-radius: 8px; padding: 8px 14px; min-height: 36px; box-sizing: border-box">‹ Sebelumnya</a>
+<a href="Main.dc.html" style="text-decoration: none; color: #FFFFFF; background: #14212B; border-radius: 8px; padding: 8px 14px; min-height: 36px; box-sizing: border-box; font-weight: 600">Selesai · ulangi demo ›</a>
+</span>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

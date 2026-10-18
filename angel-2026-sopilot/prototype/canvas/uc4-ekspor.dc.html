@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>UC4 Ekspor BPMN executable</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=Source+Serif+4:wght@400;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0B6E8A}a:hover{color:#08536A}
+</style>
+</helmet>
+<div style="min-height: 800px; display: flex; flex-direction: column; background: #F2F5F7; font-family: 'IBM Plex Sans', system-ui, sans-serif; color: #14212B; font-size: 14px; line-height: 1.45">
+<header style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 10px 24px; background: #FFFFFF; border-bottom: 1px solid #D5DDE3">
+<div style="display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 16px"><svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><rect width="26" height="26" rx="7" fill="#0B6E8A"></rect><path d="M13 5.5 19.5 12 13 18.5 6.5 12z" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linejoin="round"></path><path d="M10 21h8" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round"></path></svg><span>SOPilot</span></div>
+<span style="color: #5A6A77; font-size: 13px">SOP Pengadaan Barang/Jasa (contoh)</span>
+<span style="flex: 1"></span>
+<span style="font-size: 12px; font-weight: 600; color: #0B6E8A; background: #DAEFF5; border-radius: 999px; padding: 4px 12px">Demo · UC4 · 1/1</span>
+<span style="display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; border: 1px solid #D5DDE3; background: #EAEFF3; border-radius: 999px; padding: 5px 12px"><span style="width: 8px; height: 8px; border-radius: 50%; background: #16744A"></span>Cloud · Model utama</span>
+</header>
+<main style="flex: 1; position: relative; display: flex; align-items: center; justify-content: center; padding: 32px 24px; background: #5B6670">
+<div style="width: 100%; max-width: 680px; background: #FFFFFF; border-radius: 16px; box-shadow: 0 24px 64px rgba(8, 14, 20, 0.35); display: flex; flex-direction: column">
+<div style="display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid #D5DDE3"><h1 style="margin: 0; font-size: 18px; font-weight: 700">Ekspor</h1><button type="button" aria-label="Tutup" style="font: inherit; font-size: 20px; border: 0; background: none; color: #5A6A77; min-width: 44px; min-height: 44px">×</button></div>
+<div style="padding: 16px 20px; display: flex; flex-direction: column; gap: 14px">
+<div style="border-radius: 10px; padding: 10px 14px; font-size: 13.5px; background: #DCF4E7; color: #16744A"><b>Model siap dijalankan.</b> File diekspor dengan <span style="font-family: 'IBM Plex Mono', monospace; background: #FFFFFF; border-radius: 4px; padding: 1px 5px; color: #14212B">isExecutable="true"</span>.</div>
+<div role="radiogroup" aria-label="Format ekspor" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+<div role="radio" aria-checked="true" style="border: 2px solid #0B6E8A; background: #DAEFF5; border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 2px"><b>Model executable (.bpmn)</b><span style="font-size: 12.5px; color: #3B4A56">BPMN 2.0, siap dijalankan di Camunda atau Flowable</span></div>
+<div role="radio" aria-checked="false" style="border: 1.5px solid #D5DDE3; border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 2px"><b>Data JSON</b><span style="font-size: 12.5px; color: #5A6A77">Model perantara, untuk integrasi sistem</span></div>
+<div role="radio" aria-checked="false" style="border: 1.5px solid #D5DDE3; border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 2px"><b>Poster A4 (PDF)</b><span style="font-size: 12.5px; color: #5A6A77">Panduan untuk ditempel di tempat kerja</span></div>
+<div role="radio" aria-checked="false" style="border: 1.5px solid #D5DDE3; border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 2px"><b>Log eksekusi (CSV)</b><span style="font-size: 12.5px; color: #5A6A77">Hasil simulasi, untuk analisis proses</span></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #5A6A77">Pratinjau XML model executable</span>
+<pre style="margin: 0; font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 11.5px; line-height: 1.5; background: #14212B; color: #E7EDF1; border-radius: 10px; padding: 12px 14px; overflow: auto; max-height: 250px; white-space: pre">&lt;!-- Model siap dijalankan --&gt;
+&lt;bpmn:process id="PengadaanBarangJasa" <span style="color: #5ED19B">isExecutable="true"</span>&gt;
+  &lt;bpmn:startEvent id="st" name="Permintaan masuk"/&gt;
+  &lt;bpmn:userTask id="t1" name="Ajukan Permintaan Pengadaan"
+      <span style="color: #F2C14E">camunda:candidateGroups="unit-pemohon"</span>&gt;
+    &lt;bpmn:extensionElements&gt;&lt;camunda:formData&gt;
+      &lt;camunda:formField id="nama_barang" label="Nama barang" type="string"/&gt;
+      &lt;camunda:formField id="jumlah" label="Jumlah" type="string"/&gt;
+    &lt;/camunda:formData&gt;&lt;/bpmn:extensionElements&gt;
+  &lt;/bpmn:userTask&gt;
+  &lt;bpmn:exclusiveGateway id="g2" name="Anggaran tersedia?"/&gt;
+  &lt;bpmn:sequenceFlow id="f7" sourceRef="g2" targetRef="t5" name="Ya"&gt;
+    <span style="color: #7FAAF5">&lt;bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"&gt;
+      ${anggaranTersedia == true}&lt;/bpmn:conditionExpression&gt;</span>
+  &lt;/bpmn:sequenceFlow&gt;
+  …
+&lt;/bpmn:process&gt;</pre>
+</div>
+</div>
+<div style="display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; padding: 12px 20px; border-top: 1px solid #D5DDE3">
+<button type="button" style="font: inherit; border: 1px solid #D5DDE3; background: #FFFFFF; color: #14212B; border-radius: 10px; padding: 10px 16px; min-height: 44px">Batal</button>
+<a href="uc5-poster.dc.html" style="display: inline-flex; align-items: center; text-decoration: none; font-weight: 600; background: #0B6E8A; color: #FFFFFF; border-radius: 10px; padding: 10px 18px; min-height: 44px; box-sizing: border-box; box-shadow: 0 0 0 4px #DAEFF5">Unduh .bpmn</a>
+</div>
+</div>
+</main>
+<nav aria-label="Navigasi demo" style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding: 12px 24px; border-top: 1px solid #D5DDE3; background: #FFFFFF; font-size: 13px">
+<span style="color: #5A6A77">UC4 · Ekspor BPMN executable · layar 10 dari 12</span>
+<span style="display: flex; gap: 8px; flex-wrap: wrap">
+<a href="uc3-selesai.dc.html" style="text-decoration: none; color: #3B4A56; border: 1px solid #D5DDE3; border-radius: 8px; padding: 8px 14px; min-height: 36px; box-sizing: border-box">‹ Sebelumnya</a>
+<a href="uc5-poster.dc.html" style="text-decoration: none; color: #FFFFFF; background: #14212B; border-radius: 8px; padding: 8px 14px; min-height: 36px; box-sizing: border-box; font-weight: 600">Lanjut: Poster pekerja ›</a>
+</span>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

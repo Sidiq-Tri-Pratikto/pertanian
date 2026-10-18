@@ -1,0 +1,48 @@
+{
+  "v": 3,
+  "createdOnFiles": {"v": 1, "at": "2026-10-18T10:30:00Z"},
+  "title": "SOPilot Prototype Flows",
+  "launch": {"view": "canvas"},
+  "pages": [],
+  "boards": {
+    "Main.dc.html": {"x": 0, "y": 0, "w": 1280, "h": 800, "title": "UC1.1 · Beranda dan unggah SOP", "expand": "fill", "is_interactive": true},
+    "uc1-proses.dc.html": {"x": 1360, "y": 0, "w": 1280, "h": 800, "title": "UC1.2 · Ekstraksi dan penyusunan model", "expand": "fill", "is_interactive": true},
+    "uc1-model.dc.html": {"x": 2720, "y": 0, "w": 1280, "h": 800, "title": "UC1.3 · Model proses dan jejak sumber", "expand": "fill", "is_interactive": true},
+    "uc2-berhenti.dc.html": {"x": 0, "y": 1180, "w": 1280, "h": 800, "title": "UC2.1 · Simulasi menemukan celah", "expand": "fill", "is_interactive": true},
+    "uc2-klarifikasi.dc.html": {"x": 1360, "y": 1180, "w": 1280, "h": 800, "title": "UC2.2 · Klarifikasi ambiguitas", "expand": "fill", "is_interactive": true},
+    "uc2-terjawab.dc.html": {"x": 2720, "y": 1180, "w": 1280, "h": 800, "title": "UC2.3 · Model lengkap dan siap dijalankan", "expand": "fill", "is_interactive": true},
+    "uc3-tugas.dc.html": {"x": 0, "y": 2360, "w": 1280, "h": 800, "title": "UC3.1 · Tugas berpindah antar-peran", "expand": "fill", "is_interactive": true},
+    "uc3-keputusan.dc.html": {"x": 1360, "y": 2360, "w": 1280, "h": 800, "title": "UC3.2 · Keputusan Ya/Tidak", "expand": "fill", "is_interactive": true},
+    "uc3-selesai.dc.html": {"x": 2720, "y": 2360, "w": 1280, "h": 800, "title": "UC3.3 · Proses selesai dan log eksekusi", "expand": "fill", "is_interactive": true},
+    "uc4-ekspor.dc.html": {"x": 0, "y": 3540, "w": 1280, "h": 800, "title": "UC4 · Ekspor BPMN executable", "expand": "fill", "is_interactive": true},
+    "uc5-poster.dc.html": {"x": 1360, "y": 3540, "w": 1280, "h": 1240, "title": "UC5 · Poster panduan pekerja", "expand": "fill", "is_interactive": true},
+    "uc6-llm.dc.html": {"x": 2720, "y": 3540, "w": 1280, "h": 800, "title": "UC6 · Model LLM lokal (agnostik)", "expand": "fill", "is_interactive": true},
+    "DiagramAwal.dc.html": {"x": 0, "y": 5160, "w": 704, "h": 880, "title": "Komponen · Diagram sebelum klarifikasi"},
+    "DiagramFinal.dc.html": {"x": 784, "y": 5160, "w": 536, "h": 956, "title": "Komponen · Diagram setelah klarifikasi"}
+  },
+  "order": [
+    "Main.dc.html",
+    "uc1-proses.dc.html",
+    "uc1-model.dc.html",
+    "uc2-berhenti.dc.html",
+    "uc2-klarifikasi.dc.html",
+    "uc2-terjawab.dc.html",
+    "uc3-tugas.dc.html",
+    "uc3-keputusan.dc.html",
+    "uc3-selesai.dc.html",
+    "uc4-ekspor.dc.html",
+    "uc5-poster.dc.html",
+    "uc6-llm.dc.html",
+    "DiagramAwal.dc.html",
+    "DiagramFinal.dc.html"
+  ],
+  "notes": {
+    "row1": {"x": 0, "y": -260, "text": "UC1 · Unggah SOP dan penyusunan model", "kind": "title1", "maxW": 4000},
+    "row2": {"x": 0, "y": 920, "text": "UC2 · Klarifikasi ambiguitas", "kind": "title1", "maxW": 4000},
+    "row3": {"x": 0, "y": 2100, "text": "UC3 · Simulasi eksekusi proses", "kind": "title1", "maxW": 4000},
+    "row4": {"x": 0, "y": 3280, "text": "UC4–UC6 · Ekspor, poster pekerja, dan model LLM", "kind": "title1", "maxW": 4000},
+    "row5": {"x": 0, "y": 4900, "text": "Komponen diagram BPMN", "kind": "title1", "maxW": 1320},
+    "howto": {"x": -760, "y": 0, "w": 640, "fill": "teal", "size": "l", "text": "Cara memutar demo (±2,5 menit)\n\n1. Buka artboard UC1.1 dan tekan Play.\n2. Klik tombol utama di layar, atau \"Lanjut ›\" di kanan bawah.\n3. Urutan: UC1 → UC2 → UC3 → UC4 → UC5 → UC6, 12 layar, ±12 detik per layar.\n\nSemua data adalah contoh (SOP pengadaan fiktif)."}
+  },
+  "designSystems": []
+}
