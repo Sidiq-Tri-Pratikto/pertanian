@@ -1,0 +1,774 @@
+{
+  "meta": {
+    "judul": "Riset Masalah dan Solusi Software: Pengelolaan Sampah di Kota Contoh",
+    "topik": "Pengelolaan sampah rumah tangga",
+    "wilayah": "Kota Contoh, Provinsi Fiktif, Indonesia",
+    "tanggal": "17 Oktober 2026",
+    "penyusun": "CONTOH ILUSTRASI: seluruh data, sumber, dan nama aplikasi di file ini fiktif dan hanya untuk menguji format laporan."
+  },
+  "ringkasan_eksekutif": "**CONTOH ILUSTRASI.** Kota Contoh menghasilkan sekitar 620 ton sampah per hari, tetapi hanya 38% yang terangkut ke TPA dan kurang dari 5% dipilah di sumber [1, 2]. Riset ini menemukan dua masalah prioritas: pemilahan di tingkat rumah tangga yang rendah (M1) dan pengangkutan yang tidak terjadwal di permukiman padat (M2). Satu masalah lain, pelaporan TPS liar (M3), sudah terlayani oleh aplikasi yang berjalan.\n\nDua solusi software diusulkan dan keduanya lolos cek kebaruan di wilayah ini: **EcoPoin** (insentif pemilahan berbasis bank sampah) dan **JadwalAngkut** (penjadwalan dan pelacakan armada berbasis WhatsApp). Keduanya dirancang offline-first karena sinyal di sebagian kelurahan tidak stabil.\n\nKunci keberhasilan ada pada kemitraan dengan Dinas Lingkungan Hidup dan jaringan bank sampah yang sudah ada, bukan pada teknologinya saja.",
+  "metodologi": {
+    "pendekatan": "Riset meja (desk research) atas statistik resmi, dokumen perencanaan daerah, berita 24 bulan terakhir, dan jurnal. Setiap masalah wajib punya minimal dua sumber berbeda, satu di antaranya data atau dokumen resmi. Solusi dirancang untuk kondisi digital wilayah, lalu dicek kebaruannya di toko aplikasi, situs pemerintah daerah, berita, dan GitHub.",
+    "langkah": [
+      "Mengumpulkan profil wilayah dan kondisi digital.",
+      "Menjaring delapan kandidat masalah dari statistik, berita, dan dokumen daerah.",
+      "Menilai dan memilih masalah prioritas.",
+      "Merancang 2-3 ide per masalah, lalu mengecek kebaruan tiap ide."
+    ],
+    "keterbatasan": [
+      "Data kelurahan tertentu hanya tersedia sampai 2023.",
+      "Tidak ada survei lapangan; temuan perlu divalidasi dengan warga dan petugas."
+    ]
+  },
+  "profil_wilayah": {
+    "ringkasan": "Kota Contoh berpenduduk sekitar 1,2 juta jiwa dengan kepadatan tinggi di pusat kota. Ekonomi didominasi perdagangan dan jasa; pendapatan median rumah tangga sekitar Rp 4,8 juta/bulan [3].",
+    "indikator": [
+      {
+        "nama": "Jumlah penduduk",
+        "nilai": "1,2 juta jiwa",
+        "tahun": "2024",
+        "sumber": [
+          3
+        ]
+      },
+      {
+        "nama": "Timbulan sampah",
+        "nilai": "620 ton/hari",
+        "tahun": "2024",
+        "sumber": [
+          1
+        ]
+      },
+      {
+        "nama": "Sampah terangkut ke TPA",
+        "nilai": "38%",
+        "tahun": "2024",
+        "sumber": [
+          1
+        ]
+      },
+      {
+        "nama": "Rumah tangga memilah sampah",
+        "nilai": "< 5%",
+        "tahun": "2023",
+        "sumber": [
+          2
+        ]
+      },
+      {
+        "nama": "Rumah tangga dengan akses internet",
+        "nilai": "86%",
+        "tahun": "2024",
+        "sumber": [
+          3
+        ]
+      }
+    ],
+    "kondisi_digital": "Penetrasi smartphone tinggi dan WhatsApp dipakai hampir semua rumah tangga; QRIS dan e-wallet umum dipakai pedagang. Namun sinyal tidak stabil di enam kelurahan pinggiran, dan sebagian petugas kebersihan memakai ponsel Android entry-level, sehingga aplikasi harus ringan dan bisa bekerja offline."
+  },
+  "masalah": [
+    {
+      "id": "M1",
+      "judul": "Pemilahan sampah di rumah tangga sangat rendah",
+      "status": "prioritas",
+      "deskripsi": "Hampir seluruh sampah rumah tangga bercampur sejak dari sumber, sehingga bank sampah dan TPST kekurangan bahan baku terpilah dan umur TPA memendek.",
+      "bukti": [
+        {
+          "fakta": "Kurang dari 5% rumah tangga memilah sampah, jauh di bawah target daerah 30%.",
+          "sumber": [
+            2
+          ]
+        },
+        {
+          "fakta": "Bank sampah di kota ini beroperasi di bawah 40% kapasitas karena pasokan terpilah minim.",
+          "sumber": [
+            4,
+            2
+          ]
+        }
+      ],
+      "pihak_terdampak": "Rumah tangga di 14 kelurahan padat, pengelola bank sampah, dan petugas TPST.",
+      "akar_masalah": [
+        "Tidak ada insentif langsung bagi warga yang memilah.",
+        "Warga tidak tahu jenis sampah yang laku dijual dan tempat menyetornya.",
+        "Jadwal setor bank sampah tidak cocok dengan jam kerja warga."
+      ],
+      "solusi_existing": [
+        {
+          "nama": "Kampanye pilah sampah Dinas LH",
+          "celah": "Edukasi satu arah tanpa insentif dan tanpa pengukuran perilaku."
+        }
+      ],
+      "skor": {
+        "dampak": 4,
+        "urgensi": 4,
+        "bukti": 4,
+        "kelayakan_digital": 4
+      }
+    },
+    {
+      "id": "M2",
+      "judul": "Pengangkutan sampah tidak terjadwal di permukiman padat",
+      "status": "prioritas",
+      "deskripsi": "Warga tidak tahu kapan truk datang, sehingga sampah menumpuk di titik tidak resmi dan petugas tidak punya data real-time untuk menyesuaikan rute.",
+      "bukti": [
+        {
+          "fakta": "Hanya 38% timbulan sampah terangkut ke TPA; sisanya dibakar, ditimbun, atau dibuang liar.",
+          "sumber": [
+            1
+          ]
+        },
+        {
+          "fakta": "Pengaduan keterlambatan angkut di kanal LAPOR! naik 27% dalam setahun terakhir.",
+          "sumber": [
+            5
+          ]
+        }
+      ],
+      "pihak_terdampak": "Warga permukiman padat dan petugas armada kebersihan.",
+      "akar_masalah": [
+        "Jadwal angkut dicatat manual dan jarang diperbarui.",
+        "Tidak ada kanal dua arah antara warga dan armada."
+      ],
+      "catatan_non_software": "Kekurangan armada dan anggaran BBM tidak bisa diselesaikan software; aplikasi hanya meningkatkan efisiensi armada yang ada.",
+      "skor": {
+        "dampak": 5,
+        "urgensi": 4,
+        "bukti": 4,
+        "kelayakan_digital": 3
+      }
+    },
+    {
+      "id": "M3",
+      "judul": "TPS liar sulit dilaporkan dan ditindak",
+      "status": "terlayani",
+      "deskripsi": "Warga ingin melaporkan titik pembuangan liar, tetapi kanal pelaporan sebelumnya tidak jelas.",
+      "bukti": [
+        {
+          "fakta": "Terdapat sekitar 210 titik TPS liar tercatat pada 2023.",
+          "sumber": [
+            1
+          ]
+        },
+        {
+          "fakta": "Pengaduan TPS liar adalah kategori terbanyak ketiga di LAPOR!.",
+          "sumber": [
+            5
+          ]
+        }
+      ],
+      "solusi_existing": [
+        {
+          "nama": "SiLapor Sampah",
+          "url": "https://contoh.example/silapor?kota=contoh&aktif=1",
+          "celah": "Sudah aktif dipakai 9.000 warga; tidak ada celah besar yang layak dijadikan produk baru."
+        }
+      ],
+      "skor": {
+        "dampak": 3,
+        "urgensi": 3,
+        "bukti": 3,
+        "kelayakan_digital": 5
+      }
+    }
+  ],
+  "solusi": [
+    {
+      "id": "S1",
+      "masalah_id": "M1",
+      "nama": "EcoPoin",
+      "tagline": "Setor sampah terpilah, dapat poin yang bisa ditukar pulsa, token listrik, atau sembako.",
+      "ringkasan": "EcoPoin menghubungkan rumah tangga dengan bank sampah terdekat. Warga memotret sampah terpilah, petugas bank sampah memverifikasi berat lewat timbangan terhubung, dan poin masuk ke dompet digital warga. Poin ditukar di mitra UMKM setempat.\n\nSistem bekerja offline-first: transaksi disimpan di ponsel petugas dan disinkronkan saat sinyal kembali.",
+      "target_pengguna": [
+        {
+          "persona": "Ibu rumah tangga usia 30-50",
+          "kebutuhan": "Cara mudah dan menguntungkan untuk memilah tanpa harus datang di jam kerja."
+        },
+        {
+          "persona": "Pengelola bank sampah",
+          "kebutuhan": "Pasokan terpilah stabil dan pencatatan transaksi otomatis."
+        },
+        {
+          "persona": "Dinas Lingkungan Hidup",
+          "kebutuhan": "Data volume terpilah per kelurahan untuk target dan pelaporan."
+        }
+      ],
+      "value_proposition": "Memilah sampah menjadi kebiasaan yang langsung terasa manfaatnya dalam rupiah, bukan sekadar kewajiban.",
+      "fitur_mvp": [
+        "Pendaftaran warga dengan nomor WhatsApp dan alamat RT/RW",
+        "Peta bank sampah dan jadwal setor terdekat",
+        "Pencatatan setoran oleh petugas (offline-first) dan poin otomatis",
+        "Dompet poin dan penukaran ke mitra UMKM via QRIS",
+        "Dasbor volume terpilah per kelurahan untuk Dinas LH"
+      ],
+      "fitur_lanjutan": [
+        "Klasifikasi jenis sampah dari foto dengan model ringan di perangkat",
+        "Tantangan antar-RT dan papan peringkat",
+        "Integrasi data ke SIPSN KLHK"
+      ],
+      "platform": "Aplikasi Android ringan (warga dan petugas) plus bot WhatsApp untuk warga tanpa aplikasi; dasbor web untuk Dinas LH.",
+      "tech_stack": [
+        {
+          "lapisan": "Mobile",
+          "teknologi": "Flutter, penyimpanan lokal SQLite, antrean sinkronisasi"
+        },
+        {
+          "lapisan": "Backend",
+          "teknologi": "Node.js/NestJS, PostgreSQL + PostGIS, Redis"
+        },
+        {
+          "lapisan": "Pesan",
+          "teknologi": "WhatsApp Business API"
+        },
+        {
+          "lapisan": "Pembayaran",
+          "teknologi": "QRIS dinamis lewat payment gateway berizin BI"
+        },
+        {
+          "lapisan": "Infrastruktur",
+          "teknologi": "Cloud region Jakarta, CI/CD GitHub Actions"
+        }
+      ],
+      "arsitektur": "Aplikasi seluler berkomunikasi dengan REST API; setiap transaksi setoran berupa event yang disimpan lokal lalu dikirim ke server dengan kunci idempotensi agar aman dikirim ulang. Layanan poin memakai buku besar ganda (double-entry ledger) agar saldo selalu dapat diaudit.",
+      "integrasi_data": [
+        "Data bank sampah dari Dinas LH (impor CSV awal)",
+        "Peta dasar OpenStreetMap",
+        "API payment gateway untuk QRIS",
+        "SIPSN KLHK untuk pelaporan (tahap lanjutan)"
+      ],
+      "kebaruan": {
+        "verdict": "ADA_DI_WILAYAH_LAIN",
+        "ringkasan": "Tidak ditemukan aplikasi insentif pemilahan yang aktif di Kota Contoh. Konsep serupa ada di kota lain dan menjadi referensi adaptasi.",
+        "pembeda": "Offline-first untuk petugas, penukaran poin ke UMKM lokal lewat QRIS, dan dasbor langsung untuk Dinas LH; aplikasi di kota lain berfokus pada penjemputan sampah berbayar.",
+        "referensi_serupa": [
+          {
+            "nama": "BankSampahKu",
+            "lokasi": "Kota Lain A",
+            "url": "https://contoh.example/banksampahku",
+            "catatan": "Insentif poin; tidak offline-first dan tidak terhubung ke UMKM lokal."
+          }
+        ],
+        "log_pencarian": [
+          {
+            "kanal": "Google Play",
+            "query": "site:play.google.com bank sampah poin \"Kota Contoh\"",
+            "hasil": "Tidak ada aplikasi yang melayani Kota Contoh."
+          },
+          {
+            "kanal": "Situs pemda/dinas",
+            "query": "aplikasi bank sampah dinas lingkungan hidup Kota Contoh",
+            "hasil": "Hanya pendataan manual dan formulir Google."
+          },
+          {
+            "kanal": "Berita",
+            "query": "inovasi digital bank sampah Kota Contoh 2025 2026",
+            "hasil": "Satu berita rencana digitalisasi (2025), belum ada rilis aplikasi."
+          },
+          {
+            "kanal": "GitHub",
+            "query": "bank sampah insentif poin R&D 100% open-source",
+            "hasil": "Beberapa prototipe mahasiswa; tidak ada yang dipakai di wilayah ini."
+          }
+        ]
+      },
+      "kompetitor": [
+        {
+          "nama": "BankSampahKu",
+          "kekuatan": "Basis pengguna besar di kota asalnya.",
+          "kelemahan": "Butuh sinyal stabil; tidak ada integrasi UMKM lokal."
+        },
+        {
+          "nama": "Formulir manual bank sampah",
+          "kekuatan": "Sudah dikenal petugas.",
+          "kelemahan": "Rawan salah catat dan tidak menghasilkan data agregat."
+        }
+      ],
+      "model_bisnis": "Pendekatan B2G/B2B2C: langganan tahunan dari Pemda atau CSR perusahaan produsen (EPR), ditambah komisi kecil dari penukaran poin di UMKM. Tahap pilot dapat didanai hibah inovasi daerah.",
+      "mitra": [
+        "Dinas Lingkungan Hidup Kota Contoh",
+        "Asosiasi bank sampah kota",
+        "UMKM penukar poin",
+        "Produsen kemasan (program EPR)"
+      ],
+      "regulasi": [
+        "UU No. 27/2022 tentang Pelindungan Data Pribadi (persetujuan dan minimisasi data warga)",
+        "Perizinan penyelenggara uang elektronik/dompet: gunakan mitra berizin, jangan menyimpan saldo uang sendiri",
+        "Peraturan daerah pengelolaan sampah dan target pemilahan"
+      ],
+      "risiko": [
+        {
+          "risiko": "Kecurangan setoran (sampah dicampur atau dihitung ganda).",
+          "mitigasi": "Verifikasi timbangan oleh petugas, foto bukti, dan deteksi anomali per akun."
+        },
+        {
+          "risiko": "Ketergantungan pada satu mitra penukaran poin.",
+          "mitigasi": "Katalog penukaran multi-mitra sejak awal dan poin tidak bisa dicairkan menjadi uang tunai."
+        }
+      ],
+      "roadmap": [
+        {
+          "fase": "MVP",
+          "durasi": "0-3 bulan",
+          "target": "Aplikasi petugas dan warga di 2 bank sampah, 300 warga."
+        },
+        {
+          "fase": "Pilot kelurahan",
+          "durasi": "4-9 bulan",
+          "target": "3 kelurahan, 20 UMKM penukar, dasbor Dinas LH."
+        },
+        {
+          "fase": "Skala kota",
+          "durasi": "10-18 bulan",
+          "target": "14 kelurahan padat dan integrasi SIPSN."
+        }
+      ],
+      "metrik": [
+        "Persentase rumah tangga aktif menyetor (target 15% di wilayah pilot)",
+        "Kilogram sampah terpilah per bulan",
+        "Retensi 90 hari pengguna aktif"
+      ],
+      "penilaian": {
+        "dampak": 4,
+        "kompleksitas": 3,
+        "waktu_mvp": "3 bulan"
+      },
+      "sumber": [
+        2,
+        4
+      ]
+    },
+    {
+      "id": "S2",
+      "masalah_id": "M2",
+      "nama": "JadwalAngkut",
+      "tagline": "Tahu kapan truk sampah tiba lewat WhatsApp, tanpa instal aplikasi.",
+      "ringkasan": "Bot WhatsApp memberi tahu warga jadwal dan estimasi kedatangan truk per RT, serta menerima laporan jika sampah tidak terangkut. Petugas memakai aplikasi sederhana yang mencatat titik angkut dan melacak rute; data dipakai Dinas LH untuk menyesuaikan rute.",
+      "target_pengguna": [
+        {
+          "persona": "Warga permukiman padat",
+          "kebutuhan": "Kepastian jadwal angkut dan cara cepat melapor tanpa instal aplikasi."
+        },
+        {
+          "persona": "Sopir dan kernet truk",
+          "kebutuhan": "Daftar titik per hari yang jelas dan mudah dicatat dengan sentuhan minimal."
+        },
+        {
+          "persona": "Koordinator armada Dinas LH",
+          "kebutuhan": "Visibilitas rute dan titik yang terlewat untuk perencanaan harian."
+        }
+      ],
+      "value_proposition": "Mengubah jadwal angkut dari tebakan menjadi janji yang bisa dipantau warga dan dievaluasi dinas.",
+      "fitur_mvp": [
+        "Bot WhatsApp: cek jadwal per RT dan notifikasi H-1",
+        "Laporan sampah tidak terangkut dengan foto dan lokasi",
+        "Aplikasi petugas: checklist titik angkut dan pelacakan GPS hemat baterai",
+        "Dasbor koordinator: peta rute, titik terlewat, dan rekap pengaduan"
+      ],
+      "fitur_lanjutan": [
+        "Optimasi rute otomatis berdasarkan volume historis",
+        "Prediksi penumpukan dari pola laporan",
+        "Integrasi dengan sensor volume pada TPS besar"
+      ],
+      "platform": "Bot WhatsApp untuk warga; aplikasi Android untuk petugas; dasbor web untuk koordinator.",
+      "tech_stack": [
+        {
+          "lapisan": "Warga",
+          "teknologi": "WhatsApp Business API dengan alur percakapan bertombol"
+        },
+        {
+          "lapisan": "Petugas",
+          "teknologi": "Aplikasi Android (Kotlin), cache peta offline, pelaporan GPS adaptif"
+        },
+        {
+          "lapisan": "Backend",
+          "teknologi": "Python/FastAPI, PostgreSQL + PostGIS, Celery"
+        },
+        {
+          "lapisan": "Peta dan rute",
+          "teknologi": "OpenStreetMap, OSRM/Valhalla untuk routing"
+        }
+      ],
+      "arsitektur": "Layanan penjadwalan menyimpan jadwal angkut per RT dan memicu notifikasi terjadwal. Aplikasi petugas mengirim posisi dan status titik secara berkala dan menyimpannya lokal saat tidak ada sinyal. Dasbor membaca data dari PostGIS dan menampilkan titik terlewat dengan aturan sederhana sebelum menambahkan optimasi rute.",
+      "integrasi_data": [
+        "Data jadwal dan rute armada dari Dinas LH",
+        "Batas RT/RW dari peta dasar kelurahan",
+        "Opsional: kanal pengaduan LAPOR! untuk sinkronisasi laporan"
+      ],
+      "kebaruan": {
+        "verdict": "BELUM_ADA",
+        "ringkasan": "Tidak ditemukan aplikasi atau bot yang memberi jadwal dan pelacakan angkut sampah di Kota Contoh; hanya ada pengumuman jadwal statis.",
+        "pembeda": "Bot WhatsApp tanpa instal dan pelacakan rute dua arah, menyasar kelurahan dengan sinyal lemah; SiLapor Sampah hanya menerima laporan TPS liar.",
+        "log_pencarian": [
+          {
+            "kanal": "Google Play",
+            "query": "site:play.google.com jadwal angkut sampah \"Kota Contoh\"",
+            "hasil": "Tidak ada hasil relevan."
+          },
+          {
+            "kanal": "Situs pemda/dinas",
+            "query": "jadwal pengangkutan sampah Kota Contoh aplikasi",
+            "hasil": "Hanya PDF jadwal statis di situs dinas."
+          },
+          {
+            "kanal": "Inovasi daerah",
+            "query": "Indeks Inovasi Daerah Kota Contoh persampahan",
+            "hasil": "Tidak ada inovasi pelacakan armada tercatat."
+          },
+          {
+            "kanal": "Berita",
+            "query": "pelacakan truk sampah GPS Kota Contoh",
+            "hasil": "Satu rencana pengadaan GPS armada (2024) yang tidak berlanjut."
+          }
+        ]
+      },
+      "kompetitor": [
+        {
+          "nama": "SiLapor Sampah",
+          "kekuatan": "Sudah dipakai 9.000 warga untuk laporan TPS liar.",
+          "kelemahan": "Tidak ada jadwal angkut dan tidak terhubung dengan armada."
+        }
+      ],
+      "model_bisnis": "Langganan tahunan oleh Pemda (B2G) berdasarkan jumlah armada dan RT yang dilayani; biaya pesan WhatsApp ditanggung dalam paket.",
+      "mitra": [
+        "Dinas Lingkungan Hidup Kota Contoh",
+        "Pengurus RT/RW sebagai penyebar informasi awal",
+        "Operator armada swasta (bila ada)"
+      ],
+      "regulasi": [
+        "UU PDP 27/2022: data lokasi petugas dan warga hanya untuk tujuan layanan",
+        "Kebijakan WhatsApp Business: templat pesan harus disetujui dan warga wajib opt-in",
+        "Standar SPBE untuk integrasi dengan sistem pemerintah daerah"
+      ],
+      "risiko": [
+        {
+          "risiko": "Petugas enggan memakai aplikasi karena dianggap pengawasan.",
+          "mitigasi": "Libatkan sopir sejak desain, tampilkan manfaat (rute lebih ringkas), dan tidak mengaitkan data dengan sanksi di fase awal."
+        },
+        {
+          "risiko": "Jadwal tidak dipatuhi sehingga warga kehilangan kepercayaan pada bot.",
+          "mitigasi": "Notifikasi keterlambatan otomatis dan laporan bulanan kepatuhan jadwal kepada Dinas LH."
+        }
+      ],
+      "roadmap": [
+        {
+          "fase": "MVP",
+          "durasi": "0-3 bulan",
+          "target": "Bot jadwal untuk 3 kelurahan dan aplikasi untuk 10 armada."
+        },
+        {
+          "fase": "Pilot",
+          "durasi": "4-8 bulan",
+          "target": "Laporan tidak terangkut dan dasbor koordinator di 6 kelurahan."
+        },
+        {
+          "fase": "Skala kota",
+          "durasi": "9-15 bulan",
+          "target": "Seluruh armada dan optimasi rute."
+        }
+      ],
+      "metrik": [
+        "Persentase titik angkut sesuai jadwal",
+        "Waktu rata-rata penyelesaian laporan tidak terangkut",
+        "Jumlah RT yang berlangganan notifikasi"
+      ],
+      "penilaian": {
+        "dampak": 5,
+        "kompleksitas": 2,
+        "waktu_mvp": "3 bulan"
+      },
+      "sumber": [
+        1,
+        5
+      ]
+    },
+    {
+      "id": "S3",
+      "masalah_id": "M2",
+      "jenis_solusi": "software_hardware",
+      "nama": "PantauBak",
+      "tagline": "Kamera murah di TPS memberi tahu dispatcher kapan bak penuh, supaya truk datang saat dibutuhkan.",
+      "ringkasan": "PantauBak memasang satu kamera dan satu komputer mini di setiap TPS. Model ringan di perangkat memperkirakan tingkat penuh bak dari gambar, lalu mengirim angka (bukan video) ke dasbor dispatcher. Truk diarahkan ke bak yang hampir penuh lebih dulu, dan warga yang berlangganan bot JadwalAngkut mendapat perkiraan kedatangan yang lebih akurat.\n\nBila sinyal hilang, perangkat menyimpan hasil hitung dan mengirimnya saat tersambung kembali.",
+      "target_pengguna": [
+        {
+          "persona": "Dispatcher armada Dinas LH",
+          "kebutuhan": "Tahu bak mana yang penuh tanpa menugaskan petugas mengecek langsung."
+        },
+        {
+          "persona": "Petugas TPS",
+          "kebutuhan": "Pemasangan sederhana dan tidak menambah pekerjaan pencatatan."
+        }
+      ],
+      "value_proposition": "Rute angkut mengikuti kondisi bak yang sebenarnya, bukan jadwal tetap, sehingga tumpukan di TPS berkurang dan bahan bakar truk terpakai lebih efisien.",
+      "fitur_mvp": [
+        "Estimasi tingkat penuh bak (kosong, setengah, hampir penuh, meluap) dari foto tiap 15 menit",
+        "Dasbor peta TPS berwarna menurut tingkat penuh",
+        "Notifikasi ke dispatcher saat bak hampir penuh",
+        "Mode offline dengan antrean kirim ulang"
+      ],
+      "fitur_lanjutan": [
+        "Rekomendasi rute angkut harian dari data tingkat penuh",
+        "Deteksi pembuangan di luar bak"
+      ],
+      "platform": "Perangkat edge di TPS (Raspberry Pi dan kamera), dasbor web untuk dispatcher, dan notifikasi WhatsApp.",
+      "tech_stack": [
+        {
+          "lapisan": "Perangkat",
+          "teknologi": "Raspberry Pi 4 atau 5, kamera USB atau modul kamera, Linux, layanan systemd"
+        },
+        {
+          "lapisan": "Model",
+          "teknologi": "Klasifikasi gambar ringan (mis. MobileNet) berformat TFLite atau ONNX, dilatih dari foto bak di wilayah"
+        },
+        {
+          "lapisan": "Pesan",
+          "teknologi": "MQTT dengan TLS, antrean lokal SQLite untuk kirim ulang"
+        },
+        {
+          "lapisan": "Backend",
+          "teknologi": "FastAPI, PostgreSQL + PostGIS"
+        },
+        {
+          "lapisan": "Dasbor",
+          "teknologi": "Web (React) dengan peta OpenStreetMap"
+        }
+      ],
+      "arsitektur": "Kamera mengambil foto tiap 15 menit. Model di perangkat menghasilkan satu label tingkat penuh; foto dibuang setelah diproses dan hanya label, waktu, dan ID TPS yang dikirim lewat MQTT ke server. Server menyimpan riwayat, memberi peringatan, dan menyajikannya di dasbor. Pembaruan model dan perangkat lunak dikirim dari server (over-the-air) dengan tanda tangan digital.",
+      "perangkat_keras": {
+        "ringkasan": "Satu unit per TPS: komputer mini dan kamera di dalam kotak tahan cuaca, dipasang di tiang atau dinding menghadap bak. Perangkat hanya menghasilkan label tingkat penuh; tidak ada video yang disimpan atau dikirim.",
+        "data_sensor": "Foto bak sampah tiap 15 menit, diproses menjadi satu label tingkat penuh (empat kelas) dan stempel waktu.",
+        "perangkat": [
+          {
+            "nama": "Raspberry Pi 4 (4 GB)",
+            "fungsi": "Menjalankan model dan mengirim data",
+            "spesifikasi": "4 GB RAM, Wi-Fi, kartu microSD industri",
+            "jumlah": "1 per TPS",
+            "perkiraan_biaya": "Rp1,2-1,6 juta (estimasi harga toko daring)",
+            "sumber": [
+              6
+            ],
+            "url": "https://contoh.example/katalog/raspberry-pi-4"
+          },
+          {
+            "nama": "Kamera USB 1080p",
+            "fungsi": "Mengambil foto bak",
+            "spesifikasi": "Sudut lebar, fokus tetap, IR cut untuk malam",
+            "jumlah": "1 per TPS",
+            "perkiraan_biaya": "Rp250-450 ribu",
+            "sumber": [
+              6
+            ]
+          },
+          {
+            "nama": "Catu daya dan kotak tahan cuaca",
+            "fungsi": "Daya stabil dan perlindungan hujan dan debu",
+            "spesifikasi": "Adaptor 5V 3A, kotak IP65, kabel tahan UV",
+            "jumlah": "1 per TPS",
+            "perkiraan_biaya": "Rp300-500 ribu",
+            "sumber": [
+              6
+            ]
+          },
+          {
+            "nama": "Modem 4G atau Wi-Fi TPS",
+            "fungsi": "Konektivitas",
+            "spesifikasi": "Kartu data IoT prabayar",
+            "jumlah": "1 per TPS",
+            "perkiraan_biaya": "Rp50-100 ribu per bulan (estimasi paket data IoT)",
+            "sumber": [
+              6
+            ]
+          }
+        ],
+        "pemrosesan": "edge",
+        "pemrosesan_keterangan": "Model klasifikasi ringan berjalan di Raspberry Pi; hanya label yang dikirim. Latih ulang di server tiap triwulan dari foto yang disetujui petugas.",
+        "konektivitas_daya": "Wi-Fi atau 4G per TPS; antrean lokal menyimpan hasil hingga 7 hari saat offline. Daya dari listrik TPS atau panel surya kecil dengan baterai; perangkat dinyalakan ulang otomatis oleh watchdog setelah mati listrik.",
+        "instalasi_pemeliharaan": "Pemasangan sekitar 1 jam per TPS oleh teknisi Dinas atau mitra; kotak IP65 menghadap teduh dan jauh dari percikan lindi. Pembersihan lensa tiap 2 minggu, cek kesehatan perangkat lewat dasbor, dan cadangan 10% unit untuk penggantian.",
+        "biaya": "Sekitar Rp1,8-2,6 juta per TPS untuk perangkat dan Rp50-100 ribu per bulan untuk data (estimasi dari katalog bertanggal); tanpa biaya lisensi perangkat lunak.",
+        "pengadaan": "Komponen tersedia di toko daring dan distributor lokal; perangkat Raspberry Pi sering kena keterbatasan stok, jadi siapkan alternatif papan sejenis. Pengadaan Pemda lewat e-katalog bila tersedia; periksa persyaratan TKDN.",
+        "privasi_keselamatan": [
+          "Kamera menghadap bak, bukan jalan atau rumah; foto dibuang di perangkat setelah dihitung sehingga data pribadi (wajah, pelat nomor) tidak disimpan (UU PDP No. 27/2022).",
+          "Pasang papan pemberitahuan bahwa titik ini dipantau kamera dan tuliskan tujuan serta kontak pengelola.",
+          "Perangkat dengan radio Wi-Fi atau seluler harus bersertifikat perangkat telekomunikasi yang berlaku; periksa label sertifikasi sebelum pengadaan.",
+          "Kelistrikan dipasang oleh teknisi yang kompeten; kotak tertutup rapat untuk mencegah korsleting dan sengatan."
+        ]
+      },
+      "integrasi_data": [
+        "Data TPS dan koordinat dari Dinas LH",
+        "Dasbor JadwalAngkut (S2) untuk perkiraan kedatangan truk",
+        "Peta dasar OpenStreetMap"
+      ],
+      "kebaruan": {
+        "verdict": "ADA_DI_WILAYAH_LAIN",
+        "ringkasan": "Tidak ditemukan sistem pemantau tingkat penuh bak yang aktif di Kota Contoh, baik aplikasi maupun produk perangkat keras yang dipasang. Pilot serupa ada di kota lain.",
+        "pembeda": "Pemrosesan di perangkat tanpa menyimpan video, biaya per titik di bawah sensor ultrasonik komersial, dan terhubung ke bot warga dan dasbor armada yang sama.",
+        "referensi_serupa": [
+          {
+            "nama": "Pilot kamera bak TPS",
+            "lokasi": "Kota Lain B",
+            "url": "https://contoh.example/jurnal/kamera-bak-tps",
+            "catatan": "Sistem berbasis cloud dengan video; tidak offline-first dan biaya data tinggi."
+          }
+        ],
+        "log_pencarian": [
+          {
+            "kanal": "Marketplace dan e-katalog",
+            "query": "sensor level sampah TPS kamera tingkat penuh Kota Contoh",
+            "hasil": "Hanya sensor ultrasonik umum; tidak ada produk dengan fungsi pelaporan ke dispatcher."
+          },
+          {
+            "kanal": "Vendor CCTV dan IoT lokal",
+            "query": "smart waste monitoring Kota Contoh vendor IoT dinas lingkungan hidup",
+            "hasil": "Satu proposal vendor (2024), tidak ada pemasangan."
+          },
+          {
+            "kanal": "Situs pemda/dinas",
+            "query": "pemantauan TPS real-time dinas lingkungan hidup Kota Contoh",
+            "hasil": "Pendataan manual; tidak ada sistem pantau."
+          },
+          {
+            "kanal": "GitHub",
+            "query": "waste bin fill level camera raspberry pi",
+            "hasil": "Beberapa proyek hobi; tidak ada yang dipakai di wilayah ini."
+          }
+        ]
+      },
+      "kompetitor": [
+        {
+          "nama": "Sensor ultrasonik komersial",
+          "kekuatan": "Murah per unit dan sederhana.",
+          "kelemahan": "Salah baca pada bak berbentuk tidak rata dan sampah miring; tidak ada foto bukti."
+        },
+        {
+          "nama": "Patroli petugas",
+          "kekuatan": "Tidak butuh perangkat.",
+          "kelemahan": "Mahal dalam waktu petugas dan tidak real-time."
+        }
+      ],
+      "model_bisnis": "B2G: biaya pemasangan sekali ditambah langganan dasbor per TPS per tahun; pilot dapat dibiayai hibah inovasi daerah atau CSR pengelola kawasan.",
+      "mitra": [
+        "Dinas Lingkungan Hidup Kota Contoh",
+        "Dinas Kominfo (konektivitas)",
+        "Teknisi lokal atau mitra pemasangan"
+      ],
+      "regulasi": [
+        "UU No. 27/2022 tentang Pelindungan Data Pribadi (kamera di ruang publik)",
+        "Sertifikasi perangkat telekomunikasi untuk perangkat Wi-Fi dan seluler",
+        "Aturan pengadaan barang dan jasa Pemda serta persyaratan TKDN"
+      ],
+      "risiko": [
+        {
+          "risiko": "Pencurian atau perusakan perangkat di TPS.",
+          "mitigasi": "Pasang di tiang tinggi, kotak terkunci, tidak ada nilai jual kembali tinggi, dan cadangan unit."
+        },
+        {
+          "risiko": "Akurasi turun saat malam, hujan, atau lensa kotor.",
+          "mitigasi": "Kamera IR cut, pembersihan berkala, dan pelatihan ulang dari foto lapangan."
+        },
+        {
+          "risiko": "Kekhawatiran privasi warga.",
+          "mitigasi": "Foto dibuang di perangkat, papan pemberitahuan, dan kebijakan data yang dipublikasikan."
+        }
+      ],
+      "roadmap": [
+        {
+          "fase": "Prototipe",
+          "durasi": "0-2 bulan",
+          "target": "Model klasifikasi dari 1.000 foto bak dan satu unit di 1 TPS."
+        },
+        {
+          "fase": "Pilot",
+          "durasi": "3-8 bulan",
+          "target": "10 TPS padat, akurasi 90% dan uptime 95%."
+        },
+        {
+          "fase": "Skala",
+          "durasi": "9-18 bulan",
+          "target": "50 TPS dan integrasi rute angkut."
+        }
+      ],
+      "metrik": [
+        "Akurasi klasifikasi tingkat penuh (target 90% pada set uji lapangan)",
+        "Uptime perangkat (target 95%)",
+        "Pengurangan bak meluap sebelum angkut"
+      ],
+      "penilaian": {
+        "dampak": 4,
+        "kompleksitas": 4,
+        "waktu_mvp": "2 bulan prototipe, 8 bulan pilot"
+      },
+      "sumber": [
+        6,
+        7
+      ]
+    }
+  ],
+  "ide_gugur": [
+    {
+      "nama": "Aplikasi pelaporan TPS liar berbasis foto",
+      "masalah_id": "M3",
+      "alasan": "Fungsi inti sama dengan aplikasi yang sudah aktif dipakai warga di Kota Contoh.",
+      "ditemukan": {
+        "nama": "SiLapor Sampah",
+        "url": "https://contoh.example/silapor?kota=contoh&aktif=1"
+      }
+    }
+  ],
+  "sumber": [
+    {
+      "id": 1,
+      "judul": "Statistik Persampahan Kota Contoh 2024",
+      "penerbit": "Dinas Lingkungan Hidup Kota Contoh",
+      "tanggal": "Maret 2025",
+      "url": "https://contoh.example/dlh/statistik-persampahan-2024.pdf",
+      "jenis": "resmi"
+    },
+    {
+      "id": 2,
+      "judul": "Survei Perilaku Pemilahan Sampah Rumah Tangga",
+      "penerbit": "Badan Statistik Daerah (fiktif)",
+      "tanggal": "2023",
+      "url": "https://contoh.example/bps/survei-pemilahan?tahun=2023&format=pdf#hal12",
+      "jenis": "data"
+    },
+    {
+      "id": 3,
+      "judul": "Kota Contoh Dalam Angka 2025",
+      "penerbit": "Badan Statistik Daerah (fiktif)",
+      "tanggal": "2025",
+      "url": "https://contoh.example/bps/kota-contoh-dalam-angka-2025",
+      "jenis": "data"
+    },
+    {
+      "id": 4,
+      "judul": "Bank sampah Kota Contoh beroperasi di bawah kapasitas",
+      "penerbit": "Harian Contoh (fiktif)",
+      "tanggal": "4 Agustus 2025",
+      "url": "https://contoh.example/berita/bank-sampah-kapasitas",
+      "jenis": "berita"
+    },
+    {
+      "id": 5,
+      "judul": "Rekap pengaduan kebersihan 2024-2025",
+      "penerbit": "LAPOR! (data contoh)",
+      "tanggal": "2025",
+      "url": "https://contoh.example/lapor/rekap-kebersihan",
+      "jenis": "lainnya"
+    },
+    {
+      "id": 6,
+      "judul": "Katalog komponen IoT: Raspberry Pi, kamera, dan casing (fiktif)",
+      "penerbit": "Toko Elektronik Contoh (fiktif)",
+      "tanggal": "10 Oktober 2026",
+      "url": "https://contoh.example/katalog/raspberry-pi-kamera",
+      "jenis": "lainnya"
+    },
+    {
+      "id": 7,
+      "judul": "Pilot kamera pemantau bak TPS di kota lain (fiktif)",
+      "penerbit": "Jurnal Teknologi Lingkungan Contoh",
+      "tanggal": "2025",
+      "url": "https://contoh.example/jurnal/kamera-bak-tps",
+      "jenis": "jurnal"
+    }
+  ]
+}

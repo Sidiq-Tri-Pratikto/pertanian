@@ -10,10 +10,20 @@ Kumpulan proyek hackathon (private): dokumen, aplikasi atau prototipe, dan konfi
 │   └── <proyek>/
 ├── applications/     # kode aplikasi dan prototipe; satu folder per proyek
 │   └── <proyek>/
-└── deployment/       # konfigurasi deployment (belum ada isi)
+├── deployment/       # konfigurasi deployment (belum ada isi)
+└── skills/           # skill Claude Code yang dipakai lintas proyek
+    └── <skill>/SKILL.md
 ```
 
 Nama folder proyek sama di `docs/` dan `applications/`, dengan pola `<hackathon>-<tahun>-<proyek>`.
+
+## Skills
+
+| Skill | Fungsi |
+|---|---|
+| [riset-masalah-solusi](skills/riset-masalah-solusi/) | Dari topik dan wilayah: riset masalah nyata berbukti, prioritas, usulan solusi software yang belum ada, laporan Markdown dan PDF. Pemakaian: `/riset-masalah-solusi <topik> di <wilayah>`. |
+
+Untuk memakainya, salin folder skill ke `~/.claude/skills/`.
 
 ## Proyek
 
