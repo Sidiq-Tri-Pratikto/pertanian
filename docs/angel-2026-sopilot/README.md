@@ -28,15 +28,15 @@ Asisten AI yang mengubah dokumen SOP menjadi model proses BPMN 2.0 yang dapat di
 - Mockup interaktif: https://claude.ai/artifact/AdtFHpYWRmcwct6nNssh5U (dapat dibuka siapa pun yang punya tautan)
 - Kanvas demo per use case: https://claude.ai/artifact/BGhnoA16Bz11af7U1Jn4DF (privat)
 - PRD: https://claude.ai/artifact/GktjkhooQfMMw8dNxEdWVN (privat)
-- Pitch deck: https://claude.ai/artifact/8C1cci3snh22TQMkH3ZKWH (privat)
+- Pitch deck: https://claude.ai/artifact/8C1cci3snh22TQMkH3ZKWH (dapat dibuka siapa pun yang punya tautan)
 
 Tautan berstatus privat hanya terbuka bagi pemiliknya sampai dibagikan lewat menu Share.
 
-## Yang masih perlu diisi sebelum submit
+## Yang masih perlu diselesaikan sebelum submit
 
-Bagian bertanda kuning `[isi …]` di proposal dan surat komitmen:
-
-- **Proposal:** jenis kelamin, NIDN/NUPTK, jabatan struktural, institusi, alamat, telepon, e-mail ketua; NIK/NIP/NIM dan institusi anggota; mitra riset; kota dan tanggal; tiga tautan di Lampiran (prototipe, PRD, video).
-- **Pitch deck:** harga di slide 10; kontak dan tautan prototipe di slide 12; foto anggota di slide 11 (saat ini lingkaran inisial).
-- **Surat komitmen:** kop surat, institusi, NIDN, alamat, kontak, kota dan tanggal, meterai bila disyaratkan, tanda tangan.
+- **Tanda tangan basah Ketua** di Lembar Identitas proposal dan di Surat Komitmen (cetak, tanda tangani, pindai).
+- **Proposal:** NIP/NIDN Erwin Eko Wahyudi (satu isian kuning di tabel anggota; cek di pddikti.kemdiktisaintek.go.id atau tanya langsung); tautan PRD dan video demo di Lampiran.
+- **Pitch deck:** harga di slide 10 (sengaja dikosongkan); foto anggota di slide 11 (saat ini lingkaran inisial); unduh sebagai PDF/PPT dari halaman deck.
 - **Video demo:** rekam dan unggah (YouTube Unlisted atau Google Drive), lalu masukkan tautannya ke formulir dan lampiran proposal.
+- **Tautan privat:** kanvas demo dan PRD online masih privat sampai dibagikan lewat menu Share.
+- Dukungan mitra: belum ada (dinyatakan apa adanya di proposal).
