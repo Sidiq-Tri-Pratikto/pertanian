@@ -10,16 +10,16 @@ Aplikasi pemantau energi dan penasihat efisiensi berbasis data untuk IKM: membac
 ## Status
 
 - **TKT 3**: prototipe web berjalan menganalisis data historis, tetapi data sintetis; belum diuji dengan meter dan data pabrik nyata. Target TKT 4 pada akhir hackathon.
-- **Platform:** proposal menyebut aplikasi seluler dan web (satu basis kode React Native/Expo); prototipe hanya menampilkan versi seluler, dan versi web penuh belum dibuat. PRD v3 sumber masih menyatakan web bukan target dan perlu diperbarui jika web dipertahankan.
+- **Platform:** proposal menyebut aplikasi seluler dan web (satu basis kode React Native/Expo); prototipe hanya menampilkan versi seluler, dan versi web penuh belum dibuat. PRD HematDaya v1.0 sudah memasukkan web ke target.
 - Dukungan mitra: belum ada.
 - Jendela pendaftaran di booklet (18 September–2 Oktober 2026) sudah lewat; konfirmasi ke panitia.
-- PRD sumber adalah untuk rumah tangga dan menyatakan industri di luar lingkup; proposal membingkai ulang ke IKM. Prototipe sudah memakai konteks IKM.
+- PRD HematRumah v3 (sumber) untuk rumah tangga; **PRD HematDaya v1.0** menyesuaikannya ke IKM, seluler dan web, dan menghapus modul kontrol AC. Prototipe memakai konteks IKM.
 
 ## Isi
 
 | Folder | Isi |
 |---|---|
-| [prd/](prd/) | PRD HematRumah v3 dan handoff Claude Design (sumber) |
+| [prd/](prd/) | **[01_PRD_HematDaya_EN.md](prd/01_PRD_HematDaya_EN.md)** (PRD v1.0, English; disesuaikan dengan proposal: IKM, seluler + web, impor CSV, IKE, tanpa kontrol mesin) dan PRD HematRumah v3 serta handoff Claude Design (sumber historis) |
 | [../../applications/angel-2026-hematdaya](../../applications/angel-2026-hematdaya/) | Prototipe dan data contoh |
 | [submission/proposal/](submission/proposal/) | [Proposal-HematDaya.pdf](submission/proposal/Proposal-HematDaya.pdf) (7 halaman) dan sumber HTML |
 | [submission/pitch-deck/](submission/pitch-deck/) | Sumber 12 slide; deck online: https://claude.ai/artifact/X1Mu5h6qMy6mJ8vtiSD8Xb |
