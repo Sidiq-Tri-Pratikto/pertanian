@@ -1,4 +1,4 @@
-# hackathon-projects
+# pertanian
 
 Kumpulan proyek hackathon (private): dokumen, aplikasi atau prototipe, dan konfigurasi deployment, dikelompokkan per proyek.
 
