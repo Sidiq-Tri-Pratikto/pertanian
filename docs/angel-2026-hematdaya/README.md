@@ -29,7 +29,7 @@ Aplikasi pemantau energi dan penasihat efisiensi berbasis data untuk IKM: membac
 ## Yang masih perlu diselesaikan
 
 - Tanda tangan basah Ketua di proposal dan surat komitmen.
-- Rekam dan unggah video demo (naskah siap), lalu isi tautannya di Lampiran proposal (satu isian kuning).
+- Video demo sudah ada (YouTube Shorts: https://youtube.com/shorts/FrZBGJC-DU0); pastikan durasinya 2–3 menit dan aksesnya tidak Private. CV dan portofolio ditautkan di Lampiran (folder Google Drive; pastikan aksesnya "Siapa saja yang memiliki link").
 - Bagikan prototipe dan deck lewat menu Share (masih privat); unduh deck sebagai PDF/PPT.
 - Harga di slide 10 deck sengaja dikosongkan; foto anggota di slide 11 opsional.
 
