@@ -32,3 +32,18 @@ Aplikasi pemantau energi dan penasihat efisiensi berbasis data untuk IKM: membac
 - Rekam dan unggah video demo (naskah siap), lalu isi tautannya di Lampiran proposal (satu isian kuning).
 - Bagikan prototipe dan deck lewat menu Share (masih privat); unduh deck sebagai PDF/PPT.
 - Harga di slide 10 deck sengaja dikosongkan; foto anggota di slide 11 opsional.
+
+## Cetak proposal
+
+Cetak HTML dengan Chrome headless (`--headless=new --no-pdf-header-footer --print-to-pdf`), lalu cap nomor halaman (sampul tanpa nomor) dengan PyMuPDF: lihat `stamp_pages.py` di bawah.
+
+```python
+import sys, os, pymupdf
+src = sys.argv[1]; doc = pymupdf.open(src)
+for i, page in enumerate(doc):
+    if i == 0: continue
+    r = page.rect; txt = str(i + 1)
+    w = pymupdf.get_text_length(txt, fontname="tiro", fontsize=11)
+    page.insert_text(pymupdf.Point((r.width - w) / 2, r.height - 35.4), txt, fontname="tiro", fontsize=11)
+doc.save(src + ".tmp", garbage=3, deflate=True); doc.close(); os.replace(src + ".tmp", src)
+```

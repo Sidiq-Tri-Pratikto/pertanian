@@ -40,3 +40,18 @@ Tautan berstatus privat hanya terbuka bagi pemiliknya sampai dibagikan lewat men
 - **Video demo:** sudah diunggah (https://youtu.be/WlIpJcgSH10); pastikan aksesnya Unlisted/Publik dan durasinya 2–3 menit, lalu masukkan tautannya ke formulir.
 - **Tautan privat:** kanvas demo dan PRD online masih privat sampai dibagikan lewat menu Share.
 - Dukungan mitra: belum ada (dinyatakan apa adanya di proposal).
+
+## Cetak proposal
+
+Cetak HTML dengan Chrome headless (`--headless=new --no-pdf-header-footer --print-to-pdf`), lalu cap nomor halaman (sampul tanpa nomor) dengan PyMuPDF: lihat `stamp_pages.py` di bawah.
+
+```python
+import sys, os, pymupdf
+src = sys.argv[1]; doc = pymupdf.open(src)
+for i, page in enumerate(doc):
+    if i == 0: continue
+    r = page.rect; txt = str(i + 1)
+    w = pymupdf.get_text_length(txt, fontname="tiro", fontsize=11)
+    page.insert_text(pymupdf.Point((r.width - w) / 2, r.height - 35.4), txt, fontname="tiro", fontsize=11)
+doc.save(src + ".tmp", garbage=3, deflate=True); doc.close(); os.replace(src + ".tmp", src)
+```
