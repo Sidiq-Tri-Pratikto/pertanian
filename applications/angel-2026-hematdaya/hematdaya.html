@@ -1,0 +1,586 @@
+<title>HematDaya</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Arah visual: aplikasi utilitas mobile yang tenang untuk pemilik IKM. Hijau botani, satu aksen amber untuk perhatian. */
+:root{
+  --page:#E9ECE5; --bg:#F5F6F1; --surface:#FFFFFF; --ink:#17312B; --muted:#566962; --line:#DDE3DC;
+  --accent:#0E6B5C; --accent-ink:#FFFFFF; --accent-soft:#DDEFE9;
+  --warn:#7A4E00; --warn-soft:#FBEFD2; --bad:#9E2F28; --bad-soft:#F8E1DE; --ok:#14683F; --ok-soft:#DCF1E5;
+  --c0:#0E6B5C; --c1:#D08A1E; --c2:#4A6FA5; --c3:#8E5B8A; --grid:#D3DBD4;
+  --font:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --page:#0A1311; --bg:#0F1A17; --surface:#172521; --ink:#E8F0EC; --muted:#9DB1A9; --line:#29403A;
+  --accent:#4FC2AA; --accent-ink:#0B1A16; --accent-soft:#1D3A33;
+  --warn:#E5B54F; --warn-soft:#3A2F14; --bad:#F08A80; --bad-soft:#3B1D1A; --ok:#5FCB97; --ok-soft:#173326;
+  --c0:#4FC2AA; --c1:#E3A444; --c2:#7FA3DB; --c3:#C48FC0; --grid:#2C423C; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --page:#0A1311; --bg:#0F1A17; --surface:#172521; --ink:#E8F0EC; --muted:#9DB1A9; --line:#29403A;
+  --accent:#4FC2AA; --accent-ink:#0B1A16; --accent-soft:#1D3A33;
+  --warn:#E5B54F; --warn-soft:#3A2F14; --bad:#F08A80; --bad-soft:#3B1D1A; --ok:#5FCB97; --ok-soft:#173326;
+  --c0:#4FC2AA; --c1:#E3A444; --c2:#7FA3DB; --c3:#C48FC0; --grid:#2C423C; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--page);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.45;
+  padding-left:max(0px,env(safe-area-inset-left,0px));padding-right:max(0px,env(safe-area-inset-right,0px))}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+#app{position:relative;max-width:460px;height:100%;margin:0 auto;display:flex;flex-direction:column;background:var(--bg);overflow:hidden}
+@media (min-width:520px){#app{border-left:1px solid var(--line);border-right:1px solid var(--line);box-shadow:0 0 40px rgba(0,0,0,.08)}}
+header.top{flex:none;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 16px 8px;display:flex;flex-direction:column;gap:6px}
+.toprow{display:flex;align-items:center;gap:8px;min-height:48px}
+.toprow h1{font-size:19px;line-height:1.2;margin:0;font-weight:700;flex:1;min-width:0;overflow-wrap:anywhere}
+.brand{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
+.brand svg{flex:none}
+.iconbtn{width:48px;height:48px;border-radius:14px;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center;flex:none}
+.iconbtn:focus-visible,.tab:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.modes{display:flex;gap:8px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;padding:4px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.chip.warn{background:var(--warn-soft);color:var(--warn)} .chip.bad{background:var(--bad-soft);color:var(--bad)} .chip.ok{background:var(--ok-soft);color:var(--ok)}
+main{flex:1;min-height:0;overflow-y:auto;padding:16px max(16px,env(safe-area-inset-left,0px)) 24px max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:14px;scroll-behavior:smooth}
+nav.tabs{flex:none;display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line);background:var(--surface);padding-bottom:env(safe-area-inset-bottom,0px)}
+.tab{min-height:60px;border:0;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:13px;font-weight:600;color:var(--muted);position:relative}
+.tab[aria-selected="true"]{color:var(--accent)}
+.tab[aria-selected="true"]::after{content:"";position:absolute;top:0;left:22%;right:22%;height:3px;border-radius:0 0 3px 3px;background:var(--accent)}
+.tab .badge{position:absolute;top:8px;left:calc(50% + 10px);min-width:18px;height:18px;border-radius:9px;background:var(--warn);color:var(--surface);font-size:11px;display:grid;place-items:center;padding:0 5px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.card h2,.card h3,h2.sec{margin:0;font-size:16px;font-weight:700}
+h2.sec{font-size:14px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600;padding:0 2px}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--accent-soft);border-radius:14px;padding:4px;gap:4px}
+.seg button{min-height:44px;border:0;border-radius:11px;background:none;font-weight:600;color:var(--accent)}
+.seg button[aria-pressed="true"]{background:var(--surface);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.big{font-size:34px;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums}
+.big small{font-size:16px;font-weight:600;color:var(--muted)}
+.row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;min-width:0}
+.sub{color:var(--muted);font-size:14px}
+.k{font-variant-numeric:tabular-nums}
+.btn{min-height:48px;border-radius:14px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);font-weight:600;padding:10px 18px;text-align:center}
+.btn.ghost{background:var(--surface);color:var(--accent)}
+.btn.plain{border-color:var(--line);color:var(--ink);background:var(--surface)}
+.btn.small{min-height:44px;padding:8px 14px;font-size:14px}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap}
+.banner{border-radius:14px;padding:12px 14px;font-size:14px;display:flex;gap:10px;align-items:flex-start;background:var(--warn-soft);color:var(--warn)}
+.banner.bad{background:var(--bad-soft);color:var(--bad)} .banner.info{background:var(--accent-soft);color:var(--accent)}
+.banner b{font-weight:700}
+.dev{display:flex;flex-direction:column;gap:8px;text-align:left;width:100%;border:1px solid var(--line);background:var(--surface);border-radius:16px;padding:14px 16px;min-height:72px}
+.dev .nm{font-weight:700;overflow-wrap:anywhere}
+.bar{height:8px;border-radius:4px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:4px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
+svg.chart{width:100%;height:auto;display:block}
+.chart text{fill:var(--muted);font-size:10px;font-family:var(--font)}
+.chart .grid{stroke:var(--grid);stroke-width:1}
+.chart .s0{fill:var(--c0)}.chart .s1{fill:var(--c1)}.chart .s2{fill:var(--c2)}.chart .s3{fill:var(--c3)}
+.chart .gap{fill:none;stroke:var(--muted);stroke-width:1.2;stroke-dasharray:2 2}
+.ins{display:flex;flex-direction:column;gap:8px;text-align:left;width:100%;border:1px solid var(--line);background:var(--surface);border-radius:16px;padding:14px 16px}
+.ins .t{font-weight:700;line-height:1.3}
+.ins.feat{border-color:var(--accent)}
+table.ev{width:100%;border-collapse:collapse;font-size:14px}
+table.ev th,table.ev td{padding:8px 4px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+table.ev td:last-child,table.ev th:last-child{text-align:right;font-variant-numeric:tabular-nums}
+table.ev th{font-weight:600;color:var(--muted)}
+.empty{text-align:center;padding:28px 8px;display:flex;flex-direction:column;gap:14px;align-items:center}
+.empty .ill{width:84px;height:84px;border-radius:24px;background:var(--accent-soft);display:grid;place-items:center}
+.empty h2{margin:0;font-size:20px}
+.empty p{margin:0;color:var(--muted);max-width:32ch}
+.dim{opacity:.55}
+/* sheet */
+.scrim{position:absolute;inset:0;background:rgba(8,16,13,.5);z-index:10;display:flex;align-items:flex-end}
+.sheet{background:var(--surface);width:100%;max-height:88%;overflow-y:auto;border-radius:22px 22px 0 0;padding:16px max(16px,env(safe-area-inset-left,0px)) calc(20px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:14px;animation:up .22s ease-out}
+@keyframes up{from{transform:translateY(24px);opacity:.6}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.sheet{animation:none}main{scroll-behavior:auto}}
+.sheet h2{margin:0;font-size:19px}
+.grab{width:44px;height:5px;border-radius:3px;background:var(--line);align-self:center;flex:none}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label,.field .lab{font-weight:600;font-size:14px}
+.field input[type=number],.field select,.field textarea{min-height:48px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--bg);width:100%}
+.field textarea{min-height:140px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;line-height:1.4;resize:vertical}
+.hint{font-size:13px;color:var(--muted)}
+.twocol{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.days{display:flex;flex-wrap:wrap;gap:6px}
+.days label{display:inline-flex;align-items:center;justify-content:center;min-width:48px;min-height:44px;border:1px solid var(--line);border-radius:12px;font-weight:600;font-size:14px;cursor:pointer;background:var(--bg)}
+.days input{position:absolute;opacity:0;width:1px;height:1px}
+.days input:checked+span{color:var(--accent)}
+.days label:has(input:checked){background:var(--accent-soft);border-color:var(--accent)}
+.days label:has(input:focus-visible){outline:3px solid var(--accent);outline-offset:2px}
+pre.code{margin:0;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:12px;overflow-x:auto;line-height:1.5}
+.toast{position:absolute;left:16px;right:16px;bottom:76px;z-index:20;background:var(--ink);color:var(--bg);border-radius:14px;padding:12px 16px;font-size:14px;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.link{background:none;border:0;color:var(--accent);font-weight:600;text-decoration:underline;padding:12px 4px;min-height:44px;text-align:left}
+.scen{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.scen button{min-height:56px;text-align:left;padding:8px 12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);font-weight:600;font-size:14px}
+.scen button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+</style>
+
+<div id="app" role="application" aria-label="HematDaya"></div>
+
+<script>
+(function(){
+'use strict';
+/* ====== util ====== */
+var MON=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+var DAYS=['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+var DAYF=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+var H=3600e3, DAY=86400e3;
+var $=function(s,r){return (r||document).querySelector(s)};
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function nf(n,d){return Number(n).toLocaleString('id-ID',{minimumFractionDigits:d||0,maximumFractionDigits:d||0})}
+function rp(n){return 'Rp'+nf(Math.round(n))}
+function kwh(wh,d){return nf(wh/1000,d==null?1:d)+' kWh'}
+function p2(n){return (n<10?'0':'')+n}
+function dtext(t){var d=new Date(t);return d.getUTCDate()+' '+MON[d.getUTCMonth()]+' '+d.getUTCFullYear()}
+function ttext(t){var d=new Date(t);return p2(d.getUTCHours())+'.'+p2(d.getUTCMinutes())}
+function dow(t){return new Date(t).getUTCDay()}
+function hr(t){return new Date(t).getUTCHours()}
+function dayStart(t){return Math.floor(t/DAY)*DAY}
+function monStart(t){var d=dow(t);return dayStart(t)-((d+6)%7)*DAY}
+function median(a){if(!a.length)return 0;var s=a.slice().sort(function(x,y){return x-y}),m=s.length>>1;return s.length%2?s[m]:(s[m-1]+s[m])/2}
+function ls(op,k,v){try{if(op==='g')return JSON.parse(localStorage.getItem(k));localStorage.setItem(k,JSON.stringify(v))}catch(e){return null}}
+
+/* ====== data contoh (deterministik) ====== */
+function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;var t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function sampleRows(){
+  var r=rng(20261018),rows=[];
+  var t0=Date.UTC(2026,8,21,0,0), tEnd=Date.UTC(2026,9,17,23,0);
+  var anomStart=Date.UTC(2026,9,12,0,0), ovenLate=Date.UTC(2026,9,14,0,0);
+  for(var t=t0;t<=tEnd;t+=H){
+    var d=dow(t),h=hr(t),work=d>=1&&d<=6;
+    var n=function(a){return (r()-.5)*2*a};
+    var komp=.15+n(.03), oven=.1+n(.02), pres=.05+n(.01), ac=.02+n(.005);
+    if(work){
+      if(h>=7&&h<16) komp=4.0+n(.5);
+      if(h>=7&&h<15) oven=8.5+n(.8);
+      if(h>=8&&h<16) pres=(h===12?.5:3.0)+n(.4);
+      if(h>=8&&h<17) ac=1.1+n(.15);
+    }
+    if(t>=anomStart&&work&&(h>=19||h<5)) komp+=.3+n(.04);
+    if(t>=ovenLate&&t<ovenLate+DAY&&h>=16&&h<20) oven+=3.5+n(.3);
+    rows.push({t:t,d:'Kompresor Udara',wh:Math.round(komp*1000)});
+    rows.push({t:t,d:'Oven Pengering',wh:Math.round(oven*1000)});
+    rows.push({t:t,d:'Mesin Press',wh:Math.round(pres*1000)});
+    rows.push({t:t,d:'AC Ruang Kantor',wh:Math.round(ac*1000)});
+  }
+  return rows;
+}
+
+/* ====== impor CSV ====== */
+var COLS={t:['timestamp','waktu','tanggal','datetime','time'],d:['perangkat','mesin','device','nama','alat'],wh:['energi_wh','wh','energi'],w:['daya_w','watt','daya','power_w']};
+function findCol(h,keys){for(var i=0;i<h.length;i++)if(keys.indexOf(h[i])>-1)return i;return -1}
+function parseTime(s){
+  var m=/^\s*(\d{4})-(\d{1,2})-(\d{1,2})(?:[ T](\d{1,2})[:.](\d{2})(?::\d{2})?)?(?:Z|[+-]\d{2}:?\d{2})?\s*$/.exec(s);
+  if(!m)return null;
+  var mo=+m[2],dd=+m[3],hh=+(m[4]||0),mi=+(m[5]||0);
+  if(mo<1||mo>12||dd<1||dd>31||hh>23||mi>59)return null;
+  return Date.UTC(+m[1],mo-1,dd,hh,mi);
+}
+function parseCSV(text){
+  var lines=String(text).replace(/\r/g,'').split('\n').filter(function(l){return l.trim()});
+  if(lines.length<2)return{error:'File kosong atau hanya berisi judul kolom. Tambahkan baris data di bawah judul.'};
+  var first=lines[0],del=(first.split(';').length>first.split(',').length)?';':',';
+  var head=first.split(del).map(function(x){return x.trim().toLowerCase().replace(/^"|"$/g,'')});
+  var ci={t:findCol(head,COLS.t),d:findCol(head,COLS.d),wh:findCol(head,COLS.wh),w:findCol(head,COLS.w)};
+  if(ci.t<0||ci.d<0||(ci.wh<0&&ci.w<0))return{error:'Judul kolom belum dikenali. Gunakan: timestamp, perangkat, energi_wh (atau daya_w). Contoh: timestamp,perangkat,energi_wh'};
+  if(lines.length-1>150000)return{error:'Data terlalu besar untuk prototipe ini (maksimum 150.000 baris). Potong data menjadi periode yang lebih pendek.'};
+  var rows=[],bad=0,useW=ci.wh<0;
+  for(var i=1;i<lines.length;i++){
+    var c=lines[i].split(del),t=parseTime((c[ci.t]||'').replace(/"/g,'')),name=(c[ci.d]||'').trim().replace(/^"|"$/g,'');
+    var v=parseFloat(String(c[useW?ci.w:ci.wh]||'').replace(/"/g,'').replace(',','.'));
+    if(t==null||!name||!isFinite(v)||v<0){bad++;continue}
+    rows.push({t:t,d:name.slice(0,60),wh:v});
+  }
+  if(!rows.length)return{error:'Tidak ada baris yang valid. Periksa format waktu (contoh 2026-10-12 08:00) dan angka tidak boleh negatif.'};
+  if(bad/(rows.length+bad)>.2)return{error:'Terlalu banyak baris tidak valid ('+bad+' dari '+(rows.length+bad)+'). Periksa format waktu dan angka.'};
+  rows.sort(function(a,b){return a.t-b.t});
+  if(useW){ // daya rata-rata (W) per interval -> Wh
+    var gaps=[];for(var j=1;j<rows.length&&gaps.length<500;j++){var g=rows[j].t-rows[j-1].t;if(g>0)gaps.push(g)}
+    var ih=median(gaps)/H||1;rows.forEach(function(x){x.wh=x.wh*ih});
+  }
+  var seen={},dup=0,out=[];
+  rows.forEach(function(x){var k=x.d+'|'+x.t;if(seen[k]){dup++;return}seen[k]=1;out.push(x)});
+  return{rows:out,bad:bad,dup:dup,useW:useW};
+}
+
+/* ====== state ====== */
+var saved=ls('g','hematdaya.v1')||{};
+var S={
+  tab:'beranda',screen:null,period:'minggu',sheet:null,toast:'',scen:'normal',nowOff:0,
+  rows:[],source:'kosong',
+  set:{start:7,end:16,days:[1,2,3,4,5,6],tariff:1500,units:420},
+  fb:{},imp:{text:'',error:'',info:''}
+};
+if(saved.set)for(var k in saved.set)S.set[k]=saved.set[k];
+if(saved.fb)S.fb=saved.fb;
+function persist(){ls('s','hematdaya.v1',{set:S.set,fb:S.fb})}
+
+/* ====== analisis ====== */
+var D={};
+function prep(){
+  var rows=S.rows;D={rows:rows,devs:[],by:{},first:0,last:0,ih:H};
+  if(!rows.length)return;
+  rows.forEach(function(x){if(!D.by[x.d]){D.by[x.d]=[];D.devs.push(x.d)}D.by[x.d].push(x)});
+  D.first=rows[0].t;D.last=rows[rows.length-1].t;
+  var gaps=[];var a=D.by[D.devs[0]];for(var i=1;i<a.length&&gaps.length<500;i++){var g=a[i].t-a[i-1].t;if(g>0)gaps.push(g)}
+  D.ih=median(gaps)||H;
+  D.end=D.last+D.ih;
+  D.today=[dayStart(D.last),D.end];
+  var ws=monStart(D.last);D.week=[ws,D.end];
+  D.nBase=0;for(var k=1;k<=3;k++){if(ws-k*7*DAY>=D.first)D.nBase=k;else break}
+  D.span=(D.end-D.first)/DAY;
+}
+function isOp(t){return S.set.days.indexOf(dow(t))>-1&&hr(t)>=S.set.start&&hr(t)<S.set.end}
+function agg(dev,from,to){
+  var r={wh:0,off:0,op:0,cnt:0,exp:0},list=dev?[dev]:D.devs;
+  list.forEach(function(n){
+    var a=D.by[n]||[];
+    for(var i=0;i<a.length;i++){var x=a[i];if(x.t<from||x.t>=to)continue;r.wh+=x.wh;r.cnt++;if(isOp(x.t))r.op+=x.wh;else r.off+=x.wh}
+    var f=Math.max(from,D.first),e=Math.min(to,D.end);if(e>f)r.exp+=Math.ceil((e-f)/D.ih);
+  });
+  r.cov=r.exp?Math.min(1,r.cnt/r.exp):0;return r;
+}
+function cost(wh){var t=S.set.tariff;return(t===''||t==null||!(t>0))?null:wh/1000*t}
+function workDays(from,to){var n=0;for(var t=dayStart(from);t<to;t+=DAY)if(S.set.days.indexOf(dow(t))>-1)n++;return n}
+function ike(from,to){
+  var u=S.set.units;if(!(u>0))return null;
+  var wd=0;for(var t=dayStart(from);t<to;t+=DAY){if(S.set.days.indexOf(dow(t))>-1){var dEnd=Math.min(t+DAY,to);if(dEnd-t>=DAY-1||to-t>=DAY/2||true)wd+=Math.min(1,(dEnd-t)/DAY)}}
+  var wh=agg(null,from,to).wh;if(!wd)return null;
+  return wh/1000/(u*wd);
+}
+function isStale(){return S.nowOff*H>2*D.ih}
+function insights(){
+  var out=[];if(!D.rows.length)return out;
+  var wk=D.week,el=wk[1]-wk[0],tot=agg(null,wk[0],wk[1]);
+  var base=function(dev,fn){var a=[];for(var k=1;k<=D.nBase;k++){var f=wk[0]-k*7*DAY;a.push(fn(agg(dev,f,f+el)))}return a};
+  var learning=D.nBase<2;
+  D.devs.forEach(function(dv){
+    var cur=agg(dv,wk[0],wk[1]);
+    if(learning)return;
+    var b=base(dv,function(r){return r.off}),med=median(b);
+    var diff=cur.off-med;
+    if(diff>=3000&&cur.off>=med*1.3){
+      out.push({key:'luar-jam:'+dv,type:'luar-jam',dev:dv,pri:1,cur:cur,med:med,diff:diff,n:b.length,
+        title:'Konsumsi '+dv+' di luar jam operasional naik '+nf(med>0?diff/med*100:0)+'% dibanding minggu-minggu sebelumnya'});
+    }
+  });
+  var u=S.set.units;
+  if(u>0&&!learning){
+    var cur=ike(wk[0],wk[1]),bl=[];for(var k=1;k<=D.nBase;k++){var f=wk[0]-k*7*DAY;bl.push(ike(f,f+el))}
+    var m=median(bl.filter(function(x){return x!=null}));
+    if(cur!=null&&m>0){
+      var ch=(cur-m)/m*100;
+      out.push({key:'ike',type:'ike',pri:2,cur:cur,med:m,ch:ch,n:bl.length,
+        title:Math.abs(ch)<5?'IKE minggu ini stabil, sekitar '+nf(cur,2)+' kWh per unit':'IKE minggu ini '+(ch>0?'naik ':'turun ')+nf(Math.abs(ch))+'% dibanding minggu-minggu sebelumnya'});
+    }
+  }
+  var top=null;D.devs.forEach(function(dv){var w=agg(dv,wk[0],wk[1]).wh;if(!top||w>top.w)top={dv:dv,w:w}});
+  if(top&&tot.wh>0)out.push({key:'kontribusi:'+top.dv,type:'kontribusi',dev:top.dv,pri:3,w:top.w,share:top.w/tot.wh*100,
+    title:top.dv+' menyumbang '+nf(top.w/tot.wh*100)+'% energi minggu ini'});
+  out.sort(function(a,b){return a.pri-b.pri||(b.diff||0)-(a.diff||0)});
+  return out;
+}
+function fbOf(ins){var f=S.fb[ins.key];if(!f)return{st:'baru'};if(f.st==='ditunda'&&f.until&&Date.now()>f.until){return{st:'baru'}}return f}
+function visibleIns(){return insights().filter(function(i){var s=fbOf(i).st;return s!=='disembunyikan'&&s!=='ditunda'})}
+
+/* ====== grafik ====== */
+function niceMax(v){if(v<=0)return 1;var p=Math.pow(10,Math.floor(Math.log10(v))),n=v/p;return(n<=1?1:n<=2?2:n<=5?5:10)*p}
+function chart(from,to,mode,dev){
+  var devs=dev?[dev]:D.devs,B=[],i;
+  if(mode==='hari'){var n=Math.min(24,Math.ceil((D.end-from)/H));for(i=0;i<24;i++)B.push({f:from+i*H,t:from+(i+1)*H,future:i>=n,lab:i%3===0?String(i):''})}
+  else{for(i=0;i<7;i++)B.push({f:from+i*DAY,t:from+(i+1)*DAY,future:from+i*DAY>=D.end,lab:DAYS[dow(from+i*DAY)]})}
+  var peak=0,gaps=0,partial=[];
+  B.forEach(function(b){
+    b.v=devs.map(function(d){var a=agg(d,b.f,b.t);return a.wh/1000});
+    b.cnt=0;b.exp=0;devs.forEach(function(d){var a=agg(d,b.f,b.t);b.cnt+=a.cnt;b.exp+=a.exp});
+    b.tot=b.v.reduce(function(x,y){return x+y},0);if(b.tot>peak){peak=b.tot;b.pk=1}
+    if(!b.future&&b.exp&&b.cnt===0)b.gap=1,gaps++;
+    else if(!b.future&&b.exp&&b.cnt<b.exp*.9)b.part=1,partial.push(b);
+  });
+  var mx=niceMax(peak),W=340,Hh=190,ml=36,mb=26,mt=18,pw=W-ml-4,ph=Hh-mb-mt,bw=pw/B.length;
+  var s='<svg class="chart" viewBox="0 0 '+W+' '+Hh+'" role="img" aria-label="Grafik energi">';
+  [0,.5,1].forEach(function(f){var y=mt+ph-ph*f;s+='<line class="grid" x1="'+ml+'" x2="'+(W-4)+'" y1="'+y+'" y2="'+y+'"/><text x="'+(ml-4)+'" y="'+(y+3)+'" text-anchor="end">'+nf(mx*f,mx<5?1:0)+'</text>'});
+  s+='<text x="2" y="10">kWh</text>';
+  B.forEach(function(b,k){
+    var x=ml+k*bw+bw*.14,w=bw*.72,y0=mt+ph;
+    if(b.gap){s+='<circle class="gap" cx="'+(x+w/2)+'" cy="'+(y0-4)+'" r="3.5"/>'}
+    else if(!b.future){b.v.forEach(function(v,j){var h=v/mx*ph;if(h<=0)return;y0-=h;s+='<rect class="s'+j+'" x="'+x+'" y="'+y0+'" width="'+w+'" height="'+h+'" rx="2"/>'})}
+    if(b.lab)s+='<text x="'+(x+w/2)+'" y="'+(Hh-8)+'" text-anchor="middle">'+b.lab+(b.part?'*':'')+'</text>';
+  });
+  s+='</svg>';
+  var sum='';
+  if(peak>0){var pk=B.filter(function(b){return b.pk})[0];sum='Puncak: '+(mode==='hari'?'pukul '+p2(hr(pk.f))+'.00':DAYF[dow(pk.f)])+' ('+nf(peak,1)+' kWh). '}
+  if(mode==='minggu'&&B.some(function(b){return b.future}))sum+='Hari setelah '+DAYF[dow(D.end-1)]+' belum ada data. ';
+  if(partial.length)sum+='Bertanda * berarti data hari itu belum lengkap. ';
+  if(gaps)sum+='Lingkaran putus-putus berarti tidak ada data pada waktu itu, bukan nol. ';
+  return{svg:s,sum:sum||'Belum ada energi tercatat pada periode ini.',legend:devs};
+}
+function legendHTML(devs){return '<div class="legend">'+devs.map(function(d,i){return '<span><i style="background:var(--c'+(i%4)+')"></i>'+esc(d)+'</span>'}).join('')+'</div>'}
+
+/* ====== tampilan ====== */
+var ICON={
+  home:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>',
+  dev:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10v4M11 10v4M15 10v4"/></svg>',
+  tip:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 00-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0012 3z"/></svg>',
+  gear:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg>',
+  back:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>',
+  logo:'<svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="10" fill="var(--accent)"/><path d="M19 6L9 19h7l-2 9 11-14h-7z" fill="var(--accent-ink)"/></svg>',
+  plug:'<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 2v6M15 2v6"/><path d="M6 8h12v4a6 6 0 01-12 0z"/><path d="M12 18v4"/></svg>'
+};
+function modeChip(){
+  if(S.source==='kosong')return'';
+  var c=S.source==='contoh'?'<span class="chip">Demo · Data simulasi</span>':'<span class="chip ok">Data impor Anda</span>';
+  if(D.rows.length){
+    var lastTxt=dtext(D.end-D.ih)+', '+ttext(D.end-D.ih);
+    c+=isStale()?'<span class="chip warn">Data terakhir '+lastTxt+'</span>':'<span class="chip">Data sampai '+lastTxt+'</span>';
+  }
+  return c;
+}
+function header(){
+  var title={beranda:'Beranda',perangkat:'Perangkat',saran:'Saran'}[S.tab],back='';
+  if(S.screen){title=S.screen.type==='dev'?S.screen.id:'Penjelasan saran';back='<button class="iconbtn" data-a="back" aria-label="Kembali">'+ICON.back+'</button>'}
+  var left=back?back+'<h1>'+esc(title)+'</h1>':'<div class="brand">'+ICON.logo+'<h1>HematDaya</h1></div>';
+  return '<div class="toprow">'+left+'<button class="iconbtn" data-a="sheet" data-v="set" aria-label="Pengaturan">'+ICON.gear+'</button></div><div class="modes">'+modeChip()+'</div>';
+}
+function tabsHTML(){
+  var n=D.rows.length?visibleIns().length:0;
+  var items=[['beranda','Beranda',ICON.home],['perangkat','Perangkat',ICON.dev],['saran','Saran',ICON.tip]];
+  return items.map(function(x){return '<button class="tab" role="tab" aria-selected="'+(S.tab===x[0]&&!S.screen)+'" data-a="tab" data-v="'+x[0]+'">'+x[2]+x[1]+(x[0]==='saran'&&n?'<span class="badge" aria-label="'+n+' saran">'+n+'</span>':'')+'</button>'}).join('');
+}
+function banners(){
+  var h='';
+  if(!D.rows.length)return h;
+  if(isStale())h+='<div class="banner"><div><b>Data belum diperbarui.</b> Terakhir diterima '+dtext(D.end-D.ih)+' pukul '+ttext(D.end-D.ih)+'. Angka di bawah memakai data yang sudah ada, bukan perkiraan.</div></div>';
+  var wk=agg(null,D.week[0],D.week[1]);
+  if(wk.cov<.9)h+='<div class="banner"><div><b>Sebagian data belum tersedia.</b> Cakupan minggu ini '+nf(wk.cov*100)+'%. Angka mencakup data yang berhasil dicatat; bagian yang tidak tercatat tidak dihitung sebagai nol.</div></div>';
+  return h;
+}
+function emptyHome(){
+  return '<div class="empty"><div class="ill">'+ICON.plug+'</div><h2>Belum ada data energi</h2><p>Impor catatan konsumsi listrik mesin Anda, atau coba dulu dengan data contoh pabrik kecil.</p>'+
+   '<div class="btnrow" style="justify-content:center"><button class="btn" data-a="sheet" data-v="imp">Impor data</button><button class="btn ghost" data-a="sample">Pakai data contoh</button></div></div>';
+}
+function featured(ins){
+  if(!ins)return '';
+  return insCard(ins,true);
+}
+function insCard(ins,feat){
+  var f=fbOf(ins);
+  var tag=ins.type==='luar-jam'?'Di luar jam operasional':ins.type==='ike'?'IKE':'Kontribusi';
+  var mark=f.st==='bermanfaat'?'<span class="chip ok">Bermanfaat</span>':f.st==='kurang'?'<span class="chip warn">Kurang sesuai</span>':'';
+  return '<button class="ins'+(feat?' feat':'')+'" data-a="ins" data-v="'+esc(ins.key)+'"><span class="row"><span class="sub">'+tag+'</span>'+mark+'</span><span class="t">'+esc(ins.title)+'</span><span class="sub">Lihat penjelasan dan bukti ›</span></button>';
+}
+function berandaView(){
+  if(!D.rows.length)return emptyHome();
+  var per=S.period==='hari'?D.today:D.week,a=agg(null,per[0],per[1]),c=cost(a.wh);
+  var perTxt=(S.period==='hari'||dayStart(per[0])===dayStart(per[1]-1))?dtext(per[0]):dtext(per[0])+' – '+dtext(per[1]-1);
+  var ch=chart(per[0],S.period==='hari'?per[0]+DAY:per[0]+7*DAY,S.period==='hari'?'hari':'minggu',null);
+  var rank=D.devs.map(function(d){return{d:d,w:agg(d,per[0],per[1]).wh}}).sort(function(x,y){return y.w-x.w});
+  var ik=ike(per[0],per[1]),h='';
+  h+='<div class="seg" role="group" aria-label="Periode"><button data-a="period" data-v="hari" aria-pressed="'+(S.period==='hari')+'">Hari ini</button><button data-a="period" data-v="minggu" aria-pressed="'+(S.period==='minggu')+'">Minggu ini</button></div>';
+  h+=banners();
+  h+='<div class="card"><div class="sub">Estimasi biaya mesin yang dipantau</div>'+
+     '<div class="big k">'+(c==null?'<span style="font-size:22px">Tarif belum diisi</span>':rp(c))+'</div>'+
+     '<div class="row"><span class="k"><b>'+kwh(a.wh)+'</b></span><span class="sub">'+esc(perTxt)+'</span></div>'+
+     (c==null?'<button class="btn small ghost" data-a="sheet" data-v="set">Tambahkan tarif per kWh</button>':'<div class="sub">Dihitung dari tarif yang Anda isi ('+rp(S.set.tariff)+'/kWh), bukan tagihan PLN. Hanya mesin yang terhubung.</div>')+'</div>';
+  h+='<div class="card"><h3>Energi per '+(S.period==='hari'?'jam':'hari')+'</h3>'+ch.svg+legendHTML(ch.legend)+'<div class="sub">'+esc(ch.sum)+'</div></div>';
+  h+='<h2 class="sec">Mesin terbesar</h2>';
+  rank.slice(0,3).forEach(function(r,i){h+=devCard(r.d,r.w,a.wh,i)});
+  if(rank.length>3)h+='<button class="link" data-a="tab" data-v="perangkat">Lihat semua '+rank.length+' mesin ›</button>';
+  var ins=visibleIns();
+  h+='<h2 class="sec">Satu hal yang perlu dilihat</h2>';
+  h+=ins.length?featured(ins[0]):'<div class="card"><div class="sub">'+(D.nBase<2?'Sedang mempelajari pola penggunaan. Pemakaian yang tercatat tetap bisa dilihat di atas.':'Belum ada temuan baru. Pola minggu ini sama dengan minggu-minggu sebelumnya.')+'</div></div>';
+  h+='<div class="card"><h3>IKE (energi per unit produksi)</h3>'+
+     (ik==null?'<div class="sub">Isi produksi rata-rata per hari kerja di Pengaturan untuk melihat IKE.</div><button class="btn small ghost" data-a="sheet" data-v="set">Isi produksi</button>':
+     '<div class="big k">'+nf(ik,2)+' <small>kWh/unit</small></div><div class="sub">Memakai angka produksi rata-rata '+nf(S.set.units)+' unit per hari kerja yang Anda isi, bukan catatan produksi harian.</div>')+'</div>';
+  return h;
+}
+function devCard(d,w,tot,i){
+  var sh=tot>0?w/tot*100:0,c=cost(w);
+  return '<button class="dev" data-a="dev" data-v="'+esc(d)+'"><span class="row"><span class="nm">'+esc(d)+'</span><span class="k"><b>'+kwh(w)+'</b></span></span>'+
+   '<span class="bar" aria-hidden="true"><i style="width:'+Math.max(2,sh)+'%;background:var(--c'+(D.devs.indexOf(d)%4)+')"></i></span>'+
+   '<span class="row sub"><span>'+nf(sh)+'% dari total</span><span class="k">'+(c==null?'':rp(c))+'</span></span></button>';
+}
+function perangkatView(){
+  if(!D.rows.length)return emptyHome();
+  var per=S.period==='hari'?D.today:D.week,a=agg(null,per[0],per[1]);
+  var h='<div class="seg" role="group" aria-label="Periode"><button data-a="period" data-v="hari" aria-pressed="'+(S.period==='hari')+'">Hari ini</button><button data-a="period" data-v="minggu" aria-pressed="'+(S.period==='minggu')+'">Minggu ini</button></div>'+banners();
+  D.devs.map(function(d){return{d:d,w:agg(d,per[0],per[1]).wh}}).sort(function(x,y){return y.w-x.w}).forEach(function(r,i){h+=devCard(r.d,r.w,a.wh,i)});
+  h+='<button class="btn ghost" data-a="sheet" data-v="imp">Impor data lain</button>';
+  return h;
+}
+function devView(name){
+  var per=S.period==='hari'?D.today:D.week,a=agg(name,per[0],per[1]),c=cost(a.wh);
+  var ch=chart(per[0],S.period==='hari'?per[0]+DAY:per[0]+7*DAY,S.period==='hari'?'hari':'minggu',name);
+  var h='<div class="seg" role="group" aria-label="Periode"><button data-a="period" data-v="hari" aria-pressed="'+(S.period==='hari')+'">Hari ini</button><button data-a="period" data-v="minggu" aria-pressed="'+(S.period==='minggu')+'">Minggu ini</button></div>';
+  h+=banners();
+  h+='<div class="card"><div class="big k">'+kwh(a.wh)+'</div><div class="sub">'+(c==null?'Tambahkan tarif di Pengaturan untuk melihat estimasi biaya.':'Estimasi biaya '+rp(c))+'</div>'+
+     '<table class="ev"><tr><th>Saat jam operasional</th><td>'+kwh(a.op)+'</td></tr><tr><th>Di luar jam operasional</th><td>'+kwh(a.off)+'</td></tr><tr><th>Cakupan data</th><td>'+nf(a.cov*100)+'%</td></tr></table>'+
+     '<div class="sub">Jam operasional: '+p2(S.set.start)+'.00–'+p2(S.set.end)+'.00, '+S.set.days.map(function(d){return DAYS[d]}).join(', ')+'. Ubah di Pengaturan.</div></div>';
+  h+='<div class="card"><h3>Riwayat</h3>'+ch.svg+'<div class="sub">'+esc(ch.sum)+'</div></div>';
+  var rel=insights().filter(function(i){return i.dev===name});
+  h+='<h2 class="sec">Saran terkait</h2>';
+  h+=rel.length?rel.map(function(i){return insCard(i)}).join(''):'<div class="card"><div class="sub">'+(D.nBase<2?'Sedang mempelajari pola penggunaan mesin ini.':'Belum ada temuan untuk mesin ini.')+'</div></div>';
+  h+='<button class="link" data-a="more">Detail pengukuran ›</button><div id="more" hidden class="card"><table class="ev"><tr><th>Jumlah pembacaan</th><td>'+nf((D.by[name]||[]).length)+'</td></tr><tr><th>Interval data</th><td>'+nf(D.ih/60000)+' menit</td></tr><tr><th>Pembacaan terakhir</th><td>'+dtext(D.end-D.ih)+', '+ttext(D.end-D.ih)+'</td></tr></table><div class="sub">Ini pemantauan saja. Tidak ada tombol hidup/mati untuk mesin.</div></div>';
+  return h;
+}
+function saranView(){
+  if(!D.rows.length)return emptyHome();
+  var all=insights(),h='';
+  if(D.nBase<2)h+='<div class="banner info"><div><b>Sedang mempelajari pola.</b> Butuh data minimal 3 minggu untuk membandingkan. Pemakaian yang tercatat tetap bisa dilihat di Beranda.</div></div>';
+  var shown=all.filter(function(i){var s=fbOf(i).st;return s!=='disembunyikan'});
+  if(!shown.length)h+='<div class="card"><div class="sub">Belum ada saran. Saran muncul saat ada perubahan yang cukup didukung data.</div></div>';
+  shown.forEach(function(i){h+=insCard(i,false)});
+  var hid=all.length-shown.length;
+  if(hid)h+='<button class="link" data-a="restore">Tampilkan kembali '+hid+' saran yang disembunyikan</button>';
+  return h;
+}
+function insView(key){
+  var all=insights(),ins=all.filter(function(i){return i.key===key})[0];
+  if(!ins)return '<div class="card"><div class="sub">Saran ini sudah tidak berlaku untuk data terbaru.</div></div><button class="btn ghost" data-a="back">Kembali</button>';
+  var f=fbOf(ins),h='<div class="card"><h2>'+esc(ins.title)+'</h2>';
+  var wk=D.week,c;
+  if(ins.type==='luar-jam'){
+    c=cost(ins.diff);
+    h+='<h3>Apa yang berubah</h3><div>Energi '+esc(ins.dev)+' di luar jam operasional minggu ini lebih besar daripada median '+ins.n+' minggu sebelumnya pada rentang waktu yang sama.</div>'+
+      '<table class="ev"><tr><th>Minggu ini (sampai '+DAYF[dow(D.end-1)]+')</th><td>'+kwh(ins.cur.off)+'</td></tr><tr><th>Pembanding (median '+ins.n+' minggu)</th><td>'+kwh(ins.med)+'</td></tr><tr><th>Selisih</th><td>+'+kwh(ins.diff)+(c==null?'':' ≈ '+rp(c))+'</td></tr><tr><th>Cakupan data</th><td>'+nf(ins.cur.cov*100)+'%</td></tr></table>'+
+      '<h3>Yang belum diketahui</h3><div>Data listrik belum dapat menjelaskan penyebabnya. Bisa saja lembur, pengeringan tambahan, atau mesin yang tidak dimatikan.</div>'+
+      '<h3>Hal yang bisa diperiksa <span class="sub">(saran umum)</span></h3><div>Bandingkan dengan jadwal shift dan catatan operator. Jika mesin memang tidak dipakai, periksa apakah masih menyala setelah jam kerja.</div>';
+  }else if(ins.type==='ike'){
+    h+='<h3>Apa yang berubah</h3><div>IKE adalah energi yang dipakai untuk menghasilkan satu unit produk.</div>'+
+      '<table class="ev"><tr><th>Minggu ini</th><td>'+nf(ins.cur,2)+' kWh/unit</td></tr><tr><th>Pembanding (median '+ins.n+' minggu)</th><td>'+nf(ins.med,2)+' kWh/unit</td></tr><tr><th>Perubahan</th><td>'+(ins.ch>0?'+':'')+nf(ins.ch,1)+'%</td></tr></table>'+
+      '<h3>Yang belum diketahui</h3><div>Produksi dihitung dari angka rata-rata '+nf(S.set.units)+' unit per hari kerja yang Anda isi, bukan catatan produksi harian. Jika produksi sebenarnya berubah, IKE ini ikut bergeser. Acuan resmi IKE per subsektor adalah wewenang pemerintah; ini hanya pembanding dengan riwayat pabrik sendiri.</div>';
+  }else{
+    c=cost(ins.w);
+    h+='<h3>Apa yang terlihat</h3><div>'+esc(ins.dev)+' memakai '+kwh(ins.w)+' minggu ini'+(c==null?'':' (estimasi '+rp(c)+')')+', paling besar di antara mesin yang dipantau.</div>'+
+      '<h3>Yang belum diketahui</h3><div>Total hanya mencakup mesin yang terhubung. Ini bukan tagihan listrik pabrik secara keseluruhan.</div>';
+  }
+  h+='</div>';
+  h+='<div class="card"><h3>Apakah penjelasan ini berguna?</h3><div class="btnrow"><button class="btn small'+(f.st==='bermanfaat'?'':' ghost')+'" data-a="fb" data-v="bermanfaat" data-k="'+esc(key)+'" aria-pressed="'+(f.st==='bermanfaat')+'">Bermanfaat</button><button class="btn small'+(f.st==='kurang'?'':' ghost')+'" data-a="fb" data-v="kurang" data-k="'+esc(key)+'" aria-pressed="'+(f.st==='kurang')+'">Kurang sesuai</button></div>'+
+    '<div class="btnrow"><button class="btn small plain" data-a="fb" data-v="ditunda" data-k="'+esc(key)+'">Ingatkan nanti</button><button class="btn small plain" data-a="fb" data-v="disembunyikan" data-k="'+esc(key)+'">Sembunyikan</button></div>'+
+    '<div class="sub">Umpan balik bersifat opsional dan tidak menghapus data.</div></div>';
+  return h;
+}
+function render(){
+  prep();
+  var app=$('#app'),keep=app.querySelector('main'),st=keep?keep.scrollTop:0;
+  var body;
+  if(S.screen)body=S.screen.type==='dev'?devView(S.screen.id):insView(S.screen.id);
+  else body={beranda:berandaView,perangkat:perangkatView,saran:saranView}[S.tab]();
+  app.innerHTML='<header class="top">'+header()+'</header><main id="main" tabindex="-1">'+body+'</main><nav class="tabs" role="tablist" aria-label="Menu utama">'+tabsHTML()+'</nav>'+sheetHTML()+(S.toast?'<div class="toast" role="status">'+esc(S.toast)+'</div>':'');
+  var m=$('#main');if(m)m.scrollTop=st;
+}
+var toastT;
+function toast(msg){S.toast=msg;render();clearTimeout(toastT);toastT=setTimeout(function(){S.toast='';var t=$('.toast');if(t)t.remove()},3200)}
+
+/* ====== sheet ====== */
+var CSVEX='timestamp,perangkat,energi_wh\n2026-10-12 08:00,Kompresor Udara,4120\n2026-10-12 08:00,Oven Pengering,8630\n2026-10-12 09:00,Kompresor Udara,3980';
+function sheetHTML(){
+  if(!S.sheet)return '';
+  var h='<div class="scrim" data-a="scrim"><div class="sheet" role="dialog" aria-modal="true" aria-label="'+(S.sheet==='set'?'Pengaturan':S.sheet==='imp'?'Impor data':'Skenario demo')+'"><div class="grab"></div>';
+  if(S.sheet==='set'){
+    var hs='',he='';for(var i=0;i<24;i++)hs+='<option value="'+i+'"'+(S.set.start===i?' selected':'')+'>'+p2(i)+'.00</option>';
+    for(i=1;i<=24;i++)he+='<option value="'+i+'"'+(S.set.end===i?' selected':'')+'>'+p2(i%24)+'.00'+(i===24?' (tengah malam)':'')+'</option>';
+    var ds='';[1,2,3,4,5,6,0].forEach(function(d){ds+='<label><input type="checkbox" data-set="day" value="'+d+'"'+(S.set.days.indexOf(d)>-1?' checked':'')+'><span>'+DAYS[d]+'</span></label>'});
+    h+='<h2>Pengaturan</h2>'+
+     '<div class="field"><span class="lab">Jam operasional</span><div class="twocol"><div class="field"><label for="f-start">Mulai</label><select id="f-start" data-set="start">'+hs+'</select></div><div class="field"><label for="f-end">Selesai</label><select id="f-end" data-set="end">'+he+'</select></div></div><span class="hint">Energi di luar jam ini dihitung terpisah untuk mencari konsumsi yang tidak perlu.</span></div>'+
+     '<div class="field"><span class="lab">Hari kerja</span><div class="days" role="group" aria-label="Hari kerja">'+ds+'</div></div>'+
+     '<div class="field"><label for="f-tariff">Tarif listrik per kWh (Rp)</label><input id="f-tariff" type="number" inputmode="numeric" min="0" step="1" data-set="tariff" value="'+(S.set.tariff===''||S.set.tariff==null?'':S.set.tariff)+'" placeholder="Kosongkan jika belum tahu"><span class="hint">Opsional. Angka contoh, bukan tarif PLN resmi. Tanpa tarif, aplikasi menampilkan kWh saja.</span></div>'+
+     '<div class="field"><label for="f-units">Produksi rata-rata per hari kerja (unit)</label><input id="f-units" type="number" inputmode="numeric" min="0" step="1" data-set="units" value="'+(S.set.units===''||S.set.units==null?'':S.set.units)+'" placeholder="Kosongkan jika belum tahu"><span class="hint">Opsional. Dipakai untuk menghitung IKE (kWh per unit).</span></div>'+
+     '<div class="btnrow"><button class="btn ghost" data-a="sheet" data-v="imp">Impor data</button><button class="btn ghost" data-a="sheet" data-v="scen">Skenario demo</button></div>'+
+     '<div class="hint">Analisis berjalan di browser Anda. Data yang diimpor tidak dikirim ke server. Pengaturan disimpan di perangkat ini.</div>'+
+     '<button class="btn" data-a="close">Selesai</button>';
+  }else if(S.sheet==='imp'){
+    h+='<h2>Impor data energi</h2><div class="sub">Tempel isi CSV atau pilih berkas. Satu baris = satu pembacaan energi (Wh) per mesin.</div>'+
+     '<pre class="code" id="csvex">'+esc(CSVEX)+'</pre><div class="btnrow"><button class="btn small ghost" data-a="copyex">Salin contoh</button></div>'+
+     '<div class="field"><label for="f-file">Pilih berkas CSV</label><input id="f-file" type="file" accept=".csv,.txt,text/csv"></div>'+
+     '<div class="field"><label for="f-csv">Atau tempel CSV di sini</label><textarea id="f-csv" placeholder="timestamp,perangkat,energi_wh">'+esc(S.imp.text)+'</textarea><span class="hint">Kolom daya_w (rata-rata watt per interval) juga dikenali. Waktu dianggap waktu setempat.</span></div>'+
+     (S.imp.error?'<div class="banner bad" role="alert"><div><b>Belum bisa dianalisis.</b> '+esc(S.imp.error)+'</div></div>':'')+
+     (S.imp.info?'<div class="banner info"><div>'+esc(S.imp.info)+'</div></div>':'')+
+     '<div class="btnrow"><button class="btn" data-a="runimp">Analisis data</button><button class="btn ghost" data-a="sample">Pakai data contoh</button><button class="btn plain" data-a="close">Batal</button></div>';
+  }else{
+    var sc=[['normal','Normal'],['kosong','Kosong'],['tanpatarif','Tanpa tarif'],['terlambat','Data terlambat'],['sebagian','Cakupan sebagian'],['rusak','CSV salah format']];
+    h+='<h2>Skenario demo</h2><div class="sub">Untuk menguji tampilan saat data bermasalah. Hanya ada di mode demo.</div><div class="scen">'+sc.map(function(x){return '<button data-a="scen" data-v="'+x[0]+'" aria-pressed="'+(S.scen===x[0])+'">'+x[1]+'</button>'}).join('')+'</div>'+
+     '<div class="btnrow"><button class="btn ghost" data-a="reset">Reset ke awal</button><button class="btn" data-a="close">Tutup</button></div>';
+  }
+  return h+'</div></div>';
+}
+
+/* ====== aksi ====== */
+function setRows(rows,src){S.rows=rows;S.source=src;S.screen=null;S.tab='beranda';prep()}
+function loadSample(){setRows(sampleRows(),'contoh');S.scen='normal';S.nowOff=0;S.set.tariff=1500;S.set.units=420;persist()}
+function dropPartial(){
+  var rows=sampleRows(),r=rng(7),cut=Date.UTC(2026,9,14,0,0);
+  setRows(rows.filter(function(x){return !(x.d==='Mesin Press'&&x.t>=cut&&r()<.4)}),'contoh');
+}
+function scenario(k){
+  S.scen=k;S.nowOff=0;
+  if(k==='kosong'){setRows([],'kosong')}
+  else if(k==='normal'){loadSample()}
+  else if(k==='tanpatarif'){if(!S.rows.length||S.source!=='contoh')loadSample();S.set.tariff='';S.scen=k}
+  else if(k==='terlambat'){if(S.source!=='contoh')loadSample();S.nowOff=3}
+  else if(k==='sebagian'){dropPartial()}
+  else if(k==='rusak'){S.imp={text:'tanggal;mesin;kwh\n12-10-2026;Oven;abc\n',error:'',info:''};S.sheet='imp';var p=parseCSV(S.imp.text);S.imp.error=p.error||'';render();return}
+  S.sheet=null;persist();render();
+}
+function readFile(file){
+  var rd=new FileReader();
+  rd.onload=function(){S.imp.text=String(rd.result||'').slice(0,6e6);S.imp.error='';S.imp.info='Berkas "'+file.name+'" dibaca. Tekan Analisis data.';render()};
+  rd.onerror=function(){S.imp.error='Berkas tidak bisa dibaca. Coba pilih ulang atau tempel isinya langsung.';render()};
+  rd.readAsText(file);
+}
+document.addEventListener('click',function(e){
+  var el=e.target.closest('[data-a]');if(!el||!$('#app').contains(el))return;
+  var a=el.getAttribute('data-a'),v=el.getAttribute('data-v');
+  if(a==='scrim'){if(e.target!==el)return;S.sheet=null;render();return}
+  if(a==='tab'){S.tab=v;S.screen=null;render();return}
+  if(a==='period'){S.period=v;render();return}
+  if(a==='dev'){S.screen={type:'dev',id:v};render();return}
+  if(a==='ins'){S.screen={type:'ins',id:v};render();return}
+  if(a==='back'){S.screen=null;render();return}
+  if(a==='sheet'){S.sheet=v;if(v==='imp'){S.imp.error='';S.imp.info=''}render();return}
+  if(a==='close'){S.sheet=null;render();return}
+  if(a==='more'){var m=$('#more');if(m)m.hidden=!m.hidden;return}
+  if(a==='sample'){loadSample();S.sheet=null;persist();toast('Data contoh dimuat: 4 mesin, 4 minggu.');return}
+  if(a==='reset'){S.fb={};S.set={start:7,end:16,days:[1,2,3,4,5,6],tariff:1500,units:420};loadSample();S.sheet=null;persist();toast('Kembali ke kondisi awal.');return}
+  if(a==='scen'){scenario(v);return}
+  if(a==='restore'){Object.keys(S.fb).forEach(function(k){if(S.fb[k].st==='disembunyikan')delete S.fb[k]});persist();render();return}
+  if(a==='fb'){var k=el.getAttribute('data-k');S.fb[k]={st:v,until:v==='ditunda'?Date.now()+864e5:0};persist();
+    if(v==='disembunyikan'||v==='ditunda'){S.screen=null;S.tab='saran';toast(v==='ditunda'?'Saran ditunda sampai besok.':'Saran disembunyikan. Data tidak dihapus.')}else{toast('Terima kasih, umpan balik tersimpan.')}return}
+  if(a==='copyex'){var ok=function(){toast('Contoh disalin.')},no=function(){var pre=$('#csvex');if(pre){var r=document.createRange();r.selectNodeContents(pre);var s=getSelection();s.removeAllRanges();s.addRange(r)}toast('Salin manual: teks contoh sudah dipilih.')};
+    try{navigator.clipboard.writeText(CSVEX).then(ok,no)}catch(x){no()}return}
+  if(a==='runimp'){
+    var ta=$('#f-csv');if(ta)S.imp.text=ta.value;
+    var p=parseCSV(S.imp.text);
+    if(p.error){S.imp.error=p.error;S.imp.info='';render();return}
+    S.imp.error='';
+    setRows(p.rows,'impor');S.sheet=null;S.nowOff=0;S.scen='normal';
+    var devs={};p.rows.forEach(function(x){devs[x.d]=1});
+    toast(nf(p.rows.length)+' baris dari '+Object.keys(devs).length+' mesin diimpor.'+(p.bad?' '+p.bad+' baris dilewati.':'')+(p.dup?' '+p.dup+' baris ganda diabaikan.':''));
+    return;
+  }
+});
+document.addEventListener('change',function(e){
+  var el=e.target;if(!el.getAttribute)return;
+  if(el.id==='f-file'&&el.files&&el.files[0]){readFile(el.files[0]);return}
+  var k=el.getAttribute('data-set');if(!k)return;
+  if(k==='start'||k==='end'){S.set[k]=+el.value;if(S.set.end<=S.set.start){S.set.end=Math.min(24,S.set.start+1);var se=$('#f-end');if(se)se.value=S.set.end}}
+  else if(k==='day'){var d=+el.value,i=S.set.days.indexOf(d);if(el.checked&&i<0)S.set.days.push(d);if(!el.checked&&i>-1)S.set.days.splice(i,1)}
+  else{S.set[k]=el.value===''?'':Math.max(0,+el.value)}
+  persist();
+  // render ulang konten utama saja agar fokus di lembar pengaturan tidak hilang
+  prep();var sheet=$('.scrim');var app=$('#app');var m=$('#main');
+  var body=S.screen?(S.screen.type==='dev'?devView(S.screen.id):insView(S.screen.id)):({beranda:berandaView,perangkat:perangkatView,saran:saranView}[S.tab]());
+  if(m)m.innerHTML=body;
+  var hd=$('header.top');if(hd)hd.innerHTML=header();
+  var tb=$('nav.tabs');if(tb)tb.innerHTML=tabsHTML();
+});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&S.sheet){S.sheet=null;render()}});
+document.addEventListener('input',function(e){if(e.target&&e.target.id==='f-csv')S.imp.text=e.target.value});
+
+/* ====== mulai ====== */
+loadSample();
+render();
+window.__hd={S:S,agg:function(){return D},insights:insights,parseCSV:parseCSV,render:render,scenario:scenario};
+})();
+</script>

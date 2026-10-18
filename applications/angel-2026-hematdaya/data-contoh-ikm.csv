@@ -1,0 +1,2593 @@
+timestamp,perangkat,energi_wh
+2026-09-21 00:00,Kompresor Udara,157
+2026-09-21 00:00,Oven Pengering,112
+2026-09-21 00:00,Mesin Press,50
+2026-09-21 00:00,AC Ruang Kantor,18
+2026-09-21 01:00,Kompresor Udara,137
+2026-09-21 01:00,Oven Pengering,109
+2026-09-21 01:00,Mesin Press,47
+2026-09-21 01:00,AC Ruang Kantor,16
+2026-09-21 02:00,Kompresor Udara,149
+2026-09-21 02:00,Oven Pengering,95
+2026-09-21 02:00,Mesin Press,55
+2026-09-21 02:00,AC Ruang Kantor,20
+2026-09-21 03:00,Kompresor Udara,160
+2026-09-21 03:00,Oven Pengering,110
+2026-09-21 03:00,Mesin Press,42
+2026-09-21 03:00,AC Ruang Kantor,17
+2026-09-21 04:00,Kompresor Udara,146
+2026-09-21 04:00,Oven Pengering,100
+2026-09-21 04:00,Mesin Press,51
+2026-09-21 04:00,AC Ruang Kantor,17
+2026-09-21 05:00,Kompresor Udara,145
+2026-09-21 05:00,Oven Pengering,86
+2026-09-21 05:00,Mesin Press,51
+2026-09-21 05:00,AC Ruang Kantor,15
+2026-09-21 06:00,Kompresor Udara,147
+2026-09-21 06:00,Oven Pengering,92
+2026-09-21 06:00,Mesin Press,52
+2026-09-21 06:00,AC Ruang Kantor,16
+2026-09-21 07:00,Kompresor Udara,4160
+2026-09-21 07:00,Oven Pengering,8478
+2026-09-21 07:00,Mesin Press,48
+2026-09-21 07:00,AC Ruang Kantor,19
+2026-09-21 08:00,Kompresor Udara,4176
+2026-09-21 08:00,Oven Pengering,9015
+2026-09-21 08:00,Mesin Press,2734
+2026-09-21 08:00,AC Ruang Kantor,1093
+2026-09-21 09:00,Kompresor Udara,4010
+2026-09-21 09:00,Oven Pengering,7758
+2026-09-21 09:00,Mesin Press,3115
+2026-09-21 09:00,AC Ruang Kantor,1051
+2026-09-21 10:00,Kompresor Udara,4137
+2026-09-21 10:00,Oven Pengering,8750
+2026-09-21 10:00,Mesin Press,2757
+2026-09-21 10:00,AC Ruang Kantor,1163
+2026-09-21 11:00,Kompresor Udara,4238
+2026-09-21 11:00,Oven Pengering,7959
+2026-09-21 11:00,Mesin Press,2648
+2026-09-21 11:00,AC Ruang Kantor,1157
+2026-09-21 12:00,Kompresor Udara,4378
+2026-09-21 12:00,Oven Pengering,8691
+2026-09-21 12:00,Mesin Press,729
+2026-09-21 12:00,AC Ruang Kantor,1016
+2026-09-21 13:00,Kompresor Udara,3919
+2026-09-21 13:00,Oven Pengering,8437
+2026-09-21 13:00,Mesin Press,3116
+2026-09-21 13:00,AC Ruang Kantor,971
+2026-09-21 14:00,Kompresor Udara,3768
+2026-09-21 14:00,Oven Pengering,8430
+2026-09-21 14:00,Mesin Press,2710
+2026-09-21 14:00,AC Ruang Kantor,1029
+2026-09-21 15:00,Kompresor Udara,3748
+2026-09-21 15:00,Oven Pengering,88
+2026-09-21 15:00,Mesin Press,3044
+2026-09-21 15:00,AC Ruang Kantor,1187
+2026-09-21 16:00,Kompresor Udara,169
+2026-09-21 16:00,Oven Pengering,88
+2026-09-21 16:00,Mesin Press,47
+2026-09-21 16:00,AC Ruang Kantor,1138
+2026-09-21 17:00,Kompresor Udara,170
+2026-09-21 17:00,Oven Pengering,99
+2026-09-21 17:00,Mesin Press,41
+2026-09-21 17:00,AC Ruang Kantor,19
+2026-09-21 18:00,Kompresor Udara,167
+2026-09-21 18:00,Oven Pengering,86
+2026-09-21 18:00,Mesin Press,60
+2026-09-21 18:00,AC Ruang Kantor,22
+2026-09-21 19:00,Kompresor Udara,131
+2026-09-21 19:00,Oven Pengering,114
+2026-09-21 19:00,Mesin Press,60
+2026-09-21 19:00,AC Ruang Kantor,21
+2026-09-21 20:00,Kompresor Udara,121
+2026-09-21 20:00,Oven Pengering,105
+2026-09-21 20:00,Mesin Press,49
+2026-09-21 20:00,AC Ruang Kantor,19
+2026-09-21 21:00,Kompresor Udara,179
+2026-09-21 21:00,Oven Pengering,107
+2026-09-21 21:00,Mesin Press,56
+2026-09-21 21:00,AC Ruang Kantor,21
+2026-09-21 22:00,Kompresor Udara,177
+2026-09-21 22:00,Oven Pengering,112
+2026-09-21 22:00,Mesin Press,44
+2026-09-21 22:00,AC Ruang Kantor,15
+2026-09-21 23:00,Kompresor Udara,164
+2026-09-21 23:00,Oven Pengering,88
+2026-09-21 23:00,Mesin Press,49
+2026-09-21 23:00,AC Ruang Kantor,19
+2026-09-22 00:00,Kompresor Udara,145
+2026-09-22 00:00,Oven Pengering,97
+2026-09-22 00:00,Mesin Press,58
+2026-09-22 00:00,AC Ruang Kantor,23
+2026-09-22 01:00,Kompresor Udara,152
+2026-09-22 01:00,Oven Pengering,115
+2026-09-22 01:00,Mesin Press,43
+2026-09-22 01:00,AC Ruang Kantor,18
+2026-09-22 02:00,Kompresor Udara,134
+2026-09-22 02:00,Oven Pengering,89
+2026-09-22 02:00,Mesin Press,46
+2026-09-22 02:00,AC Ruang Kantor,21
+2026-09-22 03:00,Kompresor Udara,173
+2026-09-22 03:00,Oven Pengering,100
+2026-09-22 03:00,Mesin Press,54
+2026-09-22 03:00,AC Ruang Kantor,17
+2026-09-22 04:00,Kompresor Udara,167
+2026-09-22 04:00,Oven Pengering,87
+2026-09-22 04:00,Mesin Press,53
+2026-09-22 04:00,AC Ruang Kantor,22
+2026-09-22 05:00,Kompresor Udara,161
+2026-09-22 05:00,Oven Pengering,94
+2026-09-22 05:00,Mesin Press,58
+2026-09-22 05:00,AC Ruang Kantor,21
+2026-09-22 06:00,Kompresor Udara,123
+2026-09-22 06:00,Oven Pengering,86
+2026-09-22 06:00,Mesin Press,43
+2026-09-22 06:00,AC Ruang Kantor,19
+2026-09-22 07:00,Kompresor Udara,3560
+2026-09-22 07:00,Oven Pengering,7979
+2026-09-22 07:00,Mesin Press,59
+2026-09-22 07:00,AC Ruang Kantor,23
+2026-09-22 08:00,Kompresor Udara,4412
+2026-09-22 08:00,Oven Pengering,8671
+2026-09-22 08:00,Mesin Press,3381
+2026-09-22 08:00,AC Ruang Kantor,1004
+2026-09-22 09:00,Kompresor Udara,4196
+2026-09-22 09:00,Oven Pengering,7810
+2026-09-22 09:00,Mesin Press,2605
+2026-09-22 09:00,AC Ruang Kantor,1014
+2026-09-22 10:00,Kompresor Udara,3962
+2026-09-22 10:00,Oven Pengering,8497
+2026-09-22 10:00,Mesin Press,3054
+2026-09-22 10:00,AC Ruang Kantor,1221
+2026-09-22 11:00,Kompresor Udara,4023
+2026-09-22 11:00,Oven Pengering,8030
+2026-09-22 11:00,Mesin Press,2655
+2026-09-22 11:00,AC Ruang Kantor,1065
+2026-09-22 12:00,Kompresor Udara,4477
+2026-09-22 12:00,Oven Pengering,8839
+2026-09-22 12:00,Mesin Press,709
+2026-09-22 12:00,AC Ruang Kantor,1015
+2026-09-22 13:00,Kompresor Udara,3965
+2026-09-22 13:00,Oven Pengering,8245
+2026-09-22 13:00,Mesin Press,2846
+2026-09-22 13:00,AC Ruang Kantor,1103
+2026-09-22 14:00,Kompresor Udara,4290
+2026-09-22 14:00,Oven Pengering,8549
+2026-09-22 14:00,Mesin Press,2997
+2026-09-22 14:00,AC Ruang Kantor,963
+2026-09-22 15:00,Kompresor Udara,3790
+2026-09-22 15:00,Oven Pengering,118
+2026-09-22 15:00,Mesin Press,3076
+2026-09-22 15:00,AC Ruang Kantor,1183
+2026-09-22 16:00,Kompresor Udara,125
+2026-09-22 16:00,Oven Pengering,118
+2026-09-22 16:00,Mesin Press,51
+2026-09-22 16:00,AC Ruang Kantor,1227
+2026-09-22 17:00,Kompresor Udara,144
+2026-09-22 17:00,Oven Pengering,113
+2026-09-22 17:00,Mesin Press,50
+2026-09-22 17:00,AC Ruang Kantor,17
+2026-09-22 18:00,Kompresor Udara,142
+2026-09-22 18:00,Oven Pengering,81
+2026-09-22 18:00,Mesin Press,43
+2026-09-22 18:00,AC Ruang Kantor,17
+2026-09-22 19:00,Kompresor Udara,156
+2026-09-22 19:00,Oven Pengering,119
+2026-09-22 19:00,Mesin Press,50
+2026-09-22 19:00,AC Ruang Kantor,16
+2026-09-22 20:00,Kompresor Udara,120
+2026-09-22 20:00,Oven Pengering,116
+2026-09-22 20:00,Mesin Press,51
+2026-09-22 20:00,AC Ruang Kantor,18
+2026-09-22 21:00,Kompresor Udara,142
+2026-09-22 21:00,Oven Pengering,107
+2026-09-22 21:00,Mesin Press,58
+2026-09-22 21:00,AC Ruang Kantor,17
+2026-09-22 22:00,Kompresor Udara,141
+2026-09-22 22:00,Oven Pengering,90
+2026-09-22 22:00,Mesin Press,49
+2026-09-22 22:00,AC Ruang Kantor,17
+2026-09-22 23:00,Kompresor Udara,138
+2026-09-22 23:00,Oven Pengering,117
+2026-09-22 23:00,Mesin Press,52
+2026-09-22 23:00,AC Ruang Kantor,22
+2026-09-23 00:00,Kompresor Udara,139
+2026-09-23 00:00,Oven Pengering,115
+2026-09-23 00:00,Mesin Press,56
+2026-09-23 00:00,AC Ruang Kantor,24
+2026-09-23 01:00,Kompresor Udara,143
+2026-09-23 01:00,Oven Pengering,82
+2026-09-23 01:00,Mesin Press,51
+2026-09-23 01:00,AC Ruang Kantor,16
+2026-09-23 02:00,Kompresor Udara,130
+2026-09-23 02:00,Oven Pengering,115
+2026-09-23 02:00,Mesin Press,47
+2026-09-23 02:00,AC Ruang Kantor,22
+2026-09-23 03:00,Kompresor Udara,162
+2026-09-23 03:00,Oven Pengering,89
+2026-09-23 03:00,Mesin Press,60
+2026-09-23 03:00,AC Ruang Kantor,18
+2026-09-23 04:00,Kompresor Udara,174
+2026-09-23 04:00,Oven Pengering,119
+2026-09-23 04:00,Mesin Press,52
+2026-09-23 04:00,AC Ruang Kantor,22
+2026-09-23 05:00,Kompresor Udara,171
+2026-09-23 05:00,Oven Pengering,95
+2026-09-23 05:00,Mesin Press,41
+2026-09-23 05:00,AC Ruang Kantor,21
+2026-09-23 06:00,Kompresor Udara,145
+2026-09-23 06:00,Oven Pengering,104
+2026-09-23 06:00,Mesin Press,41
+2026-09-23 06:00,AC Ruang Kantor,18
+2026-09-23 07:00,Kompresor Udara,4372
+2026-09-23 07:00,Oven Pengering,8142
+2026-09-23 07:00,Mesin Press,52
+2026-09-23 07:00,AC Ruang Kantor,20
+2026-09-23 08:00,Kompresor Udara,4368
+2026-09-23 08:00,Oven Pengering,8252
+2026-09-23 08:00,Mesin Press,2817
+2026-09-23 08:00,AC Ruang Kantor,987
+2026-09-23 09:00,Kompresor Udara,3691
+2026-09-23 09:00,Oven Pengering,8996
+2026-09-23 09:00,Mesin Press,2902
+2026-09-23 09:00,AC Ruang Kantor,1002
+2026-09-23 10:00,Kompresor Udara,4241
+2026-09-23 10:00,Oven Pengering,9197
+2026-09-23 10:00,Mesin Press,2784
+2026-09-23 10:00,AC Ruang Kantor,1010
+2026-09-23 11:00,Kompresor Udara,3583
+2026-09-23 11:00,Oven Pengering,8195
+2026-09-23 11:00,Mesin Press,3251
+2026-09-23 11:00,AC Ruang Kantor,996
+2026-09-23 12:00,Kompresor Udara,4377
+2026-09-23 12:00,Oven Pengering,7950
+2026-09-23 12:00,Mesin Press,464
+2026-09-23 12:00,AC Ruang Kantor,1043
+2026-09-23 13:00,Kompresor Udara,3686
+2026-09-23 13:00,Oven Pengering,8906
+2026-09-23 13:00,Mesin Press,2731
+2026-09-23 13:00,AC Ruang Kantor,1041
+2026-09-23 14:00,Kompresor Udara,4107
+2026-09-23 14:00,Oven Pengering,8530
+2026-09-23 14:00,Mesin Press,3094
+2026-09-23 14:00,AC Ruang Kantor,1211
+2026-09-23 15:00,Kompresor Udara,3956
+2026-09-23 15:00,Oven Pengering,105
+2026-09-23 15:00,Mesin Press,2950
+2026-09-23 15:00,AC Ruang Kantor,991
+2026-09-23 16:00,Kompresor Udara,161
+2026-09-23 16:00,Oven Pengering,118
+2026-09-23 16:00,Mesin Press,53
+2026-09-23 16:00,AC Ruang Kantor,1166
+2026-09-23 17:00,Kompresor Udara,175
+2026-09-23 17:00,Oven Pengering,96
+2026-09-23 17:00,Mesin Press,53
+2026-09-23 17:00,AC Ruang Kantor,21
+2026-09-23 18:00,Kompresor Udara,151
+2026-09-23 18:00,Oven Pengering,81
+2026-09-23 18:00,Mesin Press,48
+2026-09-23 18:00,AC Ruang Kantor,16
+2026-09-23 19:00,Kompresor Udara,145
+2026-09-23 19:00,Oven Pengering,83
+2026-09-23 19:00,Mesin Press,43
+2026-09-23 19:00,AC Ruang Kantor,18
+2026-09-23 20:00,Kompresor Udara,177
+2026-09-23 20:00,Oven Pengering,104
+2026-09-23 20:00,Mesin Press,55
+2026-09-23 20:00,AC Ruang Kantor,17
+2026-09-23 21:00,Kompresor Udara,165
+2026-09-23 21:00,Oven Pengering,90
+2026-09-23 21:00,Mesin Press,57
+2026-09-23 21:00,AC Ruang Kantor,19
+2026-09-23 22:00,Kompresor Udara,175
+2026-09-23 22:00,Oven Pengering,117
+2026-09-23 22:00,Mesin Press,52
+2026-09-23 22:00,AC Ruang Kantor,17
+2026-09-23 23:00,Kompresor Udara,121
+2026-09-23 23:00,Oven Pengering,106
+2026-09-23 23:00,Mesin Press,50
+2026-09-23 23:00,AC Ruang Kantor,24
+2026-09-24 00:00,Kompresor Udara,127
+2026-09-24 00:00,Oven Pengering,117
+2026-09-24 00:00,Mesin Press,52
+2026-09-24 00:00,AC Ruang Kantor,24
+2026-09-24 01:00,Kompresor Udara,167
+2026-09-24 01:00,Oven Pengering,99
+2026-09-24 01:00,Mesin Press,52
+2026-09-24 01:00,AC Ruang Kantor,22
+2026-09-24 02:00,Kompresor Udara,162
+2026-09-24 02:00,Oven Pengering,95
+2026-09-24 02:00,Mesin Press,57
+2026-09-24 02:00,AC Ruang Kantor,17
+2026-09-24 03:00,Kompresor Udara,180
+2026-09-24 03:00,Oven Pengering,102
+2026-09-24 03:00,Mesin Press,46
+2026-09-24 03:00,AC Ruang Kantor,25
+2026-09-24 04:00,Kompresor Udara,131
+2026-09-24 04:00,Oven Pengering,106
+2026-09-24 04:00,Mesin Press,45
+2026-09-24 04:00,AC Ruang Kantor,22
+2026-09-24 05:00,Kompresor Udara,122
+2026-09-24 05:00,Oven Pengering,119
+2026-09-24 05:00,Mesin Press,44
+2026-09-24 05:00,AC Ruang Kantor,22
+2026-09-24 06:00,Kompresor Udara,178
+2026-09-24 06:00,Oven Pengering,82
+2026-09-24 06:00,Mesin Press,55
+2026-09-24 06:00,AC Ruang Kantor,25
+2026-09-24 07:00,Kompresor Udara,3968
+2026-09-24 07:00,Oven Pengering,8744
+2026-09-24 07:00,Mesin Press,55
+2026-09-24 07:00,AC Ruang Kantor,16
+2026-09-24 08:00,Kompresor Udara,4280
+2026-09-24 08:00,Oven Pengering,9159
+2026-09-24 08:00,Mesin Press,3080
+2026-09-24 08:00,AC Ruang Kantor,1079
+2026-09-24 09:00,Kompresor Udara,4097
+2026-09-24 09:00,Oven Pengering,8072
+2026-09-24 09:00,Mesin Press,2855
+2026-09-24 09:00,AC Ruang Kantor,971
+2026-09-24 10:00,Kompresor Udara,4045
+2026-09-24 10:00,Oven Pengering,7841
+2026-09-24 10:00,Mesin Press,3110
+2026-09-24 10:00,AC Ruang Kantor,1186
+2026-09-24 11:00,Kompresor Udara,3503
+2026-09-24 11:00,Oven Pengering,7914
+2026-09-24 11:00,Mesin Press,3084
+2026-09-24 11:00,AC Ruang Kantor,1063
+2026-09-24 12:00,Kompresor Udara,4408
+2026-09-24 12:00,Oven Pengering,8936
+2026-09-24 12:00,Mesin Press,532
+2026-09-24 12:00,AC Ruang Kantor,1102
+2026-09-24 13:00,Kompresor Udara,4092
+2026-09-24 13:00,Oven Pengering,8297
+2026-09-24 13:00,Mesin Press,3007
+2026-09-24 13:00,AC Ruang Kantor,1068
+2026-09-24 14:00,Kompresor Udara,4065
+2026-09-24 14:00,Oven Pengering,8268
+2026-09-24 14:00,Mesin Press,3138
+2026-09-24 14:00,AC Ruang Kantor,1026
+2026-09-24 15:00,Kompresor Udara,3635
+2026-09-24 15:00,Oven Pengering,119
+2026-09-24 15:00,Mesin Press,3015
+2026-09-24 15:00,AC Ruang Kantor,1193
+2026-09-24 16:00,Kompresor Udara,129
+2026-09-24 16:00,Oven Pengering,101
+2026-09-24 16:00,Mesin Press,51
+2026-09-24 16:00,AC Ruang Kantor,1191
+2026-09-24 17:00,Kompresor Udara,179
+2026-09-24 17:00,Oven Pengering,105
+2026-09-24 17:00,Mesin Press,60
+2026-09-24 17:00,AC Ruang Kantor,17
+2026-09-24 18:00,Kompresor Udara,162
+2026-09-24 18:00,Oven Pengering,97
+2026-09-24 18:00,Mesin Press,55
+2026-09-24 18:00,AC Ruang Kantor,15
+2026-09-24 19:00,Kompresor Udara,170
+2026-09-24 19:00,Oven Pengering,105
+2026-09-24 19:00,Mesin Press,56
+2026-09-24 19:00,AC Ruang Kantor,20
+2026-09-24 20:00,Kompresor Udara,151
+2026-09-24 20:00,Oven Pengering,97
+2026-09-24 20:00,Mesin Press,45
+2026-09-24 20:00,AC Ruang Kantor,15
+2026-09-24 21:00,Kompresor Udara,121
+2026-09-24 21:00,Oven Pengering,96
+2026-09-24 21:00,Mesin Press,46
+2026-09-24 21:00,AC Ruang Kantor,20
+2026-09-24 22:00,Kompresor Udara,174
+2026-09-24 22:00,Oven Pengering,83
+2026-09-24 22:00,Mesin Press,44
+2026-09-24 22:00,AC Ruang Kantor,16
+2026-09-24 23:00,Kompresor Udara,133
+2026-09-24 23:00,Oven Pengering,109
+2026-09-24 23:00,Mesin Press,42
+2026-09-24 23:00,AC Ruang Kantor,15
+2026-09-25 00:00,Kompresor Udara,165
+2026-09-25 00:00,Oven Pengering,111
+2026-09-25 00:00,Mesin Press,60
+2026-09-25 00:00,AC Ruang Kantor,17
+2026-09-25 01:00,Kompresor Udara,136
+2026-09-25 01:00,Oven Pengering,104
+2026-09-25 01:00,Mesin Press,50
+2026-09-25 01:00,AC Ruang Kantor,19
+2026-09-25 02:00,Kompresor Udara,125
+2026-09-25 02:00,Oven Pengering,87
+2026-09-25 02:00,Mesin Press,54
+2026-09-25 02:00,AC Ruang Kantor,17
+2026-09-25 03:00,Kompresor Udara,176
+2026-09-25 03:00,Oven Pengering,88
+2026-09-25 03:00,Mesin Press,55
+2026-09-25 03:00,AC Ruang Kantor,16
+2026-09-25 04:00,Kompresor Udara,179
+2026-09-25 04:00,Oven Pengering,98
+2026-09-25 04:00,Mesin Press,45
+2026-09-25 04:00,AC Ruang Kantor,22
+2026-09-25 05:00,Kompresor Udara,160
+2026-09-25 05:00,Oven Pengering,119
+2026-09-25 05:00,Mesin Press,44
+2026-09-25 05:00,AC Ruang Kantor,20
+2026-09-25 06:00,Kompresor Udara,121
+2026-09-25 06:00,Oven Pengering,87
+2026-09-25 06:00,Mesin Press,52
+2026-09-25 06:00,AC Ruang Kantor,15
+2026-09-25 07:00,Kompresor Udara,4345
+2026-09-25 07:00,Oven Pengering,7876
+2026-09-25 07:00,Mesin Press,47
+2026-09-25 07:00,AC Ruang Kantor,24
+2026-09-25 08:00,Kompresor Udara,4114
+2026-09-25 08:00,Oven Pengering,9062
+2026-09-25 08:00,Mesin Press,2942
+2026-09-25 08:00,AC Ruang Kantor,1083
+2026-09-25 09:00,Kompresor Udara,3653
+2026-09-25 09:00,Oven Pengering,8297
+2026-09-25 09:00,Mesin Press,2805
+2026-09-25 09:00,AC Ruang Kantor,1049
+2026-09-25 10:00,Kompresor Udara,3661
+2026-09-25 10:00,Oven Pengering,8279
+2026-09-25 10:00,Mesin Press,3217
+2026-09-25 10:00,AC Ruang Kantor,1129
+2026-09-25 11:00,Kompresor Udara,3504
+2026-09-25 11:00,Oven Pengering,8461
+2026-09-25 11:00,Mesin Press,3392
+2026-09-25 11:00,AC Ruang Kantor,1206
+2026-09-25 12:00,Kompresor Udara,3654
+2026-09-25 12:00,Oven Pengering,8876
+2026-09-25 12:00,Mesin Press,177
+2026-09-25 12:00,AC Ruang Kantor,1134
+2026-09-25 13:00,Kompresor Udara,4082
+2026-09-25 13:00,Oven Pengering,8404
+2026-09-25 13:00,Mesin Press,3036
+2026-09-25 13:00,AC Ruang Kantor,1028
+2026-09-25 14:00,Kompresor Udara,3708
+2026-09-25 14:00,Oven Pengering,8190
+2026-09-25 14:00,Mesin Press,2887
+2026-09-25 14:00,AC Ruang Kantor,1172
+2026-09-25 15:00,Kompresor Udara,4303
+2026-09-25 15:00,Oven Pengering,109
+2026-09-25 15:00,Mesin Press,2937
+2026-09-25 15:00,AC Ruang Kantor,1004
+2026-09-25 16:00,Kompresor Udara,178
+2026-09-25 16:00,Oven Pengering,99
+2026-09-25 16:00,Mesin Press,59
+2026-09-25 16:00,AC Ruang Kantor,1131
+2026-09-25 17:00,Kompresor Udara,150
+2026-09-25 17:00,Oven Pengering,113
+2026-09-25 17:00,Mesin Press,48
+2026-09-25 17:00,AC Ruang Kantor,24
+2026-09-25 18:00,Kompresor Udara,177
+2026-09-25 18:00,Oven Pengering,114
+2026-09-25 18:00,Mesin Press,52
+2026-09-25 18:00,AC Ruang Kantor,22
+2026-09-25 19:00,Kompresor Udara,169
+2026-09-25 19:00,Oven Pengering,118
+2026-09-25 19:00,Mesin Press,46
+2026-09-25 19:00,AC Ruang Kantor,18
+2026-09-25 20:00,Kompresor Udara,167
+2026-09-25 20:00,Oven Pengering,107
+2026-09-25 20:00,Mesin Press,59
+2026-09-25 20:00,AC Ruang Kantor,20
+2026-09-25 21:00,Kompresor Udara,176
+2026-09-25 21:00,Oven Pengering,118
+2026-09-25 21:00,Mesin Press,54
+2026-09-25 21:00,AC Ruang Kantor,17
+2026-09-25 22:00,Kompresor Udara,122
+2026-09-25 22:00,Oven Pengering,117
+2026-09-25 22:00,Mesin Press,53
+2026-09-25 22:00,AC Ruang Kantor,16
+2026-09-25 23:00,Kompresor Udara,170
+2026-09-25 23:00,Oven Pengering,111
+2026-09-25 23:00,Mesin Press,53
+2026-09-25 23:00,AC Ruang Kantor,19
+2026-09-26 00:00,Kompresor Udara,160
+2026-09-26 00:00,Oven Pengering,93
+2026-09-26 00:00,Mesin Press,54
+2026-09-26 00:00,AC Ruang Kantor,24
+2026-09-26 01:00,Kompresor Udara,154
+2026-09-26 01:00,Oven Pengering,100
+2026-09-26 01:00,Mesin Press,45
+2026-09-26 01:00,AC Ruang Kantor,22
+2026-09-26 02:00,Kompresor Udara,130
+2026-09-26 02:00,Oven Pengering,90
+2026-09-26 02:00,Mesin Press,55
+2026-09-26 02:00,AC Ruang Kantor,24
+2026-09-26 03:00,Kompresor Udara,177
+2026-09-26 03:00,Oven Pengering,86
+2026-09-26 03:00,Mesin Press,54
+2026-09-26 03:00,AC Ruang Kantor,23
+2026-09-26 04:00,Kompresor Udara,137
+2026-09-26 04:00,Oven Pengering,112
+2026-09-26 04:00,Mesin Press,59
+2026-09-26 04:00,AC Ruang Kantor,17
+2026-09-26 05:00,Kompresor Udara,166
+2026-09-26 05:00,Oven Pengering,107
+2026-09-26 05:00,Mesin Press,59
+2026-09-26 05:00,AC Ruang Kantor,19
+2026-09-26 06:00,Kompresor Udara,147
+2026-09-26 06:00,Oven Pengering,89
+2026-09-26 06:00,Mesin Press,56
+2026-09-26 06:00,AC Ruang Kantor,17
+2026-09-26 07:00,Kompresor Udara,4063
+2026-09-26 07:00,Oven Pengering,7752
+2026-09-26 07:00,Mesin Press,41
+2026-09-26 07:00,AC Ruang Kantor,18
+2026-09-26 08:00,Kompresor Udara,3762
+2026-09-26 08:00,Oven Pengering,9197
+2026-09-26 08:00,Mesin Press,3169
+2026-09-26 08:00,AC Ruang Kantor,1006
+2026-09-26 09:00,Kompresor Udara,4197
+2026-09-26 09:00,Oven Pengering,9209
+2026-09-26 09:00,Mesin Press,3069
+2026-09-26 09:00,AC Ruang Kantor,985
+2026-09-26 10:00,Kompresor Udara,4268
+2026-09-26 10:00,Oven Pengering,8090
+2026-09-26 10:00,Mesin Press,3359
+2026-09-26 10:00,AC Ruang Kantor,993
+2026-09-26 11:00,Kompresor Udara,4195
+2026-09-26 11:00,Oven Pengering,8101
+2026-09-26 11:00,Mesin Press,2751
+2026-09-26 11:00,AC Ruang Kantor,1222
+2026-09-26 12:00,Kompresor Udara,4163
+2026-09-26 12:00,Oven Pengering,7910
+2026-09-26 12:00,Mesin Press,150
+2026-09-26 12:00,AC Ruang Kantor,1131
+2026-09-26 13:00,Kompresor Udara,4274
+2026-09-26 13:00,Oven Pengering,7824
+2026-09-26 13:00,Mesin Press,3027
+2026-09-26 13:00,AC Ruang Kantor,1175
+2026-09-26 14:00,Kompresor Udara,4322
+2026-09-26 14:00,Oven Pengering,9106
+2026-09-26 14:00,Mesin Press,3041
+2026-09-26 14:00,AC Ruang Kantor,1206
+2026-09-26 15:00,Kompresor Udara,4401
+2026-09-26 15:00,Oven Pengering,113
+2026-09-26 15:00,Mesin Press,2637
+2026-09-26 15:00,AC Ruang Kantor,1068
+2026-09-26 16:00,Kompresor Udara,133
+2026-09-26 16:00,Oven Pengering,86
+2026-09-26 16:00,Mesin Press,47
+2026-09-26 16:00,AC Ruang Kantor,1019
+2026-09-26 17:00,Kompresor Udara,152
+2026-09-26 17:00,Oven Pengering,82
+2026-09-26 17:00,Mesin Press,50
+2026-09-26 17:00,AC Ruang Kantor,20
+2026-09-26 18:00,Kompresor Udara,145
+2026-09-26 18:00,Oven Pengering,112
+2026-09-26 18:00,Mesin Press,48
+2026-09-26 18:00,AC Ruang Kantor,20
+2026-09-26 19:00,Kompresor Udara,175
+2026-09-26 19:00,Oven Pengering,103
+2026-09-26 19:00,Mesin Press,47
+2026-09-26 19:00,AC Ruang Kantor,21
+2026-09-26 20:00,Kompresor Udara,126
+2026-09-26 20:00,Oven Pengering,118
+2026-09-26 20:00,Mesin Press,51
+2026-09-26 20:00,AC Ruang Kantor,21
+2026-09-26 21:00,Kompresor Udara,169
+2026-09-26 21:00,Oven Pengering,82
+2026-09-26 21:00,Mesin Press,53
+2026-09-26 21:00,AC Ruang Kantor,20
+2026-09-26 22:00,Kompresor Udara,126
+2026-09-26 22:00,Oven Pengering,100
+2026-09-26 22:00,Mesin Press,58
+2026-09-26 22:00,AC Ruang Kantor,20
+2026-09-26 23:00,Kompresor Udara,151
+2026-09-26 23:00,Oven Pengering,106
+2026-09-26 23:00,Mesin Press,59
+2026-09-26 23:00,AC Ruang Kantor,15
+2026-09-27 00:00,Kompresor Udara,177
+2026-09-27 00:00,Oven Pengering,102
+2026-09-27 00:00,Mesin Press,51
+2026-09-27 00:00,AC Ruang Kantor,23
+2026-09-27 01:00,Kompresor Udara,164
+2026-09-27 01:00,Oven Pengering,88
+2026-09-27 01:00,Mesin Press,50
+2026-09-27 01:00,AC Ruang Kantor,24
+2026-09-27 02:00,Kompresor Udara,156
+2026-09-27 02:00,Oven Pengering,89
+2026-09-27 02:00,Mesin Press,44
+2026-09-27 02:00,AC Ruang Kantor,24
+2026-09-27 03:00,Kompresor Udara,160
+2026-09-27 03:00,Oven Pengering,118
+2026-09-27 03:00,Mesin Press,51
+2026-09-27 03:00,AC Ruang Kantor,15
+2026-09-27 04:00,Kompresor Udara,150
+2026-09-27 04:00,Oven Pengering,87
+2026-09-27 04:00,Mesin Press,48
+2026-09-27 04:00,AC Ruang Kantor,15
+2026-09-27 05:00,Kompresor Udara,121
+2026-09-27 05:00,Oven Pengering,101
+2026-09-27 05:00,Mesin Press,40
+2026-09-27 05:00,AC Ruang Kantor,24
+2026-09-27 06:00,Kompresor Udara,147
+2026-09-27 06:00,Oven Pengering,113
+2026-09-27 06:00,Mesin Press,53
+2026-09-27 06:00,AC Ruang Kantor,21
+2026-09-27 07:00,Kompresor Udara,126
+2026-09-27 07:00,Oven Pengering,81
+2026-09-27 07:00,Mesin Press,56
+2026-09-27 07:00,AC Ruang Kantor,20
+2026-09-27 08:00,Kompresor Udara,157
+2026-09-27 08:00,Oven Pengering,101
+2026-09-27 08:00,Mesin Press,45
+2026-09-27 08:00,AC Ruang Kantor,19
+2026-09-27 09:00,Kompresor Udara,171
+2026-09-27 09:00,Oven Pengering,91
+2026-09-27 09:00,Mesin Press,57
+2026-09-27 09:00,AC Ruang Kantor,23
+2026-09-27 10:00,Kompresor Udara,137
+2026-09-27 10:00,Oven Pengering,89
+2026-09-27 10:00,Mesin Press,46
+2026-09-27 10:00,AC Ruang Kantor,16
+2026-09-27 11:00,Kompresor Udara,135
+2026-09-27 11:00,Oven Pengering,107
+2026-09-27 11:00,Mesin Press,54
+2026-09-27 11:00,AC Ruang Kantor,22
+2026-09-27 12:00,Kompresor Udara,158
+2026-09-27 12:00,Oven Pengering,97
+2026-09-27 12:00,Mesin Press,50
+2026-09-27 12:00,AC Ruang Kantor,19
+2026-09-27 13:00,Kompresor Udara,175
+2026-09-27 13:00,Oven Pengering,81
+2026-09-27 13:00,Mesin Press,42
+2026-09-27 13:00,AC Ruang Kantor,22
+2026-09-27 14:00,Kompresor Udara,171
+2026-09-27 14:00,Oven Pengering,97
+2026-09-27 14:00,Mesin Press,47
+2026-09-27 14:00,AC Ruang Kantor,19
+2026-09-27 15:00,Kompresor Udara,179
+2026-09-27 15:00,Oven Pengering,95
+2026-09-27 15:00,Mesin Press,49
+2026-09-27 15:00,AC Ruang Kantor,22
+2026-09-27 16:00,Kompresor Udara,164
+2026-09-27 16:00,Oven Pengering,113
+2026-09-27 16:00,Mesin Press,57
+2026-09-27 16:00,AC Ruang Kantor,23
+2026-09-27 17:00,Kompresor Udara,148
+2026-09-27 17:00,Oven Pengering,107
+2026-09-27 17:00,Mesin Press,43
+2026-09-27 17:00,AC Ruang Kantor,20
+2026-09-27 18:00,Kompresor Udara,171
+2026-09-27 18:00,Oven Pengering,115
+2026-09-27 18:00,Mesin Press,42
+2026-09-27 18:00,AC Ruang Kantor,16
+2026-09-27 19:00,Kompresor Udara,138
+2026-09-27 19:00,Oven Pengering,111
+2026-09-27 19:00,Mesin Press,43
+2026-09-27 19:00,AC Ruang Kantor,24
+2026-09-27 20:00,Kompresor Udara,171
+2026-09-27 20:00,Oven Pengering,81
+2026-09-27 20:00,Mesin Press,45
+2026-09-27 20:00,AC Ruang Kantor,17
+2026-09-27 21:00,Kompresor Udara,147
+2026-09-27 21:00,Oven Pengering,94
+2026-09-27 21:00,Mesin Press,48
+2026-09-27 21:00,AC Ruang Kantor,19
+2026-09-27 22:00,Kompresor Udara,130
+2026-09-27 22:00,Oven Pengering,119
+2026-09-27 22:00,Mesin Press,49
+2026-09-27 22:00,AC Ruang Kantor,24
+2026-09-27 23:00,Kompresor Udara,158
+2026-09-27 23:00,Oven Pengering,101
+2026-09-27 23:00,Mesin Press,46
+2026-09-27 23:00,AC Ruang Kantor,20
+2026-09-28 00:00,Kompresor Udara,140
+2026-09-28 00:00,Oven Pengering,103
+2026-09-28 00:00,Mesin Press,41
+2026-09-28 00:00,AC Ruang Kantor,25
+2026-09-28 01:00,Kompresor Udara,135
+2026-09-28 01:00,Oven Pengering,87
+2026-09-28 01:00,Mesin Press,54
+2026-09-28 01:00,AC Ruang Kantor,21
+2026-09-28 02:00,Kompresor Udara,168
+2026-09-28 02:00,Oven Pengering,112
+2026-09-28 02:00,Mesin Press,52
+2026-09-28 02:00,AC Ruang Kantor,25
+2026-09-28 03:00,Kompresor Udara,159
+2026-09-28 03:00,Oven Pengering,98
+2026-09-28 03:00,Mesin Press,42
+2026-09-28 03:00,AC Ruang Kantor,24
+2026-09-28 04:00,Kompresor Udara,174
+2026-09-28 04:00,Oven Pengering,118
+2026-09-28 04:00,Mesin Press,44
+2026-09-28 04:00,AC Ruang Kantor,21
+2026-09-28 05:00,Kompresor Udara,129
+2026-09-28 05:00,Oven Pengering,99
+2026-09-28 05:00,Mesin Press,54
+2026-09-28 05:00,AC Ruang Kantor,17
+2026-09-28 06:00,Kompresor Udara,157
+2026-09-28 06:00,Oven Pengering,93
+2026-09-28 06:00,Mesin Press,60
+2026-09-28 06:00,AC Ruang Kantor,17
+2026-09-28 07:00,Kompresor Udara,4189
+2026-09-28 07:00,Oven Pengering,9002
+2026-09-28 07:00,Mesin Press,44
+2026-09-28 07:00,AC Ruang Kantor,23
+2026-09-28 08:00,Kompresor Udara,3982
+2026-09-28 08:00,Oven Pengering,8090
+2026-09-28 08:00,Mesin Press,3259
+2026-09-28 08:00,AC Ruang Kantor,1118
+2026-09-28 09:00,Kompresor Udara,4260
+2026-09-28 09:00,Oven Pengering,8429
+2026-09-28 09:00,Mesin Press,2865
+2026-09-28 09:00,AC Ruang Kantor,1126
+2026-09-28 10:00,Kompresor Udara,4199
+2026-09-28 10:00,Oven Pengering,8863
+2026-09-28 10:00,Mesin Press,3130
+2026-09-28 10:00,AC Ruang Kantor,1006
+2026-09-28 11:00,Kompresor Udara,4437
+2026-09-28 11:00,Oven Pengering,8216
+2026-09-28 11:00,Mesin Press,3025
+2026-09-28 11:00,AC Ruang Kantor,1180
+2026-09-28 12:00,Kompresor Udara,3756
+2026-09-28 12:00,Oven Pengering,9116
+2026-09-28 12:00,Mesin Press,651
+2026-09-28 12:00,AC Ruang Kantor,1125
+2026-09-28 13:00,Kompresor Udara,3644
+2026-09-28 13:00,Oven Pengering,8908
+2026-09-28 13:00,Mesin Press,3012
+2026-09-28 13:00,AC Ruang Kantor,1006
+2026-09-28 14:00,Kompresor Udara,3683
+2026-09-28 14:00,Oven Pengering,8479
+2026-09-28 14:00,Mesin Press,3313
+2026-09-28 14:00,AC Ruang Kantor,1089
+2026-09-28 15:00,Kompresor Udara,4379
+2026-09-28 15:00,Oven Pengering,89
+2026-09-28 15:00,Mesin Press,2638
+2026-09-28 15:00,AC Ruang Kantor,1065
+2026-09-28 16:00,Kompresor Udara,129
+2026-09-28 16:00,Oven Pengering,116
+2026-09-28 16:00,Mesin Press,55
+2026-09-28 16:00,AC Ruang Kantor,1001
+2026-09-28 17:00,Kompresor Udara,122
+2026-09-28 17:00,Oven Pengering,110
+2026-09-28 17:00,Mesin Press,43
+2026-09-28 17:00,AC Ruang Kantor,19
+2026-09-28 18:00,Kompresor Udara,138
+2026-09-28 18:00,Oven Pengering,116
+2026-09-28 18:00,Mesin Press,56
+2026-09-28 18:00,AC Ruang Kantor,24
+2026-09-28 19:00,Kompresor Udara,164
+2026-09-28 19:00,Oven Pengering,103
+2026-09-28 19:00,Mesin Press,48
+2026-09-28 19:00,AC Ruang Kantor,23
+2026-09-28 20:00,Kompresor Udara,153
+2026-09-28 20:00,Oven Pengering,104
+2026-09-28 20:00,Mesin Press,56
+2026-09-28 20:00,AC Ruang Kantor,21
+2026-09-28 21:00,Kompresor Udara,163
+2026-09-28 21:00,Oven Pengering,81
+2026-09-28 21:00,Mesin Press,54
+2026-09-28 21:00,AC Ruang Kantor,20
+2026-09-28 22:00,Kompresor Udara,175
+2026-09-28 22:00,Oven Pengering,87
+2026-09-28 22:00,Mesin Press,59
+2026-09-28 22:00,AC Ruang Kantor,19
+2026-09-28 23:00,Kompresor Udara,140
+2026-09-28 23:00,Oven Pengering,92
+2026-09-28 23:00,Mesin Press,43
+2026-09-28 23:00,AC Ruang Kantor,19
+2026-09-29 00:00,Kompresor Udara,163
+2026-09-29 00:00,Oven Pengering,81
+2026-09-29 00:00,Mesin Press,55
+2026-09-29 00:00,AC Ruang Kantor,23
+2026-09-29 01:00,Kompresor Udara,148
+2026-09-29 01:00,Oven Pengering,106
+2026-09-29 01:00,Mesin Press,47
+2026-09-29 01:00,AC Ruang Kantor,24
+2026-09-29 02:00,Kompresor Udara,140
+2026-09-29 02:00,Oven Pengering,100
+2026-09-29 02:00,Mesin Press,60
+2026-09-29 02:00,AC Ruang Kantor,19
+2026-09-29 03:00,Kompresor Udara,136
+2026-09-29 03:00,Oven Pengering,109
+2026-09-29 03:00,Mesin Press,45
+2026-09-29 03:00,AC Ruang Kantor,21
+2026-09-29 04:00,Kompresor Udara,150
+2026-09-29 04:00,Oven Pengering,86
+2026-09-29 04:00,Mesin Press,54
+2026-09-29 04:00,AC Ruang Kantor,16
+2026-09-29 05:00,Kompresor Udara,172
+2026-09-29 05:00,Oven Pengering,87
+2026-09-29 05:00,Mesin Press,52
+2026-09-29 05:00,AC Ruang Kantor,17
+2026-09-29 06:00,Kompresor Udara,177
+2026-09-29 06:00,Oven Pengering,120
+2026-09-29 06:00,Mesin Press,49
+2026-09-29 06:00,AC Ruang Kantor,25
+2026-09-29 07:00,Kompresor Udara,3991
+2026-09-29 07:00,Oven Pengering,8470
+2026-09-29 07:00,Mesin Press,43
+2026-09-29 07:00,AC Ruang Kantor,23
+2026-09-29 08:00,Kompresor Udara,4436
+2026-09-29 08:00,Oven Pengering,9073
+2026-09-29 08:00,Mesin Press,2992
+2026-09-29 08:00,AC Ruang Kantor,967
+2026-09-29 09:00,Kompresor Udara,4483
+2026-09-29 09:00,Oven Pengering,9240
+2026-09-29 09:00,Mesin Press,3146
+2026-09-29 09:00,AC Ruang Kantor,992
+2026-09-29 10:00,Kompresor Udara,4034
+2026-09-29 10:00,Oven Pengering,8646
+2026-09-29 10:00,Mesin Press,2942
+2026-09-29 10:00,AC Ruang Kantor,1071
+2026-09-29 11:00,Kompresor Udara,3903
+2026-09-29 11:00,Oven Pengering,8471
+2026-09-29 11:00,Mesin Press,2702
+2026-09-29 11:00,AC Ruang Kantor,1012
+2026-09-29 12:00,Kompresor Udara,4219
+2026-09-29 12:00,Oven Pengering,8355
+2026-09-29 12:00,Mesin Press,420
+2026-09-29 12:00,AC Ruang Kantor,1181
+2026-09-29 13:00,Kompresor Udara,3750
+2026-09-29 13:00,Oven Pengering,9008
+2026-09-29 13:00,Mesin Press,3063
+2026-09-29 13:00,AC Ruang Kantor,1204
+2026-09-29 14:00,Kompresor Udara,3509
+2026-09-29 14:00,Oven Pengering,8181
+2026-09-29 14:00,Mesin Press,2678
+2026-09-29 14:00,AC Ruang Kantor,1149
+2026-09-29 15:00,Kompresor Udara,3943
+2026-09-29 15:00,Oven Pengering,94
+2026-09-29 15:00,Mesin Press,2624
+2026-09-29 15:00,AC Ruang Kantor,1219
+2026-09-29 16:00,Kompresor Udara,155
+2026-09-29 16:00,Oven Pengering,100
+2026-09-29 16:00,Mesin Press,44
+2026-09-29 16:00,AC Ruang Kantor,1031
+2026-09-29 17:00,Kompresor Udara,156
+2026-09-29 17:00,Oven Pengering,109
+2026-09-29 17:00,Mesin Press,55
+2026-09-29 17:00,AC Ruang Kantor,18
+2026-09-29 18:00,Kompresor Udara,166
+2026-09-29 18:00,Oven Pengering,115
+2026-09-29 18:00,Mesin Press,58
+2026-09-29 18:00,AC Ruang Kantor,25
+2026-09-29 19:00,Kompresor Udara,175
+2026-09-29 19:00,Oven Pengering,86
+2026-09-29 19:00,Mesin Press,59
+2026-09-29 19:00,AC Ruang Kantor,24
+2026-09-29 20:00,Kompresor Udara,150
+2026-09-29 20:00,Oven Pengering,117
+2026-09-29 20:00,Mesin Press,60
+2026-09-29 20:00,AC Ruang Kantor,20
+2026-09-29 21:00,Kompresor Udara,178
+2026-09-29 21:00,Oven Pengering,85
+2026-09-29 21:00,Mesin Press,58
+2026-09-29 21:00,AC Ruang Kantor,17
+2026-09-29 22:00,Kompresor Udara,180
+2026-09-29 22:00,Oven Pengering,87
+2026-09-29 22:00,Mesin Press,57
+2026-09-29 22:00,AC Ruang Kantor,22
+2026-09-29 23:00,Kompresor Udara,151
+2026-09-29 23:00,Oven Pengering,85
+2026-09-29 23:00,Mesin Press,53
+2026-09-29 23:00,AC Ruang Kantor,21
+2026-09-30 00:00,Kompresor Udara,161
+2026-09-30 00:00,Oven Pengering,81
+2026-09-30 00:00,Mesin Press,52
+2026-09-30 00:00,AC Ruang Kantor,18
+2026-09-30 01:00,Kompresor Udara,162
+2026-09-30 01:00,Oven Pengering,95
+2026-09-30 01:00,Mesin Press,45
+2026-09-30 01:00,AC Ruang Kantor,20
+2026-09-30 02:00,Kompresor Udara,128
+2026-09-30 02:00,Oven Pengering,91
+2026-09-30 02:00,Mesin Press,47
+2026-09-30 02:00,AC Ruang Kantor,15
+2026-09-30 03:00,Kompresor Udara,165
+2026-09-30 03:00,Oven Pengering,81
+2026-09-30 03:00,Mesin Press,45
+2026-09-30 03:00,AC Ruang Kantor,23
+2026-09-30 04:00,Kompresor Udara,141
+2026-09-30 04:00,Oven Pengering,82
+2026-09-30 04:00,Mesin Press,52
+2026-09-30 04:00,AC Ruang Kantor,20
+2026-09-30 05:00,Kompresor Udara,169
+2026-09-30 05:00,Oven Pengering,97
+2026-09-30 05:00,Mesin Press,51
+2026-09-30 05:00,AC Ruang Kantor,23
+2026-09-30 06:00,Kompresor Udara,165
+2026-09-30 06:00,Oven Pengering,83
+2026-09-30 06:00,Mesin Press,45
+2026-09-30 06:00,AC Ruang Kantor,19
+2026-09-30 07:00,Kompresor Udara,4156
+2026-09-30 07:00,Oven Pengering,8797
+2026-09-30 07:00,Mesin Press,59
+2026-09-30 07:00,AC Ruang Kantor,17
+2026-09-30 08:00,Kompresor Udara,3703
+2026-09-30 08:00,Oven Pengering,8556
+2026-09-30 08:00,Mesin Press,3129
+2026-09-30 08:00,AC Ruang Kantor,995
+2026-09-30 09:00,Kompresor Udara,4166
+2026-09-30 09:00,Oven Pengering,8279
+2026-09-30 09:00,Mesin Press,2997
+2026-09-30 09:00,AC Ruang Kantor,1060
+2026-09-30 10:00,Kompresor Udara,4224
+2026-09-30 10:00,Oven Pengering,9257
+2026-09-30 10:00,Mesin Press,2973
+2026-09-30 10:00,AC Ruang Kantor,1082
+2026-09-30 11:00,Kompresor Udara,4447
+2026-09-30 11:00,Oven Pengering,8284
+2026-09-30 11:00,Mesin Press,2781
+2026-09-30 11:00,AC Ruang Kantor,1138
+2026-09-30 12:00,Kompresor Udara,3718
+2026-09-30 12:00,Oven Pengering,8817
+2026-09-30 12:00,Mesin Press,551
+2026-09-30 12:00,AC Ruang Kantor,1237
+2026-09-30 13:00,Kompresor Udara,3831
+2026-09-30 13:00,Oven Pengering,7731
+2026-09-30 13:00,Mesin Press,3303
+2026-09-30 13:00,AC Ruang Kantor,1083
+2026-09-30 14:00,Kompresor Udara,4282
+2026-09-30 14:00,Oven Pengering,8316
+2026-09-30 14:00,Mesin Press,2609
+2026-09-30 14:00,AC Ruang Kantor,1061
+2026-09-30 15:00,Kompresor Udara,4057
+2026-09-30 15:00,Oven Pengering,89
+2026-09-30 15:00,Mesin Press,3108
+2026-09-30 15:00,AC Ruang Kantor,959
+2026-09-30 16:00,Kompresor Udara,132
+2026-09-30 16:00,Oven Pengering,117
+2026-09-30 16:00,Mesin Press,40
+2026-09-30 16:00,AC Ruang Kantor,956
+2026-09-30 17:00,Kompresor Udara,146
+2026-09-30 17:00,Oven Pengering,93
+2026-09-30 17:00,Mesin Press,54
+2026-09-30 17:00,AC Ruang Kantor,22
+2026-09-30 18:00,Kompresor Udara,143
+2026-09-30 18:00,Oven Pengering,93
+2026-09-30 18:00,Mesin Press,53
+2026-09-30 18:00,AC Ruang Kantor,24
+2026-09-30 19:00,Kompresor Udara,178
+2026-09-30 19:00,Oven Pengering,98
+2026-09-30 19:00,Mesin Press,41
+2026-09-30 19:00,AC Ruang Kantor,23
+2026-09-30 20:00,Kompresor Udara,164
+2026-09-30 20:00,Oven Pengering,101
+2026-09-30 20:00,Mesin Press,48
+2026-09-30 20:00,AC Ruang Kantor,15
+2026-09-30 21:00,Kompresor Udara,167
+2026-09-30 21:00,Oven Pengering,84
+2026-09-30 21:00,Mesin Press,47
+2026-09-30 21:00,AC Ruang Kantor,19
+2026-09-30 22:00,Kompresor Udara,150
+2026-09-30 22:00,Oven Pengering,88
+2026-09-30 22:00,Mesin Press,42
+2026-09-30 22:00,AC Ruang Kantor,21
+2026-09-30 23:00,Kompresor Udara,174
+2026-09-30 23:00,Oven Pengering,87
+2026-09-30 23:00,Mesin Press,46
+2026-09-30 23:00,AC Ruang Kantor,18
+2026-10-01 00:00,Kompresor Udara,163
+2026-10-01 00:00,Oven Pengering,102
+2026-10-01 00:00,Mesin Press,53
+2026-10-01 00:00,AC Ruang Kantor,23
+2026-10-01 01:00,Kompresor Udara,166
+2026-10-01 01:00,Oven Pengering,88
+2026-10-01 01:00,Mesin Press,54
+2026-10-01 01:00,AC Ruang Kantor,17
+2026-10-01 02:00,Kompresor Udara,156
+2026-10-01 02:00,Oven Pengering,114
+2026-10-01 02:00,Mesin Press,45
+2026-10-01 02:00,AC Ruang Kantor,16
+2026-10-01 03:00,Kompresor Udara,146
+2026-10-01 03:00,Oven Pengering,83
+2026-10-01 03:00,Mesin Press,56
+2026-10-01 03:00,AC Ruang Kantor,23
+2026-10-01 04:00,Kompresor Udara,142
+2026-10-01 04:00,Oven Pengering,94
+2026-10-01 04:00,Mesin Press,45
+2026-10-01 04:00,AC Ruang Kantor,20
+2026-10-01 05:00,Kompresor Udara,160
+2026-10-01 05:00,Oven Pengering,94
+2026-10-01 05:00,Mesin Press,44
+2026-10-01 05:00,AC Ruang Kantor,24
+2026-10-01 06:00,Kompresor Udara,164
+2026-10-01 06:00,Oven Pengering,115
+2026-10-01 06:00,Mesin Press,58
+2026-10-01 06:00,AC Ruang Kantor,21
+2026-10-01 07:00,Kompresor Udara,4117
+2026-10-01 07:00,Oven Pengering,8055
+2026-10-01 07:00,Mesin Press,48
+2026-10-01 07:00,AC Ruang Kantor,21
+2026-10-01 08:00,Kompresor Udara,3592
+2026-10-01 08:00,Oven Pengering,8168
+2026-10-01 08:00,Mesin Press,3192
+2026-10-01 08:00,AC Ruang Kantor,998
+2026-10-01 09:00,Kompresor Udara,4328
+2026-10-01 09:00,Oven Pengering,8628
+2026-10-01 09:00,Mesin Press,2787
+2026-10-01 09:00,AC Ruang Kantor,1131
+2026-10-01 10:00,Kompresor Udara,3698
+2026-10-01 10:00,Oven Pengering,7787
+2026-10-01 10:00,Mesin Press,3228
+2026-10-01 10:00,AC Ruang Kantor,1024
+2026-10-01 11:00,Kompresor Udara,4193
+2026-10-01 11:00,Oven Pengering,7970
+2026-10-01 11:00,Mesin Press,2817
+2026-10-01 11:00,AC Ruang Kantor,1231
+2026-10-01 12:00,Kompresor Udara,4192
+2026-10-01 12:00,Oven Pengering,9061
+2026-10-01 12:00,Mesin Press,507
+2026-10-01 12:00,AC Ruang Kantor,969
+2026-10-01 13:00,Kompresor Udara,4171
+2026-10-01 13:00,Oven Pengering,9188
+2026-10-01 13:00,Mesin Press,2679
+2026-10-01 13:00,AC Ruang Kantor,1004
+2026-10-01 14:00,Kompresor Udara,4181
+2026-10-01 14:00,Oven Pengering,8262
+2026-10-01 14:00,Mesin Press,2738
+2026-10-01 14:00,AC Ruang Kantor,1028
+2026-10-01 15:00,Kompresor Udara,3796
+2026-10-01 15:00,Oven Pengering,81
+2026-10-01 15:00,Mesin Press,3160
+2026-10-01 15:00,AC Ruang Kantor,1183
+2026-10-01 16:00,Kompresor Udara,139
+2026-10-01 16:00,Oven Pengering,83
+2026-10-01 16:00,Mesin Press,56
+2026-10-01 16:00,AC Ruang Kantor,1149
+2026-10-01 17:00,Kompresor Udara,148
+2026-10-01 17:00,Oven Pengering,118
+2026-10-01 17:00,Mesin Press,40
+2026-10-01 17:00,AC Ruang Kantor,24
+2026-10-01 18:00,Kompresor Udara,151
+2026-10-01 18:00,Oven Pengering,119
+2026-10-01 18:00,Mesin Press,54
+2026-10-01 18:00,AC Ruang Kantor,22
+2026-10-01 19:00,Kompresor Udara,124
+2026-10-01 19:00,Oven Pengering,106
+2026-10-01 19:00,Mesin Press,55
+2026-10-01 19:00,AC Ruang Kantor,24
+2026-10-01 20:00,Kompresor Udara,146
+2026-10-01 20:00,Oven Pengering,101
+2026-10-01 20:00,Mesin Press,56
+2026-10-01 20:00,AC Ruang Kantor,22
+2026-10-01 21:00,Kompresor Udara,142
+2026-10-01 21:00,Oven Pengering,104
+2026-10-01 21:00,Mesin Press,52
+2026-10-01 21:00,AC Ruang Kantor,22
+2026-10-01 22:00,Kompresor Udara,163
+2026-10-01 22:00,Oven Pengering,100
+2026-10-01 22:00,Mesin Press,59
+2026-10-01 22:00,AC Ruang Kantor,18
+2026-10-01 23:00,Kompresor Udara,165
+2026-10-01 23:00,Oven Pengering,115
+2026-10-01 23:00,Mesin Press,60
+2026-10-01 23:00,AC Ruang Kantor,18
+2026-10-02 00:00,Kompresor Udara,121
+2026-10-02 00:00,Oven Pengering,118
+2026-10-02 00:00,Mesin Press,45
+2026-10-02 00:00,AC Ruang Kantor,23
+2026-10-02 01:00,Kompresor Udara,122
+2026-10-02 01:00,Oven Pengering,103
+2026-10-02 01:00,Mesin Press,56
+2026-10-02 01:00,AC Ruang Kantor,16
+2026-10-02 02:00,Kompresor Udara,120
+2026-10-02 02:00,Oven Pengering,92
+2026-10-02 02:00,Mesin Press,56
+2026-10-02 02:00,AC Ruang Kantor,17
+2026-10-02 03:00,Kompresor Udara,158
+2026-10-02 03:00,Oven Pengering,94
+2026-10-02 03:00,Mesin Press,44
+2026-10-02 03:00,AC Ruang Kantor,22
+2026-10-02 04:00,Kompresor Udara,142
+2026-10-02 04:00,Oven Pengering,84
+2026-10-02 04:00,Mesin Press,59
+2026-10-02 04:00,AC Ruang Kantor,15
+2026-10-02 05:00,Kompresor Udara,148
+2026-10-02 05:00,Oven Pengering,102
+2026-10-02 05:00,Mesin Press,41
+2026-10-02 05:00,AC Ruang Kantor,20
+2026-10-02 06:00,Kompresor Udara,145
+2026-10-02 06:00,Oven Pengering,89
+2026-10-02 06:00,Mesin Press,41
+2026-10-02 06:00,AC Ruang Kantor,18
+2026-10-02 07:00,Kompresor Udara,4365
+2026-10-02 07:00,Oven Pengering,9263
+2026-10-02 07:00,Mesin Press,48
+2026-10-02 07:00,AC Ruang Kantor,24
+2026-10-02 08:00,Kompresor Udara,4093
+2026-10-02 08:00,Oven Pengering,8028
+2026-10-02 08:00,Mesin Press,3244
+2026-10-02 08:00,AC Ruang Kantor,1199
+2026-10-02 09:00,Kompresor Udara,3814
+2026-10-02 09:00,Oven Pengering,8453
+2026-10-02 09:00,Mesin Press,2929
+2026-10-02 09:00,AC Ruang Kantor,1213
+2026-10-02 10:00,Kompresor Udara,4083
+2026-10-02 10:00,Oven Pengering,7904
+2026-10-02 10:00,Mesin Press,2842
+2026-10-02 10:00,AC Ruang Kantor,992
+2026-10-02 11:00,Kompresor Udara,3562
+2026-10-02 11:00,Oven Pengering,8376
+2026-10-02 11:00,Mesin Press,3375
+2026-10-02 11:00,AC Ruang Kantor,1147
+2026-10-02 12:00,Kompresor Udara,4035
+2026-10-02 12:00,Oven Pengering,8898
+2026-10-02 12:00,Mesin Press,769
+2026-10-02 12:00,AC Ruang Kantor,1030
+2026-10-02 13:00,Kompresor Udara,4125
+2026-10-02 13:00,Oven Pengering,7793
+2026-10-02 13:00,Mesin Press,2971
+2026-10-02 13:00,AC Ruang Kantor,1045
+2026-10-02 14:00,Kompresor Udara,4141
+2026-10-02 14:00,Oven Pengering,8710
+2026-10-02 14:00,Mesin Press,3243
+2026-10-02 14:00,AC Ruang Kantor,1157
+2026-10-02 15:00,Kompresor Udara,4261
+2026-10-02 15:00,Oven Pengering,105
+2026-10-02 15:00,Mesin Press,3226
+2026-10-02 15:00,AC Ruang Kantor,956
+2026-10-02 16:00,Kompresor Udara,168
+2026-10-02 16:00,Oven Pengering,111
+2026-10-02 16:00,Mesin Press,50
+2026-10-02 16:00,AC Ruang Kantor,979
+2026-10-02 17:00,Kompresor Udara,162
+2026-10-02 17:00,Oven Pengering,117
+2026-10-02 17:00,Mesin Press,54
+2026-10-02 17:00,AC Ruang Kantor,22
+2026-10-02 18:00,Kompresor Udara,164
+2026-10-02 18:00,Oven Pengering,104
+2026-10-02 18:00,Mesin Press,46
+2026-10-02 18:00,AC Ruang Kantor,16
+2026-10-02 19:00,Kompresor Udara,136
+2026-10-02 19:00,Oven Pengering,106
+2026-10-02 19:00,Mesin Press,59
+2026-10-02 19:00,AC Ruang Kantor,23
+2026-10-02 20:00,Kompresor Udara,124
+2026-10-02 20:00,Oven Pengering,103
+2026-10-02 20:00,Mesin Press,41
+2026-10-02 20:00,AC Ruang Kantor,15
+2026-10-02 21:00,Kompresor Udara,148
+2026-10-02 21:00,Oven Pengering,119
+2026-10-02 21:00,Mesin Press,48
+2026-10-02 21:00,AC Ruang Kantor,21
+2026-10-02 22:00,Kompresor Udara,168
+2026-10-02 22:00,Oven Pengering,109
+2026-10-02 22:00,Mesin Press,46
+2026-10-02 22:00,AC Ruang Kantor,16
+2026-10-02 23:00,Kompresor Udara,126
+2026-10-02 23:00,Oven Pengering,91
+2026-10-02 23:00,Mesin Press,44
+2026-10-02 23:00,AC Ruang Kantor,20
+2026-10-03 00:00,Kompresor Udara,174
+2026-10-03 00:00,Oven Pengering,111
+2026-10-03 00:00,Mesin Press,43
+2026-10-03 00:00,AC Ruang Kantor,23
+2026-10-03 01:00,Kompresor Udara,139
+2026-10-03 01:00,Oven Pengering,100
+2026-10-03 01:00,Mesin Press,44
+2026-10-03 01:00,AC Ruang Kantor,20
+2026-10-03 02:00,Kompresor Udara,176
+2026-10-03 02:00,Oven Pengering,87
+2026-10-03 02:00,Mesin Press,44
+2026-10-03 02:00,AC Ruang Kantor,18
+2026-10-03 03:00,Kompresor Udara,171
+2026-10-03 03:00,Oven Pengering,104
+2026-10-03 03:00,Mesin Press,46
+2026-10-03 03:00,AC Ruang Kantor,23
+2026-10-03 04:00,Kompresor Udara,146
+2026-10-03 04:00,Oven Pengering,102
+2026-10-03 04:00,Mesin Press,50
+2026-10-03 04:00,AC Ruang Kantor,22
+2026-10-03 05:00,Kompresor Udara,158
+2026-10-03 05:00,Oven Pengering,85
+2026-10-03 05:00,Mesin Press,46
+2026-10-03 05:00,AC Ruang Kantor,17
+2026-10-03 06:00,Kompresor Udara,138
+2026-10-03 06:00,Oven Pengering,102
+2026-10-03 06:00,Mesin Press,47
+2026-10-03 06:00,AC Ruang Kantor,20
+2026-10-03 07:00,Kompresor Udara,4123
+2026-10-03 07:00,Oven Pengering,8628
+2026-10-03 07:00,Mesin Press,54
+2026-10-03 07:00,AC Ruang Kantor,17
+2026-10-03 08:00,Kompresor Udara,3641
+2026-10-03 08:00,Oven Pengering,9277
+2026-10-03 08:00,Mesin Press,2811
+2026-10-03 08:00,AC Ruang Kantor,1242
+2026-10-03 09:00,Kompresor Udara,3640
+2026-10-03 09:00,Oven Pengering,8622
+2026-10-03 09:00,Mesin Press,3247
+2026-10-03 09:00,AC Ruang Kantor,1232
+2026-10-03 10:00,Kompresor Udara,3853
+2026-10-03 10:00,Oven Pengering,8550
+2026-10-03 10:00,Mesin Press,2673
+2026-10-03 10:00,AC Ruang Kantor,1138
+2026-10-03 11:00,Kompresor Udara,4127
+2026-10-03 11:00,Oven Pengering,7830
+2026-10-03 11:00,Mesin Press,2976
+2026-10-03 11:00,AC Ruang Kantor,1224
+2026-10-03 12:00,Kompresor Udara,3747
+2026-10-03 12:00,Oven Pengering,8152
+2026-10-03 12:00,Mesin Press,595
+2026-10-03 12:00,AC Ruang Kantor,1179
+2026-10-03 13:00,Kompresor Udara,3631
+2026-10-03 13:00,Oven Pengering,7887
+2026-10-03 13:00,Mesin Press,3343
+2026-10-03 13:00,AC Ruang Kantor,963
+2026-10-03 14:00,Kompresor Udara,3889
+2026-10-03 14:00,Oven Pengering,8330
+2026-10-03 14:00,Mesin Press,2862
+2026-10-03 14:00,AC Ruang Kantor,1010
+2026-10-03 15:00,Kompresor Udara,3842
+2026-10-03 15:00,Oven Pengering,84
+2026-10-03 15:00,Mesin Press,2939
+2026-10-03 15:00,AC Ruang Kantor,965
+2026-10-03 16:00,Kompresor Udara,151
+2026-10-03 16:00,Oven Pengering,87
+2026-10-03 16:00,Mesin Press,41
+2026-10-03 16:00,AC Ruang Kantor,1130
+2026-10-03 17:00,Kompresor Udara,140
+2026-10-03 17:00,Oven Pengering,108
+2026-10-03 17:00,Mesin Press,48
+2026-10-03 17:00,AC Ruang Kantor,23
+2026-10-03 18:00,Kompresor Udara,165
+2026-10-03 18:00,Oven Pengering,88
+2026-10-03 18:00,Mesin Press,46
+2026-10-03 18:00,AC Ruang Kantor,24
+2026-10-03 19:00,Kompresor Udara,136
+2026-10-03 19:00,Oven Pengering,93
+2026-10-03 19:00,Mesin Press,45
+2026-10-03 19:00,AC Ruang Kantor,23
+2026-10-03 20:00,Kompresor Udara,158
+2026-10-03 20:00,Oven Pengering,84
+2026-10-03 20:00,Mesin Press,45
+2026-10-03 20:00,AC Ruang Kantor,19
+2026-10-03 21:00,Kompresor Udara,169
+2026-10-03 21:00,Oven Pengering,100
+2026-10-03 21:00,Mesin Press,44
+2026-10-03 21:00,AC Ruang Kantor,19
+2026-10-03 22:00,Kompresor Udara,171
+2026-10-03 22:00,Oven Pengering,96
+2026-10-03 22:00,Mesin Press,45
+2026-10-03 22:00,AC Ruang Kantor,16
+2026-10-03 23:00,Kompresor Udara,164
+2026-10-03 23:00,Oven Pengering,103
+2026-10-03 23:00,Mesin Press,51
+2026-10-03 23:00,AC Ruang Kantor,25
+2026-10-04 00:00,Kompresor Udara,153
+2026-10-04 00:00,Oven Pengering,96
+2026-10-04 00:00,Mesin Press,47
+2026-10-04 00:00,AC Ruang Kantor,23
+2026-10-04 01:00,Kompresor Udara,160
+2026-10-04 01:00,Oven Pengering,92
+2026-10-04 01:00,Mesin Press,46
+2026-10-04 01:00,AC Ruang Kantor,25
+2026-10-04 02:00,Kompresor Udara,170
+2026-10-04 02:00,Oven Pengering,107
+2026-10-04 02:00,Mesin Press,46
+2026-10-04 02:00,AC Ruang Kantor,17
+2026-10-04 03:00,Kompresor Udara,145
+2026-10-04 03:00,Oven Pengering,111
+2026-10-04 03:00,Mesin Press,58
+2026-10-04 03:00,AC Ruang Kantor,18
+2026-10-04 04:00,Kompresor Udara,134
+2026-10-04 04:00,Oven Pengering,81
+2026-10-04 04:00,Mesin Press,57
+2026-10-04 04:00,AC Ruang Kantor,21
+2026-10-04 05:00,Kompresor Udara,134
+2026-10-04 05:00,Oven Pengering,111
+2026-10-04 05:00,Mesin Press,46
+2026-10-04 05:00,AC Ruang Kantor,22
+2026-10-04 06:00,Kompresor Udara,123
+2026-10-04 06:00,Oven Pengering,100
+2026-10-04 06:00,Mesin Press,44
+2026-10-04 06:00,AC Ruang Kantor,17
+2026-10-04 07:00,Kompresor Udara,180
+2026-10-04 07:00,Oven Pengering,114
+2026-10-04 07:00,Mesin Press,59
+2026-10-04 07:00,AC Ruang Kantor,22
+2026-10-04 08:00,Kompresor Udara,166
+2026-10-04 08:00,Oven Pengering,84
+2026-10-04 08:00,Mesin Press,51
+2026-10-04 08:00,AC Ruang Kantor,19
+2026-10-04 09:00,Kompresor Udara,126
+2026-10-04 09:00,Oven Pengering,111
+2026-10-04 09:00,Mesin Press,48
+2026-10-04 09:00,AC Ruang Kantor,23
+2026-10-04 10:00,Kompresor Udara,123
+2026-10-04 10:00,Oven Pengering,102
+2026-10-04 10:00,Mesin Press,48
+2026-10-04 10:00,AC Ruang Kantor,21
+2026-10-04 11:00,Kompresor Udara,151
+2026-10-04 11:00,Oven Pengering,107
+2026-10-04 11:00,Mesin Press,48
+2026-10-04 11:00,AC Ruang Kantor,16
+2026-10-04 12:00,Kompresor Udara,158
+2026-10-04 12:00,Oven Pengering,119
+2026-10-04 12:00,Mesin Press,41
+2026-10-04 12:00,AC Ruang Kantor,20
+2026-10-04 13:00,Kompresor Udara,130
+2026-10-04 13:00,Oven Pengering,97
+2026-10-04 13:00,Mesin Press,42
+2026-10-04 13:00,AC Ruang Kantor,15
+2026-10-04 14:00,Kompresor Udara,127
+2026-10-04 14:00,Oven Pengering,106
+2026-10-04 14:00,Mesin Press,41
+2026-10-04 14:00,AC Ruang Kantor,17
+2026-10-04 15:00,Kompresor Udara,137
+2026-10-04 15:00,Oven Pengering,91
+2026-10-04 15:00,Mesin Press,57
+2026-10-04 15:00,AC Ruang Kantor,16
+2026-10-04 16:00,Kompresor Udara,148
+2026-10-04 16:00,Oven Pengering,111
+2026-10-04 16:00,Mesin Press,48
+2026-10-04 16:00,AC Ruang Kantor,20
+2026-10-04 17:00,Kompresor Udara,132
+2026-10-04 17:00,Oven Pengering,85
+2026-10-04 17:00,Mesin Press,47
+2026-10-04 17:00,AC Ruang Kantor,15
+2026-10-04 18:00,Kompresor Udara,156
+2026-10-04 18:00,Oven Pengering,112
+2026-10-04 18:00,Mesin Press,49
+2026-10-04 18:00,AC Ruang Kantor,16
+2026-10-04 19:00,Kompresor Udara,176
+2026-10-04 19:00,Oven Pengering,89
+2026-10-04 19:00,Mesin Press,55
+2026-10-04 19:00,AC Ruang Kantor,18
+2026-10-04 20:00,Kompresor Udara,125
+2026-10-04 20:00,Oven Pengering,102
+2026-10-04 20:00,Mesin Press,59
+2026-10-04 20:00,AC Ruang Kantor,20
+2026-10-04 21:00,Kompresor Udara,165
+2026-10-04 21:00,Oven Pengering,82
+2026-10-04 21:00,Mesin Press,45
+2026-10-04 21:00,AC Ruang Kantor,20
+2026-10-04 22:00,Kompresor Udara,156
+2026-10-04 22:00,Oven Pengering,92
+2026-10-04 22:00,Mesin Press,45
+2026-10-04 22:00,AC Ruang Kantor,16
+2026-10-04 23:00,Kompresor Udara,171
+2026-10-04 23:00,Oven Pengering,99
+2026-10-04 23:00,Mesin Press,48
+2026-10-04 23:00,AC Ruang Kantor,15
+2026-10-05 00:00,Kompresor Udara,154
+2026-10-05 00:00,Oven Pengering,93
+2026-10-05 00:00,Mesin Press,41
+2026-10-05 00:00,AC Ruang Kantor,18
+2026-10-05 01:00,Kompresor Udara,175
+2026-10-05 01:00,Oven Pengering,117
+2026-10-05 01:00,Mesin Press,56
+2026-10-05 01:00,AC Ruang Kantor,21
+2026-10-05 02:00,Kompresor Udara,163
+2026-10-05 02:00,Oven Pengering,94
+2026-10-05 02:00,Mesin Press,46
+2026-10-05 02:00,AC Ruang Kantor,25
+2026-10-05 03:00,Kompresor Udara,125
+2026-10-05 03:00,Oven Pengering,91
+2026-10-05 03:00,Mesin Press,56
+2026-10-05 03:00,AC Ruang Kantor,23
+2026-10-05 04:00,Kompresor Udara,172
+2026-10-05 04:00,Oven Pengering,87
+2026-10-05 04:00,Mesin Press,57
+2026-10-05 04:00,AC Ruang Kantor,20
+2026-10-05 05:00,Kompresor Udara,128
+2026-10-05 05:00,Oven Pengering,108
+2026-10-05 05:00,Mesin Press,49
+2026-10-05 05:00,AC Ruang Kantor,19
+2026-10-05 06:00,Kompresor Udara,122
+2026-10-05 06:00,Oven Pengering,114
+2026-10-05 06:00,Mesin Press,52
+2026-10-05 06:00,AC Ruang Kantor,20
+2026-10-05 07:00,Kompresor Udara,4242
+2026-10-05 07:00,Oven Pengering,8199
+2026-10-05 07:00,Mesin Press,50
+2026-10-05 07:00,AC Ruang Kantor,17
+2026-10-05 08:00,Kompresor Udara,3689
+2026-10-05 08:00,Oven Pengering,7750
+2026-10-05 08:00,Mesin Press,3361
+2026-10-05 08:00,AC Ruang Kantor,1206
+2026-10-05 09:00,Kompresor Udara,3825
+2026-10-05 09:00,Oven Pengering,9159
+2026-10-05 09:00,Mesin Press,3202
+2026-10-05 09:00,AC Ruang Kantor,1074
+2026-10-05 10:00,Kompresor Udara,4440
+2026-10-05 10:00,Oven Pengering,8371
+2026-10-05 10:00,Mesin Press,3290
+2026-10-05 10:00,AC Ruang Kantor,1126
+2026-10-05 11:00,Kompresor Udara,3698
+2026-10-05 11:00,Oven Pengering,7778
+2026-10-05 11:00,Mesin Press,3164
+2026-10-05 11:00,AC Ruang Kantor,1000
+2026-10-05 12:00,Kompresor Udara,4448
+2026-10-05 12:00,Oven Pengering,8745
+2026-10-05 12:00,Mesin Press,780
+2026-10-05 12:00,AC Ruang Kantor,1042
+2026-10-05 13:00,Kompresor Udara,4353
+2026-10-05 13:00,Oven Pengering,8161
+2026-10-05 13:00,Mesin Press,3136
+2026-10-05 13:00,AC Ruang Kantor,1087
+2026-10-05 14:00,Kompresor Udara,3825
+2026-10-05 14:00,Oven Pengering,9005
+2026-10-05 14:00,Mesin Press,3052
+2026-10-05 14:00,AC Ruang Kantor,1032
+2026-10-05 15:00,Kompresor Udara,3685
+2026-10-05 15:00,Oven Pengering,100
+2026-10-05 15:00,Mesin Press,2747
+2026-10-05 15:00,AC Ruang Kantor,1163
+2026-10-05 16:00,Kompresor Udara,162
+2026-10-05 16:00,Oven Pengering,117
+2026-10-05 16:00,Mesin Press,50
+2026-10-05 16:00,AC Ruang Kantor,1017
+2026-10-05 17:00,Kompresor Udara,140
+2026-10-05 17:00,Oven Pengering,112
+2026-10-05 17:00,Mesin Press,43
+2026-10-05 17:00,AC Ruang Kantor,19
+2026-10-05 18:00,Kompresor Udara,137
+2026-10-05 18:00,Oven Pengering,88
+2026-10-05 18:00,Mesin Press,51
+2026-10-05 18:00,AC Ruang Kantor,17
+2026-10-05 19:00,Kompresor Udara,142
+2026-10-05 19:00,Oven Pengering,102
+2026-10-05 19:00,Mesin Press,59
+2026-10-05 19:00,AC Ruang Kantor,18
+2026-10-05 20:00,Kompresor Udara,127
+2026-10-05 20:00,Oven Pengering,100
+2026-10-05 20:00,Mesin Press,41
+2026-10-05 20:00,AC Ruang Kantor,17
+2026-10-05 21:00,Kompresor Udara,150
+2026-10-05 21:00,Oven Pengering,95
+2026-10-05 21:00,Mesin Press,42
+2026-10-05 21:00,AC Ruang Kantor,17
+2026-10-05 22:00,Kompresor Udara,145
+2026-10-05 22:00,Oven Pengering,100
+2026-10-05 22:00,Mesin Press,55
+2026-10-05 22:00,AC Ruang Kantor,18
+2026-10-05 23:00,Kompresor Udara,142
+2026-10-05 23:00,Oven Pengering,108
+2026-10-05 23:00,Mesin Press,47
+2026-10-05 23:00,AC Ruang Kantor,24
+2026-10-06 00:00,Kompresor Udara,167
+2026-10-06 00:00,Oven Pengering,90
+2026-10-06 00:00,Mesin Press,47
+2026-10-06 00:00,AC Ruang Kantor,15
+2026-10-06 01:00,Kompresor Udara,173
+2026-10-06 01:00,Oven Pengering,89
+2026-10-06 01:00,Mesin Press,44
+2026-10-06 01:00,AC Ruang Kantor,23
+2026-10-06 02:00,Kompresor Udara,175
+2026-10-06 02:00,Oven Pengering,87
+2026-10-06 02:00,Mesin Press,40
+2026-10-06 02:00,AC Ruang Kantor,18
+2026-10-06 03:00,Kompresor Udara,164
+2026-10-06 03:00,Oven Pengering,119
+2026-10-06 03:00,Mesin Press,49
+2026-10-06 03:00,AC Ruang Kantor,24
+2026-10-06 04:00,Kompresor Udara,134
+2026-10-06 04:00,Oven Pengering,116
+2026-10-06 04:00,Mesin Press,56
+2026-10-06 04:00,AC Ruang Kantor,20
+2026-10-06 05:00,Kompresor Udara,167
+2026-10-06 05:00,Oven Pengering,92
+2026-10-06 05:00,Mesin Press,56
+2026-10-06 05:00,AC Ruang Kantor,18
+2026-10-06 06:00,Kompresor Udara,179
+2026-10-06 06:00,Oven Pengering,112
+2026-10-06 06:00,Mesin Press,41
+2026-10-06 06:00,AC Ruang Kantor,15
+2026-10-06 07:00,Kompresor Udara,3896
+2026-10-06 07:00,Oven Pengering,8551
+2026-10-06 07:00,Mesin Press,54
+2026-10-06 07:00,AC Ruang Kantor,20
+2026-10-06 08:00,Kompresor Udara,3904
+2026-10-06 08:00,Oven Pengering,9128
+2026-10-06 08:00,Mesin Press,3115
+2026-10-06 08:00,AC Ruang Kantor,1109
+2026-10-06 09:00,Kompresor Udara,3856
+2026-10-06 09:00,Oven Pengering,9284
+2026-10-06 09:00,Mesin Press,2810
+2026-10-06 09:00,AC Ruang Kantor,1057
+2026-10-06 10:00,Kompresor Udara,3593
+2026-10-06 10:00,Oven Pengering,8721
+2026-10-06 10:00,Mesin Press,3315
+2026-10-06 10:00,AC Ruang Kantor,1074
+2026-10-06 11:00,Kompresor Udara,4050
+2026-10-06 11:00,Oven Pengering,8159
+2026-10-06 11:00,Mesin Press,2985
+2026-10-06 11:00,AC Ruang Kantor,980
+2026-10-06 12:00,Kompresor Udara,4315
+2026-10-06 12:00,Oven Pengering,7858
+2026-10-06 12:00,Mesin Press,393
+2026-10-06 12:00,AC Ruang Kantor,1008
+2026-10-06 13:00,Kompresor Udara,4279
+2026-10-06 13:00,Oven Pengering,7920
+2026-10-06 13:00,Mesin Press,2909
+2026-10-06 13:00,AC Ruang Kantor,1042
+2026-10-06 14:00,Kompresor Udara,3672
+2026-10-06 14:00,Oven Pengering,7894
+2026-10-06 14:00,Mesin Press,3343
+2026-10-06 14:00,AC Ruang Kantor,1217
+2026-10-06 15:00,Kompresor Udara,4341
+2026-10-06 15:00,Oven Pengering,90
+2026-10-06 15:00,Mesin Press,2746
+2026-10-06 15:00,AC Ruang Kantor,1167
+2026-10-06 16:00,Kompresor Udara,177
+2026-10-06 16:00,Oven Pengering,113
+2026-10-06 16:00,Mesin Press,47
+2026-10-06 16:00,AC Ruang Kantor,1021
+2026-10-06 17:00,Kompresor Udara,123
+2026-10-06 17:00,Oven Pengering,97
+2026-10-06 17:00,Mesin Press,47
+2026-10-06 17:00,AC Ruang Kantor,17
+2026-10-06 18:00,Kompresor Udara,134
+2026-10-06 18:00,Oven Pengering,89
+2026-10-06 18:00,Mesin Press,49
+2026-10-06 18:00,AC Ruang Kantor,20
+2026-10-06 19:00,Kompresor Udara,150
+2026-10-06 19:00,Oven Pengering,115
+2026-10-06 19:00,Mesin Press,51
+2026-10-06 19:00,AC Ruang Kantor,23
+2026-10-06 20:00,Kompresor Udara,123
+2026-10-06 20:00,Oven Pengering,110
+2026-10-06 20:00,Mesin Press,59
+2026-10-06 20:00,AC Ruang Kantor,20
+2026-10-06 21:00,Kompresor Udara,168
+2026-10-06 21:00,Oven Pengering,90
+2026-10-06 21:00,Mesin Press,51
+2026-10-06 21:00,AC Ruang Kantor,24
+2026-10-06 22:00,Kompresor Udara,147
+2026-10-06 22:00,Oven Pengering,81
+2026-10-06 22:00,Mesin Press,58
+2026-10-06 22:00,AC Ruang Kantor,19
+2026-10-06 23:00,Kompresor Udara,133
+2026-10-06 23:00,Oven Pengering,113
+2026-10-06 23:00,Mesin Press,47
+2026-10-06 23:00,AC Ruang Kantor,18
+2026-10-07 00:00,Kompresor Udara,146
+2026-10-07 00:00,Oven Pengering,87
+2026-10-07 00:00,Mesin Press,45
+2026-10-07 00:00,AC Ruang Kantor,24
+2026-10-07 01:00,Kompresor Udara,155
+2026-10-07 01:00,Oven Pengering,116
+2026-10-07 01:00,Mesin Press,48
+2026-10-07 01:00,AC Ruang Kantor,22
+2026-10-07 02:00,Kompresor Udara,122
+2026-10-07 02:00,Oven Pengering,113
+2026-10-07 02:00,Mesin Press,58
+2026-10-07 02:00,AC Ruang Kantor,22
+2026-10-07 03:00,Kompresor Udara,125
+2026-10-07 03:00,Oven Pengering,84
+2026-10-07 03:00,Mesin Press,48
+2026-10-07 03:00,AC Ruang Kantor,25
+2026-10-07 04:00,Kompresor Udara,146
+2026-10-07 04:00,Oven Pengering,96
+2026-10-07 04:00,Mesin Press,58
+2026-10-07 04:00,AC Ruang Kantor,16
+2026-10-07 05:00,Kompresor Udara,152
+2026-10-07 05:00,Oven Pengering,104
+2026-10-07 05:00,Mesin Press,51
+2026-10-07 05:00,AC Ruang Kantor,21
+2026-10-07 06:00,Kompresor Udara,155
+2026-10-07 06:00,Oven Pengering,101
+2026-10-07 06:00,Mesin Press,45
+2026-10-07 06:00,AC Ruang Kantor,23
+2026-10-07 07:00,Kompresor Udara,4262
+2026-10-07 07:00,Oven Pengering,7857
+2026-10-07 07:00,Mesin Press,54
+2026-10-07 07:00,AC Ruang Kantor,19
+2026-10-07 08:00,Kompresor Udara,4140
+2026-10-07 08:00,Oven Pengering,9162
+2026-10-07 08:00,Mesin Press,3389
+2026-10-07 08:00,AC Ruang Kantor,974
+2026-10-07 09:00,Kompresor Udara,4302
+2026-10-07 09:00,Oven Pengering,8737
+2026-10-07 09:00,Mesin Press,3181
+2026-10-07 09:00,AC Ruang Kantor,1146
+2026-10-07 10:00,Kompresor Udara,3509
+2026-10-07 10:00,Oven Pengering,7733
+2026-10-07 10:00,Mesin Press,2955
+2026-10-07 10:00,AC Ruang Kantor,1034
+2026-10-07 11:00,Kompresor Udara,3862
+2026-10-07 11:00,Oven Pengering,8488
+2026-10-07 11:00,Mesin Press,2785
+2026-10-07 11:00,AC Ruang Kantor,1018
+2026-10-07 12:00,Kompresor Udara,4347
+2026-10-07 12:00,Oven Pengering,8083
+2026-10-07 12:00,Mesin Press,784
+2026-10-07 12:00,AC Ruang Kantor,1187
+2026-10-07 13:00,Kompresor Udara,4070
+2026-10-07 13:00,Oven Pengering,7934
+2026-10-07 13:00,Mesin Press,3168
+2026-10-07 13:00,AC Ruang Kantor,1035
+2026-10-07 14:00,Kompresor Udara,4359
+2026-10-07 14:00,Oven Pengering,8343
+2026-10-07 14:00,Mesin Press,2918
+2026-10-07 14:00,AC Ruang Kantor,1099
+2026-10-07 15:00,Kompresor Udara,4467
+2026-10-07 15:00,Oven Pengering,119
+2026-10-07 15:00,Mesin Press,3223
+2026-10-07 15:00,AC Ruang Kantor,1065
+2026-10-07 16:00,Kompresor Udara,137
+2026-10-07 16:00,Oven Pengering,100
+2026-10-07 16:00,Mesin Press,56
+2026-10-07 16:00,AC Ruang Kantor,1107
+2026-10-07 17:00,Kompresor Udara,133
+2026-10-07 17:00,Oven Pengering,91
+2026-10-07 17:00,Mesin Press,54
+2026-10-07 17:00,AC Ruang Kantor,17
+2026-10-07 18:00,Kompresor Udara,164
+2026-10-07 18:00,Oven Pengering,115
+2026-10-07 18:00,Mesin Press,51
+2026-10-07 18:00,AC Ruang Kantor,25
+2026-10-07 19:00,Kompresor Udara,176
+2026-10-07 19:00,Oven Pengering,116
+2026-10-07 19:00,Mesin Press,45
+2026-10-07 19:00,AC Ruang Kantor,19
+2026-10-07 20:00,Kompresor Udara,132
+2026-10-07 20:00,Oven Pengering,108
+2026-10-07 20:00,Mesin Press,46
+2026-10-07 20:00,AC Ruang Kantor,23
+2026-10-07 21:00,Kompresor Udara,167
+2026-10-07 21:00,Oven Pengering,84
+2026-10-07 21:00,Mesin Press,41
+2026-10-07 21:00,AC Ruang Kantor,19
+2026-10-07 22:00,Kompresor Udara,134
+2026-10-07 22:00,Oven Pengering,89
+2026-10-07 22:00,Mesin Press,51
+2026-10-07 22:00,AC Ruang Kantor,18
+2026-10-07 23:00,Kompresor Udara,131
+2026-10-07 23:00,Oven Pengering,115
+2026-10-07 23:00,Mesin Press,44
+2026-10-07 23:00,AC Ruang Kantor,23
+2026-10-08 00:00,Kompresor Udara,141
+2026-10-08 00:00,Oven Pengering,95
+2026-10-08 00:00,Mesin Press,55
+2026-10-08 00:00,AC Ruang Kantor,24
+2026-10-08 01:00,Kompresor Udara,167
+2026-10-08 01:00,Oven Pengering,81
+2026-10-08 01:00,Mesin Press,59
+2026-10-08 01:00,AC Ruang Kantor,23
+2026-10-08 02:00,Kompresor Udara,127
+2026-10-08 02:00,Oven Pengering,98
+2026-10-08 02:00,Mesin Press,53
+2026-10-08 02:00,AC Ruang Kantor,21
+2026-10-08 03:00,Kompresor Udara,180
+2026-10-08 03:00,Oven Pengering,109
+2026-10-08 03:00,Mesin Press,42
+2026-10-08 03:00,AC Ruang Kantor,16
+2026-10-08 04:00,Kompresor Udara,144
+2026-10-08 04:00,Oven Pengering,95
+2026-10-08 04:00,Mesin Press,53
+2026-10-08 04:00,AC Ruang Kantor,18
+2026-10-08 05:00,Kompresor Udara,162
+2026-10-08 05:00,Oven Pengering,81
+2026-10-08 05:00,Mesin Press,53
+2026-10-08 05:00,AC Ruang Kantor,25
+2026-10-08 06:00,Kompresor Udara,177
+2026-10-08 06:00,Oven Pengering,102
+2026-10-08 06:00,Mesin Press,54
+2026-10-08 06:00,AC Ruang Kantor,25
+2026-10-08 07:00,Kompresor Udara,3948
+2026-10-08 07:00,Oven Pengering,7712
+2026-10-08 07:00,Mesin Press,51
+2026-10-08 07:00,AC Ruang Kantor,19
+2026-10-08 08:00,Kompresor Udara,4352
+2026-10-08 08:00,Oven Pengering,7810
+2026-10-08 08:00,Mesin Press,3177
+2026-10-08 08:00,AC Ruang Kantor,1240
+2026-10-08 09:00,Kompresor Udara,3856
+2026-10-08 09:00,Oven Pengering,8494
+2026-10-08 09:00,Mesin Press,3343
+2026-10-08 09:00,AC Ruang Kantor,1054
+2026-10-08 10:00,Kompresor Udara,4385
+2026-10-08 10:00,Oven Pengering,7705
+2026-10-08 10:00,Mesin Press,3327
+2026-10-08 10:00,AC Ruang Kantor,1150
+2026-10-08 11:00,Kompresor Udara,3930
+2026-10-08 11:00,Oven Pengering,8832
+2026-10-08 11:00,Mesin Press,3096
+2026-10-08 11:00,AC Ruang Kantor,1053
+2026-10-08 12:00,Kompresor Udara,3897
+2026-10-08 12:00,Oven Pengering,8656
+2026-10-08 12:00,Mesin Press,646
+2026-10-08 12:00,AC Ruang Kantor,1101
+2026-10-08 13:00,Kompresor Udara,3501
+2026-10-08 13:00,Oven Pengering,8156
+2026-10-08 13:00,Mesin Press,3197
+2026-10-08 13:00,AC Ruang Kantor,1100
+2026-10-08 14:00,Kompresor Udara,3533
+2026-10-08 14:00,Oven Pengering,8596
+2026-10-08 14:00,Mesin Press,2643
+2026-10-08 14:00,AC Ruang Kantor,1047
+2026-10-08 15:00,Kompresor Udara,4332
+2026-10-08 15:00,Oven Pengering,81
+2026-10-08 15:00,Mesin Press,2996
+2026-10-08 15:00,AC Ruang Kantor,956
+2026-10-08 16:00,Kompresor Udara,170
+2026-10-08 16:00,Oven Pengering,114
+2026-10-08 16:00,Mesin Press,55
+2026-10-08 16:00,AC Ruang Kantor,1171
+2026-10-08 17:00,Kompresor Udara,173
+2026-10-08 17:00,Oven Pengering,113
+2026-10-08 17:00,Mesin Press,59
+2026-10-08 17:00,AC Ruang Kantor,16
+2026-10-08 18:00,Kompresor Udara,143
+2026-10-08 18:00,Oven Pengering,86
+2026-10-08 18:00,Mesin Press,57
+2026-10-08 18:00,AC Ruang Kantor,21
+2026-10-08 19:00,Kompresor Udara,163
+2026-10-08 19:00,Oven Pengering,87
+2026-10-08 19:00,Mesin Press,45
+2026-10-08 19:00,AC Ruang Kantor,21
+2026-10-08 20:00,Kompresor Udara,137
+2026-10-08 20:00,Oven Pengering,105
+2026-10-08 20:00,Mesin Press,44
+2026-10-08 20:00,AC Ruang Kantor,23
+2026-10-08 21:00,Kompresor Udara,145
+2026-10-08 21:00,Oven Pengering,82
+2026-10-08 21:00,Mesin Press,55
+2026-10-08 21:00,AC Ruang Kantor,17
+2026-10-08 22:00,Kompresor Udara,172
+2026-10-08 22:00,Oven Pengering,110
+2026-10-08 22:00,Mesin Press,49
+2026-10-08 22:00,AC Ruang Kantor,20
+2026-10-08 23:00,Kompresor Udara,179
+2026-10-08 23:00,Oven Pengering,101
+2026-10-08 23:00,Mesin Press,55
+2026-10-08 23:00,AC Ruang Kantor,18
+2026-10-09 00:00,Kompresor Udara,168
+2026-10-09 00:00,Oven Pengering,104
+2026-10-09 00:00,Mesin Press,55
+2026-10-09 00:00,AC Ruang Kantor,17
+2026-10-09 01:00,Kompresor Udara,159
+2026-10-09 01:00,Oven Pengering,113
+2026-10-09 01:00,Mesin Press,50
+2026-10-09 01:00,AC Ruang Kantor,24
+2026-10-09 02:00,Kompresor Udara,124
+2026-10-09 02:00,Oven Pengering,83
+2026-10-09 02:00,Mesin Press,51
+2026-10-09 02:00,AC Ruang Kantor,25
+2026-10-09 03:00,Kompresor Udara,179
+2026-10-09 03:00,Oven Pengering,103
+2026-10-09 03:00,Mesin Press,49
+2026-10-09 03:00,AC Ruang Kantor,23
+2026-10-09 04:00,Kompresor Udara,173
+2026-10-09 04:00,Oven Pengering,114
+2026-10-09 04:00,Mesin Press,43
+2026-10-09 04:00,AC Ruang Kantor,25
+2026-10-09 05:00,Kompresor Udara,155
+2026-10-09 05:00,Oven Pengering,112
+2026-10-09 05:00,Mesin Press,46
+2026-10-09 05:00,AC Ruang Kantor,16
+2026-10-09 06:00,Kompresor Udara,152
+2026-10-09 06:00,Oven Pengering,93
+2026-10-09 06:00,Mesin Press,59
+2026-10-09 06:00,AC Ruang Kantor,21
+2026-10-09 07:00,Kompresor Udara,3652
+2026-10-09 07:00,Oven Pengering,8017
+2026-10-09 07:00,Mesin Press,42
+2026-10-09 07:00,AC Ruang Kantor,21
+2026-10-09 08:00,Kompresor Udara,4167
+2026-10-09 08:00,Oven Pengering,8310
+2026-10-09 08:00,Mesin Press,3177
+2026-10-09 08:00,AC Ruang Kantor,1039
+2026-10-09 09:00,Kompresor Udara,3988
+2026-10-09 09:00,Oven Pengering,9161
+2026-10-09 09:00,Mesin Press,2716
+2026-10-09 09:00,AC Ruang Kantor,983
+2026-10-09 10:00,Kompresor Udara,4032
+2026-10-09 10:00,Oven Pengering,8921
+2026-10-09 10:00,Mesin Press,2926
+2026-10-09 10:00,AC Ruang Kantor,1178
+2026-10-09 11:00,Kompresor Udara,4432
+2026-10-09 11:00,Oven Pengering,7929
+2026-10-09 11:00,Mesin Press,3043
+2026-10-09 11:00,AC Ruang Kantor,1098
+2026-10-09 12:00,Kompresor Udara,4095
+2026-10-09 12:00,Oven Pengering,8093
+2026-10-09 12:00,Mesin Press,570
+2026-10-09 12:00,AC Ruang Kantor,1146
+2026-10-09 13:00,Kompresor Udara,3619
+2026-10-09 13:00,Oven Pengering,8910
+2026-10-09 13:00,Mesin Press,3368
+2026-10-09 13:00,AC Ruang Kantor,1077
+2026-10-09 14:00,Kompresor Udara,3856
+2026-10-09 14:00,Oven Pengering,7996
+2026-10-09 14:00,Mesin Press,2906
+2026-10-09 14:00,AC Ruang Kantor,963
+2026-10-09 15:00,Kompresor Udara,3842
+2026-10-09 15:00,Oven Pengering,117
+2026-10-09 15:00,Mesin Press,2874
+2026-10-09 15:00,AC Ruang Kantor,1114
+2026-10-09 16:00,Kompresor Udara,167
+2026-10-09 16:00,Oven Pengering,86
+2026-10-09 16:00,Mesin Press,45
+2026-10-09 16:00,AC Ruang Kantor,1058
+2026-10-09 17:00,Kompresor Udara,162
+2026-10-09 17:00,Oven Pengering,109
+2026-10-09 17:00,Mesin Press,52
+2026-10-09 17:00,AC Ruang Kantor,17
+2026-10-09 18:00,Kompresor Udara,172
+2026-10-09 18:00,Oven Pengering,99
+2026-10-09 18:00,Mesin Press,45
+2026-10-09 18:00,AC Ruang Kantor,24
+2026-10-09 19:00,Kompresor Udara,127
+2026-10-09 19:00,Oven Pengering,92
+2026-10-09 19:00,Mesin Press,47
+2026-10-09 19:00,AC Ruang Kantor,22
+2026-10-09 20:00,Kompresor Udara,136
+2026-10-09 20:00,Oven Pengering,101
+2026-10-09 20:00,Mesin Press,48
+2026-10-09 20:00,AC Ruang Kantor,24
+2026-10-09 21:00,Kompresor Udara,150
+2026-10-09 21:00,Oven Pengering,110
+2026-10-09 21:00,Mesin Press,56
+2026-10-09 21:00,AC Ruang Kantor,20
+2026-10-09 22:00,Kompresor Udara,124
+2026-10-09 22:00,Oven Pengering,80
+2026-10-09 22:00,Mesin Press,58
+2026-10-09 22:00,AC Ruang Kantor,20
+2026-10-09 23:00,Kompresor Udara,145
+2026-10-09 23:00,Oven Pengering,100
+2026-10-09 23:00,Mesin Press,56
+2026-10-09 23:00,AC Ruang Kantor,17
+2026-10-10 00:00,Kompresor Udara,167
+2026-10-10 00:00,Oven Pengering,96
+2026-10-10 00:00,Mesin Press,55
+2026-10-10 00:00,AC Ruang Kantor,24
+2026-10-10 01:00,Kompresor Udara,169
+2026-10-10 01:00,Oven Pengering,107
+2026-10-10 01:00,Mesin Press,56
+2026-10-10 01:00,AC Ruang Kantor,25
+2026-10-10 02:00,Kompresor Udara,139
+2026-10-10 02:00,Oven Pengering,107
+2026-10-10 02:00,Mesin Press,56
+2026-10-10 02:00,AC Ruang Kantor,23
+2026-10-10 03:00,Kompresor Udara,132
+2026-10-10 03:00,Oven Pengering,96
+2026-10-10 03:00,Mesin Press,49
+2026-10-10 03:00,AC Ruang Kantor,22
+2026-10-10 04:00,Kompresor Udara,172
+2026-10-10 04:00,Oven Pengering,106
+2026-10-10 04:00,Mesin Press,44
+2026-10-10 04:00,AC Ruang Kantor,24
+2026-10-10 05:00,Kompresor Udara,174
+2026-10-10 05:00,Oven Pengering,114
+2026-10-10 05:00,Mesin Press,54
+2026-10-10 05:00,AC Ruang Kantor,19
+2026-10-10 06:00,Kompresor Udara,152
+2026-10-10 06:00,Oven Pengering,115
+2026-10-10 06:00,Mesin Press,42
+2026-10-10 06:00,AC Ruang Kantor,18
+2026-10-10 07:00,Kompresor Udara,4098
+2026-10-10 07:00,Oven Pengering,8208
+2026-10-10 07:00,Mesin Press,49
+2026-10-10 07:00,AC Ruang Kantor,21
+2026-10-10 08:00,Kompresor Udara,4014
+2026-10-10 08:00,Oven Pengering,8135
+2026-10-10 08:00,Mesin Press,2606
+2026-10-10 08:00,AC Ruang Kantor,1002
+2026-10-10 09:00,Kompresor Udara,3759
+2026-10-10 09:00,Oven Pengering,7842
+2026-10-10 09:00,Mesin Press,3355
+2026-10-10 09:00,AC Ruang Kantor,1002
+2026-10-10 10:00,Kompresor Udara,4155
+2026-10-10 10:00,Oven Pengering,8782
+2026-10-10 10:00,Mesin Press,2928
+2026-10-10 10:00,AC Ruang Kantor,1142
+2026-10-10 11:00,Kompresor Udara,3670
+2026-10-10 11:00,Oven Pengering,8334
+2026-10-10 11:00,Mesin Press,2904
+2026-10-10 11:00,AC Ruang Kantor,1101
+2026-10-10 12:00,Kompresor Udara,3857
+2026-10-10 12:00,Oven Pengering,8816
+2026-10-10 12:00,Mesin Press,225
+2026-10-10 12:00,AC Ruang Kantor,1096
+2026-10-10 13:00,Kompresor Udara,3898
+2026-10-10 13:00,Oven Pengering,9256
+2026-10-10 13:00,Mesin Press,3373
+2026-10-10 13:00,AC Ruang Kantor,1065
+2026-10-10 14:00,Kompresor Udara,4094
+2026-10-10 14:00,Oven Pengering,8075
+2026-10-10 14:00,Mesin Press,2849
+2026-10-10 14:00,AC Ruang Kantor,1063
+2026-10-10 15:00,Kompresor Udara,3584
+2026-10-10 15:00,Oven Pengering,86
+2026-10-10 15:00,Mesin Press,3132
+2026-10-10 15:00,AC Ruang Kantor,1207
+2026-10-10 16:00,Kompresor Udara,139
+2026-10-10 16:00,Oven Pengering,105
+2026-10-10 16:00,Mesin Press,56
+2026-10-10 16:00,AC Ruang Kantor,962
+2026-10-10 17:00,Kompresor Udara,136
+2026-10-10 17:00,Oven Pengering,99
+2026-10-10 17:00,Mesin Press,52
+2026-10-10 17:00,AC Ruang Kantor,17
+2026-10-10 18:00,Kompresor Udara,171
+2026-10-10 18:00,Oven Pengering,96
+2026-10-10 18:00,Mesin Press,45
+2026-10-10 18:00,AC Ruang Kantor,18
+2026-10-10 19:00,Kompresor Udara,139
+2026-10-10 19:00,Oven Pengering,84
+2026-10-10 19:00,Mesin Press,59
+2026-10-10 19:00,AC Ruang Kantor,21
+2026-10-10 20:00,Kompresor Udara,170
+2026-10-10 20:00,Oven Pengering,109
+2026-10-10 20:00,Mesin Press,47
+2026-10-10 20:00,AC Ruang Kantor,23
+2026-10-10 21:00,Kompresor Udara,170
+2026-10-10 21:00,Oven Pengering,94
+2026-10-10 21:00,Mesin Press,44
+2026-10-10 21:00,AC Ruang Kantor,23
+2026-10-10 22:00,Kompresor Udara,170
+2026-10-10 22:00,Oven Pengering,112
+2026-10-10 22:00,Mesin Press,57
+2026-10-10 22:00,AC Ruang Kantor,22
+2026-10-10 23:00,Kompresor Udara,179
+2026-10-10 23:00,Oven Pengering,110
+2026-10-10 23:00,Mesin Press,47
+2026-10-10 23:00,AC Ruang Kantor,25
+2026-10-11 00:00,Kompresor Udara,155
+2026-10-11 00:00,Oven Pengering,107
+2026-10-11 00:00,Mesin Press,58
+2026-10-11 00:00,AC Ruang Kantor,18
+2026-10-11 01:00,Kompresor Udara,145
+2026-10-11 01:00,Oven Pengering,100
+2026-10-11 01:00,Mesin Press,56
+2026-10-11 01:00,AC Ruang Kantor,20
+2026-10-11 02:00,Kompresor Udara,127
+2026-10-11 02:00,Oven Pengering,114
+2026-10-11 02:00,Mesin Press,45
+2026-10-11 02:00,AC Ruang Kantor,19
+2026-10-11 03:00,Kompresor Udara,144
+2026-10-11 03:00,Oven Pengering,95
+2026-10-11 03:00,Mesin Press,45
+2026-10-11 03:00,AC Ruang Kantor,17
+2026-10-11 04:00,Kompresor Udara,121
+2026-10-11 04:00,Oven Pengering,83
+2026-10-11 04:00,Mesin Press,54
+2026-10-11 04:00,AC Ruang Kantor,16
+2026-10-11 05:00,Kompresor Udara,134
+2026-10-11 05:00,Oven Pengering,115
+2026-10-11 05:00,Mesin Press,59
+2026-10-11 05:00,AC Ruang Kantor,23
+2026-10-11 06:00,Kompresor Udara,168
+2026-10-11 06:00,Oven Pengering,84
+2026-10-11 06:00,Mesin Press,54
+2026-10-11 06:00,AC Ruang Kantor,24
+2026-10-11 07:00,Kompresor Udara,129
+2026-10-11 07:00,Oven Pengering,114
+2026-10-11 07:00,Mesin Press,54
+2026-10-11 07:00,AC Ruang Kantor,15
+2026-10-11 08:00,Kompresor Udara,166
+2026-10-11 08:00,Oven Pengering,111
+2026-10-11 08:00,Mesin Press,57
+2026-10-11 08:00,AC Ruang Kantor,18
+2026-10-11 09:00,Kompresor Udara,139
+2026-10-11 09:00,Oven Pengering,105
+2026-10-11 09:00,Mesin Press,58
+2026-10-11 09:00,AC Ruang Kantor,20
+2026-10-11 10:00,Kompresor Udara,166
+2026-10-11 10:00,Oven Pengering,110
+2026-10-11 10:00,Mesin Press,47
+2026-10-11 10:00,AC Ruang Kantor,18
+2026-10-11 11:00,Kompresor Udara,167
+2026-10-11 11:00,Oven Pengering,95
+2026-10-11 11:00,Mesin Press,45
+2026-10-11 11:00,AC Ruang Kantor,21
+2026-10-11 12:00,Kompresor Udara,169
+2026-10-11 12:00,Oven Pengering,113
+2026-10-11 12:00,Mesin Press,57
+2026-10-11 12:00,AC Ruang Kantor,20
+2026-10-11 13:00,Kompresor Udara,166
+2026-10-11 13:00,Oven Pengering,114
+2026-10-11 13:00,Mesin Press,48
+2026-10-11 13:00,AC Ruang Kantor,16
+2026-10-11 14:00,Kompresor Udara,164
+2026-10-11 14:00,Oven Pengering,107
+2026-10-11 14:00,Mesin Press,58
+2026-10-11 14:00,AC Ruang Kantor,19
+2026-10-11 15:00,Kompresor Udara,169
+2026-10-11 15:00,Oven Pengering,82
+2026-10-11 15:00,Mesin Press,51
+2026-10-11 15:00,AC Ruang Kantor,20
+2026-10-11 16:00,Kompresor Udara,134
+2026-10-11 16:00,Oven Pengering,89
+2026-10-11 16:00,Mesin Press,47
+2026-10-11 16:00,AC Ruang Kantor,21
+2026-10-11 17:00,Kompresor Udara,134
+2026-10-11 17:00,Oven Pengering,100
+2026-10-11 17:00,Mesin Press,51
+2026-10-11 17:00,AC Ruang Kantor,19
+2026-10-11 18:00,Kompresor Udara,144
+2026-10-11 18:00,Oven Pengering,81
+2026-10-11 18:00,Mesin Press,52
+2026-10-11 18:00,AC Ruang Kantor,15
+2026-10-11 19:00,Kompresor Udara,138
+2026-10-11 19:00,Oven Pengering,113
+2026-10-11 19:00,Mesin Press,43
+2026-10-11 19:00,AC Ruang Kantor,16
+2026-10-11 20:00,Kompresor Udara,159
+2026-10-11 20:00,Oven Pengering,91
+2026-10-11 20:00,Mesin Press,40
+2026-10-11 20:00,AC Ruang Kantor,23
+2026-10-11 21:00,Kompresor Udara,140
+2026-10-11 21:00,Oven Pengering,107
+2026-10-11 21:00,Mesin Press,58
+2026-10-11 21:00,AC Ruang Kantor,24
+2026-10-11 22:00,Kompresor Udara,147
+2026-10-11 22:00,Oven Pengering,115
+2026-10-11 22:00,Mesin Press,46
+2026-10-11 22:00,AC Ruang Kantor,23
+2026-10-11 23:00,Kompresor Udara,171
+2026-10-11 23:00,Oven Pengering,81
+2026-10-11 23:00,Mesin Press,51
+2026-10-11 23:00,AC Ruang Kantor,19
+2026-10-12 00:00,Kompresor Udara,457
+2026-10-12 00:00,Oven Pengering,89
+2026-10-12 00:00,Mesin Press,53
+2026-10-12 00:00,AC Ruang Kantor,24
+2026-10-12 01:00,Kompresor Udara,465
+2026-10-12 01:00,Oven Pengering,115
+2026-10-12 01:00,Mesin Press,45
+2026-10-12 01:00,AC Ruang Kantor,25
+2026-10-12 02:00,Kompresor Udara,464
+2026-10-12 02:00,Oven Pengering,95
+2026-10-12 02:00,Mesin Press,48
+2026-10-12 02:00,AC Ruang Kantor,21
+2026-10-12 03:00,Kompresor Udara,428
+2026-10-12 03:00,Oven Pengering,118
+2026-10-12 03:00,Mesin Press,55
+2026-10-12 03:00,AC Ruang Kantor,16
+2026-10-12 04:00,Kompresor Udara,462
+2026-10-12 04:00,Oven Pengering,100
+2026-10-12 04:00,Mesin Press,59
+2026-10-12 04:00,AC Ruang Kantor,18
+2026-10-12 05:00,Kompresor Udara,141
+2026-10-12 05:00,Oven Pengering,99
+2026-10-12 05:00,Mesin Press,45
+2026-10-12 05:00,AC Ruang Kantor,25
+2026-10-12 06:00,Kompresor Udara,138
+2026-10-12 06:00,Oven Pengering,108
+2026-10-12 06:00,Mesin Press,60
+2026-10-12 06:00,AC Ruang Kantor,17
+2026-10-12 07:00,Kompresor Udara,4424
+2026-10-12 07:00,Oven Pengering,8088
+2026-10-12 07:00,Mesin Press,48
+2026-10-12 07:00,AC Ruang Kantor,16
+2026-10-12 08:00,Kompresor Udara,3540
+2026-10-12 08:00,Oven Pengering,8986
+2026-10-12 08:00,Mesin Press,3378
+2026-10-12 08:00,AC Ruang Kantor,1157
+2026-10-12 09:00,Kompresor Udara,4094
+2026-10-12 09:00,Oven Pengering,9048
+2026-10-12 09:00,Mesin Press,3036
+2026-10-12 09:00,AC Ruang Kantor,1031
+2026-10-12 10:00,Kompresor Udara,3763
+2026-10-12 10:00,Oven Pengering,8209
+2026-10-12 10:00,Mesin Press,2992
+2026-10-12 10:00,AC Ruang Kantor,1201
+2026-10-12 11:00,Kompresor Udara,3897
+2026-10-12 11:00,Oven Pengering,8034
+2026-10-12 11:00,Mesin Press,3024
+2026-10-12 11:00,AC Ruang Kantor,1019
+2026-10-12 12:00,Kompresor Udara,3645
+2026-10-12 12:00,Oven Pengering,8911
+2026-10-12 12:00,Mesin Press,780
+2026-10-12 12:00,AC Ruang Kantor,953
+2026-10-12 13:00,Kompresor Udara,3844
+2026-10-12 13:00,Oven Pengering,8913
+2026-10-12 13:00,Mesin Press,3131
+2026-10-12 13:00,AC Ruang Kantor,1118
+2026-10-12 14:00,Kompresor Udara,4429
+2026-10-12 14:00,Oven Pengering,8003
+2026-10-12 14:00,Mesin Press,3018
+2026-10-12 14:00,AC Ruang Kantor,1125
+2026-10-12 15:00,Kompresor Udara,3666
+2026-10-12 15:00,Oven Pengering,118
+2026-10-12 15:00,Mesin Press,3364
+2026-10-12 15:00,AC Ruang Kantor,1033
+2026-10-12 16:00,Kompresor Udara,142
+2026-10-12 16:00,Oven Pengering,84
+2026-10-12 16:00,Mesin Press,55
+2026-10-12 16:00,AC Ruang Kantor,1077
+2026-10-12 17:00,Kompresor Udara,163
+2026-10-12 17:00,Oven Pengering,103
+2026-10-12 17:00,Mesin Press,46
+2026-10-12 17:00,AC Ruang Kantor,23
+2026-10-12 18:00,Kompresor Udara,176
+2026-10-12 18:00,Oven Pengering,106
+2026-10-12 18:00,Mesin Press,53
+2026-10-12 18:00,AC Ruang Kantor,17
+2026-10-12 19:00,Kompresor Udara,392
+2026-10-12 19:00,Oven Pengering,80
+2026-10-12 19:00,Mesin Press,44
+2026-10-12 19:00,AC Ruang Kantor,23
+2026-10-12 20:00,Kompresor Udara,478
+2026-10-12 20:00,Oven Pengering,81
+2026-10-12 20:00,Mesin Press,53
+2026-10-12 20:00,AC Ruang Kantor,22
+2026-10-12 21:00,Kompresor Udara,456
+2026-10-12 21:00,Oven Pengering,91
+2026-10-12 21:00,Mesin Press,52
+2026-10-12 21:00,AC Ruang Kantor,20
+2026-10-12 22:00,Kompresor Udara,472
+2026-10-12 22:00,Oven Pengering,81
+2026-10-12 22:00,Mesin Press,58
+2026-10-12 22:00,AC Ruang Kantor,21
+2026-10-12 23:00,Kompresor Udara,407
+2026-10-12 23:00,Oven Pengering,82
+2026-10-12 23:00,Mesin Press,60
+2026-10-12 23:00,AC Ruang Kantor,19
+2026-10-13 00:00,Kompresor Udara,452
+2026-10-13 00:00,Oven Pengering,99
+2026-10-13 00:00,Mesin Press,45
+2026-10-13 00:00,AC Ruang Kantor,20
+2026-10-13 01:00,Kompresor Udara,469
+2026-10-13 01:00,Oven Pengering,89
+2026-10-13 01:00,Mesin Press,53
+2026-10-13 01:00,AC Ruang Kantor,21
+2026-10-13 02:00,Kompresor Udara,395
+2026-10-13 02:00,Oven Pengering,104
+2026-10-13 02:00,Mesin Press,47
+2026-10-13 02:00,AC Ruang Kantor,18
+2026-10-13 03:00,Kompresor Udara,411
+2026-10-13 03:00,Oven Pengering,91
+2026-10-13 03:00,Mesin Press,56
+2026-10-13 03:00,AC Ruang Kantor,19
+2026-10-13 04:00,Kompresor Udara,395
+2026-10-13 04:00,Oven Pengering,104
+2026-10-13 04:00,Mesin Press,46
+2026-10-13 04:00,AC Ruang Kantor,22
+2026-10-13 05:00,Kompresor Udara,122
+2026-10-13 05:00,Oven Pengering,84
+2026-10-13 05:00,Mesin Press,51
+2026-10-13 05:00,AC Ruang Kantor,20
+2026-10-13 06:00,Kompresor Udara,143
+2026-10-13 06:00,Oven Pengering,97
+2026-10-13 06:00,Mesin Press,43
+2026-10-13 06:00,AC Ruang Kantor,23
+2026-10-13 07:00,Kompresor Udara,3948
+2026-10-13 07:00,Oven Pengering,7769
+2026-10-13 07:00,Mesin Press,53
+2026-10-13 07:00,AC Ruang Kantor,18
+2026-10-13 08:00,Kompresor Udara,4315
+2026-10-13 08:00,Oven Pengering,8528
+2026-10-13 08:00,Mesin Press,2616
+2026-10-13 08:00,AC Ruang Kantor,1219
+2026-10-13 09:00,Kompresor Udara,3978
+2026-10-13 09:00,Oven Pengering,8417
+2026-10-13 09:00,Mesin Press,2662
+2026-10-13 09:00,AC Ruang Kantor,995
+2026-10-13 10:00,Kompresor Udara,3984
+2026-10-13 10:00,Oven Pengering,8438
+2026-10-13 10:00,Mesin Press,3058
+2026-10-13 10:00,AC Ruang Kantor,978
+2026-10-13 11:00,Kompresor Udara,3800
+2026-10-13 11:00,Oven Pengering,9106
+2026-10-13 11:00,Mesin Press,2658
+2026-10-13 11:00,AC Ruang Kantor,1121
+2026-10-13 12:00,Kompresor Udara,4208
+2026-10-13 12:00,Oven Pengering,9274
+2026-10-13 12:00,Mesin Press,532
+2026-10-13 12:00,AC Ruang Kantor,1067
+2026-10-13 13:00,Kompresor Udara,4270
+2026-10-13 13:00,Oven Pengering,8674
+2026-10-13 13:00,Mesin Press,3294
+2026-10-13 13:00,AC Ruang Kantor,1086
+2026-10-13 14:00,Kompresor Udara,3571
+2026-10-13 14:00,Oven Pengering,8119
+2026-10-13 14:00,Mesin Press,2661
+2026-10-13 14:00,AC Ruang Kantor,973
+2026-10-13 15:00,Kompresor Udara,3798
+2026-10-13 15:00,Oven Pengering,107
+2026-10-13 15:00,Mesin Press,3179
+2026-10-13 15:00,AC Ruang Kantor,1179
+2026-10-13 16:00,Kompresor Udara,171
+2026-10-13 16:00,Oven Pengering,101
+2026-10-13 16:00,Mesin Press,59
+2026-10-13 16:00,AC Ruang Kantor,1179
+2026-10-13 17:00,Kompresor Udara,145
+2026-10-13 17:00,Oven Pengering,86
+2026-10-13 17:00,Mesin Press,40
+2026-10-13 17:00,AC Ruang Kantor,16
+2026-10-13 18:00,Kompresor Udara,132
+2026-10-13 18:00,Oven Pengering,99
+2026-10-13 18:00,Mesin Press,53
+2026-10-13 18:00,AC Ruang Kantor,18
+2026-10-13 19:00,Kompresor Udara,421
+2026-10-13 19:00,Oven Pengering,109
+2026-10-13 19:00,Mesin Press,50
+2026-10-13 19:00,AC Ruang Kantor,22
+2026-10-13 20:00,Kompresor Udara,425
+2026-10-13 20:00,Oven Pengering,88
+2026-10-13 20:00,Mesin Press,53
+2026-10-13 20:00,AC Ruang Kantor,16
+2026-10-13 21:00,Kompresor Udara,436
+2026-10-13 21:00,Oven Pengering,95
+2026-10-13 21:00,Mesin Press,54
+2026-10-13 21:00,AC Ruang Kantor,23
+2026-10-13 22:00,Kompresor Udara,416
+2026-10-13 22:00,Oven Pengering,85
+2026-10-13 22:00,Mesin Press,42
+2026-10-13 22:00,AC Ruang Kantor,23
+2026-10-13 23:00,Kompresor Udara,434
+2026-10-13 23:00,Oven Pengering,86
+2026-10-13 23:00,Mesin Press,53
+2026-10-13 23:00,AC Ruang Kantor,21
+2026-10-14 00:00,Kompresor Udara,412
+2026-10-14 00:00,Oven Pengering,119
+2026-10-14 00:00,Mesin Press,55
+2026-10-14 00:00,AC Ruang Kantor,24
+2026-10-14 01:00,Kompresor Udara,418
+2026-10-14 01:00,Oven Pengering,110
+2026-10-14 01:00,Mesin Press,41
+2026-10-14 01:00,AC Ruang Kantor,18
+2026-10-14 02:00,Kompresor Udara,487
+2026-10-14 02:00,Oven Pengering,101
+2026-10-14 02:00,Mesin Press,52
+2026-10-14 02:00,AC Ruang Kantor,23
+2026-10-14 03:00,Kompresor Udara,436
+2026-10-14 03:00,Oven Pengering,84
+2026-10-14 03:00,Mesin Press,55
+2026-10-14 03:00,AC Ruang Kantor,18
+2026-10-14 04:00,Kompresor Udara,469
+2026-10-14 04:00,Oven Pengering,101
+2026-10-14 04:00,Mesin Press,50
+2026-10-14 04:00,AC Ruang Kantor,22
+2026-10-14 05:00,Kompresor Udara,174
+2026-10-14 05:00,Oven Pengering,81
+2026-10-14 05:00,Mesin Press,50
+2026-10-14 05:00,AC Ruang Kantor,21
+2026-10-14 06:00,Kompresor Udara,160
+2026-10-14 06:00,Oven Pengering,117
+2026-10-14 06:00,Mesin Press,53
+2026-10-14 06:00,AC Ruang Kantor,18
+2026-10-14 07:00,Kompresor Udara,4334
+2026-10-14 07:00,Oven Pengering,8865
+2026-10-14 07:00,Mesin Press,49
+2026-10-14 07:00,AC Ruang Kantor,16
+2026-10-14 08:00,Kompresor Udara,3906
+2026-10-14 08:00,Oven Pengering,9288
+2026-10-14 08:00,Mesin Press,2658
+2026-10-14 08:00,AC Ruang Kantor,966
+2026-10-14 09:00,Kompresor Udara,3757
+2026-10-14 09:00,Oven Pengering,8496
+2026-10-14 09:00,Mesin Press,3017
+2026-10-14 09:00,AC Ruang Kantor,1017
+2026-10-14 10:00,Kompresor Udara,3662
+2026-10-14 10:00,Oven Pengering,8488
+2026-10-14 10:00,Mesin Press,2867
+2026-10-14 10:00,AC Ruang Kantor,1002
+2026-10-14 11:00,Kompresor Udara,4232
+2026-10-14 11:00,Oven Pengering,9209
+2026-10-14 11:00,Mesin Press,3372
+2026-10-14 11:00,AC Ruang Kantor,980
+2026-10-14 12:00,Kompresor Udara,4481
+2026-10-14 12:00,Oven Pengering,8353
+2026-10-14 12:00,Mesin Press,450
+2026-10-14 12:00,AC Ruang Kantor,1058
+2026-10-14 13:00,Kompresor Udara,3557
+2026-10-14 13:00,Oven Pengering,8841
+2026-10-14 13:00,Mesin Press,2879
+2026-10-14 13:00,AC Ruang Kantor,990
+2026-10-14 14:00,Kompresor Udara,4424
+2026-10-14 14:00,Oven Pengering,8523
+2026-10-14 14:00,Mesin Press,2830
+2026-10-14 14:00,AC Ruang Kantor,995
+2026-10-14 15:00,Kompresor Udara,4107
+2026-10-14 15:00,Oven Pengering,105
+2026-10-14 15:00,Mesin Press,3251
+2026-10-14 15:00,AC Ruang Kantor,952
+2026-10-14 16:00,Kompresor Udara,130
+2026-10-14 16:00,Oven Pengering,3325
+2026-10-14 16:00,Mesin Press,56
+2026-10-14 16:00,AC Ruang Kantor,983
+2026-10-14 17:00,Kompresor Udara,178
+2026-10-14 17:00,Oven Pengering,3552
+2026-10-14 17:00,Mesin Press,44
+2026-10-14 17:00,AC Ruang Kantor,18
+2026-10-14 18:00,Kompresor Udara,158
+2026-10-14 18:00,Oven Pengering,3476
+2026-10-14 18:00,Mesin Press,45
+2026-10-14 18:00,AC Ruang Kantor,17
+2026-10-14 19:00,Kompresor Udara,445
+2026-10-14 19:00,Oven Pengering,3507
+2026-10-14 19:00,Mesin Press,43
+2026-10-14 19:00,AC Ruang Kantor,24
+2026-10-14 20:00,Kompresor Udara,489
+2026-10-14 20:00,Oven Pengering,102
+2026-10-14 20:00,Mesin Press,40
+2026-10-14 20:00,AC Ruang Kantor,21
+2026-10-14 21:00,Kompresor Udara,464
+2026-10-14 21:00,Oven Pengering,94
+2026-10-14 21:00,Mesin Press,47
+2026-10-14 21:00,AC Ruang Kantor,18
+2026-10-14 22:00,Kompresor Udara,428
+2026-10-14 22:00,Oven Pengering,91
+2026-10-14 22:00,Mesin Press,44
+2026-10-14 22:00,AC Ruang Kantor,18
+2026-10-14 23:00,Kompresor Udara,434
+2026-10-14 23:00,Oven Pengering,103
+2026-10-14 23:00,Mesin Press,51
+2026-10-14 23:00,AC Ruang Kantor,21
+2026-10-15 00:00,Kompresor Udara,422
+2026-10-15 00:00,Oven Pengering,96
+2026-10-15 00:00,Mesin Press,43
+2026-10-15 00:00,AC Ruang Kantor,24
+2026-10-15 01:00,Kompresor Udara,463
+2026-10-15 01:00,Oven Pengering,112
+2026-10-15 01:00,Mesin Press,48
+2026-10-15 01:00,AC Ruang Kantor,18
+2026-10-15 02:00,Kompresor Udara,460
+2026-10-15 02:00,Oven Pengering,106
+2026-10-15 02:00,Mesin Press,46
+2026-10-15 02:00,AC Ruang Kantor,22
+2026-10-15 03:00,Kompresor Udara,432
+2026-10-15 03:00,Oven Pengering,105
+2026-10-15 03:00,Mesin Press,48
+2026-10-15 03:00,AC Ruang Kantor,22
+2026-10-15 04:00,Kompresor Udara,421
+2026-10-15 04:00,Oven Pengering,117
+2026-10-15 04:00,Mesin Press,53
+2026-10-15 04:00,AC Ruang Kantor,24
+2026-10-15 05:00,Kompresor Udara,170
+2026-10-15 05:00,Oven Pengering,119
+2026-10-15 05:00,Mesin Press,45
+2026-10-15 05:00,AC Ruang Kantor,23
+2026-10-15 06:00,Kompresor Udara,168
+2026-10-15 06:00,Oven Pengering,93
+2026-10-15 06:00,Mesin Press,51
+2026-10-15 06:00,AC Ruang Kantor,23
+2026-10-15 07:00,Kompresor Udara,4176
+2026-10-15 07:00,Oven Pengering,7706
+2026-10-15 07:00,Mesin Press,49
+2026-10-15 07:00,AC Ruang Kantor,20
+2026-10-15 08:00,Kompresor Udara,3664
+2026-10-15 08:00,Oven Pengering,7864
+2026-10-15 08:00,Mesin Press,3398
+2026-10-15 08:00,AC Ruang Kantor,1190
+2026-10-15 09:00,Kompresor Udara,4055
+2026-10-15 09:00,Oven Pengering,9143
+2026-10-15 09:00,Mesin Press,2661
+2026-10-15 09:00,AC Ruang Kantor,1054
+2026-10-15 10:00,Kompresor Udara,4204
+2026-10-15 10:00,Oven Pengering,8089
+2026-10-15 10:00,Mesin Press,3261
+2026-10-15 10:00,AC Ruang Kantor,1096
+2026-10-15 11:00,Kompresor Udara,3678
+2026-10-15 11:00,Oven Pengering,7898
+2026-10-15 11:00,Mesin Press,3064
+2026-10-15 11:00,AC Ruang Kantor,1203
+2026-10-15 12:00,Kompresor Udara,4412
+2026-10-15 12:00,Oven Pengering,7861
+2026-10-15 12:00,Mesin Press,726
+2026-10-15 12:00,AC Ruang Kantor,1191
+2026-10-15 13:00,Kompresor Udara,4084
+2026-10-15 13:00,Oven Pengering,8594
+2026-10-15 13:00,Mesin Press,3228
+2026-10-15 13:00,AC Ruang Kantor,1156
+2026-10-15 14:00,Kompresor Udara,3816
+2026-10-15 14:00,Oven Pengering,8751
+2026-10-15 14:00,Mesin Press,3376
+2026-10-15 14:00,AC Ruang Kantor,1245
+2026-10-15 15:00,Kompresor Udara,3894
+2026-10-15 15:00,Oven Pengering,98
+2026-10-15 15:00,Mesin Press,2924
+2026-10-15 15:00,AC Ruang Kantor,1138
+2026-10-15 16:00,Kompresor Udara,131
+2026-10-15 16:00,Oven Pengering,106
+2026-10-15 16:00,Mesin Press,56
+2026-10-15 16:00,AC Ruang Kantor,1111
+2026-10-15 17:00,Kompresor Udara,166
+2026-10-15 17:00,Oven Pengering,119
+2026-10-15 17:00,Mesin Press,46
+2026-10-15 17:00,AC Ruang Kantor,16
+2026-10-15 18:00,Kompresor Udara,139
+2026-10-15 18:00,Oven Pengering,86
+2026-10-15 18:00,Mesin Press,48
+2026-10-15 18:00,AC Ruang Kantor,17
+2026-10-15 19:00,Kompresor Udara,453
+2026-10-15 19:00,Oven Pengering,110
+2026-10-15 19:00,Mesin Press,43
+2026-10-15 19:00,AC Ruang Kantor,16
+2026-10-15 20:00,Kompresor Udara,468
+2026-10-15 20:00,Oven Pengering,104
+2026-10-15 20:00,Mesin Press,58
+2026-10-15 20:00,AC Ruang Kantor,20
+2026-10-15 21:00,Kompresor Udara,474
+2026-10-15 21:00,Oven Pengering,83
+2026-10-15 21:00,Mesin Press,43
+2026-10-15 21:00,AC Ruang Kantor,21
+2026-10-15 22:00,Kompresor Udara,456
+2026-10-15 22:00,Oven Pengering,112
+2026-10-15 22:00,Mesin Press,52
+2026-10-15 22:00,AC Ruang Kantor,21
+2026-10-15 23:00,Kompresor Udara,471
+2026-10-15 23:00,Oven Pengering,95
+2026-10-15 23:00,Mesin Press,42
+2026-10-15 23:00,AC Ruang Kantor,24
+2026-10-16 00:00,Kompresor Udara,467
+2026-10-16 00:00,Oven Pengering,86
+2026-10-16 00:00,Mesin Press,49
+2026-10-16 00:00,AC Ruang Kantor,24
+2026-10-16 01:00,Kompresor Udara,438
+2026-10-16 01:00,Oven Pengering,113
+2026-10-16 01:00,Mesin Press,50
+2026-10-16 01:00,AC Ruang Kantor,23
+2026-10-16 02:00,Kompresor Udara,446
+2026-10-16 02:00,Oven Pengering,112
+2026-10-16 02:00,Mesin Press,51
+2026-10-16 02:00,AC Ruang Kantor,17
+2026-10-16 03:00,Kompresor Udara,504
+2026-10-16 03:00,Oven Pengering,89
+2026-10-16 03:00,Mesin Press,44
+2026-10-16 03:00,AC Ruang Kantor,18
+2026-10-16 04:00,Kompresor Udara,462
+2026-10-16 04:00,Oven Pengering,111
+2026-10-16 04:00,Mesin Press,48
+2026-10-16 04:00,AC Ruang Kantor,21
+2026-10-16 05:00,Kompresor Udara,151
+2026-10-16 05:00,Oven Pengering,96
+2026-10-16 05:00,Mesin Press,46
+2026-10-16 05:00,AC Ruang Kantor,23
+2026-10-16 06:00,Kompresor Udara,121
+2026-10-16 06:00,Oven Pengering,109
+2026-10-16 06:00,Mesin Press,45
+2026-10-16 06:00,AC Ruang Kantor,16
+2026-10-16 07:00,Kompresor Udara,3723
+2026-10-16 07:00,Oven Pengering,8419
+2026-10-16 07:00,Mesin Press,51
+2026-10-16 07:00,AC Ruang Kantor,19
+2026-10-16 08:00,Kompresor Udara,3933
+2026-10-16 08:00,Oven Pengering,8953
+2026-10-16 08:00,Mesin Press,2829
+2026-10-16 08:00,AC Ruang Kantor,1172
+2026-10-16 09:00,Kompresor Udara,3566
+2026-10-16 09:00,Oven Pengering,8339
+2026-10-16 09:00,Mesin Press,2852
+2026-10-16 09:00,AC Ruang Kantor,1042
+2026-10-16 10:00,Kompresor Udara,4413
+2026-10-16 10:00,Oven Pengering,7841
+2026-10-16 10:00,Mesin Press,3076
+2026-10-16 10:00,AC Ruang Kantor,1173
+2026-10-16 11:00,Kompresor Udara,3767
+2026-10-16 11:00,Oven Pengering,7953
+2026-10-16 11:00,Mesin Press,3211
+2026-10-16 11:00,AC Ruang Kantor,1183
+2026-10-16 12:00,Kompresor Udara,3514
+2026-10-16 12:00,Oven Pengering,7705
+2026-10-16 12:00,Mesin Press,398
+2026-10-16 12:00,AC Ruang Kantor,1009
+2026-10-16 13:00,Kompresor Udara,3864
+2026-10-16 13:00,Oven Pengering,8135
+2026-10-16 13:00,Mesin Press,3305
+2026-10-16 13:00,AC Ruang Kantor,1206
+2026-10-16 14:00,Kompresor Udara,3616
+2026-10-16 14:00,Oven Pengering,8702
+2026-10-16 14:00,Mesin Press,2730
+2026-10-16 14:00,AC Ruang Kantor,1045
+2026-10-16 15:00,Kompresor Udara,4384
+2026-10-16 15:00,Oven Pengering,114
+2026-10-16 15:00,Mesin Press,3219
+2026-10-16 15:00,AC Ruang Kantor,991
+2026-10-16 16:00,Kompresor Udara,135
+2026-10-16 16:00,Oven Pengering,84
+2026-10-16 16:00,Mesin Press,53
+2026-10-16 16:00,AC Ruang Kantor,1220
+2026-10-16 17:00,Kompresor Udara,167
+2026-10-16 17:00,Oven Pengering,91
+2026-10-16 17:00,Mesin Press,41
+2026-10-16 17:00,AC Ruang Kantor,24
+2026-10-16 18:00,Kompresor Udara,143
+2026-10-16 18:00,Oven Pengering,99
+2026-10-16 18:00,Mesin Press,46
+2026-10-16 18:00,AC Ruang Kantor,17
+2026-10-16 19:00,Kompresor Udara,450
+2026-10-16 19:00,Oven Pengering,117
+2026-10-16 19:00,Mesin Press,56
+2026-10-16 19:00,AC Ruang Kantor,18
+2026-10-16 20:00,Kompresor Udara,447
+2026-10-16 20:00,Oven Pengering,82
+2026-10-16 20:00,Mesin Press,42
+2026-10-16 20:00,AC Ruang Kantor,15
+2026-10-16 21:00,Kompresor Udara,454
+2026-10-16 21:00,Oven Pengering,93
+2026-10-16 21:00,Mesin Press,53
+2026-10-16 21:00,AC Ruang Kantor,22
+2026-10-16 22:00,Kompresor Udara,481
+2026-10-16 22:00,Oven Pengering,114
+2026-10-16 22:00,Mesin Press,44
+2026-10-16 22:00,AC Ruang Kantor,15
+2026-10-16 23:00,Kompresor Udara,470
+2026-10-16 23:00,Oven Pengering,112
+2026-10-16 23:00,Mesin Press,48
+2026-10-16 23:00,AC Ruang Kantor,23
+2026-10-17 00:00,Kompresor Udara,448
+2026-10-17 00:00,Oven Pengering,114
+2026-10-17 00:00,Mesin Press,59
+2026-10-17 00:00,AC Ruang Kantor,24
+2026-10-17 01:00,Kompresor Udara,458
+2026-10-17 01:00,Oven Pengering,83
+2026-10-17 01:00,Mesin Press,47
+2026-10-17 01:00,AC Ruang Kantor,24
+2026-10-17 02:00,Kompresor Udara,455
+2026-10-17 02:00,Oven Pengering,109
+2026-10-17 02:00,Mesin Press,48
+2026-10-17 02:00,AC Ruang Kantor,23
+2026-10-17 03:00,Kompresor Udara,478
+2026-10-17 03:00,Oven Pengering,119
+2026-10-17 03:00,Mesin Press,60
+2026-10-17 03:00,AC Ruang Kantor,21
+2026-10-17 04:00,Kompresor Udara,503
+2026-10-17 04:00,Oven Pengering,93
+2026-10-17 04:00,Mesin Press,47
+2026-10-17 04:00,AC Ruang Kantor,20
+2026-10-17 05:00,Kompresor Udara,129
+2026-10-17 05:00,Oven Pengering,85
+2026-10-17 05:00,Mesin Press,50
+2026-10-17 05:00,AC Ruang Kantor,15
+2026-10-17 06:00,Kompresor Udara,129
+2026-10-17 06:00,Oven Pengering,87
+2026-10-17 06:00,Mesin Press,47
+2026-10-17 06:00,AC Ruang Kantor,16
+2026-10-17 07:00,Kompresor Udara,4031
+2026-10-17 07:00,Oven Pengering,8764
+2026-10-17 07:00,Mesin Press,51
+2026-10-17 07:00,AC Ruang Kantor,24
+2026-10-17 08:00,Kompresor Udara,3748
+2026-10-17 08:00,Oven Pengering,8892
+2026-10-17 08:00,Mesin Press,3362
+2026-10-17 08:00,AC Ruang Kantor,968
+2026-10-17 09:00,Kompresor Udara,3945
+2026-10-17 09:00,Oven Pengering,7737
+2026-10-17 09:00,Mesin Press,3334
+2026-10-17 09:00,AC Ruang Kantor,1165
+2026-10-17 10:00,Kompresor Udara,4239
+2026-10-17 10:00,Oven Pengering,9063
+2026-10-17 10:00,Mesin Press,2779
+2026-10-17 10:00,AC Ruang Kantor,1041
+2026-10-17 11:00,Kompresor Udara,3586
+2026-10-17 11:00,Oven Pengering,8792
+2026-10-17 11:00,Mesin Press,3201
+2026-10-17 11:00,AC Ruang Kantor,957
+2026-10-17 12:00,Kompresor Udara,4286
+2026-10-17 12:00,Oven Pengering,8841
+2026-10-17 12:00,Mesin Press,726
+2026-10-17 12:00,AC Ruang Kantor,1019
+2026-10-17 13:00,Kompresor Udara,4293
+2026-10-17 13:00,Oven Pengering,8435
+2026-10-17 13:00,Mesin Press,3398
+2026-10-17 13:00,AC Ruang Kantor,1024
+2026-10-17 14:00,Kompresor Udara,3756
+2026-10-17 14:00,Oven Pengering,8793
+2026-10-17 14:00,Mesin Press,3257
+2026-10-17 14:00,AC Ruang Kantor,1212
+2026-10-17 15:00,Kompresor Udara,3987
+2026-10-17 15:00,Oven Pengering,118
+2026-10-17 15:00,Mesin Press,2653
+2026-10-17 15:00,AC Ruang Kantor,974
+2026-10-17 16:00,Kompresor Udara,144
+2026-10-17 16:00,Oven Pengering,88
+2026-10-17 16:00,Mesin Press,49
+2026-10-17 16:00,AC Ruang Kantor,985
+2026-10-17 17:00,Kompresor Udara,146
+2026-10-17 17:00,Oven Pengering,119
+2026-10-17 17:00,Mesin Press,47
+2026-10-17 17:00,AC Ruang Kantor,20
+2026-10-17 18:00,Kompresor Udara,121
+2026-10-17 18:00,Oven Pengering,94
+2026-10-17 18:00,Mesin Press,41
+2026-10-17 18:00,AC Ruang Kantor,23
+2026-10-17 19:00,Kompresor Udara,390
+2026-10-17 19:00,Oven Pengering,115
+2026-10-17 19:00,Mesin Press,49
+2026-10-17 19:00,AC Ruang Kantor,21
+2026-10-17 20:00,Kompresor Udara,507
+2026-10-17 20:00,Oven Pengering,120
+2026-10-17 20:00,Mesin Press,54
+2026-10-17 20:00,AC Ruang Kantor,16
+2026-10-17 21:00,Kompresor Udara,421
+2026-10-17 21:00,Oven Pengering,84
+2026-10-17 21:00,Mesin Press,43
+2026-10-17 21:00,AC Ruang Kantor,22
+2026-10-17 22:00,Kompresor Udara,423
+2026-10-17 22:00,Oven Pengering,98
+2026-10-17 22:00,Mesin Press,53
+2026-10-17 22:00,AC Ruang Kantor,21
+2026-10-17 23:00,Kompresor Udara,470
+2026-10-17 23:00,Oven Pengering,96
+2026-10-17 23:00,Mesin Press,57
+2026-10-17 23:00,AC Ruang Kantor,21

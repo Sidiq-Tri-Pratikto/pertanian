@@ -30,3 +30,4 @@ Untuk memakainya, salin folder skill ke `~/.claude/skills/`.
 | Hackathon | Proyek | Tahun | Status | Docs | Aplikasi |
 |---|---|---|---|---|---|
 | ANGEL Innovation Hackathon 2026 (Track AI, Topik 1) | SOPilot: asisten AI untuk mengubah SOP menjadi proses bisnis BPMN yang dapat dijalankan | 2026 | Berkas submit siap; video demo belum direkam; placeholder identitas belum diisi | [docs/angel-2026-sopilot](docs/angel-2026-sopilot/) | [applications/angel-2026-sopilot](applications/angel-2026-sopilot/) |
+| ANGEL Innovation Hackathon 2026 (Track Sustainable Energy, Topik 6) | HematDaya: pemantau energi dan penasihat efisiensi berbasis data untuk IKM | 2026 | Berkas submit siap; video demo belum direkam; prototipe berjalan dengan data sintetis | [docs/angel-2026-hematdaya](docs/angel-2026-hematdaya/) | [applications/angel-2026-hematdaya](applications/angel-2026-hematdaya/) |
