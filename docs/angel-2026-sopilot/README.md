@@ -17,7 +17,7 @@ Asisten AI yang mengubah dokumen SOP menjadi model proses BPMN 2.0 yang dapat di
 | Folder | Isi |
 |---|---|
 | [prd/](prd/) | [PRD-SOPilot.md](prd/PRD-SOPilot.md) (Draft v0.5) |
-| [prototype/](prototype/) | [sopilot-mockup.html](prototype/sopilot-mockup.html) (mockup klik, satu berkas, buka di browser) dan [canvas/](prototype/canvas/) (sumber kanvas demo: 12 layar per use case) |
+| [applications/angel-2026-sopilot](../../applications/angel-2026-sopilot/) | [sopilot-mockup.html](../../applications/angel-2026-sopilot/sopilot-mockup.html) (mockup klik, satu berkas, buka di browser) dan [canvas/](../../applications/angel-2026-sopilot/canvas/) (sumber kanvas demo: 12 layar per use case) |
 | [submission/proposal/](submission/proposal/) | [Proposal-SOPilot.pdf](submission/proposal/Proposal-SOPilot.pdf) (7 halaman) dan sumber HTML-nya; cetak ulang dengan Chrome headless `--print-to-pdf` |
 | [submission/pitch-deck/](submission/pitch-deck/) | Sumber 12 slide dan tautan deck online |
 | [submission/surat-komitmen/](submission/surat-komitmen/) | [Surat-Komitmen-Tim-SOPilot.pdf](submission/surat-komitmen/Surat-Komitmen-Tim-SOPilot.pdf) dan sumber HTML-nya |

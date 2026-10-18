@@ -1,17 +1,22 @@
 # hackathon-projects
 
-Kumpulan proyek hackathon (private): PRD, prototipe, dan berkas submit per proyek. Satu hackathon = satu folder.
+Kumpulan proyek hackathon (private): dokumen, aplikasi atau prototipe, dan konfigurasi deployment, dikelompokkan per proyek.
 
-| Hackathon | Proyek | Tahun | Status | Folder |
-|---|---|---|---|---|
-| ANGEL Innovation Hackathon 2026 (Track AI, Topik 1) | SOPilot: asisten AI untuk mengubah SOP menjadi proses bisnis BPMN yang dapat dijalankan | 2026 | Berkas submit siap; video demo belum direkam; placeholder identitas belum diisi | [angel-2026-sopilot](angel-2026-sopilot/) |
-
-## Pola folder per proyek
+## Struktur
 
 ```
-<hackathon>-<tahun>-<proyek>/
-├── README.md        # ringkasan, tautan, status, daftar yang masih perlu diisi
-├── prd/             # dokumen kebutuhan produk
-├── prototype/       # mockup dan kanvas demo
-└── submission/      # berkas yang diunggah ke panitia
+/
+├── docs/             # PRD, proposal, berkas submit; satu folder per proyek
+│   └── <proyek>/
+├── applications/     # kode aplikasi dan prototipe; satu folder per proyek
+│   └── <proyek>/
+└── deployment/       # konfigurasi deployment (belum ada isi)
 ```
+
+Nama folder proyek sama di `docs/` dan `applications/`, dengan pola `<hackathon>-<tahun>-<proyek>`.
+
+## Proyek
+
+| Hackathon | Proyek | Tahun | Status | Docs | Aplikasi |
+|---|---|---|---|---|---|
+| ANGEL Innovation Hackathon 2026 (Track AI, Topik 1) | SOPilot: asisten AI untuk mengubah SOP menjadi proses bisnis BPMN yang dapat dijalankan | 2026 | Berkas submit siap; video demo belum direkam; placeholder identitas belum diisi | [docs/angel-2026-sopilot](docs/angel-2026-sopilot/) | [applications/angel-2026-sopilot](applications/angel-2026-sopilot/) |
