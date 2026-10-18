@@ -10,6 +10,7 @@ Aplikasi pemantau energi dan penasihat efisiensi berbasis data untuk IKM: membac
 ## Status
 
 - **TKT 3**: prototipe web berjalan menganalisis data historis, tetapi data sintetis; belum diuji dengan meter dan data pabrik nyata. Target TKT 4 pada akhir hackathon.
+- **Platform:** proposal menyebut aplikasi seluler dan web (satu basis kode React Native/Expo); prototipe hanya menampilkan versi seluler, dan versi web penuh belum dibuat. PRD v3 sumber masih menyatakan web bukan target dan perlu diperbarui jika web dipertahankan.
 - Dukungan mitra: belum ada.
 - Jendela pendaftaran di booklet (18 September–2 Oktober 2026) sudah lewat; konfirmasi ke panitia.
 - PRD sumber adalah untuk rumah tangga dan menyatakan industri di luar lingkup; proposal membingkai ulang ke IKM. Prototipe sudah memakai konteks IKM.

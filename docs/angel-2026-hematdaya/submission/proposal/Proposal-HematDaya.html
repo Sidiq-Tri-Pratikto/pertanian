@@ -8,7 +8,7 @@
 * { box-sizing: border-box; }
 body { margin: 0; font-family: 'Times New Roman', Times, serif; font-size: 12pt; line-height: 1.15; color: #000; }
 p { margin: 0 0 6pt; text-align: justify; }
-h1, h2, h3 { margin: 0; }
+h1, h2, h3 { margin: 0; break-after: avoid; }
 .pb { break-before: page; }
 .center { text-align: center; }
 .cover { height: 24.6cm; display: flex; flex-direction: column; align-items: center; text-align: center; }
@@ -108,9 +108,9 @@ NIK: 3318080205960001
 <div class="sh">5. <i>Executive Summary</i> (maks. 250 kata)</div>
 <div class="sb" id="exec">
 <p>Sebagian besar industri kecil dan menengah (IKM) di Indonesia hanya melihat satu angka listrik: total tagihan bulanan. Mereka tidak tahu mesin mana yang paling besar kontribusinya, berapa energi yang terpakai di luar jam produksi, dan berapa energi untuk menghasilkan satu unit produk (intensitas konsumsi energi, IKE). Kewajiban manajemen energi hanya berlaku bagi pengguna energi besar, sehingga IKM tidak punya alat maupun tenaga ahli untuk mengukurnya.</p>
-<p>HematDaya adalah aplikasi seluler yang membaca data konsumsi listrik per mesin dari meter pintar yang dipasang di antara stopkontak dan mesin, atau dari catatan historis yang diimpor. Aplikasi menghitung energi dan estimasi biaya, mendeteksi konsumsi di luar jam operasional serta perubahan dibanding minggu-minggu sebelumnya, menghitung IKE dari data produksi, lalu menjelaskan temuannya dalam bahasa sehari-hari lengkap dengan bukti dan keterbatasan datanya. Pendekatannya statistik terlebih dahulu; model pembelajaran mesin hanya ditambahkan bila datanya cukup dan terbukti lebih baik dari pembanding sederhana. HematDaya hanya memantau dan menyarankan; tidak mengendalikan mesin.</p>
+<p>HematDaya adalah aplikasi seluler dan web yang membaca data konsumsi listrik per mesin dari meter pintar yang dipasang di antara stopkontak dan mesin, atau dari catatan historis yang diimpor. Aplikasi menghitung energi dan estimasi biaya, mendeteksi konsumsi di luar jam operasional serta perubahan dibanding minggu-minggu sebelumnya, menghitung IKE dari data produksi, lalu menjelaskan temuannya dalam bahasa sehari-hari lengkap dengan bukti dan keterbatasan datanya. Pendekatannya statistik terlebih dahulu; model pembelajaran mesin hanya ditambahkan bila datanya cukup dan terbukti lebih baik dari pembanding sederhana. HematDaya hanya memantau dan menyarankan; tidak mengendalikan mesin.</p>
 <p>Pengguna utama adalah pemilik dan pengelola IKM manufaktur, serta dinas pembina sentra IKM. Konsep ini bermula dari IdleWatch, gagasan pencarian konsumsi di luar kebutuhan operasional, dan sebuah rancangan aplikasi untuk rumah tangga yang kini dibingkai ulang untuk IKM.</p>
-<p>Saat ini tim memiliki dokumen kebutuhan produk (PRD) dan prototipe web yang sudah berjalan: menerima data historis konsumsi energi (CSV), lalu menghitung biaya, konsumsi di luar jam operasional, dan IKE di peramban, memakai data sintetis. Selama program tim menargetkan TKT 4 melalui uji dengan data nyata pada pilot IKM.</p>
+<p>Saat ini tim memiliki dokumen kebutuhan produk (PRD) dan prototipe yang sudah berjalan, ditampilkan dalam versi seluler: menerima data historis konsumsi energi (CSV), lalu menghitung biaya, konsumsi di luar jam operasional, dan IKE, memakai data sintetis. Selama program tim menargetkan TKT 4 melalui uji dengan data nyata pada pilot IKM.</p>
 </div>
 </section>
 
@@ -119,10 +119,10 @@ NIK: 3318080205960001
 <div class="sh" style="border-top: 1px solid #000">6. Deskripsi Inovasi (maksimum 2 halaman)</div>
 <div class="sb">
 <h3 style="margin-top: 0">a. Sub-tema dan <i>problem statement</i></h3>
-<p><b>Sub-tema:</b> <i>Industrial Energy Efficiency Copilot</i> (Track Sustainable Energy, Topik 6) [1]. <b>Masalah:</b> pemilik IKM melihat total tagihan, bukan energi per mesin atau per unit produk, sehingga kenaikan tagihan tidak dapat dibedakan antara produksi yang naik dan pemborosan. <b>Sasaran pengguna:</b> pemilik dan pengelola IKM manufaktur tanpa manajer energi; dinas pembina sentra IKM. <b>Bukti kebutuhan:</b> kewajiban manajemen energi hanya berlaku bagi pengguna energi dengan konsumsi minimal 4.000 TOE per tahun [2, 3]; pada 2023 hanya 217 entitas industri yang melaporkan manajemen energi [4], sementara unit IKM sekitar 4,45 juta [5]. Survei IEA atas 1.000 perusahaan menemukan hanya 15% perusahaan berkaryawan kurang dari 100 orang yang melakukan audit energi dalam lima tahun terakhir, dengan kurangnya data sebagai salah satu hambatan [6]. Data lapangan dikumpulkan bersama pilot IKM saat validasi masalah. <b>Target kinerja (hipotesis):</b> energi dan biaya per mesin akurat terhadap pembanding meter; ≥ 80% temuan konsumsi di luar jam operasional dinilai relevan oleh pemilik IKM; cakupan data ≥ 90% pada pilot; pemilik mampu menemukan mesin terbesar dalam ≤ 30 detik. <b>Potensi hilirisasi:</b> langganan per pabrik, paket meter plus aplikasi, dan peta IKE bagi dinas pembina.</p>
+<p><b>Sub-tema:</b> <i>Industrial Energy Efficiency Copilot</i> (Track Sustainable Energy, Topik 6) [1]. <b>Masalah:</b> pemilik IKM melihat total tagihan, bukan energi per mesin atau per unit produk, sehingga kenaikan tagihan tidak dapat dibedakan antara produksi yang naik dan pemborosan. <b>Sasaran pengguna:</b> pemilik dan pengelola IKM manufaktur tanpa manajer energi; dinas pembina sentra IKM. <b>Bukti kebutuhan:</b> kewajiban manajemen energi hanya berlaku bagi pengguna energi dengan konsumsi minimal 4.000 TOE per tahun [2, 3]; pada 2023 hanya 217 entitas industri yang melaporkan manajemen energi [4], sementara unit IKM sekitar 4,45 juta [5]. Survei IEA mencatat hanya 15% perusahaan berkaryawan kurang dari 100 orang yang mengaudit energi dalam lima tahun terakhir [6]. Data lapangan dikumpulkan bersama pilot IKM saat validasi masalah. <b>Target kinerja (hipotesis):</b> energi dan biaya per mesin akurat terhadap pembanding meter; ≥ 80% temuan dinilai relevan oleh pemilik IKM; cakupan data ≥ 90% pada pilot. <b>Potensi hilirisasi:</b> langganan per pabrik, paket meter plus aplikasi, dan peta IKE bagi dinas pembina.</p>
 <h3>b. Deskripsi teknis solusi dan keunggulan</h3>
-<p>Alur data HematDaya ada pada Gambar 1. Meter pintar (awalnya Shelly Plug PM Gen3) mengirim daya dan energi kumulatif ke server melalui MQTT dengan TLS; pengguna tanpa meter dapat mengimpor CSV. <b>Pengolah data</b> menghapus duplikat, menangani penyetelan ulang penghitung, dan tidak mengisi data hilang dengan nol. <b>Analitik</b> menghitung energi per mesin dan estimasi biaya dengan tarif yang diisi pengguna, memisahkan energi di dalam dan di luar jam operasional, membandingkannya dengan median minggu-minggu sebelumnya pada rentang waktu yang sama, serta menghitung IKE dari produksi per hari. <b>Mesin penjelas</b> menyusun saran dari bukti yang tersimpan; model bahasa tidak menghitung energi. Aplikasi seluler (React Native) memiliki tiga tab: Beranda, Perangkat, Saran.</p>
-<p><b>Keunggulan:</b> (1) bekerja dengan satu meter dan membaca saran tanpa mengontrol perangkat; (2) setiap saran memuat pembanding, cakupan data, dan hal yang belum diketahui; (3) data hilang tidak ditampilkan sebagai nol; (4) IKE dihitung dari produksi pabrik sendiri, bukan acuan umum; (5) analisis dapat berjalan lokal sehingga data tidak wajib keluar dari pabrik.</p>
+<p>Alur data HematDaya ada pada Gambar 1. Meter pintar (awalnya Shelly Plug PM Gen3) mengirim daya dan energi kumulatif ke server melalui MQTT dengan TLS; pengguna tanpa meter dapat mengimpor CSV. <b>Pengolah data</b> menghapus duplikat, menangani penyetelan ulang penghitung, dan tidak mengisi data hilang dengan nol. <b>Analitik</b> menghitung energi per mesin dan estimasi biaya dengan tarif yang diisi pengguna, memisahkan energi di dalam dan di luar jam operasional, membandingkannya dengan median minggu-minggu sebelumnya pada rentang waktu yang sama, serta menghitung IKE dari produksi per hari. <b>Mesin penjelas</b> menyusun saran dari bukti yang tersimpan; model bahasa tidak menghitung energi. Aplikasi satu basis kode (React Native dan Expo) berjalan di Android, iOS, dan web: seluler memiliki tiga tab (Beranda, Perangkat, Saran), web memakai komponen yang sama dengan tata letak lebih lebar.</p>
+<p><b>Keunggulan:</b> (1) bekerja dengan satu meter dan membaca saran tanpa mengontrol perangkat; (2) setiap saran memuat pembanding, cakupan data, dan hal yang belum diketahui; (3) data hilang tidak ditampilkan sebagai nol; (4) IKE dihitung dari produksi pabrik sendiri, bukan acuan umum; (5) satu basis kode untuk seluler dan web: pemilik memantau dari ponsel, pengelola dari komputer.</p>
 <figure>
 <figcaption style="margin: 0 0 3pt">Gambar 1. Arsitektur sistem HematDaya</figcaption>
 <svg viewBox="0 0 600 236" width="100%" role="img" aria-label="Arsitektur HematDaya" style="font-family: 'Times New Roman', serif">
@@ -137,7 +137,7 @@ NIK: 3318080205960001
 <rect x="224" y="100" width="104" height="40" rx="6" fill="#EAF4EF" stroke="#0E6B5C"/><text x="276" y="116">3. Baseline</text><text x="276" y="130" font-size="9.5">median, Ridge opsional</text>
 <rect x="348" y="100" width="108" height="40" rx="6" fill="#EAF4EF" stroke="#0E6B5C"/><text x="402" y="116">4. Mesin penjelas</text><text x="402" y="130">templat berbukti</text>
 <rect x="476" y="100" width="124" height="40" rx="6" fill="#EAF4EF" stroke="#0E6B5C"/><text x="538" y="116">5. API (FastAPI)</text><text x="538" y="130">akses per pengguna</text>
-<rect x="476" y="170" width="124" height="44" rx="6" fill="#FFF7E0" stroke="#8F5F00"/><text x="538" y="188">Aplikasi seluler</text><text x="538" y="202" font-size="9.5">Beranda, Perangkat, Saran</text>
+<rect x="476" y="170" width="124" height="44" rx="6" fill="#FFF7E0" stroke="#8F5F00"/><text x="538" y="188" font-size="10.5">Aplikasi seluler + web</text><text x="538" y="202" font-size="9.5">satu basis kode</text>
 <rect x="224" y="170" width="232" height="36" rx="6" fill="#fff" stroke="#333"/><text x="340" y="185">Umpan balik pengguna: bermanfaat,</text><text x="340" y="199">kurang sesuai, tunda</text>
 </g>
 <g stroke="#333" stroke-width="1.4" fill="none" marker-end="url(#ah)">
@@ -149,12 +149,12 @@ NIK: 3318080205960001
 </svg>
 </figure>
 <h3>c. Posisi TKT</h3>
-<p>Saat ini <b>TKT 3</b>: prototipe web berjalan menerima data historis dan menghitung biaya, konsumsi di luar jam operasional, dan IKE, tetapi baru diuji dengan data sintetis dan data impor pengguna, belum dengan meter dan data pabrik nyata. Target <b>TKT 4</b> pada akhir hackathon (pengolah data dan analitik tervalidasi pada data pilot IKM) dan <b>TKT 5</b> pasca-hackathon melalui pilot.</p>
+<p>Saat ini <b>TKT 3</b>: prototipe berjalan (tampilan seluler) menerima data historis dan menghitung biaya, konsumsi di luar jam operasional, dan IKE, tetapi baru diuji dengan data sintetis dan data impor pengguna, belum dengan meter dan data pabrik nyata; versi web penuh belum dibuat. Target <b>TKT 4</b> pada akhir hackathon (pengolah data dan analitik tervalidasi pada data pilot IKM) dan <b>TKT 5</b> pasca-hackathon melalui pilot.</p>
 <h3>d. Rencana kegiatan (Oktober 2026 – April 2027)</h3>
 <table class="grid t11">
 <tr><th style="width: 2.6cm">Periode</th><th style="width: 4.4cm">Tahap program</th><th>Kegiatan utama dan luaran</th></tr>
 <tr><td>Okt 2026</td><td>Bootcamp, Problem Owner Clinic</td><td>Validasi masalah dan PRS bersama Problem Owner; wawancara 3–5 pemilik IKM; kumpulkan data tagihan dan log energi</td></tr>
-<tr><td>Okt–Nov</td><td>Prototype Alpha Refinement</td><td>Pengolah data MQTT, API, aplikasi seluler, analitik biaya, luar jam, dan IKE</td></tr>
+<tr><td>Okt–Nov</td><td>Prototype Alpha Refinement</td><td>Pengolah data MQTT, API, aplikasi seluler (basis kode yang sama untuk web), analitik biaya, luar jam, dan IKE</td></tr>
 <tr><td>Nov</td><td>Prototype Readiness Review</td><td>Evaluasi pada data pilot: akurasi energi terhadap pembanding, relevansi temuan, cakupan data</td></tr>
 <tr><td>Des</td><td>Workshop, Deeptech Hackathon, Demo Day</td><td>Uji kegunaan dengan 5 pengguna IKM, perbaikan, demo</td></tr>
 <tr><td>Jan–Apr 2027</td><td>Post-Hackathon Acceleration</td><td>Pilot 2–3 IKM; TKT/TKDN; HKI; <i>business matching</i></td></tr>
@@ -164,7 +164,7 @@ NIK: 3318080205960001
 <tr><th style="width: 3.4cm">Kebutuhan</th><th>Rincian</th></tr>
 <tr><td>Data</td><td>Tagihan listrik, catatan produksi, dan log energi 3–6 bulan dari 2–3 IKM (dianonimkan) untuk evaluasi</td></tr>
 <tr><td>Perangkat keras</td><td>4–6 meter plug-in (Shelly Plug PM Gen3) untuk beban yang sesuai spesifikasi; mesin berkabel di luar lingkup awal</td></tr>
-<tr><td>Komputasi dan perangkat lunak</td><td>1 server virtual; open source: React Native/Expo, FastAPI, PostgreSQL, Mosquitto, scikit-learn</td></tr>
+<tr><td>Komputasi dan perangkat lunak</td><td>1 server virtual; open source: React Native/Expo (seluler dan web), FastAPI, PostgreSQL, Mosquitto, scikit-learn</td></tr>
 <tr><td>Akses dan uji</td><td>Sesi Problem Owner; pilot 2–3 IKM; ≥ 5 pengguna untuk uji kegunaan; mentoring teknis dan bisnis</td></tr>
 </table>
 <h3>f. Komposisi tim dan dukungan mitra</h3>
@@ -179,7 +179,7 @@ NIK: 3318080205960001
 <table class="grid t11">
 <tr><th style="width: 4.2cm">Nama</th><th style="width: 3.8cm">Peran</th><th>Tanggung jawab</th></tr>
 <tr><td>Ahmad Widardi, S.Kom., M.Cs.</td><td>Ketua Tim; Koordinator Bisnis dan Hilirisasi (profesional, <i>software engineer</i>)</td><td>Memimpin tim dan komunikasi dengan panitia serta Problem Owner; menyusun model bisnis, strategi masuk pasar, rencana HKI dan TKDN; memimpin presentasi dan <i>business matching</i>; ikut merancang arsitektur <i>backend</i>.</td></tr>
-<tr><td>Sidiq Tri Pratikto, S.Kom.</td><td>Koordinator Teknis (profesional, <i>software engineer</i>)</td><td>Mengembangkan aplikasi seluler, API, pengolah data MQTT, dan analitik; mengatur infrastruktur dan <i>deployment</i>; menjaga kualitas kode.</td></tr>
+<tr><td>Sidiq Tri Pratikto, S.Kom.</td><td>Koordinator Teknis (profesional, <i>software engineer</i>)</td><td>Mengembangkan aplikasi seluler dan web, API, pengolah data MQTT, dan analitik; mengatur infrastruktur dan <i>deployment</i>; menjaga kualitas kode.</td></tr>
 <tr><td>Erwin Eko Wahyudi, S.Kom., M.Cs.</td><td>Dosen; Konsultan AI dan <i>Machine Learning</i></td><td>Merancang metode analitik (baseline statistik, bila perlu Ridge) dan evaluasi kronologis; menilai kelayakan data; membimbing tim sebagai mentor selama masa persiapan.</td></tr>
 <tr><td>Lukman Nurdinanto</td><td>Mahasiswa; Koordinator Validasi Pengguna (eksekutor lapangan)</td><td>Mewawancarai pemilik IKM, mengumpulkan data tagihan dan produksi, memasang meter pilot bersama teknisi, serta menjalankan uji kegunaan dan mencatat umpan balik.</td></tr>
 </table>
@@ -210,7 +210,7 @@ NIK: 3318080205960001
 <ul>
 <li>Daftar Riwayat Hidup ketua dan seluruh anggota tim.</li>
 <li>Portofolio karya inovasi/sertifikat kompetensi (jika ada).</li>
-<li>Bukti purwarupa: prototipe web HematDaya yang dapat dijalankan: https://claude.ai/artifact/M7yATNgrVRv3EJksg1NnqP; video demo 2–3 menit <span class="ph">[tautan]</span>.</li>
+<li>Bukti purwarupa: prototipe HematDaya yang dapat dijalankan (menampilkan versi seluler): https://claude.ai/artifact/M7yATNgrVRv3EJksg1NnqP; video demo 2–3 menit <span class="ph">[tautan]</span>.</li>
 </ul>
 </div>
 </section>
