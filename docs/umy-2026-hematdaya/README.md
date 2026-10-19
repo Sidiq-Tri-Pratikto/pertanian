@@ -36,4 +36,11 @@ Tautan online: prototipe https://claude.ai/artifact/BEZeZxr64pfvfVqfDy1equ (priv
 
 ## Cetak proposal
 
-Cetak HTML dengan Chrome headless (`--headless=new --no-pdf-header-footer --print-to-pdf`), lalu cap nomor halaman (sampul tanpa nomor) dengan PyMuPDF, memakai skrip yang sama dengan [docs/angel-2026-sopilot](../angel-2026-sopilot/README.md#cetak-proposal). Pakta Integritas dicetak tanpa cap nomor halaman.
+Desain mengikuti Lampiran buku pedoman UMY (hlm 17–22): judul halaman bersegi teal, angka bagian, tabel berkepala navy, isian bertitik. Cetak HTML dengan Chrome headless (`--headless=new --no-pdf-header-footer --print-to-pdf`), lalu cap header dan nomor halaman dengan [submission/stamp_umy.py](submission/stamp_umy.py) (PyMuPDF):
+
+```
+python stamp_umy.py Proposal-HematDaya-Faskes-UMY.pdf "Proposal · HematDaya Faskes" "PROPOSAL PESERTA" 1 1
+python stamp_umy.py Pakta-Integritas-HematDaya-UMY.pdf "Pakta Integritas · HematDaya Faskes" "PAKTA INTEGRITAS" 0 0
+```
+
+Argumen keempat `1` = sampul tanpa header dan nomor; kelima `1` = header di halaman pertama setelah sampul.

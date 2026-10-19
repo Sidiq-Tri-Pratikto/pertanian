@@ -5,106 +5,152 @@
 <title>Proposal HematDaya Faskes UMY</title>
 <style>
 @page { size: A4; margin: 2.5cm 2.5cm 2.5cm 2.5cm; }
+:root { --navy: #0A1D36; --teal: #0A7980; --tealbg: #E6F2F1; --line: #9FB4C7; --rule: #DDE4E8; --soft: #F0F4F8; --grey: #5B6779; --sans: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
 * { box-sizing: border-box; }
-body { margin: 0; font-family: 'Times New Roman', Times, serif; font-size: 12pt; line-height: 1.15; color: #000; }
+body { margin: 0; font-family: 'Times New Roman', Times, serif; font-size: 12pt; line-height: 1.15; color: #000; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 p { margin: 0 0 6pt; text-align: justify; }
 h1, h2, h3 { margin: 0; break-after: avoid; }
 .pb { break-before: page; }
 .center { text-align: center; }
-.cover { height: 24.6cm; display: flex; flex-direction: column; align-items: center; text-align: center; }
-.cover .t1 { font-size: 16pt; font-weight: bold; margin-top: 1.2cm; }
-.cover .t2 { font-size: 14pt; font-weight: bold; margin-top: 10pt; line-height: 1.3; }
-.cover .logos { display: flex; align-items: center; justify-content: center; gap: 22pt; margin-top: 2.2cm; }
-.cover .judul-l { margin-top: 3.6cm; font-size: 13pt; font-weight: bold; }
-.cover .judul { margin-top: 8pt; font-size: 15pt; font-weight: bold; line-height: 1.3; max-width: 13.5cm; }
-.cover .pen { margin-top: 2.6cm; font-size: 12pt; letter-spacing: 0.5pt; }
-.cover .sub { margin-top: 6pt; font-size: 11pt; }
-.cover .org { margin-top: auto; font-size: 13pt; font-weight: bold; line-height: 1.35; }
-.ident { width: 100%; border-collapse: collapse; }
-.ident td { padding: 2pt 4pt; vertical-align: top; }
-.grid { width: 100%; border-collapse: collapse; }
-.grid th, .grid td { border: 1px solid #000; padding: 3pt 5pt; vertical-align: top; text-align: left; }
-.grid th { background: #EDEDED; }
-.grid tr { break-inside: avoid; }
-.band { background: #1F5C99; color: #fff; font-weight: bold; padding: 6pt 8pt; border: 1px solid #1F5C99; line-height: 1.3; }
-.sh { background: #D6E9F5; font-weight: bold; padding: 4pt 8pt; border: 1px solid #000; border-top: 0; }
-.sb { padding: 6pt 8pt; border: 1px solid #000; border-top: 0; }
-.sb h3 { font-size: 12pt; margin: 6pt 0 3pt; }
-.sb ul { margin: 0 0 6pt; padding-left: 16pt; }
-.sb li { margin-bottom: 2pt; text-align: justify; }
+
+/* sampul */
+.cover { height: 24.6cm; display: flex; flex-direction: column; align-items: center; text-align: center; font-family: var(--sans); color: #111; }
+.cover .t1 { font-size: 17pt; font-weight: 700; letter-spacing: 2.4pt; margin-top: 2.6cm; }
+.cover .t2 { font-size: 12.5pt; font-weight: 700; margin-top: 6pt; line-height: 1.35; }
+.cover .judul-l { margin-top: 3.9cm; font-size: 13pt; font-weight: 700; letter-spacing: 0.6pt; }
+.cover .judul { margin-top: 10pt; font-size: 13.5pt; font-weight: 700; line-height: 1.4; max-width: 12.6cm; }
+.cover .pen-l { margin-top: 3.7cm; font-size: 10.5pt; letter-spacing: 2.2pt; font-weight: 400; }
+.cover .pen { margin-top: 8pt; font-size: 13pt; font-weight: 700; letter-spacing: 0.4pt; }
+.cover .org { margin-top: 3.6cm; font-size: 11.5pt; font-weight: 700; line-height: 1.9; }
+
+/* judul halaman (gaya templat) */
+.pg-title { display: flex; align-items: center; gap: 10pt; font-family: var(--sans); font-weight: 700; font-size: 16.5pt; line-height: 1.2; color: var(--navy); padding-bottom: 8pt; border-bottom: 2px solid var(--navy); margin: 0 0 14pt; }
+.pg-title::before { content: ""; flex: none; width: 11pt; height: 11pt; background: var(--teal); }
+
+/* lembar identitas */
+.form { width: 100%; border-collapse: collapse; font-family: var(--sans); font-size: 10.5pt; line-height: 1.25; color: var(--navy); }
+.form td { padding: 4.2pt 0; vertical-align: bottom; }
+.form .n { width: 0.95cm; color: var(--teal); font-weight: 700; vertical-align: bottom; }
+.form .ln { width: 0.95cm; color: var(--grey); text-align: left; }
+.form .lb { width: 5.1cm; }
+.form .lb.b { font-weight: 700; }
+.form .lb.s { color: #333; }
+.form .co { width: 0.45cm; text-align: left; }
+.form .val { border-bottom: 1px dotted #6B7786; color: #111; }
+.form .gap td { padding: 0; height: 2pt; }
+.tb { width: 100%; border-collapse: collapse; font-size: 11pt; line-height: 1.15; }
+.tb th { background: var(--navy); color: #fff; font-family: var(--sans); font-weight: 700; font-size: 9.5pt; text-align: left; padding: 6pt 7pt; border: 1px solid var(--navy); }
+.tb td { border: 1px solid var(--line); padding: 4.5pt 7pt; vertical-align: top; text-align: left; }
+.tb tr { break-inside: avoid; }
+.sign { margin: 12pt 0 0 7.6cm; font-family: var(--sans); font-size: 10.5pt; line-height: 1.3; color: var(--navy); }
+.sign .sp { height: 1.9cm; }
+.sign .fl { display: flex; gap: 6pt; align-items: flex-end; margin-top: 3pt; }
+.sign .fl .l { flex: none; }
+.sign .fl .v { flex: 1; border-bottom: 1px dotted #6B7786; color: #111; }
+
+/* substansi */
+.sec { position: relative; padding: 10pt 0 10pt 1.2cm; border-top: 1px solid var(--rule); }
+.sec.first { border-top: 0; padding-top: 4pt; }
+.sec .no { position: absolute; left: 0; top: 8.5pt; font-family: var(--sans); font-weight: 700; font-size: 20pt; line-height: 1; color: var(--teal); }
+.sec.first .no { top: 2.5pt; }
+.sec .tt { font-family: var(--sans); font-weight: 700; font-size: 12.5pt; line-height: 1.2; color: var(--navy); margin-bottom: 6pt; break-after: avoid; }
+.badge { font-family: var(--sans); font-weight: 700; font-size: 7pt; letter-spacing: 1.5pt; color: var(--teal); margin-left: 7pt; text-transform: uppercase; vertical-align: 1pt; }
+.dash { border: 1px dashed #B5BECA; padding: 8pt 10pt; }
+.cb { display: inline-block; width: 9.5pt; height: 9.5pt; border: 1px solid #555; border-radius: 2px; vertical-align: -1pt; margin-right: 7pt; text-align: center; font: 700 7.5pt/8.5pt var(--sans); color: #fff; }
+.cb.on { background: var(--teal); border-color: var(--teal); }
+.kl { display: grid; grid-template-columns: 1fr 1fr; gap: 5pt 14pt; font-family: var(--sans); font-size: 9.6pt; line-height: 1.3; color: var(--navy); }
+.kl div { display: flex; align-items: flex-start; }
+.kl .cb { flex: none; margin-top: 1.5pt; }
+.lbl { font-family: var(--sans); font-weight: 700; font-size: 9.6pt; color: var(--navy); }
+h3.sub { font-size: 12pt; font-weight: 700; margin: 7pt 0 3pt; color: var(--navy); }
+h3.sub:first-of-type { margin-top: 0; }
+h3.sub .n { font-family: var(--sans); font-size: 9.5pt; color: var(--teal); margin-right: 7pt; }
 .small { font-size: 11pt; }
-.t11 th, .t11 td { font-size: 11pt; line-height: 1.15; }
-.ph { background: #FFF3B0; }
-figure { margin: 4pt 0 6pt; }
-figcaption { font-size: 11pt; text-align: center; margin-top: 2pt; }
+ul.dm { margin: 0 0 4pt; padding: 0; list-style: none; }
+ul.dm li { position: relative; padding-left: 14pt; margin-bottom: 3pt; text-align: left; }
+ul.dm li::before { content: ""; position: absolute; left: 1pt; top: 4.6pt; width: 5pt; height: 5pt; background: var(--teal); transform: rotate(45deg); }
 .ref p { text-align: left; padding-left: 22pt; text-indent: -22pt; margin-bottom: 4pt; }
-.sign { margin-top: 1.2cm; margin-left: 9cm; line-height: 1.5; }
 </style>
 </head>
 <body>
-
 
 <!-- ========== SAMPUL ========== -->
 <section class="cover">
 <div class="t1">PROPOSAL</div>
 <div class="t2">PESERTA PROGRAM PENDANAAN<br>HACKATHON DEEPTECH</div>
 <div class="judul-l">JUDUL INOVASI</div>
-<div class="judul">HematDaya Faskes: Pemantauan dan Analitik Konsumsi Energi Berbasis Data untuk Rumah Sakit dan Klinik</div>
-<div class="pen">PENYELENGGARA KEGIATAN<br><b style="font-size: 13pt; letter-spacing: 0">UNIVERSITAS MUHAMMADIYAH YOGYAKARTA</b></div>
-<div class="org">Direktorat Jenderal Riset dan Pengembangan<br>Kementerian Pendidikan Tinggi, Sains, dan Teknologi<br><br>TAHUN 2026</div>
+<div class="judul">HematDaya Faskes: Pemantauan dan Analitik<br>Konsumsi Energi Berbasis Data untuk<br>Rumah Sakit dan Klinik</div>
+<div class="pen-l">PENYELENGGARA KEGIATAN</div>
+<div class="pen">UNIVERSITAS MUHAMMADIYAH YOGYAKARTA</div>
+<div class="org">Direktorat Jenderal Riset dan Pengembangan<br>Kementerian Pendidikan Tinggi, Sains, dan Teknologi<br>TAHUN 2026</div>
 </section>
 
 <!-- ========== LEMBAR IDENTITAS ========== -->
 <section class="pb">
-<h1 class="center" style="font-size: 13pt; margin-bottom: 14pt">LEMBAR IDENTITAS</h1>
-<table class="ident">
-<tr><td style="width: 0.7cm">1.</td><td style="width: 5.2cm">Judul</td><td style="width: 0.4cm">:</td><td>HematDaya Faskes: Pemantauan dan Analitik Konsumsi Energi Berbasis Data untuk Rumah Sakit dan Klinik</td></tr>
-<tr><td>2.</td><td colspan="3">Ketua Tim</td></tr>
-<tr><td></td><td>a. Nama Lengkap</td><td>:</td><td>Ahmad Widardi, S.Kom., M.Cs.</td></tr>
-<tr><td></td><td>b. Jenis Kelamin</td><td>:</td><td>L</td></tr>
-<tr><td></td><td>c. NIK</td><td>:</td><td>3318080205960001</td></tr>
-<tr><td></td><td>d. Jabatan Struktural</td><td>:</td><td>–</td></tr>
-<tr><td></td><td>e. Jabatan Fungsional</td><td>:</td><td>Software Engineer (profesional)</td></tr>
-<tr><td></td><td>f. Institusi</td><td>:</td><td></td></tr>
-<tr><td></td><td>g. Alamat</td><td>:</td><td></td></tr>
-<tr><td></td><td>h. Telpon/Faks</td><td>:</td><td>085642196188</td></tr>
-<tr><td></td><td>i. Alamat Rumah</td><td>:</td><td>Yogyakarta</td></tr>
-<tr><td></td><td>j. Telpon/Faks/E-mail</td><td>:</td><td>085642196188 / awidardi@gmail.com</td></tr>
-<tr><td>3.</td><td>Lembaga Mitra Riset (*)</td><td>:</td><td>– (belum ada)</td></tr>
-<tr><td></td><td>Alamat (*)</td><td>:</td><td>–</td></tr>
-<tr><td>4.</td><td colspan="3">Anggota Tim</td></tr>
+<h1 class="pg-title">Lembar Identitas</h1>
+<table class="form">
+<tr><td class="n" style="vertical-align: top">1.</td><td class="lb b" colspan="2" style="vertical-align: top">Judul</td><td class="co" style="vertical-align: top">:</td><td class="val">HematDaya Faskes: Pemantauan dan Analitik Konsumsi Energi Berbasis Data untuk Rumah Sakit dan Klinik</td></tr>
+<tr><td class="n">2.</td><td class="lb b" colspan="4">Ketua Tim</td></tr>
+<tr><td></td><td class="ln">a.</td><td class="lb s">Nama Lengkap</td><td class="co">:</td><td class="val">Ahmad Widardi, S.Kom., M.Cs.</td></tr>
+<tr><td></td><td class="ln">b.</td><td class="lb s">Jenis Kelamin</td><td class="co">:</td><td class="val"><b>L</b> / P</td></tr>
+<tr><td></td><td class="ln">c.</td><td class="lb s">NIK</td><td class="co">:</td><td class="val">3318080205960001</td></tr>
+<tr><td></td><td class="ln">d.</td><td class="lb s">Jabatan Struktural</td><td class="co">:</td><td class="val">–</td></tr>
+<tr><td></td><td class="ln">e.</td><td class="lb s">Jabatan Fungsional</td><td class="co">:</td><td class="val">Software Engineer (profesional)</td></tr>
+<tr><td></td><td class="ln">f.</td><td class="lb s">Institusi</td><td class="co">:</td><td class="val">&nbsp;</td></tr>
+<tr><td></td><td class="ln">g.</td><td class="lb s">Alamat</td><td class="co">:</td><td class="val">&nbsp;</td></tr>
+<tr><td></td><td class="ln">h.</td><td class="lb s">Telpon/Faks</td><td class="co">:</td><td class="val">085642196188</td></tr>
+<tr><td></td><td class="ln">i.</td><td class="lb s">Alamat Rumah</td><td class="co">:</td><td class="val">Yogyakarta</td></tr>
+<tr><td></td><td class="ln">j.</td><td class="lb s">Telpon/Faks/E-mail</td><td class="co">:</td><td class="val">085642196188 / awidardi@gmail.com</td></tr>
+<tr><td class="n">3.</td><td class="lb b" colspan="2">Lembaga Mitra Riset (*)</td><td class="co">:</td><td class="val">– (belum ada)</td></tr>
+<tr><td></td><td class="ln">–</td><td class="lb s">Alamat (*)</td><td class="co">:</td><td class="val">–</td></tr>
+<tr><td class="n">4.</td><td class="lb b" colspan="4">Anggota Tim</td></tr>
 </table>
-<table class="grid" style="margin-top: 6pt">
-<tr><th style="width: 1.1cm">No.</th><th>Nama</th><th style="width: 3.6cm">NIK/NIP/NIDN</th><th style="width: 4.4cm">Institusi</th></tr>
+<table class="tb" style="margin-top: 5pt; font-family: var(--sans); font-size: 10.5pt; color: var(--navy)">
+<tr><th style="width: 1.3cm">No.</th><th>Nama</th><th style="width: 3.9cm">NIK/NIP/NIDN</th><th style="width: 4.2cm">Institusi</th></tr>
 <tr><td>1.</td><td>Erwin Eko Wahyudi, S.Kom., M.Cs. (Dosen)</td><td>NIDN 0028109403</td><td>Universitas Gadjah Mada</td></tr>
-<tr><td>2.</td><td>Sidiq Tri Pratikto, S.Kom. (Profesional)</td><td>3674063007960003</td><td></td></tr>
+<tr><td>2.</td><td>Sidiq Tri Pratikto, S.Kom. (Profesional)</td><td>3674063007960003</td><td>&nbsp;</td></tr>
 <tr><td>3.</td><td>Lukman Nurdinanto (Mahasiswa)</td><td>3674060510030004</td><td>Universitas Pamulang</td></tr>
 </table>
-<p style="font-size: 10.5pt; margin-top: 4pt">(*) diisi bila ada.</p>
+<p style="font-family: var(--sans); font-size: 8.5pt; color: var(--grey); margin-top: 4pt">(*) diisi bila ada.</p>
 <div class="sign">
 Yogyakarta, 19 Oktober 2026<br>
-Ketua Tim Pelaksana,<br><br><br><br>
-Nama: Ahmad Widardi, S.Kom., M.Cs.<br>
-NIK: 3318080205960001
+Ketua Tim Pelaksana,
+<div class="sp"></div>
+<div class="fl"><span class="l">Nama:</span><span class="v">Ahmad Widardi, S.Kom., M.Cs.</span></div>
+<div class="fl"><span class="l">NIK:</span><span class="v">3318080205960001</span></div>
 </div>
 </section>
 
 <!-- ========== SUBSTANSI: 1, 2, 3 ========== -->
 <section class="pb">
-<div class="band">SUBSTANSI PROPOSAL PESERTA HACKATHON DEEPTECH</div>
-<div class="sh">1. Judul Proposal</div>
-<div class="sb">HematDaya Faskes: Pemantauan dan Analitik Konsumsi Energi Berbasis Data untuk Rumah Sakit dan Klinik</div>
-<div class="sh">2. Tema Fokus Inovasi</div>
-<div class="sb">
-<table style="width: 100%; border-collapse: collapse">
-<tr><td style="width: 34%; vertical-align: top; font-weight: bold; padding-bottom: 6pt">Bidang Strategis</td>
-<td style="padding-bottom: 6pt">Kesehatan — <i>Smart and Sustainable Health Ecosystem for Human Well-being</i></td></tr>
-<tr><td style="vertical-align: top; font-weight: bold">Klaster yang dipilih (pilih satu)</td>
-<td>☐ <i>Smart Diagnostic and Screening</i><br>☐ <i>Digital Health and Artificial Intelligence</i><br>☐ <i>Connected Health and IoMT</i><br>☐ <i>Medical Device and Rehabilitation Technology</i><br>☐ <i>Smart Hospital and Healthcare Efficiency</i><br>☐ <i>Preventive and Community Health</i><br>☐ <i>Biotechnology and Advanced Materials</i><br>☑ <b><i>Sustainable and Green Healthcare</i></b></td></tr>
+<h1 class="pg-title">Substansi Proposal Peserta Hackathon DeepTech</h1>
+<div class="sec first">
+<div class="no">1</div>
+<div class="tt">Judul Proposal</div>
+<div class="dash">HematDaya Faskes: Pemantauan dan Analitik Konsumsi Energi Berbasis Data untuk Rumah Sakit dan Klinik</div>
+</div>
+<div class="sec">
+<div class="no">2</div>
+<div class="tt">Tema Fokus Inovasi</div>
+<table style="width: 100%; border-collapse: collapse; font-family: var(--sans); font-size: 9.6pt; line-height: 1.3; color: var(--navy)">
+<tr><td class="lbl" style="width: 3.3cm; vertical-align: top; padding-bottom: 7pt">Bidang Strategis:</td>
+<td style="padding-bottom: 7pt"><span class="cb on">✓</span>Kesehatan — <i>Smart and Sustainable Health Ecosystem for Human Well-being</i></td></tr>
+<tr><td class="lbl" style="vertical-align: top">Klaster yang dipilih (pilih satu):</td>
+<td><div class="kl">
+<div><span class="cb"></span><i>Smart Diagnostic and Screening</i></div>
+<div><span class="cb"></span><i>Digital Health and Artificial Intelligence</i></div>
+<div><span class="cb"></span><i>Connected Health and IoMT</i></div>
+<div><span class="cb"></span><i>Medical Device and Rehabilitation Technology</i></div>
+<div><span class="cb"></span><i>Smart Hospital and Healthcare Efficiency</i></div>
+<div><span class="cb"></span><i>Preventive and Community Health</i></div>
+<div><span class="cb"></span><i>Biotechnology and Advanced Materials</i></div>
+<div><span class="cb on">✓</span><b><i>Sustainable and Green Healthcare</i></b></div>
+</div></td></tr>
 </table>
 </div>
-<div class="sh">3. <i>Executive Summary</i> (maks. 250 kata)</div>
-<div class="sb" id="exec">
+<div class="sec" id="exec">
+<div class="no">3</div>
+<div class="tt">Executive Summary<span class="badge">Maks. 250 kata</span></div>
 <p>Rumah sakit dan klinik beroperasi sepanjang hari dengan beban listrik yang besar dan beragam: pendingin ruangan, sterilisator, lemari pendingin vaksin dan obat, serta pompa. Konsumsi energinya tinggi, tetapi pengelola fasilitas umumnya hanya melihat satu angka, yaitu tagihan bulanan. Beban mana yang boros, apakah pendingin menyala saat poli tutup, dan berapa energi per meter persegi atau per tempat tidur belum terpantau secara terukur.</p>
 <p>HematDaya Faskes adalah aplikasi seluler dan web yang membaca data konsumsi listrik per perangkat dari meter pada beban terpilih atau dari catatan historis yang diimpor. Aplikasi menghitung energi dan estimasi biaya, menandai konsumsi di luar jam layanan pada perangkat poli, mendeteksi kenaikan konsumsi dibanding minggu-minggu sebelumnya, dan menghitung intensitas konsumsi energi (IKE) per m² dan per tempat tidur, lengkap dengan bukti dan keterbatasan datanya. Beban kritis seperti lemari pendingin vaksin dan obat hanya dipantau: aplikasi tidak mengendalikan perangkat, tidak pernah menyarankan menghentikannya, dan tidak memuat data pasien.</p>
 <p>Pengguna potensial adalah pengelola sarana dan teknisi rumah sakit dan klinik, termasuk jaringan fasilitas Muhammadiyah–'Aisyiyah sebagai peluang. Nilai komersialnya berupa langganan per fasilitas dan paket meter plus aplikasi; manfaatnya penghematan biaya listrik dan data terukur menuju layanan kesehatan yang lebih hijau.</p>
@@ -114,17 +160,18 @@ NIK: 3318080205960001
 
 <!-- ========== 4. DESKRIPSI INOVASI ========== -->
 <section class="pb">
-<div class="sh" style="border-top: 1px solid #000">4. Deskripsi Inovasi (maksimum 2 halaman)</div>
-<div class="sb">
-<h3 style="margin-top: 0">1. Klaster dan <i>problem statement</i></h3>
+<div class="sec first">
+<div class="no">4</div>
+<div class="tt">Deskripsi Inovasi<span class="badge">Maksimum 2 halaman</span></div>
+<h3 class="sub"><span class="n">1</span>Klaster dan <i>problem statement</i></h3>
 <p><b>Klaster:</b> <i>Sustainable and Green Healthcare</i>, dengan <i>problem statement</i> “konsumsi energi rumah sakit dan klinik tinggi dan belum terpantau secara terukur” [1]. <b>Masalah:</b> fasilitas kesehatan beroperasi sepanjang hari, dan rumah sakit cenderung memakai energi per satuan luas lebih besar daripada bangunan komersial lain karena operasi 24 jam, sistem pendingin udara yang kompleks, dan peralatan seperti sterilisasi dan pendinginan [2]. Sektor kesehatan global menyumbang sekitar 4,4% emisi bersih dunia, dengan pembakaran bahan bakar fosil sebagai sumber terbesar [3]. Pengelola hanya melihat tagihan, sehingga lonjakan di luar jam layanan atau penurunan efisiensi satu perangkat tidak terlihat. <b>Bukti kebutuhan:</b> selain pernyataan panitia [1] dan data [2, 3], audit energi rumah sakit di Indonesia yang kami temukan berupa studi kasus per fasilitas, misalnya audit di RS Pratama Tapan [4]; PP 33/2023 mengatur pelaksanaan konservasi energi beserta data dan informasinya [5]. Kebutuhan di fasilitas nyata akan divalidasi bersama pendamping dan fasilitas pilot. <b>Sasaran pengguna:</b> pengelola sarana-prasarana dan teknisi rumah sakit dan klinik. <b>Target kinerja (hipotesis):</b> galat energi per perangkat ≤ 5% terhadap meter pembanding; ≥ 80% temuan dinilai relevan oleh pengguna; cakupan data ≥ 90%; 0 saran penghentian pada beban kritis. <b>Potensi hilirisasi:</b> langganan per fasilitas, paket meter plus aplikasi, dan laporan intensitas energi bagi pengelola jaringan rumah sakit dan klinik.</p>
-<h3>2. Solusi awal dan keunggulan</h3>
+<h3 class="sub"><span class="n">2</span>Solusi awal dan keunggulan</h3>
 <p>Meter pintar (awalnya Shelly Plug PM Gen3) pada beban terpilih mengirim data ke server melalui MQTT dengan TLS; fasilitas tanpa meter mengimpor CSV dari catatan yang ada. <b>Pengolah data</b> menghapus duplikat dan tidak mengisi data hilang dengan nol. <b>Analitik</b> menghitung energi dan estimasi biaya (tarif diisi pengguna); untuk perangkat poli, memisahkan energi di dalam dan di luar jam layanan; untuk perangkat 24 jam, membandingkan dengan median minggu-minggu sebelumnya pada rentang waktu yang sama; dan menghitung IKE per m² dan per tempat tidur per hari. <b>Mesin penjelas</b> menyusun saran dari bukti yang tersimpan; model bahasa tidak menghitung energi. Satu basis kode berjalan di seluler dan web. Beban berdaya besar yang berkabel di luar spesifikasi meter plug-in menunggu pemasangan teknisi berwenang dan di luar lingkup awal.</p>
 <p><b>Keunggulan:</b> dibanding tagihan bulanan dan audit per fasilitas, HematDaya memantau per perangkat secara berkelanjutan dengan biaya awal kecil; setiap saran memuat pembanding, cakupan data, dan hal yang belum diketahui; data hilang tidak ditampilkan sebagai nol; beban kritis hanya dipantau dan tidak pernah disarankan dihentikan.</p>
-<h3>3. Tingkat Kesiapan Teknologi (TKT) awal</h3>
+<h3 class="sub"><span class="n">3</span>Tingkat Kesiapan Teknologi (TKT) awal</h3>
 <p>Saat ini <b>TKT 3</b>: prototipe seluler berjalan dengan lima beban contoh klinik dan ruang rawat inap kecil (data sintetis), menampilkan biaya, konsumsi di luar jam layanan, kenaikan konsumsi, dan IKE; belum diuji dengan meter dan data fasilitas nyata, dan versi web penuh belum dibuat. Target <b>TKT 4</b> pada akhir program dan <b>TKT 5</b> pascakompetisi melalui pilot.</p>
-<h3 style="break-before: page">4. Rencana kegiatan (roadmap 12 bulan)</h3>
-<table class="grid t11">
+<h3 class="sub" style="break-before: page"><span class="n">4</span>Rencana kegiatan (roadmap 12 bulan)</h3>
+<table class="tb" style="font-size: 11pt">
 <tr><th style="width: 2.5cm">Waktu</th><th style="width: 3.8cm">Tahap program</th><th>Kegiatan dan luaran</th></tr>
 <tr><td>2–5 Nov 2026</td><td><i>Bootcamp</i></td><td>Validasi masalah; wawancara 5 pengelola sarana atau teknisi; susun daftar beban kritis dan aturan keselamatan bersama pendamping</td></tr>
 <tr><td>9–12 Nov</td><td>Uji Terbatas</td><td>Uji kegunaan ≥ 5 pengguna; uji galat energi terhadap meter pembanding pada beban simulasi; data sintetis</td></tr>
@@ -132,28 +179,29 @@ NIK: 3318080205960001
 <tr><td>Des 2026–Apr 2027</td><td>Pascakompetisi</td><td>Izin dan kebijakan data fasilitas; pilot 1–2 fasilitas dengan data listrik; integrasi meter; target TKT 5</td></tr>
 <tr><td>Mei–Okt 2027</td><td>Perluasan</td><td>Pilot 3–5 fasilitas; uji model langganan; HKI</td></tr>
 </table>
-<h3>5. Komposisi tim dan pembagian peran</h3>
+<h3 class="sub"><span class="n">5</span>Komposisi tim dan pembagian peran</h3>
 <p>Empat orang: Koordinator Teknis (profesional), Koordinator Bisnis dan Hilirisasi (profesional, ketua), Koordinator Klinis dan Validasi Pengguna (mahasiswa), dan dosen sebagai konsultan analitik data (bagian 5). Tim belum memiliki tenaga kesehatan; masukan klinis dicari dari pendamping yang ditetapkan panitia dan dari tenaga sarana fasilitas pilot.</p>
-<h3>6. Keselamatan pasien, etik, dan keamanan data</h3>
+<h3 class="sub"><span class="n">6</span>Keselamatan pasien, etik, dan keamanan data</h3>
 <p>HematDaya hanya memantau listrik: tidak mengendalikan perangkat, tidak terhubung ke alat medis, dan tidak memuat data pasien. Beban kritis (pendingin vaksin dan obat, alat vital) ditandai dan hanya dipantau; saran selalu meminta pemeriksaan bersama petugas penanggung jawab dan tidak pernah menyarankan penghentian. Aplikasi tidak menilai mutu obat atau vaksin. Pengujian memakai data sintetis dan simulasi; data listrik fasilitas nyata hanya dengan izin tertulis fasilitas. Tim berkonsultasi pada Klinik Regulasi tentang perlunya persetujuan etik, dan wawancara pengguna memakai persetujuan tertulis dengan data dianonimkan. Data dikirim dengan TLS dan diakses per pengguna.</p>
-<h3>7. Dukungan mitra</h3>
+<h3 class="sub"><span class="n">7</span>Dukungan mitra</h3>
 <p>Belum ada surat dukungan, akses fasilitas, atau komitmen pilot. Tim akan memanfaatkan ekosistem program (jaringan rumah sakit dan klinik serta mitra industri) untuk mencari fasilitas pilot sejak <i>Bootcamp</i>.</p>
 </div>
 </section>
 
 <!-- ========== 5. PEMBAGIAN TUGAS ========== -->
 <section class="pb">
-<div class="sh" style="border-top: 1px solid #000">5. Pembagian Tugas dan Tanggung Jawab Tim Pelaksana (maksimum 1 halaman)</div>
-<div class="sb">
-<table class="grid t11">
-<tr><th style="width: 4.2cm">Nama</th><th style="width: 3.8cm">Peran</th><th>Tanggung jawab</th></tr>
+<div class="sec first">
+<div class="no">5</div>
+<div class="tt">Pembagian Tugas dan Tanggung Jawab Tim Pelaksana<span class="badge" style="display: block; margin: 4pt 0 0">Maksimum 1 halaman</span></div>
+<table class="tb">
+<tr><th style="width: 3.7cm">Nama</th><th style="width: 3.6cm">Peran</th><th>Tanggung jawab</th></tr>
 <tr><td>Ahmad Widardi, S.Kom., M.Cs.</td><td>Ketua Tim; Koordinator Bisnis dan Hilirisasi (profesional, <i>software engineer</i>)</td><td>Memimpin tim dan komunikasi dengan panitia; menyusun model bisnis, strategi masuk ke jaringan fasilitas kesehatan, dan rencana HKI; memimpin presentasi dan <i>business matching</i>; ikut merancang arsitektur <i>backend</i>.</td></tr>
 <tr><td>Sidiq Tri Pratikto, S.Kom.</td><td>Koordinator Teknis (profesional, <i>software engineer</i>)</td><td>Mengembangkan aplikasi seluler dan web, API, pengolah data MQTT, dan analitik (IKE dan baseline); mengatur infrastruktur, <i>deployment</i>, dan keamanan data.</td></tr>
 <tr><td>Lukman Nurdinanto</td><td>Mahasiswa; Koordinator Klinis dan Validasi Pengguna</td><td>Menghubungkan tim dengan pendamping dan tenaga kesehatan; menyusun daftar beban kritis dan aturan keselamatan bersama petugas fasilitas; mewawancarai pengelola sarana dan teknisi; menjalankan uji kegunaan dan mencatat umpan balik; mengurus izin fasilitas dan kebutuhan etik.</td></tr>
 <tr><td>Erwin Eko Wahyudi, S.Kom., M.Cs.</td><td>Dosen; Konsultan Analitik Data dan <i>Machine Learning</i></td><td>Merancang metode analitik (baseline statistik) dan evaluasi kronologis; menilai kelayakan data; membimbing tim sebagai mentor selama persiapan.</td></tr>
 </table>
-<h3>Mekanisme monitoring internal</h3>
-<ul>
+<h3 class="sub" style="margin-top: 10pt">Mekanisme monitoring internal</h3>
+<ul class="dm">
 <li><b>Sprint dua mingguan</b> dengan target fitur yang mengacu pada tahapan program; rapat koordinasi singkat setiap minggu.</li>
 <li><b>Papan tugas bersama</b> dan repositori kode dengan <i>code review</i> untuk setiap perubahan.</li>
 <li><b>Dasbor metrik</b> per sprint: galat energi terhadap meter pembanding, relevansi temuan, cakupan data, dan hasil uji kegunaan.</li>
@@ -166,22 +214,26 @@ NIK: 3318080205960001
 
 <!-- ========== 6 & 7 ========== -->
 <section class="pb">
-<div class="sh" style="border-top: 1px solid #000">6. Daftar Pustaka</div>
-<div class="sb ref">
+<div class="sec first">
+<div class="no">6</div>
+<div class="tt">Daftar Pustaka</div>
+<div class="ref">
 <p>[1] Direktorat Inovasi dan Hilirisasi, Universitas Muhammadiyah Yogyakarta, <i>Buku Pedoman Peserta UMY Hackathon DeepTech 2026</i> (Revisi). Yogyakarta: UMY, 2026.</p>
 <p>[2] U.S. Energy Information Administration, “Large hospitals tend to be energy-intensive,” <i>Today in Energy</i>, 23 Agustus 2012. https://www.eia.gov/todayinenergy/detail.php?id=7670</p>
 <p>[3] Health Care Without Harm dan Arup, <i>Health Care’s Climate Footprint: How the Health Sector Contributes to the Global Climate Crisis and Opportunities for Action</i>, September 2019. https://global.noharm.org/resources/health-care-climate-footprint-report</p>
 <p>[4] N. O. Putra, Z. Aini, dan D. M. Putri, “Electrical Energy Audit in Pratama Tapan Hospital,” <i>Jurnal Edukasi Elektro</i>, vol. 8, no. 1, hlm. 80–93, 2024, doi: 10.21831/jee.v8i1.65277.</p>
 <p>[5] Pemerintah Republik Indonesia, <i>Peraturan Pemerintah Nomor 33 Tahun 2023 tentang Konservasi Energi</i>, 2023.</p>
 </div>
-<div class="sh">7. Lampiran (diunggah/diisi dalam sistem)</div>
-<div class="sb">
-<ul style="text-align: left">
-<li style="text-align: left">Pembagian peran dan tanggung jawab tim serta mekanisme monitoring internal: pada bagian 5.</li>
-<li style="text-align: left">Daftar Riwayat Hidup ketua dan seluruh anggota tim:<br>https://drive.google.com/drive/folders/1Di_3dbKiDE5xmqYJuRK97NoeVRjxcfBy?usp=drive_link.</li>
-<li style="text-align: left">Portofolio karya inovasi/sertifikat kompetensi:<br>https://drive.google.com/drive/folders/1B1rRWOHKe_FGqhcwGrLHe__zpPf2ugYt?usp=drive_link.</li>
-<li style="text-align: left">Bukti kemitraan: belum ada.</li>
-<li style="text-align: left">Bukti purwarupa: prototipe HematDaya Faskes yang dapat dijalankan (versi seluler, data sintetis): https://claude.ai/artifact/BEZeZxr64pfvfVqfDy1equ.</li>
+</div>
+<div class="sec">
+<div class="no">7</div>
+<div class="tt">Lampiran<span class="badge">Diunggah/diisi dalam sistem</span></div>
+<ul class="dm">
+<li>Pembagian peran dan tanggung jawab tim serta mekanisme monitoring internal: pada bagian 5.</li>
+<li>Daftar Riwayat Hidup ketua dan seluruh anggota tim:<br>https://drive.google.com/drive/folders/1Di_3dbKiDE5xmqYJuRK97NoeVRjxcfBy?usp=drive_link.</li>
+<li>Portofolio karya inovasi/sertifikat kompetensi:<br>https://drive.google.com/drive/folders/1B1rRWOHKe_FGqhcwGrLHe__zpPf2ugYt?usp=drive_link.</li>
+<li>Bukti kemitraan: belum ada.</li>
+<li>Bukti purwarupa: prototipe HematDaya Faskes yang dapat dijalankan (versi seluler, data sintetis): https://claude.ai/artifact/BEZeZxr64pfvfVqfDy1equ.</li>
 </ul>
 </div>
 </section>

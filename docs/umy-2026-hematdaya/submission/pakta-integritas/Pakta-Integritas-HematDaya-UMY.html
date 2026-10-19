@@ -5,59 +5,67 @@
 <title>Pakta Integritas HematDaya Faskes UMY</title>
 <style>
 @page { size: A4; margin: 2.5cm 2.5cm 2.5cm 2.5cm; }
+:root { --navy: #0A1D36; --teal: #0A7980; --tealbg: #E6F2F1; --line: #9FB4C7; --rule: #DDE4E8; --soft: #F0F4F8; --grey: #5B6779; --sans: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
 * { box-sizing: border-box; }
-body { margin: 0; font-family: 'Times New Roman', Times, serif; font-size: 12pt; line-height: 1.15; color: #000; }
-p { margin: 0 0 7pt; text-align: justify; }
-.title { text-align: center; font-weight: bold; line-height: 1.3; margin-bottom: 12pt; }
-.title .t1 { font-size: 15pt; }
-.title .t2 { font-size: 12pt; }
-.title .t3 { font-size: 12pt; font-weight: normal; font-style: italic; margin-top: 2pt; }
+body { margin: 0; font-family: var(--sans); font-size: 10.2pt; line-height: 1.42; color: var(--navy); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+p { margin: 0 0 8pt; text-align: left; }
+.banner { background: var(--navy); color: #fff; padding: 15pt 20pt 13pt; border-bottom: 4px solid #3DD6C0; margin-bottom: 12pt; }
+.banner .t1 { font-weight: 700; font-size: 23pt; line-height: 1.15; }
+.banner .t2 { font-weight: 700; font-size: 10pt; letter-spacing: 1pt; line-height: 1.5; margin-top: 8pt; }
+.banner .t3 { font-style: italic; font-size: 9.6pt; color: #3DD6C0; margin-top: 5pt; }
 table { width: 100%; border-collapse: collapse; }
-.grid th, .grid td { border: 1px solid #000; padding: 4pt 6pt; vertical-align: top; text-align: left; }
-.grid th { background: #EDEDED; }
-.grid tr { break-inside: avoid; }
-.pt { display: flex; gap: 8pt; margin-bottom: 7pt; break-inside: avoid; }
-.pt .n { flex: none; width: 16pt; font-weight: bold; }
-.pt .tx { text-align: justify; }
-.pt ol { margin: 3pt 0 0; padding-left: 20pt; list-style-type: lower-alpha; text-align: left; }
-.sign td { height: 1.35cm; }
+.tb th { background: var(--navy); color: #fff; font-weight: 700; font-size: 9.6pt; text-align: left; padding: 7pt 9pt; border: 1px solid var(--navy); }
+.tb td { border: 1px solid var(--line); padding: 4.5pt 9pt; vertical-align: middle; text-align: left; }
+.tb td.k { background: var(--soft); font-weight: 600; width: 5.2cm; }
+.tb tr { break-inside: avoid; }
+.pt { display: flex; gap: 12pt; margin-bottom: 7pt; break-inside: avoid; }
+.pt .n { flex: none; width: 17pt; height: 17pt; margin-top: 2pt; background: var(--tealbg); color: var(--teal); font-weight: 700; font-size: 9pt; line-height: 17pt; text-align: center; border-radius: 2px; }
+.pt .tx { flex: 1; }
+.pt .tx b { font-weight: 700; }
+.sk { display: grid; grid-template-columns: 1fr 1fr; gap: 7pt; margin-top: 8pt; }
+.sk div { background: var(--soft); padding: 8pt 11pt; font-size: 10pt; line-height: 1.45; }
+.sk b { color: var(--teal); margin-right: 5pt; }
+.hr { border: 0; border-top: 1px solid var(--rule); margin: 14pt 0 11pt; }
+.sign th { padding: 7pt 9pt; }
+.sign td { height: 1.45cm; }
 .pb { break-before: page; }
 </style>
 </head>
 <body>
-<div class="title">
-<div class="t1">PAKTA INTEGRITAS</div>
+<div class="banner">
+<div class="t1">Pakta Integritas</div>
 <div class="t2">PESERTA PROGRAM HACKATHON DEEPTECH 2026<br>UNIVERSITAS MUHAMMADIYAH YOGYAKARTA</div>
 <div class="t3">“Smart and Sustainable Health Ecosystem for Human Well-being”</div>
 </div>
-<table class="grid" style="margin-bottom: 10pt">
-<tr><th style="width: 5.2cm">Data Tim</th><th>Isian</th></tr>
-<tr><td>Nama Ketua Tim</td><td>Ahmad Widardi, S.Kom., M.Cs.</td></tr>
-<tr><td>NIM/NIDN/NIP</td><td>NIK 3318080205960001</td></tr>
-<tr><td>Nama Tim</td><td>HematDaya</td></tr>
-<tr><td>Asal Instansi</td><td>Tim gabungan (profesional; Universitas Gadjah Mada; Universitas Pamulang)</td></tr>
-<tr><td>Klaster</td><td><i>Sustainable and Green Healthcare</i></td></tr>
-<tr><td>Judul Prototipe</td><td>HematDaya Faskes: Pemantauan dan Analitik Konsumsi Energi Berbasis Data untuk Rumah Sakit dan Klinik</td></tr>
+<table class="tb" style="margin-bottom: 10pt">
+<tr><th>Data Tim</th><th>Isian</th></tr>
+<tr><td class="k">Nama Ketua Tim</td><td>Ahmad Widardi, S.Kom., M.Cs.</td></tr>
+<tr><td class="k">NIM/NIDN/NIP</td><td>NIK 3318080205960001</td></tr>
+<tr><td class="k">Nama Tim</td><td>HematDaya</td></tr>
+<tr><td class="k">Asal Instansi</td><td>Tim gabungan (profesional; Universitas Gadjah Mada; Universitas Pamulang)</td></tr>
+<tr><td class="k">Klaster</td><td>Sustainable and Green Healthcare</td></tr>
+<tr><td class="k">Judul Prototipe</td><td>HematDaya Faskes: Pemantauan dan Analitik Konsumsi Energi Berbasis Data untuk Rumah Sakit dan Klinik</td></tr>
 </table>
 <p>Yang bertandatangan di bawah ini, mewakili seluruh anggota tim sebagaimana tercantum di atas, dengan penuh kesadaran dan tanpa paksaan dari pihak manapun, menyatakan dan berkomitmen untuk:</p>
-<div class="pt"><div class="n">1.</div><div class="tx"><b>Orisinalitas Karya:</b> Produk, desain, sirkuit, program, atau prototipe yang kami ajukan sepenuhnya merupakan karya orisinal tim kami, bukan hasil plagiarisme, duplikasi, atau pemanfaatan karya pihak lain tanpa izin, tidak melanggar Hak Kekayaan Intelektual (HKI) siapapun, dan belum pernah memenangkan pendanaan atau kompetisi sejenis di tempat lain dalam dua tahun terakhir.</div></div>
-<div class="pt"><div class="n">2.</div><div class="tx"><b>Akurasi Data:</b> Seluruh data dokumen pendukung, status mahasiswa dari PDDIKTI, serta laporan penggunaan anggaran prototipe yang kami sampaikan adalah benar dan sah sesuai kondisi riil.</div></div>
-<div class="pt"><div class="n">3.</div><div class="tx"><b>Komitmen Mengikuti Rangkaian Program:</b> Kami berkomitmen penuh mengikuti seluruh rangkaian kegiatan dari tahap pendaftaran (<i>proposal submission</i>), <i>problem validation report</i>, <i>bootcamp</i>, mentoring, uji terbatas, hingga <i>Demo Day</i> dan penyusunan Laporan Akhir tepat waktu.</div></div>
-<div class="pt"><div class="n">4.</div><div class="tx"><b>Etik dan Keselamatan:</b> Kami tidak akan melibatkan pasien, data klinis, atau sampel nyata tanpa persetujuan etik dan izin resmi, serta mengutamakan keselamatan pasien dan pengguna dalam setiap pengujian.</div></div>
-<div class="pt"><div class="n">5.</div><div class="tx"><b>Bebas Konflik Kepentingan:</b> Tidak memiliki hubungan yang menimbulkan konflik kepentingan dengan juri, tim pakar, panitia, atau pihak penyelenggara yang dapat mempengaruhi objektivitas penilaian.</div></div>
-<div class="pt"><div class="n">6.</div><div class="tx"><b>Kerahasiaan Data (NDA):</b> Kami bersedia menjaga kerahasiaan kekayaan intelektual (IP) milik tim lain, serta data dan informasi milik mitra, fasilitas kesehatan, dan <i>problem owner</i> yang terlibat dalam program ini.</div></div>
-<div class="pt"><div class="n">7.</div><div class="tx"><b>Kepatuhan Hukum:</b> Kami akan mematuhi seluruh ketentuan hukum yang berlaku, termasuk peraturan penggunaan dan pertanggungjawaban anggaran sesuai ketentuan LPDP dan ketentuan yang berlaku. Pelanggaran terhadap butir-butir pakta ini dapat dikenai sanksi berupa:
-<ol>
-<li>diskualifikasi dari program;</li>
-<li>kewajiban mengembalikan seluruh dana yang telah diterima;</li>
-<li>pencantuman dalam daftar hitam program Kemdiktisaintek dan LPDP;</li>
-<li>pelaporan kepada pihak berwenang apabila terdapat unsur pidana.</li>
-</ol></div></div>
-<p style="margin-top: 8pt">Pakta integritas ini kami buat dengan penuh kesadaran dan memiliki kekuatan hukum. Apabila di kemudian hari ditemukan pelanggaran terhadap butir-butir pernyataan di atas, kami bersedia menerima sanksi administratif berupa pembatalan kepesertaan, pembatalan status pemenang, pengembalian seluruh dana yang telah diterima ke kas negara, beserta sanksi lain sesuai ketentuan yang berlaku.</p>
+<div class="pt"><div class="n">1</div><div class="tx"><b>Orisinalitas Karya:</b> Produk, desain, sirkuit, program, atau prototipe yang kami ajukan sepenuhnya merupakan karya orisinal tim kami, bukan hasil plagiarisme, duplikasi, atau pemanfaatan karya pihak lain tanpa izin, tidak melanggar Hak Kekayaan Intelektual (HKI) siapapun, dan belum pernah memenangkan pendanaan atau kompetisi sejenis di tempat lain dalam dua tahun terakhir.</div></div>
+<div class="pt"><div class="n">2</div><div class="tx"><b>Akurasi Data:</b> Seluruh data dokumen pendukung, status mahasiswa dari PDDIKTI, serta laporan penggunaan anggaran prototipe yang kami sampaikan adalah benar dan sah sesuai kondisi riil.</div></div>
+<div class="pt"><div class="n">3</div><div class="tx"><b>Komitmen Mengikuti Rangkaian Program:</b> Kami berkomitmen penuh mengikuti seluruh rangkaian kegiatan dari tahap pendaftaran (proposal submission), problem validation report, bootcamp, mentoring, uji terbatas, hingga Demo Day dan penyusunan Laporan Akhir tepat waktu.</div></div>
+<div class="pt"><div class="n">4</div><div class="tx"><b>Etik dan Keselamatan:</b> Kami tidak akan melibatkan pasien, data klinis, atau sampel nyata tanpa persetujuan etik dan izin resmi, serta mengutamakan keselamatan pasien dan pengguna dalam setiap pengujian.</div></div>
+<div class="pt pb"><div class="n">5</div><div class="tx"><b>Bebas Konflik Kepentingan:</b> Tidak memiliki hubungan yang menimbulkan konflik kepentingan dengan juri, tim pakar, panitia, atau pihak penyelenggara yang dapat mempengaruhi objektivitas penilaian.</div></div>
+<div class="pt"><div class="n">6</div><div class="tx"><b>Kerahasiaan Data (NDA):</b> Kami bersedia menjaga kerahasiaan kekayaan intelektual (IP) milik tim lain, serta data dan informasi milik mitra, fasilitas kesehatan, dan problem owner yang terlibat dalam program ini.</div></div>
+<div class="pt"><div class="n">7</div><div class="tx"><b>Kepatuhan Hukum:</b> Kami akan mematuhi seluruh ketentuan hukum yang berlaku, termasuk peraturan penggunaan dan pertanggungjawaban anggaran sesuai ketentuan LPDP dan ketentuan yang berlaku. Pelanggaran terhadap butir-butir pakta ini dapat dikenai sanksi berupa:
+<div class="sk">
+<div><b>a.</b> diskualifikasi dari program;</div>
+<div><b>b.</b> kewajiban mengembalikan seluruh dana yang telah diterima;</div>
+<div><b>c.</b> pencantuman dalam daftar hitam program Kemdiktisaintek dan LPDP;</div>
+<div><b>d.</b> pelaporan kepada pihak berwenang apabila terdapat unsur pidana.</div>
+</div></div></div>
+<hr class="hr">
+<p>Pakta integritas ini kami buat dengan penuh kesadaran dan memiliki kekuatan hukum. Apabila di kemudian hari ditemukan pelanggaran terhadap butir-butir pernyataan di atas, kami bersedia menerima sanksi administratif berupa pembatalan kepesertaan, pembatalan status pemenang, pengembalian seluruh dana yang telah diterima ke kas negara, beserta sanksi lain sesuai ketentuan yang berlaku.</p>
 <p>Demikian Pakta Integritas ini kami buat dengan sebenar-benarnya untuk dapat digunakan sebagaimana mestinya.</p>
-<p style="text-align: right; margin: 10pt 0 8pt">Yogyakarta, 19 Oktober 2026</p>
-<table class="grid sign">
-<tr><th style="width: 0.9cm">No</th><th>Nama Lengkap</th><th style="width: 3.3cm">Peran</th><th style="width: 5cm">NIM/NIDN</th><th style="width: 2.2cm">TTD</th></tr>
+<p style="text-align: right; margin: 9pt 0 8pt">Yogyakarta, 19 Oktober 2026</p>
+<table class="tb sign">
+<tr><th style="width: 0.9cm">No</th><th>Nama Lengkap</th><th style="width: 3.4cm">Peran</th><th style="width: 5.1cm">NIM/NIDN</th><th style="width: 1.8cm">TTD</th></tr>
 <tr><td>1.</td><td>Ahmad Widardi, S.Kom., M.Cs.</td><td>Ketua Tim</td><td>NIK 3318080205960001</td><td></td></tr>
 <tr><td>2.</td><td>Sidiq Tri Pratikto, S.Kom.</td><td>Anggota Tim 1</td><td>NIK 3674063007960003</td><td></td></tr>
 <tr><td>3.</td><td>Lukman Nurdinanto</td><td>Anggota Tim 2</td><td>NIK 3674060510030004</td><td></td></tr>
