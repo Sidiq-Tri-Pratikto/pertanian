@@ -1,0 +1,3241 @@
+timestamp,perangkat,energi_wh
+2026-09-21 00:00,AC Poli Rawat Jalan,132
+2026-09-21 00:00,Chiller Rawat Inap,6465
+2026-09-21 00:00,Autoklaf CSSD,84
+2026-09-21 00:00,Lemari Pendingin Vaksin dan Obat,161
+2026-09-21 00:00,Pompa Air dan Penerangan,1845
+2026-09-21 01:00,AC Poli Rawat Jalan,123
+2026-09-21 01:00,Chiller Rawat Inap,5795
+2026-09-21 01:00,Autoklaf CSSD,98
+2026-09-21 01:00,Lemari Pendingin Vaksin dan Obat,155
+2026-09-21 01:00,Pompa Air dan Penerangan,1820
+2026-09-21 02:00,AC Poli Rawat Jalan,105
+2026-09-21 02:00,Chiller Rawat Inap,6407
+2026-09-21 02:00,Autoklaf CSSD,75
+2026-09-21 02:00,Lemari Pendingin Vaksin dan Obat,164
+2026-09-21 02:00,Pompa Air dan Penerangan,1538
+2026-09-21 03:00,AC Poli Rawat Jalan,116
+2026-09-21 03:00,Chiller Rawat Inap,6276
+2026-09-21 03:00,Autoklaf CSSD,91
+2026-09-21 03:00,Lemari Pendingin Vaksin dan Obat,153
+2026-09-21 03:00,Pompa Air dan Penerangan,1470
+2026-09-21 04:00,AC Poli Rawat Jalan,128
+2026-09-21 04:00,Chiller Rawat Inap,6370
+2026-09-21 04:00,Autoklaf CSSD,88
+2026-09-21 04:00,Lemari Pendingin Vaksin dan Obat,148
+2026-09-21 04:00,Pompa Air dan Penerangan,1371
+2026-09-21 05:00,AC Poli Rawat Jalan,105
+2026-09-21 05:00,Chiller Rawat Inap,5893
+2026-09-21 05:00,Autoklaf CSSD,64
+2026-09-21 05:00,Lemari Pendingin Vaksin dan Obat,161
+2026-09-21 05:00,Pompa Air dan Penerangan,1764
+2026-09-21 06:00,AC Poli Rawat Jalan,122
+2026-09-21 06:00,Chiller Rawat Inap,6033
+2026-09-21 06:00,Autoklaf CSSD,94
+2026-09-21 06:00,Lemari Pendingin Vaksin dan Obat,167
+2026-09-21 06:00,Pompa Air dan Penerangan,3396
+2026-09-21 07:00,AC Poli Rawat Jalan,6211
+2026-09-21 07:00,Chiller Rawat Inap,5732
+2026-09-21 07:00,Autoklaf CSSD,1433
+2026-09-21 07:00,Lemari Pendingin Vaksin dan Obat,160
+2026-09-21 07:00,Pompa Air dan Penerangan,3463
+2026-09-21 08:00,AC Poli Rawat Jalan,5473
+2026-09-21 08:00,Chiller Rawat Inap,8949
+2026-09-21 08:00,Autoklaf CSSD,2624
+2026-09-21 08:00,Lemari Pendingin Vaksin dan Obat,152
+2026-09-21 08:00,Pompa Air dan Penerangan,3690
+2026-09-21 09:00,AC Poli Rawat Jalan,6546
+2026-09-21 09:00,Chiller Rawat Inap,8684
+2026-09-21 09:00,Autoklaf CSSD,1189
+2026-09-21 09:00,Lemari Pendingin Vaksin dan Obat,169
+2026-09-21 09:00,Pompa Air dan Penerangan,3294
+2026-09-21 10:00,AC Poli Rawat Jalan,5571
+2026-09-21 10:00,Chiller Rawat Inap,8549
+2026-09-21 10:00,Autoklaf CSSD,2840
+2026-09-21 10:00,Lemari Pendingin Vaksin dan Obat,169
+2026-09-21 10:00,Pompa Air dan Penerangan,3717
+2026-09-21 11:00,AC Poli Rawat Jalan,6579
+2026-09-21 11:00,Chiller Rawat Inap,9043
+2026-09-21 11:00,Autoklaf CSSD,1699
+2026-09-21 11:00,Lemari Pendingin Vaksin dan Obat,156
+2026-09-21 11:00,Pompa Air dan Penerangan,3671
+2026-09-21 12:00,AC Poli Rawat Jalan,5497
+2026-09-21 12:00,Chiller Rawat Inap,8633
+2026-09-21 12:00,Autoklaf CSSD,2345
+2026-09-21 12:00,Lemari Pendingin Vaksin dan Obat,154
+2026-09-21 12:00,Pompa Air dan Penerangan,3570
+2026-09-21 13:00,AC Poli Rawat Jalan,5875
+2026-09-21 13:00,Chiller Rawat Inap,8619
+2026-09-21 13:00,Autoklaf CSSD,1409
+2026-09-21 13:00,Lemari Pendingin Vaksin dan Obat,150
+2026-09-21 13:00,Pompa Air dan Penerangan,3389
+2026-09-21 14:00,AC Poli Rawat Jalan,5859
+2026-09-21 14:00,Chiller Rawat Inap,9353
+2026-09-21 14:00,Autoklaf CSSD,2420
+2026-09-21 14:00,Lemari Pendingin Vaksin dan Obat,165
+2026-09-21 14:00,Pompa Air dan Penerangan,3552
+2026-09-21 15:00,AC Poli Rawat Jalan,6336
+2026-09-21 15:00,Chiller Rawat Inap,9170
+2026-09-21 15:00,Autoklaf CSSD,72
+2026-09-21 15:00,Lemari Pendingin Vaksin dan Obat,160
+2026-09-21 15:00,Pompa Air dan Penerangan,3620
+2026-09-21 16:00,AC Poli Rawat Jalan,101
+2026-09-21 16:00,Chiller Rawat Inap,8592
+2026-09-21 16:00,Autoklaf CSSD,75
+2026-09-21 16:00,Lemari Pendingin Vaksin dan Obat,167
+2026-09-21 16:00,Pompa Air dan Penerangan,3583
+2026-09-21 17:00,AC Poli Rawat Jalan,124
+2026-09-21 17:00,Chiller Rawat Inap,9489
+2026-09-21 17:00,Autoklaf CSSD,70
+2026-09-21 17:00,Lemari Pendingin Vaksin dan Obat,158
+2026-09-21 17:00,Pompa Air dan Penerangan,3285
+2026-09-21 18:00,AC Poli Rawat Jalan,123
+2026-09-21 18:00,Chiller Rawat Inap,9437
+2026-09-21 18:00,Autoklaf CSSD,85
+2026-09-21 18:00,Lemari Pendingin Vaksin dan Obat,153
+2026-09-21 18:00,Pompa Air dan Penerangan,3456
+2026-09-21 19:00,AC Poli Rawat Jalan,128
+2026-09-21 19:00,Chiller Rawat Inap,9176
+2026-09-21 19:00,Autoklaf CSSD,92
+2026-09-21 19:00,Lemari Pendingin Vaksin dan Obat,167
+2026-09-21 19:00,Pompa Air dan Penerangan,3679
+2026-09-21 20:00,AC Poli Rawat Jalan,137
+2026-09-21 20:00,Chiller Rawat Inap,6079
+2026-09-21 20:00,Autoklaf CSSD,73
+2026-09-21 20:00,Lemari Pendingin Vaksin dan Obat,159
+2026-09-21 20:00,Pompa Air dan Penerangan,3403
+2026-09-21 21:00,AC Poli Rawat Jalan,125
+2026-09-21 21:00,Chiller Rawat Inap,5940
+2026-09-21 21:00,Autoklaf CSSD,96
+2026-09-21 21:00,Lemari Pendingin Vaksin dan Obat,159
+2026-09-21 21:00,Pompa Air dan Penerangan,1612
+2026-09-21 22:00,AC Poli Rawat Jalan,138
+2026-09-21 22:00,Chiller Rawat Inap,6470
+2026-09-21 22:00,Autoklaf CSSD,61
+2026-09-21 22:00,Lemari Pendingin Vaksin dan Obat,171
+2026-09-21 22:00,Pompa Air dan Penerangan,1477
+2026-09-21 23:00,AC Poli Rawat Jalan,135
+2026-09-21 23:00,Chiller Rawat Inap,5987
+2026-09-21 23:00,Autoklaf CSSD,60
+2026-09-21 23:00,Lemari Pendingin Vaksin dan Obat,158
+2026-09-21 23:00,Pompa Air dan Penerangan,1578
+2026-09-22 00:00,AC Poli Rawat Jalan,133
+2026-09-22 00:00,Chiller Rawat Inap,6315
+2026-09-22 00:00,Autoklaf CSSD,96
+2026-09-22 00:00,Lemari Pendingin Vaksin dan Obat,166
+2026-09-22 00:00,Pompa Air dan Penerangan,1755
+2026-09-22 01:00,AC Poli Rawat Jalan,140
+2026-09-22 01:00,Chiller Rawat Inap,5844
+2026-09-22 01:00,Autoklaf CSSD,88
+2026-09-22 01:00,Lemari Pendingin Vaksin dan Obat,163
+2026-09-22 01:00,Pompa Air dan Penerangan,1493
+2026-09-22 02:00,AC Poli Rawat Jalan,133
+2026-09-22 02:00,Chiller Rawat Inap,6136
+2026-09-22 02:00,Autoklaf CSSD,80
+2026-09-22 02:00,Lemari Pendingin Vaksin dan Obat,149
+2026-09-22 02:00,Pompa Air dan Penerangan,1581
+2026-09-22 03:00,AC Poli Rawat Jalan,118
+2026-09-22 03:00,Chiller Rawat Inap,6444
+2026-09-22 03:00,Autoklaf CSSD,74
+2026-09-22 03:00,Lemari Pendingin Vaksin dan Obat,171
+2026-09-22 03:00,Pompa Air dan Penerangan,1516
+2026-09-22 04:00,AC Poli Rawat Jalan,119
+2026-09-22 04:00,Chiller Rawat Inap,6128
+2026-09-22 04:00,Autoklaf CSSD,98
+2026-09-22 04:00,Lemari Pendingin Vaksin dan Obat,159
+2026-09-22 04:00,Pompa Air dan Penerangan,1597
+2026-09-22 05:00,AC Poli Rawat Jalan,111
+2026-09-22 05:00,Chiller Rawat Inap,5734
+2026-09-22 05:00,Autoklaf CSSD,87
+2026-09-22 05:00,Lemari Pendingin Vaksin dan Obat,171
+2026-09-22 05:00,Pompa Air dan Penerangan,1751
+2026-09-22 06:00,AC Poli Rawat Jalan,112
+2026-09-22 06:00,Chiller Rawat Inap,6122
+2026-09-22 06:00,Autoklaf CSSD,97
+2026-09-22 06:00,Lemari Pendingin Vaksin dan Obat,154
+2026-09-22 06:00,Pompa Air dan Penerangan,3321
+2026-09-22 07:00,AC Poli Rawat Jalan,5797
+2026-09-22 07:00,Chiller Rawat Inap,6205
+2026-09-22 07:00,Autoklaf CSSD,1137
+2026-09-22 07:00,Lemari Pendingin Vaksin dan Obat,158
+2026-09-22 07:00,Pompa Air dan Penerangan,3260
+2026-09-22 08:00,AC Poli Rawat Jalan,5609
+2026-09-22 08:00,Chiller Rawat Inap,8532
+2026-09-22 08:00,Autoklaf CSSD,2688
+2026-09-22 08:00,Lemari Pendingin Vaksin dan Obat,168
+2026-09-22 08:00,Pompa Air dan Penerangan,3518
+2026-09-22 09:00,AC Poli Rawat Jalan,6472
+2026-09-22 09:00,Chiller Rawat Inap,8844
+2026-09-22 09:00,Autoklaf CSSD,1294
+2026-09-22 09:00,Lemari Pendingin Vaksin dan Obat,165
+2026-09-22 09:00,Pompa Air dan Penerangan,3577
+2026-09-22 10:00,AC Poli Rawat Jalan,5771
+2026-09-22 10:00,Chiller Rawat Inap,9352
+2026-09-22 10:00,Autoklaf CSSD,2327
+2026-09-22 10:00,Lemari Pendingin Vaksin dan Obat,170
+2026-09-22 10:00,Pompa Air dan Penerangan,3362
+2026-09-22 11:00,AC Poli Rawat Jalan,5571
+2026-09-22 11:00,Chiller Rawat Inap,8711
+2026-09-22 11:00,Autoklaf CSSD,1458
+2026-09-22 11:00,Lemari Pendingin Vaksin dan Obat,154
+2026-09-22 11:00,Pompa Air dan Penerangan,3268
+2026-09-22 12:00,AC Poli Rawat Jalan,5741
+2026-09-22 12:00,Chiller Rawat Inap,9464
+2026-09-22 12:00,Autoklaf CSSD,2330
+2026-09-22 12:00,Lemari Pendingin Vaksin dan Obat,168
+2026-09-22 12:00,Pompa Air dan Penerangan,3515
+2026-09-22 13:00,AC Poli Rawat Jalan,5774
+2026-09-22 13:00,Chiller Rawat Inap,8759
+2026-09-22 13:00,Autoklaf CSSD,1697
+2026-09-22 13:00,Lemari Pendingin Vaksin dan Obat,153
+2026-09-22 13:00,Pompa Air dan Penerangan,3480
+2026-09-22 14:00,AC Poli Rawat Jalan,5456
+2026-09-22 14:00,Chiller Rawat Inap,8961
+2026-09-22 14:00,Autoklaf CSSD,2433
+2026-09-22 14:00,Lemari Pendingin Vaksin dan Obat,165
+2026-09-22 14:00,Pompa Air dan Penerangan,3580
+2026-09-22 15:00,AC Poli Rawat Jalan,6053
+2026-09-22 15:00,Chiller Rawat Inap,8939
+2026-09-22 15:00,Autoklaf CSSD,96
+2026-09-22 15:00,Lemari Pendingin Vaksin dan Obat,149
+2026-09-22 15:00,Pompa Air dan Penerangan,3503
+2026-09-22 16:00,AC Poli Rawat Jalan,123
+2026-09-22 16:00,Chiller Rawat Inap,8743
+2026-09-22 16:00,Autoklaf CSSD,67
+2026-09-22 16:00,Lemari Pendingin Vaksin dan Obat,152
+2026-09-22 16:00,Pompa Air dan Penerangan,3518
+2026-09-22 17:00,AC Poli Rawat Jalan,104
+2026-09-22 17:00,Chiller Rawat Inap,9392
+2026-09-22 17:00,Autoklaf CSSD,95
+2026-09-22 17:00,Lemari Pendingin Vaksin dan Obat,166
+2026-09-22 17:00,Pompa Air dan Penerangan,3566
+2026-09-22 18:00,AC Poli Rawat Jalan,120
+2026-09-22 18:00,Chiller Rawat Inap,8845
+2026-09-22 18:00,Autoklaf CSSD,83
+2026-09-22 18:00,Lemari Pendingin Vaksin dan Obat,163
+2026-09-22 18:00,Pompa Air dan Penerangan,3537
+2026-09-22 19:00,AC Poli Rawat Jalan,120
+2026-09-22 19:00,Chiller Rawat Inap,9437
+2026-09-22 19:00,Autoklaf CSSD,65
+2026-09-22 19:00,Lemari Pendingin Vaksin dan Obat,153
+2026-09-22 19:00,Pompa Air dan Penerangan,3656
+2026-09-22 20:00,AC Poli Rawat Jalan,131
+2026-09-22 20:00,Chiller Rawat Inap,6405
+2026-09-22 20:00,Autoklaf CSSD,73
+2026-09-22 20:00,Lemari Pendingin Vaksin dan Obat,158
+2026-09-22 20:00,Pompa Air dan Penerangan,3654
+2026-09-22 21:00,AC Poli Rawat Jalan,112
+2026-09-22 21:00,Chiller Rawat Inap,6316
+2026-09-22 21:00,Autoklaf CSSD,74
+2026-09-22 21:00,Lemari Pendingin Vaksin dan Obat,171
+2026-09-22 21:00,Pompa Air dan Penerangan,1704
+2026-09-22 22:00,AC Poli Rawat Jalan,137
+2026-09-22 22:00,Chiller Rawat Inap,5727
+2026-09-22 22:00,Autoklaf CSSD,83
+2026-09-22 22:00,Lemari Pendingin Vaksin dan Obat,156
+2026-09-22 22:00,Pompa Air dan Penerangan,1567
+2026-09-22 23:00,AC Poli Rawat Jalan,135
+2026-09-22 23:00,Chiller Rawat Inap,5948
+2026-09-22 23:00,Autoklaf CSSD,73
+2026-09-22 23:00,Lemari Pendingin Vaksin dan Obat,152
+2026-09-22 23:00,Pompa Air dan Penerangan,1641
+2026-09-23 00:00,AC Poli Rawat Jalan,109
+2026-09-23 00:00,Chiller Rawat Inap,5898
+2026-09-23 00:00,Autoklaf CSSD,85
+2026-09-23 00:00,Lemari Pendingin Vaksin dan Obat,171
+2026-09-23 00:00,Pompa Air dan Penerangan,1568
+2026-09-23 01:00,AC Poli Rawat Jalan,135
+2026-09-23 01:00,Chiller Rawat Inap,5754
+2026-09-23 01:00,Autoklaf CSSD,68
+2026-09-23 01:00,Lemari Pendingin Vaksin dan Obat,156
+2026-09-23 01:00,Pompa Air dan Penerangan,1621
+2026-09-23 02:00,AC Poli Rawat Jalan,123
+2026-09-23 02:00,Chiller Rawat Inap,6227
+2026-09-23 02:00,Autoklaf CSSD,64
+2026-09-23 02:00,Lemari Pendingin Vaksin dan Obat,161
+2026-09-23 02:00,Pompa Air dan Penerangan,1840
+2026-09-23 03:00,AC Poli Rawat Jalan,117
+2026-09-23 03:00,Chiller Rawat Inap,5570
+2026-09-23 03:00,Autoklaf CSSD,67
+2026-09-23 03:00,Lemari Pendingin Vaksin dan Obat,169
+2026-09-23 03:00,Pompa Air dan Penerangan,1511
+2026-09-23 04:00,AC Poli Rawat Jalan,133
+2026-09-23 04:00,Chiller Rawat Inap,5955
+2026-09-23 04:00,Autoklaf CSSD,99
+2026-09-23 04:00,Lemari Pendingin Vaksin dan Obat,152
+2026-09-23 04:00,Pompa Air dan Penerangan,1411
+2026-09-23 05:00,AC Poli Rawat Jalan,131
+2026-09-23 05:00,Chiller Rawat Inap,6405
+2026-09-23 05:00,Autoklaf CSSD,77
+2026-09-23 05:00,Lemari Pendingin Vaksin dan Obat,153
+2026-09-23 05:00,Pompa Air dan Penerangan,1671
+2026-09-23 06:00,AC Poli Rawat Jalan,107
+2026-09-23 06:00,Chiller Rawat Inap,5551
+2026-09-23 06:00,Autoklaf CSSD,88
+2026-09-23 06:00,Lemari Pendingin Vaksin dan Obat,150
+2026-09-23 06:00,Pompa Air dan Penerangan,3721
+2026-09-23 07:00,AC Poli Rawat Jalan,6485
+2026-09-23 07:00,Chiller Rawat Inap,5660
+2026-09-23 07:00,Autoklaf CSSD,1124
+2026-09-23 07:00,Lemari Pendingin Vaksin dan Obat,156
+2026-09-23 07:00,Pompa Air dan Penerangan,3406
+2026-09-23 08:00,AC Poli Rawat Jalan,5602
+2026-09-23 08:00,Chiller Rawat Inap,9361
+2026-09-23 08:00,Autoklaf CSSD,2881
+2026-09-23 08:00,Lemari Pendingin Vaksin dan Obat,154
+2026-09-23 08:00,Pompa Air dan Penerangan,3276
+2026-09-23 09:00,AC Poli Rawat Jalan,5540
+2026-09-23 09:00,Chiller Rawat Inap,8609
+2026-09-23 09:00,Autoklaf CSSD,1154
+2026-09-23 09:00,Lemari Pendingin Vaksin dan Obat,156
+2026-09-23 09:00,Pompa Air dan Penerangan,3288
+2026-09-23 10:00,AC Poli Rawat Jalan,6437
+2026-09-23 10:00,Chiller Rawat Inap,9079
+2026-09-23 10:00,Autoklaf CSSD,2690
+2026-09-23 10:00,Lemari Pendingin Vaksin dan Obat,166
+2026-09-23 10:00,Pompa Air dan Penerangan,3643
+2026-09-23 11:00,AC Poli Rawat Jalan,6500
+2026-09-23 11:00,Chiller Rawat Inap,9236
+2026-09-23 11:00,Autoklaf CSSD,1313
+2026-09-23 11:00,Lemari Pendingin Vaksin dan Obat,167
+2026-09-23 11:00,Pompa Air dan Penerangan,3731
+2026-09-23 12:00,AC Poli Rawat Jalan,6212
+2026-09-23 12:00,Chiller Rawat Inap,9223
+2026-09-23 12:00,Autoklaf CSSD,2633
+2026-09-23 12:00,Lemari Pendingin Vaksin dan Obat,169
+2026-09-23 12:00,Pompa Air dan Penerangan,3633
+2026-09-23 13:00,AC Poli Rawat Jalan,5962
+2026-09-23 13:00,Chiller Rawat Inap,8820
+2026-09-23 13:00,Autoklaf CSSD,1279
+2026-09-23 13:00,Lemari Pendingin Vaksin dan Obat,157
+2026-09-23 13:00,Pompa Air dan Penerangan,3584
+2026-09-23 14:00,AC Poli Rawat Jalan,5969
+2026-09-23 14:00,Chiller Rawat Inap,9154
+2026-09-23 14:00,Autoklaf CSSD,2308
+2026-09-23 14:00,Lemari Pendingin Vaksin dan Obat,168
+2026-09-23 14:00,Pompa Air dan Penerangan,3505
+2026-09-23 15:00,AC Poli Rawat Jalan,5638
+2026-09-23 15:00,Chiller Rawat Inap,8879
+2026-09-23 15:00,Autoklaf CSSD,84
+2026-09-23 15:00,Lemari Pendingin Vaksin dan Obat,158
+2026-09-23 15:00,Pompa Air dan Penerangan,3524
+2026-09-23 16:00,AC Poli Rawat Jalan,137
+2026-09-23 16:00,Chiller Rawat Inap,8929
+2026-09-23 16:00,Autoklaf CSSD,62
+2026-09-23 16:00,Lemari Pendingin Vaksin dan Obat,163
+2026-09-23 16:00,Pompa Air dan Penerangan,3661
+2026-09-23 17:00,AC Poli Rawat Jalan,101
+2026-09-23 17:00,Chiller Rawat Inap,8907
+2026-09-23 17:00,Autoklaf CSSD,96
+2026-09-23 17:00,Lemari Pendingin Vaksin dan Obat,159
+2026-09-23 17:00,Pompa Air dan Penerangan,3635
+2026-09-23 18:00,AC Poli Rawat Jalan,132
+2026-09-23 18:00,Chiller Rawat Inap,8911
+2026-09-23 18:00,Autoklaf CSSD,76
+2026-09-23 18:00,Lemari Pendingin Vaksin dan Obat,156
+2026-09-23 18:00,Pompa Air dan Penerangan,3252
+2026-09-23 19:00,AC Poli Rawat Jalan,119
+2026-09-23 19:00,Chiller Rawat Inap,9241
+2026-09-23 19:00,Autoklaf CSSD,85
+2026-09-23 19:00,Lemari Pendingin Vaksin dan Obat,163
+2026-09-23 19:00,Pompa Air dan Penerangan,3422
+2026-09-23 20:00,AC Poli Rawat Jalan,140
+2026-09-23 20:00,Chiller Rawat Inap,6287
+2026-09-23 20:00,Autoklaf CSSD,78
+2026-09-23 20:00,Lemari Pendingin Vaksin dan Obat,154
+2026-09-23 20:00,Pompa Air dan Penerangan,3305
+2026-09-23 21:00,AC Poli Rawat Jalan,114
+2026-09-23 21:00,Chiller Rawat Inap,5991
+2026-09-23 21:00,Autoklaf CSSD,88
+2026-09-23 21:00,Lemari Pendingin Vaksin dan Obat,158
+2026-09-23 21:00,Pompa Air dan Penerangan,1641
+2026-09-23 22:00,AC Poli Rawat Jalan,107
+2026-09-23 22:00,Chiller Rawat Inap,6454
+2026-09-23 22:00,Autoklaf CSSD,64
+2026-09-23 22:00,Lemari Pendingin Vaksin dan Obat,158
+2026-09-23 22:00,Pompa Air dan Penerangan,1635
+2026-09-23 23:00,AC Poli Rawat Jalan,101
+2026-09-23 23:00,Chiller Rawat Inap,6027
+2026-09-23 23:00,Autoklaf CSSD,84
+2026-09-23 23:00,Lemari Pendingin Vaksin dan Obat,157
+2026-09-23 23:00,Pompa Air dan Penerangan,1369
+2026-09-24 00:00,AC Poli Rawat Jalan,113
+2026-09-24 00:00,Chiller Rawat Inap,6255
+2026-09-24 00:00,Autoklaf CSSD,71
+2026-09-24 00:00,Lemari Pendingin Vaksin dan Obat,154
+2026-09-24 00:00,Pompa Air dan Penerangan,1440
+2026-09-24 01:00,AC Poli Rawat Jalan,110
+2026-09-24 01:00,Chiller Rawat Inap,6418
+2026-09-24 01:00,Autoklaf CSSD,64
+2026-09-24 01:00,Lemari Pendingin Vaksin dan Obat,167
+2026-09-24 01:00,Pompa Air dan Penerangan,1361
+2026-09-24 02:00,AC Poli Rawat Jalan,136
+2026-09-24 02:00,Chiller Rawat Inap,6487
+2026-09-24 02:00,Autoklaf CSSD,84
+2026-09-24 02:00,Lemari Pendingin Vaksin dan Obat,155
+2026-09-24 02:00,Pompa Air dan Penerangan,1415
+2026-09-24 03:00,AC Poli Rawat Jalan,124
+2026-09-24 03:00,Chiller Rawat Inap,5528
+2026-09-24 03:00,Autoklaf CSSD,84
+2026-09-24 03:00,Lemari Pendingin Vaksin dan Obat,166
+2026-09-24 03:00,Pompa Air dan Penerangan,1479
+2026-09-24 04:00,AC Poli Rawat Jalan,106
+2026-09-24 04:00,Chiller Rawat Inap,5866
+2026-09-24 04:00,Autoklaf CSSD,91
+2026-09-24 04:00,Lemari Pendingin Vaksin dan Obat,159
+2026-09-24 04:00,Pompa Air dan Penerangan,1428
+2026-09-24 05:00,AC Poli Rawat Jalan,105
+2026-09-24 05:00,Chiller Rawat Inap,5879
+2026-09-24 05:00,Autoklaf CSSD,98
+2026-09-24 05:00,Lemari Pendingin Vaksin dan Obat,159
+2026-09-24 05:00,Pompa Air dan Penerangan,1843
+2026-09-24 06:00,AC Poli Rawat Jalan,135
+2026-09-24 06:00,Chiller Rawat Inap,5563
+2026-09-24 06:00,Autoklaf CSSD,86
+2026-09-24 06:00,Lemari Pendingin Vaksin dan Obat,157
+2026-09-24 06:00,Pompa Air dan Penerangan,3397
+2026-09-24 07:00,AC Poli Rawat Jalan,5502
+2026-09-24 07:00,Chiller Rawat Inap,5804
+2026-09-24 07:00,Autoklaf CSSD,1288
+2026-09-24 07:00,Lemari Pendingin Vaksin dan Obat,166
+2026-09-24 07:00,Pompa Air dan Penerangan,3252
+2026-09-24 08:00,AC Poli Rawat Jalan,6598
+2026-09-24 08:00,Chiller Rawat Inap,9137
+2026-09-24 08:00,Autoklaf CSSD,2681
+2026-09-24 08:00,Lemari Pendingin Vaksin dan Obat,164
+2026-09-24 08:00,Pompa Air dan Penerangan,3291
+2026-09-24 09:00,AC Poli Rawat Jalan,6292
+2026-09-24 09:00,Chiller Rawat Inap,9499
+2026-09-24 09:00,Autoklaf CSSD,1242
+2026-09-24 09:00,Lemari Pendingin Vaksin dan Obat,163
+2026-09-24 09:00,Pompa Air dan Penerangan,3658
+2026-09-24 10:00,AC Poli Rawat Jalan,5953
+2026-09-24 10:00,Chiller Rawat Inap,8628
+2026-09-24 10:00,Autoklaf CSSD,2563
+2026-09-24 10:00,Lemari Pendingin Vaksin dan Obat,166
+2026-09-24 10:00,Pompa Air dan Penerangan,3661
+2026-09-24 11:00,AC Poli Rawat Jalan,5591
+2026-09-24 11:00,Chiller Rawat Inap,8963
+2026-09-24 11:00,Autoklaf CSSD,1317
+2026-09-24 11:00,Lemari Pendingin Vaksin dan Obat,157
+2026-09-24 11:00,Pompa Air dan Penerangan,3448
+2026-09-24 12:00,AC Poli Rawat Jalan,6254
+2026-09-24 12:00,Chiller Rawat Inap,8956
+2026-09-24 12:00,Autoklaf CSSD,2462
+2026-09-24 12:00,Lemari Pendingin Vaksin dan Obat,171
+2026-09-24 12:00,Pompa Air dan Penerangan,3541
+2026-09-24 13:00,AC Poli Rawat Jalan,5718
+2026-09-24 13:00,Chiller Rawat Inap,9438
+2026-09-24 13:00,Autoklaf CSSD,1138
+2026-09-24 13:00,Lemari Pendingin Vaksin dan Obat,160
+2026-09-24 13:00,Pompa Air dan Penerangan,3492
+2026-09-24 14:00,AC Poli Rawat Jalan,5890
+2026-09-24 14:00,Chiller Rawat Inap,9106
+2026-09-24 14:00,Autoklaf CSSD,2303
+2026-09-24 14:00,Lemari Pendingin Vaksin dan Obat,152
+2026-09-24 14:00,Pompa Air dan Penerangan,3656
+2026-09-24 15:00,AC Poli Rawat Jalan,6168
+2026-09-24 15:00,Chiller Rawat Inap,9321
+2026-09-24 15:00,Autoklaf CSSD,99
+2026-09-24 15:00,Lemari Pendingin Vaksin dan Obat,155
+2026-09-24 15:00,Pompa Air dan Penerangan,3266
+2026-09-24 16:00,AC Poli Rawat Jalan,135
+2026-09-24 16:00,Chiller Rawat Inap,8660
+2026-09-24 16:00,Autoklaf CSSD,97
+2026-09-24 16:00,Lemari Pendingin Vaksin dan Obat,168
+2026-09-24 16:00,Pompa Air dan Penerangan,3459
+2026-09-24 17:00,AC Poli Rawat Jalan,110
+2026-09-24 17:00,Chiller Rawat Inap,9442
+2026-09-24 17:00,Autoklaf CSSD,72
+2026-09-24 17:00,Lemari Pendingin Vaksin dan Obat,166
+2026-09-24 17:00,Pompa Air dan Penerangan,3615
+2026-09-24 18:00,AC Poli Rawat Jalan,121
+2026-09-24 18:00,Chiller Rawat Inap,9173
+2026-09-24 18:00,Autoklaf CSSD,85
+2026-09-24 18:00,Lemari Pendingin Vaksin dan Obat,156
+2026-09-24 18:00,Pompa Air dan Penerangan,3531
+2026-09-24 19:00,AC Poli Rawat Jalan,126
+2026-09-24 19:00,Chiller Rawat Inap,9052
+2026-09-24 19:00,Autoklaf CSSD,86
+2026-09-24 19:00,Lemari Pendingin Vaksin dan Obat,150
+2026-09-24 19:00,Pompa Air dan Penerangan,3321
+2026-09-24 20:00,AC Poli Rawat Jalan,107
+2026-09-24 20:00,Chiller Rawat Inap,5710
+2026-09-24 20:00,Autoklaf CSSD,95
+2026-09-24 20:00,Lemari Pendingin Vaksin dan Obat,162
+2026-09-24 20:00,Pompa Air dan Penerangan,3668
+2026-09-24 21:00,AC Poli Rawat Jalan,134
+2026-09-24 21:00,Chiller Rawat Inap,6285
+2026-09-24 21:00,Autoklaf CSSD,80
+2026-09-24 21:00,Lemari Pendingin Vaksin dan Obat,172
+2026-09-24 21:00,Pompa Air dan Penerangan,1546
+2026-09-24 22:00,AC Poli Rawat Jalan,105
+2026-09-24 22:00,Chiller Rawat Inap,6280
+2026-09-24 22:00,Autoklaf CSSD,72
+2026-09-24 22:00,Lemari Pendingin Vaksin dan Obat,169
+2026-09-24 22:00,Pompa Air dan Penerangan,1834
+2026-09-24 23:00,AC Poli Rawat Jalan,106
+2026-09-24 23:00,Chiller Rawat Inap,5630
+2026-09-24 23:00,Autoklaf CSSD,69
+2026-09-24 23:00,Lemari Pendingin Vaksin dan Obat,169
+2026-09-24 23:00,Pompa Air dan Penerangan,1533
+2026-09-25 00:00,AC Poli Rawat Jalan,137
+2026-09-25 00:00,Chiller Rawat Inap,5914
+2026-09-25 00:00,Autoklaf CSSD,82
+2026-09-25 00:00,Lemari Pendingin Vaksin dan Obat,153
+2026-09-25 00:00,Pompa Air dan Penerangan,1630
+2026-09-25 01:00,AC Poli Rawat Jalan,120
+2026-09-25 01:00,Chiller Rawat Inap,6466
+2026-09-25 01:00,Autoklaf CSSD,89
+2026-09-25 01:00,Lemari Pendingin Vaksin dan Obat,158
+2026-09-25 01:00,Pompa Air dan Penerangan,1539
+2026-09-25 02:00,AC Poli Rawat Jalan,116
+2026-09-25 02:00,Chiller Rawat Inap,6045
+2026-09-25 02:00,Autoklaf CSSD,80
+2026-09-25 02:00,Lemari Pendingin Vaksin dan Obat,155
+2026-09-25 02:00,Pompa Air dan Penerangan,1847
+2026-09-25 03:00,AC Poli Rawat Jalan,103
+2026-09-25 03:00,Chiller Rawat Inap,6119
+2026-09-25 03:00,Autoklaf CSSD,77
+2026-09-25 03:00,Lemari Pendingin Vaksin dan Obat,151
+2026-09-25 03:00,Pompa Air dan Penerangan,1567
+2026-09-25 04:00,AC Poli Rawat Jalan,119
+2026-09-25 04:00,Chiller Rawat Inap,6288
+2026-09-25 04:00,Autoklaf CSSD,72
+2026-09-25 04:00,Lemari Pendingin Vaksin dan Obat,151
+2026-09-25 04:00,Pompa Air dan Penerangan,1571
+2026-09-25 05:00,AC Poli Rawat Jalan,131
+2026-09-25 05:00,Chiller Rawat Inap,6468
+2026-09-25 05:00,Autoklaf CSSD,93
+2026-09-25 05:00,Lemari Pendingin Vaksin dan Obat,160
+2026-09-25 05:00,Pompa Air dan Penerangan,1577
+2026-09-25 06:00,AC Poli Rawat Jalan,110
+2026-09-25 06:00,Chiller Rawat Inap,5808
+2026-09-25 06:00,Autoklaf CSSD,85
+2026-09-25 06:00,Lemari Pendingin Vaksin dan Obat,161
+2026-09-25 06:00,Pompa Air dan Penerangan,3646
+2026-09-25 07:00,AC Poli Rawat Jalan,5858
+2026-09-25 07:00,Chiller Rawat Inap,5621
+2026-09-25 07:00,Autoklaf CSSD,1297
+2026-09-25 07:00,Lemari Pendingin Vaksin dan Obat,165
+2026-09-25 07:00,Pompa Air dan Penerangan,3295
+2026-09-25 08:00,AC Poli Rawat Jalan,6531
+2026-09-25 08:00,Chiller Rawat Inap,8656
+2026-09-25 08:00,Autoklaf CSSD,2484
+2026-09-25 08:00,Lemari Pendingin Vaksin dan Obat,151
+2026-09-25 08:00,Pompa Air dan Penerangan,3346
+2026-09-25 09:00,AC Poli Rawat Jalan,5928
+2026-09-25 09:00,Chiller Rawat Inap,9435
+2026-09-25 09:00,Autoklaf CSSD,1260
+2026-09-25 09:00,Lemari Pendingin Vaksin dan Obat,151
+2026-09-25 09:00,Pompa Air dan Penerangan,3645
+2026-09-25 10:00,AC Poli Rawat Jalan,6169
+2026-09-25 10:00,Chiller Rawat Inap,8753
+2026-09-25 10:00,Autoklaf CSSD,2835
+2026-09-25 10:00,Lemari Pendingin Vaksin dan Obat,150
+2026-09-25 10:00,Pompa Air dan Penerangan,3408
+2026-09-25 11:00,AC Poli Rawat Jalan,6095
+2026-09-25 11:00,Chiller Rawat Inap,8626
+2026-09-25 11:00,Autoklaf CSSD,1581
+2026-09-25 11:00,Lemari Pendingin Vaksin dan Obat,168
+2026-09-25 11:00,Pompa Air dan Penerangan,3530
+2026-09-25 12:00,AC Poli Rawat Jalan,6436
+2026-09-25 12:00,Chiller Rawat Inap,9177
+2026-09-25 12:00,Autoklaf CSSD,2459
+2026-09-25 12:00,Lemari Pendingin Vaksin dan Obat,170
+2026-09-25 12:00,Pompa Air dan Penerangan,3614
+2026-09-25 13:00,AC Poli Rawat Jalan,6185
+2026-09-25 13:00,Chiller Rawat Inap,9161
+2026-09-25 13:00,Autoklaf CSSD,1486
+2026-09-25 13:00,Lemari Pendingin Vaksin dan Obat,170
+2026-09-25 13:00,Pompa Air dan Penerangan,3546
+2026-09-25 14:00,AC Poli Rawat Jalan,6105
+2026-09-25 14:00,Chiller Rawat Inap,9350
+2026-09-25 14:00,Autoklaf CSSD,2538
+2026-09-25 14:00,Lemari Pendingin Vaksin dan Obat,154
+2026-09-25 14:00,Pompa Air dan Penerangan,3443
+2026-09-25 15:00,AC Poli Rawat Jalan,6352
+2026-09-25 15:00,Chiller Rawat Inap,9376
+2026-09-25 15:00,Autoklaf CSSD,93
+2026-09-25 15:00,Lemari Pendingin Vaksin dan Obat,163
+2026-09-25 15:00,Pompa Air dan Penerangan,3277
+2026-09-25 16:00,AC Poli Rawat Jalan,111
+2026-09-25 16:00,Chiller Rawat Inap,9298
+2026-09-25 16:00,Autoklaf CSSD,66
+2026-09-25 16:00,Lemari Pendingin Vaksin dan Obat,157
+2026-09-25 16:00,Pompa Air dan Penerangan,3725
+2026-09-25 17:00,AC Poli Rawat Jalan,123
+2026-09-25 17:00,Chiller Rawat Inap,8689
+2026-09-25 17:00,Autoklaf CSSD,78
+2026-09-25 17:00,Lemari Pendingin Vaksin dan Obat,167
+2026-09-25 17:00,Pompa Air dan Penerangan,3294
+2026-09-25 18:00,AC Poli Rawat Jalan,112
+2026-09-25 18:00,Chiller Rawat Inap,9072
+2026-09-25 18:00,Autoklaf CSSD,66
+2026-09-25 18:00,Lemari Pendingin Vaksin dan Obat,170
+2026-09-25 18:00,Pompa Air dan Penerangan,3530
+2026-09-25 19:00,AC Poli Rawat Jalan,101
+2026-09-25 19:00,Chiller Rawat Inap,8675
+2026-09-25 19:00,Autoklaf CSSD,78
+2026-09-25 19:00,Lemari Pendingin Vaksin dan Obat,167
+2026-09-25 19:00,Pompa Air dan Penerangan,3424
+2026-09-25 20:00,AC Poli Rawat Jalan,119
+2026-09-25 20:00,Chiller Rawat Inap,5689
+2026-09-25 20:00,Autoklaf CSSD,83
+2026-09-25 20:00,Lemari Pendingin Vaksin dan Obat,154
+2026-09-25 20:00,Pompa Air dan Penerangan,3468
+2026-09-25 21:00,AC Poli Rawat Jalan,139
+2026-09-25 21:00,Chiller Rawat Inap,6227
+2026-09-25 21:00,Autoklaf CSSD,79
+2026-09-25 21:00,Lemari Pendingin Vaksin dan Obat,170
+2026-09-25 21:00,Pompa Air dan Penerangan,1384
+2026-09-25 22:00,AC Poli Rawat Jalan,100
+2026-09-25 22:00,Chiller Rawat Inap,6003
+2026-09-25 22:00,Autoklaf CSSD,81
+2026-09-25 22:00,Lemari Pendingin Vaksin dan Obat,160
+2026-09-25 22:00,Pompa Air dan Penerangan,1702
+2026-09-25 23:00,AC Poli Rawat Jalan,108
+2026-09-25 23:00,Chiller Rawat Inap,5594
+2026-09-25 23:00,Autoklaf CSSD,64
+2026-09-25 23:00,Lemari Pendingin Vaksin dan Obat,170
+2026-09-25 23:00,Pompa Air dan Penerangan,1465
+2026-09-26 00:00,AC Poli Rawat Jalan,121
+2026-09-26 00:00,Chiller Rawat Inap,6442
+2026-09-26 00:00,Autoklaf CSSD,65
+2026-09-26 00:00,Lemari Pendingin Vaksin dan Obat,167
+2026-09-26 00:00,Pompa Air dan Penerangan,1811
+2026-09-26 01:00,AC Poli Rawat Jalan,137
+2026-09-26 01:00,Chiller Rawat Inap,6254
+2026-09-26 01:00,Autoklaf CSSD,97
+2026-09-26 01:00,Lemari Pendingin Vaksin dan Obat,160
+2026-09-26 01:00,Pompa Air dan Penerangan,1592
+2026-09-26 02:00,AC Poli Rawat Jalan,130
+2026-09-26 02:00,Chiller Rawat Inap,6218
+2026-09-26 02:00,Autoklaf CSSD,71
+2026-09-26 02:00,Lemari Pendingin Vaksin dan Obat,168
+2026-09-26 02:00,Pompa Air dan Penerangan,1487
+2026-09-26 03:00,AC Poli Rawat Jalan,123
+2026-09-26 03:00,Chiller Rawat Inap,6098
+2026-09-26 03:00,Autoklaf CSSD,68
+2026-09-26 03:00,Lemari Pendingin Vaksin dan Obat,169
+2026-09-26 03:00,Pompa Air dan Penerangan,1801
+2026-09-26 04:00,AC Poli Rawat Jalan,132
+2026-09-26 04:00,Chiller Rawat Inap,5935
+2026-09-26 04:00,Autoklaf CSSD,84
+2026-09-26 04:00,Lemari Pendingin Vaksin dan Obat,165
+2026-09-26 04:00,Pompa Air dan Penerangan,1750
+2026-09-26 05:00,AC Poli Rawat Jalan,133
+2026-09-26 05:00,Chiller Rawat Inap,6246
+2026-09-26 05:00,Autoklaf CSSD,75
+2026-09-26 05:00,Lemari Pendingin Vaksin dan Obat,168
+2026-09-26 05:00,Pompa Air dan Penerangan,1550
+2026-09-26 06:00,AC Poli Rawat Jalan,130
+2026-09-26 06:00,Chiller Rawat Inap,6114
+2026-09-26 06:00,Autoklaf CSSD,73
+2026-09-26 06:00,Lemari Pendingin Vaksin dan Obat,156
+2026-09-26 06:00,Pompa Air dan Penerangan,3502
+2026-09-26 07:00,AC Poli Rawat Jalan,6425
+2026-09-26 07:00,Chiller Rawat Inap,6465
+2026-09-26 07:00,Autoklaf CSSD,1140
+2026-09-26 07:00,Lemari Pendingin Vaksin dan Obat,165
+2026-09-26 07:00,Pompa Air dan Penerangan,3600
+2026-09-26 08:00,AC Poli Rawat Jalan,5942
+2026-09-26 08:00,Chiller Rawat Inap,8691
+2026-09-26 08:00,Autoklaf CSSD,2394
+2026-09-26 08:00,Lemari Pendingin Vaksin dan Obat,148
+2026-09-26 08:00,Pompa Air dan Penerangan,3725
+2026-09-26 09:00,AC Poli Rawat Jalan,5706
+2026-09-26 09:00,Chiller Rawat Inap,8705
+2026-09-26 09:00,Autoklaf CSSD,1651
+2026-09-26 09:00,Lemari Pendingin Vaksin dan Obat,167
+2026-09-26 09:00,Pompa Air dan Penerangan,3501
+2026-09-26 10:00,AC Poli Rawat Jalan,5649
+2026-09-26 10:00,Chiller Rawat Inap,9233
+2026-09-26 10:00,Autoklaf CSSD,2866
+2026-09-26 10:00,Lemari Pendingin Vaksin dan Obat,148
+2026-09-26 10:00,Pompa Air dan Penerangan,3375
+2026-09-26 11:00,AC Poli Rawat Jalan,6594
+2026-09-26 11:00,Chiller Rawat Inap,9053
+2026-09-26 11:00,Autoklaf CSSD,1462
+2026-09-26 11:00,Lemari Pendingin Vaksin dan Obat,162
+2026-09-26 11:00,Pompa Air dan Penerangan,3342
+2026-09-26 12:00,AC Poli Rawat Jalan,6144
+2026-09-26 12:00,Chiller Rawat Inap,9482
+2026-09-26 12:00,Autoklaf CSSD,2462
+2026-09-26 12:00,Lemari Pendingin Vaksin dan Obat,167
+2026-09-26 12:00,Pompa Air dan Penerangan,3471
+2026-09-26 13:00,AC Poli Rawat Jalan,6218
+2026-09-26 13:00,Chiller Rawat Inap,9239
+2026-09-26 13:00,Autoklaf CSSD,1169
+2026-09-26 13:00,Lemari Pendingin Vaksin dan Obat,149
+2026-09-26 13:00,Pompa Air dan Penerangan,3270
+2026-09-26 14:00,AC Poli Rawat Jalan,6128
+2026-09-26 14:00,Chiller Rawat Inap,9225
+2026-09-26 14:00,Autoklaf CSSD,2435
+2026-09-26 14:00,Lemari Pendingin Vaksin dan Obat,163
+2026-09-26 14:00,Pompa Air dan Penerangan,3570
+2026-09-26 15:00,AC Poli Rawat Jalan,6571
+2026-09-26 15:00,Chiller Rawat Inap,9343
+2026-09-26 15:00,Autoklaf CSSD,88
+2026-09-26 15:00,Lemari Pendingin Vaksin dan Obat,157
+2026-09-26 15:00,Pompa Air dan Penerangan,3390
+2026-09-26 16:00,AC Poli Rawat Jalan,113
+2026-09-26 16:00,Chiller Rawat Inap,9182
+2026-09-26 16:00,Autoklaf CSSD,75
+2026-09-26 16:00,Lemari Pendingin Vaksin dan Obat,157
+2026-09-26 16:00,Pompa Air dan Penerangan,3601
+2026-09-26 17:00,AC Poli Rawat Jalan,133
+2026-09-26 17:00,Chiller Rawat Inap,9074
+2026-09-26 17:00,Autoklaf CSSD,97
+2026-09-26 17:00,Lemari Pendingin Vaksin dan Obat,152
+2026-09-26 17:00,Pompa Air dan Penerangan,3664
+2026-09-26 18:00,AC Poli Rawat Jalan,139
+2026-09-26 18:00,Chiller Rawat Inap,8549
+2026-09-26 18:00,Autoklaf CSSD,79
+2026-09-26 18:00,Lemari Pendingin Vaksin dan Obat,167
+2026-09-26 18:00,Pompa Air dan Penerangan,3285
+2026-09-26 19:00,AC Poli Rawat Jalan,115
+2026-09-26 19:00,Chiller Rawat Inap,8745
+2026-09-26 19:00,Autoklaf CSSD,61
+2026-09-26 19:00,Lemari Pendingin Vaksin dan Obat,152
+2026-09-26 19:00,Pompa Air dan Penerangan,3655
+2026-09-26 20:00,AC Poli Rawat Jalan,122
+2026-09-26 20:00,Chiller Rawat Inap,6230
+2026-09-26 20:00,Autoklaf CSSD,88
+2026-09-26 20:00,Lemari Pendingin Vaksin dan Obat,155
+2026-09-26 20:00,Pompa Air dan Penerangan,3462
+2026-09-26 21:00,AC Poli Rawat Jalan,128
+2026-09-26 21:00,Chiller Rawat Inap,5958
+2026-09-26 21:00,Autoklaf CSSD,68
+2026-09-26 21:00,Lemari Pendingin Vaksin dan Obat,150
+2026-09-26 21:00,Pompa Air dan Penerangan,1628
+2026-09-26 22:00,AC Poli Rawat Jalan,117
+2026-09-26 22:00,Chiller Rawat Inap,5603
+2026-09-26 22:00,Autoklaf CSSD,74
+2026-09-26 22:00,Lemari Pendingin Vaksin dan Obat,150
+2026-09-26 22:00,Pompa Air dan Penerangan,1747
+2026-09-26 23:00,AC Poli Rawat Jalan,117
+2026-09-26 23:00,Chiller Rawat Inap,5514
+2026-09-26 23:00,Autoklaf CSSD,79
+2026-09-26 23:00,Lemari Pendingin Vaksin dan Obat,157
+2026-09-26 23:00,Pompa Air dan Penerangan,1638
+2026-09-27 00:00,AC Poli Rawat Jalan,103
+2026-09-27 00:00,Chiller Rawat Inap,5950
+2026-09-27 00:00,Autoklaf CSSD,61
+2026-09-27 00:00,Lemari Pendingin Vaksin dan Obat,162
+2026-09-27 00:00,Pompa Air dan Penerangan,1759
+2026-09-27 01:00,AC Poli Rawat Jalan,109
+2026-09-27 01:00,Chiller Rawat Inap,5934
+2026-09-27 01:00,Autoklaf CSSD,86
+2026-09-27 01:00,Lemari Pendingin Vaksin dan Obat,151
+2026-09-27 01:00,Pompa Air dan Penerangan,1547
+2026-09-27 02:00,AC Poli Rawat Jalan,116
+2026-09-27 02:00,Chiller Rawat Inap,6472
+2026-09-27 02:00,Autoklaf CSSD,85
+2026-09-27 02:00,Lemari Pendingin Vaksin dan Obat,163
+2026-09-27 02:00,Pompa Air dan Penerangan,1688
+2026-09-27 03:00,AC Poli Rawat Jalan,109
+2026-09-27 03:00,Chiller Rawat Inap,5835
+2026-09-27 03:00,Autoklaf CSSD,78
+2026-09-27 03:00,Lemari Pendingin Vaksin dan Obat,152
+2026-09-27 03:00,Pompa Air dan Penerangan,1612
+2026-09-27 04:00,AC Poli Rawat Jalan,132
+2026-09-27 04:00,Chiller Rawat Inap,5538
+2026-09-27 04:00,Autoklaf CSSD,90
+2026-09-27 04:00,Lemari Pendingin Vaksin dan Obat,160
+2026-09-27 04:00,Pompa Air dan Penerangan,1745
+2026-09-27 05:00,AC Poli Rawat Jalan,135
+2026-09-27 05:00,Chiller Rawat Inap,6177
+2026-09-27 05:00,Autoklaf CSSD,87
+2026-09-27 05:00,Lemari Pendingin Vaksin dan Obat,148
+2026-09-27 05:00,Pompa Air dan Penerangan,1469
+2026-09-27 06:00,AC Poli Rawat Jalan,136
+2026-09-27 06:00,Chiller Rawat Inap,6235
+2026-09-27 06:00,Autoklaf CSSD,88
+2026-09-27 06:00,Lemari Pendingin Vaksin dan Obat,154
+2026-09-27 06:00,Pompa Air dan Penerangan,3598
+2026-09-27 07:00,AC Poli Rawat Jalan,133
+2026-09-27 07:00,Chiller Rawat Inap,5822
+2026-09-27 07:00,Autoklaf CSSD,95
+2026-09-27 07:00,Lemari Pendingin Vaksin dan Obat,156
+2026-09-27 07:00,Pompa Air dan Penerangan,3360
+2026-09-27 08:00,AC Poli Rawat Jalan,138
+2026-09-27 08:00,Chiller Rawat Inap,8564
+2026-09-27 08:00,Autoklaf CSSD,75
+2026-09-27 08:00,Lemari Pendingin Vaksin dan Obat,161
+2026-09-27 08:00,Pompa Air dan Penerangan,3439
+2026-09-27 09:00,AC Poli Rawat Jalan,113
+2026-09-27 09:00,Chiller Rawat Inap,9349
+2026-09-27 09:00,Autoklaf CSSD,62
+2026-09-27 09:00,Lemari Pendingin Vaksin dan Obat,168
+2026-09-27 09:00,Pompa Air dan Penerangan,3272
+2026-09-27 10:00,AC Poli Rawat Jalan,137
+2026-09-27 10:00,Chiller Rawat Inap,8893
+2026-09-27 10:00,Autoklaf CSSD,80
+2026-09-27 10:00,Lemari Pendingin Vaksin dan Obat,157
+2026-09-27 10:00,Pompa Air dan Penerangan,3331
+2026-09-27 11:00,AC Poli Rawat Jalan,103
+2026-09-27 11:00,Chiller Rawat Inap,8995
+2026-09-27 11:00,Autoklaf CSSD,77
+2026-09-27 11:00,Lemari Pendingin Vaksin dan Obat,170
+2026-09-27 11:00,Pompa Air dan Penerangan,3595
+2026-09-27 12:00,AC Poli Rawat Jalan,133
+2026-09-27 12:00,Chiller Rawat Inap,8532
+2026-09-27 12:00,Autoklaf CSSD,78
+2026-09-27 12:00,Lemari Pendingin Vaksin dan Obat,152
+2026-09-27 12:00,Pompa Air dan Penerangan,3372
+2026-09-27 13:00,AC Poli Rawat Jalan,135
+2026-09-27 13:00,Chiller Rawat Inap,8577
+2026-09-27 13:00,Autoklaf CSSD,69
+2026-09-27 13:00,Lemari Pendingin Vaksin dan Obat,166
+2026-09-27 13:00,Pompa Air dan Penerangan,3723
+2026-09-27 14:00,AC Poli Rawat Jalan,112
+2026-09-27 14:00,Chiller Rawat Inap,8883
+2026-09-27 14:00,Autoklaf CSSD,75
+2026-09-27 14:00,Lemari Pendingin Vaksin dan Obat,159
+2026-09-27 14:00,Pompa Air dan Penerangan,3400
+2026-09-27 15:00,AC Poli Rawat Jalan,139
+2026-09-27 15:00,Chiller Rawat Inap,8656
+2026-09-27 15:00,Autoklaf CSSD,69
+2026-09-27 15:00,Lemari Pendingin Vaksin dan Obat,151
+2026-09-27 15:00,Pompa Air dan Penerangan,3463
+2026-09-27 16:00,AC Poli Rawat Jalan,101
+2026-09-27 16:00,Chiller Rawat Inap,9403
+2026-09-27 16:00,Autoklaf CSSD,84
+2026-09-27 16:00,Lemari Pendingin Vaksin dan Obat,156
+2026-09-27 16:00,Pompa Air dan Penerangan,3360
+2026-09-27 17:00,AC Poli Rawat Jalan,125
+2026-09-27 17:00,Chiller Rawat Inap,8664
+2026-09-27 17:00,Autoklaf CSSD,81
+2026-09-27 17:00,Lemari Pendingin Vaksin dan Obat,158
+2026-09-27 17:00,Pompa Air dan Penerangan,3441
+2026-09-27 18:00,AC Poli Rawat Jalan,127
+2026-09-27 18:00,Chiller Rawat Inap,8883
+2026-09-27 18:00,Autoklaf CSSD,61
+2026-09-27 18:00,Lemari Pendingin Vaksin dan Obat,161
+2026-09-27 18:00,Pompa Air dan Penerangan,3677
+2026-09-27 19:00,AC Poli Rawat Jalan,124
+2026-09-27 19:00,Chiller Rawat Inap,8712
+2026-09-27 19:00,Autoklaf CSSD,90
+2026-09-27 19:00,Lemari Pendingin Vaksin dan Obat,164
+2026-09-27 19:00,Pompa Air dan Penerangan,3388
+2026-09-27 20:00,AC Poli Rawat Jalan,134
+2026-09-27 20:00,Chiller Rawat Inap,6397
+2026-09-27 20:00,Autoklaf CSSD,83
+2026-09-27 20:00,Lemari Pendingin Vaksin dan Obat,171
+2026-09-27 20:00,Pompa Air dan Penerangan,3593
+2026-09-27 21:00,AC Poli Rawat Jalan,105
+2026-09-27 21:00,Chiller Rawat Inap,6417
+2026-09-27 21:00,Autoklaf CSSD,98
+2026-09-27 21:00,Lemari Pendingin Vaksin dan Obat,169
+2026-09-27 21:00,Pompa Air dan Penerangan,1637
+2026-09-27 22:00,AC Poli Rawat Jalan,108
+2026-09-27 22:00,Chiller Rawat Inap,5701
+2026-09-27 22:00,Autoklaf CSSD,84
+2026-09-27 22:00,Lemari Pendingin Vaksin dan Obat,151
+2026-09-27 22:00,Pompa Air dan Penerangan,1601
+2026-09-27 23:00,AC Poli Rawat Jalan,115
+2026-09-27 23:00,Chiller Rawat Inap,6020
+2026-09-27 23:00,Autoklaf CSSD,71
+2026-09-27 23:00,Lemari Pendingin Vaksin dan Obat,154
+2026-09-27 23:00,Pompa Air dan Penerangan,1788
+2026-09-28 00:00,AC Poli Rawat Jalan,113
+2026-09-28 00:00,Chiller Rawat Inap,5888
+2026-09-28 00:00,Autoklaf CSSD,91
+2026-09-28 00:00,Lemari Pendingin Vaksin dan Obat,151
+2026-09-28 00:00,Pompa Air dan Penerangan,1778
+2026-09-28 01:00,AC Poli Rawat Jalan,137
+2026-09-28 01:00,Chiller Rawat Inap,5563
+2026-09-28 01:00,Autoklaf CSSD,63
+2026-09-28 01:00,Lemari Pendingin Vaksin dan Obat,159
+2026-09-28 01:00,Pompa Air dan Penerangan,1631
+2026-09-28 02:00,AC Poli Rawat Jalan,116
+2026-09-28 02:00,Chiller Rawat Inap,5996
+2026-09-28 02:00,Autoklaf CSSD,91
+2026-09-28 02:00,Lemari Pendingin Vaksin dan Obat,165
+2026-09-28 02:00,Pompa Air dan Penerangan,1786
+2026-09-28 03:00,AC Poli Rawat Jalan,106
+2026-09-28 03:00,Chiller Rawat Inap,5555
+2026-09-28 03:00,Autoklaf CSSD,67
+2026-09-28 03:00,Lemari Pendingin Vaksin dan Obat,171
+2026-09-28 03:00,Pompa Air dan Penerangan,1422
+2026-09-28 04:00,AC Poli Rawat Jalan,129
+2026-09-28 04:00,Chiller Rawat Inap,5702
+2026-09-28 04:00,Autoklaf CSSD,60
+2026-09-28 04:00,Lemari Pendingin Vaksin dan Obat,152
+2026-09-28 04:00,Pompa Air dan Penerangan,1782
+2026-09-28 05:00,AC Poli Rawat Jalan,130
+2026-09-28 05:00,Chiller Rawat Inap,5599
+2026-09-28 05:00,Autoklaf CSSD,94
+2026-09-28 05:00,Lemari Pendingin Vaksin dan Obat,157
+2026-09-28 05:00,Pompa Air dan Penerangan,1616
+2026-09-28 06:00,AC Poli Rawat Jalan,129
+2026-09-28 06:00,Chiller Rawat Inap,5833
+2026-09-28 06:00,Autoklaf CSSD,97
+2026-09-28 06:00,Lemari Pendingin Vaksin dan Obat,170
+2026-09-28 06:00,Pompa Air dan Penerangan,3578
+2026-09-28 07:00,AC Poli Rawat Jalan,6137
+2026-09-28 07:00,Chiller Rawat Inap,5658
+2026-09-28 07:00,Autoklaf CSSD,1110
+2026-09-28 07:00,Lemari Pendingin Vaksin dan Obat,162
+2026-09-28 07:00,Pompa Air dan Penerangan,3665
+2026-09-28 08:00,AC Poli Rawat Jalan,5443
+2026-09-28 08:00,Chiller Rawat Inap,8982
+2026-09-28 08:00,Autoklaf CSSD,2371
+2026-09-28 08:00,Lemari Pendingin Vaksin dan Obat,164
+2026-09-28 08:00,Pompa Air dan Penerangan,3728
+2026-09-28 09:00,AC Poli Rawat Jalan,6316
+2026-09-28 09:00,Chiller Rawat Inap,9455
+2026-09-28 09:00,Autoklaf CSSD,1689
+2026-09-28 09:00,Lemari Pendingin Vaksin dan Obat,158
+2026-09-28 09:00,Pompa Air dan Penerangan,3455
+2026-09-28 10:00,AC Poli Rawat Jalan,5964
+2026-09-28 10:00,Chiller Rawat Inap,9232
+2026-09-28 10:00,Autoklaf CSSD,2510
+2026-09-28 10:00,Lemari Pendingin Vaksin dan Obat,167
+2026-09-28 10:00,Pompa Air dan Penerangan,3352
+2026-09-28 11:00,AC Poli Rawat Jalan,6539
+2026-09-28 11:00,Chiller Rawat Inap,8863
+2026-09-28 11:00,Autoklaf CSSD,1355
+2026-09-28 11:00,Lemari Pendingin Vaksin dan Obat,150
+2026-09-28 11:00,Pompa Air dan Penerangan,3600
+2026-09-28 12:00,AC Poli Rawat Jalan,5850
+2026-09-28 12:00,Chiller Rawat Inap,8823
+2026-09-28 12:00,Autoklaf CSSD,2392
+2026-09-28 12:00,Lemari Pendingin Vaksin dan Obat,161
+2026-09-28 12:00,Pompa Air dan Penerangan,3709
+2026-09-28 13:00,AC Poli Rawat Jalan,6103
+2026-09-28 13:00,Chiller Rawat Inap,8931
+2026-09-28 13:00,Autoklaf CSSD,1581
+2026-09-28 13:00,Lemari Pendingin Vaksin dan Obat,148
+2026-09-28 13:00,Pompa Air dan Penerangan,3503
+2026-09-28 14:00,AC Poli Rawat Jalan,5599
+2026-09-28 14:00,Chiller Rawat Inap,9493
+2026-09-28 14:00,Autoklaf CSSD,2600
+2026-09-28 14:00,Lemari Pendingin Vaksin dan Obat,152
+2026-09-28 14:00,Pompa Air dan Penerangan,3343
+2026-09-28 15:00,AC Poli Rawat Jalan,6073
+2026-09-28 15:00,Chiller Rawat Inap,9416
+2026-09-28 15:00,Autoklaf CSSD,77
+2026-09-28 15:00,Lemari Pendingin Vaksin dan Obat,153
+2026-09-28 15:00,Pompa Air dan Penerangan,3447
+2026-09-28 16:00,AC Poli Rawat Jalan,127
+2026-09-28 16:00,Chiller Rawat Inap,9244
+2026-09-28 16:00,Autoklaf CSSD,76
+2026-09-28 16:00,Lemari Pendingin Vaksin dan Obat,158
+2026-09-28 16:00,Pompa Air dan Penerangan,3588
+2026-09-28 17:00,AC Poli Rawat Jalan,124
+2026-09-28 17:00,Chiller Rawat Inap,9269
+2026-09-28 17:00,Autoklaf CSSD,70
+2026-09-28 17:00,Lemari Pendingin Vaksin dan Obat,163
+2026-09-28 17:00,Pompa Air dan Penerangan,3575
+2026-09-28 18:00,AC Poli Rawat Jalan,111
+2026-09-28 18:00,Chiller Rawat Inap,9019
+2026-09-28 18:00,Autoklaf CSSD,78
+2026-09-28 18:00,Lemari Pendingin Vaksin dan Obat,157
+2026-09-28 18:00,Pompa Air dan Penerangan,3732
+2026-09-28 19:00,AC Poli Rawat Jalan,103
+2026-09-28 19:00,Chiller Rawat Inap,9196
+2026-09-28 19:00,Autoklaf CSSD,65
+2026-09-28 19:00,Lemari Pendingin Vaksin dan Obat,162
+2026-09-28 19:00,Pompa Air dan Penerangan,3564
+2026-09-28 20:00,AC Poli Rawat Jalan,109
+2026-09-28 20:00,Chiller Rawat Inap,5763
+2026-09-28 20:00,Autoklaf CSSD,92
+2026-09-28 20:00,Lemari Pendingin Vaksin dan Obat,161
+2026-09-28 20:00,Pompa Air dan Penerangan,3723
+2026-09-28 21:00,AC Poli Rawat Jalan,116
+2026-09-28 21:00,Chiller Rawat Inap,5806
+2026-09-28 21:00,Autoklaf CSSD,97
+2026-09-28 21:00,Lemari Pendingin Vaksin dan Obat,153
+2026-09-28 21:00,Pompa Air dan Penerangan,1374
+2026-09-28 22:00,AC Poli Rawat Jalan,115
+2026-09-28 22:00,Chiller Rawat Inap,5943
+2026-09-28 22:00,Autoklaf CSSD,91
+2026-09-28 22:00,Lemari Pendingin Vaksin dan Obat,169
+2026-09-28 22:00,Pompa Air dan Penerangan,1675
+2026-09-28 23:00,AC Poli Rawat Jalan,114
+2026-09-28 23:00,Chiller Rawat Inap,6223
+2026-09-28 23:00,Autoklaf CSSD,97
+2026-09-28 23:00,Lemari Pendingin Vaksin dan Obat,156
+2026-09-28 23:00,Pompa Air dan Penerangan,1546
+2026-09-29 00:00,AC Poli Rawat Jalan,103
+2026-09-29 00:00,Chiller Rawat Inap,5893
+2026-09-29 00:00,Autoklaf CSSD,83
+2026-09-29 00:00,Lemari Pendingin Vaksin dan Obat,152
+2026-09-29 00:00,Pompa Air dan Penerangan,1624
+2026-09-29 01:00,AC Poli Rawat Jalan,138
+2026-09-29 01:00,Chiller Rawat Inap,5921
+2026-09-29 01:00,Autoklaf CSSD,73
+2026-09-29 01:00,Lemari Pendingin Vaksin dan Obat,167
+2026-09-29 01:00,Pompa Air dan Penerangan,1845
+2026-09-29 02:00,AC Poli Rawat Jalan,138
+2026-09-29 02:00,Chiller Rawat Inap,6254
+2026-09-29 02:00,Autoklaf CSSD,96
+2026-09-29 02:00,Lemari Pendingin Vaksin dan Obat,169
+2026-09-29 02:00,Pompa Air dan Penerangan,1578
+2026-09-29 03:00,AC Poli Rawat Jalan,121
+2026-09-29 03:00,Chiller Rawat Inap,5512
+2026-09-29 03:00,Autoklaf CSSD,64
+2026-09-29 03:00,Lemari Pendingin Vaksin dan Obat,163
+2026-09-29 03:00,Pompa Air dan Penerangan,1785
+2026-09-29 04:00,AC Poli Rawat Jalan,119
+2026-09-29 04:00,Chiller Rawat Inap,5627
+2026-09-29 04:00,Autoklaf CSSD,77
+2026-09-29 04:00,Lemari Pendingin Vaksin dan Obat,172
+2026-09-29 04:00,Pompa Air dan Penerangan,1558
+2026-09-29 05:00,AC Poli Rawat Jalan,125
+2026-09-29 05:00,Chiller Rawat Inap,5731
+2026-09-29 05:00,Autoklaf CSSD,100
+2026-09-29 05:00,Lemari Pendingin Vaksin dan Obat,170
+2026-09-29 05:00,Pompa Air dan Penerangan,1350
+2026-09-29 06:00,AC Poli Rawat Jalan,114
+2026-09-29 06:00,Chiller Rawat Inap,5774
+2026-09-29 06:00,Autoklaf CSSD,81
+2026-09-29 06:00,Lemari Pendingin Vaksin dan Obat,165
+2026-09-29 06:00,Pompa Air dan Penerangan,3418
+2026-09-29 07:00,AC Poli Rawat Jalan,5854
+2026-09-29 07:00,Chiller Rawat Inap,5896
+2026-09-29 07:00,Autoklaf CSSD,1630
+2026-09-29 07:00,Lemari Pendingin Vaksin dan Obat,149
+2026-09-29 07:00,Pompa Air dan Penerangan,3428
+2026-09-29 08:00,AC Poli Rawat Jalan,6219
+2026-09-29 08:00,Chiller Rawat Inap,8911
+2026-09-29 08:00,Autoklaf CSSD,2353
+2026-09-29 08:00,Lemari Pendingin Vaksin dan Obat,168
+2026-09-29 08:00,Pompa Air dan Penerangan,3420
+2026-09-29 09:00,AC Poli Rawat Jalan,5476
+2026-09-29 09:00,Chiller Rawat Inap,8751
+2026-09-29 09:00,Autoklaf CSSD,1556
+2026-09-29 09:00,Lemari Pendingin Vaksin dan Obat,159
+2026-09-29 09:00,Pompa Air dan Penerangan,3395
+2026-09-29 10:00,AC Poli Rawat Jalan,5997
+2026-09-29 10:00,Chiller Rawat Inap,8872
+2026-09-29 10:00,Autoklaf CSSD,2866
+2026-09-29 10:00,Lemari Pendingin Vaksin dan Obat,162
+2026-09-29 10:00,Pompa Air dan Penerangan,3278
+2026-09-29 11:00,AC Poli Rawat Jalan,5617
+2026-09-29 11:00,Chiller Rawat Inap,9044
+2026-09-29 11:00,Autoklaf CSSD,1282
+2026-09-29 11:00,Lemari Pendingin Vaksin dan Obat,158
+2026-09-29 11:00,Pompa Air dan Penerangan,3304
+2026-09-29 12:00,AC Poli Rawat Jalan,6177
+2026-09-29 12:00,Chiller Rawat Inap,8989
+2026-09-29 12:00,Autoklaf CSSD,2473
+2026-09-29 12:00,Lemari Pendingin Vaksin dan Obat,162
+2026-09-29 12:00,Pompa Air dan Penerangan,3501
+2026-09-29 13:00,AC Poli Rawat Jalan,5883
+2026-09-29 13:00,Chiller Rawat Inap,9078
+2026-09-29 13:00,Autoklaf CSSD,1173
+2026-09-29 13:00,Lemari Pendingin Vaksin dan Obat,151
+2026-09-29 13:00,Pompa Air dan Penerangan,3376
+2026-09-29 14:00,AC Poli Rawat Jalan,6475
+2026-09-29 14:00,Chiller Rawat Inap,9408
+2026-09-29 14:00,Autoklaf CSSD,2382
+2026-09-29 14:00,Lemari Pendingin Vaksin dan Obat,169
+2026-09-29 14:00,Pompa Air dan Penerangan,3314
+2026-09-29 15:00,AC Poli Rawat Jalan,5702
+2026-09-29 15:00,Chiller Rawat Inap,8808
+2026-09-29 15:00,Autoklaf CSSD,64
+2026-09-29 15:00,Lemari Pendingin Vaksin dan Obat,150
+2026-09-29 15:00,Pompa Air dan Penerangan,3501
+2026-09-29 16:00,AC Poli Rawat Jalan,133
+2026-09-29 16:00,Chiller Rawat Inap,8979
+2026-09-29 16:00,Autoklaf CSSD,86
+2026-09-29 16:00,Lemari Pendingin Vaksin dan Obat,169
+2026-09-29 16:00,Pompa Air dan Penerangan,3426
+2026-09-29 17:00,AC Poli Rawat Jalan,106
+2026-09-29 17:00,Chiller Rawat Inap,9014
+2026-09-29 17:00,Autoklaf CSSD,70
+2026-09-29 17:00,Lemari Pendingin Vaksin dan Obat,151
+2026-09-29 17:00,Pompa Air dan Penerangan,3679
+2026-09-29 18:00,AC Poli Rawat Jalan,108
+2026-09-29 18:00,Chiller Rawat Inap,9039
+2026-09-29 18:00,Autoklaf CSSD,83
+2026-09-29 18:00,Lemari Pendingin Vaksin dan Obat,158
+2026-09-29 18:00,Pompa Air dan Penerangan,3573
+2026-09-29 19:00,AC Poli Rawat Jalan,104
+2026-09-29 19:00,Chiller Rawat Inap,8553
+2026-09-29 19:00,Autoklaf CSSD,71
+2026-09-29 19:00,Lemari Pendingin Vaksin dan Obat,157
+2026-09-29 19:00,Pompa Air dan Penerangan,3466
+2026-09-29 20:00,AC Poli Rawat Jalan,128
+2026-09-29 20:00,Chiller Rawat Inap,6464
+2026-09-29 20:00,Autoklaf CSSD,63
+2026-09-29 20:00,Lemari Pendingin Vaksin dan Obat,169
+2026-09-29 20:00,Pompa Air dan Penerangan,3438
+2026-09-29 21:00,AC Poli Rawat Jalan,124
+2026-09-29 21:00,Chiller Rawat Inap,5816
+2026-09-29 21:00,Autoklaf CSSD,81
+2026-09-29 21:00,Lemari Pendingin Vaksin dan Obat,164
+2026-09-29 21:00,Pompa Air dan Penerangan,1444
+2026-09-29 22:00,AC Poli Rawat Jalan,112
+2026-09-29 22:00,Chiller Rawat Inap,6334
+2026-09-29 22:00,Autoklaf CSSD,93
+2026-09-29 22:00,Lemari Pendingin Vaksin dan Obat,162
+2026-09-29 22:00,Pompa Air dan Penerangan,1765
+2026-09-29 23:00,AC Poli Rawat Jalan,128
+2026-09-29 23:00,Chiller Rawat Inap,5587
+2026-09-29 23:00,Autoklaf CSSD,90
+2026-09-29 23:00,Lemari Pendingin Vaksin dan Obat,160
+2026-09-29 23:00,Pompa Air dan Penerangan,1840
+2026-09-30 00:00,AC Poli Rawat Jalan,126
+2026-09-30 00:00,Chiller Rawat Inap,6437
+2026-09-30 00:00,Autoklaf CSSD,80
+2026-09-30 00:00,Lemari Pendingin Vaksin dan Obat,168
+2026-09-30 00:00,Pompa Air dan Penerangan,1850
+2026-09-30 01:00,AC Poli Rawat Jalan,120
+2026-09-30 01:00,Chiller Rawat Inap,6417
+2026-09-30 01:00,Autoklaf CSSD,70
+2026-09-30 01:00,Lemari Pendingin Vaksin dan Obat,170
+2026-09-30 01:00,Pompa Air dan Penerangan,1844
+2026-09-30 02:00,AC Poli Rawat Jalan,131
+2026-09-30 02:00,Chiller Rawat Inap,6292
+2026-09-30 02:00,Autoklaf CSSD,84
+2026-09-30 02:00,Lemari Pendingin Vaksin dan Obat,163
+2026-09-30 02:00,Pompa Air dan Penerangan,1507
+2026-09-30 03:00,AC Poli Rawat Jalan,112
+2026-09-30 03:00,Chiller Rawat Inap,6225
+2026-09-30 03:00,Autoklaf CSSD,89
+2026-09-30 03:00,Lemari Pendingin Vaksin dan Obat,150
+2026-09-30 03:00,Pompa Air dan Penerangan,1695
+2026-09-30 04:00,AC Poli Rawat Jalan,101
+2026-09-30 04:00,Chiller Rawat Inap,6451
+2026-09-30 04:00,Autoklaf CSSD,91
+2026-09-30 04:00,Lemari Pendingin Vaksin dan Obat,153
+2026-09-30 04:00,Pompa Air dan Penerangan,1697
+2026-09-30 05:00,AC Poli Rawat Jalan,105
+2026-09-30 05:00,Chiller Rawat Inap,6204
+2026-09-30 05:00,Autoklaf CSSD,82
+2026-09-30 05:00,Lemari Pendingin Vaksin dan Obat,159
+2026-09-30 05:00,Pompa Air dan Penerangan,1727
+2026-09-30 06:00,AC Poli Rawat Jalan,104
+2026-09-30 06:00,Chiller Rawat Inap,6071
+2026-09-30 06:00,Autoklaf CSSD,63
+2026-09-30 06:00,Lemari Pendingin Vaksin dan Obat,156
+2026-09-30 06:00,Pompa Air dan Penerangan,3534
+2026-09-30 07:00,AC Poli Rawat Jalan,6306
+2026-09-30 07:00,Chiller Rawat Inap,6483
+2026-09-30 07:00,Autoklaf CSSD,1638
+2026-09-30 07:00,Lemari Pendingin Vaksin dan Obat,153
+2026-09-30 07:00,Pompa Air dan Penerangan,3700
+2026-09-30 08:00,AC Poli Rawat Jalan,5844
+2026-09-30 08:00,Chiller Rawat Inap,8723
+2026-09-30 08:00,Autoklaf CSSD,2448
+2026-09-30 08:00,Lemari Pendingin Vaksin dan Obat,157
+2026-09-30 08:00,Pompa Air dan Penerangan,3259
+2026-09-30 09:00,AC Poli Rawat Jalan,5696
+2026-09-30 09:00,Chiller Rawat Inap,9391
+2026-09-30 09:00,Autoklaf CSSD,1328
+2026-09-30 09:00,Lemari Pendingin Vaksin dan Obat,157
+2026-09-30 09:00,Pompa Air dan Penerangan,3565
+2026-09-30 10:00,AC Poli Rawat Jalan,6336
+2026-09-30 10:00,Chiller Rawat Inap,8606
+2026-09-30 10:00,Autoklaf CSSD,2624
+2026-09-30 10:00,Lemari Pendingin Vaksin dan Obat,154
+2026-09-30 10:00,Pompa Air dan Penerangan,3279
+2026-09-30 11:00,AC Poli Rawat Jalan,5614
+2026-09-30 11:00,Chiller Rawat Inap,8991
+2026-09-30 11:00,Autoklaf CSSD,1162
+2026-09-30 11:00,Lemari Pendingin Vaksin dan Obat,157
+2026-09-30 11:00,Pompa Air dan Penerangan,3599
+2026-09-30 12:00,AC Poli Rawat Jalan,6117
+2026-09-30 12:00,Chiller Rawat Inap,8815
+2026-09-30 12:00,Autoklaf CSSD,2409
+2026-09-30 12:00,Lemari Pendingin Vaksin dan Obat,156
+2026-09-30 12:00,Pompa Air dan Penerangan,3347
+2026-09-30 13:00,AC Poli Rawat Jalan,6102
+2026-09-30 13:00,Chiller Rawat Inap,9445
+2026-09-30 13:00,Autoklaf CSSD,1562
+2026-09-30 13:00,Lemari Pendingin Vaksin dan Obat,150
+2026-09-30 13:00,Pompa Air dan Penerangan,3382
+2026-09-30 14:00,AC Poli Rawat Jalan,5758
+2026-09-30 14:00,Chiller Rawat Inap,8737
+2026-09-30 14:00,Autoklaf CSSD,2751
+2026-09-30 14:00,Lemari Pendingin Vaksin dan Obat,161
+2026-09-30 14:00,Pompa Air dan Penerangan,3523
+2026-09-30 15:00,AC Poli Rawat Jalan,5643
+2026-09-30 15:00,Chiller Rawat Inap,8742
+2026-09-30 15:00,Autoklaf CSSD,76
+2026-09-30 15:00,Lemari Pendingin Vaksin dan Obat,152
+2026-09-30 15:00,Pompa Air dan Penerangan,3468
+2026-09-30 16:00,AC Poli Rawat Jalan,128
+2026-09-30 16:00,Chiller Rawat Inap,9167
+2026-09-30 16:00,Autoklaf CSSD,66
+2026-09-30 16:00,Lemari Pendingin Vaksin dan Obat,164
+2026-09-30 16:00,Pompa Air dan Penerangan,3632
+2026-09-30 17:00,AC Poli Rawat Jalan,104
+2026-09-30 17:00,Chiller Rawat Inap,8898
+2026-09-30 17:00,Autoklaf CSSD,90
+2026-09-30 17:00,Lemari Pendingin Vaksin dan Obat,151
+2026-09-30 17:00,Pompa Air dan Penerangan,3642
+2026-09-30 18:00,AC Poli Rawat Jalan,135
+2026-09-30 18:00,Chiller Rawat Inap,8750
+2026-09-30 18:00,Autoklaf CSSD,61
+2026-09-30 18:00,Lemari Pendingin Vaksin dan Obat,162
+2026-09-30 18:00,Pompa Air dan Penerangan,3622
+2026-09-30 19:00,AC Poli Rawat Jalan,140
+2026-09-30 19:00,Chiller Rawat Inap,9080
+2026-09-30 19:00,Autoklaf CSSD,92
+2026-09-30 19:00,Lemari Pendingin Vaksin dan Obat,171
+2026-09-30 19:00,Pompa Air dan Penerangan,3719
+2026-09-30 20:00,AC Poli Rawat Jalan,115
+2026-09-30 20:00,Chiller Rawat Inap,6424
+2026-09-30 20:00,Autoklaf CSSD,93
+2026-09-30 20:00,Lemari Pendingin Vaksin dan Obat,166
+2026-09-30 20:00,Pompa Air dan Penerangan,3318
+2026-09-30 21:00,AC Poli Rawat Jalan,104
+2026-09-30 21:00,Chiller Rawat Inap,5915
+2026-09-30 21:00,Autoklaf CSSD,98
+2026-09-30 21:00,Lemari Pendingin Vaksin dan Obat,154
+2026-09-30 21:00,Pompa Air dan Penerangan,1557
+2026-09-30 22:00,AC Poli Rawat Jalan,130
+2026-09-30 22:00,Chiller Rawat Inap,6000
+2026-09-30 22:00,Autoklaf CSSD,83
+2026-09-30 22:00,Lemari Pendingin Vaksin dan Obat,166
+2026-09-30 22:00,Pompa Air dan Penerangan,1660
+2026-09-30 23:00,AC Poli Rawat Jalan,139
+2026-09-30 23:00,Chiller Rawat Inap,5901
+2026-09-30 23:00,Autoklaf CSSD,79
+2026-09-30 23:00,Lemari Pendingin Vaksin dan Obat,154
+2026-09-30 23:00,Pompa Air dan Penerangan,1416
+2026-10-01 00:00,AC Poli Rawat Jalan,125
+2026-10-01 00:00,Chiller Rawat Inap,6430
+2026-10-01 00:00,Autoklaf CSSD,89
+2026-10-01 00:00,Lemari Pendingin Vaksin dan Obat,159
+2026-10-01 00:00,Pompa Air dan Penerangan,1512
+2026-10-01 01:00,AC Poli Rawat Jalan,129
+2026-10-01 01:00,Chiller Rawat Inap,6239
+2026-10-01 01:00,Autoklaf CSSD,74
+2026-10-01 01:00,Lemari Pendingin Vaksin dan Obat,148
+2026-10-01 01:00,Pompa Air dan Penerangan,1581
+2026-10-01 02:00,AC Poli Rawat Jalan,105
+2026-10-01 02:00,Chiller Rawat Inap,6324
+2026-10-01 02:00,Autoklaf CSSD,79
+2026-10-01 02:00,Lemari Pendingin Vaksin dan Obat,149
+2026-10-01 02:00,Pompa Air dan Penerangan,1375
+2026-10-01 03:00,AC Poli Rawat Jalan,132
+2026-10-01 03:00,Chiller Rawat Inap,6412
+2026-10-01 03:00,Autoklaf CSSD,66
+2026-10-01 03:00,Lemari Pendingin Vaksin dan Obat,158
+2026-10-01 03:00,Pompa Air dan Penerangan,1803
+2026-10-01 04:00,AC Poli Rawat Jalan,107
+2026-10-01 04:00,Chiller Rawat Inap,5739
+2026-10-01 04:00,Autoklaf CSSD,63
+2026-10-01 04:00,Lemari Pendingin Vaksin dan Obat,165
+2026-10-01 04:00,Pompa Air dan Penerangan,1383
+2026-10-01 05:00,AC Poli Rawat Jalan,138
+2026-10-01 05:00,Chiller Rawat Inap,5989
+2026-10-01 05:00,Autoklaf CSSD,97
+2026-10-01 05:00,Lemari Pendingin Vaksin dan Obat,152
+2026-10-01 05:00,Pompa Air dan Penerangan,1840
+2026-10-01 06:00,AC Poli Rawat Jalan,116
+2026-10-01 06:00,Chiller Rawat Inap,5736
+2026-10-01 06:00,Autoklaf CSSD,74
+2026-10-01 06:00,Lemari Pendingin Vaksin dan Obat,170
+2026-10-01 06:00,Pompa Air dan Penerangan,3529
+2026-10-01 07:00,AC Poli Rawat Jalan,6091
+2026-10-01 07:00,Chiller Rawat Inap,6220
+2026-10-01 07:00,Autoklaf CSSD,1548
+2026-10-01 07:00,Lemari Pendingin Vaksin dan Obat,168
+2026-10-01 07:00,Pompa Air dan Penerangan,3553
+2026-10-01 08:00,AC Poli Rawat Jalan,5976
+2026-10-01 08:00,Chiller Rawat Inap,9243
+2026-10-01 08:00,Autoklaf CSSD,2362
+2026-10-01 08:00,Lemari Pendingin Vaksin dan Obat,148
+2026-10-01 08:00,Pompa Air dan Penerangan,3444
+2026-10-01 09:00,AC Poli Rawat Jalan,5628
+2026-10-01 09:00,Chiller Rawat Inap,8864
+2026-10-01 09:00,Autoklaf CSSD,1587
+2026-10-01 09:00,Lemari Pendingin Vaksin dan Obat,167
+2026-10-01 09:00,Pompa Air dan Penerangan,3395
+2026-10-01 10:00,AC Poli Rawat Jalan,5463
+2026-10-01 10:00,Chiller Rawat Inap,9101
+2026-10-01 10:00,Autoklaf CSSD,2712
+2026-10-01 10:00,Lemari Pendingin Vaksin dan Obat,155
+2026-10-01 10:00,Pompa Air dan Penerangan,3397
+2026-10-01 11:00,AC Poli Rawat Jalan,6304
+2026-10-01 11:00,Chiller Rawat Inap,8902
+2026-10-01 11:00,Autoklaf CSSD,1660
+2026-10-01 11:00,Lemari Pendingin Vaksin dan Obat,161
+2026-10-01 11:00,Pompa Air dan Penerangan,3371
+2026-10-01 12:00,AC Poli Rawat Jalan,6290
+2026-10-01 12:00,Chiller Rawat Inap,9282
+2026-10-01 12:00,Autoklaf CSSD,2892
+2026-10-01 12:00,Lemari Pendingin Vaksin dan Obat,152
+2026-10-01 12:00,Pompa Air dan Penerangan,3639
+2026-10-01 13:00,AC Poli Rawat Jalan,5715
+2026-10-01 13:00,Chiller Rawat Inap,9395
+2026-10-01 13:00,Autoklaf CSSD,1468
+2026-10-01 13:00,Lemari Pendingin Vaksin dan Obat,153
+2026-10-01 13:00,Pompa Air dan Penerangan,3373
+2026-10-01 14:00,AC Poli Rawat Jalan,6076
+2026-10-01 14:00,Chiller Rawat Inap,9092
+2026-10-01 14:00,Autoklaf CSSD,2666
+2026-10-01 14:00,Lemari Pendingin Vaksin dan Obat,169
+2026-10-01 14:00,Pompa Air dan Penerangan,3256
+2026-10-01 15:00,AC Poli Rawat Jalan,5646
+2026-10-01 15:00,Chiller Rawat Inap,8551
+2026-10-01 15:00,Autoklaf CSSD,81
+2026-10-01 15:00,Lemari Pendingin Vaksin dan Obat,163
+2026-10-01 15:00,Pompa Air dan Penerangan,3645
+2026-10-01 16:00,AC Poli Rawat Jalan,132
+2026-10-01 16:00,Chiller Rawat Inap,8673
+2026-10-01 16:00,Autoklaf CSSD,87
+2026-10-01 16:00,Lemari Pendingin Vaksin dan Obat,164
+2026-10-01 16:00,Pompa Air dan Penerangan,3539
+2026-10-01 17:00,AC Poli Rawat Jalan,111
+2026-10-01 17:00,Chiller Rawat Inap,8950
+2026-10-01 17:00,Autoklaf CSSD,69
+2026-10-01 17:00,Lemari Pendingin Vaksin dan Obat,163
+2026-10-01 17:00,Pompa Air dan Penerangan,3748
+2026-10-01 18:00,AC Poli Rawat Jalan,135
+2026-10-01 18:00,Chiller Rawat Inap,8889
+2026-10-01 18:00,Autoklaf CSSD,81
+2026-10-01 18:00,Lemari Pendingin Vaksin dan Obat,165
+2026-10-01 18:00,Pompa Air dan Penerangan,3587
+2026-10-01 19:00,AC Poli Rawat Jalan,129
+2026-10-01 19:00,Chiller Rawat Inap,9045
+2026-10-01 19:00,Autoklaf CSSD,60
+2026-10-01 19:00,Lemari Pendingin Vaksin dan Obat,166
+2026-10-01 19:00,Pompa Air dan Penerangan,3697
+2026-10-01 20:00,AC Poli Rawat Jalan,131
+2026-10-01 20:00,Chiller Rawat Inap,6286
+2026-10-01 20:00,Autoklaf CSSD,97
+2026-10-01 20:00,Lemari Pendingin Vaksin dan Obat,160
+2026-10-01 20:00,Pompa Air dan Penerangan,3469
+2026-10-01 21:00,AC Poli Rawat Jalan,139
+2026-10-01 21:00,Chiller Rawat Inap,6173
+2026-10-01 21:00,Autoklaf CSSD,81
+2026-10-01 21:00,Lemari Pendingin Vaksin dan Obat,160
+2026-10-01 21:00,Pompa Air dan Penerangan,1456
+2026-10-01 22:00,AC Poli Rawat Jalan,138
+2026-10-01 22:00,Chiller Rawat Inap,5513
+2026-10-01 22:00,Autoklaf CSSD,94
+2026-10-01 22:00,Lemari Pendingin Vaksin dan Obat,166
+2026-10-01 22:00,Pompa Air dan Penerangan,1840
+2026-10-01 23:00,AC Poli Rawat Jalan,133
+2026-10-01 23:00,Chiller Rawat Inap,5888
+2026-10-01 23:00,Autoklaf CSSD,90
+2026-10-01 23:00,Lemari Pendingin Vaksin dan Obat,163
+2026-10-01 23:00,Pompa Air dan Penerangan,1747
+2026-10-02 00:00,AC Poli Rawat Jalan,122
+2026-10-02 00:00,Chiller Rawat Inap,6432
+2026-10-02 00:00,Autoklaf CSSD,84
+2026-10-02 00:00,Lemari Pendingin Vaksin dan Obat,163
+2026-10-02 00:00,Pompa Air dan Penerangan,1750
+2026-10-02 01:00,AC Poli Rawat Jalan,102
+2026-10-02 01:00,Chiller Rawat Inap,5662
+2026-10-02 01:00,Autoklaf CSSD,90
+2026-10-02 01:00,Lemari Pendingin Vaksin dan Obat,152
+2026-10-02 01:00,Pompa Air dan Penerangan,1625
+2026-10-02 02:00,AC Poli Rawat Jalan,107
+2026-10-02 02:00,Chiller Rawat Inap,6101
+2026-10-02 02:00,Autoklaf CSSD,96
+2026-10-02 02:00,Lemari Pendingin Vaksin dan Obat,155
+2026-10-02 02:00,Pompa Air dan Penerangan,1758
+2026-10-02 03:00,AC Poli Rawat Jalan,105
+2026-10-02 03:00,Chiller Rawat Inap,5620
+2026-10-02 03:00,Autoklaf CSSD,83
+2026-10-02 03:00,Lemari Pendingin Vaksin dan Obat,171
+2026-10-02 03:00,Pompa Air dan Penerangan,1392
+2026-10-02 04:00,AC Poli Rawat Jalan,121
+2026-10-02 04:00,Chiller Rawat Inap,5569
+2026-10-02 04:00,Autoklaf CSSD,77
+2026-10-02 04:00,Lemari Pendingin Vaksin dan Obat,158
+2026-10-02 04:00,Pompa Air dan Penerangan,1648
+2026-10-02 05:00,AC Poli Rawat Jalan,118
+2026-10-02 05:00,Chiller Rawat Inap,5726
+2026-10-02 05:00,Autoklaf CSSD,76
+2026-10-02 05:00,Lemari Pendingin Vaksin dan Obat,166
+2026-10-02 05:00,Pompa Air dan Penerangan,1704
+2026-10-02 06:00,AC Poli Rawat Jalan,118
+2026-10-02 06:00,Chiller Rawat Inap,5770
+2026-10-02 06:00,Autoklaf CSSD,84
+2026-10-02 06:00,Lemari Pendingin Vaksin dan Obat,160
+2026-10-02 06:00,Pompa Air dan Penerangan,3586
+2026-10-02 07:00,AC Poli Rawat Jalan,6289
+2026-10-02 07:00,Chiller Rawat Inap,5759
+2026-10-02 07:00,Autoklaf CSSD,1589
+2026-10-02 07:00,Lemari Pendingin Vaksin dan Obat,151
+2026-10-02 07:00,Pompa Air dan Penerangan,3435
+2026-10-02 08:00,AC Poli Rawat Jalan,6310
+2026-10-02 08:00,Chiller Rawat Inap,9499
+2026-10-02 08:00,Autoklaf CSSD,2402
+2026-10-02 08:00,Lemari Pendingin Vaksin dan Obat,156
+2026-10-02 08:00,Pompa Air dan Penerangan,3419
+2026-10-02 09:00,AC Poli Rawat Jalan,5584
+2026-10-02 09:00,Chiller Rawat Inap,9450
+2026-10-02 09:00,Autoklaf CSSD,1624
+2026-10-02 09:00,Lemari Pendingin Vaksin dan Obat,160
+2026-10-02 09:00,Pompa Air dan Penerangan,3717
+2026-10-02 10:00,AC Poli Rawat Jalan,6539
+2026-10-02 10:00,Chiller Rawat Inap,8683
+2026-10-02 10:00,Autoklaf CSSD,2642
+2026-10-02 10:00,Lemari Pendingin Vaksin dan Obat,167
+2026-10-02 10:00,Pompa Air dan Penerangan,3315
+2026-10-02 11:00,AC Poli Rawat Jalan,5511
+2026-10-02 11:00,Chiller Rawat Inap,9310
+2026-10-02 11:00,Autoklaf CSSD,1493
+2026-10-02 11:00,Lemari Pendingin Vaksin dan Obat,168
+2026-10-02 11:00,Pompa Air dan Penerangan,3735
+2026-10-02 12:00,AC Poli Rawat Jalan,6424
+2026-10-02 12:00,Chiller Rawat Inap,8927
+2026-10-02 12:00,Autoklaf CSSD,2721
+2026-10-02 12:00,Lemari Pendingin Vaksin dan Obat,152
+2026-10-02 12:00,Pompa Air dan Penerangan,3355
+2026-10-02 13:00,AC Poli Rawat Jalan,6161
+2026-10-02 13:00,Chiller Rawat Inap,9256
+2026-10-02 13:00,Autoklaf CSSD,1425
+2026-10-02 13:00,Lemari Pendingin Vaksin dan Obat,171
+2026-10-02 13:00,Pompa Air dan Penerangan,3705
+2026-10-02 14:00,AC Poli Rawat Jalan,6490
+2026-10-02 14:00,Chiller Rawat Inap,8828
+2026-10-02 14:00,Autoklaf CSSD,2806
+2026-10-02 14:00,Lemari Pendingin Vaksin dan Obat,166
+2026-10-02 14:00,Pompa Air dan Penerangan,3647
+2026-10-02 15:00,AC Poli Rawat Jalan,6178
+2026-10-02 15:00,Chiller Rawat Inap,9483
+2026-10-02 15:00,Autoklaf CSSD,78
+2026-10-02 15:00,Lemari Pendingin Vaksin dan Obat,156
+2026-10-02 15:00,Pompa Air dan Penerangan,3715
+2026-10-02 16:00,AC Poli Rawat Jalan,123
+2026-10-02 16:00,Chiller Rawat Inap,8681
+2026-10-02 16:00,Autoklaf CSSD,60
+2026-10-02 16:00,Lemari Pendingin Vaksin dan Obat,149
+2026-10-02 16:00,Pompa Air dan Penerangan,3355
+2026-10-02 17:00,AC Poli Rawat Jalan,129
+2026-10-02 17:00,Chiller Rawat Inap,8656
+2026-10-02 17:00,Autoklaf CSSD,89
+2026-10-02 17:00,Lemari Pendingin Vaksin dan Obat,168
+2026-10-02 17:00,Pompa Air dan Penerangan,3377
+2026-10-02 18:00,AC Poli Rawat Jalan,122
+2026-10-02 18:00,Chiller Rawat Inap,8929
+2026-10-02 18:00,Autoklaf CSSD,74
+2026-10-02 18:00,Lemari Pendingin Vaksin dan Obat,159
+2026-10-02 18:00,Pompa Air dan Penerangan,3428
+2026-10-02 19:00,AC Poli Rawat Jalan,139
+2026-10-02 19:00,Chiller Rawat Inap,9023
+2026-10-02 19:00,Autoklaf CSSD,81
+2026-10-02 19:00,Lemari Pendingin Vaksin dan Obat,152
+2026-10-02 19:00,Pompa Air dan Penerangan,3359
+2026-10-02 20:00,AC Poli Rawat Jalan,125
+2026-10-02 20:00,Chiller Rawat Inap,5724
+2026-10-02 20:00,Autoklaf CSSD,67
+2026-10-02 20:00,Lemari Pendingin Vaksin dan Obat,159
+2026-10-02 20:00,Pompa Air dan Penerangan,3514
+2026-10-02 21:00,AC Poli Rawat Jalan,123
+2026-10-02 21:00,Chiller Rawat Inap,6455
+2026-10-02 21:00,Autoklaf CSSD,82
+2026-10-02 21:00,Lemari Pendingin Vaksin dan Obat,150
+2026-10-02 21:00,Pompa Air dan Penerangan,1784
+2026-10-02 22:00,AC Poli Rawat Jalan,126
+2026-10-02 22:00,Chiller Rawat Inap,6373
+2026-10-02 22:00,Autoklaf CSSD,84
+2026-10-02 22:00,Lemari Pendingin Vaksin dan Obat,151
+2026-10-02 22:00,Pompa Air dan Penerangan,1476
+2026-10-02 23:00,AC Poli Rawat Jalan,119
+2026-10-02 23:00,Chiller Rawat Inap,5783
+2026-10-02 23:00,Autoklaf CSSD,73
+2026-10-02 23:00,Lemari Pendingin Vaksin dan Obat,159
+2026-10-02 23:00,Pompa Air dan Penerangan,1758
+2026-10-03 00:00,AC Poli Rawat Jalan,137
+2026-10-03 00:00,Chiller Rawat Inap,6422
+2026-10-03 00:00,Autoklaf CSSD,75
+2026-10-03 00:00,Lemari Pendingin Vaksin dan Obat,149
+2026-10-03 00:00,Pompa Air dan Penerangan,1441
+2026-10-03 01:00,AC Poli Rawat Jalan,127
+2026-10-03 01:00,Chiller Rawat Inap,6081
+2026-10-03 01:00,Autoklaf CSSD,64
+2026-10-03 01:00,Lemari Pendingin Vaksin dan Obat,150
+2026-10-03 01:00,Pompa Air dan Penerangan,1558
+2026-10-03 02:00,AC Poli Rawat Jalan,113
+2026-10-03 02:00,Chiller Rawat Inap,5540
+2026-10-03 02:00,Autoklaf CSSD,69
+2026-10-03 02:00,Lemari Pendingin Vaksin dan Obat,162
+2026-10-03 02:00,Pompa Air dan Penerangan,1451
+2026-10-03 03:00,AC Poli Rawat Jalan,130
+2026-10-03 03:00,Chiller Rawat Inap,5577
+2026-10-03 03:00,Autoklaf CSSD,65
+2026-10-03 03:00,Lemari Pendingin Vaksin dan Obat,170
+2026-10-03 03:00,Pompa Air dan Penerangan,1719
+2026-10-03 04:00,AC Poli Rawat Jalan,126
+2026-10-03 04:00,Chiller Rawat Inap,6345
+2026-10-03 04:00,Autoklaf CSSD,95
+2026-10-03 04:00,Lemari Pendingin Vaksin dan Obat,155
+2026-10-03 04:00,Pompa Air dan Penerangan,1523
+2026-10-03 05:00,AC Poli Rawat Jalan,124
+2026-10-03 05:00,Chiller Rawat Inap,6373
+2026-10-03 05:00,Autoklaf CSSD,78
+2026-10-03 05:00,Lemari Pendingin Vaksin dan Obat,150
+2026-10-03 05:00,Pompa Air dan Penerangan,1731
+2026-10-03 06:00,AC Poli Rawat Jalan,123
+2026-10-03 06:00,Chiller Rawat Inap,6372
+2026-10-03 06:00,Autoklaf CSSD,63
+2026-10-03 06:00,Lemari Pendingin Vaksin dan Obat,170
+2026-10-03 06:00,Pompa Air dan Penerangan,3722
+2026-10-03 07:00,AC Poli Rawat Jalan,6020
+2026-10-03 07:00,Chiller Rawat Inap,6129
+2026-10-03 07:00,Autoklaf CSSD,1602
+2026-10-03 07:00,Lemari Pendingin Vaksin dan Obat,165
+2026-10-03 07:00,Pompa Air dan Penerangan,3295
+2026-10-03 08:00,AC Poli Rawat Jalan,5695
+2026-10-03 08:00,Chiller Rawat Inap,9361
+2026-10-03 08:00,Autoklaf CSSD,2795
+2026-10-03 08:00,Lemari Pendingin Vaksin dan Obat,161
+2026-10-03 08:00,Pompa Air dan Penerangan,3615
+2026-10-03 09:00,AC Poli Rawat Jalan,5695
+2026-10-03 09:00,Chiller Rawat Inap,8853
+2026-10-03 09:00,Autoklaf CSSD,1687
+2026-10-03 09:00,Lemari Pendingin Vaksin dan Obat,164
+2026-10-03 09:00,Pompa Air dan Penerangan,3447
+2026-10-03 10:00,AC Poli Rawat Jalan,6180
+2026-10-03 10:00,Chiller Rawat Inap,9370
+2026-10-03 10:00,Autoklaf CSSD,2433
+2026-10-03 10:00,Lemari Pendingin Vaksin dan Obat,153
+2026-10-03 10:00,Pompa Air dan Penerangan,3296
+2026-10-03 11:00,AC Poli Rawat Jalan,6542
+2026-10-03 11:00,Chiller Rawat Inap,9474
+2026-10-03 11:00,Autoklaf CSSD,1432
+2026-10-03 11:00,Lemari Pendingin Vaksin dan Obat,165
+2026-10-03 11:00,Pompa Air dan Penerangan,3473
+2026-10-03 12:00,AC Poli Rawat Jalan,5601
+2026-10-03 12:00,Chiller Rawat Inap,9421
+2026-10-03 12:00,Autoklaf CSSD,2342
+2026-10-03 12:00,Lemari Pendingin Vaksin dan Obat,164
+2026-10-03 12:00,Pompa Air dan Penerangan,3593
+2026-10-03 13:00,AC Poli Rawat Jalan,6098
+2026-10-03 13:00,Chiller Rawat Inap,9244
+2026-10-03 13:00,Autoklaf CSSD,1399
+2026-10-03 13:00,Lemari Pendingin Vaksin dan Obat,158
+2026-10-03 13:00,Pompa Air dan Penerangan,3690
+2026-10-03 14:00,AC Poli Rawat Jalan,5914
+2026-10-03 14:00,Chiller Rawat Inap,9265
+2026-10-03 14:00,Autoklaf CSSD,2518
+2026-10-03 14:00,Lemari Pendingin Vaksin dan Obat,164
+2026-10-03 14:00,Pompa Air dan Penerangan,3649
+2026-10-03 15:00,AC Poli Rawat Jalan,6421
+2026-10-03 15:00,Chiller Rawat Inap,9307
+2026-10-03 15:00,Autoklaf CSSD,79
+2026-10-03 15:00,Lemari Pendingin Vaksin dan Obat,170
+2026-10-03 15:00,Pompa Air dan Penerangan,3418
+2026-10-03 16:00,AC Poli Rawat Jalan,108
+2026-10-03 16:00,Chiller Rawat Inap,9390
+2026-10-03 16:00,Autoklaf CSSD,72
+2026-10-03 16:00,Lemari Pendingin Vaksin dan Obat,149
+2026-10-03 16:00,Pompa Air dan Penerangan,3492
+2026-10-03 17:00,AC Poli Rawat Jalan,110
+2026-10-03 17:00,Chiller Rawat Inap,9104
+2026-10-03 17:00,Autoklaf CSSD,65
+2026-10-03 17:00,Lemari Pendingin Vaksin dan Obat,150
+2026-10-03 17:00,Pompa Air dan Penerangan,3441
+2026-10-03 18:00,AC Poli Rawat Jalan,117
+2026-10-03 18:00,Chiller Rawat Inap,9190
+2026-10-03 18:00,Autoklaf CSSD,84
+2026-10-03 18:00,Lemari Pendingin Vaksin dan Obat,160
+2026-10-03 18:00,Pompa Air dan Penerangan,3692
+2026-10-03 19:00,AC Poli Rawat Jalan,111
+2026-10-03 19:00,Chiller Rawat Inap,9063
+2026-10-03 19:00,Autoklaf CSSD,84
+2026-10-03 19:00,Lemari Pendingin Vaksin dan Obat,156
+2026-10-03 19:00,Pompa Air dan Penerangan,3699
+2026-10-03 20:00,AC Poli Rawat Jalan,105
+2026-10-03 20:00,Chiller Rawat Inap,5596
+2026-10-03 20:00,Autoklaf CSSD,83
+2026-10-03 20:00,Lemari Pendingin Vaksin dan Obat,154
+2026-10-03 20:00,Pompa Air dan Penerangan,3351
+2026-10-03 21:00,AC Poli Rawat Jalan,130
+2026-10-03 21:00,Chiller Rawat Inap,5977
+2026-10-03 21:00,Autoklaf CSSD,78
+2026-10-03 21:00,Lemari Pendingin Vaksin dan Obat,161
+2026-10-03 21:00,Pompa Air dan Penerangan,1379
+2026-10-03 22:00,AC Poli Rawat Jalan,102
+2026-10-03 22:00,Chiller Rawat Inap,5885
+2026-10-03 22:00,Autoklaf CSSD,86
+2026-10-03 22:00,Lemari Pendingin Vaksin dan Obat,151
+2026-10-03 22:00,Pompa Air dan Penerangan,1816
+2026-10-03 23:00,AC Poli Rawat Jalan,118
+2026-10-03 23:00,Chiller Rawat Inap,6049
+2026-10-03 23:00,Autoklaf CSSD,91
+2026-10-03 23:00,Lemari Pendingin Vaksin dan Obat,165
+2026-10-03 23:00,Pompa Air dan Penerangan,1747
+2026-10-04 00:00,AC Poli Rawat Jalan,101
+2026-10-04 00:00,Chiller Rawat Inap,5725
+2026-10-04 00:00,Autoklaf CSSD,82
+2026-10-04 00:00,Lemari Pendingin Vaksin dan Obat,166
+2026-10-04 00:00,Pompa Air dan Penerangan,1634
+2026-10-04 01:00,AC Poli Rawat Jalan,132
+2026-10-04 01:00,Chiller Rawat Inap,5530
+2026-10-04 01:00,Autoklaf CSSD,99
+2026-10-04 01:00,Lemari Pendingin Vaksin dan Obat,159
+2026-10-04 01:00,Pompa Air dan Penerangan,1627
+2026-10-04 02:00,AC Poli Rawat Jalan,102
+2026-10-04 02:00,Chiller Rawat Inap,6260
+2026-10-04 02:00,Autoklaf CSSD,89
+2026-10-04 02:00,Lemari Pendingin Vaksin dan Obat,154
+2026-10-04 02:00,Pompa Air dan Penerangan,1456
+2026-10-04 03:00,AC Poli Rawat Jalan,130
+2026-10-04 03:00,Chiller Rawat Inap,6289
+2026-10-04 03:00,Autoklaf CSSD,71
+2026-10-04 03:00,Lemari Pendingin Vaksin dan Obat,154
+2026-10-04 03:00,Pompa Air dan Penerangan,1537
+2026-10-04 04:00,AC Poli Rawat Jalan,137
+2026-10-04 04:00,Chiller Rawat Inap,6194
+2026-10-04 04:00,Autoklaf CSSD,63
+2026-10-04 04:00,Lemari Pendingin Vaksin dan Obat,162
+2026-10-04 04:00,Pompa Air dan Penerangan,1634
+2026-10-04 05:00,AC Poli Rawat Jalan,124
+2026-10-04 05:00,Chiller Rawat Inap,5683
+2026-10-04 05:00,Autoklaf CSSD,80
+2026-10-04 05:00,Lemari Pendingin Vaksin dan Obat,151
+2026-10-04 05:00,Pompa Air dan Penerangan,1773
+2026-10-04 06:00,AC Poli Rawat Jalan,139
+2026-10-04 06:00,Chiller Rawat Inap,6107
+2026-10-04 06:00,Autoklaf CSSD,70
+2026-10-04 06:00,Lemari Pendingin Vaksin dan Obat,153
+2026-10-04 06:00,Pompa Air dan Penerangan,3537
+2026-10-04 07:00,AC Poli Rawat Jalan,137
+2026-10-04 07:00,Chiller Rawat Inap,5995
+2026-10-04 07:00,Autoklaf CSSD,83
+2026-10-04 07:00,Lemari Pendingin Vaksin dan Obat,157
+2026-10-04 07:00,Pompa Air dan Penerangan,3707
+2026-10-04 08:00,AC Poli Rawat Jalan,108
+2026-10-04 08:00,Chiller Rawat Inap,8954
+2026-10-04 08:00,Autoklaf CSSD,73
+2026-10-04 08:00,Lemari Pendingin Vaksin dan Obat,156
+2026-10-04 08:00,Pompa Air dan Penerangan,3613
+2026-10-04 09:00,AC Poli Rawat Jalan,106
+2026-10-04 09:00,Chiller Rawat Inap,8913
+2026-10-04 09:00,Autoklaf CSSD,81
+2026-10-04 09:00,Lemari Pendingin Vaksin dan Obat,159
+2026-10-04 09:00,Pompa Air dan Penerangan,3452
+2026-10-04 10:00,AC Poli Rawat Jalan,138
+2026-10-04 10:00,Chiller Rawat Inap,9484
+2026-10-04 10:00,Autoklaf CSSD,91
+2026-10-04 10:00,Lemari Pendingin Vaksin dan Obat,168
+2026-10-04 10:00,Pompa Air dan Penerangan,3467
+2026-10-04 11:00,AC Poli Rawat Jalan,135
+2026-10-04 11:00,Chiller Rawat Inap,8920
+2026-10-04 11:00,Autoklaf CSSD,72
+2026-10-04 11:00,Lemari Pendingin Vaksin dan Obat,150
+2026-10-04 11:00,Pompa Air dan Penerangan,3315
+2026-10-04 12:00,AC Poli Rawat Jalan,112
+2026-10-04 12:00,Chiller Rawat Inap,8625
+2026-10-04 12:00,Autoklaf CSSD,61
+2026-10-04 12:00,Lemari Pendingin Vaksin dan Obat,155
+2026-10-04 12:00,Pompa Air dan Penerangan,3679
+2026-10-04 13:00,AC Poli Rawat Jalan,125
+2026-10-04 13:00,Chiller Rawat Inap,8784
+2026-10-04 13:00,Autoklaf CSSD,66
+2026-10-04 13:00,Lemari Pendingin Vaksin dan Obat,158
+2026-10-04 13:00,Pompa Air dan Penerangan,3611
+2026-10-04 14:00,AC Poli Rawat Jalan,133
+2026-10-04 14:00,Chiller Rawat Inap,9216
+2026-10-04 14:00,Autoklaf CSSD,100
+2026-10-04 14:00,Lemari Pendingin Vaksin dan Obat,167
+2026-10-04 14:00,Pompa Air dan Penerangan,3274
+2026-10-04 15:00,AC Poli Rawat Jalan,131
+2026-10-04 15:00,Chiller Rawat Inap,9141
+2026-10-04 15:00,Autoklaf CSSD,92
+2026-10-04 15:00,Lemari Pendingin Vaksin dan Obat,155
+2026-10-04 15:00,Pompa Air dan Penerangan,3696
+2026-10-04 16:00,AC Poli Rawat Jalan,104
+2026-10-04 16:00,Chiller Rawat Inap,9140
+2026-10-04 16:00,Autoklaf CSSD,63
+2026-10-04 16:00,Lemari Pendingin Vaksin dan Obat,170
+2026-10-04 16:00,Pompa Air dan Penerangan,3296
+2026-10-04 17:00,AC Poli Rawat Jalan,112
+2026-10-04 17:00,Chiller Rawat Inap,8955
+2026-10-04 17:00,Autoklaf CSSD,64
+2026-10-04 17:00,Lemari Pendingin Vaksin dan Obat,150
+2026-10-04 17:00,Pompa Air dan Penerangan,3307
+2026-10-04 18:00,AC Poli Rawat Jalan,118
+2026-10-04 18:00,Chiller Rawat Inap,9246
+2026-10-04 18:00,Autoklaf CSSD,61
+2026-10-04 18:00,Lemari Pendingin Vaksin dan Obat,150
+2026-10-04 18:00,Pompa Air dan Penerangan,3449
+2026-10-04 19:00,AC Poli Rawat Jalan,120
+2026-10-04 19:00,Chiller Rawat Inap,9336
+2026-10-04 19:00,Autoklaf CSSD,88
+2026-10-04 19:00,Lemari Pendingin Vaksin dan Obat,156
+2026-10-04 19:00,Pompa Air dan Penerangan,3520
+2026-10-04 20:00,AC Poli Rawat Jalan,103
+2026-10-04 20:00,Chiller Rawat Inap,6183
+2026-10-04 20:00,Autoklaf CSSD,87
+2026-10-04 20:00,Lemari Pendingin Vaksin dan Obat,149
+2026-10-04 20:00,Pompa Air dan Penerangan,3591
+2026-10-04 21:00,AC Poli Rawat Jalan,118
+2026-10-04 21:00,Chiller Rawat Inap,6262
+2026-10-04 21:00,Autoklaf CSSD,94
+2026-10-04 21:00,Lemari Pendingin Vaksin dan Obat,166
+2026-10-04 21:00,Pompa Air dan Penerangan,1466
+2026-10-04 22:00,AC Poli Rawat Jalan,116
+2026-10-04 22:00,Chiller Rawat Inap,6214
+2026-10-04 22:00,Autoklaf CSSD,67
+2026-10-04 22:00,Lemari Pendingin Vaksin dan Obat,156
+2026-10-04 22:00,Pompa Air dan Penerangan,1726
+2026-10-04 23:00,AC Poli Rawat Jalan,126
+2026-10-04 23:00,Chiller Rawat Inap,6137
+2026-10-04 23:00,Autoklaf CSSD,85
+2026-10-04 23:00,Lemari Pendingin Vaksin dan Obat,166
+2026-10-04 23:00,Pompa Air dan Penerangan,1628
+2026-10-05 00:00,AC Poli Rawat Jalan,113
+2026-10-05 00:00,Chiller Rawat Inap,5597
+2026-10-05 00:00,Autoklaf CSSD,99
+2026-10-05 00:00,Lemari Pendingin Vaksin dan Obat,169
+2026-10-05 00:00,Pompa Air dan Penerangan,1495
+2026-10-05 01:00,AC Poli Rawat Jalan,106
+2026-10-05 01:00,Chiller Rawat Inap,6084
+2026-10-05 01:00,Autoklaf CSSD,79
+2026-10-05 01:00,Lemari Pendingin Vaksin dan Obat,169
+2026-10-05 01:00,Pompa Air dan Penerangan,1608
+2026-10-05 02:00,AC Poli Rawat Jalan,101
+2026-10-05 02:00,Chiller Rawat Inap,5561
+2026-10-05 02:00,Autoklaf CSSD,78
+2026-10-05 02:00,Lemari Pendingin Vaksin dan Obat,161
+2026-10-05 02:00,Pompa Air dan Penerangan,1631
+2026-10-05 03:00,AC Poli Rawat Jalan,133
+2026-10-05 03:00,Chiller Rawat Inap,5718
+2026-10-05 03:00,Autoklaf CSSD,83
+2026-10-05 03:00,Lemari Pendingin Vaksin dan Obat,160
+2026-10-05 03:00,Pompa Air dan Penerangan,1764
+2026-10-05 04:00,AC Poli Rawat Jalan,131
+2026-10-05 04:00,Chiller Rawat Inap,6441
+2026-10-05 04:00,Autoklaf CSSD,93
+2026-10-05 04:00,Lemari Pendingin Vaksin dan Obat,162
+2026-10-05 04:00,Pompa Air dan Penerangan,1512
+2026-10-05 05:00,AC Poli Rawat Jalan,132
+2026-10-05 05:00,Chiller Rawat Inap,5784
+2026-10-05 05:00,Autoklaf CSSD,75
+2026-10-05 05:00,Lemari Pendingin Vaksin dan Obat,154
+2026-10-05 05:00,Pompa Air dan Penerangan,1619
+2026-10-05 06:00,AC Poli Rawat Jalan,118
+2026-10-05 06:00,Chiller Rawat Inap,6204
+2026-10-05 06:00,Autoklaf CSSD,87
+2026-10-05 06:00,Lemari Pendingin Vaksin dan Obat,171
+2026-10-05 06:00,Pompa Air dan Penerangan,3552
+2026-10-05 07:00,AC Poli Rawat Jalan,5906
+2026-10-05 07:00,Chiller Rawat Inap,6344
+2026-10-05 07:00,Autoklaf CSSD,1238
+2026-10-05 07:00,Lemari Pendingin Vaksin dan Obat,154
+2026-10-05 07:00,Pompa Air dan Penerangan,3586
+2026-10-05 08:00,AC Poli Rawat Jalan,6477
+2026-10-05 08:00,Chiller Rawat Inap,9493
+2026-10-05 08:00,Autoklaf CSSD,2701
+2026-10-05 08:00,Lemari Pendingin Vaksin dan Obat,170
+2026-10-05 08:00,Pompa Air dan Penerangan,3697
+2026-10-05 09:00,AC Poli Rawat Jalan,5421
+2026-10-05 09:00,Chiller Rawat Inap,9109
+2026-10-05 09:00,Autoklaf CSSD,1348
+2026-10-05 09:00,Lemari Pendingin Vaksin dan Obat,148
+2026-10-05 09:00,Pompa Air dan Penerangan,3519
+2026-10-05 10:00,AC Poli Rawat Jalan,5600
+2026-10-05 10:00,Chiller Rawat Inap,9050
+2026-10-05 10:00,Autoklaf CSSD,2839
+2026-10-05 10:00,Lemari Pendingin Vaksin dan Obat,165
+2026-10-05 10:00,Pompa Air dan Penerangan,3466
+2026-10-05 11:00,AC Poli Rawat Jalan,6491
+2026-10-05 11:00,Chiller Rawat Inap,8516
+2026-10-05 11:00,Autoklaf CSSD,1591
+2026-10-05 11:00,Lemari Pendingin Vaksin dan Obat,172
+2026-10-05 11:00,Pompa Air dan Penerangan,3445
+2026-10-05 12:00,AC Poli Rawat Jalan,5533
+2026-10-05 12:00,Chiller Rawat Inap,9067
+2026-10-05 12:00,Autoklaf CSSD,2791
+2026-10-05 12:00,Lemari Pendingin Vaksin dan Obat,156
+2026-10-05 12:00,Pompa Air dan Penerangan,3335
+2026-10-05 13:00,AC Poli Rawat Jalan,5823
+2026-10-05 13:00,Chiller Rawat Inap,8570
+2026-10-05 13:00,Autoklaf CSSD,1611
+2026-10-05 13:00,Lemari Pendingin Vaksin dan Obat,159
+2026-10-05 13:00,Pompa Air dan Penerangan,3384
+2026-10-05 14:00,AC Poli Rawat Jalan,5492
+2026-10-05 14:00,Chiller Rawat Inap,8799
+2026-10-05 14:00,Autoklaf CSSD,2475
+2026-10-05 14:00,Lemari Pendingin Vaksin dan Obat,152
+2026-10-05 14:00,Pompa Air dan Penerangan,3548
+2026-10-05 15:00,AC Poli Rawat Jalan,5998
+2026-10-05 15:00,Chiller Rawat Inap,9337
+2026-10-05 15:00,Autoklaf CSSD,99
+2026-10-05 15:00,Lemari Pendingin Vaksin dan Obat,149
+2026-10-05 15:00,Pompa Air dan Penerangan,3381
+2026-10-05 16:00,AC Poli Rawat Jalan,119
+2026-10-05 16:00,Chiller Rawat Inap,9420
+2026-10-05 16:00,Autoklaf CSSD,74
+2026-10-05 16:00,Lemari Pendingin Vaksin dan Obat,165
+2026-10-05 16:00,Pompa Air dan Penerangan,3254
+2026-10-05 17:00,AC Poli Rawat Jalan,126
+2026-10-05 17:00,Chiller Rawat Inap,9165
+2026-10-05 17:00,Autoklaf CSSD,94
+2026-10-05 17:00,Lemari Pendingin Vaksin dan Obat,153
+2026-10-05 17:00,Pompa Air dan Penerangan,3327
+2026-10-05 18:00,AC Poli Rawat Jalan,133
+2026-10-05 18:00,Chiller Rawat Inap,8636
+2026-10-05 18:00,Autoklaf CSSD,96
+2026-10-05 18:00,Lemari Pendingin Vaksin dan Obat,165
+2026-10-05 18:00,Pompa Air dan Penerangan,3509
+2026-10-05 19:00,AC Poli Rawat Jalan,111
+2026-10-05 19:00,Chiller Rawat Inap,9055
+2026-10-05 19:00,Autoklaf CSSD,66
+2026-10-05 19:00,Lemari Pendingin Vaksin dan Obat,156
+2026-10-05 19:00,Pompa Air dan Penerangan,3530
+2026-10-05 20:00,AC Poli Rawat Jalan,117
+2026-10-05 20:00,Chiller Rawat Inap,6160
+2026-10-05 20:00,Autoklaf CSSD,76
+2026-10-05 20:00,Lemari Pendingin Vaksin dan Obat,154
+2026-10-05 20:00,Pompa Air dan Penerangan,3404
+2026-10-05 21:00,AC Poli Rawat Jalan,113
+2026-10-05 21:00,Chiller Rawat Inap,5640
+2026-10-05 21:00,Autoklaf CSSD,91
+2026-10-05 21:00,Lemari Pendingin Vaksin dan Obat,159
+2026-10-05 21:00,Pompa Air dan Penerangan,1416
+2026-10-05 22:00,AC Poli Rawat Jalan,137
+2026-10-05 22:00,Chiller Rawat Inap,6221
+2026-10-05 22:00,Autoklaf CSSD,82
+2026-10-05 22:00,Lemari Pendingin Vaksin dan Obat,152
+2026-10-05 22:00,Pompa Air dan Penerangan,1832
+2026-10-05 23:00,AC Poli Rawat Jalan,132
+2026-10-05 23:00,Chiller Rawat Inap,5535
+2026-10-05 23:00,Autoklaf CSSD,85
+2026-10-05 23:00,Lemari Pendingin Vaksin dan Obat,163
+2026-10-05 23:00,Pompa Air dan Penerangan,1366
+2026-10-06 00:00,AC Poli Rawat Jalan,135
+2026-10-06 00:00,Chiller Rawat Inap,5635
+2026-10-06 00:00,Autoklaf CSSD,96
+2026-10-06 00:00,Lemari Pendingin Vaksin dan Obat,167
+2026-10-06 00:00,Pompa Air dan Penerangan,1574
+2026-10-06 01:00,AC Poli Rawat Jalan,102
+2026-10-06 01:00,Chiller Rawat Inap,5953
+2026-10-06 01:00,Autoklaf CSSD,82
+2026-10-06 01:00,Lemari Pendingin Vaksin dan Obat,168
+2026-10-06 01:00,Pompa Air dan Penerangan,1647
+2026-10-06 02:00,AC Poli Rawat Jalan,124
+2026-10-06 02:00,Chiller Rawat Inap,5664
+2026-10-06 02:00,Autoklaf CSSD,87
+2026-10-06 02:00,Lemari Pendingin Vaksin dan Obat,160
+2026-10-06 02:00,Pompa Air dan Penerangan,1611
+2026-10-06 03:00,AC Poli Rawat Jalan,101
+2026-10-06 03:00,Chiller Rawat Inap,5939
+2026-10-06 03:00,Autoklaf CSSD,89
+2026-10-06 03:00,Lemari Pendingin Vaksin dan Obat,171
+2026-10-06 03:00,Pompa Air dan Penerangan,1519
+2026-10-06 04:00,AC Poli Rawat Jalan,127
+2026-10-06 04:00,Chiller Rawat Inap,5560
+2026-10-06 04:00,Autoklaf CSSD,72
+2026-10-06 04:00,Lemari Pendingin Vaksin dan Obat,153
+2026-10-06 04:00,Pompa Air dan Penerangan,1797
+2026-10-06 05:00,AC Poli Rawat Jalan,137
+2026-10-06 05:00,Chiller Rawat Inap,6084
+2026-10-06 05:00,Autoklaf CSSD,92
+2026-10-06 05:00,Lemari Pendingin Vaksin dan Obat,170
+2026-10-06 05:00,Pompa Air dan Penerangan,1547
+2026-10-06 06:00,AC Poli Rawat Jalan,129
+2026-10-06 06:00,Chiller Rawat Inap,6038
+2026-10-06 06:00,Autoklaf CSSD,93
+2026-10-06 06:00,Lemari Pendingin Vaksin dan Obat,173
+2026-10-06 06:00,Pompa Air dan Penerangan,3326
+2026-10-06 07:00,AC Poli Rawat Jalan,5514
+2026-10-06 07:00,Chiller Rawat Inap,5618
+2026-10-06 07:00,Autoklaf CSSD,1329
+2026-10-06 07:00,Lemari Pendingin Vaksin dan Obat,167
+2026-10-06 07:00,Pompa Air dan Penerangan,3739
+2026-10-06 08:00,AC Poli Rawat Jalan,6200
+2026-10-06 08:00,Chiller Rawat Inap,8582
+2026-10-06 08:00,Autoklaf CSSD,2492
+2026-10-06 08:00,Lemari Pendingin Vaksin dan Obat,150
+2026-10-06 08:00,Pompa Air dan Penerangan,3619
+2026-10-06 09:00,AC Poli Rawat Jalan,6315
+2026-10-06 09:00,Chiller Rawat Inap,9477
+2026-10-06 09:00,Autoklaf CSSD,1216
+2026-10-06 09:00,Lemari Pendingin Vaksin dan Obat,167
+2026-10-06 09:00,Pompa Air dan Penerangan,3707
+2026-10-06 10:00,AC Poli Rawat Jalan,5870
+2026-10-06 10:00,Chiller Rawat Inap,9192
+2026-10-06 10:00,Autoklaf CSSD,2356
+2026-10-06 10:00,Lemari Pendingin Vaksin dan Obat,156
+2026-10-06 10:00,Pompa Air dan Penerangan,3541
+2026-10-06 11:00,AC Poli Rawat Jalan,6024
+2026-10-06 11:00,Chiller Rawat Inap,8724
+2026-10-06 11:00,Autoklaf CSSD,1439
+2026-10-06 11:00,Lemari Pendingin Vaksin dan Obat,153
+2026-10-06 11:00,Pompa Air dan Penerangan,3334
+2026-10-06 12:00,AC Poli Rawat Jalan,5524
+2026-10-06 12:00,Chiller Rawat Inap,9341
+2026-10-06 12:00,Autoklaf CSSD,2783
+2026-10-06 12:00,Lemari Pendingin Vaksin dan Obat,155
+2026-10-06 12:00,Pompa Air dan Penerangan,3307
+2026-10-06 13:00,AC Poli Rawat Jalan,6403
+2026-10-06 13:00,Chiller Rawat Inap,9365
+2026-10-06 13:00,Autoklaf CSSD,1276
+2026-10-06 13:00,Lemari Pendingin Vaksin dan Obat,155
+2026-10-06 13:00,Pompa Air dan Penerangan,3414
+2026-10-06 14:00,AC Poli Rawat Jalan,5402
+2026-10-06 14:00,Chiller Rawat Inap,9219
+2026-10-06 14:00,Autoklaf CSSD,2865
+2026-10-06 14:00,Lemari Pendingin Vaksin dan Obat,169
+2026-10-06 14:00,Pompa Air dan Penerangan,3729
+2026-10-06 15:00,AC Poli Rawat Jalan,6306
+2026-10-06 15:00,Chiller Rawat Inap,9076
+2026-10-06 15:00,Autoklaf CSSD,98
+2026-10-06 15:00,Lemari Pendingin Vaksin dan Obat,159
+2026-10-06 15:00,Pompa Air dan Penerangan,3573
+2026-10-06 16:00,AC Poli Rawat Jalan,128
+2026-10-06 16:00,Chiller Rawat Inap,9312
+2026-10-06 16:00,Autoklaf CSSD,61
+2026-10-06 16:00,Lemari Pendingin Vaksin dan Obat,172
+2026-10-06 16:00,Pompa Air dan Penerangan,3372
+2026-10-06 17:00,AC Poli Rawat Jalan,125
+2026-10-06 17:00,Chiller Rawat Inap,8765
+2026-10-06 17:00,Autoklaf CSSD,86
+2026-10-06 17:00,Lemari Pendingin Vaksin dan Obat,159
+2026-10-06 17:00,Pompa Air dan Penerangan,3457
+2026-10-06 18:00,AC Poli Rawat Jalan,129
+2026-10-06 18:00,Chiller Rawat Inap,9400
+2026-10-06 18:00,Autoklaf CSSD,71
+2026-10-06 18:00,Lemari Pendingin Vaksin dan Obat,152
+2026-10-06 18:00,Pompa Air dan Penerangan,3620
+2026-10-06 19:00,AC Poli Rawat Jalan,104
+2026-10-06 19:00,Chiller Rawat Inap,8683
+2026-10-06 19:00,Autoklaf CSSD,86
+2026-10-06 19:00,Lemari Pendingin Vaksin dan Obat,164
+2026-10-06 19:00,Pompa Air dan Penerangan,3635
+2026-10-06 20:00,AC Poli Rawat Jalan,124
+2026-10-06 20:00,Chiller Rawat Inap,6458
+2026-10-06 20:00,Autoklaf CSSD,81
+2026-10-06 20:00,Lemari Pendingin Vaksin dan Obat,166
+2026-10-06 20:00,Pompa Air dan Penerangan,3409
+2026-10-06 21:00,AC Poli Rawat Jalan,104
+2026-10-06 21:00,Chiller Rawat Inap,5807
+2026-10-06 21:00,Autoklaf CSSD,85
+2026-10-06 21:00,Lemari Pendingin Vaksin dan Obat,175
+2026-10-06 21:00,Pompa Air dan Penerangan,1451
+2026-10-06 22:00,AC Poli Rawat Jalan,123
+2026-10-06 22:00,Chiller Rawat Inap,5963
+2026-10-06 22:00,Autoklaf CSSD,75
+2026-10-06 22:00,Lemari Pendingin Vaksin dan Obat,173
+2026-10-06 22:00,Pompa Air dan Penerangan,1495
+2026-10-06 23:00,AC Poli Rawat Jalan,109
+2026-10-06 23:00,Chiller Rawat Inap,6065
+2026-10-06 23:00,Autoklaf CSSD,94
+2026-10-06 23:00,Lemari Pendingin Vaksin dan Obat,173
+2026-10-06 23:00,Pompa Air dan Penerangan,1503
+2026-10-07 00:00,AC Poli Rawat Jalan,132
+2026-10-07 00:00,Chiller Rawat Inap,6210
+2026-10-07 00:00,Autoklaf CSSD,98
+2026-10-07 00:00,Lemari Pendingin Vaksin dan Obat,160
+2026-10-07 00:00,Pompa Air dan Penerangan,1424
+2026-10-07 01:00,AC Poli Rawat Jalan,118
+2026-10-07 01:00,Chiller Rawat Inap,6484
+2026-10-07 01:00,Autoklaf CSSD,89
+2026-10-07 01:00,Lemari Pendingin Vaksin dan Obat,168
+2026-10-07 01:00,Pompa Air dan Penerangan,1405
+2026-10-07 02:00,AC Poli Rawat Jalan,112
+2026-10-07 02:00,Chiller Rawat Inap,6297
+2026-10-07 02:00,Autoklaf CSSD,96
+2026-10-07 02:00,Lemari Pendingin Vaksin dan Obat,155
+2026-10-07 02:00,Pompa Air dan Penerangan,1590
+2026-10-07 03:00,AC Poli Rawat Jalan,110
+2026-10-07 03:00,Chiller Rawat Inap,5585
+2026-10-07 03:00,Autoklaf CSSD,86
+2026-10-07 03:00,Lemari Pendingin Vaksin dan Obat,168
+2026-10-07 03:00,Pompa Air dan Penerangan,1475
+2026-10-07 04:00,AC Poli Rawat Jalan,105
+2026-10-07 04:00,Chiller Rawat Inap,6309
+2026-10-07 04:00,Autoklaf CSSD,97
+2026-10-07 04:00,Lemari Pendingin Vaksin dan Obat,170
+2026-10-07 04:00,Pompa Air dan Penerangan,1425
+2026-10-07 05:00,AC Poli Rawat Jalan,140
+2026-10-07 05:00,Chiller Rawat Inap,6474
+2026-10-07 05:00,Autoklaf CSSD,66
+2026-10-07 05:00,Lemari Pendingin Vaksin dan Obat,162
+2026-10-07 05:00,Pompa Air dan Penerangan,1828
+2026-10-07 06:00,AC Poli Rawat Jalan,119
+2026-10-07 06:00,Chiller Rawat Inap,6314
+2026-10-07 06:00,Autoklaf CSSD,67
+2026-10-07 06:00,Lemari Pendingin Vaksin dan Obat,163
+2026-10-07 06:00,Pompa Air dan Penerangan,3631
+2026-10-07 07:00,AC Poli Rawat Jalan,5853
+2026-10-07 07:00,Chiller Rawat Inap,6341
+2026-10-07 07:00,Autoklaf CSSD,1691
+2026-10-07 07:00,Lemari Pendingin Vaksin dan Obat,173
+2026-10-07 07:00,Pompa Air dan Penerangan,3690
+2026-10-07 08:00,AC Poli Rawat Jalan,6350
+2026-10-07 08:00,Chiller Rawat Inap,8870
+2026-10-07 08:00,Autoklaf CSSD,2387
+2026-10-07 08:00,Lemari Pendingin Vaksin dan Obat,164
+2026-10-07 08:00,Pompa Air dan Penerangan,3687
+2026-10-07 09:00,AC Poli Rawat Jalan,5472
+2026-10-07 09:00,Chiller Rawat Inap,8886
+2026-10-07 09:00,Autoklaf CSSD,1647
+2026-10-07 09:00,Lemari Pendingin Vaksin dan Obat,166
+2026-10-07 09:00,Pompa Air dan Penerangan,3692
+2026-10-07 10:00,AC Poli Rawat Jalan,6188
+2026-10-07 10:00,Chiller Rawat Inap,9370
+2026-10-07 10:00,Autoklaf CSSD,2438
+2026-10-07 10:00,Lemari Pendingin Vaksin dan Obat,157
+2026-10-07 10:00,Pompa Air dan Penerangan,3484
+2026-10-07 11:00,AC Poli Rawat Jalan,6047
+2026-10-07 11:00,Chiller Rawat Inap,8891
+2026-10-07 11:00,Autoklaf CSSD,1181
+2026-10-07 11:00,Lemari Pendingin Vaksin dan Obat,159
+2026-10-07 11:00,Pompa Air dan Penerangan,3704
+2026-10-07 12:00,AC Poli Rawat Jalan,5981
+2026-10-07 12:00,Chiller Rawat Inap,9177
+2026-10-07 12:00,Autoklaf CSSD,2489
+2026-10-07 12:00,Lemari Pendingin Vaksin dan Obat,175
+2026-10-07 12:00,Pompa Air dan Penerangan,3433
+2026-10-07 13:00,AC Poli Rawat Jalan,6566
+2026-10-07 13:00,Chiller Rawat Inap,9395
+2026-10-07 13:00,Autoklaf CSSD,1320
+2026-10-07 13:00,Lemari Pendingin Vaksin dan Obat,161
+2026-10-07 13:00,Pompa Air dan Penerangan,3588
+2026-10-07 14:00,AC Poli Rawat Jalan,6020
+2026-10-07 14:00,Chiller Rawat Inap,8783
+2026-10-07 14:00,Autoklaf CSSD,2412
+2026-10-07 14:00,Lemari Pendingin Vaksin dan Obat,178
+2026-10-07 14:00,Pompa Air dan Penerangan,3386
+2026-10-07 15:00,AC Poli Rawat Jalan,6173
+2026-10-07 15:00,Chiller Rawat Inap,9393
+2026-10-07 15:00,Autoklaf CSSD,77
+2026-10-07 15:00,Lemari Pendingin Vaksin dan Obat,155
+2026-10-07 15:00,Pompa Air dan Penerangan,3463
+2026-10-07 16:00,AC Poli Rawat Jalan,126
+2026-10-07 16:00,Chiller Rawat Inap,8773
+2026-10-07 16:00,Autoklaf CSSD,82
+2026-10-07 16:00,Lemari Pendingin Vaksin dan Obat,175
+2026-10-07 16:00,Pompa Air dan Penerangan,3648
+2026-10-07 17:00,AC Poli Rawat Jalan,103
+2026-10-07 17:00,Chiller Rawat Inap,9189
+2026-10-07 17:00,Autoklaf CSSD,70
+2026-10-07 17:00,Lemari Pendingin Vaksin dan Obat,157
+2026-10-07 17:00,Pompa Air dan Penerangan,3589
+2026-10-07 18:00,AC Poli Rawat Jalan,107
+2026-10-07 18:00,Chiller Rawat Inap,9412
+2026-10-07 18:00,Autoklaf CSSD,65
+2026-10-07 18:00,Lemari Pendingin Vaksin dan Obat,169
+2026-10-07 18:00,Pompa Air dan Penerangan,3497
+2026-10-07 19:00,AC Poli Rawat Jalan,137
+2026-10-07 19:00,Chiller Rawat Inap,8906
+2026-10-07 19:00,Autoklaf CSSD,62
+2026-10-07 19:00,Lemari Pendingin Vaksin dan Obat,170
+2026-10-07 19:00,Pompa Air dan Penerangan,3297
+2026-10-07 20:00,AC Poli Rawat Jalan,121
+2026-10-07 20:00,Chiller Rawat Inap,6290
+2026-10-07 20:00,Autoklaf CSSD,91
+2026-10-07 20:00,Lemari Pendingin Vaksin dan Obat,167
+2026-10-07 20:00,Pompa Air dan Penerangan,3723
+2026-10-07 21:00,AC Poli Rawat Jalan,110
+2026-10-07 21:00,Chiller Rawat Inap,5719
+2026-10-07 21:00,Autoklaf CSSD,77
+2026-10-07 21:00,Lemari Pendingin Vaksin dan Obat,166
+2026-10-07 21:00,Pompa Air dan Penerangan,1708
+2026-10-07 22:00,AC Poli Rawat Jalan,121
+2026-10-07 22:00,Chiller Rawat Inap,5741
+2026-10-07 22:00,Autoklaf CSSD,83
+2026-10-07 22:00,Lemari Pendingin Vaksin dan Obat,171
+2026-10-07 22:00,Pompa Air dan Penerangan,1769
+2026-10-07 23:00,AC Poli Rawat Jalan,131
+2026-10-07 23:00,Chiller Rawat Inap,6190
+2026-10-07 23:00,Autoklaf CSSD,97
+2026-10-07 23:00,Lemari Pendingin Vaksin dan Obat,167
+2026-10-07 23:00,Pompa Air dan Penerangan,1463
+2026-10-08 00:00,AC Poli Rawat Jalan,118
+2026-10-08 00:00,Chiller Rawat Inap,5825
+2026-10-08 00:00,Autoklaf CSSD,86
+2026-10-08 00:00,Lemari Pendingin Vaksin dan Obat,179
+2026-10-08 00:00,Pompa Air dan Penerangan,1805
+2026-10-08 01:00,AC Poli Rawat Jalan,119
+2026-10-08 01:00,Chiller Rawat Inap,6065
+2026-10-08 01:00,Autoklaf CSSD,89
+2026-10-08 01:00,Lemari Pendingin Vaksin dan Obat,160
+2026-10-08 01:00,Pompa Air dan Penerangan,1499
+2026-10-08 02:00,AC Poli Rawat Jalan,133
+2026-10-08 02:00,Chiller Rawat Inap,5827
+2026-10-08 02:00,Autoklaf CSSD,78
+2026-10-08 02:00,Lemari Pendingin Vaksin dan Obat,170
+2026-10-08 02:00,Pompa Air dan Penerangan,1828
+2026-10-08 03:00,AC Poli Rawat Jalan,128
+2026-10-08 03:00,Chiller Rawat Inap,5986
+2026-10-08 03:00,Autoklaf CSSD,87
+2026-10-08 03:00,Lemari Pendingin Vaksin dan Obat,162
+2026-10-08 03:00,Pompa Air dan Penerangan,1522
+2026-10-08 04:00,AC Poli Rawat Jalan,119
+2026-10-08 04:00,Chiller Rawat Inap,5624
+2026-10-08 04:00,Autoklaf CSSD,86
+2026-10-08 04:00,Lemari Pendingin Vaksin dan Obat,163
+2026-10-08 04:00,Pompa Air dan Penerangan,1539
+2026-10-08 05:00,AC Poli Rawat Jalan,129
+2026-10-08 05:00,Chiller Rawat Inap,6239
+2026-10-08 05:00,Autoklaf CSSD,71
+2026-10-08 05:00,Lemari Pendingin Vaksin dan Obat,176
+2026-10-08 05:00,Pompa Air dan Penerangan,1511
+2026-10-08 06:00,AC Poli Rawat Jalan,132
+2026-10-08 06:00,Chiller Rawat Inap,6337
+2026-10-08 06:00,Autoklaf CSSD,70
+2026-10-08 06:00,Lemari Pendingin Vaksin dan Obat,159
+2026-10-08 06:00,Pompa Air dan Penerangan,3412
+2026-10-08 07:00,AC Poli Rawat Jalan,5973
+2026-10-08 07:00,Chiller Rawat Inap,5811
+2026-10-08 07:00,Autoklaf CSSD,1632
+2026-10-08 07:00,Lemari Pendingin Vaksin dan Obat,161
+2026-10-08 07:00,Pompa Air dan Penerangan,3421
+2026-10-08 08:00,AC Poli Rawat Jalan,5600
+2026-10-08 08:00,Chiller Rawat Inap,9297
+2026-10-08 08:00,Autoklaf CSSD,2888
+2026-10-08 08:00,Lemari Pendingin Vaksin dan Obat,170
+2026-10-08 08:00,Pompa Air dan Penerangan,3452
+2026-10-08 09:00,AC Poli Rawat Jalan,5698
+2026-10-08 09:00,Chiller Rawat Inap,8697
+2026-10-08 09:00,Autoklaf CSSD,1553
+2026-10-08 09:00,Lemari Pendingin Vaksin dan Obat,180
+2026-10-08 09:00,Pompa Air dan Penerangan,3281
+2026-10-08 10:00,AC Poli Rawat Jalan,5884
+2026-10-08 10:00,Chiller Rawat Inap,8707
+2026-10-08 10:00,Autoklaf CSSD,2383
+2026-10-08 10:00,Lemari Pendingin Vaksin dan Obat,169
+2026-10-08 10:00,Pompa Air dan Penerangan,3476
+2026-10-08 11:00,AC Poli Rawat Jalan,5774
+2026-10-08 11:00,Chiller Rawat Inap,8896
+2026-10-08 11:00,Autoklaf CSSD,1213
+2026-10-08 11:00,Lemari Pendingin Vaksin dan Obat,166
+2026-10-08 11:00,Pompa Air dan Penerangan,3654
+2026-10-08 12:00,AC Poli Rawat Jalan,6426
+2026-10-08 12:00,Chiller Rawat Inap,9405
+2026-10-08 12:00,Autoklaf CSSD,2793
+2026-10-08 12:00,Lemari Pendingin Vaksin dan Obat,168
+2026-10-08 12:00,Pompa Air dan Penerangan,3719
+2026-10-08 13:00,AC Poli Rawat Jalan,6352
+2026-10-08 13:00,Chiller Rawat Inap,9213
+2026-10-08 13:00,Autoklaf CSSD,1393
+2026-10-08 13:00,Lemari Pendingin Vaksin dan Obat,180
+2026-10-08 13:00,Pompa Air dan Penerangan,3680
+2026-10-08 14:00,AC Poli Rawat Jalan,6503
+2026-10-08 14:00,Chiller Rawat Inap,8725
+2026-10-08 14:00,Autoklaf CSSD,2846
+2026-10-08 14:00,Lemari Pendingin Vaksin dan Obat,161
+2026-10-08 14:00,Pompa Air dan Penerangan,3663
+2026-10-08 15:00,AC Poli Rawat Jalan,6584
+2026-10-08 15:00,Chiller Rawat Inap,8500
+2026-10-08 15:00,Autoklaf CSSD,84
+2026-10-08 15:00,Lemari Pendingin Vaksin dan Obat,167
+2026-10-08 15:00,Pompa Air dan Penerangan,3519
+2026-10-08 16:00,AC Poli Rawat Jalan,129
+2026-10-08 16:00,Chiller Rawat Inap,9240
+2026-10-08 16:00,Autoklaf CSSD,61
+2026-10-08 16:00,Lemari Pendingin Vaksin dan Obat,178
+2026-10-08 16:00,Pompa Air dan Penerangan,3676
+2026-10-08 17:00,AC Poli Rawat Jalan,138
+2026-10-08 17:00,Chiller Rawat Inap,8540
+2026-10-08 17:00,Autoklaf CSSD,90
+2026-10-08 17:00,Lemari Pendingin Vaksin dan Obat,177
+2026-10-08 17:00,Pompa Air dan Penerangan,3317
+2026-10-08 18:00,AC Poli Rawat Jalan,107
+2026-10-08 18:00,Chiller Rawat Inap,8721
+2026-10-08 18:00,Autoklaf CSSD,67
+2026-10-08 18:00,Lemari Pendingin Vaksin dan Obat,165
+2026-10-08 18:00,Pompa Air dan Penerangan,3274
+2026-10-08 19:00,AC Poli Rawat Jalan,123
+2026-10-08 19:00,Chiller Rawat Inap,8852
+2026-10-08 19:00,Autoklaf CSSD,64
+2026-10-08 19:00,Lemari Pendingin Vaksin dan Obat,161
+2026-10-08 19:00,Pompa Air dan Penerangan,3563
+2026-10-08 20:00,AC Poli Rawat Jalan,139
+2026-10-08 20:00,Chiller Rawat Inap,5589
+2026-10-08 20:00,Autoklaf CSSD,95
+2026-10-08 20:00,Lemari Pendingin Vaksin dan Obat,183
+2026-10-08 20:00,Pompa Air dan Penerangan,3503
+2026-10-08 21:00,AC Poli Rawat Jalan,105
+2026-10-08 21:00,Chiller Rawat Inap,6184
+2026-10-08 21:00,Autoklaf CSSD,90
+2026-10-08 21:00,Lemari Pendingin Vaksin dan Obat,174
+2026-10-08 21:00,Pompa Air dan Penerangan,1727
+2026-10-08 22:00,AC Poli Rawat Jalan,102
+2026-10-08 22:00,Chiller Rawat Inap,6490
+2026-10-08 22:00,Autoklaf CSSD,69
+2026-10-08 22:00,Lemari Pendingin Vaksin dan Obat,168
+2026-10-08 22:00,Pompa Air dan Penerangan,1495
+2026-10-08 23:00,AC Poli Rawat Jalan,101
+2026-10-08 23:00,Chiller Rawat Inap,5583
+2026-10-08 23:00,Autoklaf CSSD,73
+2026-10-08 23:00,Lemari Pendingin Vaksin dan Obat,174
+2026-10-08 23:00,Pompa Air dan Penerangan,1605
+2026-10-09 00:00,AC Poli Rawat Jalan,130
+2026-10-09 00:00,Chiller Rawat Inap,5605
+2026-10-09 00:00,Autoklaf CSSD,98
+2026-10-09 00:00,Lemari Pendingin Vaksin dan Obat,183
+2026-10-09 00:00,Pompa Air dan Penerangan,1797
+2026-10-09 01:00,AC Poli Rawat Jalan,110
+2026-10-09 01:00,Chiller Rawat Inap,6427
+2026-10-09 01:00,Autoklaf CSSD,62
+2026-10-09 01:00,Lemari Pendingin Vaksin dan Obat,178
+2026-10-09 01:00,Pompa Air dan Penerangan,1717
+2026-10-09 02:00,AC Poli Rawat Jalan,101
+2026-10-09 02:00,Chiller Rawat Inap,5728
+2026-10-09 02:00,Autoklaf CSSD,99
+2026-10-09 02:00,Lemari Pendingin Vaksin dan Obat,184
+2026-10-09 02:00,Pompa Air dan Penerangan,1643
+2026-10-09 03:00,AC Poli Rawat Jalan,131
+2026-10-09 03:00,Chiller Rawat Inap,6361
+2026-10-09 03:00,Autoklaf CSSD,60
+2026-10-09 03:00,Lemari Pendingin Vaksin dan Obat,169
+2026-10-09 03:00,Pompa Air dan Penerangan,1633
+2026-10-09 04:00,AC Poli Rawat Jalan,110
+2026-10-09 04:00,Chiller Rawat Inap,6034
+2026-10-09 04:00,Autoklaf CSSD,63
+2026-10-09 04:00,Lemari Pendingin Vaksin dan Obat,176
+2026-10-09 04:00,Pompa Air dan Penerangan,1692
+2026-10-09 05:00,AC Poli Rawat Jalan,124
+2026-10-09 05:00,Chiller Rawat Inap,5694
+2026-10-09 05:00,Autoklaf CSSD,62
+2026-10-09 05:00,Lemari Pendingin Vaksin dan Obat,181
+2026-10-09 05:00,Pompa Air dan Penerangan,1716
+2026-10-09 06:00,AC Poli Rawat Jalan,134
+2026-10-09 06:00,Chiller Rawat Inap,6068
+2026-10-09 06:00,Autoklaf CSSD,100
+2026-10-09 06:00,Lemari Pendingin Vaksin dan Obat,172
+2026-10-09 06:00,Pompa Air dan Penerangan,3615
+2026-10-09 07:00,AC Poli Rawat Jalan,5837
+2026-10-09 07:00,Chiller Rawat Inap,6048
+2026-10-09 07:00,Autoklaf CSSD,1185
+2026-10-09 07:00,Lemari Pendingin Vaksin dan Obat,170
+2026-10-09 07:00,Pompa Air dan Penerangan,3683
+2026-10-09 08:00,AC Poli Rawat Jalan,6472
+2026-10-09 08:00,Chiller Rawat Inap,8658
+2026-10-09 08:00,Autoklaf CSSD,2475
+2026-10-09 08:00,Lemari Pendingin Vaksin dan Obat,184
+2026-10-09 08:00,Pompa Air dan Penerangan,3613
+2026-10-09 09:00,AC Poli Rawat Jalan,5954
+2026-10-09 09:00,Chiller Rawat Inap,8995
+2026-10-09 09:00,Autoklaf CSSD,1173
+2026-10-09 09:00,Lemari Pendingin Vaksin dan Obat,169
+2026-10-09 09:00,Pompa Air dan Penerangan,3417
+2026-10-09 10:00,AC Poli Rawat Jalan,6148
+2026-10-09 10:00,Chiller Rawat Inap,9272
+2026-10-09 10:00,Autoklaf CSSD,2471
+2026-10-09 10:00,Lemari Pendingin Vaksin dan Obat,180
+2026-10-09 10:00,Pompa Air dan Penerangan,3561
+2026-10-09 11:00,AC Poli Rawat Jalan,5968
+2026-10-09 11:00,Chiller Rawat Inap,8542
+2026-10-09 11:00,Autoklaf CSSD,1602
+2026-10-09 11:00,Lemari Pendingin Vaksin dan Obat,166
+2026-10-09 11:00,Pompa Air dan Penerangan,3310
+2026-10-09 12:00,AC Poli Rawat Jalan,5413
+2026-10-09 12:00,Chiller Rawat Inap,9483
+2026-10-09 12:00,Autoklaf CSSD,2609
+2026-10-09 12:00,Lemari Pendingin Vaksin dan Obat,183
+2026-10-09 12:00,Pompa Air dan Penerangan,3699
+2026-10-09 13:00,AC Poli Rawat Jalan,5858
+2026-10-09 13:00,Chiller Rawat Inap,8577
+2026-10-09 13:00,Autoklaf CSSD,1410
+2026-10-09 13:00,Lemari Pendingin Vaksin dan Obat,179
+2026-10-09 13:00,Pompa Air dan Penerangan,3517
+2026-10-09 14:00,AC Poli Rawat Jalan,6162
+2026-10-09 14:00,Chiller Rawat Inap,8583
+2026-10-09 14:00,Autoklaf CSSD,2786
+2026-10-09 14:00,Lemari Pendingin Vaksin dan Obat,176
+2026-10-09 14:00,Pompa Air dan Penerangan,3749
+2026-10-09 15:00,AC Poli Rawat Jalan,5676
+2026-10-09 15:00,Chiller Rawat Inap,8850
+2026-10-09 15:00,Autoklaf CSSD,73
+2026-10-09 15:00,Lemari Pendingin Vaksin dan Obat,179
+2026-10-09 15:00,Pompa Air dan Penerangan,3303
+2026-10-09 16:00,AC Poli Rawat Jalan,105
+2026-10-09 16:00,Chiller Rawat Inap,9318
+2026-10-09 16:00,Autoklaf CSSD,93
+2026-10-09 16:00,Lemari Pendingin Vaksin dan Obat,175
+2026-10-09 16:00,Pompa Air dan Penerangan,3737
+2026-10-09 17:00,AC Poli Rawat Jalan,107
+2026-10-09 17:00,Chiller Rawat Inap,9161
+2026-10-09 17:00,Autoklaf CSSD,83
+2026-10-09 17:00,Lemari Pendingin Vaksin dan Obat,169
+2026-10-09 17:00,Pompa Air dan Penerangan,3588
+2026-10-09 18:00,AC Poli Rawat Jalan,138
+2026-10-09 18:00,Chiller Rawat Inap,8996
+2026-10-09 18:00,Autoklaf CSSD,88
+2026-10-09 18:00,Lemari Pendingin Vaksin dan Obat,164
+2026-10-09 18:00,Pompa Air dan Penerangan,3313
+2026-10-09 19:00,AC Poli Rawat Jalan,129
+2026-10-09 19:00,Chiller Rawat Inap,9049
+2026-10-09 19:00,Autoklaf CSSD,80
+2026-10-09 19:00,Lemari Pendingin Vaksin dan Obat,167
+2026-10-09 19:00,Pompa Air dan Penerangan,3673
+2026-10-09 20:00,AC Poli Rawat Jalan,114
+2026-10-09 20:00,Chiller Rawat Inap,5750
+2026-10-09 20:00,Autoklaf CSSD,72
+2026-10-09 20:00,Lemari Pendingin Vaksin dan Obat,164
+2026-10-09 20:00,Pompa Air dan Penerangan,3700
+2026-10-09 21:00,AC Poli Rawat Jalan,111
+2026-10-09 21:00,Chiller Rawat Inap,5850
+2026-10-09 21:00,Autoklaf CSSD,65
+2026-10-09 21:00,Lemari Pendingin Vaksin dan Obat,178
+2026-10-09 21:00,Pompa Air dan Penerangan,1380
+2026-10-09 22:00,AC Poli Rawat Jalan,127
+2026-10-09 22:00,Chiller Rawat Inap,6126
+2026-10-09 22:00,Autoklaf CSSD,78
+2026-10-09 22:00,Lemari Pendingin Vaksin dan Obat,184
+2026-10-09 22:00,Pompa Air dan Penerangan,1385
+2026-10-09 23:00,AC Poli Rawat Jalan,131
+2026-10-09 23:00,Chiller Rawat Inap,6230
+2026-10-09 23:00,Autoklaf CSSD,84
+2026-10-09 23:00,Lemari Pendingin Vaksin dan Obat,164
+2026-10-09 23:00,Pompa Air dan Penerangan,1375
+2026-10-10 00:00,AC Poli Rawat Jalan,129
+2026-10-10 00:00,Chiller Rawat Inap,6003
+2026-10-10 00:00,Autoklaf CSSD,71
+2026-10-10 00:00,Lemari Pendingin Vaksin dan Obat,186
+2026-10-10 00:00,Pompa Air dan Penerangan,1638
+2026-10-10 01:00,AC Poli Rawat Jalan,115
+2026-10-10 01:00,Chiller Rawat Inap,6150
+2026-10-10 01:00,Autoklaf CSSD,69
+2026-10-10 01:00,Lemari Pendingin Vaksin dan Obat,182
+2026-10-10 01:00,Pompa Air dan Penerangan,1783
+2026-10-10 02:00,AC Poli Rawat Jalan,113
+2026-10-10 02:00,Chiller Rawat Inap,5681
+2026-10-10 02:00,Autoklaf CSSD,75
+2026-10-10 02:00,Lemari Pendingin Vaksin dan Obat,166
+2026-10-10 02:00,Pompa Air dan Penerangan,1366
+2026-10-10 03:00,AC Poli Rawat Jalan,121
+2026-10-10 03:00,Chiller Rawat Inap,5647
+2026-10-10 03:00,Autoklaf CSSD,78
+2026-10-10 03:00,Lemari Pendingin Vaksin dan Obat,169
+2026-10-10 03:00,Pompa Air dan Penerangan,1788
+2026-10-10 04:00,AC Poli Rawat Jalan,109
+2026-10-10 04:00,Chiller Rawat Inap,6426
+2026-10-10 04:00,Autoklaf CSSD,77
+2026-10-10 04:00,Lemari Pendingin Vaksin dan Obat,182
+2026-10-10 04:00,Pompa Air dan Penerangan,1517
+2026-10-10 05:00,AC Poli Rawat Jalan,125
+2026-10-10 05:00,Chiller Rawat Inap,6009
+2026-10-10 05:00,Autoklaf CSSD,74
+2026-10-10 05:00,Lemari Pendingin Vaksin dan Obat,183
+2026-10-10 05:00,Pompa Air dan Penerangan,1444
+2026-10-10 06:00,AC Poli Rawat Jalan,112
+2026-10-10 06:00,Chiller Rawat Inap,6433
+2026-10-10 06:00,Autoklaf CSSD,95
+2026-10-10 06:00,Lemari Pendingin Vaksin dan Obat,171
+2026-10-10 06:00,Pompa Air dan Penerangan,3460
+2026-10-10 07:00,AC Poli Rawat Jalan,6310
+2026-10-10 07:00,Chiller Rawat Inap,6385
+2026-10-10 07:00,Autoklaf CSSD,1306
+2026-10-10 07:00,Lemari Pendingin Vaksin dan Obat,178
+2026-10-10 07:00,Pompa Air dan Penerangan,3600
+2026-10-10 08:00,AC Poli Rawat Jalan,5969
+2026-10-10 08:00,Chiller Rawat Inap,9469
+2026-10-10 08:00,Autoklaf CSSD,2515
+2026-10-10 08:00,Lemari Pendingin Vaksin dan Obat,172
+2026-10-10 08:00,Pompa Air dan Penerangan,3481
+2026-10-10 09:00,AC Poli Rawat Jalan,6136
+2026-10-10 09:00,Chiller Rawat Inap,8673
+2026-10-10 09:00,Autoklaf CSSD,1700
+2026-10-10 09:00,Lemari Pendingin Vaksin dan Obat,182
+2026-10-10 09:00,Pompa Air dan Penerangan,3476
+2026-10-10 10:00,AC Poli Rawat Jalan,6143
+2026-10-10 10:00,Chiller Rawat Inap,8716
+2026-10-10 10:00,Autoklaf CSSD,2553
+2026-10-10 10:00,Lemari Pendingin Vaksin dan Obat,171
+2026-10-10 10:00,Pompa Air dan Penerangan,3600
+2026-10-10 11:00,AC Poli Rawat Jalan,5590
+2026-10-10 11:00,Chiller Rawat Inap,8598
+2026-10-10 11:00,Autoklaf CSSD,1344
+2026-10-10 11:00,Lemari Pendingin Vaksin dan Obat,180
+2026-10-10 11:00,Pompa Air dan Penerangan,3285
+2026-10-10 12:00,AC Poli Rawat Jalan,5785
+2026-10-10 12:00,Chiller Rawat Inap,9108
+2026-10-10 12:00,Autoklaf CSSD,2449
+2026-10-10 12:00,Lemari Pendingin Vaksin dan Obat,187
+2026-10-10 12:00,Pompa Air dan Penerangan,3373
+2026-10-10 13:00,AC Poli Rawat Jalan,6380
+2026-10-10 13:00,Chiller Rawat Inap,8648
+2026-10-10 13:00,Autoklaf CSSD,1152
+2026-10-10 13:00,Lemari Pendingin Vaksin dan Obat,172
+2026-10-10 13:00,Pompa Air dan Penerangan,3723
+2026-10-10 14:00,AC Poli Rawat Jalan,5631
+2026-10-10 14:00,Chiller Rawat Inap,8677
+2026-10-10 14:00,Autoklaf CSSD,2464
+2026-10-10 14:00,Lemari Pendingin Vaksin dan Obat,167
+2026-10-10 14:00,Pompa Air dan Penerangan,3628
+2026-10-10 15:00,AC Poli Rawat Jalan,6175
+2026-10-10 15:00,Chiller Rawat Inap,8977
+2026-10-10 15:00,Autoklaf CSSD,69
+2026-10-10 15:00,Lemari Pendingin Vaksin dan Obat,183
+2026-10-10 15:00,Pompa Air dan Penerangan,3676
+2026-10-10 16:00,AC Poli Rawat Jalan,133
+2026-10-10 16:00,Chiller Rawat Inap,9288
+2026-10-10 16:00,Autoklaf CSSD,60
+2026-10-10 16:00,Lemari Pendingin Vaksin dan Obat,186
+2026-10-10 16:00,Pompa Air dan Penerangan,3312
+2026-10-10 17:00,AC Poli Rawat Jalan,102
+2026-10-10 17:00,Chiller Rawat Inap,8902
+2026-10-10 17:00,Autoklaf CSSD,75
+2026-10-10 17:00,Lemari Pendingin Vaksin dan Obat,189
+2026-10-10 17:00,Pompa Air dan Penerangan,3485
+2026-10-10 18:00,AC Poli Rawat Jalan,134
+2026-10-10 18:00,Chiller Rawat Inap,8805
+2026-10-10 18:00,Autoklaf CSSD,87
+2026-10-10 18:00,Lemari Pendingin Vaksin dan Obat,182
+2026-10-10 18:00,Pompa Air dan Penerangan,3401
+2026-10-10 19:00,AC Poli Rawat Jalan,128
+2026-10-10 19:00,Chiller Rawat Inap,8970
+2026-10-10 19:00,Autoklaf CSSD,76
+2026-10-10 19:00,Lemari Pendingin Vaksin dan Obat,183
+2026-10-10 19:00,Pompa Air dan Penerangan,3703
+2026-10-10 20:00,AC Poli Rawat Jalan,138
+2026-10-10 20:00,Chiller Rawat Inap,5538
+2026-10-10 20:00,Autoklaf CSSD,63
+2026-10-10 20:00,Lemari Pendingin Vaksin dan Obat,168
+2026-10-10 20:00,Pompa Air dan Penerangan,3378
+2026-10-10 21:00,AC Poli Rawat Jalan,113
+2026-10-10 21:00,Chiller Rawat Inap,6381
+2026-10-10 21:00,Autoklaf CSSD,64
+2026-10-10 21:00,Lemari Pendingin Vaksin dan Obat,187
+2026-10-10 21:00,Pompa Air dan Penerangan,1533
+2026-10-10 22:00,AC Poli Rawat Jalan,120
+2026-10-10 22:00,Chiller Rawat Inap,6158
+2026-10-10 22:00,Autoklaf CSSD,64
+2026-10-10 22:00,Lemari Pendingin Vaksin dan Obat,169
+2026-10-10 22:00,Pompa Air dan Penerangan,1682
+2026-10-10 23:00,AC Poli Rawat Jalan,114
+2026-10-10 23:00,Chiller Rawat Inap,5996
+2026-10-10 23:00,Autoklaf CSSD,72
+2026-10-10 23:00,Lemari Pendingin Vaksin dan Obat,184
+2026-10-10 23:00,Pompa Air dan Penerangan,1733
+2026-10-11 00:00,AC Poli Rawat Jalan,128
+2026-10-11 00:00,Chiller Rawat Inap,5807
+2026-10-11 00:00,Autoklaf CSSD,91
+2026-10-11 00:00,Lemari Pendingin Vaksin dan Obat,186
+2026-10-11 00:00,Pompa Air dan Penerangan,1673
+2026-10-11 01:00,AC Poli Rawat Jalan,136
+2026-10-11 01:00,Chiller Rawat Inap,5986
+2026-10-11 01:00,Autoklaf CSSD,83
+2026-10-11 01:00,Lemari Pendingin Vaksin dan Obat,177
+2026-10-11 01:00,Pompa Air dan Penerangan,1419
+2026-10-11 02:00,AC Poli Rawat Jalan,127
+2026-10-11 02:00,Chiller Rawat Inap,6309
+2026-10-11 02:00,Autoklaf CSSD,79
+2026-10-11 02:00,Lemari Pendingin Vaksin dan Obat,184
+2026-10-11 02:00,Pompa Air dan Penerangan,1811
+2026-10-11 03:00,AC Poli Rawat Jalan,117
+2026-10-11 03:00,Chiller Rawat Inap,5874
+2026-10-11 03:00,Autoklaf CSSD,98
+2026-10-11 03:00,Lemari Pendingin Vaksin dan Obat,187
+2026-10-11 03:00,Pompa Air dan Penerangan,1781
+2026-10-11 04:00,AC Poli Rawat Jalan,105
+2026-10-11 04:00,Chiller Rawat Inap,6054
+2026-10-11 04:00,Autoklaf CSSD,87
+2026-10-11 04:00,Lemari Pendingin Vaksin dan Obat,170
+2026-10-11 04:00,Pompa Air dan Penerangan,1550
+2026-10-11 05:00,AC Poli Rawat Jalan,129
+2026-10-11 05:00,Chiller Rawat Inap,6312
+2026-10-11 05:00,Autoklaf CSSD,96
+2026-10-11 05:00,Lemari Pendingin Vaksin dan Obat,183
+2026-10-11 05:00,Pompa Air dan Penerangan,1698
+2026-10-11 06:00,AC Poli Rawat Jalan,112
+2026-10-11 06:00,Chiller Rawat Inap,5869
+2026-10-11 06:00,Autoklaf CSSD,74
+2026-10-11 06:00,Lemari Pendingin Vaksin dan Obat,170
+2026-10-11 06:00,Pompa Air dan Penerangan,3289
+2026-10-11 07:00,AC Poli Rawat Jalan,113
+2026-10-11 07:00,Chiller Rawat Inap,5993
+2026-10-11 07:00,Autoklaf CSSD,84
+2026-10-11 07:00,Lemari Pendingin Vaksin dan Obat,180
+2026-10-11 07:00,Pompa Air dan Penerangan,3347
+2026-10-11 08:00,AC Poli Rawat Jalan,127
+2026-10-11 08:00,Chiller Rawat Inap,9063
+2026-10-11 08:00,Autoklaf CSSD,77
+2026-10-11 08:00,Lemari Pendingin Vaksin dan Obat,174
+2026-10-11 08:00,Pompa Air dan Penerangan,3251
+2026-10-11 09:00,AC Poli Rawat Jalan,105
+2026-10-11 09:00,Chiller Rawat Inap,8916
+2026-10-11 09:00,Autoklaf CSSD,81
+2026-10-11 09:00,Lemari Pendingin Vaksin dan Obat,175
+2026-10-11 09:00,Pompa Air dan Penerangan,3490
+2026-10-11 10:00,AC Poli Rawat Jalan,103
+2026-10-11 10:00,Chiller Rawat Inap,9182
+2026-10-11 10:00,Autoklaf CSSD,96
+2026-10-11 10:00,Lemari Pendingin Vaksin dan Obat,184
+2026-10-11 10:00,Pompa Air dan Penerangan,3319
+2026-10-11 11:00,AC Poli Rawat Jalan,137
+2026-10-11 11:00,Chiller Rawat Inap,8887
+2026-10-11 11:00,Autoklaf CSSD,86
+2026-10-11 11:00,Lemari Pendingin Vaksin dan Obat,172
+2026-10-11 11:00,Pompa Air dan Penerangan,3567
+2026-10-11 12:00,AC Poli Rawat Jalan,125
+2026-10-11 12:00,Chiller Rawat Inap,9279
+2026-10-11 12:00,Autoklaf CSSD,72
+2026-10-11 12:00,Lemari Pendingin Vaksin dan Obat,171
+2026-10-11 12:00,Pompa Air dan Penerangan,3489
+2026-10-11 13:00,AC Poli Rawat Jalan,100
+2026-10-11 13:00,Chiller Rawat Inap,8836
+2026-10-11 13:00,Autoklaf CSSD,87
+2026-10-11 13:00,Lemari Pendingin Vaksin dan Obat,183
+2026-10-11 13:00,Pompa Air dan Penerangan,3255
+2026-10-11 14:00,AC Poli Rawat Jalan,134
+2026-10-11 14:00,Chiller Rawat Inap,9440
+2026-10-11 14:00,Autoklaf CSSD,87
+2026-10-11 14:00,Lemari Pendingin Vaksin dan Obat,182
+2026-10-11 14:00,Pompa Air dan Penerangan,3628
+2026-10-11 15:00,AC Poli Rawat Jalan,109
+2026-10-11 15:00,Chiller Rawat Inap,8820
+2026-10-11 15:00,Autoklaf CSSD,78
+2026-10-11 15:00,Lemari Pendingin Vaksin dan Obat,181
+2026-10-11 15:00,Pompa Air dan Penerangan,3672
+2026-10-11 16:00,AC Poli Rawat Jalan,106
+2026-10-11 16:00,Chiller Rawat Inap,9047
+2026-10-11 16:00,Autoklaf CSSD,60
+2026-10-11 16:00,Lemari Pendingin Vaksin dan Obat,179
+2026-10-11 16:00,Pompa Air dan Penerangan,3466
+2026-10-11 17:00,AC Poli Rawat Jalan,130
+2026-10-11 17:00,Chiller Rawat Inap,8826
+2026-10-11 17:00,Autoklaf CSSD,91
+2026-10-11 17:00,Lemari Pendingin Vaksin dan Obat,188
+2026-10-11 17:00,Pompa Air dan Penerangan,3545
+2026-10-11 18:00,AC Poli Rawat Jalan,125
+2026-10-11 18:00,Chiller Rawat Inap,9128
+2026-10-11 18:00,Autoklaf CSSD,89
+2026-10-11 18:00,Lemari Pendingin Vaksin dan Obat,186
+2026-10-11 18:00,Pompa Air dan Penerangan,3574
+2026-10-11 19:00,AC Poli Rawat Jalan,105
+2026-10-11 19:00,Chiller Rawat Inap,8908
+2026-10-11 19:00,Autoklaf CSSD,80
+2026-10-11 19:00,Lemari Pendingin Vaksin dan Obat,187
+2026-10-11 19:00,Pompa Air dan Penerangan,3630
+2026-10-11 20:00,AC Poli Rawat Jalan,128
+2026-10-11 20:00,Chiller Rawat Inap,6233
+2026-10-11 20:00,Autoklaf CSSD,61
+2026-10-11 20:00,Lemari Pendingin Vaksin dan Obat,183
+2026-10-11 20:00,Pompa Air dan Penerangan,3521
+2026-10-11 21:00,AC Poli Rawat Jalan,140
+2026-10-11 21:00,Chiller Rawat Inap,6326
+2026-10-11 21:00,Autoklaf CSSD,67
+2026-10-11 21:00,Lemari Pendingin Vaksin dan Obat,181
+2026-10-11 21:00,Pompa Air dan Penerangan,1832
+2026-10-11 22:00,AC Poli Rawat Jalan,106
+2026-10-11 22:00,Chiller Rawat Inap,6414
+2026-10-11 22:00,Autoklaf CSSD,65
+2026-10-11 22:00,Lemari Pendingin Vaksin dan Obat,194
+2026-10-11 22:00,Pompa Air dan Penerangan,1713
+2026-10-11 23:00,AC Poli Rawat Jalan,100
+2026-10-11 23:00,Chiller Rawat Inap,5665
+2026-10-11 23:00,Autoklaf CSSD,79
+2026-10-11 23:00,Lemari Pendingin Vaksin dan Obat,184
+2026-10-11 23:00,Pompa Air dan Penerangan,1789
+2026-10-12 00:00,AC Poli Rawat Jalan,1201
+2026-10-12 00:00,Chiller Rawat Inap,5899
+2026-10-12 00:00,Autoklaf CSSD,78
+2026-10-12 00:00,Lemari Pendingin Vaksin dan Obat,175
+2026-10-12 00:00,Pompa Air dan Penerangan,1582
+2026-10-12 01:00,AC Poli Rawat Jalan,1043
+2026-10-12 01:00,Chiller Rawat Inap,6184
+2026-10-12 01:00,Autoklaf CSSD,79
+2026-10-12 01:00,Lemari Pendingin Vaksin dan Obat,174
+2026-10-12 01:00,Pompa Air dan Penerangan,1430
+2026-10-12 02:00,AC Poli Rawat Jalan,1198
+2026-10-12 02:00,Chiller Rawat Inap,5574
+2026-10-12 02:00,Autoklaf CSSD,96
+2026-10-12 02:00,Lemari Pendingin Vaksin dan Obat,187
+2026-10-12 02:00,Pompa Air dan Penerangan,1405
+2026-10-12 03:00,AC Poli Rawat Jalan,1107
+2026-10-12 03:00,Chiller Rawat Inap,6071
+2026-10-12 03:00,Autoklaf CSSD,94
+2026-10-12 03:00,Lemari Pendingin Vaksin dan Obat,181
+2026-10-12 03:00,Pompa Air dan Penerangan,1450
+2026-10-12 04:00,AC Poli Rawat Jalan,1250
+2026-10-12 04:00,Chiller Rawat Inap,5959
+2026-10-12 04:00,Autoklaf CSSD,92
+2026-10-12 04:00,Lemari Pendingin Vaksin dan Obat,191
+2026-10-12 04:00,Pompa Air dan Penerangan,1694
+2026-10-12 05:00,AC Poli Rawat Jalan,103
+2026-10-12 05:00,Chiller Rawat Inap,6098
+2026-10-12 05:00,Autoklaf CSSD,81
+2026-10-12 05:00,Lemari Pendingin Vaksin dan Obat,188
+2026-10-12 05:00,Pompa Air dan Penerangan,1849
+2026-10-12 06:00,AC Poli Rawat Jalan,108
+2026-10-12 06:00,Chiller Rawat Inap,6017
+2026-10-12 06:00,Autoklaf CSSD,94
+2026-10-12 06:00,Lemari Pendingin Vaksin dan Obat,191
+2026-10-12 06:00,Pompa Air dan Penerangan,3368
+2026-10-12 07:00,AC Poli Rawat Jalan,5846
+2026-10-12 07:00,Chiller Rawat Inap,5551
+2026-10-12 07:00,Autoklaf CSSD,1261
+2026-10-12 07:00,Lemari Pendingin Vaksin dan Obat,187
+2026-10-12 07:00,Pompa Air dan Penerangan,3511
+2026-10-12 08:00,AC Poli Rawat Jalan,6169
+2026-10-12 08:00,Chiller Rawat Inap,8649
+2026-10-12 08:00,Autoklaf CSSD,2769
+2026-10-12 08:00,Lemari Pendingin Vaksin dan Obat,178
+2026-10-12 08:00,Pompa Air dan Penerangan,3737
+2026-10-12 09:00,AC Poli Rawat Jalan,6061
+2026-10-12 09:00,Chiller Rawat Inap,9227
+2026-10-12 09:00,Autoklaf CSSD,1414
+2026-10-12 09:00,Lemari Pendingin Vaksin dan Obat,181
+2026-10-12 09:00,Pompa Air dan Penerangan,3666
+2026-10-12 10:00,AC Poli Rawat Jalan,5753
+2026-10-12 10:00,Chiller Rawat Inap,9303
+2026-10-12 10:00,Autoklaf CSSD,2311
+2026-10-12 10:00,Lemari Pendingin Vaksin dan Obat,186
+2026-10-12 10:00,Pompa Air dan Penerangan,3424
+2026-10-12 11:00,AC Poli Rawat Jalan,6385
+2026-10-12 11:00,Chiller Rawat Inap,9289
+2026-10-12 11:00,Autoklaf CSSD,1309
+2026-10-12 11:00,Lemari Pendingin Vaksin dan Obat,182
+2026-10-12 11:00,Pompa Air dan Penerangan,3321
+2026-10-12 12:00,AC Poli Rawat Jalan,5509
+2026-10-12 12:00,Chiller Rawat Inap,8711
+2026-10-12 12:00,Autoklaf CSSD,2592
+2026-10-12 12:00,Lemari Pendingin Vaksin dan Obat,188
+2026-10-12 12:00,Pompa Air dan Penerangan,3391
+2026-10-12 13:00,AC Poli Rawat Jalan,5865
+2026-10-12 13:00,Chiller Rawat Inap,8993
+2026-10-12 13:00,Autoklaf CSSD,1573
+2026-10-12 13:00,Lemari Pendingin Vaksin dan Obat,188
+2026-10-12 13:00,Pompa Air dan Penerangan,3298
+2026-10-12 14:00,AC Poli Rawat Jalan,6430
+2026-10-12 14:00,Chiller Rawat Inap,8788
+2026-10-12 14:00,Autoklaf CSSD,2753
+2026-10-12 14:00,Lemari Pendingin Vaksin dan Obat,184
+2026-10-12 14:00,Pompa Air dan Penerangan,3291
+2026-10-12 15:00,AC Poli Rawat Jalan,6372
+2026-10-12 15:00,Chiller Rawat Inap,9078
+2026-10-12 15:00,Autoklaf CSSD,94
+2026-10-12 15:00,Lemari Pendingin Vaksin dan Obat,177
+2026-10-12 15:00,Pompa Air dan Penerangan,3700
+2026-10-12 16:00,AC Poli Rawat Jalan,105
+2026-10-12 16:00,Chiller Rawat Inap,8792
+2026-10-12 16:00,Autoklaf CSSD,94
+2026-10-12 16:00,Lemari Pendingin Vaksin dan Obat,189
+2026-10-12 16:00,Pompa Air dan Penerangan,3520
+2026-10-12 17:00,AC Poli Rawat Jalan,111
+2026-10-12 17:00,Chiller Rawat Inap,9112
+2026-10-12 17:00,Autoklaf CSSD,75
+2026-10-12 17:00,Lemari Pendingin Vaksin dan Obat,185
+2026-10-12 17:00,Pompa Air dan Penerangan,3454
+2026-10-12 18:00,AC Poli Rawat Jalan,123
+2026-10-12 18:00,Chiller Rawat Inap,8982
+2026-10-12 18:00,Autoklaf CSSD,81
+2026-10-12 18:00,Lemari Pendingin Vaksin dan Obat,194
+2026-10-12 18:00,Pompa Air dan Penerangan,3450
+2026-10-12 19:00,AC Poli Rawat Jalan,1218
+2026-10-12 19:00,Chiller Rawat Inap,9091
+2026-10-12 19:00,Autoklaf CSSD,99
+2026-10-12 19:00,Lemari Pendingin Vaksin dan Obat,199
+2026-10-12 19:00,Pompa Air dan Penerangan,3743
+2026-10-12 20:00,AC Poli Rawat Jalan,1145
+2026-10-12 20:00,Chiller Rawat Inap,5876
+2026-10-12 20:00,Autoklaf CSSD,85
+2026-10-12 20:00,Lemari Pendingin Vaksin dan Obat,189
+2026-10-12 20:00,Pompa Air dan Penerangan,3692
+2026-10-12 21:00,AC Poli Rawat Jalan,1026
+2026-10-12 21:00,Chiller Rawat Inap,6376
+2026-10-12 21:00,Autoklaf CSSD,66
+2026-10-12 21:00,Lemari Pendingin Vaksin dan Obat,196
+2026-10-12 21:00,Pompa Air dan Penerangan,1544
+2026-10-12 22:00,AC Poli Rawat Jalan,977
+2026-10-12 22:00,Chiller Rawat Inap,6181
+2026-10-12 22:00,Autoklaf CSSD,95
+2026-10-12 22:00,Lemari Pendingin Vaksin dan Obat,190
+2026-10-12 22:00,Pompa Air dan Penerangan,1835
+2026-10-12 23:00,AC Poli Rawat Jalan,996
+2026-10-12 23:00,Chiller Rawat Inap,6098
+2026-10-12 23:00,Autoklaf CSSD,85
+2026-10-12 23:00,Lemari Pendingin Vaksin dan Obat,193
+2026-10-12 23:00,Pompa Air dan Penerangan,1811
+2026-10-13 00:00,AC Poli Rawat Jalan,1199
+2026-10-13 00:00,Chiller Rawat Inap,5996
+2026-10-13 00:00,Autoklaf CSSD,75
+2026-10-13 00:00,Lemari Pendingin Vaksin dan Obat,178
+2026-10-13 00:00,Pompa Air dan Penerangan,1543
+2026-10-13 01:00,AC Poli Rawat Jalan,1270
+2026-10-13 01:00,Chiller Rawat Inap,5971
+2026-10-13 01:00,Autoklaf CSSD,100
+2026-10-13 01:00,Lemari Pendingin Vaksin dan Obat,176
+2026-10-13 01:00,Pompa Air dan Penerangan,1807
+2026-10-13 02:00,AC Poli Rawat Jalan,1252
+2026-10-13 02:00,Chiller Rawat Inap,5717
+2026-10-13 02:00,Autoklaf CSSD,93
+2026-10-13 02:00,Lemari Pendingin Vaksin dan Obat,183
+2026-10-13 02:00,Pompa Air dan Penerangan,1402
+2026-10-13 03:00,AC Poli Rawat Jalan,1081
+2026-10-13 03:00,Chiller Rawat Inap,6431
+2026-10-13 03:00,Autoklaf CSSD,73
+2026-10-13 03:00,Lemari Pendingin Vaksin dan Obat,186
+2026-10-13 03:00,Pompa Air dan Penerangan,1818
+2026-10-13 04:00,AC Poli Rawat Jalan,1134
+2026-10-13 04:00,Chiller Rawat Inap,6296
+2026-10-13 04:00,Autoklaf CSSD,76
+2026-10-13 04:00,Lemari Pendingin Vaksin dan Obat,185
+2026-10-13 04:00,Pompa Air dan Penerangan,1804
+2026-10-13 05:00,AC Poli Rawat Jalan,103
+2026-10-13 05:00,Chiller Rawat Inap,5668
+2026-10-13 05:00,Autoklaf CSSD,77
+2026-10-13 05:00,Lemari Pendingin Vaksin dan Obat,188
+2026-10-13 05:00,Pompa Air dan Penerangan,1528
+2026-10-13 06:00,AC Poli Rawat Jalan,124
+2026-10-13 06:00,Chiller Rawat Inap,6179
+2026-10-13 06:00,Autoklaf CSSD,93
+2026-10-13 06:00,Lemari Pendingin Vaksin dan Obat,201
+2026-10-13 06:00,Pompa Air dan Penerangan,3718
+2026-10-13 07:00,AC Poli Rawat Jalan,6487
+2026-10-13 07:00,Chiller Rawat Inap,5696
+2026-10-13 07:00,Autoklaf CSSD,1167
+2026-10-13 07:00,Lemari Pendingin Vaksin dan Obat,184
+2026-10-13 07:00,Pompa Air dan Penerangan,3458
+2026-10-13 08:00,AC Poli Rawat Jalan,5512
+2026-10-13 08:00,Chiller Rawat Inap,9181
+2026-10-13 08:00,Autoklaf CSSD,2361
+2026-10-13 08:00,Lemari Pendingin Vaksin dan Obat,183
+2026-10-13 08:00,Pompa Air dan Penerangan,3487
+2026-10-13 09:00,AC Poli Rawat Jalan,6300
+2026-10-13 09:00,Chiller Rawat Inap,8968
+2026-10-13 09:00,Autoklaf CSSD,1505
+2026-10-13 09:00,Lemari Pendingin Vaksin dan Obat,195
+2026-10-13 09:00,Pompa Air dan Penerangan,3693
+2026-10-13 10:00,AC Poli Rawat Jalan,6324
+2026-10-13 10:00,Chiller Rawat Inap,9271
+2026-10-13 10:00,Autoklaf CSSD,2302
+2026-10-13 10:00,Lemari Pendingin Vaksin dan Obat,194
+2026-10-13 10:00,Pompa Air dan Penerangan,3518
+2026-10-13 11:00,AC Poli Rawat Jalan,5585
+2026-10-13 11:00,Chiller Rawat Inap,9210
+2026-10-13 11:00,Autoklaf CSSD,1593
+2026-10-13 11:00,Lemari Pendingin Vaksin dan Obat,184
+2026-10-13 11:00,Pompa Air dan Penerangan,3609
+2026-10-13 12:00,AC Poli Rawat Jalan,6110
+2026-10-13 12:00,Chiller Rawat Inap,8580
+2026-10-13 12:00,Autoklaf CSSD,2422
+2026-10-13 12:00,Lemari Pendingin Vaksin dan Obat,192
+2026-10-13 12:00,Pompa Air dan Penerangan,3529
+2026-10-13 13:00,AC Poli Rawat Jalan,6596
+2026-10-13 13:00,Chiller Rawat Inap,8801
+2026-10-13 13:00,Autoklaf CSSD,1242
+2026-10-13 13:00,Lemari Pendingin Vaksin dan Obat,184
+2026-10-13 13:00,Pompa Air dan Penerangan,3259
+2026-10-13 14:00,AC Poli Rawat Jalan,5791
+2026-10-13 14:00,Chiller Rawat Inap,8676
+2026-10-13 14:00,Autoklaf CSSD,2773
+2026-10-13 14:00,Lemari Pendingin Vaksin dan Obat,201
+2026-10-13 14:00,Pompa Air dan Penerangan,3690
+2026-10-13 15:00,AC Poli Rawat Jalan,6045
+2026-10-13 15:00,Chiller Rawat Inap,8679
+2026-10-13 15:00,Autoklaf CSSD,93
+2026-10-13 15:00,Lemari Pendingin Vaksin dan Obat,194
+2026-10-13 15:00,Pompa Air dan Penerangan,3307
+2026-10-13 16:00,AC Poli Rawat Jalan,125
+2026-10-13 16:00,Chiller Rawat Inap,9078
+2026-10-13 16:00,Autoklaf CSSD,69
+2026-10-13 16:00,Lemari Pendingin Vaksin dan Obat,202
+2026-10-13 16:00,Pompa Air dan Penerangan,3291
+2026-10-13 17:00,AC Poli Rawat Jalan,109
+2026-10-13 17:00,Chiller Rawat Inap,8782
+2026-10-13 17:00,Autoklaf CSSD,82
+2026-10-13 17:00,Lemari Pendingin Vaksin dan Obat,180
+2026-10-13 17:00,Pompa Air dan Penerangan,3580
+2026-10-13 18:00,AC Poli Rawat Jalan,136
+2026-10-13 18:00,Chiller Rawat Inap,8662
+2026-10-13 18:00,Autoklaf CSSD,93
+2026-10-13 18:00,Lemari Pendingin Vaksin dan Obat,190
+2026-10-13 18:00,Pompa Air dan Penerangan,3422
+2026-10-13 19:00,AC Poli Rawat Jalan,1180
+2026-10-13 19:00,Chiller Rawat Inap,8858
+2026-10-13 19:00,Autoklaf CSSD,69
+2026-10-13 19:00,Lemari Pendingin Vaksin dan Obat,203
+2026-10-13 19:00,Pompa Air dan Penerangan,3388
+2026-10-13 20:00,AC Poli Rawat Jalan,1214
+2026-10-13 20:00,Chiller Rawat Inap,5939
+2026-10-13 20:00,Autoklaf CSSD,60
+2026-10-13 20:00,Lemari Pendingin Vaksin dan Obat,186
+2026-10-13 20:00,Pompa Air dan Penerangan,3624
+2026-10-13 21:00,AC Poli Rawat Jalan,996
+2026-10-13 21:00,Chiller Rawat Inap,5789
+2026-10-13 21:00,Autoklaf CSSD,61
+2026-10-13 21:00,Lemari Pendingin Vaksin dan Obat,183
+2026-10-13 21:00,Pompa Air dan Penerangan,1474
+2026-10-13 22:00,AC Poli Rawat Jalan,965
+2026-10-13 22:00,Chiller Rawat Inap,6366
+2026-10-13 22:00,Autoklaf CSSD,90
+2026-10-13 22:00,Lemari Pendingin Vaksin dan Obat,193
+2026-10-13 22:00,Pompa Air dan Penerangan,1372
+2026-10-13 23:00,AC Poli Rawat Jalan,1023
+2026-10-13 23:00,Chiller Rawat Inap,6411
+2026-10-13 23:00,Autoklaf CSSD,70
+2026-10-13 23:00,Lemari Pendingin Vaksin dan Obat,197
+2026-10-13 23:00,Pompa Air dan Penerangan,1684
+2026-10-14 00:00,AC Poli Rawat Jalan,1266
+2026-10-14 00:00,Chiller Rawat Inap,5905
+2026-10-14 00:00,Autoklaf CSSD,67
+2026-10-14 00:00,Lemari Pendingin Vaksin dan Obat,201
+2026-10-14 00:00,Pompa Air dan Penerangan,1528
+2026-10-14 01:00,AC Poli Rawat Jalan,1066
+2026-10-14 01:00,Chiller Rawat Inap,6392
+2026-10-14 01:00,Autoklaf CSSD,97
+2026-10-14 01:00,Lemari Pendingin Vaksin dan Obat,183
+2026-10-14 01:00,Pompa Air dan Penerangan,1467
+2026-10-14 02:00,AC Poli Rawat Jalan,1113
+2026-10-14 02:00,Chiller Rawat Inap,5962
+2026-10-14 02:00,Autoklaf CSSD,64
+2026-10-14 02:00,Lemari Pendingin Vaksin dan Obat,190
+2026-10-14 02:00,Pompa Air dan Penerangan,1781
+2026-10-14 03:00,AC Poli Rawat Jalan,1046
+2026-10-14 03:00,Chiller Rawat Inap,5570
+2026-10-14 03:00,Autoklaf CSSD,64
+2026-10-14 03:00,Lemari Pendingin Vaksin dan Obat,184
+2026-10-14 03:00,Pompa Air dan Penerangan,1803
+2026-10-14 04:00,AC Poli Rawat Jalan,1043
+2026-10-14 04:00,Chiller Rawat Inap,5560
+2026-10-14 04:00,Autoklaf CSSD,84
+2026-10-14 04:00,Lemari Pendingin Vaksin dan Obat,202
+2026-10-14 04:00,Pompa Air dan Penerangan,1514
+2026-10-14 05:00,AC Poli Rawat Jalan,122
+2026-10-14 05:00,Chiller Rawat Inap,6265
+2026-10-14 05:00,Autoklaf CSSD,69
+2026-10-14 05:00,Lemari Pendingin Vaksin dan Obat,187
+2026-10-14 05:00,Pompa Air dan Penerangan,1683
+2026-10-14 06:00,AC Poli Rawat Jalan,106
+2026-10-14 06:00,Chiller Rawat Inap,5662
+2026-10-14 06:00,Autoklaf CSSD,94
+2026-10-14 06:00,Lemari Pendingin Vaksin dan Obat,201
+2026-10-14 06:00,Pompa Air dan Penerangan,3697
+2026-10-14 07:00,AC Poli Rawat Jalan,5484
+2026-10-14 07:00,Chiller Rawat Inap,5874
+2026-10-14 07:00,Autoklaf CSSD,1544
+2026-10-14 07:00,Lemari Pendingin Vaksin dan Obat,195
+2026-10-14 07:00,Pompa Air dan Penerangan,3414
+2026-10-14 08:00,AC Poli Rawat Jalan,6197
+2026-10-14 08:00,Chiller Rawat Inap,8870
+2026-10-14 08:00,Autoklaf CSSD,2857
+2026-10-14 08:00,Lemari Pendingin Vaksin dan Obat,181
+2026-10-14 08:00,Pompa Air dan Penerangan,3341
+2026-10-14 09:00,AC Poli Rawat Jalan,5941
+2026-10-14 09:00,Chiller Rawat Inap,8744
+2026-10-14 09:00,Autoklaf CSSD,1647
+2026-10-14 09:00,Lemari Pendingin Vaksin dan Obat,195
+2026-10-14 09:00,Pompa Air dan Penerangan,3660
+2026-10-14 10:00,AC Poli Rawat Jalan,5546
+2026-10-14 10:00,Chiller Rawat Inap,8541
+2026-10-14 10:00,Autoklaf CSSD,2843
+2026-10-14 10:00,Lemari Pendingin Vaksin dan Obat,183
+2026-10-14 10:00,Pompa Air dan Penerangan,3410
+2026-10-14 11:00,AC Poli Rawat Jalan,5426
+2026-10-14 11:00,Chiller Rawat Inap,8880
+2026-10-14 11:00,Autoklaf CSSD,1310
+2026-10-14 11:00,Lemari Pendingin Vaksin dan Obat,183
+2026-10-14 11:00,Pompa Air dan Penerangan,3414
+2026-10-14 12:00,AC Poli Rawat Jalan,5705
+2026-10-14 12:00,Chiller Rawat Inap,9457
+2026-10-14 12:00,Autoklaf CSSD,2305
+2026-10-14 12:00,Lemari Pendingin Vaksin dan Obat,192
+2026-10-14 12:00,Pompa Air dan Penerangan,3359
+2026-10-14 13:00,AC Poli Rawat Jalan,5463
+2026-10-14 13:00,Chiller Rawat Inap,9062
+2026-10-14 13:00,Autoklaf CSSD,1466
+2026-10-14 13:00,Lemari Pendingin Vaksin dan Obat,199
+2026-10-14 13:00,Pompa Air dan Penerangan,3591
+2026-10-14 14:00,AC Poli Rawat Jalan,5911
+2026-10-14 14:00,Chiller Rawat Inap,8780
+2026-10-14 14:00,Autoklaf CSSD,2398
+2026-10-14 14:00,Lemari Pendingin Vaksin dan Obat,205
+2026-10-14 14:00,Pompa Air dan Penerangan,3385
+2026-10-14 15:00,AC Poli Rawat Jalan,5881
+2026-10-14 15:00,Chiller Rawat Inap,9405
+2026-10-14 15:00,Autoklaf CSSD,69
+2026-10-14 15:00,Lemari Pendingin Vaksin dan Obat,201
+2026-10-14 15:00,Pompa Air dan Penerangan,3561
+2026-10-14 16:00,AC Poli Rawat Jalan,130
+2026-10-14 16:00,Chiller Rawat Inap,9191
+2026-10-14 16:00,Autoklaf CSSD,73
+2026-10-14 16:00,Lemari Pendingin Vaksin dan Obat,196
+2026-10-14 16:00,Pompa Air dan Penerangan,3299
+2026-10-14 17:00,AC Poli Rawat Jalan,124
+2026-10-14 17:00,Chiller Rawat Inap,8648
+2026-10-14 17:00,Autoklaf CSSD,2490
+2026-10-14 17:00,Lemari Pendingin Vaksin dan Obat,197
+2026-10-14 17:00,Pompa Air dan Penerangan,3521
+2026-10-14 18:00,AC Poli Rawat Jalan,111
+2026-10-14 18:00,Chiller Rawat Inap,9243
+2026-10-14 18:00,Autoklaf CSSD,2590
+2026-10-14 18:00,Lemari Pendingin Vaksin dan Obat,197
+2026-10-14 18:00,Pompa Air dan Penerangan,3496
+2026-10-14 19:00,AC Poli Rawat Jalan,1016
+2026-10-14 19:00,Chiller Rawat Inap,9137
+2026-10-14 19:00,Autoklaf CSSD,2251
+2026-10-14 19:00,Lemari Pendingin Vaksin dan Obat,194
+2026-10-14 19:00,Pompa Air dan Penerangan,3492
+2026-10-14 20:00,AC Poli Rawat Jalan,1245
+2026-10-14 20:00,Chiller Rawat Inap,5950
+2026-10-14 20:00,Autoklaf CSSD,2719
+2026-10-14 20:00,Lemari Pendingin Vaksin dan Obat,201
+2026-10-14 20:00,Pompa Air dan Penerangan,3328
+2026-10-14 21:00,AC Poli Rawat Jalan,971
+2026-10-14 21:00,Chiller Rawat Inap,5780
+2026-10-14 21:00,Autoklaf CSSD,71
+2026-10-14 21:00,Lemari Pendingin Vaksin dan Obat,186
+2026-10-14 21:00,Pompa Air dan Penerangan,1598
+2026-10-14 22:00,AC Poli Rawat Jalan,962
+2026-10-14 22:00,Chiller Rawat Inap,6488
+2026-10-14 22:00,Autoklaf CSSD,67
+2026-10-14 22:00,Lemari Pendingin Vaksin dan Obat,197
+2026-10-14 22:00,Pompa Air dan Penerangan,1780
+2026-10-14 23:00,AC Poli Rawat Jalan,1164
+2026-10-14 23:00,Chiller Rawat Inap,5866
+2026-10-14 23:00,Autoklaf CSSD,72
+2026-10-14 23:00,Lemari Pendingin Vaksin dan Obat,204
+2026-10-14 23:00,Pompa Air dan Penerangan,1564
+2026-10-15 00:00,AC Poli Rawat Jalan,996
+2026-10-15 00:00,Chiller Rawat Inap,5750
+2026-10-15 00:00,Autoklaf CSSD,97
+2026-10-15 00:00,Lemari Pendingin Vaksin dan Obat,198
+2026-10-15 00:00,Pompa Air dan Penerangan,1836
+2026-10-15 01:00,AC Poli Rawat Jalan,1167
+2026-10-15 01:00,Chiller Rawat Inap,5721
+2026-10-15 01:00,Autoklaf CSSD,76
+2026-10-15 01:00,Lemari Pendingin Vaksin dan Obat,190
+2026-10-15 01:00,Pompa Air dan Penerangan,1422
+2026-10-15 02:00,AC Poli Rawat Jalan,1073
+2026-10-15 02:00,Chiller Rawat Inap,6407
+2026-10-15 02:00,Autoklaf CSSD,73
+2026-10-15 02:00,Lemari Pendingin Vaksin dan Obat,206
+2026-10-15 02:00,Pompa Air dan Penerangan,1614
+2026-10-15 03:00,AC Poli Rawat Jalan,966
+2026-10-15 03:00,Chiller Rawat Inap,5701
+2026-10-15 03:00,Autoklaf CSSD,71
+2026-10-15 03:00,Lemari Pendingin Vaksin dan Obat,202
+2026-10-15 03:00,Pompa Air dan Penerangan,1798
+2026-10-15 04:00,AC Poli Rawat Jalan,1269
+2026-10-15 04:00,Chiller Rawat Inap,5631
+2026-10-15 04:00,Autoklaf CSSD,70
+2026-10-15 04:00,Lemari Pendingin Vaksin dan Obat,204
+2026-10-15 04:00,Pompa Air dan Penerangan,1421
+2026-10-15 05:00,AC Poli Rawat Jalan,123
+2026-10-15 05:00,Chiller Rawat Inap,5877
+2026-10-15 05:00,Autoklaf CSSD,87
+2026-10-15 05:00,Lemari Pendingin Vaksin dan Obat,196
+2026-10-15 05:00,Pompa Air dan Penerangan,1619
+2026-10-15 06:00,AC Poli Rawat Jalan,103
+2026-10-15 06:00,Chiller Rawat Inap,6403
+2026-10-15 06:00,Autoklaf CSSD,96
+2026-10-15 06:00,Lemari Pendingin Vaksin dan Obat,208
+2026-10-15 06:00,Pompa Air dan Penerangan,3372
+2026-10-15 07:00,AC Poli Rawat Jalan,6407
+2026-10-15 07:00,Chiller Rawat Inap,5637
+2026-10-15 07:00,Autoklaf CSSD,1541
+2026-10-15 07:00,Lemari Pendingin Vaksin dan Obat,206
+2026-10-15 07:00,Pompa Air dan Penerangan,3453
+2026-10-15 08:00,AC Poli Rawat Jalan,5402
+2026-10-15 08:00,Chiller Rawat Inap,9386
+2026-10-15 08:00,Autoklaf CSSD,2894
+2026-10-15 08:00,Lemari Pendingin Vaksin dan Obat,209
+2026-10-15 08:00,Pompa Air dan Penerangan,3527
+2026-10-15 09:00,AC Poli Rawat Jalan,6090
+2026-10-15 09:00,Chiller Rawat Inap,8781
+2026-10-15 09:00,Autoklaf CSSD,1120
+2026-10-15 09:00,Lemari Pendingin Vaksin dan Obat,192
+2026-10-15 09:00,Pompa Air dan Penerangan,3515
+2026-10-15 10:00,AC Poli Rawat Jalan,6296
+2026-10-15 10:00,Chiller Rawat Inap,9213
+2026-10-15 10:00,Autoklaf CSSD,2812
+2026-10-15 10:00,Lemari Pendingin Vaksin dan Obat,189
+2026-10-15 10:00,Pompa Air dan Penerangan,3415
+2026-10-15 11:00,AC Poli Rawat Jalan,5558
+2026-10-15 11:00,Chiller Rawat Inap,8589
+2026-10-15 11:00,Autoklaf CSSD,1442
+2026-10-15 11:00,Lemari Pendingin Vaksin dan Obat,203
+2026-10-15 11:00,Pompa Air dan Penerangan,3534
+2026-10-15 12:00,AC Poli Rawat Jalan,6419
+2026-10-15 12:00,Chiller Rawat Inap,8715
+2026-10-15 12:00,Autoklaf CSSD,2655
+2026-10-15 12:00,Lemari Pendingin Vaksin dan Obat,191
+2026-10-15 12:00,Pompa Air dan Penerangan,3593
+2026-10-15 13:00,AC Poli Rawat Jalan,6041
+2026-10-15 13:00,Chiller Rawat Inap,8841
+2026-10-15 13:00,Autoklaf CSSD,1108
+2026-10-15 13:00,Lemari Pendingin Vaksin dan Obat,192
+2026-10-15 13:00,Pompa Air dan Penerangan,3277
+2026-10-15 14:00,AC Poli Rawat Jalan,6212
+2026-10-15 14:00,Chiller Rawat Inap,9408
+2026-10-15 14:00,Autoklaf CSSD,2555
+2026-10-15 14:00,Lemari Pendingin Vaksin dan Obat,189
+2026-10-15 14:00,Pompa Air dan Penerangan,3615
+2026-10-15 15:00,AC Poli Rawat Jalan,5496
+2026-10-15 15:00,Chiller Rawat Inap,9337
+2026-10-15 15:00,Autoklaf CSSD,80
+2026-10-15 15:00,Lemari Pendingin Vaksin dan Obat,191
+2026-10-15 15:00,Pompa Air dan Penerangan,3631
+2026-10-15 16:00,AC Poli Rawat Jalan,106
+2026-10-15 16:00,Chiller Rawat Inap,9451
+2026-10-15 16:00,Autoklaf CSSD,63
+2026-10-15 16:00,Lemari Pendingin Vaksin dan Obat,199
+2026-10-15 16:00,Pompa Air dan Penerangan,3550
+2026-10-15 17:00,AC Poli Rawat Jalan,126
+2026-10-15 17:00,Chiller Rawat Inap,8822
+2026-10-15 17:00,Autoklaf CSSD,91
+2026-10-15 17:00,Lemari Pendingin Vaksin dan Obat,205
+2026-10-15 17:00,Pompa Air dan Penerangan,3645
+2026-10-15 18:00,AC Poli Rawat Jalan,112
+2026-10-15 18:00,Chiller Rawat Inap,9395
+2026-10-15 18:00,Autoklaf CSSD,71
+2026-10-15 18:00,Lemari Pendingin Vaksin dan Obat,199
+2026-10-15 18:00,Pompa Air dan Penerangan,3523
+2026-10-15 19:00,AC Poli Rawat Jalan,1182
+2026-10-15 19:00,Chiller Rawat Inap,9097
+2026-10-15 19:00,Autoklaf CSSD,80
+2026-10-15 19:00,Lemari Pendingin Vaksin dan Obat,194
+2026-10-15 19:00,Pompa Air dan Penerangan,3265
+2026-10-15 20:00,AC Poli Rawat Jalan,983
+2026-10-15 20:00,Chiller Rawat Inap,6102
+2026-10-15 20:00,Autoklaf CSSD,74
+2026-10-15 20:00,Lemari Pendingin Vaksin dan Obat,204
+2026-10-15 20:00,Pompa Air dan Penerangan,3418
+2026-10-15 21:00,AC Poli Rawat Jalan,1073
+2026-10-15 21:00,Chiller Rawat Inap,5747
+2026-10-15 21:00,Autoklaf CSSD,95
+2026-10-15 21:00,Lemari Pendingin Vaksin dan Obat,197
+2026-10-15 21:00,Pompa Air dan Penerangan,1757
+2026-10-15 22:00,AC Poli Rawat Jalan,1172
+2026-10-15 22:00,Chiller Rawat Inap,5879
+2026-10-15 22:00,Autoklaf CSSD,63
+2026-10-15 22:00,Lemari Pendingin Vaksin dan Obat,196
+2026-10-15 22:00,Pompa Air dan Penerangan,1684
+2026-10-15 23:00,AC Poli Rawat Jalan,1082
+2026-10-15 23:00,Chiller Rawat Inap,6476
+2026-10-15 23:00,Autoklaf CSSD,66
+2026-10-15 23:00,Lemari Pendingin Vaksin dan Obat,196
+2026-10-15 23:00,Pompa Air dan Penerangan,1591
+2026-10-16 00:00,AC Poli Rawat Jalan,1093
+2026-10-16 00:00,Chiller Rawat Inap,5540
+2026-10-16 00:00,Autoklaf CSSD,90
+2026-10-16 00:00,Lemari Pendingin Vaksin dan Obat,188
+2026-10-16 00:00,Pompa Air dan Penerangan,1548
+2026-10-16 01:00,AC Poli Rawat Jalan,1078
+2026-10-16 01:00,Chiller Rawat Inap,6272
+2026-10-16 01:00,Autoklaf CSSD,79
+2026-10-16 01:00,Lemari Pendingin Vaksin dan Obat,209
+2026-10-16 01:00,Pompa Air dan Penerangan,1401
+2026-10-16 02:00,AC Poli Rawat Jalan,1021
+2026-10-16 02:00,Chiller Rawat Inap,6311
+2026-10-16 02:00,Autoklaf CSSD,85
+2026-10-16 02:00,Lemari Pendingin Vaksin dan Obat,210
+2026-10-16 02:00,Pompa Air dan Penerangan,1530
+2026-10-16 03:00,AC Poli Rawat Jalan,1155
+2026-10-16 03:00,Chiller Rawat Inap,6160
+2026-10-16 03:00,Autoklaf CSSD,65
+2026-10-16 03:00,Lemari Pendingin Vaksin dan Obat,204
+2026-10-16 03:00,Pompa Air dan Penerangan,1629
+2026-10-16 04:00,AC Poli Rawat Jalan,1025
+2026-10-16 04:00,Chiller Rawat Inap,5547
+2026-10-16 04:00,Autoklaf CSSD,80
+2026-10-16 04:00,Lemari Pendingin Vaksin dan Obat,202
+2026-10-16 04:00,Pompa Air dan Penerangan,1381
+2026-10-16 05:00,AC Poli Rawat Jalan,115
+2026-10-16 05:00,Chiller Rawat Inap,5749
+2026-10-16 05:00,Autoklaf CSSD,76
+2026-10-16 05:00,Lemari Pendingin Vaksin dan Obat,202
+2026-10-16 05:00,Pompa Air dan Penerangan,1580
+2026-10-16 06:00,AC Poli Rawat Jalan,135
+2026-10-16 06:00,Chiller Rawat Inap,6323
+2026-10-16 06:00,Autoklaf CSSD,95
+2026-10-16 06:00,Lemari Pendingin Vaksin dan Obat,202
+2026-10-16 06:00,Pompa Air dan Penerangan,3490
+2026-10-16 07:00,AC Poli Rawat Jalan,6574
+2026-10-16 07:00,Chiller Rawat Inap,5908
+2026-10-16 07:00,Autoklaf CSSD,1414
+2026-10-16 07:00,Lemari Pendingin Vaksin dan Obat,198
+2026-10-16 07:00,Pompa Air dan Penerangan,3317
+2026-10-16 08:00,AC Poli Rawat Jalan,5874
+2026-10-16 08:00,Chiller Rawat Inap,8568
+2026-10-16 08:00,Autoklaf CSSD,2418
+2026-10-16 08:00,Lemari Pendingin Vaksin dan Obat,192
+2026-10-16 08:00,Pompa Air dan Penerangan,3547
+2026-10-16 09:00,AC Poli Rawat Jalan,5765
+2026-10-16 09:00,Chiller Rawat Inap,8786
+2026-10-16 09:00,Autoklaf CSSD,1636
+2026-10-16 09:00,Lemari Pendingin Vaksin dan Obat,197
+2026-10-16 09:00,Pompa Air dan Penerangan,3591
+2026-10-16 10:00,AC Poli Rawat Jalan,5544
+2026-10-16 10:00,Chiller Rawat Inap,9318
+2026-10-16 10:00,Autoklaf CSSD,2817
+2026-10-16 10:00,Lemari Pendingin Vaksin dan Obat,198
+2026-10-16 10:00,Pompa Air dan Penerangan,3520
+2026-10-16 11:00,AC Poli Rawat Jalan,6545
+2026-10-16 11:00,Chiller Rawat Inap,9220
+2026-10-16 11:00,Autoklaf CSSD,1471
+2026-10-16 11:00,Lemari Pendingin Vaksin dan Obat,204
+2026-10-16 11:00,Pompa Air dan Penerangan,3704
+2026-10-16 12:00,AC Poli Rawat Jalan,6360
+2026-10-16 12:00,Chiller Rawat Inap,9399
+2026-10-16 12:00,Autoklaf CSSD,2579
+2026-10-16 12:00,Lemari Pendingin Vaksin dan Obat,194
+2026-10-16 12:00,Pompa Air dan Penerangan,3689
+2026-10-16 13:00,AC Poli Rawat Jalan,5487
+2026-10-16 13:00,Chiller Rawat Inap,9310
+2026-10-16 13:00,Autoklaf CSSD,1656
+2026-10-16 13:00,Lemari Pendingin Vaksin dan Obat,199
+2026-10-16 13:00,Pompa Air dan Penerangan,3557
+2026-10-16 14:00,AC Poli Rawat Jalan,6553
+2026-10-16 14:00,Chiller Rawat Inap,8624
+2026-10-16 14:00,Autoklaf CSSD,2362
+2026-10-16 14:00,Lemari Pendingin Vaksin dan Obat,203
+2026-10-16 14:00,Pompa Air dan Penerangan,3463
+2026-10-16 15:00,AC Poli Rawat Jalan,6078
+2026-10-16 15:00,Chiller Rawat Inap,8999
+2026-10-16 15:00,Autoklaf CSSD,86
+2026-10-16 15:00,Lemari Pendingin Vaksin dan Obat,205
+2026-10-16 15:00,Pompa Air dan Penerangan,3578
+2026-10-16 16:00,AC Poli Rawat Jalan,134
+2026-10-16 16:00,Chiller Rawat Inap,9023
+2026-10-16 16:00,Autoklaf CSSD,95
+2026-10-16 16:00,Lemari Pendingin Vaksin dan Obat,202
+2026-10-16 16:00,Pompa Air dan Penerangan,3467
+2026-10-16 17:00,AC Poli Rawat Jalan,125
+2026-10-16 17:00,Chiller Rawat Inap,8739
+2026-10-16 17:00,Autoklaf CSSD,66
+2026-10-16 17:00,Lemari Pendingin Vaksin dan Obat,207
+2026-10-16 17:00,Pompa Air dan Penerangan,3262
+2026-10-16 18:00,AC Poli Rawat Jalan,126
+2026-10-16 18:00,Chiller Rawat Inap,9027
+2026-10-16 18:00,Autoklaf CSSD,74
+2026-10-16 18:00,Lemari Pendingin Vaksin dan Obat,192
+2026-10-16 18:00,Pompa Air dan Penerangan,3369
+2026-10-16 19:00,AC Poli Rawat Jalan,1286
+2026-10-16 19:00,Chiller Rawat Inap,8994
+2026-10-16 19:00,Autoklaf CSSD,83
+2026-10-16 19:00,Lemari Pendingin Vaksin dan Obat,204
+2026-10-16 19:00,Pompa Air dan Penerangan,3528
+2026-10-16 20:00,AC Poli Rawat Jalan,1207
+2026-10-16 20:00,Chiller Rawat Inap,6299
+2026-10-16 20:00,Autoklaf CSSD,75
+2026-10-16 20:00,Lemari Pendingin Vaksin dan Obat,209
+2026-10-16 20:00,Pompa Air dan Penerangan,3510
+2026-10-16 21:00,AC Poli Rawat Jalan,1183
+2026-10-16 21:00,Chiller Rawat Inap,5921
+2026-10-16 21:00,Autoklaf CSSD,70
+2026-10-16 21:00,Lemari Pendingin Vaksin dan Obat,213
+2026-10-16 21:00,Pompa Air dan Penerangan,1626
+2026-10-16 22:00,AC Poli Rawat Jalan,1039
+2026-10-16 22:00,Chiller Rawat Inap,6091
+2026-10-16 22:00,Autoklaf CSSD,69
+2026-10-16 22:00,Lemari Pendingin Vaksin dan Obat,208
+2026-10-16 22:00,Pompa Air dan Penerangan,1572
+2026-10-16 23:00,AC Poli Rawat Jalan,1198
+2026-10-16 23:00,Chiller Rawat Inap,6442
+2026-10-16 23:00,Autoklaf CSSD,81
+2026-10-16 23:00,Lemari Pendingin Vaksin dan Obat,202
+2026-10-16 23:00,Pompa Air dan Penerangan,1632
+2026-10-17 00:00,AC Poli Rawat Jalan,1266
+2026-10-17 00:00,Chiller Rawat Inap,5953
+2026-10-17 00:00,Autoklaf CSSD,94
+2026-10-17 00:00,Lemari Pendingin Vaksin dan Obat,196
+2026-10-17 00:00,Pompa Air dan Penerangan,1541
+2026-10-17 01:00,AC Poli Rawat Jalan,1086
+2026-10-17 01:00,Chiller Rawat Inap,5678
+2026-10-17 01:00,Autoklaf CSSD,85
+2026-10-17 01:00,Lemari Pendingin Vaksin dan Obat,193
+2026-10-17 01:00,Pompa Air dan Penerangan,1546
+2026-10-17 02:00,AC Poli Rawat Jalan,1191
+2026-10-17 02:00,Chiller Rawat Inap,6452
+2026-10-17 02:00,Autoklaf CSSD,64
+2026-10-17 02:00,Lemari Pendingin Vaksin dan Obat,212
+2026-10-17 02:00,Pompa Air dan Penerangan,1693
+2026-10-17 03:00,AC Poli Rawat Jalan,1241
+2026-10-17 03:00,Chiller Rawat Inap,6399
+2026-10-17 03:00,Autoklaf CSSD,86
+2026-10-17 03:00,Lemari Pendingin Vaksin dan Obat,213
+2026-10-17 03:00,Pompa Air dan Penerangan,1416
+2026-10-17 04:00,AC Poli Rawat Jalan,1076
+2026-10-17 04:00,Chiller Rawat Inap,6003
+2026-10-17 04:00,Autoklaf CSSD,62
+2026-10-17 04:00,Lemari Pendingin Vaksin dan Obat,199
+2026-10-17 04:00,Pompa Air dan Penerangan,1841
+2026-10-17 05:00,AC Poli Rawat Jalan,100
+2026-10-17 05:00,Chiller Rawat Inap,6162
+2026-10-17 05:00,Autoklaf CSSD,61
+2026-10-17 05:00,Lemari Pendingin Vaksin dan Obat,199
+2026-10-17 05:00,Pompa Air dan Penerangan,1358
+2026-10-17 06:00,AC Poli Rawat Jalan,125
+2026-10-17 06:00,Chiller Rawat Inap,5794
+2026-10-17 06:00,Autoklaf CSSD,83
+2026-10-17 06:00,Lemari Pendingin Vaksin dan Obat,215
+2026-10-17 06:00,Pompa Air dan Penerangan,3730
+2026-10-17 07:00,AC Poli Rawat Jalan,6310
+2026-10-17 07:00,Chiller Rawat Inap,6183
+2026-10-17 07:00,Autoklaf CSSD,1587
+2026-10-17 07:00,Lemari Pendingin Vaksin dan Obat,214
+2026-10-17 07:00,Pompa Air dan Penerangan,3510
+2026-10-17 08:00,AC Poli Rawat Jalan,6372
+2026-10-17 08:00,Chiller Rawat Inap,8957
+2026-10-17 08:00,Autoklaf CSSD,2355
+2026-10-17 08:00,Lemari Pendingin Vaksin dan Obat,207
+2026-10-17 08:00,Pompa Air dan Penerangan,3560
+2026-10-17 09:00,AC Poli Rawat Jalan,6234
+2026-10-17 09:00,Chiller Rawat Inap,9013
+2026-10-17 09:00,Autoklaf CSSD,1126
+2026-10-17 09:00,Lemari Pendingin Vaksin dan Obat,214
+2026-10-17 09:00,Pompa Air dan Penerangan,3431
+2026-10-17 10:00,AC Poli Rawat Jalan,5983
+2026-10-17 10:00,Chiller Rawat Inap,9012
+2026-10-17 10:00,Autoklaf CSSD,2573
+2026-10-17 10:00,Lemari Pendingin Vaksin dan Obat,207
+2026-10-17 10:00,Pompa Air dan Penerangan,3356
+2026-10-17 11:00,AC Poli Rawat Jalan,5721
+2026-10-17 11:00,Chiller Rawat Inap,8897
+2026-10-17 11:00,Autoklaf CSSD,1302
+2026-10-17 11:00,Lemari Pendingin Vaksin dan Obat,206
+2026-10-17 11:00,Pompa Air dan Penerangan,3420
+2026-10-17 12:00,AC Poli Rawat Jalan,6202
+2026-10-17 12:00,Chiller Rawat Inap,9356
+2026-10-17 12:00,Autoklaf CSSD,2483
+2026-10-17 12:00,Lemari Pendingin Vaksin dan Obat,216
+2026-10-17 12:00,Pompa Air dan Penerangan,3710
+2026-10-17 13:00,AC Poli Rawat Jalan,5665
+2026-10-17 13:00,Chiller Rawat Inap,9483
+2026-10-17 13:00,Autoklaf CSSD,1646
+2026-10-17 13:00,Lemari Pendingin Vaksin dan Obat,199
+2026-10-17 13:00,Pompa Air dan Penerangan,3701
+2026-10-17 14:00,AC Poli Rawat Jalan,6289
+2026-10-17 14:00,Chiller Rawat Inap,9110
+2026-10-17 14:00,Autoklaf CSSD,2889
+2026-10-17 14:00,Lemari Pendingin Vaksin dan Obat,213
+2026-10-17 14:00,Pompa Air dan Penerangan,3595
+2026-10-17 15:00,AC Poli Rawat Jalan,5881
+2026-10-17 15:00,Chiller Rawat Inap,8785
+2026-10-17 15:00,Autoklaf CSSD,90
+2026-10-17 15:00,Lemari Pendingin Vaksin dan Obat,218
+2026-10-17 15:00,Pompa Air dan Penerangan,3686
+2026-10-17 16:00,AC Poli Rawat Jalan,125
+2026-10-17 16:00,Chiller Rawat Inap,8867
+2026-10-17 16:00,Autoklaf CSSD,95
+2026-10-17 16:00,Lemari Pendingin Vaksin dan Obat,206
+2026-10-17 16:00,Pompa Air dan Penerangan,3400
+2026-10-17 17:00,AC Poli Rawat Jalan,131
+2026-10-17 17:00,Chiller Rawat Inap,9402
+2026-10-17 17:00,Autoklaf CSSD,86
+2026-10-17 17:00,Lemari Pendingin Vaksin dan Obat,208
+2026-10-17 17:00,Pompa Air dan Penerangan,3655
+2026-10-17 18:00,AC Poli Rawat Jalan,112
+2026-10-17 18:00,Chiller Rawat Inap,9002
+2026-10-17 18:00,Autoklaf CSSD,78
+2026-10-17 18:00,Lemari Pendingin Vaksin dan Obat,200
+2026-10-17 18:00,Pompa Air dan Penerangan,3314
+2026-10-17 19:00,AC Poli Rawat Jalan,1115
+2026-10-17 19:00,Chiller Rawat Inap,9270
+2026-10-17 19:00,Autoklaf CSSD,73
+2026-10-17 19:00,Lemari Pendingin Vaksin dan Obat,205
+2026-10-17 19:00,Pompa Air dan Penerangan,3371
+2026-10-17 20:00,AC Poli Rawat Jalan,1065
+2026-10-17 20:00,Chiller Rawat Inap,5944
+2026-10-17 20:00,Autoklaf CSSD,96
+2026-10-17 20:00,Lemari Pendingin Vaksin dan Obat,196
+2026-10-17 20:00,Pompa Air dan Penerangan,3661
+2026-10-17 21:00,AC Poli Rawat Jalan,1186
+2026-10-17 21:00,Chiller Rawat Inap,5770
+2026-10-17 21:00,Autoklaf CSSD,93
+2026-10-17 21:00,Lemari Pendingin Vaksin dan Obat,198
+2026-10-17 21:00,Pompa Air dan Penerangan,1712
+2026-10-17 22:00,AC Poli Rawat Jalan,1065
+2026-10-17 22:00,Chiller Rawat Inap,6167
+2026-10-17 22:00,Autoklaf CSSD,77
+2026-10-17 22:00,Lemari Pendingin Vaksin dan Obat,202
+2026-10-17 22:00,Pompa Air dan Penerangan,1690
+2026-10-17 23:00,AC Poli Rawat Jalan,1268
+2026-10-17 23:00,Chiller Rawat Inap,6224
+2026-10-17 23:00,Autoklaf CSSD,77
+2026-10-17 23:00,Lemari Pendingin Vaksin dan Obat,200
+2026-10-17 23:00,Pompa Air dan Penerangan,1410
