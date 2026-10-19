@@ -19,8 +19,8 @@ Pemantauan dan analitik konsumsi energi berbasis data untuk rumah sakit dan klin
 | Folder | Isi |
 |---|---|
 | [../../applications/umy-2026-hematdaya](../../applications/umy-2026-hematdaya/) | Prototipe faskes dan data contoh |
-| [submission/proposal/](submission/proposal/) | [Proposal-HematDaya-Faskes-UMY.pdf](submission/proposal/Proposal-HematDaya-Faskes-UMY.pdf) (7 halaman; format Lampiran buku pedoman) dan sumber HTML |
-| [submission/pakta-integritas/](submission/pakta-integritas/) | [Pakta-Integritas-HematDaya-UMY.pdf](submission/pakta-integritas/Pakta-Integritas-HematDaya-UMY.pdf) (2 halaman; butir sesuai templat) dan sumber HTML |
+| [submission/proposal/](submission/proposal/) | [Proposal-HematDaya-Faskes-UMY.pdf](submission/proposal/Proposal-HematDaya-Faskes-UMY.pdf) (7 halaman; format "Lampiran 2 | Format Proposal Peserta Hackathon Deeptech"), sumber HTML, dan logo sampul |
+| [submission/pakta-integritas/](submission/pakta-integritas/) | [Pakta-Integritas-HematDaya-UMY.pdf](submission/pakta-integritas/Pakta-Integritas-HematDaya-UMY.pdf) (2 halaman; 6 butir sesuai dokumen format yang sama) dan sumber HTML |
 
 Tautan online: prototipe https://claude.ai/artifact/BEZeZxr64pfvfVqfDy1equ (privat sampai dibagikan lewat menu Share).
 
@@ -32,15 +32,11 @@ Tautan online: prototipe https://claude.ai/artifact/BEZeZxr64pfvfVqfDy1equ (priv
 - **Syarat tim di buku pedoman:** "Dosen dan mahasiswa dalam satu tim berasal dari institusi yang sama." Saat ini dosen di Universitas Gadjah Mada dan mahasiswa di Universitas Pamulang; konfirmasi ke panitia (dih@umy.ac.id).
 - Tim belum memiliki tenaga kesehatan; konfirmasi ke panitia apakah pendamping klinis dari panitia memenuhi syarat komposisi tim.
 - Pakta Integritas butir 1: pernyataan belum pernah memenangkan pendanaan atau kompetisi sejenis dalam dua tahun terakhir. HematDaya juga diajukan ke ANGEL Innovation Hackathon; periksa ketentuan pengajuan ganda sebelum menandatangani.
-- Batas "maksimum 3 halaman" di templat sampul ditafsirkan untuk bagian inti (Deskripsi Inovasi 2 halaman, Pembagian Tugas 1 halaman); sampul, Lembar Identitas, ringkasan, daftar pustaka, dan lampiran di luar itu.
+
+## Format
+
+Proposal dan Pakta mengikuti dokumen resmi "Lampiran 2 | Format Proposal Peserta Hackathon Deeptech" (Word), bukan Lampiran buku pedoman. Nomor bagian proposal sengaja 1, 2, 5, 6, 7, 8, 9 seperti di dokumen itu. Bagian 6 (Deskripsi Inovasi) memiliki enam butir; isi keselamatan, etik, dan keamanan data digabung ke butir b karena format tidak menyediakan butir sendiri. Pakta versi dokumen tidak memuat butir "Etik dan Keselamatan" yang ada di buku pedoman; konfirmasi ke panitia bila versi buku pedoman yang diminta.
 
 ## Cetak proposal
 
-Desain mengikuti Lampiran buku pedoman UMY (hlm 17–22): judul halaman bersegi teal, angka bagian, tabel berkepala navy, isian bertitik. Cetak HTML dengan Chrome headless (`--headless=new --no-pdf-header-footer --print-to-pdf`), lalu cap header dan nomor halaman dengan [submission/stamp_umy.py](submission/stamp_umy.py) (PyMuPDF):
-
-```
-python stamp_umy.py Proposal-HematDaya-Faskes-UMY.pdf "Proposal · HematDaya Faskes" "PROPOSAL PESERTA" 1 1
-python stamp_umy.py Pakta-Integritas-HematDaya-UMY.pdf "Pakta Integritas · HematDaya Faskes" "PAKTA INTEGRITAS" 0 0
-```
-
-Argumen keempat `1` = sampul tanpa header dan nomor; kelima `1` = header di halaman pertama setelah sampul.
+Cetak HTML dengan Chrome headless (`--headless=new --no-pdf-header-footer --print-to-pdf`; gunakan `--user-data-dir` terpisah bila Chrome sedang terbuka), lalu cap nomor halaman (sampul tanpa nomor) dengan PyMuPDF: lihat `stamp_pages.py` di [docs/angel-2026-sopilot](../angel-2026-sopilot/README.md#cetak-proposal). Pakta dicetak tanpa nomor halaman.
