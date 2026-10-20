@@ -18,6 +18,7 @@ Pemantauan dan analitik konsumsi energi berbasis data untuk rumah sakit dan klin
 
 | Folder | Isi |
 |---|---|
+| [prd/](prd/) | **PRD HematDaya Faskes v1.0**: [Bahasa Indonesia](prd/01_PRD_HematDaya_Faskes_ID.md) dan [English](prd/01_PRD_HematDaya_Faskes_EN.md); spesifikasi mengikuti prototipe dan proposal UMY (jenis perangkat poli/24 jam, beban kritis, IKE per m² dan per tempat tidur, design system Nama Brand) |
 | [../../applications/umy-2026-hematdaya](../../applications/umy-2026-hematdaya/) | Prototipe faskes dan data contoh |
 | [submission/proposal/](submission/proposal/) | [Proposal-HematDaya-Faskes-UMY.pdf](submission/proposal/Proposal-HematDaya-Faskes-UMY.pdf) (7 halaman; format "Lampiran 2 | Format Proposal Peserta Hackathon Deeptech"), sumber HTML, dan logo sampul |
 | [submission/pakta-integritas/](submission/pakta-integritas/) | [Pakta-Integritas-HematDaya-UMY.pdf](submission/pakta-integritas/Pakta-Integritas-HematDaya-UMY.pdf) (2 halaman; 6 butir sesuai dokumen format yang sama) dan sumber HTML |
