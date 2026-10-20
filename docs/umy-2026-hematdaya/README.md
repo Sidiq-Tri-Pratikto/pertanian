@@ -5,7 +5,7 @@ Pemantauan dan analitik konsumsi energi berbasis data untuk rumah sakit dan klin
 - **Bidang Strategis:** Kesehatan, *Smart and Sustainable Health Ecosystem for Human Well-being*
 - **Klaster:** 08 *Sustainable and Green Healthcare*
 - **Problem statement (dari panitia):** konsumsi energi rumah sakit dan klinik tinggi dan belum terpantau secara terukur
-- **Tim:** sama dengan proyek ANGEL: Ahmad Widardi (Ketua; Koordinator Bisnis dan Hilirisasi) · Sidiq Tri Pratikto (Koordinator Teknis) · Lukman Nurdinanto (Koordinator Klinis dan Validasi Pengguna) · Erwin Eko Wahyudi (dosen; konsultan analitik data)
+- **Tim:** sama dengan proyek ANGEL: Ahmad Widardi (Ketua; Koordinator Bisnis dan Hilirisasi) · Sidiq Tri Pratikto (Koordinator Teknis) · Akmal Rafli Fauzan (mahasiswa; Koordinator Klinis dan Validasi Pengguna) · Erwin Eko Wahyudi (dosen; konsultan analitik data)
 - **Asal:** varian faskes dari [HematDaya ANGEL](../angel-2026-hematdaya/) (IKM); mesin analitik sama, konteks dan atribut perangkat berbeda.
 
 ## Status
@@ -29,7 +29,7 @@ Tautan online: prototipe https://claude.ai/artifact/BEZeZxr64pfvfVqfDy1equ (priv
 - **Tenggat pendaftaran 20 Oktober 2026.**
 - Tanda tangan basah Ketua di Lembar Identitas proposal, dan tanda tangan semua anggota di Pakta Integritas.
 - Bagikan prototipe lewat menu Share; unggah Daftar Riwayat Hidup dan portofolio (tautan Google Drive di Lampiran harus dapat dibuka siapa saja yang memiliki tautan).
-- **Syarat tim di buku pedoman:** "Dosen dan mahasiswa dalam satu tim berasal dari institusi yang sama." Saat ini dosen di Universitas Gadjah Mada dan institusi mahasiswa dikosongkan (akan diganti); konfirmasi ke panitia (dih@umy.ac.id).
+- **Syarat tim di buku pedoman:** "Dosen dan mahasiswa dalam satu tim berasal dari institusi yang sama." Saat ini dosen di Universitas Gadjah Mada dan institusi mahasiswa (Akmal Rafli Fauzan, NIM 24/533033/TK/59053, berformat NIM UGM) belum diisi; isi setelah dikonfirmasi, dan konfirmasi ke panitia (dih@umy.ac.id).
 - Tim belum memiliki tenaga kesehatan; konfirmasi ke panitia apakah pendamping klinis dari panitia memenuhi syarat komposisi tim.
 - Pakta Integritas butir 1: pernyataan belum pernah memenangkan pendanaan atau kompetisi sejenis dalam dua tahun terakhir. HematDaya juga diajukan ke ANGEL Innovation Hackathon; periksa ketentuan pengajuan ganda sebelum menandatangani.
 
