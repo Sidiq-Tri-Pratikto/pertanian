@@ -5,7 +5,7 @@ Pemantauan dan analitik konsumsi energi berbasis data untuk rumah sakit dan klin
 - **Bidang Strategis (di proposal):** Energi. Buku pedoman UMY menempatkan topik ini di bidang Kesehatan (*Smart and Sustainable Health Ecosystem for Human Well-being*); konfirmasi ke panitia bila bidang yang dipilih perlu disamakan.
 - **Klaster:** 08 *Sustainable and Green Healthcare*
 - **Problem statement (dari panitia):** konsumsi energi rumah sakit dan klinik tinggi dan belum terpantau secara terukur
-- **Tim:** sama dengan proyek ANGEL: Ahmad Widardi (Ketua; Koordinator Bisnis dan Hilirisasi) · Sidiq Tri Pratikto (Koordinator Teknis) · Akmal Rafli Fauzan (mahasiswa; Koordinator Klinis dan Validasi Pengguna) · Erwin Eko Wahyudi (dosen; konsultan analitik data)
+- **Tim:** Petani Digital (sama dengan proyek ANGEL): Ahmad Widardi (Ketua; Koordinator Bisnis dan Hilirisasi) · Sidiq Tri Pratikto (Koordinator Teknis) · Akmal Rafli Fauzan (mahasiswa; Koordinator Klinis dan Validasi Pengguna) · Erwin Eko Wahyudi (dosen; konsultan analitik data)
 - **Asal:** varian faskes dari [HematDaya ANGEL](../angel-2026-hematdaya/) (IKM); mesin analitik sama, konteks dan atribut perangkat berbeda.
 
 ## Status
