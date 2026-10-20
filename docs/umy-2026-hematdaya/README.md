@@ -29,7 +29,7 @@ Tautan online: prototipe https://claude.ai/artifact/BEZeZxr64pfvfVqfDy1equ (priv
 - **Tenggat pendaftaran 20 Oktober 2026.**
 - Tanda tangan basah Ketua di Lembar Identitas proposal, dan tanda tangan semua anggota di Pakta Integritas.
 - Bagikan prototipe lewat menu Share; unggah Daftar Riwayat Hidup dan portofolio (tautan Google Drive di Lampiran harus dapat dibuka siapa saja yang memiliki tautan).
-- **Syarat tim di buku pedoman:** "Dosen dan mahasiswa dalam satu tim berasal dari institusi yang sama." Saat ini dosen di Universitas Gadjah Mada dan institusi mahasiswa (Akmal Rafli Fauzan, NIM 24/533033/TK/59053, berformat NIM UGM) belum diisi; isi setelah dikonfirmasi, dan konfirmasi ke panitia (dih@umy.ac.id).
+- **Syarat tim di buku pedoman:** "Dosen dan mahasiswa dalam satu tim berasal dari institusi yang sama." Dosen (Erwin Eko Wahyudi) dan mahasiswa (Akmal Rafli Fauzan, NIM 24/533033/TK/59053) sama-sama di Universitas Gadjah Mada, jadi syarat ini terpenuhi; pastikan status mahasiswa aktif di PDDIKTI (butir 2 Pakta).
 - Tim belum memiliki tenaga kesehatan; konfirmasi ke panitia apakah pendamping klinis dari panitia memenuhi syarat komposisi tim.
 - Pakta Integritas butir 1: pernyataan belum pernah memenangkan pendanaan atau kompetisi sejenis dalam dua tahun terakhir. HematDaya juga diajukan ke ANGEL Innovation Hackathon; periksa ketentuan pengajuan ganda sebelum menandatangani.
 
