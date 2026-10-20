@@ -2,7 +2,7 @@
 
 Pemantauan dan analitik konsumsi energi berbasis data untuk rumah sakit dan klinik: membaca konsumsi listrik per perangkat (meter plug-in atau impor CSV), menghitung biaya, konsumsi di luar jam layanan, kenaikan konsumsi, dan IKE per m² dan per tempat tidur, lalu menjelaskan temuan dengan bukti dan keterbatasannya. Hanya memantau dan menyarankan; tidak mengendalikan perangkat, dan beban kritis (pendingin vaksin dan obat) tidak pernah disarankan dihentikan.
 
-- **Bidang Strategis (di proposal):** Digitalisasi; AI dan Semikonduktor. Buku pedoman UMY menempatkan topik ini di bidang Kesehatan (*Smart and Sustainable Health Ecosystem for Human Well-being*); konfirmasi ke panitia bila bidang yang dipilih perlu disamakan.
+- **Bidang Strategis (di proposal):** Energi. Buku pedoman UMY menempatkan topik ini di bidang Kesehatan (*Smart and Sustainable Health Ecosystem for Human Well-being*); konfirmasi ke panitia bila bidang yang dipilih perlu disamakan.
 - **Klaster:** 08 *Sustainable and Green Healthcare*
 - **Problem statement (dari panitia):** konsumsi energi rumah sakit dan klinik tinggi dan belum terpantau secara terukur
 - **Tim:** sama dengan proyek ANGEL: Ahmad Widardi (Ketua; Koordinator Bisnis dan Hilirisasi) · Sidiq Tri Pratikto (Koordinator Teknis) · Akmal Rafli Fauzan (mahasiswa; Koordinator Klinis dan Validasi Pengguna) · Erwin Eko Wahyudi (dosen; konsultan analitik data)
