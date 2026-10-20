@@ -1,6 +1,6 @@
 # HematDaya Faskes: prototipe
 
-Prototipe web **berjalan** (satu berkas HTML, tanpa server; tampilan seluler): menerima data historis konsumsi energi (CSV), lalu menghitung di peramban:
+Prototipe web **berjalan** (satu berkas HTML, tanpa server; tampilan seluler, tema terang dan gelap, mengikuti design system "Nama Brand": Inter, satu aksen biru, kartu berbayang lembut): menerima data historis konsumsi energi (CSV), lalu menghitung di peramban:
 
 - energi dan estimasi biaya per perangkat (tarif opsional),
 - konsumsi di luar jam layanan untuk perangkat poli, dan kenaikan konsumsi dibanding median minggu-minggu sebelumnya untuk perangkat 24 jam dan beban kritis,
