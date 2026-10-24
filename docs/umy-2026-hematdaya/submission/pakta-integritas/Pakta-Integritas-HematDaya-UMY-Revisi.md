@@ -64,7 +64,7 @@ Demikian Pakta Integritas ini kami buat dengan sebenar-benarnya untuk dapat digu
 
 ## Tanggal
 
-....................., ..................... 2026
+Yogyakarta, 24 Oktober 2026
 
 ## Tanda Tangan
 
