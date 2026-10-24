@@ -1,6 +1,6 @@
 """Render the frozen generic PRD and UMY proposal. Requires reportlab, markdown-it-py.
 
-Select outputs with --only proposal administrasi (or prd). Times New Roman is
+Select outputs with --only proposal administrasi (or prd, pakta). Times New Roman is
 loaded from --font-dir or system fonts; IBM Plex Sans labels are bundled under OFL.
 All selected PDFs are validated in a temporary directory before outputs are replaced.
 The generic Markdown stays intact.
@@ -204,6 +204,7 @@ def footer(label, family):
 
 
 TARGETS = ('proposal', 'prd', 'administrasi')
+TARGET_CHOICES = (*TARGETS, 'pakta')
 FONT_ROOT = Path(__file__).resolve().parent / 'fonts' / 'ibm-plex-sans'
 
 
@@ -250,6 +251,7 @@ def register_fonts(font_dir, selected):
             suffix: find_font(times_dirs, filenames, 'Licensed Times New Roman' + suffix)
             for suffix, filenames in names.items()
         })
+    if {'proposal', 'administrasi', 'pakta'} & set(selected):
         plex = {
             '': 'IBMPlexSans-Regular.ttf', '-Bold': 'IBMPlexSans-Bold.ttf',
             '-Italic': 'IBMPlexSans-Italic.ttf', '-BoldItalic': 'IBMPlexSans-BoldItalic.ttf',
@@ -357,12 +359,13 @@ def build(font_dir=None, only=None, output_dir=None):
     from pypdf import PdfReader
 
     selected = tuple(dict.fromkeys(only if only is not None else TARGETS))
-    if not selected or any(target not in TARGETS for target in selected):
-        raise ValueError('Select at least one of: proposal, administrasi, prd.')
+    if not selected or any(target not in TARGET_CHOICES for target in selected):
+        raise ValueError('Select at least one of: proposal, administrasi, prd, pakta.')
     sources = {
         'proposal': ROOT / 'submission/proposal/Proposal-HematDaya-UMY.md',
         'administrasi': ROOT / 'submission/administrasi/Administrasi-HematDaya-UMY.md',
         'prd': ROOT / 'prd/01_PRD_HematDaya_Generic_ID.md',
+        'pakta': ROOT / 'submission/pakta-integritas/Pakta-Integritas-HematDaya-UMY-Revisi.md',
     }
     words = summary_word_count(sources['proposal']) if 'proposal' in selected else None
     register_fonts(font_dir, selected)
@@ -373,6 +376,9 @@ def build(font_dir=None, only=None, output_dir=None):
     if 'administrasi' in selected:
         from umy_admin import build_administration
         renderers['administrasi'] = lambda output, source: build_administration(output, source, sys.modules[__name__])
+    if 'pakta' in selected:
+        from umy_pakta import build_pakta
+        renderers['pakta'] = lambda output, source: build_pakta(output, source, sys.modules[__name__])
 
     with tempfile.TemporaryDirectory(prefix='umy-documents-') as directory:
         candidates, pages = {}, {}
@@ -389,6 +395,10 @@ def build(font_dir=None, only=None, output_dir=None):
             if target == 'administrasi' and count != 2:
                 raise ValueError(
                     f'Administration: {count} pages; expected 2. No output PDFs were replaced.'
+                )
+            if target == 'pakta' and count != 2:
+                raise ValueError(
+                    f'Pakta integritas: {count} pages; expected 2. No output PDFs were replaced.'
                 )
             candidates[target], pages[target] = candidate, count
         outputs = {}
@@ -413,7 +423,7 @@ if __name__ == '__main__':
         help='Directory containing licensed Times New Roman files; otherwise discover system fonts.',
     )
     parser.add_argument(
-        '--only', nargs='+', choices=TARGETS,
+        '--only', nargs='+', choices=TARGET_CHOICES,
         help='Selected outputs; default: proposal, prd, administrasi.',
     )
     parser.add_argument(
