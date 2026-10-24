@@ -1,0 +1,35 @@
+<!-- @dsCard group="Overlays" height=220 -->
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>SheetDialog — preview</title></head>
+<body>
+<div id="root" class="hd-root hd-pad hd-stack"></div>
+<script>
+var HD = window.HD, h = React.createElement, F = HD.format, useState = React.useState;
+function S(label, child) { return h('div', { className: 'hd-stack hd-stack--tight' }, h('p', { className: 'type-label hd-secondary' }, label), child); }
+function Demo() {
+  var open = useState(false); var draft = useState(''); var saved = useState(null); var touched = useState(false);
+  function close() { open[1](false); }
+  function save() {
+    var p = F.parseDecimal(draft[0]);
+    if (!p.valid || p.empty) { touched[1](true); return; }
+    saved[1](p.value); open[1](false);
+  }
+  var parsed = F.parseDecimal(draft[0]);
+  return h(React.Fragment, null,
+    h('div', { className: 'hd-row' }, h(HD.Button, { variant: 'secondary', onClick: function () { open[1](true); } }, 'Atur tarif'),
+      h('span', { className: 'type-body' }, saved[0] == null ? 'Tarif: belum diatur' : 'Tarif: ' + F.rupiah(saved[0]) + '/kWh')),
+    h('p', { className: 'type-label hd-secondary' }, 'Escape, Tutup and Batal close without saving; the typed draft stays until Simpan or Buang draf. Focus returns to "Atur tarif".'),
+    h(HD.SheetDialog, { open: open[0], title: 'Atur tarif', onClose: close,
+      footer: h(React.Fragment, null,
+        draft[0] ? h(HD.Button, { variant: 'text', onClick: function () { draft[1](''); touched[1](false); } }, 'Buang draf') : null,
+        h(HD.Button, { variant: 'secondary', onClick: close }, 'Batal'),
+        h(HD.Button, { variant: 'primary', onClick: save }, 'Simpan')) },
+      h('p', null, 'Tarif dipakai untuk estimasi biaya energi terpantau, bukan tagihan listrik.'),
+      h(HD.NumericField, { label: 'Tarif listrik', unit: 'Rp/kWh', value: draft[0], onChange: draft[1], showErrors: touched[0], error: touched[0] && parsed.empty ? 'Isi tarif, misalnya 1.500.' : null }),
+      draft[0] && saved[0] == null ? h('p', { className: 'type-label hd-secondary' }, 'Draf belum disimpan.') : null));
+}
+ReactDOM.createRoot(document.getElementById('root')).render(h(Demo));
+</script>
+</body>
+</html>

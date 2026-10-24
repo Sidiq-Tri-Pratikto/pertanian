@@ -1,0 +1,22 @@
+<!-- @dsCard group="Charts" height=900 -->
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>ContributionRanking — preview</title></head>
+<body>
+<div id="root" class="hd-root hd-pad hd-stack"></div>
+<script>
+var HD = window.HD, h = React.createElement, F = HD.format, useState = React.useState;
+function S(label, child) { return h('div', { className: 'hd-stack hd-stack--tight' }, h('p', { className: 'type-label hd-secondary' }, label), child); }
+var WEEK = F.dateRange('2026-10-19', '2026-10-25');
+var HOUSE = [{ name: 'Kulkas', kwh: 8.4 }, { name: 'Router', kwh: 1.68 }, { name: 'Pompa Air', kwh: 2.1 }, { name: 'TV', kwh: 2.52 }];
+
+function Demo() {
+  return h(React.Fragment, null,
+    S('Household week: Kulkas 8,4 / 14,7', h('div', { className: 'hd-group' }, h(HD.ContributionRanking, { items: HOUSE, periodLabel: WEEK }))),
+    S('Industrial week: Oven 50%', h('div', { className: 'hd-group' }, h(HD.ContributionRanking, { items: [{ name: 'Oven', kwh: 72 }, { name: 'Kompresor', kwh: 36 }, { name: 'Mesin Press', kwh: 24 }, { name: 'Lampu Area', kwh: 12 }], periodLabel: WEEK, denominatorLabel: 'aset terukur yang dipilih' }))),
+    S('Zero total: no percentages (derived example)', h('div', { className: 'hd-group' }, h(HD.ContributionRanking, { items: [{ name: 'Pompa Air Cadangan', kwh: 0 }, { name: 'Lampu Gudang', kwh: 0 }], periodLabel: WEEK }))));
+}
+ReactDOM.createRoot(document.getElementById('root')).render(h(Demo));
+</script>
+</body>
+</html>

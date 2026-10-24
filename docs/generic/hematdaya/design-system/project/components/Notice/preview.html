@@ -1,0 +1,21 @@
+<!-- @dsCard group="Feedback" height=640 -->
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Notice — preview</title></head>
+<body>
+<div id="root" class="hd-root hd-pad hd-stack"></div>
+<script>
+var HD = window.HD, h = React.createElement, F = HD.format, useState = React.useState;
+function S(label, child) { return h('div', { className: 'hd-stack hd-stack--tight' }, h('p', { className: 'type-label hd-secondary' }, label), child); }
+function Demo() {
+  return h(React.Fragment, null,
+    h(HD.Notice, { tone: 'info', title: 'Meteran Utama sudah mencakup Kulkas' }, 'Nilai keduanya tidak dijumlahkan.'),
+    h(HD.Notice, { tone: 'attention', title: 'Sebagian data belum tersedia', action: h(HD.Button, { variant: 'secondary' }, 'Lihat jam tanpa data') }, 'Angka hanya energi yang terekam pada 12 dari 24 jam.'),
+    h(HD.Notice, { tone: 'error', title: 'Impor tidak dapat dilanjutkan' }, '3 dari 10 baris tidak valid, melebihi batas 2. Perbaiki file lalu unggah ulang.'),
+    h(HD.Notice, { tone: 'success', title: 'Tarif tersimpan' }, 'Dikonfirmasi server 26 Oktober 2026 09.14.'),
+    h(HD.Notice, { tone: 'neutral', title: 'Belum cukup periode pembanding' }, 'Total terukur tetap tersedia.'));
+}
+ReactDOM.createRoot(document.getElementById('root')).render(h(Demo));
+</script>
+</body>
+</html>

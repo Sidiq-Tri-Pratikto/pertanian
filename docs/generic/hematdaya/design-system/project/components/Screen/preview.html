@@ -1,0 +1,18 @@
+<!-- @dsCard group="Layout" height=520 -->
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Screen — preview</title></head>
+<body>
+<div id="root" class="hd-root"></div>
+<script>
+var HD = window.HD, h = React.createElement, F = HD.format, useState = React.useState;
+function S(label, child) { return h('div', { className: 'hd-stack hd-stack--tight' }, h('p', { className: 'type-label hd-secondary' }, label), child); }
+function Demo() {
+  var cur = useState('beranda');
+  return h(HD.Screen, { title: 'Beranda', subtitle: 'Rumah Bandung · Asia/Jakarta', provenance: 'demo', current: cur[0], onNavigate: cur[1] },
+    h('div', { className: 'hd-group' }, h(HD.EnergyMetric, { kwh: 14.7, periodLabel: F.dateRange('2026-10-19', '2026-10-25'), scopeLabel: 'Cakupan pengukuran: 4 perangkat' })));
+}
+ReactDOM.createRoot(document.getElementById('root')).render(h(Demo));
+</script>
+</body>
+</html>

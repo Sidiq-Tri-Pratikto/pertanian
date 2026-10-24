@@ -1,0 +1,19 @@
+/* HematDaya prototype - app-level layout only. Every value reads a HematDaya Design System token. */
+.hd-app { height: 100%; overflow-y: auto; overflow-x: hidden; background: var(--color-background-canvas); scroll-padding-bottom: var(--space-64); }
+.hd-app .hd-screen { min-height: 100%; }
+.hd-app [tabindex="-1"]:focus { outline: none; }
+.hd-app h1:focus-visible { box-shadow: var(--hd-ring); border-radius: var(--radius-control); }
+.hd-app pre { margin: 0; padding: var(--space-12); background: var(--color-background-subtle); border-radius: var(--radius-control); white-space: pre-wrap; word-break: break-word; font-size: 0.875rem; line-height: 1.25rem; max-height: 12rem; overflow: auto; }
+.hd-app .hd-demo-panel { border: var(--size-border-control) dashed var(--color-border-control); border-radius: var(--radius-surface); padding: var(--space-16); }
+.hd-app .hd-kv { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-4) var(--space-16); }
+.hd-app .hd-kv dt { font-weight: var(--font-weight-semibold); }
+.hd-app .hd-kv dd { margin: 0 0 var(--space-8) 0; }
+.hd-app .hd-catalog { display: flex; flex-direction: column; gap: var(--space-8); }
+.hd-app .hd-window { border-top: var(--size-border-control) solid var(--color-border-decorative); padding-top: var(--space-16); }
+.hd-app .hd-file input[type="file"] { min-height: var(--size-target-minimum); font: inherit; max-width: 100%; }
+.hd-app .hd-file input[type="file"]:focus-visible { box-shadow: var(--hd-ring); outline: none; border-radius: var(--radius-control); }
+.hd-app .hd-errlist { display: flex; flex-direction: column; gap: var(--space-8); }
+.hd-app .hd-errlist li { padding: var(--space-8) var(--space-12); border-radius: var(--radius-control); background: var(--color-status-error-background); }
+.hd-app .hd-errlist li:focus { box-shadow: var(--hd-ring); }
+@media (min-width: 768px) { .hd-app .hd-kv { grid-template-columns: minmax(10rem, 14rem) minmax(0, 1fr); } .hd-app .hd-kv dd { margin: 0; } }
+html.hd-large-text { font-size: 200%; }

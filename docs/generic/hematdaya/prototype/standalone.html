@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HematDaya Prototipe</title>
+<!-- Standalone test page: same files the Design canvas loads, plus React 18.3.1 from the design system's own lib folder. -->
+<link rel="stylesheet" href="project/ds/hematdaya/tokens.css">
+<link rel="stylesheet" href="project/ds/hematdaya/components/bundle.css">
+<link rel="stylesheet" href="project/app/app.css">
+<style>html, body, #root { height: 100%; margin: 0; } body { background: var(--color-background-canvas); }</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="project/ds/hematdaya/components/lib/react.production.min.js"></script>
+<script src="project/ds/hematdaya/components/lib/react-dom.production.min.js"></script>
+<script src="project/ds/hematdaya/components/bundle.js"></script>
+<script src="project/app/hematdaya-domain.js"></script>
+<script src="project/app/hematdaya-app.js"></script>
+<script>ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(HematDayaApp.App, { history: true }));</script>
+</body>
+</html>

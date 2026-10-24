@@ -1,0 +1,19 @@
+<!-- @dsCard group="Navigation" height=150 -->
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>TabNavigation — preview</title></head>
+<body>
+<div id="root" class="hd-root hd-stack"></div>
+<script>
+var HD = window.HD, h = React.createElement, F = HD.format, useState = React.useState;
+function S(label, child) { return h('div', { className: 'hd-stack hd-stack--tight' }, h('p', { className: 'type-label hd-secondary' }, label), child); }
+function Demo() {
+  var cur = useState('beranda');
+  return h(React.Fragment, null,
+    h(HD.TabNavigation, { current: cur[0], onNavigate: cur[1] }),
+    h('p', { className: 'type-label hd-secondary', 'aria-live': 'polite' }, 'Current: ' + cur[0] + ' (aria-current="page", bar + weight + fill)'));
+}
+ReactDOM.createRoot(document.getElementById('root')).render(h(Demo));
+</script>
+</body>
+</html>

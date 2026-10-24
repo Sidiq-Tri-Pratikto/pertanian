@@ -1,0 +1,63 @@
+<!-- @dsCard group="Patterns" height=2600 page -->
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>PatternEvidence — preview</title></head>
+<body>
+<div id="root" class="hd-root"></div>
+<script>
+var HD = window.HD, h = React.createElement, F = HD.format, useState = React.useState;
+function S(label, child) { return h('div', { className: 'hd-stack hd-stack--tight' }, h('p', { className: 'type-label hd-secondary' }, label), child); }
+function TestPanel(props) {
+  return h('fieldset', { className: 'hd-group hd-stack', style: { borderStyle: 'dashed', margin: 'var(--space-16)' } },
+    h('legend', { className: 'type-label-strong', style: { padding: '0 var(--space-8)' } }, 'Kontrol uji — bukan bagian UI produk'), props.children);
+}
+var WEEK = F.dateRange('2026-10-19', '2026-10-25');
+function Section(props) { return h('section', { className: 'hd-stack', 'aria-labelledby': props.id }, h('h2', { id: props.id, className: 'type-section' }, props.title), props.note ? h('p', { className: 'type-label hd-secondary' }, props.note) : null, props.children); }
+
+var TV = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'].map(function (d) { return { label: d, current: 0.56, reference: 0.36 }; });
+var DAYS = ['Senin 19 Okt', 'Selasa 20 Okt', 'Rabu 21 Okt', 'Kamis 22 Okt', 'Jumat 23 Okt', 'Sabtu 24 Okt', 'Minggu 25 Okt'];
+var HOURS = []; for (var i = 0; i < 24; i++) HOURS.push({ hour: String(i).padStart(2, '0') + '.00–' + String(i + 1).padStart(2, '0') + '.00', label: i % 6 === 0 ? String(i).padStart(2, '0') + '.00' : '', current: i < 6 || i >= 18 ? 0.05 : null });
+var NUM = function (v) { return F.number(v); };
+function Demo() {
+  var outcome = useState('failureThenSuccess'); var st = useState(null); var choice = useState(null); var tries = useState(0); var cur = useState('saran');
+  function send(v) {
+    choice[1](v); st[1]('saving'); var n = tries[0] + 1; tries[1](n);
+    var o = outcome[0];
+    setTimeout(function () { st[1](o === 'success' ? 'success' : o === 'unknown' ? 'unknown' : n === 1 ? 'failure' : 'success'); }, 900);
+  }
+  return h(React.Fragment, null,
+    h(TestPanel, null, h(HD.ChoiceGroup, { legend: 'Hasil mengirim umpan balik', value: outcome[0], onChange: function (v) { outcome[1](v); st[1](null); tries[1](0); }, inline: true, options: [
+      { value: 'failureThenSuccess', label: 'Gagal, lalu berhasil saat dicoba lagi' }, { value: 'unknown', label: 'Status tidak diketahui' }, { value: 'success', label: 'Berhasil' }] }),
+      h('p', { className: 'type-label hd-secondary' }, 'Skenario perubahan rumah tangga (fixture terpisah dari minggu lengkap). Pembagian harian rata, data per jam dan pembanding 0 kWh adalah turunan demonstrasi.')),
+    h(HD.Screen, { title: 'Saran', subtitle: 'Rumah Bandung · Asia/Jakarta', provenance: 'demo', current: cur[0], onNavigate: cur[1] },
+      h(Section, { id: 'p2-change', title: 'Perubahan dengan pembanding' },
+        h('div', { className: 'hd-group' }, h(HD.InsightSummary, { headingLevel: 3, title: 'TV naik 1,400 kWh (+55,56%)', periodLabel: WEEK, comparison: { eligible: true, label: 'dibanding 12–18 Oktober 2026' } })),
+        h('div', { className: 'hd-group hd-stack' }, h(HD.HistoryChart, { headingLevel: 3, title: 'TV per hari', points: TV, periodLabel: '19–25 Oktober 2026 dibanding 12–18 Oktober 2026', scopeLabel: 'TV',
+            currentLabel: 'Periode ini, 19–25 Okt (batang penuh)', referenceLabel: 'Pembanding, 12–18 Okt (garis putus-putus)',
+            summary: 'TV tercatat 3,920 kWh dibanding 2,520 kWh (+1,400 kWh, +55,56%).' }),
+          h(HD.ChartDataAlternative, { caption: 'TV per hari (kWh)', columns: [{ key: 'day', label: 'Hari' }, { key: 'cur', label: 'Periode ini', numeric: true, format: NUM }, { key: 'ref', label: 'Pembanding', numeric: true, format: NUM }],
+            rows: DAYS.map(function (d) { return { day: d, cur: 0.56, ref: 0.36 }; }).concat([{ day: 'Total', cur: 3.92, ref: 2.52 }]) })),
+        h('div', { className: 'hd-group' }, h(HD.EvidencePanel, {
+          observed: 'TV tercatat 3,920 kWh pada 19–25 Oktober 2026.',
+          comparison: 'Pembanding 12–18 Oktober 2026: 2,520 kWh. Selisih +1,400 kWh (+55,56%). Total lokasi 16,100 kWh; estimasi biaya simulasi Rp24.150.',
+          qualityScope: 'Kelengkapan data 100% di kedua periode. Cakupan: sub-meteran TV saja.',
+          unknown: 'Penyebab perubahan belum diketahui. Lokasi ini tidak punya jadwal, jadi tidak ada klaim pemakaian di luar jam.',
+          guidance: 'Periksa apakah pola menonton atau pengaturan perangkat berubah pada periode ini.',
+          onFeedback: send, feedbackState: st[0], feedbackChoice: choice[0], onFeedbackRetry: function () { send(choice[0]); },
+          onFeedbackCheck: function () { st[1]('saving'); setTimeout(function () { st[1]('success'); }, 700); },
+          metadata: [['Metode', 'Selisih energi terekam antar periode tujuh hari lengkap yang sebanding.'], ['Sumber', 'Demo · Data simulasi']] }))),
+      h(Section, { id: 'p2-zero', title: 'Pembanding nol', note: 'Contoh turunan: Pompa Air terukur 0,000 kWh pada periode pembanding dengan data lengkap.' },
+        h('div', { className: 'hd-group' }, h(HD.InsightSummary, { headingLevel: 3, title: 'Pompa Air naik 2,100 kWh', periodLabel: WEEK, comparison: { eligible: true, label: 'dibanding 12–18 Oktober 2026 (0,000 kWh terukur)' },
+          qualification: 'Persentase tidak tersedia karena pembanding 0 kWh.' }))),
+      h(Section, { id: 'p2-gap', title: 'Data belum lengkap' },
+        h('div', { className: 'hd-group hd-stack' },
+          h(HD.InsightSummary, { headingLevel: 3, title: 'Kulkas tercatat 0,600 kWh', periodLabel: '25 Oktober 2026', comparison: { eligible: false, reason: 'kelengkapan data hanya 50% periode.' } }),
+          h(HD.HistoryChart, { headingLevel: 3, title: 'Kulkas per jam', points: HOURS, dense: true, periodLabel: '25 Oktober 2026', scopeLabel: 'Kulkas',
+            summary: 'Energi terekam 0,600 kWh dari 12 jam valid, masing-masing 0,050 kWh.', gapNote: 'Tidak ada data 06.00–18.00. Total satu hari penuh tidak diketahui.' }),
+          h(HD.ChartDataAlternative, { caption: 'Kulkas per jam, 25 Oktober 2026 (kWh)', columns: [{ key: 'hour', label: 'Jam' }, { key: 'current', label: 'Energi', numeric: true, format: NUM }], rows: HOURS }),
+          h(HD.DataQuality, { completeness: 0.5, gaps: '06.00–18.00', freshness: { state: 'stale', lastMeasurement: '25 Oktober 2026 05.58' }, source: 'demo', onCheckSource: function () {} })))));
+}
+ReactDOM.createRoot(document.getElementById('root')).render(h(Demo));
+</script>
+</body>
+</html>

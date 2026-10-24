@@ -1,0 +1,17 @@
+# HematDaya — Ready Claude Design System Prompt
+
+Stage 1: attach **04_Claude_Design_System_HematDaya_EN.md only**, then copy the complete prompt below. This creates the requested system in the Claude session where you run it; these repository documents do not themselves register a design system. Keep its output for the subsequent application-prototype stage.
+
+<!-- BEGIN READY DESIGN SYSTEM PROMPT -->
+Create HematDaya Design System first, using the attached self-contained design-system handoff as the complete brief. Read it before choosing tokens or components. This stage produces a reusable product design system and an interactive component/pattern workbench; the full application prototype comes afterwards. Product examples must be natural Indonesian. Documentation and stable token/component names may be English.
+
+Preserve the product contract: electricity monitoring and evidence-based advice for household, business and industrial contexts; Beranda, Perangkat and Saran as the three primary destinations; no AC requirement or physical controls; optional tariff, schedule and output metrics. Preserve measured scope, missingness, valid zero, temporal completeness, provenance and evidence. Do not invent diagnoses, efficiency scores, waste or savings claims.
+
+Build one semantic token authority, the required HD-prefixed primitive/domain components, documented anatomy and interaction states, content/chart rules, responsive/native mappings, and the four bounded pattern assemblies. Start from the seed foundations and retain or revise them with recorded contrast and usability reasoning. All components must consume shared aliases; avoid unnamed screen copies and scattered raw values. Demonstrate loading, focus, disabled-with-reason, error, unknown-result, retry, and combined data-quality states. Keep the fixture values and Indonesian formatting exact.
+
+Use the design-system capabilities actually available here. Declare the runtime and whether this is a registered Claude system or a portable local reference. If live component previews cannot support keyboard testing, provide a separately runnable workbench and record both surfaces honestly. Verify touch targets, text/graphic contrast, 200% text, 320 CSS px reflow, keyboard/focus, accessible chart data, error/status messages, reduced motion, and available native-relevant checks. Record pass, fail, not run or blocked with evidence; synthetic provenance is separate. Seed colour calculations do not prove a rendered interface passes.
+
+Deliver the private system/reference, valid token JSON, system guide, manifest, component inventory/source where supported, interactive workbench and inspected exports, validation report, and exact instructions for attaching/selecting the same system in the later HematDaya application project. Verify a representative consuming sample and record its binding/version; never claim automatic inheritance or clean native output without evidence. Keep unavailable exports and native/participant checks explicit.
+
+Continue through the complete agreed system stage without expanding into the entire app, a logo redesign, speculative themes, SaaS administration or a plugin framework. Do not request real credentials, connect hardware, publish/share externally, deploy a service, or set an organization-wide default. Keep the artifact private and leave publication/default-setting for a later explicit owner instruction.
+<!-- END READY DESIGN SYSTEM PROMPT -->

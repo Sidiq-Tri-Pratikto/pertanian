@@ -1,0 +1,25 @@
+<!-- @dsCard group="Evidence" height=980 -->
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>EvidencePanel — preview</title></head>
+<body>
+<div id="root" class="hd-root hd-pad hd-stack"></div>
+<script>
+var HD = window.HD, h = React.createElement, F = HD.format, useState = React.useState;
+function S(label, child) { return h('div', { className: 'hd-stack hd-stack--tight' }, h('p', { className: 'type-label hd-secondary' }, label), child); }
+function Demo() {
+  var st = useState(null); var choice = useState(null); var attempt = useState(0);
+  function send(v) { choice[1](v); st[1]('saving'); var n = attempt[0] + 1; attempt[1](n); setTimeout(function () { st[1](n === 1 ? 'failure' : 'success'); }, 900); }
+  return h(HD.EvidencePanel, {
+    observed: 'TV tercatat 3,920 kWh pada 19–25 Oktober 2026.',
+    comparison: 'Periode pembanding 12–18 Oktober 2026: 2,520 kWh. Selisih +1,400 kWh (+55,56%). Total lokasi 16,100 kWh; estimasi biaya simulasi Rp24.150.',
+    qualityScope: 'Kelengkapan data 100% di kedua periode. Cakupan: sub-meteran TV saja.',
+    unknown: 'Penyebab perubahan belum diketahui. Tidak ada jadwal, jadi tidak ada klaim pemakaian di luar jam.',
+    guidance: 'Periksa apakah pola menonton atau pengaturan perangkat berubah pada periode ini.',
+    onFeedback: send, feedbackState: st[0], feedbackChoice: choice[0], onFeedbackRetry: function () { send(choice[0]); },
+    metadata: [['Metode', 'Selisih energi terekam antar periode tujuh hari lengkap yang sebanding.'], ['Sumber', 'Demo · Data simulasi'], ['Versi kebijakan analisis', 'Contoh; diisi aplikasi']] });
+}
+ReactDOM.createRoot(document.getElementById('root')).render(h(Demo));
+</script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+<!-- @dsCard group="Feedback" height=520 -->
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>ErrorSummary — preview</title></head>
+<body>
+<div id="root" class="hd-root hd-pad hd-stack"></div>
+<script>
+var HD = window.HD, h = React.createElement, F = HD.format, useState = React.useState;
+function S(label, child) { return h('div', { className: 'hd-stack hd-stack--tight' }, h('p', { className: 'type-label hd-secondary' }, label), child); }
+function Demo() {
+  var name = useState(''); var tariff = useState('1.5'); var n = useState(0); var errs = useState([]);
+  function submit(e) {
+    e.preventDefault();
+    var list = [];
+    if (!name[0].trim()) list.push({ targetId: 'f-name', text: 'Isi nama perangkat' });
+    var p = F.parseDecimal(tariff[0]);
+    if (!p.valid) list.push({ targetId: 'f-tariff', text: 'Tarif listrik: ' + p.error });
+    errs[1](list); n[1](n[0] + 1);
+  }
+  var errFor = function (id) { var e = errs[0].filter(function (x) { return x.targetId === id; })[0]; return e ? e.text : null; };
+  return h('form', { className: 'hd-stack', onSubmit: submit, noValidate: true },
+    h(HD.ErrorSummary, { errors: errs[0], submitCount: n[0] }),
+    h(HD.TextField, { id: 'f-name', label: 'Nama perangkat', required: true, value: name[0], onChange: name[1], error: errFor('f-name') }),
+    h(HD.NumericField, { id: 'f-tariff', label: 'Tarif listrik', optional: true, unit: 'Rp/kWh', value: tariff[0], onChange: tariff[1], error: errFor('f-tariff') }),
+    h('div', null, h(HD.Button, { variant: 'primary', type: 'submit' }, 'Simpan')));
+}
+ReactDOM.createRoot(document.getElementById('root')).render(h(Demo));
+</script>
+</body>
+</html>

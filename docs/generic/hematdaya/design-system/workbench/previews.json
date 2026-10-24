@@ -1,0 +1,162 @@
+[
+  {
+    "name": "AssetRow",
+    "group": "Energy",
+    "page": false
+  },
+  {
+    "name": "Button",
+    "group": "Actions",
+    "page": false
+  },
+  {
+    "name": "ChartDataAlternative",
+    "group": "Charts",
+    "page": false
+  },
+  {
+    "name": "ChoiceGroup",
+    "group": "Inputs",
+    "page": false
+  },
+  {
+    "name": "ContributionRanking",
+    "group": "Charts",
+    "page": false
+  },
+  {
+    "name": "CostEstimate",
+    "group": "Energy",
+    "page": false
+  },
+  {
+    "name": "Cover",
+    "group": "",
+    "page": false
+  },
+  {
+    "name": "DataQuality",
+    "group": "Energy",
+    "page": false
+  },
+  {
+    "name": "Disclosure",
+    "group": "Overlays",
+    "page": false
+  },
+  {
+    "name": "EnergyMetric",
+    "group": "Energy",
+    "page": false
+  },
+  {
+    "name": "ErrorSummary",
+    "group": "Feedback",
+    "page": false
+  },
+  {
+    "name": "EvidencePanel",
+    "group": "Evidence",
+    "page": false
+  },
+  {
+    "name": "HistoryChart",
+    "group": "Charts",
+    "page": false
+  },
+  {
+    "name": "Icon",
+    "group": "Layout",
+    "page": false
+  },
+  {
+    "name": "IconButton",
+    "group": "Actions",
+    "page": false
+  },
+  {
+    "name": "ImportPreview",
+    "group": "Data entry",
+    "page": false
+  },
+  {
+    "name": "InsightSummary",
+    "group": "Evidence",
+    "page": false
+  },
+  {
+    "name": "Notice",
+    "group": "Feedback",
+    "page": false
+  },
+  {
+    "name": "NumericField",
+    "group": "Inputs",
+    "page": false
+  },
+  {
+    "name": "OutputMetricPreview",
+    "group": "Optional metrics",
+    "page": false
+  },
+  {
+    "name": "PatternCsvImport",
+    "group": "Patterns",
+    "page": true
+  },
+  {
+    "name": "PatternEvidence",
+    "group": "Patterns",
+    "page": true
+  },
+  {
+    "name": "PatternHouseholdBeranda",
+    "group": "Patterns",
+    "page": true
+  },
+  {
+    "name": "PatternIndustrial",
+    "group": "Patterns",
+    "page": true
+  },
+  {
+    "name": "PeriodSelector",
+    "group": "Inputs",
+    "page": false
+  },
+  {
+    "name": "ProgressStatus",
+    "group": "Feedback",
+    "page": false
+  },
+  {
+    "name": "ScheduleWindows",
+    "group": "Optional metrics",
+    "page": false
+  },
+  {
+    "name": "ScopeSummary",
+    "group": "Energy",
+    "page": false
+  },
+  {
+    "name": "Screen",
+    "group": "Layout",
+    "page": false
+  },
+  {
+    "name": "SheetDialog",
+    "group": "Overlays",
+    "page": false
+  },
+  {
+    "name": "TabNavigation",
+    "group": "Navigation",
+    "page": false
+  },
+  {
+    "name": "TextField",
+    "group": "Inputs",
+    "page": false
+  }
+]

@@ -1,0 +1,20 @@
+<!-- @dsCard group="Charts" height=520 -->
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>ChartDataAlternative — preview</title></head>
+<body>
+<div id="root" class="hd-root hd-pad hd-stack"></div>
+<script>
+var HD = window.HD, h = React.createElement, F = HD.format, useState = React.useState;
+function S(label, child) { return h('div', { className: 'hd-stack hd-stack--tight' }, h('p', { className: 'type-label hd-secondary' }, label), child); }
+var DAYS = ['Senin 19 Okt', 'Selasa 20 Okt', 'Rabu 21 Okt', 'Kamis 22 Okt', 'Jumat 23 Okt', 'Sabtu 24 Okt', 'Minggu 25 Okt'];
+function Demo() {
+  return h(HD.ChartDataAlternative, { collapsed: false, caption: 'TV per hari, kWh. Periode ini 19–25 Oktober 2026; pembanding 12–18 Oktober 2026.',
+    summary: 'Total periode ini 3,920 kWh; pembanding 2,520 kWh.',
+    columns: [{ key: 'day', label: 'Hari' }, { key: 'cur', label: 'Periode ini (kWh)', numeric: true, format: function (v) { return F.number(v); } }, { key: 'ref', label: 'Pembanding (kWh)', numeric: true, format: function (v) { return F.number(v); } }],
+    rows: DAYS.map(function (d) { return { day: d, cur: 0.56, ref: 0.36 }; }).concat([{ day: 'Total', cur: 3.92, ref: 2.52 }]) });
+}
+ReactDOM.createRoot(document.getElementById('root')).render(h(Demo));
+</script>
+</body>
+</html>

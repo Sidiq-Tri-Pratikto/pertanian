@@ -1,0 +1,24 @@
+<!-- @dsCard group="Energy" height=820 -->
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>CostEstimate — preview</title></head>
+<body>
+<div id="root" class="hd-root hd-pad hd-stack"></div>
+<script>
+var HD = window.HD, h = React.createElement, F = HD.format, useState = React.useState;
+function S(label, child) { return h('div', { className: 'hd-stack hd-stack--tight' }, h('p', { className: 'type-label hd-secondary' }, label), child); }
+var WEEK = F.dateRange('2026-10-19', '2026-10-25');
+var HOUSE = [{ name: 'Kulkas', kwh: 8.4 }, { name: 'Router', kwh: 1.68 }, { name: 'Pompa Air', kwh: 2.1 }, { name: 'TV', kwh: 2.52 }];
+
+function Demo() {
+  return h(React.Fragment, null,
+    S('Synthetic tariff Rp1.500/kWh x 14,700 kWh', h('div', { className: 'hd-group' }, h(HD.CostEstimate, { kwh: 14.7, tariff: 1500, tariffSource: 'synthetic' }))),
+    S('Missing tariff: unknown, not Rp0', h('div', { className: 'hd-group' }, h(HD.CostEstimate, { kwh: 14.7, tariff: null, onSetTariff: function () {} }))),
+    S('Explicit zero tariff', h('div', { className: 'hd-group' }, h(HD.CostEstimate, { kwh: 14.7, tariff: 0, tariffSource: 'user' }))),
+    S('Partial energy + synthetic tariff (0,600 kWh x Rp1.500)', h('div', { className: 'hd-group' }, h(HD.CostEstimate, { kwh: 0.6, tariff: 1500, tariffSource: 'synthetic', partial: true }))),
+    S('No energy data', h('div', { className: 'hd-group' }, h(HD.CostEstimate, { kwh: null, tariff: 1500 }))));
+}
+ReactDOM.createRoot(document.getElementById('root')).render(h(Demo));
+</script>
+</body>
+</html>

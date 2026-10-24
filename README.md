@@ -17,6 +17,10 @@ Kumpulan proyek hackathon (private): dokumen, aplikasi atau prototipe, dan konfi
 
 Nama folder proyek sama di `docs/` dan `applications/`, dengan pola `<hackathon>-<tahun>-<proyek>`.
 
+## PRD generik
+
+[docs/generic](docs/generic/) memuat spesifikasi lintas sektor, terpisah dari dokumen hackathon. Produk pertama: [HematDaya generik](docs/generic/hematdaya/), untuk pemantauan listrik rumah tangga, usaha, dan industri. Ini spesifikasi pengembangan baru; prototipe proyek yang sudah ada tetap memiliki cakupannya masing-masing.
+
 ## Skills
 
 | Skill | Fungsi |

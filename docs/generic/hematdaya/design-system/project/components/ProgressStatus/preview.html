@@ -1,0 +1,26 @@
+<!-- @dsCard group="Feedback" height=720 -->
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>ProgressStatus — preview</title></head>
+<body>
+<div id="root" class="hd-root hd-pad hd-stack"></div>
+<script>
+var HD = window.HD, h = React.createElement, F = HD.format, useState = React.useState;
+function S(label, child) { return h('div', { className: 'hd-stack hd-stack--tight' }, h('p', { className: 'type-label hd-secondary' }, label), child); }
+function Demo() {
+  var st = useState(null); var checking = useState(false);
+  function save() { st[1]('saving'); setTimeout(function () { st[1]('unknown'); }, 1200); }
+  function check() { checking[1](true); setTimeout(function () { checking[1](false); st[1]('success'); }, 1000); }
+  return h(React.Fragment, null,
+    S('Interactive (local simulation): save, connection drops, check status', h('div', { className: 'hd-stack hd-stack--tight' },
+      h('div', null, h(HD.Button, { variant: 'primary', onClick: save, loading: st[0] === 'saving', loadingLabel: 'Menyimpan…', disabledReason: st[0] === 'success' ? 'Sudah tersimpan.' : null }, 'Simpan tarif')),
+      h(HD.ProgressStatus, { state: st[0] === 'saving' ? 'saving' : st[0], onCheck: check, checking: checking[0], detail: st[0] === 'success' ? 'Dikonfirmasi server 26 Oktober 2026 09.14. Tidak dikirim dua kali.' : undefined }))),
+    S('loading', h(HD.ProgressStatus, { state: 'loading' })),
+    S('unknown result', h(HD.ProgressStatus, { state: 'unknown', onCheck: function () {} })),
+    S('failure + retry', h(HD.ProgressStatus, { state: 'failure', onRetry: function () {} })),
+    S('success (after acknowledgment only)', h(HD.ProgressStatus, { state: 'success', detail: 'Dikonfirmasi server 26 Oktober 2026 09.14.' })));
+}
+ReactDOM.createRoot(document.getElementById('root')).render(h(Demo));
+</script>
+</body>
+</html>

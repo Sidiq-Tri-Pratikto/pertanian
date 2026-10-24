@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HematDaya workbench</title>
+<link rel="stylesheet" href="tokens.css">
+<style>
+  /* Workbench chrome only (test surface, not product UI). Reads the same tokens. */
+  body { margin: 0; font-family: var(--font-sans); background: var(--color-background-subtle); color: var(--color-text-primary); }
+  .wb { display: grid; grid-template-columns: 15rem 1fr; min-height: 100vh; }
+  .wb nav { background: var(--color-background-surface); border-right: var(--size-border-control) solid var(--color-border-decorative); padding: var(--space-16); overflow: auto; max-height: 100vh; position: sticky; top: 0; }
+  .wb nav h1 { margin: 0 0 var(--space-4); }
+  .wb nav h2 { margin: var(--space-16) 0 var(--space-4); color: var(--color-text-secondary); }
+  .wb nav a { display: flex; align-items: center; min-height: var(--size-target-minimum); padding: 0 var(--space-8); color: var(--color-text-primary); border-radius: var(--radius-control); text-decoration: none; }
+  .wb nav a[aria-current="page"] { background: var(--color-selection-background); color: var(--color-selection-foreground); font-weight: var(--font-weight-semibold); }
+  .wb nav a:focus-visible, .wb button:focus-visible, .wb select:focus-visible, .wb input:focus-visible { outline: none; box-shadow: 0 0 0 var(--size-focus-gapWidth) var(--color-focus-gap), 0 0 0 calc(var(--size-focus-gapWidth) + var(--size-focus-ringWidth)) var(--color-focus-ring); }
+  .wb main { padding: var(--space-16); min-width: 0; }
+  .controls { display: flex; flex-wrap: wrap; gap: var(--space-12) var(--space-24); align-items: center; padding: var(--space-12) var(--space-16); background: var(--color-background-surface); border: var(--size-border-control) dashed var(--color-border-control); border-radius: var(--radius-surface); margin-bottom: var(--space-16); }
+  .controls label, .controls button { min-height: var(--size-target-minimum); display: inline-flex; align-items: center; gap: var(--space-8); }
+  .controls select, .controls button { font: inherit; min-height: var(--size-target-minimum); padding: 0 var(--space-12); border: var(--size-border-control) solid var(--color-border-control); border-radius: var(--radius-control); background: var(--color-background-surface); color: var(--color-text-primary); }
+  .stage { overflow: auto; }
+  iframe { display: block; border: var(--size-border-control) solid var(--color-border-control); background: var(--color-background-canvas); margin: 0 auto; max-width: none; }
+  .meta { color: var(--color-text-secondary); margin: var(--space-8) 0; }
+  #results { white-space: pre-wrap; background: var(--color-background-surface); border: var(--size-border-control) solid var(--color-border-decorative); border-radius: var(--radius-control); padding: var(--space-12); margin-top: var(--space-16); max-height: 24rem; overflow: auto; }
+</style>
+</head>
+<body>
+<div class="wb">
+  <nav aria-label="Previews">
+    <h1 class="type-body-strong">HematDaya workbench</h1>
+    <p class="type-caption">1.0.0-draft · local test surface</p>
+    <div id="list"></div>
+  </nav>
+  <main>
+    <div class="controls type-label" role="group" aria-label="Test controls (not product UI)">
+      <strong>Test controls</strong>
+      <label>Frame width <select id="width">
+        <option value="320">320 (reflow)</option><option value="360">360</option><option value="390" selected>390</option><option value="430">430</option>
+        <option value="768">768</option><option value="1280">1280</option><option value="1440">1440</option></select></label>
+      <label><input type="checkbox" id="text200"> Text 200% (root font-size)</label>
+      <label><input type="checkbox" id="motion"> Reduced motion (class)</label>
+      <button type="button" id="audit">Run audit</button>
+    </div>
+    <p class="meta type-label" id="meta"></p>
+    <div class="stage"><iframe id="frame" title="Component preview"></iframe></div>
+    <div id="results" class="type-label" role="status" aria-live="polite">Audit results appear here.</div>
+  </main>
+</div>
+<script>
+// The frame reproduces the design-system preview frame: tokens.css, bundle.css, React 18.3.1, bundle.js, then the
+// component's own preview.html, loaded from the same files that are published under project/.
+var BASE = '../project/components/';
+var HEAD = '<link rel="stylesheet" href="' + location.href.replace(/[^/]*$/, '') + 'tokens.css">' +
+  ['bundle.css'].map(function (f) { return '<link rel="stylesheet" href="' + new URL(BASE + f, location.href) + '">'; }).join('') +
+  ['lib/react.production.min.js', 'lib/react-dom.production.min.js', 'bundle.js'].map(function (f) { return '<script src="' + new URL(BASE + f, location.href) + '"><\/script>'; }).join('');
+var frame = document.getElementById('frame');
+var previews = [];
+function current() { return decodeURIComponent(location.hash.slice(1)) || 'PatternHouseholdBeranda'; }
+function render() {
+  var name = current();
+  document.querySelectorAll('#list a').forEach(function (a) { a.toggleAttribute('aria-current', a.dataset.name === name); if (a.dataset.name === name) a.setAttribute('aria-current', 'page'); });
+  fetch(BASE + name + '/preview.html').then(function (r) { return r.text(); }).then(function (html) {
+    var extra = (document.getElementById('text200').checked ? '<style>html{font-size:200%}<\/style>' : '');
+    html = html.replace('<html lang="id">', '<html lang="id" data-theme="light"' + (document.getElementById('motion').checked ? ' class="hd-reduce-motion"' : '') + '>')
+      .replace('<head>', '<head>' + HEAD + extra);
+    frame.style.width = document.getElementById('width').value + 'px';
+    frame.srcdoc = html;
+    document.getElementById('meta').textContent = name + ' · width ' + document.getElementById('width').value + ' CSS px' + (document.getElementById('text200').checked ? ' · text 200%' : '');
+  });
+}
+function fit() { try { var d = frame.contentDocument; if (d && d.documentElement) frame.style.height = Math.max(200, d.documentElement.scrollHeight) + 'px'; } catch (e) {} }
+setInterval(fit, 400);
+fetch('previews.json').then(function (r) { return r.json(); }).then(function (list) {
+  previews = list;
+  var groups = {};
+  list.forEach(function (p) { (groups[p.group] = groups[p.group] || []).push(p); });
+  var order = ['Patterns', 'Actions', 'Inputs', 'Navigation', 'Overlays', 'Feedback', 'Energy', 'Charts', 'Evidence', 'Data entry', 'Optional metrics', 'Layout'];
+  document.getElementById('list').innerHTML = order.filter(function (g) { return groups[g]; }).map(function (g) {
+    return '<h2 class="type-label-strong">' + g + '</h2>' + groups[g].map(function (p) { return '<a class="type-label" href="#' + p.name + '" data-name="' + p.name + '">' + p.name + '</a>'; }).join('');
+  }).join('');
+  render();
+});
+window.addEventListener('hashchange', render);
+['width', 'text200', 'motion'].forEach(function (id) { document.getElementById(id).addEventListener('change', render); });
+
+// ---- audit: rendered contrast of text, target size, horizontal overflow, names
+function parse(c) { var m = c.match(/[\d.]+/g); return m ? m.map(Number) : [0, 0, 0, 0]; }
+function lum(rgb) { return rgb.slice(0, 3).map(function (v) { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }).reduce(function (s, v, i) { return s + v * [0.2126, 0.7152, 0.0722][i]; }, 0); }
+function ratio(a, b) { var x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); }
+function bgOf(el, win) {
+  for (var e = el; e; e = e.parentElement) {
+    var cs = win.getComputedStyle(e); var c = parse(cs.backgroundColor);
+    if (cs.backgroundImage !== 'none' && /gradient/.test(cs.backgroundImage)) return null;
+    if (c.length < 4 || c[3] > 0) { if (c.length === 4 && c[3] < 1) continue; return c; }
+  }
+  return [255, 255, 255];
+}
+window.hdAudit = function () {
+  var d = frame.contentDocument, w = frame.contentWindow, out = { preview: current(), width: d.documentElement.clientWidth, text200: document.getElementById('text200').checked, contrastFails: [], textChecked: 0, smallTargets: [], unnamed: [], overflowX: d.documentElement.scrollWidth > d.documentElement.clientWidth };
+  var walker = d.createTreeWalker(d.body, NodeFilter.SHOW_TEXT);
+  var seen = new Set();
+  while (walker.nextNode()) {
+    var t = walker.currentNode; if (!t.textContent.trim()) continue;
+    var el = t.parentElement; if (seen.has(el)) continue; seen.add(el);
+    var r = el.getBoundingClientRect(); if (!r.width || !r.height) continue;
+    if (el.closest('[aria-hidden="true"]') && !el.closest('.hd-chart__labels')) continue;
+    var cs = w.getComputedStyle(el); if (cs.visibility === 'hidden' || cs.clip === 'rect(0px, 0px, 0px, 0px)') continue;
+    var bg = bgOf(el, w); if (!bg) continue;
+    var rr = ratio(parse(cs.color), bg); var size = parseFloat(cs.fontSize), bold = Number(cs.fontWeight) >= 700;
+    var min = size >= 24 || (bold && size >= 18.66) ? 3 : 4.5; out.textChecked++;
+    if (rr < min) out.contrastFails.push({ text: t.textContent.trim().slice(0, 40), ratio: rr.toFixed(2), min: min, color: cs.color, bg: 'rgb(' + bg.slice(0, 3).join(',') + ')' });
+  }
+  d.querySelectorAll('button, a[href], input, select, textarea, summary, [role="button"]').forEach(function (el) {
+    var target = el.matches('input[type="radio"], input[type="checkbox"]') ? el.closest('label') || el : el;
+    var r = target.getBoundingClientRect(); if (!r.width) return;
+    var inline = el.matches('a') && w.getComputedStyle(el).display === 'inline';
+    if (!inline && (r.width < 47.5 || r.height < 47.5)) out.smallTargets.push((el.textContent || el.getAttribute('aria-label') || el.tagName).trim().slice(0, 30) + ' ' + Math.round(r.width) + 'x' + Math.round(r.height));
+    var name = (el.getAttribute('aria-label') || el.textContent || (el.labels && el.labels[0] && el.labels[0].textContent) || '').trim();
+    if (!name && !el.getAttribute('aria-labelledby') && !(el.id && d.querySelector('label[for="' + el.id + '"]'))) out.unnamed.push(el.outerHTML.slice(0, 60));
+  });
+  document.getElementById('results').textContent = JSON.stringify(out, null, 2);
+  return out;
+};
+document.getElementById('audit').addEventListener('click', function () { window.hdAudit(); });
+</script>
+</body>
+</html>

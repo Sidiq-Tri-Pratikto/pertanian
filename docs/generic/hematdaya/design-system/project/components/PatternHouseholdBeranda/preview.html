@@ -1,0 +1,42 @@
+<!-- @dsCard group="Patterns" height=1700 page -->
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>PatternHouseholdBeranda — preview</title></head>
+<body>
+<div id="root" class="hd-root"></div>
+<script>
+var HD = window.HD, h = React.createElement, F = HD.format, useState = React.useState;
+function S(label, child) { return h('div', { className: 'hd-stack hd-stack--tight' }, h('p', { className: 'type-label hd-secondary' }, label), child); }
+function TestPanel(props) {
+  return h('fieldset', { className: 'hd-group hd-stack', style: { borderStyle: 'dashed', margin: 'var(--space-16)' } },
+    h('legend', { className: 'type-label-strong', style: { padding: '0 var(--space-8)' } }, 'Kontrol uji — bukan bagian UI produk'), props.children);
+}
+var WEEK = F.dateRange('2026-10-19', '2026-10-25');
+function Section(props) { return h('section', { className: 'hd-stack', 'aria-labelledby': props.id }, h('h2', { id: props.id, className: 'type-section' }, props.title), props.note ? h('p', { className: 'type-label hd-secondary' }, props.note) : null, props.children); }
+
+var HOUSE = [{ name: 'Kulkas', kwh: 8.4 }, { name: 'Router', kwh: 1.68 }, { name: 'Pompa Air', kwh: 2.1 }, { name: 'TV', kwh: 2.52 }];
+function Demo() {
+  var tariff = useState('synthetic'); var cur = useState('beranda');
+  var period = useState({ preset: 'last7', start: '2026-10-19', end: '2026-10-25' });
+  var p = period[0];
+  var hasData = p.start === '2026-10-19' && p.end === '2026-10-25';
+  var kwh = hasData ? 14.7 : null;
+  return h(React.Fragment, null,
+    h(TestPanel, null, h(HD.ChoiceGroup, { legend: 'Tarif', inline: true, value: tariff[0], onChange: tariff[1], options: [{ value: 'synthetic', label: 'Tarif simulasi Rp1.500/kWh' }, { value: 'none', label: 'Tarif belum diatur' }] }),
+      h('p', { className: 'type-label hd-secondary' }, 'Virtual now 26 Oktober 2026 00.00 Asia/Jakarta. Data demo hanya mencakup 19–25 Oktober 2026; tidak ada jadwal atau metrik output.')),
+    h(HD.Screen, { title: 'Beranda', subtitle: 'Rumah Bandung · Asia/Jakarta', provenance: 'demo', current: cur[0], onNavigate: cur[1],
+      aside: h('div', { className: 'hd-group' }, h(HD.ScopeSummary, { included: ['Kulkas', 'Router', 'Pompa Air', 'TV'] })), asideLabel: 'Cakupan pengukuran' },
+      h(HD.PeriodSelector, { today: '2026-10-26', value: p, onCommit: period[1] }),
+      h('div', { className: 'hd-group hd-stack hd-stack--section' },
+        h(HD.EnergyMetric, { kwh: kwh, quality: hasData ? 'complete' : 'unavailable', periodLabel: F.dateRange(p.start, p.end), scopeLabel: 'Cakupan pengukuran: 4 perangkat',
+          emptyDetail: p.preset === 'today' ? 'Belum ada pengukuran hari ini; hari baru dimulai 00.00. Tidak ditampilkan sebagai 0 kWh.' : 'Data demo hanya mencakup 19–25 Oktober 2026. Tidak ditampilkan sebagai 0 kWh.',
+          emptyAction: h(HD.Button, { variant: 'secondary', icon: 'calendar', onClick: function () { period[1]({ preset: 'last7', start: '2026-10-19', end: '2026-10-25' }); } }, 'Lihat periode data') }),
+        h(HD.CostEstimate, { kwh: kwh, tariff: tariff[0] === 'synthetic' ? 1500 : null, tariffSource: 'synthetic', onSetTariff: function () { tariff[1]('synthetic'); } })),
+      hasData && h('div', { className: 'hd-group' }, h(HD.DataQuality, { label: 'Kualitas data', completeness: 1, source: 'demo' })),
+      hasData && h('div', { className: 'hd-group' }, h(HD.ContributionRanking, { items: HOUSE, periodLabel: WEEK })),
+      hasData && h(HD.InsightSummary, { kind: 'learning', detail: 'Total terukur 19–25 Oktober 2026 tetap tersedia. Perbandingan muncul setelah ada minggu lengkap yang sebanding.' })));
+}
+ReactDOM.createRoot(document.getElementById('root')).render(h(Demo));
+</script>
+</body>
+</html>
