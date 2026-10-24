@@ -1,6 +1,6 @@
 # Claude Design capabilities and HematDaya prototype workflow
 
-Research date: October 21, 2026. Scope: official Anthropic product documentation and a proposed task-oriented handoff; no Claude Design project was created or executed. Local product authority: [HematDaya generic PRD 1.1](/home/ahmad-widardi/Projects/random/pertanian/docs/generic/hematdaya/01_PRD_HematDaya_Generic_EN.md). All recommendations below are design proposals, not measured user-research findings.
+Research date: October 21, 2026. Scope: official Anthropic product documentation and a proposed task-oriented handoff; no Claude Design project was created or executed. Local product authority: [HematDaya generic PRD 1.1](../../docs/generic/hematdaya/01_PRD_HematDaya_Generic_EN.md). All recommendations below are design proposals, not measured user-research findings.
 
 ## 1. What can Claude Design currently create, run, and export?
 
@@ -41,8 +41,8 @@ Make the handoff complete enough to attach by itself: product authority, full PR
 
 - Anthropic recommends describing the feature journey step by step, explicitly requesting working interactions, giving screens/components clear names, recording design decisions, and asking for empty, loading, error, small-data, and large-data states before implementation. — [Using Claude for prototypes and UX](https://academy.claude.com/tutorials/using-claude-design-for-prototypes-and-ux)
 - Design systems can be extracted from uploaded assets or synced from an existing React component library through Claude Code `/design-sync`. A design system covers color, typography, components, and layout patterns; source quality limits the result. — [Set up your design system in Claude Design](https://support.claude.com/en/articles/14604397-set-up-your-design-system-in-claude-design)
-- HematDaya requires three primary destinations (**Beranda**, **Perangkat**, **Saran**), an optional context preset, no mandatory AC/schedule/output data, scope-safe calculations, conservative evidence-based advice, and Indonesian interface text. Its preferred future implementation stack is Expo/React Native/TypeScript for Android/iOS/web, with shared domain rules and a server; this is a proposed implementation rather than an existing verified system. — [Local PRD, sections 2–9 and 15](/home/ahmad-widardi/Projects/random/pertanian/docs/generic/hematdaya/01_PRD_HematDaya_Generic_EN.md)
-- Product acceptance explicitly separates missing data, measured zero, learning, missing tariff, stale source, historical import, client offline, conflicting scope, invalid CSV, and unsupported adapters. It also requires retained drafts/navigation context, data provenance, quality, and actual evidence for platform and user-study claims. — [Local PRD, sections 13–14 and 20](/home/ahmad-widardi/Projects/random/pertanian/docs/generic/hematdaya/01_PRD_HematDaya_Generic_EN.md)
+- HematDaya requires three primary destinations (**Beranda**, **Perangkat**, **Saran**), an optional context preset, no mandatory AC/schedule/output data, scope-safe calculations, conservative evidence-based advice, and Indonesian interface text. Its preferred future implementation stack is Expo/React Native/TypeScript for Android/iOS/web, with shared domain rules and a server; this is a proposed implementation rather than an existing verified system. — [Local PRD, sections 2–9 and 15](../../docs/generic/hematdaya/01_PRD_HematDaya_Generic_EN.md)
+- Product acceptance explicitly separates missing data, measured zero, learning, missing tariff, stale source, historical import, client offline, conflicting scope, invalid CSV, and unsupported adapters. It also requires retained drafts/navigation context, data provenance, quality, and actual evidence for platform and user-study claims. — [Local PRD, sections 13–14 and 20](../../docs/generic/hematdaya/01_PRD_HematDaya_Generic_EN.md)
 
 ### Inferences
 
@@ -80,7 +80,7 @@ The prompt should require working tasks, explicit simulated boundaries, and test
 ### Cited Findings
 
 - Anthropic's recommended workflow supports context assets, conversational refinement, local canvas edits, and engineering handoff. The current artifact system starts designs private, with explicit sharing controls. — [Claude Design admin guide](https://support.claude.com/en/articles/14604406-claude-design-admin-guide-for-team-and-enterprise-plans); [What are artifacts and how do I use them?](https://support.claude.com/en/articles/17153992-what-are-artifacts-and-how-do-i-use-them)
-- HematDaya's PRD forbids physical controls, unverified integration success, invented diagnoses/savings, secrets in exports, and pass claims without runtime-specific evidence. CSV/demo may operate without broker, vendor account, cloud AI, or push. — [Local PRD, sections 2, 6.3, 15, 19–23](/home/ahmad-widardi/Projects/random/pertanian/docs/generic/hematdaya/01_PRD_HematDaya_Generic_EN.md)
+- HematDaya's PRD forbids physical controls, unverified integration success, invented diagnoses/savings, secrets in exports, and pass claims without runtime-specific evidence. CSV/demo may operate without broker, vendor account, cloud AI, or push. — [Local PRD, sections 2, 6.3, 15, 19–23](../../docs/generic/hematdaya/01_PRD_HematDaya_Generic_EN.md)
 
 ### Inferences
 

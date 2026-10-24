@@ -21,7 +21,7 @@ Period and measurement scope → recorded kWh → qualified optional cost → co
 - Product copy is natural Indonesian, sentence case, addressed as *Anda* only when needed. Documentation and token/component names are English.
 - Use the approved phrases exactly: "Energi yang dipantau", "Estimasi biaya energi terpantau", "Biaya belum dihitung — tarif belum diatur", "Cakupan pengukuran: 4 perangkat", "Kelengkapan data: 92% periode" (temporal, never "akurat"), "Sebagian data belum tersedia", "Data belum diperbarui" (never "perangkat mati"), "Belum cukup periode pembanding", "Belum dapat dibandingkan: <alasan>", "Penyebab perubahan belum diketahui", "Demo · Data simulasi", "Saran umum".
 - Formatting comes from `HD.format`, never hand-typed: `14,700 kWh` (three decimals), `Rp22.050` (rounded once from the unrounded product), `57,14%`, `+1,400 kWh`, `19–25 Oktober 2026`, `07.00–17.00`, `Asia/Jakarta`.
-- Errors name the field or row and the fix: "Baris data 4 (baris file 5) · kolom energi_kwh: "dua" bukan angka. Tulis angka, misalnya 0,250." Row numbers count data rows; file line = data row + 1.
+- Errors name the field or row and the fix: "Baris data 4 · kolom energi_kwh: "dua" bukan angka. Tulis angka, misalnya 0,250." Data-row numbers exclude the header and blank lines. Include a separately labelled physical file line only when the parser supplies its actual position; never derive it by adding 1 to the data-row number, because blank lines and multiline quoted fields can change that position.
 - No MQTT, module names, trace codes, tenant terms or analysis thresholds in ordinary screens. Do not uppercase sentences. No emoji.
 
 ## Visual foundations

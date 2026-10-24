@@ -25,7 +25,7 @@ Combinations demonstrated: partial + no tariff (`CostEstimate` partial/missing a
 
 - One primary action per step; buttons start with a verb ("Simpan tarif", "Impor 8 baris", "Periksa status", "Coba lagi").
 - Every disabled control says why, in a sentence the user can act on ("Isi tarif terlebih dahulu untuk menyimpan.").
-- Field errors name the field and the fix; row errors name the data row, the file line and the column. Say whether a number is a data row or a file line.
+- Field errors name the field and the fix; row errors name the data row and the column. Add a separately labelled physical file line only when its actual position is supplied by the parser; otherwise report the data row only.
 - Draft and confirmed are visibly different: "Draf tersimpan di perangkat ini — belum dikirim" versus "Dikonfirmasi server 26 Oktober 2026 09.14".
 - Technical detail (methods, policy versions) goes in "Detail perhitungan", never in the main reading path.
 
