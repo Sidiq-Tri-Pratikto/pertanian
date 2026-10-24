@@ -98,7 +98,23 @@ def table(rows, sty, width, generic):
     return tbl
 
 
-def render_markdown(text, sty, width, generic=False):
+def figure_row(images, width, base):
+    # A paragraph holding only images becomes one row of equal-height screenshots.
+    height = 4.8*cm
+    cells, widths = [], []
+    for t in images:
+        src = base/t.attrGet('src')
+        img = Image(str(src), height=height, width=height, kind='proportional')
+        cells.append(img); widths.append(img.drawWidth + .3*cm)
+    assert sum(widths) <= width, 'figure row too wide'
+    from reportlab.platypus import Table
+    row = Table([cells], colWidths=widths, hAlign='CENTER')
+    row.setStyle(TableStyle([('ALIGN', (0,0), (-1,-1), 'CENTER'), ('VALIGN', (0,0), (-1,-1), 'TOP'),
+                             ('LEFTPADDING', (0,0), (-1,-1), 0), ('RIGHTPADDING', (0,0), (-1,-1), 0)]))
+    return row
+
+
+def render_markdown(text, sty, width, generic=False, base=None):
     tokens = MD.parse(text)
     result, lists = [], []
     i = 0
@@ -109,6 +125,9 @@ def render_markdown(text, sty, width, generic=False):
             if generic and t.tag == 'h2': p.toc_heading = True
             result.append(p); i += 3; continue
         if t.type == 'paragraph_open':
+            kids = [c for c in tokens[i+1].children if c.type != 'softbreak' and not (c.type == 'text' and not c.content.strip())]
+            if kids and all(c.type == 'image' for c in kids):
+                result.extend([figure_row(kids, width, base), Spacer(1, 4)]); i += 3; continue
             bullet = None
             if lists:
                 item = lists[-1]
@@ -191,7 +210,7 @@ def build(font_dir):
         rightMargin=2*cm, leftMargin=2*cm, topMargin=1.65*cm, bottomMargin=2*cm,
         title='HematDaya - Proposal UMY 2026', author='Tim Petani Digital')
     pstyles = styles('Times', 12, 13.8, False)
-    proposal.build(render_markdown(text, pstyles, proposal.width),
+    proposal.build(render_markdown(text, pstyles, proposal.width, base=source.parent),
                    onFirstPage=footer('Petani Digital | HematDaya | UMY 2026 | Klaster 08', 'Times'),
                    onLaterPages=footer('Petani Digital | HematDaya | UMY 2026 | Klaster 08', 'Times'))
 

@@ -35,7 +35,7 @@ Untuk UMY, proposal memilih **Bidang Strategis Kesehatan**, **Klaster 08 - Susta
 
 Sumber utama: [Buku Pedoman Peserta UMY Hackathon DeepTech 2026 Revisi](https://drive.google.com/file/d/1Zzk80Mf3XR-poQPG4i49x48cByk3GVod/view), dibaca 24 Oktober 2026 dari [folder yang diberikan pengguna](https://drive.google.com/drive/folders/1WaBli2s3qcdMWfiRjOkjhI0iqBs0cHvB). Folder tersebut berisi satu PDF pedoman revisi. Format Word terpisah dari pekerjaan lama tidak dijadikan acuan pembaruan ini.
 
-- Bagian 3.3 dan halaman 17 menetapkan proposal awal maksimal tiga halaman A4. Lampiran halaman 19-20 memakai bagian 1-7, ringkasan maksimal 250 kata, deskripsi maksimal dua halaman, serta pembagian tugas maksimal satu halaman. Naskah utama memakai Times New Roman tertanam, 12 pt, leading 13,8 pt (1,15). Ringkasan berisi 199 kata dengan penghitungan kata berbasis spasi, tanpa nomor sitasi.
+- Bagian 3.3 dan halaman 17 menetapkan proposal awal maksimal tiga halaman A4. Lampiran halaman 19-20 memakai bagian 1-7, ringkasan maksimal 250 kata, deskripsi maksimal dua halaman, serta pembagian tugas maksimal satu halaman. Naskah utama memakai Times New Roman tertanam, 12 pt, leading 13,8 pt (1,15). Ringkasan berisi 205 kata dengan penghitungan kata berbasis spasi, tanpa nomor sitasi.
 - Pedoman tidak menjelaskan secara tegas apakah sampul dan lembar identitas termasuk batas tiga halaman. Karena itu, substansi dibuat tiga halaman dan administrasi disediakan terpisah. Penggabungan atau penempatan isian mengikuti sistem panitia; belum ada konfirmasi resmi mengenai penafsiran batas tersebut.
 - Jadwal Uji Terbatas pada halaman 12 berbeda dari tabel halaman 13 (24-26 versus 9-12 November). Roadmap tidak memilih salah satunya sebagai jadwal pasti; kehadiran mengikuti konfirmasi panitia.
 - Proposal PetaniDigital/TemuRiset revisi yang diberikan pengguna digunakan sebagai referensi gaya, identitas, dan pengalaman tiga anggota. Status produk TemuRiset, tanda tangan, bukti demo, dan mitranya tidak dipindahkan ke HematDaya.
@@ -46,7 +46,9 @@ Sumber utama: [Buku Pedoman Peserta UMY Hackathon DeepTech 2026 Revisi](https://
 - CV dan portofolio seluruh anggota, termasuk CV Akmal, serta bukti status aktif dosen/mahasiswa perlu disiapkan untuk unggahan. Dosen dan mahasiswa tercatat berasal dari UGM; status aktif belum diverifikasi ke PDDIKTI.
 - Lembar identitas belum ditandatangani. Ketua merupakan profesional sehingga kolom identitas disesuaikan menjadi NIK; format pedoman menampilkan NIDN/NIDK/NUPTK. Penerimaannya perlu dicocokkan dengan sistem panitia.
 - Pakta integritas bertanda tangan harus memakai pedoman revisi: tujuh komitmen, termasuk etik dan keselamatan. Pakta lama dalam folder ini mengikuti format berbeda dan bukan dokumen final pembaruan ini.
-- Belum ada bukti kemitraan atau izin pilot. Tautan demo, tangkapan layar, dan bukti hasil uji tidak dibuat atau diklaim tersedia. Tidak ada berkas yang dikirim ke panitia dalam pekerjaan ini.
+- Belum ada bukti kemitraan atau izin pilot. Tidak ada berkas yang dikirim ke panitia dalam pekerjaan ini.
+- Gambar 1 pada Lampiran memuat empat tangkapan layar [prototipe peramban](../generic/hematdaya/prototype/) dengan data simulasi (skenario "Industri · kompresor di luar jadwal"), disimpan di [submission/proposal/assets/prototipe/](submission/proposal/assets/prototipe/). Untuk mengambil ulang, jalankan server prototipe lalu `node tests/capture-screenshots.js <folder-keluaran>` dari folder prototipe. Belum ada tautan demo publik maupun hasil uji pengguna.
+- PDF proposal yang memuat Gambar 1 dirender dengan Liberation Serif (metrik identik Times New Roman) karena font Times berlisensi tidak tersedia saat itu. Render ulang dengan `--font-dir` berisi font Times sebelum diunggah.
 
 ## Dokumen lama
 

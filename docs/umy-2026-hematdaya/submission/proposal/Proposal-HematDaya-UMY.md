@@ -14,7 +14,7 @@ HematDaya membantu pengguna membaca konsumsi listrik, membandingkan periode yang
 
 Produk dasarnya dapat dipakai rumah tangga, usaha, dan industri. Untuk UMY, calon pengguna awalnya ialah pengelola sarana dan teknisi fasilitas kesehatan. Beban yang harus terus beroperasi tetap dipantau tanpa saran penghentian. HematDaya tidak mengendalikan perangkat dan tidak memerlukan data pasien.
 
-PRD generik telah tersedia; desain demo sedang dikerjakan. Estimasi TKT awal 2 dan target TKT 4 pada April 2027 akan dikonfirmasi bersama mentor berdasarkan bukti pengujian. Pekerjaan meliputi alur CSV, analitik yang dapat ditelusuri, uji kegunaan, dan validasi terintegrasi. Potensi pendapatannya berupa layanan pemasangan, penerapan aplikasi, dan dukungan berkala; harga serta manfaat ekonominya masih perlu diuji.
+PRD generik dan prototipe interaktif berbasis peramban dengan data simulasi telah tersedia (Gambar 1). Estimasi TKT awal 2 dan target TKT 4 pada April 2027 akan dikonfirmasi bersama mentor berdasarkan bukti pengujian. Pekerjaan meliputi alur CSV, analitik yang dapat ditelusuri, uji kegunaan, dan validasi terintegrasi. Potensi pendapatannya berupa layanan pemasangan, penerapan aplikasi, dan dukungan berkala; harga serta manfaat ekonominya masih perlu diuji.
 
 ## 4. Deskripsi Inovasi
 
@@ -30,7 +30,7 @@ PRD generik telah tersedia; desain demo sedang dikerjakan. Estimasi TKT awal 2 d
 
 Analisis awal memakai perhitungan deterministik dan median periode terdahulu yang setara. Impor memeriksa satuan, waktu, duplikasi, serta konflik sumber sebelum disimpan. Perbandingan otomatis ditahan bila cakupan atau riwayat tidak cukup. Pemakaian di luar jadwal dilaporkan sebagai pengamatan, bukan bukti pemborosan. Pembelajaran mesin baru dipertimbangkan bila tersedia data dan evaluasi yang menunjukkan manfaat dibanding baseline sederhana; bukan prasyarat prototipe.
 
-**Kondisi awal dan target.** Estimasi TKT 2 didasarkan pada PRD dan rancangan; desain demo masih berlangsung. Validasi backend, integrasi meter, dan uji fasilitas untuk versi generik belum dibuktikan. Target TKT 4 memerlukan validasi modul terintegrasi dalam lingkungan terkontrol dan evaluasi mentor/asesor. Target rekayasa: seluruh acuan hitung PRD lulus, tanpa penghitungan ganda atau data hilang yang berubah menjadi nol. Target kegunaan: sedikitnya 4 dari 5 pengelola dapat membaca konsumsi, menemukan kontributor terbesar, dan memahami bukti tanpa bantuan. Angka tersebut merupakan target usulan, bukan hasil uji atau janji penghematan.
+**Kondisi awal dan target.** Estimasi TKT 2 didasarkan pada PRD, rancangan, dan prototipe peramban dengan backend simulasi (Gambar 1); 36 uji acuan perhitungannya lulus. Validasi backend, integrasi meter, dan uji fasilitas untuk versi generik belum dibuktikan. Target TKT 4 memerlukan validasi modul terintegrasi dalam lingkungan terkontrol dan evaluasi mentor/asesor. Target rekayasa: seluruh acuan hitung PRD lulus, tanpa penghitungan ganda atau data hilang yang berubah menjadi nol. Target kegunaan: sedikitnya 4 dari 5 pengelola dapat membaca konsumsi, menemukan kontributor terbesar, dan memahami bukti tanpa bantuan. Angka tersebut merupakan target usulan, bukan hasil uji atau janji penghematan.
 
 **Peta jalan 12 bulan.** Tanggal kegiatan onsite mengikuti konfirmasi panitia karena jadwal uji terbatas di dalam pedoman belum seragam [1].
 
@@ -68,4 +68,8 @@ Pemantauan dilakukan melalui daftar tugas mingguan dengan penanggung jawab, krit
 
 ## 7. Lampiran
 
-Sampul dan lembar identitas disiapkan dalam berkas administrasi terpisah. CV, portofolio, serta pakta integritas bertanda tangan akan diunggah melalui sistem panitia. Bukti kemitraan dilampirkan bila telah diperoleh. Tautan dan bukti demo menyusul setelah desain selesai.
+Sampul dan identitas ada di berkas administrasi terpisah. CV, portofolio, dan pakta integritas diunggah melalui sistem panitia; bukti kemitraan menyusul bila diperoleh.
+
+![Beranda: energi, biaya, dan kualitas data](assets/prototipe/01-beranda.png) ![Kontributor terbesar dan pengamatan](assets/prototipe/02-kontributor-pengamatan.png) ![Dasar saran dengan bukti](assets/prototipe/03-dasar-saran.png) ![Pratinjau impor CSV](assets/prototipe/04-impor-pratinjau.png)
+
+**Gambar 1.** Prototipe, data simulasi: (a) Beranda; (b) kontributor; (c) dasar saran; (d) impor CSV.
