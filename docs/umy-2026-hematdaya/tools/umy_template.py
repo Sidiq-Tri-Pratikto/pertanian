@@ -54,20 +54,17 @@ class SectionHeading(Flowable):
         super().__init__()
         self.number, self.title, self.note = number, title, note
         self.keepWithNext = True
-        self.spaceBefore = 2
-        self.spaceAfter = 3
+        self.spaceBefore = 10
+        self.spaceAfter = 6
 
     def wrap(self, width, height):
         self.width = width
-        caption = self.title
-        if self.note:
-            caption += f"  <font size='7.1' color='#007F86'>{self.note}</font>"
-        self.caption = Paragraph(caption, ParagraphStyle(
+        self.caption = Paragraph(self.title, ParagraphStyle(
             'section-label', fontName='Plex-SemiBold', fontSize=12,
             leading=14.3, textColor=NAVY,
         ))
         _, caption_height = self.caption.wrap(width - 30, height)
-        self.height = max(17, caption_height) + 5
+        self.height = max(17, caption_height) + 5 + (11 if self.note else 0)
         self.caption_height = caption_height
         return self.width, self.height
 
@@ -81,6 +78,10 @@ class SectionHeading(Flowable):
         c.setFont('Plex-SemiBold', 17)
         c.drawString(0, self.height - 19, self.number)
         self.caption.drawOn(c, 30, self.height - 5 - self.caption_height)
+        if self.note:
+            c.setFont('Plex-SemiBold', 8)
+            c.setFillColor(TEAL)
+            c.drawString(30, 1, self.note)
         c.restoreState()
 
 
@@ -142,7 +143,7 @@ def theme_block(markdown, width, helpers, sty):
         raise ValueError('Template checkboxes must be mapped to the actual selected field/cluster')
     p = lambda text: Paragraph(helpers.escaped_text(text), sty['p'])
     label_style = ParagraphStyle('theme-label', parent=sty['p'],
-                                 fontName='Plex-SemiBold', fontSize=9, leading=12)
+                                 fontName='Plex-SemiBold', fontSize=9.5, leading=12)
     label = lambda text: Paragraph(text, label_style)
     rows = [
         [label('Bidang strategis:'), Checkbox(True), p(field)],
@@ -163,8 +164,8 @@ def theme_block(markdown, width, helpers, sty):
     ]
     cells = []
     # The unselected choices are form labels; the selected value keeps the source wording.
-    option_style = ParagraphStyle('cluster-option', fontName='Plex', fontSize=8.4,
-                                  leading=10.2, textColor=NAVY)
+    option_style = ParagraphStyle('cluster-option', fontName='Plex', fontSize=9.5,
+                                  leading=12, textColor=NAVY)
     for i in range(0, 8, 2):
         row = []
         for j in [i, i + 1]:
@@ -177,7 +178,7 @@ def theme_block(markdown, width, helpers, sty):
         ('LEFTPADDING', (0, 0), (-1, -1), 0),
         ('RIGHTPADDING', (0, 0), (-1, -1), 7),
         ('TOPPADDING', (0, 0), (-1, -1), 0),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 1),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
     ]))
     return [field_table, label('Klaster: (pilih satu)'), Spacer(1, 2), choices,
             Paragraph('<b>Tim:</b> ' + helpers.escaped_text(team), sty['p'])]
@@ -204,9 +205,9 @@ def build_proposal(output, source, helpers):
         author='Tim Petani Digital',
     )
     sty = helpers.styles('Times', 12, 13.8, False)
-    sty['p'].spaceAfter = 1.5
-    sty['table_padding'] = 2
-    sty['table_space_after'] = 3
+    sty['p'].spaceAfter = 6
+    sty['table_padding'] = 5
+    sty['table_space_after'] = 8
     sty['cell'].leading = 13.8
     heading = ParagraphStyle('proposal-title', fontName='Plex-Bold', fontSize=16,
                              leading=19, textColor=NAVY, spaceAfter=8)

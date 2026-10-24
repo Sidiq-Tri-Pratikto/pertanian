@@ -8,42 +8,40 @@
 
 ## 3. Executive Summary
 
-Tagihan bulanan menunjukkan berapa listrik yang dibayar, tetapi belum menjelaskan pemakaian tiap perangkat. Di rumah sakit dan klinik, kebutuhan ini juga disebut dalam problem statement UMY: konsumsi energi tinggi dan belum terpantau secara terukur [1].
+Tagihan bulanan belum menjelaskan pemakaian tiap perangkat. Pedoman UMY menyebut konsumsi energi tinggi yang belum terpantau secara terukur di rumah sakit dan klinik [1]. HematDaya membantu membaca konsumsi, membandingkan periode setara, dan menentukan hal yang perlu diperiksa.
 
-HematDaya membantu pengguna membaca konsumsi listrik, membandingkan periode yang setara, dan menentukan hal yang perlu diperiksa. Data berasal dari impor CSV atau meter yang kelak diverifikasi. Aplikasi menampilkan energi, kontribusi perangkat atau sirkuit, estimasi biaya bila tarif tersedia, serta saran dengan bukti dan keterbatasannya. Jadwal dan ukuran energi per satuan keluaran bersifat opsional. Data hilang tidak dianggap nol; meter utama dan perangkat di bawahnya tidak dijumlahkan dua kali.
+Pengguna dapat memulai dari berkas data berformat CSV; meter yang terverifikasi dapat ditambahkan kemudian. Aplikasi menampilkan energi, kontribusi perangkat atau sirkuit, estimasi biaya jika tarif tersedia, serta data yang mendasari saran. Jadwal dan energi per satuan keluaran bersifat opsional. Data hilang tidak dianggap nol; meter utama dan perangkat di bawahnya tidak dihitung ganda.
 
-Produk dasarnya dapat dipakai rumah tangga, usaha, dan industri. Untuk UMY, calon pengguna awalnya ialah pengelola sarana dan teknisi fasilitas kesehatan. Beban yang harus terus beroperasi tetap dipantau tanpa saran penghentian. HematDaya tidak mengendalikan perangkat dan tidak memerlukan data pasien.
+Produk melayani rumah tangga, usaha, dan industri. Untuk UMY, sasaran awalnya pengelola sarana dan teknisi fasilitas kesehatan. Aplikasi tidak mengendalikan perangkat atau memerlukan data pasien.
 
-PRD generik dan prototipe interaktif berbasis peramban dengan data simulasi telah tersedia (Gambar 1). Estimasi TKT awal 2 dan target TKT 4 pada April 2027 akan dikonfirmasi bersama mentor berdasarkan bukti pengujian. Pekerjaan meliputi alur CSV, analitik yang dapat ditelusuri, uji kegunaan, dan validasi terintegrasi. Potensi pendapatannya berupa layanan pemasangan, penerapan aplikasi, dan dukungan berkala; harga serta manfaat ekonominya masih perlu diuji.
+Dokumen kebutuhan produk (PRD) dan prototipe peramban dengan data simulasi telah tersedia (Gambar 1). Tim menilai tingkat kesiapan teknologi (TKT) awal berada pada level 3. Targetnya TKT 4 pada April 2027 melalui pengujian fungsi terpadu. Layanan pemasangan, penerapan aplikasi, dan dukungan berkala berpotensi menghasilkan pendapatan; harga dan manfaat ekonominya belum diuji.
 
 ## 4. Deskripsi Inovasi
 
-**Masalah, pengguna, dan kebutuhan.** Usulan mengikuti masalah energi pada Klaster 08 [1], dengan fokus awal pengelola sarana dan teknisi rumah sakit atau klinik. Tagihan membantu melihat total biaya, sedangkan pemeriksaan operasional memerlukan informasi yang lebih rinci: beban mana yang berubah, kapan perubahan terjadi, dan apakah datanya cukup. Kebutuhan pada lokasi tertentu belum divalidasi melalui wawancara atau pilot; validasi itu menjadi pekerjaan awal program.
+**Masalah dan pengguna.** Pengelola sarana dan teknisi perlu mengetahui perangkat mana yang berubah pemakaiannya, kapan perubahan terjadi, dan apakah datanya cukup. Kebutuhan tiap lokasi belum dikonfirmasi. Tim akan memulainya dengan wawancara dan menyiapkan uji coba lapangan (pilot).
 
-**Solusi dan pembeda yang akan diuji.** Pemantauan per perangkat dan hierarki meter telah tersedia, misalnya pada Home Assistant [2]. HematDaya mengembangkan pengalaman berbahasa Indonesia yang dapat dimulai dari CSV, tanpa membeli meter terlebih dahulu. Pembeda yang diuji ialah kemudahan memahami cakupan pengukuran, kualitas data, dan alasan suatu saran. Pengguna dapat membuka bukti dari tiga tab: Beranda, Perangkat, dan Saran. Jadwal layanan tidak menjadi asumsi untuk semua beban; kulkas obat yang harus menyala terus tidak ditandai boros hanya karena bekerja malam hari.
+**Solusi dan pembeda.** Pemantauan perangkat serta hubungan meter utama dan meter perangkat tersedia pada Home Assistant [2]. HematDaya menawarkan alur berbahasa Indonesia dari CSV tanpa membeli meter. Yang diuji ialah kemudahan memahami perangkat yang diukur, kelengkapan data, dan alasan saran melalui Beranda, Perangkat, serta Saran. Perangkat yang harus menyala terus, seperti kulkas obat, dipantau tanpa anjuran mematikannya atau penilaian boros hanya karena bekerja malam hari.
 
 <!-- page -->
 
 ## 4. Deskripsi Inovasi (lanjutan)
 
-**Teknologi dan penggunaan kembali.** PRD menetapkan monolit modular: backend FastAPI/Python, PostgreSQL, dan target klien React Native/Expo untuk seluler serta web [3]. Inti bersama menangani satuan, interval, cakupan, kualitas data, dan bukti. Biaya, jadwal, serta intensitas menjadi modul opsional; koneksi meter menjadi adapter. Penyesuaian klien memakai konfigurasi atau perluasan modul dari rilis sumber bersama, termasuk untuk kebutuhan UMY.
+**Cara kerja.** Satu sistem dengan komponen bersama melayani beragam pengguna; fitur biaya, jadwal, dan energi per satuan keluaran diaktifkan sesuai kebutuhan. Rincian teknologi mengikuti PRD [3]. Perhitungan memakai aturan tetap dan nilai tengah periode terdahulu yang setara. Saat impor, sistem memeriksa satuan, waktu, duplikasi, dan data yang bertentangan. Perbandingan ditunda jika kelengkapan data atau riwayat pemakaian belum cukup; pemakaian di luar jadwal bukan bukti pemborosan. Pembelajaran mesin baru dipertimbangkan jika tersedia data dan bukti manfaat dibanding perhitungan awal.
 
-Analisis awal memakai perhitungan deterministik dan median periode terdahulu yang setara. Impor memeriksa satuan, waktu, duplikasi, serta konflik sumber sebelum disimpan. Perbandingan otomatis ditahan bila cakupan atau riwayat tidak cukup. Pemakaian di luar jadwal dilaporkan sebagai pengamatan, bukan bukti pemborosan. Pembelajaran mesin baru dipertimbangkan bila tersedia data dan evaluasi yang menunjukkan manfaat dibanding baseline sederhana; bukan prasyarat prototipe.
+**Kondisi dan target.** Penilaian TKT awal 3 didukung prototipe peramban dan 36 uji acuan perhitungan yang tercatat lulus. Proses server masih disimulasikan; layanan server nyata, koneksi meter, dan penggunaan di fasilitas belum divalidasi. Target TKT 4 memerlukan pengujian fungsi terpadu dalam lingkungan terkontrol serta evaluasi mentor atau asesor. Sasarannya seluruh acuan hitung PRD lulus dan sedikitnya 4 dari 5 pengelola dapat membaca konsumsi, menemukan kontributor terbesar, serta memahami bukti tanpa bantuan. Ini target pengujian, bukan hasil studi atau janji penghematan.
 
-**Kondisi awal dan target.** Estimasi TKT 2 didasarkan pada PRD, rancangan, dan prototipe peramban dengan backend simulasi (Gambar 1); 36 uji acuan perhitungannya lulus. Validasi backend, integrasi meter, dan uji fasilitas untuk versi generik belum dibuktikan. Target TKT 4 memerlukan validasi modul terintegrasi dalam lingkungan terkontrol dan evaluasi mentor/asesor. Target rekayasa: seluruh acuan hitung PRD lulus, tanpa penghitungan ganda atau data hilang yang berubah menjadi nol. Target kegunaan: sedikitnya 4 dari 5 pengelola dapat membaca konsumsi, menemukan kontributor terbesar, dan memahami bukti tanpa bantuan. Angka tersebut merupakan target usulan, bukan hasil uji atau janji penghematan.
-
-**Peta jalan 12 bulan.** Tanggal kegiatan onsite mengikuti konfirmasi panitia karena jadwal uji terbatas di dalam pedoman belum seragam [1].
+**Peta jalan 12 bulan.** Kegiatan tatap muka menunggu konfirmasi panitia karena jadwal uji terbatas dalam pedoman belum seragam [1].
 
 | Waktu | Kegiatan dan keluaran yang dituju |
 |---|---|
-| Okt-Nov 2026 | Wawancara kebutuhan dengan 5 pengelola/teknisi; pilih beban dan tugas uji bersama pendamping. Bangun alur CSV dan bukti perhitungan dengan data sintetis. |
-| Des 2026-Jan 2027 | Integrasikan penyimpanan, hak akses, impor yang aman saat diulang, dan pemulihan kegagalan. Catat hasil uji serta revisi kebutuhan. |
-| Feb-Apr 2027 | Uji kegunaan dan fungsi terintegrasi; ulangi perbaikan yang menghambat tugas. Siapkan laporan menuju TKT 4. Uji rumah tangga dan industri dilaporkan terpisah sesuai PRD. |
-| Mei-Okt 2027 | Jika izin dan mitra tersedia, pilot satu fasilitas dengan data listrik nyata; evaluasi adapter meter, dukungan operasional, dan kesediaan membayar. |
+| Okt-Nov 2026 | Wawancarai 5 pengelola atau teknisi; pilih beban dan tugas bersama pendamping; bangun alur CSV dan uji hitung dengan data sintetis. |
+| Des 2026-Jan 2027 | Satukan penyimpanan, hak akses, impor yang aman diulang, dan pemulihan; catat hasil uji serta revisi kebutuhan. |
+| Feb-Apr 2027 | Uji kemudahan penggunaan dan fungsi terpadu; perbaiki hambatan menuju TKT 4; pisahkan hasil rumah tangga dan industri. |
+| Mei-Okt 2027 | Jika izin dan mitra tersedia, uji satu fasilitas dengan data listrik nyata; evaluasi koneksi meter, dukungan operasional, dan kesediaan membayar. |
 
-**Keselamatan, etik, dan data.** Uji awal memakai data sintetis dan lingkungan terkontrol. Aplikasi hanya memantau; tidak memutus listrik, mengatur alat medis, menilai mutu vaksin, atau memberi keputusan klinis. Data listrik nyata memerlukan izin fasilitas, batas akses, dan kesepakatan penyimpanan. Tidak ada kebutuhan data pasien. Pelibatan pasien atau data klinis memerlukan penilaian etik dan izin resmi sebelum kegiatan. Komunikasi terenkripsi, pemeriksaan kepemilikan di server, serta uji pencadangan/pemulihan menjadi syarat sebelum pilot.
+**Keselamatan dan data.** Uji awal memakai data sintetis dalam lingkungan terkontrol. Aplikasi tidak memutus listrik, mengatur alat medis, menilai mutu vaksin, atau memberi keputusan klinis. Data nyata memerlukan izin fasilitas, batas akses, dan kesepakatan penyimpanan. Pelibatan pasien atau data klinis memerlukan penilaian etik dan izin resmi sebelum kegiatan. Sebelum pilot, tim wajib mengenkripsi komunikasi, memeriksa kepemilikan data di server, serta menguji pencadangan dan pemulihan.
 
-**Tim, mitra, dan hilirisasi.** Tim terdiri atas dua profesional serta satu mahasiswa dan satu dosen UGM. Konteks layanan ditinjau bersama pendamping dan petugas fasilitas; tim belum memiliki tenaga kesehatan. Belum ada surat dukungan, akses fasilitas, atau komitmen pilot. Jejaring program menjadi jalur penjajakan. Layanan penerapan dan dukungan berkala akan diuji setelah validasi.
+**Tim dan mitra.** Dua profesional, satu mahasiswa, dan satu dosen UGM akan meninjau kebutuhan layanan bersama pendamping serta petugas fasilitas. Tim belum memiliki tenaga kesehatan, surat dukungan, akses fasilitas, atau komitmen pilot. Mitra dijajaki melalui jejaring program; layanan penerapan dan dukungan diuji setelah validasi.
 
 <!-- page -->
 
@@ -51,12 +49,12 @@ Analisis awal memakai perhitungan deterministik dan median periode terdahulu yan
 
 | Anggota dan peran | Tanggung jawab dan keluaran |
 |---|---|
-| **Ahmad Widardi** - Ketua; profesional; Koordinator Bisnis dan Hilirisasi | Memimpin pengembangan full stack bersama Sidiq, arsitektur, komunikasi program, validasi kebutuhan dan model bisnis; menyiapkan rencana pilot, kepemilikan karya, dan dokumentasi keputusan. |
-| **Sidiq Tri Pratikto** - Profesional; Koordinator Teknis | Mengembangkan antarmuka, API, impor dan analitik bersama Ahmad; menyiapkan penyimpanan, keamanan, pengujian perhitungan, serta catatan versi dan penerapan. |
-| **Akmal Rafli Fauzan** - Mahasiswa UGM; Koordinator Klinis dan Validasi Pengguna | Mengatur interaksi dengan problem owner dan pendamping, mencatat kebutuhan serta batas operasi beban, menjalankan uji kegunaan dan dokumentasi izin. Penilaian klinis tetap pada petugas yang berwenang. |
-| **Erwin Eko Wahyudi, S.Kom., M.Cs.** - Dosen UGM; Mentor Analitik Data | Meninjau baseline, mutu data, rancangan evaluasi, dan bukti capaian; membimbing mahasiswa serta memberi masukan terhadap pilihan metode. |
+| **Ahmad Widardi** - Ketua; profesional; Koordinator Bisnis dan Hilirisasi | Memimpin pengembangan bersama Sidiq; menangani arsitektur, komunikasi program, kebutuhan pengguna, bisnis, pilot, kepemilikan karya, dan catatan keputusan. |
+| **Sidiq Tri Pratikto** - Profesional; Koordinator Teknis | Mengembangkan tampilan, layanan data, impor, dan perhitungan bersama Ahmad; menangani penyimpanan, keamanan, pengujian, serta catatan versi dan penerapan. |
+| **Akmal Rafli Fauzan** - Mahasiswa UGM; Koordinator Klinis dan Validasi Pengguna | Menghubungkan tim dengan pengelola dan pendamping; mencatat kebutuhan serta batas operasi, menguji kegunaan, dan mendokumentasikan izin. Penilaian klinis tetap pada petugas berwenang. |
+| **Erwin Eko Wahyudi, S.Kom., M.Cs.** - Dosen UGM; Mentor Analitik Data | Meninjau metode perbandingan, mutu data, evaluasi, dan bukti capaian; membimbing mahasiswa. |
 
-Pemantauan dilakukan melalui daftar tugas mingguan dengan penanggung jawab, kriteria penerimaan, dan bukti hasil. Ahmad meninjau kemajuan serta hambatan; Erwin meninjau metode dan hasil pada akhir setiap iterasi. Perubahan kode ditelaah anggota lain. Kegagalan uji dan perubahan lingkup dicatat, termasuk dampaknya pada jadwal. Pengujian memisahkan kebenaran perhitungan, akurasi meter, dan kegunaan; ketiganya tidak saling menggantikan. Hasil rumah tangga, industri, dan fasilitas kesehatan dilaporkan menurut konteks masing-masing.
+Setiap tugas mingguan mencantumkan penanggung jawab, kriteria penerimaan, dan bukti. Ahmad memantau kemajuan serta hambatan; Erwin meninjau metode dan hasil setiap putaran pengembangan; anggota lain menelaah kode. Tim mencatat kegagalan, perubahan lingkup, dan dampak jadwal. Perhitungan, akurasi meter, dan kemudahan penggunaan diuji terpisah; hasil dilaporkan per konteks.
 
 ## 6. Daftar Pustaka
 
