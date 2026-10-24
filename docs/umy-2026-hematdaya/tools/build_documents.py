@@ -1,16 +1,21 @@
 """Render the frozen generic PRD and UMY proposal. Requires reportlab, markdown-it-py.
 
-Use --font-dir with the four licensed Microsoft Times core fonts. Fonts are embedded
-in the PDFs, not redistributed as repository assets. The generic Markdown stays intact.
+Select outputs with --only proposal administrasi (or prd). Times New Roman is
+loaded from --font-dir or system fonts; IBM Plex Sans labels are bundled under OFL.
+All selected PDFs are validated in a temporary directory before outputs are replaced.
+The generic Markdown stays intact.
 """
 import argparse
 import html
 import re
+import shutil
+import sys
+import tempfile
 from pathlib import Path
 
 from markdown_it import MarkdownIt
 from reportlab.lib import colors
-from reportlab.lib.enums import TA_CENTER, TA_JUSTIFY, TA_LEFT
+from reportlab.lib.enums import TA_JUSTIFY, TA_LEFT
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.units import cm
@@ -92,25 +97,36 @@ def table(rows, sty, width, generic):
         ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#EAF0F1')),
         ('VALIGN', (0,0), (-1,-1), 'TOP'),
         ('LEFTPADDING', (0,0), (-1,-1), 5), ('RIGHTPADDING', (0,0), (-1,-1), 5),
-        ('TOPPADDING', (0,0), (-1,-1), 5 if generic else 4),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 5 if generic else 4),
+        ('TOPPADDING', (0,0), (-1,-1), sty.get('table_padding', 5 if generic else 4)),
+        ('BOTTOMPADDING', (0,0), (-1,-1), sty.get('table_padding', 5 if generic else 4)),
     ]))
     return tbl
 
 
 def figure_row(images, width, base):
-    # A paragraph holding only images becomes one row of equal-height screenshots.
-    height = 4.8*cm
-    cells, widths = [], []
+    # Preserve natural aspect ratios and a common height within the available row.
+    height, gap = 4.8*cm, .3*cm
+    cells, natural_widths = [], []
     for t in images:
         src = base/t.attrGet('src')
-        img = Image(str(src), height=height, width=height, kind='proportional')
-        cells.append(img); widths.append(img.drawWidth + .3*cm)
-    assert sum(widths) <= width, 'figure row too wide'
+        img = Image(str(src))
+        cells.append(img)
+        natural_widths.append(height * img.imageWidth / img.imageHeight)
+    available = width - gap * (len(cells) - 1)
+    if not cells or available <= 0:
+        raise ValueError('The figure row needs images and enough width for its gaps.')
+    scale = min(1, available / sum(natural_widths))
+    widths = []
+    for index, (img, natural_width) in enumerate(zip(cells, natural_widths)):
+        img.drawHeight = height * scale
+        img.drawWidth = natural_width * scale
+        widths.append(img.drawWidth + (gap if index < len(cells) - 1 else 0))
     from reportlab.platypus import Table
     row = Table([cells], colWidths=widths, hAlign='CENTER')
     row.setStyle(TableStyle([('ALIGN', (0,0), (-1,-1), 'CENTER'), ('VALIGN', (0,0), (-1,-1), 'TOP'),
-                             ('LEFTPADDING', (0,0), (-1,-1), 0), ('RIGHTPADDING', (0,0), (-1,-1), 0)]))
+                             ('LEFTPADDING', (0,0), (-1,-1), 0), ('RIGHTPADDING', (0,0), (-1,-1), gap),
+                             ('RIGHTPADDING', (-1,0), (-1,-1), 0),
+                             ('TOPPADDING', (0,0), (-1,-1), 0), ('BOTTOMPADDING', (0,0), (-1,-1), 0)]))
     return row
 
 
@@ -145,7 +161,7 @@ def render_markdown(text, sty, width, generic=False, base=None):
                 elif tokens[i].type == 'tr_close': rows.append(row)
                 i += 1
             assert rows and all(len(row) == len(rows[0]) for row in rows)
-            result.extend([table(rows, sty, width, generic), Spacer(1, 7)])
+            result.extend([table(rows, sty, width, generic), Spacer(1, sty.get('table_space_after', 7))])
         elif t.type == 'fence':
             label = 'Diagram arsitektur - notasi sumber' if t.info == 'mermaid' else None
             if label: result.append(Paragraph(label, sty['h3']))
@@ -187,35 +203,108 @@ def footer(label, family):
     return paint
 
 
-def build(font_dir):
-    for name, filename in [('Times','Times.TTF'), ('Times-Bold','Timesbd.TTF'),
-                           ('Times-Italic','Timesi.TTF'), ('Times-BoldItalic','Timesbi.TTF')]:
-        pdfmetrics.registerFont(TTFont(name, str(font_dir/filename)))
-    for name, filename in [('Sans','NotoSans-Regular.ttf'), ('Sans-Bold','NotoSans-Bold.ttf'),
-                           ('Sans-Italic','NotoSans-Italic.ttf'),
-                           ('Sans-BoldItalic','NotoSans-BoldItalic.ttf')]:
-        pdfmetrics.registerFont(TTFont(name, '/usr/share/fonts/truetype/noto/'+filename))
-    pdfmetrics.registerFont(TTFont('Mono', '/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf'))
-    pdfmetrics.registerFont(TTFont('Symbols', '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'))
-    for family in ['Times', 'Sans']:
-        pdfmetrics.registerFontFamily(family, normal=family, bold=family+'-Bold',
-            italic=family+'-Italic', boldItalic=family+'-BoldItalic')
+TARGETS = ('proposal', 'prd', 'administrasi')
+FONT_ROOT = Path(__file__).resolve().parent / 'fonts' / 'ibm-plex-sans'
 
-    source = ROOT/'submission/proposal/Proposal-HematDaya-UMY.md'
-    text = source.read_text()
-    summary = text.split('## 3. Executive Summary\n', 1)[1].split('## 4.', 1)[0]
-    words = len(re.sub(r'\[\d+\]', '', summary).split())
-    assert words <= 250, words
-    proposal = Document(str(source.with_suffix('.pdf')), pagesize=A4,
-        rightMargin=2*cm, leftMargin=2*cm, topMargin=1.65*cm, bottomMargin=2*cm,
-        title='HematDaya - Proposal UMY 2026', author='Tim Petani Digital')
-    pstyles = styles('Times', 12, 13.8, False)
-    proposal.build(render_markdown(text, pstyles, proposal.width, base=source.parent),
-                   onFirstPage=footer('Petani Digital | HematDaya | UMY 2026 | Klaster 08', 'Times'),
-                   onLaterPages=footer('Petani Digital | HematDaya | UMY 2026 | Klaster 08', 'Times'))
 
-    prd = ROOT/'prd/01_PRD_HematDaya_Generic_ID.md'
-    doc = Document(str(prd.with_suffix('.pdf')), pagesize=A4,
+def find_font(directories, filenames, label):
+    """Resolve a font without substituting an unrequested typeface."""
+    for directory in directories:
+        for filename in filenames:
+            path = directory / filename
+            if path.is_file():
+                return path
+    tried = ', '.join(str(directory) for directory in directories)
+    raise FileNotFoundError(f'{label} was not found in: {tried}')
+
+
+def register_family(name, faces):
+    for suffix, path in faces.items():
+        pdfmetrics.registerFont(TTFont(name + suffix, str(path)))
+    pdfmetrics.registerFontFamily(
+        name, normal=name, bold=name + '-Bold', italic=name + '-Italic',
+        boldItalic=name + '-BoldItalic',
+    )
+
+
+def register_fonts(font_dir, selected):
+    """Register only the families needed by the selected document targets."""
+    system = [
+        Path('/System/Library/Fonts/Supplemental'), Path('/Library/Fonts'),
+        Path.home() / 'Library/Fonts',
+        Path('/usr/share/fonts/truetype/msttcorefonts'),
+        Path('/usr/share/fonts/truetype/msttcorefonts/Times_New_Roman'),
+        Path('/usr/share/fonts/truetype/noto'),
+        Path('/usr/share/fonts/truetype/dejavu'),
+        Path.home() / '.fonts', Path.home() / '.local/share/fonts',
+    ]
+    if {'proposal', 'administrasi'} & set(selected):
+        times_dirs = [Path(font_dir)] if font_dir is not None else system
+        names = {
+            '': ('Times.TTF', 'times.ttf', 'Times_New_Roman.ttf', 'Times New Roman.ttf'),
+            '-Bold': ('Timesbd.TTF', 'timesbd.ttf', 'Times_New_Roman_Bold.ttf', 'Times New Roman Bold.ttf'),
+            '-Italic': ('Timesi.TTF', 'timesi.ttf', 'Times_New_Roman_Italic.ttf', 'Times New Roman Italic.ttf'),
+            '-BoldItalic': ('Timesbi.TTF', 'timesbi.ttf', 'Times_New_Roman_Bold_Italic.ttf', 'Times New Roman Bold Italic.ttf'),
+        }
+        register_family('Times', {
+            suffix: find_font(times_dirs, filenames, 'Licensed Times New Roman' + suffix)
+            for suffix, filenames in names.items()
+        })
+        plex = {
+            '': 'IBMPlexSans-Regular.ttf', '-Bold': 'IBMPlexSans-Bold.ttf',
+            '-Italic': 'IBMPlexSans-Italic.ttf', '-BoldItalic': 'IBMPlexSans-BoldItalic.ttf',
+        }
+        register_family('Plex', {suffix: FONT_ROOT / name for suffix, name in plex.items()})
+        pdfmetrics.registerFont(TTFont('Plex-SemiBold', str(FONT_ROOT / 'IBMPlexSans-SemiBold.ttf')))
+        pdfmetrics.registerFontFamily(
+            'Plex-SemiBold', normal='Plex-SemiBold', bold='Plex-Bold',
+            italic='Plex-Italic', boldItalic='Plex-BoldItalic',
+        )
+        # The template's small symbols use the same bundled, Unicode-capable face.
+        pdfmetrics.registerFont(TTFont('Symbols', str(FONT_ROOT / 'IBMPlexSans-Regular.ttf')))
+
+    if 'prd' in selected:
+        names = {
+            '': ('NotoSans-Regular.ttf', 'Arial.ttf', 'arial.ttf'),
+            '-Bold': ('NotoSans-Bold.ttf', 'Arial Bold.ttf', 'arialbd.ttf'),
+            '-Italic': ('NotoSans-Italic.ttf', 'Arial Italic.ttf', 'ariali.ttf'),
+            '-BoldItalic': ('NotoSans-BoldItalic.ttf', 'Arial Bold Italic.ttf', 'arialbi.ttf'),
+        }
+        # Prefer Noto when installed, retaining the original Linux typography.
+        sans_dirs = [Path('/usr/share/fonts/truetype/noto')] + system
+        register_family('Sans', {
+            suffix: find_font(sans_dirs, filenames, 'Noto Sans / Arial' + suffix)
+            for suffix, filenames in names.items()
+        })
+        mono = find_font(
+            [Path('/usr/share/fonts/truetype/dejavu')] + system,
+            ('DejaVuSansMono.ttf', 'Courier New.ttf', 'cour.ttf'), 'Monospace font',
+        )
+        symbol = find_font(
+            [Path('/usr/share/fonts/truetype/dejavu')] + system,
+            ('DejaVuSans.ttf', 'Arial Unicode.ttf', 'Arial.ttf'), 'Unicode symbols font',
+        )
+        pdfmetrics.registerFont(TTFont('Mono', str(mono)))
+        pdfmetrics.registerFont(TTFont('Symbols', str(symbol)))
+
+
+def summary_word_count(source):
+    text = source.read_text(encoding='utf-8')
+    match = re.search(
+        r'^## 3\. Executive Summary\s*\n(.*?)(?=^## 4\.)', text,
+        flags=re.MULTILINE | re.DOTALL,
+    )
+    if match is None:
+        raise ValueError('The proposal must contain sections 3 (Executive Summary) and 4.')
+    words = len(re.sub(r'\[\d+\]', '', match.group(1)).split())
+    if words > 250:
+        raise ValueError(f'Executive summary: {words} words; maximum is 250.')
+    return words
+
+
+def build_prd(output, source):
+    prd = source
+    doc = Document(str(output), pagesize=A4,
         leftMargin=2*cm, rightMargin=2*cm, topMargin=1.8*cm, bottomMargin=2.1*cm,
         title='HematDaya - Dokumen Kebutuhan Produk Generik 1.2', author='Tim Petani Digital')
     pst = styles('Sans', 9.7, 13.6, True)
@@ -246,45 +335,90 @@ def build(font_dir):
                    onFirstPage=footer('HematDaya | PRD Generik 1.2 | Spesifikasi pengembangan', 'Sans'),
                    onLaterPages=footer('HematDaya | PRD Generik 1.2 | Spesifikasi pengembangan', 'Sans'))
 
-    admin = ROOT/'submission/administrasi/Administrasi-HematDaya-UMY.md'
-    adm = Document(str(admin.with_suffix('.pdf')), pagesize=A4,
-        leftMargin=2.2*cm, rightMargin=2.2*cm, topMargin=1.7*cm, bottomMargin=2*cm,
-        title='HematDaya - Sampul dan Lembar Identitas UMY', author='Tim Petani Digital')
-    center = ParagraphStyle('cover', fontName='Times-Bold', fontSize=16, leading=21,
-                            alignment=TA_CENTER, spaceAfter=10)
-    small = ParagraphStyle('cover-small', parent=center, fontName='Times', fontSize=12, leading=16)
-    assets = ROOT/'submission/proposal/assets'
-    from reportlab.platypus import Table
-    logos = Table([[Image(str(assets/'logo-tutwuri.jpg'), width=2.8*cm, height=2.8*cm, kind='proportional'),
-                    Image(str(assets/'logo-lpdp.png'), width=3.7*cm, height=2.8*cm, kind='proportional')]],
-                  colWidths=[4.4*cm, 4.4*cm], hAlign='CENTER')
-    story = [Spacer(1, .6*cm), Paragraph('PROPOSAL', center),
-             Paragraph('PESERTA PROGRAM PENDANAAN<br/>HACKATHON DEEPTECH', center),
-             Spacer(1, .8*cm), logos, Spacer(1, 1*cm), Paragraph('JUDUL INOVASI', small),
-             Paragraph('HematDaya: Pemantauan Listrik dan Saran Berbasis Bukti untuk Berbagai Kebutuhan', center),
-             Paragraph('Tim Petani Digital', small), Spacer(1, 1.5*cm),
-             Paragraph('PENYELENGGARA KEGIATAN<br/>UNIVERSITAS MUHAMMADIYAH YOGYAKARTA', small),
-             Spacer(1, 1.6*cm),
-             Paragraph('Direktorat Jenderal Riset dan Pengembangan<br/>Kementerian Pendidikan Tinggi, Sains, dan Teknologi', small),
-             Paragraph('TAHUN 2026', center), PageBreak(), Paragraph('LEMBAR IDENTITAS', center)]
-    ast = styles('Times', 10.5, 12.4, False)
-    ast['cell'].fontSize = 10.5; ast['cell'].leading = 12.4
-    identity = admin.read_text().split('## Lembar Identitas\n', 1)[1]
-    signature_before, signature_after = identity.split('(Ruang tanda tangan - belum ditandatangani)', 1)
-    story += render_markdown(signature_before, ast, adm.width)
-    story += [Spacer(1, 1.1*cm)]
-    story += render_markdown(signature_after, ast, adm.width)
-    adm.build(story, onFirstPage=footer('HematDaya | Berkas administrasi pendamping | Belum ditandatangani', 'Times'),
-              onLaterPages=footer('HematDaya | Berkas administrasi pendamping | Belum ditandatangani', 'Times'))
+
+
+def replace_output(candidate, destination):
+    """Copy to the destination filesystem, then replace the existing PDF atomically."""
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.NamedTemporaryFile(
+        prefix='.' + destination.stem + '-', suffix='.pdf',
+        dir=destination.parent, delete=False,
+    ) as stream:
+        temporary = Path(stream.name)
+    try:
+        shutil.copyfile(candidate, temporary)
+        temporary.replace(destination)
+    finally:
+        temporary.unlink(missing_ok=True)
+
+
+def build(font_dir=None, only=None, output_dir=None):
+    """Build selected documents; publish none if a selected document fails validation."""
     from pypdf import PdfReader
-    for path, expected in [(source.with_suffix('.pdf'), 3), (admin.with_suffix('.pdf'), 2)]:
-        count = len(PdfReader(path).pages)
-        assert count == expected, f'{path.name}: {count} pages, expected {expected}'
-    print(f'Executive summary: {words} words. Proposal: 3 pages. Administration: 2 pages.')
-    print(f'Generic PRD: {len(PdfReader(prd.with_suffix(".pdf")).pages)} pages.')
+
+    selected = tuple(dict.fromkeys(only if only is not None else TARGETS))
+    if not selected or any(target not in TARGETS for target in selected):
+        raise ValueError('Select at least one of: proposal, administrasi, prd.')
+    sources = {
+        'proposal': ROOT / 'submission/proposal/Proposal-HematDaya-UMY.md',
+        'administrasi': ROOT / 'submission/administrasi/Administrasi-HematDaya-UMY.md',
+        'prd': ROOT / 'prd/01_PRD_HematDaya_Generic_ID.md',
+    }
+    words = summary_word_count(sources['proposal']) if 'proposal' in selected else None
+    register_fonts(font_dir, selected)
+    renderers = {'prd': build_prd}
+    if 'proposal' in selected:
+        from umy_template import build_proposal
+        renderers['proposal'] = lambda output, source: build_proposal(output, source, sys.modules[__name__])
+    if 'administrasi' in selected:
+        from umy_admin import build_administration
+        renderers['administrasi'] = lambda output, source: build_administration(output, source, sys.modules[__name__])
+
+    with tempfile.TemporaryDirectory(prefix='umy-documents-') as directory:
+        candidates, pages = {}, {}
+        for target in selected:
+            source = sources[target]
+            candidate = Path(directory) / source.with_suffix('.pdf').name
+            renderers[target](candidate, source)
+            count = len(PdfReader(candidate).pages)
+            if target == 'proposal' and not 1 <= count <= 3:
+                raise ValueError(
+                    f'Proposal: {count} pages; maximum is 3. '
+                    'No output PDFs were replaced. Preserve the full text and review the layout.'
+                )
+            if target == 'administrasi' and count != 2:
+                raise ValueError(
+                    f'Administration: {count} pages; expected 2. No output PDFs were replaced.'
+                )
+            candidates[target], pages[target] = candidate, count
+        outputs = {}
+        for target in selected:
+            source = sources[target]
+            destination = (
+                Path(output_dir) / source.with_suffix('.pdf').name
+                if output_dir is not None else source.with_suffix('.pdf')
+            )
+            replace_output(candidates[target], destination)
+            outputs[target] = destination
+            print(f'{target}: {pages[target]} pages -> {destination}')
+    if words is not None:
+        print(f'Executive summary: {words} words (maximum 250).')
+    return outputs
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--font-dir', type=Path, required=True)
-    build(parser.parse_args().font_dir)
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        '--font-dir', type=Path,
+        help='Directory containing licensed Times New Roman files; otherwise discover system fonts.',
+    )
+    parser.add_argument(
+        '--only', nargs='+', choices=TARGETS,
+        help='Selected outputs; default: proposal, prd, administrasi.',
+    )
+    parser.add_argument(
+        '--output-dir', type=Path,
+        help='Write selected PDFs to this directory instead of replacing repository PDFs.',
+    )
+    args = parser.parse_args()
+    build(args.font_dir, args.only, args.output_dir)

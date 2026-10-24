@@ -1,6 +1,6 @@
 # HematDaya - dokumen UMY 2026
 
-Diperbarui 24 Oktober 2026. Dasar produk sekarang **HematDaya generik**, untuk rumah tangga, usaha, dan industri. Konteks fasilitas kesehatan hanya digunakan untuk usulan validasi UMY; tidak membentuk produk atau inti perhitungan tersendiri. Demo sedang dirancang dan tidak dikerjakan dalam pembaruan dokumen ini.
+Diperbarui 24 Oktober 2026. Dasar produk sekarang **HematDaya generik**, untuk rumah tangga, usaha, dan industri. Konteks fasilitas kesehatan hanya digunakan untuk usulan validasi UMY; tidak membentuk produk atau inti perhitungan tersendiri. Prototipe peramban dengan data simulasi tersedia; status implementasi dan pengujiannya dicatat terpisah.
 
 ## Berkas yang digunakan sekarang
 
@@ -9,8 +9,8 @@ Diperbarui 24 Oktober 2026. Dasar produk sekarang **HematDaya generik**, untuk r
 | [PRD generik Indonesia - PDF](prd/01_PRD_HematDaya_Generic_ID.pdf) | Spesifikasi lengkap, 37 halaman, dengan daftar isi dan bookmark bagian |
 | [PRD generik Indonesia - Markdown](prd/01_PRD_HematDaya_Generic_ID.md) | Salinan utuh sumber generik v1.2, 21 Oktober 2026 |
 | [PRD generik English - Markdown](prd/01_PRD_HematDaya_Generic_EN.md) | Padanan Inggris dari dasar produk yang sama |
-| [Proposal utama - PDF](submission/proposal/Proposal-HematDaya-UMY.pdf) | Tiga halaman A4; bagian 1-7 mengikuti lampiran pedoman revisi |
-| [Proposal utama - Markdown](submission/proposal/Proposal-HematDaya-UMY.md) | Sumber yang dapat diedit; penanda `<!-- page -->` menetapkan pergantian halaman |
+| [Proposal utama - PDF](submission/proposal/Proposal-HematDaya-UMY.pdf) | Maksimal tiga halaman A4; form substansi bagian 1-7 mengikuti lampiran pedoman revisi |
+| [Proposal utama - Markdown](submission/proposal/Proposal-HematDaya-UMY.md) | Sumber isi, sitasi, dan figur tangkapan layar yang dapat diedit; renderer menyusun form dan pergantian halaman |
 | [Sampul dan identitas - PDF](submission/administrasi/Administrasi-HematDaya-UMY.pdf) | Dua halaman administrasi pendamping, belum ditandatangani |
 | [Sampul dan identitas - Markdown](submission/administrasi/Administrasi-HematDaya-UMY.md) | Sumber data administratif dan catatan pengisian |
 
@@ -35,8 +35,9 @@ Untuk UMY, proposal memilih **Bidang Strategis Kesehatan**, **Klaster 08 - Susta
 
 Sumber utama: [Buku Pedoman Peserta UMY Hackathon DeepTech 2026 Revisi](https://drive.google.com/file/d/1Zzk80Mf3XR-poQPG4i49x48cByk3GVod/view), dibaca 24 Oktober 2026 dari [folder yang diberikan pengguna](https://drive.google.com/drive/folders/1WaBli2s3qcdMWfiRjOkjhI0iqBs0cHvB). Folder tersebut berisi satu PDF pedoman revisi. Format Word terpisah dari pekerjaan lama tidak dijadikan acuan pembaruan ini.
 
-- Bagian 3.3 dan halaman 17 menetapkan proposal awal maksimal tiga halaman A4. Lampiran halaman 19-20 memakai bagian 1-7, ringkasan maksimal 250 kata, deskripsi maksimal dua halaman, serta pembagian tugas maksimal satu halaman. Naskah utama memakai Times New Roman tertanam, 12 pt, leading 13,8 pt (1,15). Ringkasan berisi 205 kata dengan penghitungan kata berbasis spasi, tanpa nomor sitasi.
-- Pedoman tidak menjelaskan secara tegas apakah sampul dan lembar identitas termasuk batas tiga halaman. Karena itu, substansi dibuat tiga halaman dan administrasi disediakan terpisah. Penggabungan atau penempatan isian mengikuti sistem panitia; belum ada konfirmasi resmi mengenai penafsiran batas tersebut.
+- Bagian 3.3 dan halaman 17 menetapkan proposal awal maksimal tiga halaman A4. Lampiran halaman 17-20 menjadi acuan sampul, lembar identitas, dan form substansi; bagian 1-7 pada halaman 19-20 menetapkan ringkasan maksimal 250 kata, deskripsi maksimal dua halaman, serta pembagian tugas maksimal satu halaman.
+- Tata letak mengikuti form dengan judul navy, label bagian teal, dan bidang isian berbingkai. Pilihan bidang menggunakan kotak centang dengan **Kesehatan** dipilih dan **Klaster 08 - Sustainable and Green Healthcare** dinyatakan. Label form memakai IBM Plex Sans; isi naskah memakai Times New Roman asli tertanam, 12 pt, leading 13,8 pt (1,15). Ringkasan tetap berisi 205 kata dengan penghitungan kata berbasis spasi, tanpa nomor sitasi. Naskah substansi lengkap, sitasi, dan figur tangkapan layar terbaru dipertahankan dari sumber Markdown.
+- Pedoman tidak menjelaskan secara tegas apakah sampul dan lembar identitas termasuk batas tiga halaman. Karena itu, substansi dibatasi maksimal tiga halaman dan administrasi dua halaman disediakan terpisah. Penggabungan atau penempatan isian mengikuti sistem panitia; belum ada konfirmasi resmi mengenai penafsiran batas tersebut.
 - Jadwal Uji Terbatas pada halaman 12 berbeda dari tabel halaman 13 (24-26 versus 9-12 November). Roadmap tidak memilih salah satunya sebagai jadwal pasti; kehadiran mengikuti konfirmasi panitia.
 - Proposal PetaniDigital/TemuRiset revisi yang diberikan pengguna digunakan sebagai referensi gaya, identitas, dan pengalaman tiga anggota. Status produk TemuRiset, tanda tangan, bukti demo, dan mitranya tidak dipindahkan ke HematDaya.
 - [Dokumentasi Home Assistant](https://www.home-assistant.io/docs/energy/individual-devices/) digunakan untuk menempatkan pemantauan perangkat/hierarki meter sebagai kemampuan yang telah ada; proposal tidak mengklaimnya sebagai penemuan baru.
@@ -48,7 +49,7 @@ Sumber utama: [Buku Pedoman Peserta UMY Hackathon DeepTech 2026 Revisi](https://
 - Pakta integritas bertanda tangan harus memakai pedoman revisi: tujuh komitmen, termasuk etik dan keselamatan. Pakta lama dalam folder ini mengikuti format berbeda dan bukan dokumen final pembaruan ini.
 - Belum ada bukti kemitraan atau izin pilot. Tidak ada berkas yang dikirim ke panitia dalam pekerjaan ini.
 - Gambar 1 pada Lampiran memuat empat tangkapan layar [prototipe peramban](../generic/hematdaya/prototype/) dengan data simulasi (skenario "Industri · kompresor di luar jadwal"), disimpan di [submission/proposal/assets/prototipe/](submission/proposal/assets/prototipe/). Untuk mengambil ulang, jalankan server prototipe lalu `node tests/capture-screenshots.js <folder-keluaran>` dari folder prototipe. Belum ada tautan demo publik maupun hasil uji pengguna.
-- PDF proposal yang memuat Gambar 1 dirender dengan Liberation Serif (metrik identik Times New Roman) karena font Times berlisensi tidak tersedia saat itu. Render ulang dengan `--font-dir` berisi font Times sebelum diunggah.
+- PDF proposal dan administrasi telah dirender ulang dengan Times New Roman asli tertanam. Pemeriksaan format mencakup tiga halaman substansi, dua halaman administrasi, kelengkapan teks sumber, dan tampilan setiap halaman; ini bukan pengujian ulang prototipe.
 
 ## Dokumen lama
 
@@ -56,10 +57,26 @@ PRD dan proposal bernama `Faskes`, prototipe lama di `applications/umy-2026-hema
 
 ## Membangun ulang PDF
 
-Renderer: [tools/build_documents.py](tools/build_documents.py). Memerlukan Python dengan `reportlab`, `markdown-it-py`, dan `pypdf`, font Noto Sans/DejaVu pada sistem, serta empat font Times berlisensi (`Times.TTF`, `Timesbd.TTF`, `Timesi.TTF`, `Timesbi.TTF`). Berikan direktori font melalui `--font-dir`; font mentah tidak dimasukkan ke repositori.
+Renderer: [tools/build_documents.py](tools/build_documents.py). Memerlukan Python dengan `reportlab`, `markdown-it-py`, dan `pypdf`. IBM Plex Sans beserta lisensi OFL disertakan di [tools/fonts](tools/fonts/). Font Times New Roman asli tetap berasal dari instalasi berlisensi pengguna dan tidak dimasukkan ke repositori.
+
+Pada macOS, renderer mencari font asli bernama `Times New Roman` beserta varian bold, italic, dan bold italic secara otomatis. Untuk direktori font khusus atau Linux, gunakan `--font-dir` yang memuat empat font berlisensi `Times.TTF`, `Timesbd.TTF`, `Timesi.TTF`, dan `Timesbi.TTF`. Jika font asli tidak ditemukan, sediakan direktori tersebut sebelum membangun PDF.
+
+Pilih keluaran yang akan diperbarui secara eksplisit. Perintah berikut membangun proposal dan administrasi; PRD PDF tidak ditulis ulang:
 
 ```bash
-python3 tools/build_documents.py --font-dir /path/to/licensed-times-fonts
+python3 tools/build_documents.py --only proposal administrasi
 ```
 
-Jalankan dari folder ini atau gunakan lokasi absolut script. Pemeriksaan internal menolak ringkasan di atas 250 kata, proposal yang bukan tiga halaman, atau administrasi yang bukan dua halaman. Setelah mengubah naskah, render ulang dan periksa tampilan setiap halaman; pemeriksaan jumlah halaman tidak menggantikan pemeriksaan visual.
+Untuk font dari direktori khusus:
+
+```bash
+python3 tools/build_documents.py --only proposal administrasi --font-dir /path/to/licensed-times-fonts
+```
+
+Untuk menyiapkan pratinjau proposal tanpa mengganti PDF di repositori, arahkan keluaran ke direktori sementara:
+
+```bash
+python3 tools/build_documents.py --only proposal --output-dir /tmp/umy-preview
+```
+
+Jalankan dari folder ini atau gunakan lokasi absolut script. `--only` membatasi PDF yang dibangun; tanpa opsi ini ketiga target, termasuk PRD, dibangun seperti sebelumnya. `--output-dir` menentukan direktori tujuan. Renderer menolak ringkasan di atas 250 kata, proposal yang melebihi tiga halaman, atau administrasi yang bukan dua halaman. Kandidat PDF dibangun terlebih dahulu dan hanya mengganti PDF tujuan setelah batas yang berlaku terpenuhi; proposal yang terlalu panjang mempertahankan PDF tujuan sebelumnya. Setelah mengubah naskah, render ulang dan periksa tampilan setiap halaman; pemeriksaan jumlah halaman tidak menggantikan pemeriksaan visual.
