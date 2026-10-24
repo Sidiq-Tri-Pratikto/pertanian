@@ -13,6 +13,8 @@ Diperbarui 24 Oktober 2026. Dasar produk sekarang **HematDaya generik**, untuk r
 | [Proposal utama - Markdown](submission/proposal/Proposal-HematDaya-UMY.md) | Sumber isi, sitasi, dan figur tangkapan layar yang dapat diedit; renderer menyusun form dan pergantian halaman |
 | [Sampul dan identitas - PDF](submission/administrasi/Administrasi-HematDaya-UMY.pdf) | Dua halaman administrasi pendamping, belum ditandatangani |
 | [Sampul dan identitas - Markdown](submission/administrasi/Administrasi-HematDaya-UMY.md) | Sumber data administratif dan catatan pengisian |
+| [Pakta integritas revisi - PDF](submission/pakta-integritas/Pakta-Integritas-HematDaya-UMY-Revisi.pdf) | Dua halaman mengikuti lampiran 21-22; tujuh komitmen, judul generik, Yogyakarta, 24 Oktober 2026 |
+| [Pakta integritas revisi - Markdown](submission/pakta-integritas/Pakta-Integritas-HematDaya-UMY-Revisi.md) | Sumber redaksi pedoman, data tim, dan rujukan gambar tanda tangan |
 
 PRD kanonis berada di [folder generik](../generic/hematdaya/). Kedua salinan Markdown di sini identik dalam byte dengan sumbernya, bukan PRD fasilitas kesehatan yang disusun ulang. Perubahan berikutnya dilakukan pada sumber kanonis lalu disalin kembali agar keduanya tidak berbeda tanpa disengaja.
 
@@ -47,7 +49,7 @@ Sumber utama: [Buku Pedoman Peserta UMY Hackathon DeepTech 2026 Revisi](https://
 
 - CV dan portofolio seluruh anggota, termasuk CV Akmal, serta bukti status aktif dosen/mahasiswa perlu disiapkan untuk unggahan. Dosen dan mahasiswa tercatat berasal dari UGM; status aktif belum diverifikasi ke PDDIKTI.
 - Lembar identitas belum ditandatangani. Ketua merupakan profesional sehingga kolom identitas disesuaikan menjadi NIK; format pedoman menampilkan NIDN/NIDK/NUPTK. Penerimaannya perlu dicocokkan dengan sistem panitia.
-- Pakta integritas bertanda tangan harus memakai pedoman revisi: tujuh komitmen, termasuk etik dan keselamatan. Pakta lama dalam folder ini mengikuti format berbeda dan bukan dokumen final pembaruan ini.
+- Pakta integritas revisi memakai tujuh komitmen dari pedoman, termasuk etik dan keselamatan, dengan judul proposal generik. Atas permintaan pemilik, gambar empat tanda tangan disalin dari PDF lampiran pengguna dan tanggal diisi Yogyakarta, 24 Oktober 2026. Ini versi revisi dengan salinan tanda tangan, bukan rekaman penandatanganan ulang. Sumber dan metode ekstraksi dicatat dalam [provenance aset](submission/pakta-integritas/assets/tanda-tangan/README.md). Pakta lama tetap dipertahankan sebagai riwayat.
 - Belum ada bukti kemitraan atau izin pilot. Tidak ada berkas yang dikirim ke panitia dalam pekerjaan ini.
 - Gambar 1 pada Lampiran memuat empat tangkapan layar [prototipe di *browser*](../generic/hematdaya/prototype/) dengan data simulasi (skenario "Industri · kompresor di luar jadwal"), disimpan di [submission/proposal/assets/prototipe/](submission/proposal/assets/prototipe/). Untuk mengambil ulang, jalankan server prototipe lalu `node tests/capture-screenshots.js <folder-keluaran>` dari folder prototipe. Belum ada tautan demo publik maupun hasil uji pengguna.
 - PDF proposal dan administrasi telah dirender ulang dengan Times New Roman asli tertanam. Pemeriksaan format mencakup tiga halaman substansi, dua halaman administrasi, kelengkapan teks sumber, dan tampilan setiap halaman; ini bukan pengujian ulang prototipe.
@@ -68,6 +70,14 @@ Pilih keluaran yang akan diperbarui secara eksplisit. Perintah berikut membangun
 python3 tools/build_documents.py --only proposal administrasi
 ```
 
+Untuk membangun pakta revisi saja, gunakan sumber Markdown dan gambar tanda tangan yang disertakan:
+
+```bash
+python3 tools/build_documents.py --only pakta
+```
+
+Target `pakta` memakai IBM Plex Sans dan tidak memerlukan font Times. Pakta harus tepat dua halaman; pemilihan target ini tidak mengubah PDF proposal, administrasi, atau PRD.
+
 Untuk font dari direktori khusus:
 
 ```bash
@@ -80,4 +90,4 @@ Untuk menyiapkan pratinjau proposal tanpa mengganti PDF di repositori, arahkan k
 python3 tools/build_documents.py --only proposal --output-dir /tmp/umy-preview
 ```
 
-Jalankan dari folder ini atau gunakan lokasi absolut script. `--only` membatasi PDF yang dibangun; tanpa opsi ini ketiga target, termasuk PRD, dibangun seperti sebelumnya. `--output-dir` menentukan direktori tujuan. Renderer menolak ringkasan di atas 250 kata, proposal yang melebihi tiga halaman, atau administrasi yang bukan dua halaman. Kandidat PDF dibangun terlebih dahulu dan hanya mengganti PDF tujuan setelah batas yang berlaku terpenuhi; proposal yang terlalu panjang mempertahankan PDF tujuan sebelumnya. Setelah mengubah naskah, render ulang dan periksa tampilan setiap halaman; pemeriksaan jumlah halaman tidak menggantikan pemeriksaan visual.
+Jalankan dari folder ini atau gunakan lokasi absolut script. `--only` membatasi PDF yang dibangun; tanpa opsi ini ketiga target lama, termasuk PRD, dibangun seperti sebelumnya, sedangkan pakta dipilih secara eksplisit. `--output-dir` menentukan direktori tujuan. Renderer menolak ringkasan di atas 250 kata, proposal yang melebihi tiga halaman, serta administrasi atau pakta yang bukan dua halaman. Kandidat PDF dibangun terlebih dahulu dan hanya mengganti PDF tujuan setelah batas yang berlaku terpenuhi; proposal yang terlalu panjang mempertahankan PDF tujuan sebelumnya. Setelah mengubah naskah, render ulang dan periksa tampilan setiap halaman; pemeriksaan jumlah halaman tidak menggantikan pemeriksaan visual.
