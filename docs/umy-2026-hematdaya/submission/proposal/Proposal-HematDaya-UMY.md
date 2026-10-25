@@ -24,7 +24,7 @@ Tim telah menyiapkan dokumen kebutuhan produk dan prototipe di *browser* dengan 
 
 ## 4. Deskripsi Inovasi (lanjutan)
 
-**Cara kerja.** Monolit modular dirancang sebagai satu aplikasi *backend* dengan inti perhitungan bersama. Satu basis kode beserta modul kemampuan dan *adapter* mendukung berbagai penggunaan [4]. CSV menyediakan alur awal data historis; koneksi meter opsional setelah verifikasi. Tarif opsional untuk estimasi biaya; jadwal dan keluaran untuk analisis terkait.
+**Cara kerja.** Monolit modular dirancang sebagai satu aplikasi *backend* dengan inti perhitungan bersama. Satu basis kode beserta modul kemampuan dan *adapter* mendukung berbagai penggunaan. CSV menyediakan alur awal data historis; koneksi meter opsional setelah verifikasi. Tarif opsional untuk estimasi biaya; jadwal dan keluaran untuk analisis terkait.
 
 Impor memeriksa satuan, waktu, duplikasi, dan konflik data. Data hilang tidak dianggap nol; meter induk dan turunannya tidak dihitung ganda. Aturan deterministik serta median periode sebanding mendasari analisis ketika riwayat mencukupi. Pemakaian di luar jadwal memerlukan pemeriksaan konteks sebelum dinilai sebagai pemborosan.
 
@@ -58,13 +58,11 @@ Tugas mingguan memuat penanggung jawab, kriteria penerimaan, dan bukti hasil. Ev
 
 ## 6. Daftar Pustaka
 
-[1] WHO, World Bank, SEforALL, IRENA. 2023. *Energizing health: accelerating electricity access in health-care facilities*. Bab 3, hlm. 46-50. [Publikasi WHO](https://www.who.int/publications/i/item/9789240066960). Diakses 24 Oktober 2026.
+[1] WHO, World Bank, SEforALL, IRENA. 2023. *Energizing health: accelerating electricity access in health-care facilities*. Bab 3, hlm. 46-50. [Publikasi WHO](https://www.who.int/publications/i/item/9789240066960).
 
-[2] Department of Health. 2015. *Health Technical Memorandum 07-02: EnCO2de 2015, Part A: Policy and management*. Bagian 3.6-3.7. [Dokumen NHS](https://www.england.nhs.uk/wp-content/uploads/2021/05/HTM_07-02_Part_A_FINAL.pdf). Diakses 24 Oktober 2026.
+[2] Department of Health. 2015. *Health Technical Memorandum 07-02: EnCO2de 2015, Part A: Policy and management*. Bagian 3.6-3.7. [Dokumen NHS](https://www.england.nhs.uk/wp-content/uploads/2021/05/HTM_07-02_Part_A_FINAL.pdf).
 
-[3] Home Assistant. *Integrating individual device energy usage*, bagian Upstream devices and hierarchies. [Dokumentasi](https://www.home-assistant.io/docs/energy/individual-devices/). Diakses 24 Oktober 2026.
-
-[4] Tim Petani Digital. *PRD HematDaya Generik*, versi 1.2, 21 Oktober 2026. Bagian 5, 11, 15, dan 20. Dokumen teknis pendamping; salinan Indonesia dan Inggris disertakan dalam folder PRD.
+[3] Home Assistant. *Integrating individual device energy usage*, bagian Upstream devices and hierarchies. [Dokumentasi](https://www.home-assistant.io/docs/energy/individual-devices/).
 
 ## 7. Lampiran
 
