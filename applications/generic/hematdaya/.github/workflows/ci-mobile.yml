@@ -20,7 +20,7 @@ jobs:
           cache-dependency-path: applications/hematdaya-mobile/package-lock.json
       - run: npm ci
       - run: make check
-      - run: make generate-api && git diff --exit-code src/api/schema.generated.ts
+      - run: make generate-api tokens && git diff --exit-code src/api/schema.generated.ts src/design/tokens.generated.ts
       - run: make doctor
       - run: make export
       - run: npm audit --omit=dev --audit-level=high

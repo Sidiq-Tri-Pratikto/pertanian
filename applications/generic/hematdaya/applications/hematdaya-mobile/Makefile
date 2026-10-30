@@ -45,6 +45,10 @@ doctor:
 export:
 	npx expo export --platform android --platform ios --platform web
 
+.PHONY: tokens
+tokens:
+	node scripts/generate-tokens.mjs
+
 .PHONY: generate-api
 generate-api:
 	npx --yes $(OPENAPI_TYPESCRIPT) $(OPENAPI) --default-non-nullable=false --output src/api/schema.generated.ts

@@ -1,57 +1,55 @@
-import { useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
+import { StyleSheet, View } from 'react-native';
 
-import { getHealth } from '@/api/client';
-import { ApiError } from '@/api/errors';
+import { HDButton } from '@/components/hd/HDButton';
+import { HDChoiceGroup } from '@/components/hd/HDChoiceGroup';
+import { HDScreen } from '@/components/hd/HDScreen';
+import { HDText } from '@/components/hd/HDText';
+import { tokens } from '@/design/tokens.generated';
+import { CONTEXT_OPTIONS, useContextPreset } from '@/features/context-preset';
 
-type State = { kind: 'loading' } | { kind: 'ok'; status: string } | { kind: 'failed'; error: ApiError };
-
-/** Proves the stack end to end: app, generated contract, service, failure envelope. Replace with the first feature. */
-export default function HealthScreen() {
-  const [state, setState] = useState<State>({ kind: 'loading' });
-  const [attempt, setAttempt] = useState(0);
-
-  useEffect(() => {
-    let active = true;
-    getHealth().then(
-      (health) => active && setState({ kind: 'ok', status: health.status }),
-      (error: unknown) => active && setState({ kind: 'failed', error: ApiError.from(error) }),
-    );
-    return () => {
-      active = false;
-    };
-  }, [attempt]);
-
-  const retry = () => {
-    setState({ kind: 'loading' });
-    setAttempt((value) => value + 1);
-  };
+/** S01: value statement, start, demo, and a skippable context choice. No account, no permission prompt. */
+export default function WelcomeScreen() {
+  const router = useRouter();
+  const { preset, setPreset } = useContextPreset();
 
   return (
-    <View style={styles.screen}>
-      <Text accessibilityRole="header" style={styles.title}>
-        hematdaya-mobile
-      </Text>
-      {state.kind === 'loading' && <ActivityIndicator accessibilityLabel="Checking the service" />}
-      {state.kind === 'ok' && <Text>Service status: {state.status}</Text>}
-      {state.kind === 'failed' && (
-        <View accessibilityLiveRegion="polite" style={styles.failure}>
-          <Text>{state.error.message}</Text>
-          {state.error.requestId && <Text>Reference: {state.error.requestId}</Text>}
-          {state.error.recovery.retryable && (
-            <Pressable accessibilityRole="button" onPress={retry} style={styles.action}>
-              <Text>Try again</Text>
-            </Pressable>
-          )}
-        </View>
-      )}
-    </View>
+    <HDScreen title="Selamat datang" subtitle="Pemantauan listrik dan saran berbasis data">
+      <HDText variant="section">Pahami energi yang dipantau, lalu periksa perubahan berdasarkan data.</HDText>
+      <HDText>
+        HematDaya hanya membaca dan menjelaskan energi listrik yang tercatat. Aplikasi ini tidak menyalakan atau
+        mematikan perangkat apa pun.
+      </HDText>
+      <HDChoiceGroup
+        legend="Konteks penggunaan"
+        optional
+        help="Hanya mengubah contoh. Tidak mengubah data, izin, perhitungan, atau jadwal."
+        options={CONTEXT_OPTIONS}
+        value={preset}
+        onChange={setPreset}
+      />
+      <View style={styles.actions}>
+        <HDButton variant="primary" fullWidth onPress={() => router.replace('/beranda')}>
+          Mulai
+        </HDButton>
+        <HDButton fullWidth onPress={() => router.push('/segera-hadir/demo', { withAnchor: true })}>
+          Coba demo
+        </HDButton>
+        <HDButton
+          variant="text"
+          fullWidth
+          onPress={() => {
+            setPreset('unspecified');
+            router.replace('/beranda');
+          }}>
+          Lewati
+        </HDButton>
+      </View>
+      <HDText variant="label" tone="secondary">
+        Tidak perlu akun, alat ukur, AC, tarif, jadwal, data produksi, atau izin notifikasi.
+      </HDText>
+    </HDScreen>
   );
 }
 
-const styles = StyleSheet.create({
-  screen: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 16, padding: 16 },
-  title: { fontSize: 24, fontWeight: '600' },
-  failure: { alignItems: 'center', gap: 8 },
-  action: { minHeight: 48, minWidth: 48, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16 },
-});
+const styles = StyleSheet.create({ actions: { gap: tokens.space.stackTight } });

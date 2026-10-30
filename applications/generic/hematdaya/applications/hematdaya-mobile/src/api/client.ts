@@ -1,5 +1,5 @@
 import { ApiError, readFailure } from '@/api/errors';
-import type { paths } from '@/api/schema.generated';
+import type { components, paths } from '@/api/schema.generated';
 
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:8000';
 const TIMEOUT_MS = 10_000;
@@ -23,6 +23,8 @@ async function getJson<Path extends keyof paths>(path: Path): Promise<JsonOf<Pat
   return (await response.json()) as JsonOf<Path>;
 }
 
-export function getHealth() {
-  return getJson('/health/live') as Promise<{ status: string }>;
+export type CapabilityManifest = components['schemas']['CapabilityManifestResponse'];
+
+export function getCapabilities(): Promise<CapabilityManifest> {
+  return getJson('/api/v1/capabilities');
 }

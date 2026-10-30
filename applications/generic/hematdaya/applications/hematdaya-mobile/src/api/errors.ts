@@ -3,8 +3,8 @@ import type { components } from '@/api/schema.generated';
 type ErrorBody = components['schemas']['ErrorBody'];
 export type Recovery = components['schemas']['ErrorRecovery'];
 
-const UNREACHABLE_MESSAGE = 'The service could not be reached. Check your connection and try again.';
-const UNEXPECTED_MESSAGE = 'The service sent an unexpected response. Please try again later.';
+const UNREACHABLE_MESSAGE = 'Layanan belum dapat dihubungi. Periksa koneksi Anda lalu coba lagi.';
+const UNEXPECTED_MESSAGE = 'Layanan mengirim jawaban yang tidak dikenali. Coba lagi nanti.';
 
 /** One client-side failure. Branch on `code`; show `message` and `requestId`. */
 export class ApiError extends Error {
