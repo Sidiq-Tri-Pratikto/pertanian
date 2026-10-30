@@ -1,0 +1,23 @@
+<!-- @dsCard group="Charts" height=900 -->
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>HistoryChart — preview</title></head>
+<body>
+<div id="root" class="hd-root hd-pad hd-stack"></div>
+<script>
+var HD = window.HD, h = React.createElement, F = HD.format, useState = React.useState;
+function S(label, child) { return h('div', { className: 'hd-stack hd-stack--tight' }, h('p', { className: 'type-label hd-secondary' }, label), child); }
+var TV = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'].map(function (d) { return { label: d, current: 0.56, reference: 0.36 }; });
+var HOURS = []; for (var i = 0; i < 24; i++) HOURS.push({ label: i % 6 === 0 ? String(i).padStart(2, '0') + '.00' : '', current: i < 6 || i >= 18 ? 0.05 : null });
+function Demo() {
+  return h(React.Fragment, null,
+    S('Current vs reference: solid vs dashed outline + legend text', h('div', { className: 'hd-group' }, h(HD.HistoryChart, { title: 'TV per hari', points: TV, unit: 'kWh', periodLabel: '19–25 Oktober 2026 dibanding 12–18 Oktober 2026', scopeLabel: 'TV',
+      currentLabel: 'Periode ini, 19–25 Okt (batang penuh)', referenceLabel: 'Pembanding, 12–18 Okt (garis putus-putus)',
+      summary: 'TV tercatat 3,920 kWh dibanding 2,520 kWh pada periode pembanding (+1,400 kWh, +55,56%). Pembagian harian rata adalah turunan demonstrasi.' }))),
+    S('Gap: 12 of 24 hours have no data (hatched, never zero)', h('div', { className: 'hd-group' }, h(HD.HistoryChart, { title: 'Kulkas per jam', points: HOURS, dense: true, unit: 'kWh', periodLabel: '25 Oktober 2026', scopeLabel: 'Kulkas',
+      summary: 'Energi terekam 0,600 kWh dari 12 jam valid (00.00–06.00 dan 18.00–24.00), masing-masing 0,050 kWh.', gapNote: 'Tidak ada data 06.00–18.00. Total satu hari penuh tidak diketahui dan tidak diperkirakan.' }))));
+}
+ReactDOM.createRoot(document.getElementById('root')).render(h(Demo));
+</script>
+</body>
+</html>

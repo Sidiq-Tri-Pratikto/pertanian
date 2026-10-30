@@ -1,0 +1,62 @@
+<!-- @dsCard height=288 -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>HematDaya Design System</title>
+<style>
+  html, body { margin: 0; height: 100%; }
+  body { background: var(--color-background-canvas); color: var(--color-text-primary); font-family: var(--font-sans); overflow: hidden; }
+  .cover { position: relative; height: 288px; overflow: hidden; }
+  .band { position: absolute; top: 0; left: 0; width: 960px; height: 120px; }
+  .band svg { display: block; width: 960px; height: 120px; }
+  .forest { fill: var(--color-chart-current); }
+  .tint { fill: var(--color-selection-background); }
+  .ink { fill: var(--color-text-primary); }
+  .ref { fill: var(--color-chart-referenceFill); stroke: var(--color-chart-reference); stroke-width: var(--size-stroke-chart); stroke-dasharray: 6 4; }
+  .amber { fill: var(--color-status-attention-foreground); }
+  .gap { stroke: var(--color-chart-missingMarker); stroke-width: var(--size-stroke-chart); }
+  .base { stroke: var(--color-chart-baseline); stroke-width: var(--size-stroke-chart); }
+  .blk { rx: var(--radius-surface); }
+  .bar { rx: var(--radius-0); }
+  .words { position: absolute; left: var(--space-24); right: var(--space-24); bottom: var(--space-24); }
+  .name { margin: 0; font-size: 64px; line-height: .95; font-weight: 600; letter-spacing: -.01em; color: var(--color-text-primary); }
+  .tag { margin: var(--space-8) 0 0 2px; font-size: 14px; line-height: 20px; color: var(--color-text-secondary); max-width: 440px; }
+</style>
+</head>
+<body>
+<div class="cover">
+<div class="band" aria-hidden="true">
+<svg viewBox="0 0 960 120" width="960" height="120">
+<!--
+  blocks      color-chart-current 288x104 bled off top-left (identity green, largest) · color-selection-background 240x104 (tint, holds the bars) · color-text-primary 176x104 (deep ink) · color-chart-referenceFill 112x72 with dashed color-chart-reference outline · color-status-attention-foreground 104x40 (small, attention only; the light amber vanished on canvas) — about 30% of 960x288
+  arrangement one strip of unequal bands across the top (top-band skeleton: the name is 23 letters, too wide for the 440px zone at 64px), bottoms on one line, space-16 gutters
+  pattern     the product's own chart: seven daily bars on a zero baseline in the tint block, one hatched gap that is not drawn as zero — chosen from "Charts: daily bars, gaps hatched, measured zero a baseline tick"
+  scales      gutters space-16; bar width space-16 at a space-24 pitch; heights in space-8 steps; block corners radius-surface; bars radius-0; strokes size-stroke-chart
+-->
+<rect class="forest blk" x="-16" y="-16" width="304" height="120"/>
+<rect class="tint blk" x="304" y="-16" width="240" height="120"/>
+<rect class="forest bar" x="328" y="56" width="16" height="48"/>
+<rect class="forest bar" x="352" y="40" width="16" height="64"/>
+<rect class="forest bar" x="376" y="48" width="16" height="56"/>
+<line class="gap" x1="400" y1="104" x2="416" y2="88"/>
+<line class="gap" x1="400" y1="88" x2="416" y2="72"/>
+<line class="gap" x1="400" y1="72" x2="416" y2="56"/>
+<line class="gap" x1="400" y1="56" x2="416" y2="40"/>
+<line class="gap" x1="400" y1="40" x2="416" y2="24"/>
+<rect class="forest bar" x="424" y="32" width="16" height="72"/>
+<rect class="forest bar" x="448" y="64" width="16" height="40"/>
+<rect class="forest bar" x="472" y="48" width="16" height="56"/>
+<line class="base" x1="320" y1="104" x2="528" y2="104"/>
+<rect class="ink blk" x="560" y="-16" width="176" height="120"/>
+<rect class="ref blk" x="752" y="32" width="112" height="72"/>
+<rect class="amber blk" x="880" y="64" width="104" height="40"/>
+</svg>
+</div>
+<div class="words">
+<h1 class="name">HematDaya Design System</h1>
+<p class="tag">Recorded energy, clear scope, honest unknowns.</p>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,24 @@
+<!-- @dsCard group="Data entry" height=1100 -->
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>ImportPreview — preview</title></head>
+<body>
+<div id="root" class="hd-root hd-pad hd-stack"></div>
+<script>
+var HD = window.HD, h = React.createElement, F = HD.format, useState = React.useState;
+function S(label, child) { return h('div', { className: 'hd-stack hd-stack--tight' }, h('p', { className: 'type-label hd-secondary' }, label), child); }
+var ERR2 = [{ id: 'r4', dataRow: 4, field: 'energi_kwh', message: '"dua" bukan angka. Tulis angka, misalnya 0,250.' }, { id: 'r9', dataRow: 9, field: 'waktu_mulai', message: 'Tanggal 31-10-2026 belum terjadi. Periksa tanggal.' }];
+var ERR3 = ERR2.concat([{ id: 'r7', dataRow: 7, field: 'energi_kwh', message: 'Nilai negatif tidak diterima.' }]);
+var MAP = [['waktu_mulai', 'Awal interval'], ['waktu_selesai', 'Akhir interval'], ['perangkat', 'Nama perangkat'], ['energi_kwh', 'Energi (kWh)']];
+function Demo() {
+  var ack = useState(false); var st = useState(null); var ackErr = useState(null);
+  return h(React.Fragment, null,
+    S('2 of 10 invalid: explicit acknowledgment required (local simulation)', h('div', { className: 'hd-group' }, h(HD.ImportPreview, { fileName: 'energi-oktober.csv', periodLabel: '19–25 Oktober 2026', totalRows: 10, invalidRows: 2, mapping: MAP, assumptions: ['Zona waktu: Asia/Jakarta', 'Satuan energi: kWh', 'Desimal memakai koma'], errors: ERR2,
+      acknowledged: ack[0], onAcknowledge: function (v) { ack[1](v); if (v) ackErr[1](null); }, ackError: ackErr[0], saveState: st[0], onConfirm: function () { if (!ack[0]) { ackErr[1]('Centang pernyataan ini untuk melanjutkan impor.'); return; } st[1]('saving'); setTimeout(function () { st[1]('success'); }, 1000); }, confirmedAt: '26 Oktober 2026 09.20' }))),
+    S('3 of 10 invalid: blocked', h('div', { className: 'hd-group' }, h(HD.ImportPreview, { fileName: 'energi-oktober.csv', totalRows: 10, invalidRows: 3, errors: ERR3 }))),
+    S('Conflicting rows block separately; duplicates counted once', h('div', { className: 'hd-group' }, h(HD.ImportPreview, { fileName: 'energi-oktober-v2.csv', totalRows: 10, invalidRows: 0, duplicateRows: 1, conflictRows: 1 }))));
+}
+ReactDOM.createRoot(document.getElementById('root')).render(h(Demo));
+</script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+<!-- @dsCard group="Energy" height=900 -->
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>ScopeSummary — preview</title></head>
+<body>
+<div id="root" class="hd-root hd-pad hd-stack"></div>
+<script>
+var HD = window.HD, h = React.createElement, F = HD.format, useState = React.useState;
+function S(label, child) { return h('div', { className: 'hd-stack hd-stack--tight' }, h('p', { className: 'type-label hd-secondary' }, label), child); }
+var WEEK = F.dateRange('2026-10-19', '2026-10-25');
+var HOUSE = [{ name: 'Kulkas', kwh: 8.4 }, { name: 'Router', kwh: 1.68 }, { name: 'Pompa Air', kwh: 2.1 }, { name: 'TV', kwh: 2.52 }];
+
+function Demo() {
+  var view = useState('parent');
+  return h(React.Fragment, null,
+    S('Selected devices, with exclusions', h('div', { className: 'hd-group' }, h(HD.ScopeSummary, { included: ['Kulkas', 'Router', 'Pompa Air', 'TV'], excluded: ['Lampu Teras'] }))),
+    S('Parent/child: main meter 10 includes refrigerator 1. Never 11.', h('div', { className: 'hd-group' }, h(HD.ScopeSummary, { count: 1, unitLabel: 'sumber', overlap: 'parentChild', parent: { name: 'Meteran Utama', kwh: 10 }, child: { name: 'Kulkas', kwh: 1 }, view: view[0], onViewChange: view[1] }),
+      h('p', { className: 'type-body-strong', style: { marginTop: 'var(--space-12)' } }, 'Ditampilkan: ' + F.kwh(view[0] === 'parent' ? 10 : 1)))),
+    S('Unknown overlap blocks a combined total (derived values)', h('div', { className: 'hd-group' }, h(HD.ScopeSummary, { count: 2, unitLabel: 'sumber', overlap: 'unknown', values: [{ name: 'Meteran Utama', kwh: 10 }, { name: 'Panel Produksi', kwh: 6 }] }))));
+}
+ReactDOM.createRoot(document.getElementById('root')).render(h(Demo));
+</script>
+</body>
+</html>

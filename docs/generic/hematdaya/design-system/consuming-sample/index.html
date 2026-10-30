@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="id" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HematDaya consuming sample</title>
+<!-- Binding: HematDaya Design System 1.0.0-draft, imported as local copies of the published system files (see binding.json).
+     This is an imported reference, not automatic inheritance from a registered Claude design system. -->
+<link rel="stylesheet" href="../workbench/tokens.css">
+<link rel="stylesheet" href="../project/components/bundle.css">
+<script src="../project/components/lib/react.production.min.js"></script>
+<script src="../project/components/lib/react-dom.production.min.js"></script>
+<script src="../project/components/bundle.js"></script>
+<style>
+  /* App-local layout only; every colour and space comes from the system's tokens. */
+  .app-note { margin: var(--space-16); color: var(--color-text-secondary); }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<p class="app-note type-label" id="binding"></p>
+<script>
+  var HD = window.HD, h = React.createElement, F = HD.format;
+  function App() {
+    var tab = React.useState('beranda');
+    return h(HD.Screen, { title: 'Beranda', subtitle: 'Toko Roti Sinar · Asia/Jakarta', provenance: 'demo', current: tab[0], onNavigate: tab[1] },
+      h('div', { className: 'hd-group hd-stack hd-stack--section' },
+        h(HD.EnergyMetric, { kwh: 14.7, periodLabel: F.dateRange('2026-10-19', '2026-10-25'), scopeLabel: 'Cakupan pengukuran: 4 perangkat' }),
+        h(HD.CostEstimate, { kwh: 14.7, tariff: null, onSetTariff: function () {} })));
+  }
+  ReactDOM.createRoot(document.getElementById('app')).render(h(App));
+  fetch('binding.json').then(function (r) { return r.json(); }).then(function (b) {
+    var ok = b.system.version === HD.version;
+    document.getElementById('binding').textContent = 'Binding: ' + b.system.name + ' ' + b.system.version + ' (' + b.supply.method + '); bundle reports ' + HD.version + (ok ? ' — cocok.' : ' — TIDAK COCOK.');
+  });
+</script>
+</body>
+</html>

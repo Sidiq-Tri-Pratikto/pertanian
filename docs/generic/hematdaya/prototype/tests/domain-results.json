@@ -1,0 +1,186 @@
+{
+  "runtime": "node v25.2.1",
+  "at": "2026-10-24T13:54:43.545Z",
+  "results": [
+    {
+      "id": "FX-01",
+      "name": "Both fixtures have 2,688 simulated hourly rows, four disjoint assets",
+      "status": "pass"
+    },
+    {
+      "id": "AT-05",
+      "name": "Household H daily/week/four-week energy and cost",
+      "status": "pass"
+    },
+    {
+      "id": "AT-05b",
+      "name": "Household base: no change alert, continuous assets give no outside-use finding, no schedule/output prerequisite",
+      "status": "pass"
+    },
+    {
+      "id": "AT-17",
+      "name": "Household change: TV +1,400 kWh (55,56%) qualifies under shared rule; site 16,100 kWh/Rp24.150",
+      "status": "pass"
+    },
+    {
+      "id": "AT-06",
+      "name": "Industry I daily/week/four-week, Oven 50%, Sunday measured zero",
+      "status": "pass"
+    },
+    {
+      "id": "AT-22",
+      "name": "Industry optional: schedule outside energy exactly zero; actual output 0,050 kWh/unit",
+      "status": "pass"
+    },
+    {
+      "id": "AT-18",
+      "name": "Industry outside-window: +3,000 kWh, zero baseline, no percent; total 147/Rp220.500; energy change not alerted",
+      "status": "pass"
+    },
+    {
+      "id": "FX-CUR",
+      "name": "Current-period scenario (21 Oktober 12.00): today and Monday-to-now",
+      "status": "pass"
+    },
+    {
+      "id": "FX-NOW",
+      "name": "Virtual Monday 26 Oktober: \"Hari ini\" is empty (no future rows), not zero",
+      "status": "pass"
+    },
+    {
+      "id": "AT-36",
+      "name": "Parent 10 kWh + child 1 kWh: never 11; each view valid",
+      "status": "pass"
+    },
+    {
+      "id": "AT-35",
+      "name": "Alternative sources for one load: 2 kWh never 4; unresolved blocks the asset value",
+      "status": "pass"
+    },
+    {
+      "id": "AT-36b",
+      "name": "Unknown overlap refuses only the combined total; individual values remain",
+      "status": "pass"
+    },
+    {
+      "id": "AT-27a",
+      "name": "Average power 100 W for 30 min = 50 Wh; instantaneous power blocked",
+      "status": "pass"
+    },
+    {
+      "id": "AT-27b",
+      "name": "Counter 100 → 130 → 5 Wh with reset: 30 Wh valid, reset interval unknown",
+      "status": "pass"
+    },
+    {
+      "id": "AT-13",
+      "name": "Overnight Monday 22.00–Tuesday 06.00: 10 kWh gives 8 inside / 2 outside",
+      "status": "pass"
+    },
+    {
+      "id": "AT-15",
+      "name": "Interval 16.30–17.30 60 Wh, schedule ends 17.00: 30/30 estimated, conserved",
+      "status": "pass"
+    },
+    {
+      "id": "AT-12",
+      "name": "Overlapping windows merge; shared minutes counted once",
+      "status": "pass"
+    },
+    {
+      "id": "AT-19",
+      "name": "Half of an asset day missing: 50% coverage, recorded partial, no matched alert",
+      "status": "pass"
+    },
+    {
+      "id": "AT-16",
+      "name": "Learning + no tariff + partial combination",
+      "status": "pass"
+    },
+    {
+      "id": "AT-21",
+      "name": "All-zero readings with full coverage: valid 0, no percentages, no division error",
+      "status": "pass"
+    },
+    {
+      "id": "AT-38",
+      "name": "Stale simulated source + client offline are separate facts; retry cannot fabricate a reading",
+      "status": "pass"
+    },
+    {
+      "id": "AT-09",
+      "name": "Effective-dated tariff split: Rp3.000, not retroactive Rp4.000",
+      "status": "pass"
+    },
+    {
+      "id": "AT-08",
+      "name": "Explicit zero tariff is valid Rp0; missing tariff is unknown",
+      "status": "pass"
+    },
+    {
+      "id": "AT-23",
+      "name": "Zero/negative/missing output never yields intensity",
+      "status": "pass"
+    },
+    {
+      "id": "AT-24",
+      "name": "Estimated partial output: complete days only unless windows + uniform confirmation",
+      "status": "pass"
+    },
+    {
+      "id": "AT-30",
+      "name": "2/10 invalid needs acknowledgement and imports 8; 3/10 blocked; counts reconcile",
+      "status": "pass"
+    },
+    {
+      "id": "AT-28",
+      "name": "Semicolon, decimal comma, quoted name with delimiter, BOM, CRLF, blank line",
+      "status": "pass"
+    },
+    {
+      "id": "AT-29",
+      "name": "Bad header, impossible date, non-numeric value give actionable messages",
+      "status": "pass"
+    },
+    {
+      "id": "AT-31",
+      "name": "One-row and irregular timestamp-only streams require explicit interval",
+      "status": "pass"
+    },
+    {
+      "id": "AT-32",
+      "name": "Name limit 60 without silent truncation; row limit reported",
+      "status": "pass"
+    },
+    {
+      "id": "AT-33/34",
+      "name": "Commit is atomic, retry is idempotent, interrupted result is looked up, reimport adds nothing",
+      "status": "pass"
+    },
+    {
+      "id": "AT-53",
+      "name": "Composition: core-only keeps identical energy, rejects disabled capability at mock boundary",
+      "status": "pass"
+    },
+    {
+      "id": "AT-39",
+      "name": "Feedback: hide/snooze/restore persists per revision and never touches readings",
+      "status": "pass"
+    },
+    {
+      "id": "AT-40",
+      "name": "Rejected/expired settings save keeps confirmed values",
+      "status": "pass"
+    },
+    {
+      "id": "AT-51",
+      "name": "Timezone change recomputes local-day boundaries without rewriting UTC readings",
+      "status": "pass"
+    },
+    {
+      "id": "AT-42",
+      "name": "Simulated source setup retry reuses operation identity (no duplicate asset/binding)",
+      "status": "pass"
+    }
+  ]
+}

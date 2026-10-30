@@ -1,0 +1,24 @@
+<!-- @dsCard group="Energy" height=760 -->
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>EnergyMetric — preview</title></head>
+<body>
+<div id="root" class="hd-root hd-pad hd-stack"></div>
+<script>
+var HD = window.HD, h = React.createElement, F = HD.format, useState = React.useState;
+function S(label, child) { return h('div', { className: 'hd-stack hd-stack--tight' }, h('p', { className: 'type-label hd-secondary' }, label), child); }
+var WEEK = F.dateRange('2026-10-19', '2026-10-25');
+var HOUSE = [{ name: 'Kulkas', kwh: 8.4 }, { name: 'Router', kwh: 1.68 }, { name: 'Pompa Air', kwh: 2.1 }, { name: 'TV', kwh: 2.52 }];
+
+function Demo() {
+  return h(React.Fragment, null,
+    S('Complete week (household fixture)', h('div', { className: 'hd-group' }, h(HD.EnergyMetric, { kwh: 14.7, periodLabel: WEEK, scopeLabel: 'Cakupan pengukuran: 4 perangkat', provenance: 'demo' }))),
+    S('Partial: 12 of 24 hourly intervals (derived example)', h('div', { className: 'hd-group' }, h(HD.EnergyMetric, { kwh: 0.6, quality: 'partial', completeness: 0.5, gapLabel: 'tidak ada data 06.00–18.00', periodLabel: '25 Oktober 2026', scopeLabel: 'Kulkas', provenance: 'demo' }))),
+    S('Measured zero (derived example asset)', h('div', { className: 'hd-group' }, h(HD.EnergyMetric, { kwh: 0, periodLabel: WEEK, scopeLabel: 'Pompa Air Cadangan', provenance: 'demo' }))),
+    S('No data', h('div', { className: 'hd-group' }, h(HD.EnergyMetric, { kwh: null, quality: 'unavailable', periodLabel: WEEK, scopeLabel: 'Cakupan pengukuran: 0 perangkat',
+      emptyAction: h('div', { className: 'hd-row' }, h(HD.Button, { variant: 'primary', icon: 'upload' }, 'Impor data CSV'), h(HD.Button, { variant: 'secondary' }, 'Coba data demo')) }))));
+}
+ReactDOM.createRoot(document.getElementById('root')).render(h(Demo));
+</script>
+</body>
+</html>

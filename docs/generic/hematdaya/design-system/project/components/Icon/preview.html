@@ -1,0 +1,19 @@
+<!-- @dsCard group="Layout" height=300 -->
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Icon — preview</title></head>
+<body>
+<div id="root" class="hd-root hd-pad hd-stack"></div>
+<script>
+var HD = window.HD, h = React.createElement, F = HD.format, useState = React.useState;
+function S(label, child) { return h('div', { className: 'hd-stack hd-stack--tight' }, h('p', { className: 'type-label hd-secondary' }, label), child); }
+var NAMES = ['home', 'devices', 'saran', 'chevronRight', 'chevronLeft', 'chevronDown', 'close', 'info', 'attention', 'error', 'success', 'unknown', 'refresh', 'calendar', 'clock', 'offline', 'upload', 'scope', 'file'];
+function Demo() {
+  return h('ul', { style: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(7rem, 1fr))', gap: 'var(--space-12)' } }, NAMES.map(function (n) {
+    return h('li', { key: n, className: 'hd-stack hd-stack--tight', style: { alignItems: 'center' } }, h(HD.Icon, { name: n }), h('code', { className: 'type-label' }, n));
+  }));
+}
+ReactDOM.createRoot(document.getElementById('root')).render(h(Demo));
+</script>
+</body>
+</html>

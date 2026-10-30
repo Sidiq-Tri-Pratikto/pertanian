@@ -1,0 +1,19 @@
+<!-- @dsCard group="Actions" height=200 -->
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>IconButton — preview</title></head>
+<body>
+<div id="root" class="hd-root hd-pad hd-stack"></div>
+<script>
+var HD = window.HD, h = React.createElement, F = HD.format, useState = React.useState;
+function S(label, child) { return h('div', { className: 'hd-stack hd-stack--tight' }, h('p', { className: 'type-label hd-secondary' }, label), child); }
+function Demo() {
+  return h(React.Fragment, null,
+    S('Icon only: accessible name "Tutup", 48 x 48 hit area', h('div', { className: 'hd-row' }, h(HD.IconButton, { icon: 'close', label: 'Tutup' }), h(HD.IconButton, { icon: 'chevronLeft', label: 'Kembali' }))),
+    S('Unfamiliar icon: show the label', h(HD.IconButton, { icon: 'refresh', label: 'Periksa sumber', showLabel: true })),
+    S('Disabled with reason', h(HD.IconButton, { icon: 'refresh', label: 'Periksa sumber', showLabel: true, disabledReason: 'Pemeriksaan terakhir baru 1 menit lalu.' })));
+}
+ReactDOM.createRoot(document.getElementById('root')).render(h(Demo));
+</script>
+</body>
+</html>

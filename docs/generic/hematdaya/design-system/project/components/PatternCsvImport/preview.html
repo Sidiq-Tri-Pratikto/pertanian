@@ -1,0 +1,46 @@
+<!-- @dsCard group="Patterns" height=1700 page -->
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>PatternCsvImport — preview</title></head>
+<body>
+<div id="root" class="hd-root"></div>
+<script>
+var HD = window.HD, h = React.createElement, F = HD.format, useState = React.useState;
+function S(label, child) { return h('div', { className: 'hd-stack hd-stack--tight' }, h('p', { className: 'type-label hd-secondary' }, label), child); }
+function TestPanel(props) {
+  return h('fieldset', { className: 'hd-group hd-stack', style: { borderStyle: 'dashed', margin: 'var(--space-16)' } },
+    h('legend', { className: 'type-label-strong', style: { padding: '0 var(--space-8)' } }, 'Kontrol uji — bukan bagian UI produk'), props.children);
+}
+var WEEK = F.dateRange('2026-10-19', '2026-10-25');
+function Section(props) { return h('section', { className: 'hd-stack', 'aria-labelledby': props.id }, h('h2', { id: props.id, className: 'type-section' }, props.title), props.note ? h('p', { className: 'type-label hd-secondary' }, props.note) : null, props.children); }
+
+var ERR = [{ id: 'row-4', dataRow: 4, field: 'energi_kwh', message: '"dua" bukan angka. Tulis angka, misalnya 0,250.' }, { id: 'row-9', dataRow: 9, field: 'waktu_mulai', message: 'Tanggal 31-10-2026 belum terjadi. Periksa tanggal.' }, { id: 'row-7', dataRow: 7, field: 'energi_kwh', message: 'Nilai negatif tidak diterima.' }];
+var MAP = [['waktu_mulai', 'Awal interval'], ['waktu_selesai', 'Akhir interval'], ['perangkat', 'Nama perangkat'], ['energi_kwh', 'Energi (kWh)']];
+function Demo() {
+  var scenario = useState('two'); var outcome = useState('failure'); var cur = useState('perangkat');
+  var ack = useState(false); var errs = useState([]); var n = useState(0); var st = useState(null); var tries = useState(0); var checking = useState(false);
+  function reset() { ack[1](false); errs[1]([]); st[1](null); tries[1](0); }
+  var invalid = scenario[0] === 'two' ? 2 : 3;
+  function confirm() {
+    if (!ack[0]) { errs[1]([{ targetId: 'ack-input', text: 'Centang konfirmasi bahwa 2 baris tidak valid tidak akan diimpor' }]); n[1](n[0] + 1); return; }
+    errs[1]([]); st[1]('saving'); var t = tries[0] + 1; tries[1](t); var o = outcome[0];
+    setTimeout(function () { st[1](o === 'success' || t > 1 ? 'success' : o); }, 1000);
+  }
+  function check() { checking[1](true); setTimeout(function () { checking[1](false); st[1]('success'); }, 800); }
+  return h(React.Fragment, null,
+    h(TestPanel, null,
+      h(HD.ChoiceGroup, { legend: 'Skenario file', inline: true, value: scenario[0], onChange: function (v) { scenario[1](v); reset(); }, options: [{ value: 'two', label: '2 dari 10 tidak valid' }, { value: 'three', label: '3 dari 10 tidak valid' }] }),
+      h(HD.ChoiceGroup, { legend: 'Hasil percobaan simpan pertama', inline: true, value: outcome[0], onChange: function (v) { outcome[1](v); reset(); }, options: [{ value: 'failure', label: 'Gagal' }, { value: 'unknown', label: 'Tidak diketahui' }, { value: 'success', label: 'Berhasil' }] }),
+      h('p', { className: 'type-label hd-secondary' }, 'Simulasi lokal: tidak ada data yang dikirim. Percobaan ulang setelah gagal selalu berhasil; pemeriksaan status setelah tidak diketahui menemukan impor pertama sudah tersimpan.')),
+    h(HD.Screen, { title: 'Pratinjau impor CSV', subtitle: 'Rumah Bandung · Asia/Jakarta', back: { label: 'Perangkat', onClick: function () {} }, current: cur[0], onNavigate: cur[1] },
+      h(HD.ErrorSummary, { errors: errs[0], submitCount: n[0], convention: 'Nomor baris = baris data, tanpa header.' }),
+      st[0] === 'success' && tries[0] >= 1 && outcome[0] === 'unknown' && h(HD.Notice, { tone: 'info', title: 'Impor pertama ternyata sudah tersimpan' }, 'Server mengonfirmasi percobaan sebelumnya. Baris tidak diimpor dua kali.'),
+      h('div', { className: 'hd-group' }, h(HD.ImportPreview, { fileName: 'energi-oktober.csv', periodLabel: WEEK, totalRows: 10, invalidRows: invalid, mapping: MAP,
+        assumptions: ['Zona waktu: Asia/Jakarta', 'Satuan energi: kWh', 'Desimal memakai koma'], errors: ERR.slice(0, invalid),
+        acknowledged: ack[0], onAcknowledge: function (v) { ack[1](v); if (v) errs[1]([]); }, ackError: errs[0].length ? 'Centang pernyataan ini untuk melanjutkan impor.' : null, ackInputId: 'ack-input',
+        saveState: st[0], onConfirm: confirm, onCheckStatus: check, checking: checking[0], onCancel: reset, confirmedAt: '26 Oktober 2026 09.20' }))));
+}
+ReactDOM.createRoot(document.getElementById('root')).render(h(Demo));
+</script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+<!-- @dsCard group="Energy" height=520 -->
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>AssetRow — preview</title></head>
+<body>
+<div id="root" class="hd-root hd-pad hd-stack"></div>
+<script>
+var HD = window.HD, h = React.createElement, F = HD.format, useState = React.useState;
+function S(label, child) { return h('div', { className: 'hd-stack hd-stack--tight' }, h('p', { className: 'type-label hd-secondary' }, label), child); }
+function Demo() {
+  return h('div', { className: 'hd-stack hd-stack--tight' },
+    h('ul', { className: 'hd-group', style: { padding: 0, overflow: 'hidden' } },
+      h('li', null, h(HD.AssetRow, { name: 'Kulkas', location: 'Dapur', kind: 'device', kwh: 8.4 })),
+      h('li', null, h(HD.AssetRow, { name: 'Sirkuit Dapur', kind: 'circuit', kwh: 10.5 })),
+      h('li', null, h(HD.AssetRow, { name: 'Pompa Air Area Produksi Belakang', location: 'Pabrik Cikarang', kind: 'device', kwh: 3.6, quality: 'partial' })),
+      h('li', null, h(HD.AssetRow, { name: 'Kompresor', location: 'Pabrik Cikarang', kind: 'device', kwh: 36, quality: 'stale' })),
+      h('li', null, h(HD.AssetRow, { name: 'Meteran Gudang', kind: 'meter', kwh: null, quality: 'unavailable' }))),
+    h('p', { className: 'type-label hd-secondary' }, 'Sirkuit Dapur, Pompa Air Area Produksi Belakang and Meteran Gudang values are derived examples for row states.'));
+}
+ReactDOM.createRoot(document.getElementById('root')).render(h(Demo));
+</script>
+</body>
+</html>

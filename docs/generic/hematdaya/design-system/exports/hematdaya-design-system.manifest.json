@@ -1,0 +1,73 @@
+{
+  "system": "HematDaya Design System",
+  "version": "1.0.0-draft",
+  "reviewStatus": "draft — not owner-approved; validation recorded in guide/05-validation-report.md",
+  "productContract": "HematDaya PRD Generic 1.2",
+  "handoff": "04_Claude_Design_System_HematDaya_EN.md v1.0",
+  "runtime": "Claude Design System artifact type (contract 0.2.47), private artifact; React 18.3.1 previews; local workbench served over http from the same files",
+  "supply": {
+    "kind": "private Claude design-system artifact (created from the Design System type)",
+    "registeredInClaudeDesignPicker": "not verified",
+    "published": false,
+    "organizationDefault": false
+  },
+  "sourceFormat": {
+    "tokens": "tokens.json (Design System type list grammar)",
+    "export": "exports/hematdaya-design-system.tokens.json (hematdaya-tokens/1)",
+    "components": "components/bundle.js — one classic script assigning window.HD, hand-written ES2017 using React.createElement; no build step",
+    "styles": "components/bundle.css",
+    "types": "components/index.d.ts (documentation)"
+  },
+  "namespace": "HD",
+  "components": [
+    "HD.Button",
+    "HD.IconButton",
+    "HD.TextField",
+    "HD.NumericField",
+    "HD.ChoiceGroup",
+    "HD.PeriodSelector",
+    "HD.TabNavigation",
+    "HD.SheetDialog",
+    "HD.Disclosure",
+    "HD.Notice",
+    "HD.ErrorSummary",
+    "HD.ProgressStatus",
+    "HD.EnergyMetric",
+    "HD.CostEstimate",
+    "HD.ScopeSummary",
+    "HD.DataQuality",
+    "HD.AssetRow",
+    "HD.ContributionRanking",
+    "HD.HistoryChart",
+    "HD.ChartDataAlternative",
+    "HD.InsightSummary",
+    "HD.EvidencePanel",
+    "HD.ImportPreview",
+    "HD.ScheduleWindows",
+    "HD.OutputMetricPreview",
+    "HD.Screen",
+    "HD.Icon"
+  ],
+  "themes": [
+    "light"
+  ],
+  "capabilityScope": [
+    "monitoring and advice only",
+    "three destinations: Beranda, Perangkat, Saran",
+    "optional tariff, schedule and output metric",
+    "household, business and industrial presets share one token authority"
+  ],
+  "fingerprints": {
+    "tokens.json": "sha256:e3d38810b79576e387721cb5669a70c0502a8c3b654c858c40c0eef006f05625",
+    "components/bundle.js": "sha256:745dee2976abc9bc68a5a386b4517b627bf57ea61761c288bf84abeacaa175ee",
+    "components/bundle.css": "sha256:c4cb3381cce5be41e2c63f7364c66e77000578fb7c75900feac7bd038f3f5911",
+    "components/index.d.ts": "sha256:fd102f7f53b4fbb8572ecb5790d7a92e0e9f88f97921d1234cb630720cae3a3d"
+  },
+  "limitations": [
+    "Light theme only; dark and client themes deferred.",
+    "No native (React Native/Expo, Android, iOS) source or build; native mappings are documentation.",
+    "No participant study; comprehension is unverified.",
+    "Previews use synthetic fixtures (Demo · Data simulasi)."
+  ],
+  "secrets": "none"
+}

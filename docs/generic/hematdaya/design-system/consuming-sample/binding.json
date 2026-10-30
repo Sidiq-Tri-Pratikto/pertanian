@@ -1,0 +1,16 @@
+{
+  "system": {
+    "name": "HematDaya Design System",
+    "version": "1.0.0-draft",
+    "reviewStatus": "draft, not owner-approved",
+    "artifact": "https://claude.ai/artifact/UKpTDTYqPNVwfCuHLjY3ns"
+  },
+  "supply": {
+    "method": "imported local reference",
+    "detail": "Files read from ../project (the same files published to the private artifact) and ../workbench/tokens.css (generated from project/tokens.json by tools/build.mjs). Not a registered-system selection; no automatic inheritance.",
+    "tokenExport": "project/exports/hematdaya-design-system.tokens.json (hematdaya-tokens/1)"
+  },
+  "componentsUsed": ["HD.Screen", "HD.TabNavigation", "HD.EnergyMetric", "HD.CostEstimate"],
+  "localDeviations": ["One app-local class (.app-note) for the binding line; it reads only system tokens."],
+  "checks": "See project/guide/05-validation-report.md, gate DS-12."
+}

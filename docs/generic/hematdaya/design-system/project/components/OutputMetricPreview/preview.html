@@ -1,0 +1,21 @@
+<!-- @dsCard group="Optional metrics" height=640 -->
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>OutputMetricPreview — preview</title></head>
+<body>
+<div id="root" class="hd-root hd-pad hd-stack"></div>
+<script>
+var HD = window.HD, h = React.createElement, F = HD.format, useState = React.useState;
+function S(label, child) { return h('div', { className: 'hd-stack hd-stack--tight' }, h('p', { className: 'type-label hd-secondary' }, label), child); }
+function Demo() {
+  return h(React.Fragment, null,
+    S('Actual output: 144 / 2880', h('div', { className: 'hd-group' }, h(HD.OutputMetricPreview, { enabled: true, energyKwh: 144, output: 2880, unit: 'unit', method: 'actual', periodLabel: '19–25 Oktober 2026' }))),
+    S('Zero output: no intensity, no infinity', h('div', { className: 'hd-group' }, h(HD.OutputMetricPreview, { enabled: true, energyKwh: 144, output: 0 }))),
+    S('Output missing', h('div', { className: 'hd-group' }, h(HD.OutputMetricPreview, { enabled: true, energyKwh: 144, output: null }))),
+    S('Estimated output (method labelled)', h('div', { className: 'hd-group' }, h(HD.OutputMetricPreview, { enabled: true, energyKwh: 144, output: 2880, method: 'estimated', periodLabel: '19–25 Oktober 2026' }))),
+    S('enabled: false renders nothing (below this line)', h(HD.OutputMetricPreview, { enabled: false, energyKwh: 144, output: 2880 })));
+}
+ReactDOM.createRoot(document.getElementById('root')).render(h(Demo));
+</script>
+</body>
+</html>

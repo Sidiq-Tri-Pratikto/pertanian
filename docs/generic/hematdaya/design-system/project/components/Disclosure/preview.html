@@ -1,0 +1,21 @@
+<!-- @dsCard group="Overlays" height=260 -->
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Disclosure — preview</title></head>
+<body>
+<div id="root" class="hd-root hd-pad hd-stack"></div>
+<script>
+var HD = window.HD, h = React.createElement, F = HD.format, useState = React.useState;
+function S(label, child) { return h('div', { className: 'hd-stack hd-stack--tight' }, h('p', { className: 'type-label hd-secondary' }, label), child); }
+function Demo() {
+  return h(React.Fragment, null,
+    h('p', { className: 'hd-qualifier type-label-strong' }, h(HD.Icon, { name: 'attention', size: 'small' }), h('span', null, 'Sebagian data belum tersedia · Kelengkapan data: 50% periode')),
+    h('p', { className: 'type-label hd-secondary' }, 'The limitation above stays outside the collapsed region; only calculation metadata is inside.'),
+    h(HD.Disclosure, { summary: 'Detail perhitungan' },
+      h('p', null, 'Interval valid: 12 dari 24 interval satu jam.'),
+      h('p', null, 'Energi terekam dijumlahkan dari interval valid saja. Jam tanpa data tidak diisi atau diperkirakan.')));
+}
+ReactDOM.createRoot(document.getElementById('root')).render(h(Demo));
+</script>
+</body>
+</html>

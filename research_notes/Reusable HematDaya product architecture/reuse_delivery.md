@@ -1,0 +1,74 @@
+# Reusing and delivering HematDaya variants without fork drift
+
+## What should vary, and when should a variant become a separate product?
+
+### Takeaway
+
+Recommendation: build the first real HematDaya slice as one modular application, then use a second real variant to discover the reusable boundary. Keep shared domain behavior in one maintained codebase; express known differences through a small client specification, cohesive modules, and boundary adapters rather than a per-client fork. This is an architectural inference, not an assertion that HematDaya already has a stable reusable core. [Monolith First](https://martinfowler.com/bliki/MonolithFirst.html), [Ports and Adapters](https://alistair.cockburn.us/hexagonal-architecture/)
+
+### Cited Findings
+
+- Fowler argues that distributed services impose a management premium, early domain boundaries are hard to identify, and a simpler initial application improves feedback speed. He explicitly presents his evidence as anecdotal and tentative, so this is design guidance rather than proof that every product must begin as a monolith. [Monolith First](https://martinfowler.com/bliki/MonolithFirst.html)
+- Cockburn's original architecture separates application behavior from external devices and technologies: an adapter translates external events into a stable application interaction. This permits different user interfaces, data sources, and test harnesses around the same application behavior. [Original Ports and Adapters article](https://alistair.cockburn.us/hexagonal-architecture/)
+- Azure identifies tenant-specific code/configuration deployments as a source of deployment and testing complexity; it recommends a common codebase and consistent automated deployment even for dedicated tenant resources. It also distinguishes temporary release flags from customer entitlements. [Deployment and configuration approaches](https://learn.microsoft.com/en-us/azure/architecture/guide/multitenant/approaches/deployment-configuration)
+
+### Inferences
+
+- **Configuration**: use a validated, versioned client specification for a bounded set of values: brand assets/copy, locale, units, enabled supported capabilities, tariff/rule identifiers, and selected integrations. Keep credentials in environment secrets, referenced by the specification. Reject unsupported combinations rather than permitting arbitrary runtime code or unbounded per-client fields. This applies the common-codebase recommendation without inventing a configuration platform. [Deployment and configuration approaches](https://learn.microsoft.com/en-us/azure/architecture/guide/multitenant/approaches/deployment-configuration)
+- **Modules**: a substantial reusable workflow, such as household recommendations or industrial equipment analysis, should have cohesive code and its own tests. Select it at application composition boundaries; do not distribute `if client == X` through calculations, authorization, and screens. Module names should describe capabilities rather than customer names. This is a suggested boundary, to be confirmed by real variants. [Monolith First](https://martinfowler.com/bliki/MonolithFirst.html)
+- **Adapters**: meter vendor protocol, CSV format, tariff provider, notification service, or an AI provider may change while the application use case remains the same. Translate these at their boundary; do not make one generic interface for every hypothetical future device. [Ports and Adapters](https://alistair.cockburn.us/hexagonal-architecture/)
+- **Separate product**: reconsider the common application when the user job, invariants, workflow, data ownership, or release obligations diverge enough that most changes require client-specific exceptions. A different logo or one extra integration does not meet that threshold. Even separate products may still consume a small versioned shared library; there is no need to force their whole application into one configurable product. This is a decision heuristic, not a numerical industry threshold. [Monolith First](https://martinfowler.com/bliki/MonolithFirst.html), [Semantic Versioning](https://semver.org/)
+
+### Gaps
+
+- No generic base application or implemented second variant was supplied in this assignment. Therefore the exact module boundaries and realistic percentage of reuse cannot be established.
+- Tariff ownership, industrial analysis rules, meter integrations, and customer update commitments remain product requirements to validate. No source establishes a universal number of variants after which a framework or microservices become justified.
+
+## How should one small team share code and propagate fixes?
+
+### Takeaway
+
+Recommendation: start with one repository and shared source release, with client specifications alongside it. Fix a shared defect once, validate every supported specification, then roll that tested release through client environments. Introduce separately published core packages only when independent applications or teams actually need separate release cadences. [Deployment and configuration approaches](https://learn.microsoft.com/en-us/azure/architecture/guide/multitenant/approaches/deployment-configuration), [Semantic Versioning](https://semver.org/)
+
+### Cited Findings
+
+- GitHub describes a template-created repository as a new project beginning with one commit; template-created branches have unrelated histories. A template copies a starting structure rather than defining an ongoing shared dependency. [Creating a repository from a template](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template)
+- Semantic Versioning requires a declared public API and immutable released versions. Incompatible API changes increment the major version, compatible additions the minor version, and compatible fixes the patch version. Version zero does not promise a stable public API. [Semantic Versioning specification](https://semver.org/)
+- Azure recommends tracking the software, infrastructure, and feature versions used by each tenant. Its update guidance highlights the maintenance and security cost of supporting old versions, calls for rollback decisions, and supports progressive updates rather than indefinite customer opt-out. [Updating a multitenant solution](https://learn.microsoft.com/en-us/azure/architecture/guide/multitenant/considerations/updates)
+
+### Inferences
+
+- **Do not use a template copy as the ongoing reuse mechanism.** Repositories copied for two clients would require intentional backports for each shared fix. If separate repositories are required by ownership or access constraints, have them depend on released core packages instead of copying shared source. A true Git fork preserves history but does not itself prevent long-lived branch divergence. [GitHub template documentation](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template), [Semantic Versioning](https://semver.org/)
+- **Minimum release path**: common fix → shared regression test → run supported client-spec scenarios → tag one source release → deploy to staging/demo → roll through client environments with health checks and a rollback plan. Record source/core release, configuration schema/version, selected modules/adapters, and applied database migrations. This translates Azure's release visibility and automation guidance into a small-team process; it does not require a control-plane product. [Deployment and configuration approaches](https://learn.microsoft.com/en-us/azure/architecture/guide/multitenant/approaches/deployment-configuration), [Updating a multitenant solution](https://learn.microsoft.com/en-us/azure/architecture/guide/multitenant/considerations/updates)
+- **Same source release is the precise promise.** Promote the same backend artifact where possible, with isolated environment configuration. Client-specific builds, if needed, should be reproducible outputs of that source release and an identified specification. Do not promise that every branded web/mobile artifact must be byte-identical. [Updating a multitenant solution](https://learn.microsoft.com/en-us/azure/architecture/guide/multitenant/considerations/updates)
+- **When extracting a package**, make its supported contracts explicit, publish immutable versions, pin/lock client dependencies, and upgrade them through a tested change. A package release makes the fix available; it does not automatically update every deployed client. Do not begin with a registry/release framework for code used only inside one application. [Semantic Versioning](https://semver.org/)
+- **Minimum tests**: core calculations and permission rules once; adapter contract tests with representative fixtures; each supported client specification through its critical user journey; configuration validation; database migration and recovery checks when a schema changes. Test supported product combinations rather than every imaginable toggle permutation. Release flags create testing and carrying costs, so remove temporary ones when their rollout ends. [Deployment and configuration approaches](https://learn.microsoft.com/en-us/azure/architecture/guide/multitenant/approaches/deployment-configuration), [Feature Toggles, Pete Hodgson](https://martinfowler.com/articles/feature-toggles.html)
+
+### Gaps
+
+- The assignment does not specify implementation languages or client ownership constraints. A monorepo recommendation does not assume that mobile, web, and backend can share one programming-language library; shared contracts and server behavior may be the appropriate reuse boundary.
+- No contract or operational evidence establishes how long old client releases must remain supported. Recommend agreeing a bounded upgrade window before accepting ongoing customization.
+
+## Does reuse require white-labeling or multi-tenant SaaS?
+
+### Takeaway
+
+No. Recommendation: share the maintained product code while initially deploying the one or two real client/challenge variants in isolated environments when their data or operating commitments differ. Branding, code reuse, tenant isolation, and the SaaS business/operations model are separate decisions. Dedicated client deployment does not require a client-specific source fork. [Deployment and configuration approaches](https://learn.microsoft.com/en-us/azure/architecture/guide/multitenant/approaches/deployment-configuration), [Deployment Stamps](https://learn.microsoft.com/en-us/azure/architecture/patterns/deployment-stamp)
+
+### Cited Findings
+
+- Azure deployment stamps can serve one tenant or a group of tenants, and can be deployed and updated independently. They support different regions and rollout cadences, but introduce infrastructure cost and routing/operational complexity. Azure explicitly says a full stamp pattern may be unsuitable for a simple solution. [Deployment Stamps pattern](https://learn.microsoft.com/en-us/azure/architecture/patterns/deployment-stamp)
+- AWS documents dedicated silo environments and shared pooled environments as valid choices with different tradeoffs. Silos simplify the isolation boundary but cost more and complicate fleet operations; pools improve resource/operational efficiency but introduce cross-tenant, noisy-neighbor, cost-attribution, and outage-blast-radius concerns. [AWS silo isolation](https://docs.aws.amazon.com/whitepapers/latest/saas-tenant-isolation-strategies/silo-isolation.html), [AWS pool isolation](https://docs.aws.amazon.com/whitepapers/latest/saas-tenant-isolation-strategies/pool-isolation.html)
+- OWASP requires tenant context to be derived from verified identity/membership rather than trusted merely because it appears in a request. Its guidance covers databases, caches, sessions, asynchronous work, file storage, onboarding/offboarding, and tenant-aware logs, not just adding a tenant column. [Multi-Tenant Application Security](https://cheatsheetseries.owasp.org/cheatsheets/Multi_Tenant_Security_Cheat_Sheet.html)
+
+### Inferences
+
+- **First-stage delivery**: use one repeatable deployment definition, a small inventory of client environments and their release/spec versions, and separate database/storage/secrets/access boundaries per client where isolation is required. Reuse the pattern; do not build tenant routing, self-service provisioning, billing, or fleet orchestration before there is a business requirement. This borrows repeatability from stamps without claiming HematDaya needs the complete stamp architecture today. [Deployment Stamps](https://learn.microsoft.com/en-us/azure/architecture/patterns/deployment-stamp)
+- **White-label** means choosing customer-facing identity and presentation. It can accompany a dedicated deployment or a shared application. **Code reuse** means one maintained implementation. **Tenancy** concerns which customer/account boundaries the running system enforces. A customer's many Sites/Assets/Sources are domain objects; a Site is not automatically a tenant. This distinction follows from the ability to deploy one common codebase into either dedicated or shared infrastructure. [Deployment and configuration approaches](https://learn.microsoft.com/en-us/azure/architecture/guide/multitenant/approaches/deployment-configuration), [Deployment Stamps](https://learn.microsoft.com/en-us/azure/architecture/patterns/deployment-stamp)
+- **Revisit pooled SaaS** when many similar customers need one centrally operated service and provisioning/update volume or infrastructure economics justify it. Before pooling, enforce server-verified tenant scope on every data path, queues/jobs, cache keys, storage, exports, backups, and observability; test attempted cross-tenant access. Branding configuration is not an authorization boundary, and frontend capability hiding cannot enforce access. [AWS pool isolation](https://docs.aws.amazon.com/whitepapers/latest/saas-tenant-isolation-strategies/pool-isolation.html), [OWASP Multi-Tenant Security](https://cheatsheetseries.owasp.org/cheatsheets/Multi_Tenant_Security_Cheat_Sheet.html)
+- For an early challenge/demo, keep sample data and credentials out of production client environments and use a demo environment as the first rollout target. Treat this as an environment boundary, not a permanent fork. [Deployment Stamps](https://learn.microsoft.com/en-us/azure/architecture/patterns/deployment-stamp)
+
+### Gaps
+
+- Deployment cost, data residency, availability targets, internet/connectivity constraints, and client legal ownership were not provided. Isolation is therefore a conservative starting recommendation for a few distinct deliveries, not a verified cost optimum or compliance conclusion.
+- No existing production service was inspected. These notes discuss architecture and delivery; no application code or PRD was changed and no operational security posture was assessed.
