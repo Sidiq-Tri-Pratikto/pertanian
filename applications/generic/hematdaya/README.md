@@ -10,8 +10,11 @@ Electricity monitoring and evidence-based advice for household, business and ind
 | `contracts/` | Generated API contract |
 | `.specify/memory/constitution.md` | Project standards |
 | `AGENTS.md` | Entry point for coding agents |
-| `specs/` | Feature specs |
-| `docs/` | Project documentation |
+| `specs/` | One spec and plan per pull request, 001 to 046 |
+| `docs/roadmap/` | Milestones, dependency graph, architecture decisions, traceability. **Start here for the next PR** |
+| `docs/product/` | PRD in English and Indonesian, design handoff |
+| `docs/design/` | Design system reference |
+| `docs/reference/prototype/` | Browser prototype: behaviour reference and oracle source |
 
 ## Getting started
 

@@ -14,6 +14,10 @@ Read this file before choosing commands or authority sources. It is the single e
 | `.specify/` | Constitution, error policy, Spec Kit templates and scripts |
 | `specs/<NNN-feature>/` | Feature specs, plans, tasks |
 | `docs/error-handling/` | Error catalog, deviations, audits |
+| `docs/roadmap/` | Milestones, pick-up steps, binding architecture decisions, traceability |
+| `docs/product/` | PRD and design handoff: what the product does |
+| `docs/design/` | Design system reference |
+| `docs/reference/prototype/` | Browser prototype: oracle source, never production code |
 
 ## Rules to read when relevant
 
@@ -32,6 +36,8 @@ Read this file before choosing commands or authority sources. It is the single e
 ## Workflow
 
 Feature work follows Spec Kit: `speckit-specify`, `speckit-clarify` (when vague), `speckit-plan`, `speckit-tasks`, `speckit-analyze`, `speckit-implement`. Small fixes skip it and go straight to a test and a change.
+
+Specs 003 to 046 are already written. Do not run `speckit-specify` on them: follow "Pick up the next PR" in `docs/roadmap/README.md`. Read `docs/roadmap/architecture.md` before any feature work.
 
 ## Skills
 
