@@ -1,5 +1,7 @@
 # Masalah Indonesia, implementasi yang sudah ada, dan lima celah solusi untuk Kartika Cyber Hackathon
 
+**Pembaruan 31 Oktober 2026, WIB:** [catatan preseden operasional](../Operational%20app%20precedents%20for%20Kartika/sources.md) menambahkan bukti penggunaan aplikasi dan koreksi pembanding PetaBencana. Kesimpulan awal bertanggal 26 Oktober dipertahankan sebagai konteks; klaim pembeda SUARA SIAGA di bawah dipersempit sesuai pembaruan.
+
 ## Apa yang sudah diimplementasikan di Indonesia dan di TNI?
 
 ### Takeaway
@@ -42,6 +44,8 @@ Lima ide berikut sengaja berbeda dalam **keputusan pengguna**, bukan sekadar men
 
 **Sudah ada apa?** PetaBencana telah memetakan laporan urun daya, mempunyai arsip/API, dan mendokumentasikan data teks, waktu, jenis bencana, serta geometri. Bukan ide baru untuk mengambil laporan masyarakat dan memasukkannya ke peta. — [Open API](https://docs.petabencana.id/routes); [Skema laporan urun daya](https://docs.petabencana.id/master-1/routes/crowdsourced-reports)
 
+**Koreksi pembanding, 31 Oktober:** FAQ juga mencantumkan Peta Gotong Royong untuk penyampaian kebutuhan dan penghubungan bantuan. Kategori kebutuhan saja tidak cukup sebagai pembeda. — [FAQ resmi](https://info.petabencana.id/faq)
+
 **Usulan keputusan pengguna.** Operator posko BPBD/mitra kemanusiaan/TNI AD membuka antrean kebutuhan: "tiga laporan air bersih belum dipenuhi di kecamatan A; perlu verifikasi". Petugas menandai diverifikasi, ditugaskan, dipenuhi, atau masih menunggu. Tujuan: mengurangi waktu membaca/duplikasi dan menemukan kebutuhan yang terlewat; bukan mengganti komando tanggap darurat.
 
 **Usulan solusi teknis.** Ingest arsip PetaBencana + laporan form relawan berizin → normalisasi ringan, redaksi PII → deduplikasi semantik dan ruang-waktu → model multi-label kebutuhan (air, obat, makanan, sanitasi, akses), sentiment/aspek (misalnya distribusi terlambat), dan confidence → peta kebutuhan agregat dengan potongan bukti → antrean verifikasi serta log status. Priority berbasis kebutuhan eksplisit dan umur laporan, bukan jumlah marah/viral. Lokasi yang diekstrak dari teks harus diberi status "dugaan"; jangan menebak lokasi dari profil pengguna.
@@ -50,7 +54,7 @@ Lima ide berikut sengaja berbeda dalam **keputusan pengguna**, bukan sekadar men
 
 **Evaluasi usulan.** Anotasi ganda 200–300 sampel nyata yang sah + adjudikasi, recall kebutuhan mendesak, precision prioritas-10, akurasi geolokasi administratif, reduksi duplikat, dan waktu triase dibanding operator tanpa dashboard. Split per kejadian/waktu supaya salinan satu insiden tak bocor ke test.
 
-**Celah yang dapat diklaim hati-hati.** "Lapisan kebutuhan dan tindak lanjut di atas peta laporan yang sudah ada." Bukti publik yang ditinjau belum mengonfirmasi fitur yang identik pada mitra tertentu; jangan menyatakan tidak ada di Indonesia.
+**Hipotesis pembeda setelah pembaruan 31 Oktober.** Serah-terima tanggung jawab antarorganisasi, bukti pemenuhan dan konfirmasi penyelesaian. Fitur tersebut perlu dibandingkan dengan layanan yang sudah ada dan diuji bersama posko; penelusuran ini belum membuktikan kekosongan pasar maupun keunggulan produk usulan.
 
 #### 2. REKRUT AMAN — early warning penipuan yang mengatasnamakan rekrutmen TNI
 

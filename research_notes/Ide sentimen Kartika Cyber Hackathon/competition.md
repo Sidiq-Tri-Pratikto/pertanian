@@ -1,5 +1,7 @@
 # Panduan resmi Kartika Cyber Hackathon 2026
 
+**Pembaruan 31 Oktober 2026, WIB:** situs resmi kini mencantumkan webinar kedua pada **5 November**; submission tetap **15 November** dan konflik final **20/24 November** masih ada. Rubrik relevansi secara spesifik menyebut kebutuhan pengamanan IT/OT TNI AD. Catatan jadwal 26 Oktober di bawah adalah rekaman historis. Pemilihan aplikasi berdasarkan bukti pemakaian dibahas dalam [laporan lanjutan](../../reports/Operational%20app%20precedents%20for%20Kartika.md). ([Situs resmi](https://kartikacyberhackathon.id/))
+
 ## Apa kategori, kriteria penilaian, dan keluaran yang dibutuhkan?
 
 ### Takeaway
@@ -7,7 +9,7 @@ Sentiment Analysis Dashboard merupakan contoh solusi dalam kategori resmi **Sibe
 
 ### Cited Findings
 - Penyelenggara PUSSIBERAD dan CODEPOLITAN; Siber Sosial mencakup disinformasi, propaganda, buzzer, opini publik. Dashboard sentimen disebut eksplisit. — [Situs resmi](https://kartikacyberhackathon.id/)
-- Rubrik: relevansi/manfaat TNI AD 25%, inovasi teknis 25%, fungsionalitas purwarupa 25%, kelayakan implementasi 15%, dokumentasi 10%. — [Situs resmi](https://kartikacyberhackathon.id/)
+- Rubrik: relevansi/manfaat 25%, inovasi teknis 25%, fungsionalitas purwarupa 25%, kelayakan implementasi 15%, dokumentasi 10%. Klarifikasi pemeriksaan 31 Oktober: relevansi merujuk kebutuhan pengamanan IT/OT TNI AD, sehingga aplikasi kemanusiaan/layanan perlu menunjukkan kaitan tersebut secara konkret. — [Situs resmi](https://kartikacyberhackathon.id/)
 - Dua daftar keluaran: proposal, dokumentasi teknis, video demo; serta tautan project, video presentasi, slide. — [Situs resmi](https://kartikacyberhackathon.id/)
 - Artikel penyelenggara 22 Oktober secara eksplisit menyarankan menyiapkan gabungan kedua daftar tersebut. Isi lengkap muncul pada indeks pencarian, tetapi fetch halaman hanya menampilkan kerangka artikel. — [Panduan daftar CODEPOLITAN](https://www.codepolitan.com/blog/cara-daftar-kartika-cyber-hackathon-2026-panduan-lengkap-step-by-step/)
 
