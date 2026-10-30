@@ -1,0 +1,1 @@
+../../.claude/rules/008-error-handling.md
