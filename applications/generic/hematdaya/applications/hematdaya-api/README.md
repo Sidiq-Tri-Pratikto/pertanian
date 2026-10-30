@@ -1,19 +1,38 @@
 # hematdaya-api
 
-Service for hematdaya.
+HematDaya service: FastAPI, async SQLAlchemy, Alembic and Postgres 17. It is the one calculation authority; the mobile app only renders what it returns.
 
-## Setup
+To run the whole product, use `./local-start.sh` from the [repository root](../../README.md#quick-start).
+
+## Run the service alone
 
 Requires [uv](https://docs.astral.sh/uv/) and Docker.
 
 ```bash
-make install
-make run-dependencies
-make migrate
-make run
+make install           # Python dependencies and pre-commit hooks
+make run-dependencies  # Postgres on port 5432
+make migrate           # creates .env on first use, then applies migrations
+make run               # API with reload on port 8000
 ```
 
-API: http://localhost:8000, docs at `/docs`.
+Open http://localhost:8000/docs. Use `make run PORT=8010` if port 8000 is taken, and `make stop-dependencies` when you finish.
+
+## Testing
+
+```bash
+make test-unit         # no services needed
+make run-dependencies  # once, for everything below
+make check             # lint, format check, all tests, 80% coverage gate
+```
+
+| Path | Covers | Needs |
+|---|---|---|
+| `tests/unit/capabilities/` | Manifest and composition | Nothing |
+| `tests/unit/core/` | Errors, database session, OpenAPI document, no actuation routes | Nothing |
+| `tests/unit/health/` | Liveness and readiness | Nothing |
+| `tests/integration/` | Real requests against Postgres after migrations | Postgres |
+
+Run one test with `uv run pytest tests/unit/health/test_health.py -v`, or match by name with `uv run pytest tests -k capabilities`. `make test-coverage` also writes an HTML report to `htmlcov/index.html`.
 
 ## Configuration
 
@@ -32,12 +51,9 @@ API: http://localhost:8000, docs at `/docs`.
 
 | Command | Does |
 |---|---|
-| `make run` | API with reload |
-| `make migrate` | Apply migrations |
 | `make openapi` | Export the API contract to `contracts/openapi.json` |
-| `make test-unit` | Unit tests, no services |
-| `make test-integration` | Integration tests, needs Postgres |
-| `make check` | Lint, format check, all tests, 80% coverage gate |
+| `make test-integration` | Integration tests only, needs Postgres |
+| `make lint` | Ruff lint and format check |
 
 ## Endpoints
 
