@@ -24,6 +24,7 @@ API: http://localhost:8000, docs at `/docs`.
 | `ENVIRONMENT` | no | `development` | Deployment environment |
 | `LOG_LEVEL` | no | `INFO` | Log level |
 | `CORS_ALLOWED_ORIGINS` | no | `[]` | JSON list of browser origins; native clients need none |
+| `COMPOSITION` | no | `core-plus-optional` | Supported product composition; `core-only` drops optional modules |
 | `SKIP_MIGRATIONS` | no | `false` | Container start skips migrations when `true` |
 | `PORT` | no | `8000` | Container listen port |
 
@@ -42,5 +43,6 @@ API: http://localhost:8000, docs at `/docs`.
 
 | Endpoint | Purpose |
 |---|---|
-| `GET /health` | Liveness |
-| `GET /ready` | Readiness, checks the database |
+| `GET /health/live` | Liveness |
+| `GET /health/ready` | Readiness, checks the database |
+| `GET /api/v1/capabilities` | Non-secret deployment manifest; explains, never authorizes |

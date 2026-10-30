@@ -16,7 +16,7 @@ def test_health_needs_no_dependencies() -> None:
     Expected:
     - Liveness still reports ok.
     """
-    response = TestClient(app).get("/health")
+    response = TestClient(app).get("/health/live")
 
     assert response.status_code == 200
     assert response.json() == {"status": "ok"}
@@ -33,7 +33,7 @@ def test_ready_reports_unreachable_database() -> None:
     engine = create_async_engine("postgresql+asyncpg://nobody:nothing@127.0.0.1:1/none")
 
     with patch("app.core.database.get_session_factory", return_value=async_sessionmaker(engine)):
-        response = TestClient(app).get("/ready")
+        response = TestClient(app).get("/health/ready")
 
     assert response.status_code == 503
     assert response.json()["error"]["code"] == "DATABASE_UNAVAILABLE"

@@ -166,6 +166,7 @@ def test_validation_error_lists_fields_without_values(client: TestClient) -> Non
     error = response.json()["error"]
     assert error["code"] == "VALIDATION_FAILED"
     assert error["details"][0]["loc"] == ["body", "count"]
+    assert error["details"][0]["msg"] == "Isi dengan bilangan bulat."
     assert FAKE_SECRET not in response.text
 
 

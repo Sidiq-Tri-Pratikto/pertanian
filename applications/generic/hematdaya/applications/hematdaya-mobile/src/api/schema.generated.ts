@@ -4,7 +4,30 @@
  */
 
 export interface paths {
-    "/health": {
+    "/api/v1/capabilities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Describe this deployment
+         * @description Return the non-secret manifest clients use to explain what is available.
+         *
+         *     Returns:
+         *         CapabilityManifestResponse: The manifest.
+         */
+        get: operations["get_capabilities_api_v1_capabilities_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/health/live": {
         parameters: {
             query?: never;
             header?: never;
@@ -18,7 +41,7 @@ export interface paths {
          *     Returns:
          *         dict[str, str]: The status.
          */
-        get: operations["health_health_get"];
+        get: operations["health_health_live_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -27,7 +50,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/ready": {
+    "/health/ready": {
         parameters: {
             query?: never;
             header?: never;
@@ -44,7 +67,7 @@ export interface paths {
          *     Returns:
          *         dict[str, str]: The status.
          */
-        get: operations["ready_ready_get"];
+        get: operations["ready_health_ready_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -57,6 +80,59 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /**
+         * AdapterResponse
+         * @description One data source adapter.
+         */
+        AdapterResponse: {
+            /** Id */
+            id: string;
+            status: components["schemas"]["CapabilityStatus"];
+        };
+        /**
+         * CapabilityManifestResponse
+         * @description Non-secret explanation of this deployment. It grants nothing; the service still authorizes every request.
+         */
+        CapabilityManifestResponse: {
+            /** Adapters */
+            adapters: components["schemas"]["AdapterResponse"][];
+            /** Capabilities */
+            capabilities: components["schemas"]["CapabilityResponse"][];
+            composition: components["schemas"]["CompositionResponse"];
+            /** Policies */
+            policies: components["schemas"]["PolicyResponse"][];
+            /** Schema Version */
+            schema_version: number;
+            /** Source Release */
+            source_release: string;
+        };
+        /**
+         * CapabilityResponse
+         * @description One product capability.
+         */
+        CapabilityResponse: {
+            /** Id */
+            id: string;
+            /** Optional */
+            optional: boolean;
+            status: components["schemas"]["CapabilityStatus"];
+        };
+        /**
+         * CapabilityStatus
+         * @description What a capability or adapter can honestly claim today.
+         * @enum {string}
+         */
+        CapabilityStatus: "planned" | "simulated" | "available";
+        /**
+         * CompositionResponse
+         * @description The validated product composition of this deployment.
+         */
+        CompositionResponse: {
+            /** Id */
+            id: string;
+            /** Version */
+            version: number;
+        };
         /**
          * ErrorBody
          * @description Public failure content.
@@ -112,6 +188,16 @@ export interface components {
             /** Retryable */
             retryable: boolean;
         };
+        /**
+         * PolicyResponse
+         * @description One versioned analysis policy.
+         */
+        PolicyResponse: {
+            /** Id */
+            id: string;
+            /** Version */
+            version: number;
+        };
     };
     responses: never;
     parameters: never;
@@ -121,7 +207,36 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    health_health_get: {
+    get_capabilities_api_v1_capabilities_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CapabilityManifestResponse"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    health_health_live_get: {
         parameters: {
             query?: never;
             header?: never;
@@ -152,7 +267,7 @@ export interface operations {
             };
         };
     };
-    ready_ready_get: {
+    ready_health_ready_get: {
         parameters: {
             query?: never;
             header?: never;

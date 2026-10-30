@@ -59,7 +59,7 @@ def test_cors_headers_survive_failures() -> None:
     assert response.headers["access-control-allow-origin"] == "http://localhost:8081"
 
 
-def test_no_cors_by_default() -> None:
+def test_no_cors_when_no_origin_is_configured() -> None:
     """
     Condition:
     - No origin is configured.
@@ -67,6 +67,11 @@ def test_no_cors_by_default() -> None:
     Expected:
     - Responses carry no CORS header.
     """
-    response = TestClient(app).get("/health", headers={"Origin": "http://localhost:8081"})
+    settings = Settings(database_url="postgresql+asyncpg://a:b@localhost/c", cors_allowed_origins=[])
+
+    with patch("app.main.get_settings", return_value=settings):
+        client = TestClient(create_app())
+
+    response = client.get("/health/live", headers={"Origin": "http://localhost:8081"})
 
     assert "access-control-allow-origin" not in response.headers

@@ -5,9 +5,7 @@ from typing import Any
 
 from app.core.errors import codes
 
-_FALLBACK_MESSAGE = (
-    "We could not complete the request. Contact support and provide the reference ID shown with this error."
-)
+_FALLBACK_MESSAGE = "Permintaan belum dapat diselesaikan. Hubungi dukungan dan sebutkan ID referensi yang ditampilkan."
 
 
 @dataclass(frozen=True)
@@ -32,48 +30,86 @@ FALLBACK_PUBLIC_ERROR = PublicError("INTERNAL_ERROR", 500, _FALLBACK_MESSAGE)
 PUBLIC_ERROR_BY_CODE: dict[str, PublicError] = {
     codes.APP_UNKNOWN: FALLBACK_PUBLIC_ERROR,
     codes.APP_REQUEST_INVALID: PublicError(
-        "BAD_REQUEST", 400, "The request could not be processed. Please check the request and try again."
+        "BAD_REQUEST", 400, "Permintaan belum dapat diproses. Periksa isian Anda lalu coba lagi."
     ),
     codes.APP_NOT_FOUND: PublicError(
-        "NOT_FOUND", 404, "The requested resource was not found. Please check the address and try again."
+        "NOT_FOUND", 404, "Data yang diminta tidak ditemukan. Periksa alamatnya lalu coba lagi."
     ),
     codes.APP_CONFLICT: PublicError(
-        "CONFLICT", 409, "The request conflicts with the current state. Please review the resource and try again."
+        "CONFLICT", 409, "Permintaan bertentangan dengan kondisi saat ini. Tinjau datanya lalu coba lagi."
     ),
     codes.APP_DB_ERROR: PublicError(
         "DATA_ERROR",
         500,
-        "The request could not be completed because of a data error. Contact support with the reference ID.",
+        "Permintaan gagal karena kesalahan data. Hubungi dukungan dan sebutkan ID referensi.",
     ),
     codes.APP_DB_UNAVAILABLE: PublicError(
         "DATABASE_UNAVAILABLE",
         503,
-        "The database is temporarily unavailable. Please try again in a few minutes.",
+        "Layanan data sedang tidak tersedia. Coba lagi beberapa menit lagi.",
         {"retryable": True, "retry_after_seconds": 30, "max_attempts": 3},
     ),
 }
 
 PUBLIC_ERROR_BY_STATUS: dict[int, PublicError] = {
-    400: PublicError("BAD_REQUEST", 400, "The request could not be processed. Please check the request and try again."),
-    401: PublicError("UNAUTHORIZED", 401, "Authentication is required. Please provide valid credentials."),
+    400: PublicError("BAD_REQUEST", 400, "Permintaan belum dapat diproses. Periksa isian Anda lalu coba lagi."),
+    401: PublicError("UNAUTHORIZED", 401, "Anda perlu masuk terlebih dahulu. Masuk lalu coba lagi."),
     403: PublicError(
-        "FORBIDDEN", 403, "You are not permitted to perform this request. Please contact your administrator."
+        "FORBIDDEN", 403, "Anda tidak memiliki akses untuk permintaan ini. Hubungi pemilik data bila perlu akses."
     ),
-    404: PublicError("NOT_FOUND", 404, "The requested resource was not found. Please check the address and try again."),
-    405: PublicError("METHOD_NOT_ALLOWED", 405, "This request method is not supported. Please use a supported method."),
+    404: PublicError("NOT_FOUND", 404, "Data yang diminta tidak ditemukan. Periksa alamatnya lalu coba lagi."),
+    405: PublicError("METHOD_NOT_ALLOWED", 405, "Metode permintaan ini tidak didukung. Gunakan metode yang didukung."),
     409: PublicError(
-        "CONFLICT", 409, "The request conflicts with the current state. Please review the resource and try again."
+        "CONFLICT", 409, "Permintaan bertentangan dengan kondisi saat ini. Tinjau datanya lalu coba lagi."
     ),
-    422: PublicError(
-        "VALIDATION_FAILED", 422, "The request contains invalid fields. Please correct them and try again."
-    ),
+    422: PublicError("VALIDATION_FAILED", 422, "Ada isian yang belum valid. Perbaiki isian tersebut lalu coba lagi."),
     429: PublicError(
         "RATE_LIMITED",
         429,
-        "Too many requests were received. Please wait before trying again.",
+        "Terlalu banyak permintaan diterima. Tunggu sebentar lalu coba lagi.",
         {"retryable": True, "retry_after_seconds": 60, "max_attempts": 3},
     ),
 }
+
+
+_DEFAULT_FIELD_MESSAGE = "Nilai isian ini belum valid. Periksa lalu coba lagi."
+_FIELD_MESSAGES = {
+    "missing": "Isian ini wajib diisi.",
+    "string_type": "Isi dengan teks.",
+    "string_too_short": "Isian ini terlalu pendek.",
+    "string_too_long": "Isian ini terlalu panjang.",
+    "int_type": "Isi dengan bilangan bulat.",
+    "int_parsing": "Isi dengan bilangan bulat.",
+    "float_type": "Isi dengan angka.",
+    "float_parsing": "Isi dengan angka.",
+    "decimal_type": "Isi dengan angka desimal.",
+    "decimal_parsing": "Isi dengan angka desimal.",
+    "bool_type": "Pilih benar atau salah.",
+    "bool_parsing": "Pilih benar atau salah.",
+    "uuid_type": "Pengenal ini tidak valid.",
+    "uuid_parsing": "Pengenal ini tidak valid.",
+    "date_parsing": "Isi dengan tanggal yang valid.",
+    "datetime_parsing": "Isi dengan tanggal dan waktu yang valid.",
+    "greater_than": "Nilai terlalu kecil.",
+    "greater_than_equal": "Nilai terlalu kecil.",
+    "less_than": "Nilai terlalu besar.",
+    "less_than_equal": "Nilai terlalu besar.",
+    "enum": "Pilih salah satu nilai yang tersedia.",
+    "literal_error": "Pilih salah satu nilai yang tersedia.",
+    "json_invalid": "Isi permintaan bukan JSON yang valid.",
+}
+
+
+def field_message(error_type: str) -> str:
+    """Resolve a validation error type to an Indonesian field message.
+
+    Args:
+        error_type (str): The validator's error type.
+
+    Returns:
+        str: The field message, or a safe default for an unmapped type.
+    """
+    return _FIELD_MESSAGES.get(error_type, _DEFAULT_FIELD_MESSAGE)
 
 
 def public_error_for_code(code: str) -> PublicError:

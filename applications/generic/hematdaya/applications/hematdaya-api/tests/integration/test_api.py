@@ -34,6 +34,6 @@ async def test_ready_reaches_database(client: AsyncClient) -> None:
     Expected:
     - Readiness reports ready.
     """
-    response = await client.get("/ready")
+    response = await client.get("/health/ready")
 
     assert response.status_code == 200

@@ -13,11 +13,11 @@ from app.core.errors.public import (
     FALLBACK_PUBLIC_ERROR,
     PublicError,
     error_response,
+    field_message,
     public_error_for_code,
     public_error_for_status,
 )
 from app.core.errors.recorder import record_failure
-from app.core.errors.sanitize import redact_text
 
 _FORWARDED_HEADERS = ("allow", "www-authenticate")
 
@@ -107,7 +107,11 @@ async def handle_validation_error(request: Request, error: RequestValidationErro
     internal = AppError()
     _record(request, internal, public.http_status)
     details = [
-        {"loc": item.get("loc", ()), "msg": redact_text(item.get("msg", "")), "type": item.get("type", "value_error")}
+        {
+            "loc": item.get("loc", ()),
+            "msg": field_message(item.get("type", "value_error")),
+            "type": item.get("type", "value_error"),
+        }
         for item in error.errors()[:100]
     ]
     return respond(public, internal.reference_id, details=details)

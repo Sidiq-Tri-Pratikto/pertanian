@@ -19,5 +19,5 @@ COPY app app
 ENV PATH="/srv/.venv/bin:$PATH" PYTHONUNBUFFERED=1
 USER appuser
 EXPOSE 8000
-HEALTHCHECK --start-period=30s CMD ["python", "-c", "import urllib.request as u; u.urlopen('http://localhost:8000/health', timeout=3)"]
+HEALTHCHECK --start-period=30s CMD ["python", "-c", "import urllib.request as u; u.urlopen('http://localhost:8000/health/live', timeout=3)"]
 ENTRYPOINT ["./entrypoint.sh"]

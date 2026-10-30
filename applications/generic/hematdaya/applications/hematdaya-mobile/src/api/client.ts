@@ -24,5 +24,5 @@ async function getJson<Path extends keyof paths>(path: Path): Promise<JsonOf<Pat
 }
 
 export function getHealth() {
-  return getJson('/health') as Promise<{ status: string }>;
+  return getJson('/health/live') as Promise<{ status: string }>;
 }

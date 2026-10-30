@@ -22,4 +22,4 @@ Project mapping onto `.specify/memory/error-handling.md`. Record a deviation her
 | Rule | Deviation | Reason | Evidence |
 |---|---|---|---|
 | EH-08 | Centralized logging is stdout only until a tracker is chosen | Platform collects stdout | None yet; decide before first production release |
-| EH-07 | `VALIDATION_FAILED` responses add `error.details` with field, message, and type | Clients need to know which field to fix | Submitted values are never echoed; `test_validation_error_lists_fields_without_values` |
+| EH-07 | `VALIDATION_FAILED` responses add `error.details` with field, Indonesian message, and type | Clients need to know which field to fix | Messages come from `field_message`, so submitted values and validator text are never echoed; `test_validation_error_lists_fields_without_values` |

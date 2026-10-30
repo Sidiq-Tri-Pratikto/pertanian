@@ -8,7 +8,7 @@ from app.core.database import SessionDep
 router = APIRouter(tags=["health"])
 
 
-@router.get("/health", summary="Liveness check")
+@router.get("/health/live", summary="Liveness check")
 async def health() -> dict[str, str]:
     """Report that the process is serving.
 
@@ -18,7 +18,7 @@ async def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
-@router.get("/ready", summary="Readiness check")
+@router.get("/health/ready", summary="Readiness check")
 async def ready(session: SessionDep) -> dict[str, str]:
     """Report that dependencies are reachable.
 

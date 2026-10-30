@@ -1,6 +1,123 @@
 {
   "components": {
     "schemas": {
+      "AdapterResponse": {
+        "description": "One data source adapter.",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CapabilityStatus"
+          }
+        },
+        "required": [
+          "id",
+          "status"
+        ],
+        "title": "AdapterResponse",
+        "type": "object"
+      },
+      "CapabilityManifestResponse": {
+        "description": "Non-secret explanation of this deployment. It grants nothing; the service still authorizes every request.",
+        "properties": {
+          "adapters": {
+            "items": {
+              "$ref": "#/components/schemas/AdapterResponse"
+            },
+            "title": "Adapters",
+            "type": "array"
+          },
+          "capabilities": {
+            "items": {
+              "$ref": "#/components/schemas/CapabilityResponse"
+            },
+            "title": "Capabilities",
+            "type": "array"
+          },
+          "composition": {
+            "$ref": "#/components/schemas/CompositionResponse"
+          },
+          "policies": {
+            "items": {
+              "$ref": "#/components/schemas/PolicyResponse"
+            },
+            "title": "Policies",
+            "type": "array"
+          },
+          "schema_version": {
+            "title": "Schema Version",
+            "type": "integer"
+          },
+          "source_release": {
+            "title": "Source Release",
+            "type": "string"
+          }
+        },
+        "required": [
+          "schema_version",
+          "source_release",
+          "composition",
+          "capabilities",
+          "adapters",
+          "policies"
+        ],
+        "title": "CapabilityManifestResponse",
+        "type": "object"
+      },
+      "CapabilityResponse": {
+        "description": "One product capability.",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "optional": {
+            "title": "Optional",
+            "type": "boolean"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CapabilityStatus"
+          }
+        },
+        "required": [
+          "id",
+          "optional",
+          "status"
+        ],
+        "title": "CapabilityResponse",
+        "type": "object"
+      },
+      "CapabilityStatus": {
+        "description": "What a capability or adapter can honestly claim today.",
+        "enum": [
+          "planned",
+          "simulated",
+          "available"
+        ],
+        "title": "CapabilityStatus",
+        "type": "string"
+      },
+      "CompositionResponse": {
+        "description": "The validated product composition of this deployment.",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "version"
+        ],
+        "title": "CompositionResponse",
+        "type": "object"
+      },
       "ErrorBody": {
         "description": "Public failure content.",
         "properties": {
@@ -128,6 +245,25 @@
         ],
         "title": "ErrorRecovery",
         "type": "object"
+      },
+      "PolicyResponse": {
+        "description": "One versioned analysis policy.",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "version"
+        ],
+        "title": "PolicyResponse",
+        "type": "object"
       }
     }
   },
@@ -137,10 +273,42 @@
   },
   "openapi": "3.1.0",
   "paths": {
-    "/health": {
+    "/api/v1/capabilities": {
+      "get": {
+        "description": "Return the non-secret manifest clients use to explain what is available.\n\nReturns:\n    CapabilityManifestResponse: The manifest.",
+        "operationId": "get_capabilities_api_v1_capabilities_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CapabilityManifestResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Describe this deployment",
+        "tags": [
+          "capabilities"
+        ]
+      }
+    },
+    "/health/live": {
       "get": {
         "description": "Report that the process is serving.\n\nReturns:\n    dict[str, str]: The status.",
-        "operationId": "health_health_get",
+        "operationId": "health_health_live_get",
         "responses": {
           "200": {
             "content": {
@@ -149,7 +317,7 @@
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "title": "Response Health Health Get",
+                  "title": "Response Health Health Live Get",
                   "type": "object"
                 }
               }
@@ -173,10 +341,10 @@
         ]
       }
     },
-    "/ready": {
+    "/health/ready": {
       "get": {
         "description": "Report that dependencies are reachable.\n\nArgs:\n    session (SessionDep): Database session.\n\nReturns:\n    dict[str, str]: The status.",
-        "operationId": "ready_ready_get",
+        "operationId": "ready_health_ready_get",
         "responses": {
           "200": {
             "content": {
@@ -185,7 +353,7 @@
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "title": "Response Ready Ready Get",
+                  "title": "Response Ready Health Ready Get",
                   "type": "object"
                 }
               }
