@@ -8,9 +8,14 @@ This is the base release: real navigation, design tokens and the API contract, w
 
 You need [uv](https://docs.astral.sh/uv/getting-started/installation/), [Docker](https://docs.docker.com/get-started/get-docker/) (running) and [nvm](https://github.com/nvm-sh/nvm) or Node 24.
 
+From the root of the pertanian repository:
+
 ```bash
+cd applications/generic/hematdaya
 ./local-start.sh
 ```
+
+Every command below runs from this folder.
 
 This installs everything, starts Postgres, applies migrations, and runs the API and the app. The first run takes a few minutes. Press `Ctrl+C` to stop it all.
 
@@ -110,10 +115,11 @@ Each application README lists what its tests cover: [API](applications/hematdaya
 | `applications/hematdaya-api/` | FastAPI service. [README](applications/hematdaya-api/README.md) |
 | `applications/hematdaya-mobile/` | Expo app for Android, iOS and web. [README](applications/hematdaya-mobile/README.md) |
 | `contracts/` | Generated API contract |
+| `.github/workflows/hematdaya-*.yml` | CI, at the root of the pertanian repository because GitHub reads workflows only there |
 | `specs/` | One spec and plan per pull request, 001 to 046 |
 | `docs/roadmap/` | Milestones, dependencies, architecture decisions, traceability. **Start here for the next PR** |
 | `docs/product/` | PRD in English and Indonesian, design handoff |
 | `docs/design/` | Design system reference |
 | `docs/reference/prototype/` | Browser prototype: behaviour reference and oracle source |
 | `.specify/memory/constitution.md` | Project standards |
-| `AGENTS.md` | Entry point for coding agents |
+| `AGENTS.md` | Entry point for coding agents. Open your agent in this folder so its rules and Spec Kit resolve |

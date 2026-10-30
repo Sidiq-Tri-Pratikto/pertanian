@@ -10,6 +10,7 @@ Kumpulan proyek hackathon (private): dokumen, aplikasi atau prototipe, dan konfi
 │   └── <proyek>/
 ├── applications/     # kode aplikasi dan prototipe; satu folder per proyek
 │   └── <proyek>/
+├── .github/          # CI untuk aplikasi yang memiliki test
 ├── deployment/       # konfigurasi deployment (belum ada isi)
 └── skills/           # skill Claude Code yang dipakai lintas proyek
     └── <skill>/SKILL.md
@@ -20,6 +21,8 @@ Nama folder proyek sama di `docs/` dan `applications/`, dengan pola `<hackathon>
 ## PRD generik
 
 [docs/generic](docs/generic/) memuat spesifikasi lintas sektor, terpisah dari dokumen hackathon. Produk pertama: [HematDaya generik](docs/generic/hematdaya/), untuk pemantauan listrik rumah tangga, usaha, dan industri. Ini spesifikasi pengembangan baru; prototipe proyek yang sudah ada tetap memiliki cakupannya masing-masing.
+
+Kodenya ada di [applications/generic/hematdaya](applications/generic/hematdaya/): aplikasi mobile Expo dan API FastAPI, dengan cara menjalankan dan menguji di README-nya.
 
 ## Skills
 

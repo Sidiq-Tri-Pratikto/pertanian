@@ -1,9 +1,15 @@
-name: CI
+name: HematDaya API
 
 on:
   push:
     branches: [main]
+    paths:
+      - applications/generic/hematdaya/**
+      - .github/workflows/hematdaya-api.yml
   pull_request:
+    paths:
+      - applications/generic/hematdaya/**
+      - .github/workflows/hematdaya-api.yml
 
 jobs:
   check:
@@ -14,7 +20,7 @@ jobs:
         app: [hematdaya-api]
     defaults:
       run:
-        working-directory: applications/${{ matrix.app }}
+        working-directory: applications/generic/hematdaya/applications/${{ matrix.app }}
     services:
       postgres:
         image: postgres:17-alpine
@@ -33,7 +39,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
       - run: uv sync --frozen
-      - run: uv run pre-commit run --all-files
+      - run: uv run pre-commit run -c ../../.pre-commit-config.yaml --all-files
         env:
           SKIP: no-commit-to-branch
       - run: make check

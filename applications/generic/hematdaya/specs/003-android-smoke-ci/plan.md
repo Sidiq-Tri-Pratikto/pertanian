@@ -18,7 +18,7 @@ No app code changes unless the smoke run finds a bug. Maestro is a CI tool and s
 ## Project Structure
 
 ```text
-.github/workflows/android-smoke.yml
+../../../.github/workflows/hematdaya-android-smoke.yml
 applications/hematdaya-mobile/e2e/smoke.yaml
 ```
 

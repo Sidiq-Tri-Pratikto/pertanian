@@ -84,7 +84,7 @@ make export            # JavaScript bundles for Android, iOS and web
 
 1. Copy `applications/<app>/` to `applications/<new-app>/` without `.venv`.
 2. Rename the project in its `pyproject.toml` and change its port in `Makefile`, `Dockerfile`, and `dev-compose.yml`.
-3. Add `<new-app>` to the `app` matrix in `.github/workflows/ci.yml`.
+3. Add `<new-app>` to the `app` matrix in `.github/workflows/hematdaya-api.yml` at the pertanian repository root.
 
 These steps apply to a Python service. A mobile app comes from `scripts/init.py --mobile`.
 

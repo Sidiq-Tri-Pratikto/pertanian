@@ -4,7 +4,7 @@ OPENAPI_OUT ?= ../../contracts/openapi.json
 .PHONY: install
 install:
 	uv sync
-	@git rev-parse --git-dir >/dev/null 2>&1 && uv run pre-commit install || echo "Skipped pre-commit install: not a git repository"
+	@git rev-parse --git-dir >/dev/null 2>&1 && uv run pre-commit install -c ../../.pre-commit-config.yaml --allow-missing-config || echo "Skipped pre-commit install: not a git repository"
 
 .PHONY: lock
 lock:

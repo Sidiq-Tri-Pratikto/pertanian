@@ -1,3 +1,5 @@
+# This project sits inside the pertanian repository. Hooks stay away from its other projects.
+files: ^applications/generic/hematdaya/
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
@@ -5,6 +7,7 @@ repos:
       - id: check-merge-conflict
       - id: no-commit-to-branch
         args: [--branch, main]
+        always_run: false
       - id: check-ast
       - id: trailing-whitespace
         exclude: \.generated\.ts$

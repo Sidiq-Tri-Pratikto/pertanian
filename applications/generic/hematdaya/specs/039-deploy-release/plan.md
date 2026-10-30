@@ -9,7 +9,7 @@ deploy/compose.yml
 deploy/Caddyfile
 deploy/.env.example
 docs/operations/runbook.md
-.github/workflows/release.yml
+../../../.github/workflows/hematdaya-release.yml
 ```
 
 ## Summary

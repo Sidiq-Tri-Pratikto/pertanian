@@ -11,7 +11,7 @@ Add `CapabilityGuard`, injected into services of optional modules, and a two-com
 ```text
 app/capabilities/service/guard.py    # CapabilityGuard.require("cost")
 tests/unit/capabilities/test_guard.py
-.github/workflows/ci.yml             # COMPOSITION matrix for energy tests
+../../../.github/workflows/hematdaya-api.yml             # COMPOSITION matrix for energy tests
 ```
 
 ## Design

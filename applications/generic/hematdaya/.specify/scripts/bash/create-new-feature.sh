@@ -111,20 +111,19 @@ check_existing_branches() {
     echo $((max_num + 1))
 }
 
-# Resolve repository root. Prefer git information when available, but fall back
-# to searching for repository markers so the workflow still functions in repositories that
-# were initialised with --no-git.
+# Resolve project root from the repository markers, not from git, because the
+# project sits inside a larger git repository.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+REPO_ROOT="$(find_repo_root "$SCRIPT_DIR")"
+if [ -z "$REPO_ROOT" ]; then
+    echo "Error: Could not determine repository root. Please run this script from within the repository." >&2
+    exit 1
+fi
+
 if git rev-parse --show-toplevel >/dev/null 2>&1; then
-    REPO_ROOT=$(git rev-parse --show-toplevel)
     HAS_GIT=true
 else
-    REPO_ROOT="$(find_repo_root "$SCRIPT_DIR")"
-    if [ -z "$REPO_ROOT" ]; then
-        echo "Error: Could not determine repository root. Please run this script from within the repository." >&2
-        exit 1
-    fi
     HAS_GIT=false
 fi
 
