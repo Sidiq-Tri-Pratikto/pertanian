@@ -38,6 +38,8 @@ make check             # lint, format check, all tests, 80% coverage gate
 | `tests/integration/needs/` | Support requests: exact budgets as strings (F01), invalid ranges per field (AC16), unknown money as null with a reason (AC17), exact line totals, status changes, versions, stale saves | Postgres |
 | `tests/unit/needs/` | Budget rules and when two ranges compare directly (AC18) | Nothing |
 | `tests/integration/funding/` | One raise with two invention links (AC19), proposed companies, target versions, exact amounts per field, no valuation fields, archived links, and the guard in all three compositions with reads kept (AC67) | Postgres |
+| `tests/integration/intake/` | Partner profiles with honest labels (AC22), closing intake against specific targets (AC23), external handoffs (AC24), separate opportunities (AC25), the availability table, versions, states, expiry, readiness, typed requirements, failure paths | Postgres |
+| `tests/unit/intake/` | Recipients A–E as data, requirement operators and value shapes, states and the availability table | Nothing |
 | `tests/integration/portfolio/` | Drafts, each publication rule, immutable versions (AC07–AC11), stale drafts, archive, public projection, outbox events | Postgres |
 | `tests/integration/access/` | Organizations, capabilities (AC04), hidden organizations (AC05), a removed member's job denied (AC06), invitations expired and revoked, stale context, last manager | Postgres |
 | `tests/integration/test_isolation.py` | Every data route called as an unrelated party returns `NOT_FOUND` or nothing; fails when a new route is not registered | Postgres |
@@ -113,5 +115,12 @@ Run one test with `uv run pytest tests/unit/health/test_health.py -v`, or match 
 | `POST /api/v1/funding-requests`, `GET /api/v1/funding-requests`, `GET /api/v1/funding-requests/{id}` | One raise for an existing or proposed company, owning its target and linking published invention versions |
 | `PUT /api/v1/funding-requests/{id}`, `GET /api/v1/funding-requests/{id}/versions/{n}` | Save as a new version against `expected_version`; earlier versions stay readable |
 | `POST /api/v1/funding-requests/{id}/{activate,pause,close}` | Status changes against `expected_version` (`Idempotency-Key`); activation needs a target and a linked invention |
+| `GET /api/v1/partners/{party_id}` | A partner profile as anyone signed in may read it: thesis apart from current availability, labelled by source; `NOT_FOUND` when there is none |
+| `PUT /api/v1/partners/{party_id}` | Save one's own profile (`Idempotency-Key`); `expected_version` is null only for the first save |
+| `POST /api/v1/partners/{party_id}/handoffs` | Record that the acting party followed an external route (`Idempotency-Key`); never a submitted pitch |
+| `POST /api/v1/opportunities`, `GET /api/v1/opportunities?partner_party_id=&limit=` | Start a draft (`Idempotency-Key`); list one's own, or another partner's that are not drafts, each with `target_availability` |
+| `GET /api/v1/opportunities/{id}`, `GET /api/v1/opportunities/{id}/versions/{n}` | The current version, or one version as it stood; others never reach a draft or an earlier version |
+| `PUT /api/v1/opportunities/{id}` | Save against `expected_version` (`Idempotency-Key`): a draft in place, a live one as the next version, current at once, if it passes the activation check |
+| `POST /api/v1/opportunities/{id}/{activate,pause,close}` | Status changes against `expected_version` (`Idempotency-Key`); activation needs a saved profile, the fields a partner must state, and a reason on every mandatory requirement |
 | `GET /api/v1/dev/mailbox?email=` | Development only: the codes and notes that would have been emailed |
 | `GET /api/v1/operations/{id}` | Whether the acting party's operation committed, for a client that lost the response |

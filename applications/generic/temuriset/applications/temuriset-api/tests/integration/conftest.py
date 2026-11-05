@@ -14,6 +14,7 @@ from app.core.settings import get_settings
 from app.main import app
 
 TABLES = (
+    "external_handoffs, requirements, opportunity_versions, opportunities, partner_profiles, "
     "funding_invention_links, funding_request_versions, funding_requests, legal_entities, "
     "project_budget_lines, project_budgets, support_request_versions, support_requests, "
     "download_events, document_grants, document_versions, upload_intents, documents, "

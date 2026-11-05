@@ -79,10 +79,11 @@ Created by the spec named. Every table has `id` (UUID), `created_at` and, when m
 | `legal_entities` | `name`, `jurisdiction`, `registration_ref`, `review_status` (`declared`, `reviewed`) | 014 |
 | `funding_requests` | `owner_party_id`, `subject_type` (`EXISTING_ENTITY`, `PROPOSED_ENTITY`), `legal_entity_id`, `financing_stage`, `financing_form`, `target_amount`, `currency`, `desired_min`, `desired_max`, `accepts_partial`, `intended_use`, `timing`, `status`; `legal_entity_id` required for `EXISTING_ENTITY` | 014 |
 | `funding_invention_links` | `funding_request_id`, `invention_version_id`; unique pair | 014 |
-| `partner_profiles` | `party_id` (unique), `subtype`, `thesis`, `sectors`, `stages`, `regions`, `support_forms`, `check_min`, `check_max`, `currency`, `intake_status` (`OPEN`, `CLOSED`, `UNCONFIRMED`), `source` (`OWNER_CONFIRMED`, `SOURCE_REPORTED`), `contact_route` (`IN_APP`, `EXTERNAL`, `NONE`), `external_url`, `general_intake_version_id` | 016 |
-| `opportunities` | `partner_party_id`, `status` (`DRAFT`, `ACTIVE`, `PAUSED`, `CLOSED`, `EXPIRED`), `current_version_id`, `closes_at` | 016 |
-| `opportunity_versions` | `opportunity_id`, `number`, `title`, `outcome`, `included`, `excluded`, `support`, `accepted_stages`, `relationship_forms`, `sectors`, `keywords`, `financial` JSONB, `timing` | 016 |
-| `requirements` | `opportunity_version_id`, `label`, `field`, `operator` (`equals`, `in_set`, `intersects`, `minimum`, `maximum`, `range_overlap`, `exists`, `manual_review`), `value` JSONB, `mandatory`, `applies_at` (`SUBMISSION`, `DISCUSSION`, `PILOT`, `COMMERCIALIZATION`), `verification_mode` (`DECLARATION`, `DOCUMENT_PRESENT`, `REVIEWER_CONFIRMED`), `reason` | 016 |
+| `partner_profiles` | `party_id` (unique), `subtype`, `thesis`, `sectors`, `stages`, `regions`, `support_forms`, `relationship_forms`, `review_expectations`, `check_min`, `check_max`, `currency`, `range_subject`, `range_basis`, `range_period`, `range_months`, `unknown_reason`, `intake_status` (`OPEN`, `CLOSED`, `UNCONFIRMED`), `intake_from`, `intake_until`, `source` (`OWNER_CONFIRMED`, `SOURCE_REPORTED`), `contact_route` (`IN_APP`, `EXTERNAL`, `NONE`), `external_url`, `general_intake_version_id` | 016 |
+| `opportunities` | `partner_party_id`, `kind` (`SPECIFIC`, `GENERAL_INTAKE`), `status` (`DRAFT`, `ACTIVE`, `PAUSED`, `CLOSED`, `EXPIRED`), `current_version_id`, `closes_at`; at most one open `GENERAL_INTAKE` per partner | 016 |
+| `opportunity_versions` | `opportunity_id`, `number`, `title`, `outcome`, `included`, `excluded`, `support`, `accepted_stages`, `relationship_forms`, `sectors`, `keywords`, `financial` JSONB (`subject`, `basis`, `min`, `max`, `currency`, `period`, `months`, `scope`, `noncash`, `terms`, `unknown_reason`), `timing` | 016 |
+| `requirements` | `opportunity_version_id`, `position`, `label`, `field`, `operator` (`equals`, `in_set`, `intersects`, `minimum`, `maximum`, `range_overlap`, `exists`, `manual_review`), `value` JSONB, `mandatory`, `applies_at` (`SUBMISSION`, `DISCUSSION`, `PILOT`, `COMMERCIALIZATION`), `verification_mode` (`DECLARATION`, `DOCUMENT_PRESENT`, `REVIEWER_CONFIRMED`), `visibility` (`PUBLIC`, `PARTNER_ONLY`), `reason`; `CHECK (NOT mandatory OR visibility = 'PUBLIC')` | 016 |
+| `external_handoffs` | `partner_party_id`, `actor_party_id`, `external_url`; append-only, and never a pitch | 016 |
 | `search_documents` | `subject_type`, `subject_id`, `version_id`, `title`, `body`, `tsv` (generated `tsvector`), `filters` JSONB, `published_at`, `curated`; GIN index | 018 |
 | `saved_items`, `relevance_feedback` | `party_id`, `subject_type`, `subject_id`; unique | 018 |
 | `match_runs` | `actor_party_id`, `source_type`, `source_id`, `source_version`, `engine`, `policy_versions`, `created_at` | 019 |
@@ -125,7 +126,7 @@ Deny by default, in one policy module, `app/access/service/policy.py`. A route a
 
 ### Versions and concurrency
 
-Every mutable aggregate has `version`. Mutations send `expected_version`; a mismatch returns `STALE_VERSION` with the current version and never overwrites. Published content is immutable: an edit creates a draft successor. Submissions freeze references to exact versions plus a JSONB snapshot of the facts shown, so history never changes when a profile does (AC08).
+Every mutable aggregate has `version`. Mutations send `expected_version`; a mismatch returns `STALE_VERSION` with the current version and never overwrites. A published invention is immutable: an edit creates a draft successor. Support requests, funding requests and opportunities have no draft successor: a save on a live one creates the next version, current at once, and earlier versions stay frozen. Submissions freeze references to exact versions plus a JSONB snapshot of the facts shown, so history never changes when a profile does (AC08).
 
 ### Idempotency and operations
 
@@ -162,6 +163,18 @@ Accepting a slot inserts a booking for every required party inside the request's
 ### Relationships
 
 A partnership version is identified by a checksum of its values and ceiling. Confirmations bind to that version, so a correction starts a new version with no confirmations. Public fields are computed on read: the intersection of both parties' subsets within the ceiling, minus restrictions. Narrowing appends a restriction and takes effect on the next read. EQUITY needs an identified legal entity and dated optional percentage permission.
+
+### Partner intake
+
+Mandates are changed with `edit_portfolio`, the only edit capability 007 defines. In an organization that is both inventor and partner, an invention editor can also publish a mandate, so review this when a second edit capability is justified.
+
+A profile has no draft state: others read it once it is saved. Others never reach a `DRAFT` opportunity or an earlier version, and read every other status of the current one. A save on an `ACTIVE` or `PAUSED` opportunity passes the same check as activation: a saved profile, every field a partner must state, and a reason on every mandatory requirement. `SOURCE_REPORTED` profiles are written only through `IntakeService.record_directory_profile`, so nobody can claim a source through the API. The first profile save sends a null `expected_version`, and the loser of two first saves gets `STALE_VERSION`.
+
+A cash range always states subject, basis and period, and a `total_period` range also states `months`, because `directly_comparable` compares months and not period text. `per_investment` extends the project budget's bases for one investor's check, with the period `per investasi`.
+
+A mandatory requirement is always `PUBLIC`, so no secret criterion can reject a pitch. A requirement with no operator is stored as a non-mandatory `narrative` `manual_review`.
+
+`IntakeService.target_availability` is the one answer to whether a pitch may target an opportunity, and 019 and 023 call it. Checks run in order, and the first that fails gives the reason: not `ACTIVE` is `TARGET_NOT_ACTIVE`, an `EXTERNAL` route is `EXTERNAL_ROUTE`, a `NONE` route is `NO_NEW_APPROACHES`. A general intake also needs direct intake open: `CLOSED` is `DIRECT_INTAKE_CLOSED`, and `UNCONFIRMED` or a date outside `intake_from` and `intake_until` is `INTAKE_UNCONFIRMED`. A specific opportunity ignores direct intake (AC23). An external route blocks in-app pitching and offers the handoff instead.
 
 ### Capabilities and compositions
 

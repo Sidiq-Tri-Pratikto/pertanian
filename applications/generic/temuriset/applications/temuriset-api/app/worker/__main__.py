@@ -4,6 +4,7 @@ import asyncio
 import signal
 
 import app.documents.service.jobs  # noqa: F401 - registers the document jobs
+import app.intake.service.jobs  # noqa: F401 - registers the expiry job
 from app.capabilities.service.configuration import validate_configuration
 from app.core.database import get_engine, get_session_factory
 from app.core.logging import setup_logging

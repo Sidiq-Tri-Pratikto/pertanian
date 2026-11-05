@@ -89,6 +89,80 @@
         "title": "AdapterResponse",
         "type": "object"
       },
+      "AvailabilityResponse": {
+        "description": "Current availability, kept apart from the general thesis and labelled with where it comes from.",
+        "properties": {
+          "current_intake_status": {
+            "enum": [
+              "OPEN",
+              "CLOSED",
+              "UNCONFIRMED"
+            ],
+            "title": "Current Intake Status",
+            "type": "string"
+          },
+          "intake_from": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Intake From"
+          },
+          "intake_status": {
+            "enum": [
+              "OPEN",
+              "CLOSED",
+              "UNCONFIRMED"
+            ],
+            "title": "Intake Status",
+            "type": "string"
+          },
+          "intake_until": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Intake Until"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "source": {
+            "enum": [
+              "OWNER_CONFIRMED",
+              "SOURCE_REPORTED"
+            ],
+            "title": "Source",
+            "type": "string"
+          },
+          "source_label": {
+            "title": "Source Label",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source",
+          "source_label",
+          "intake_status",
+          "current_intake_status",
+          "label",
+          "intake_from",
+          "intake_until"
+        ],
+        "title": "AvailabilityResponse",
+        "type": "object"
+      },
       "BudgetInput": {
         "description": "The cost range of the request. Leave min and max empty with a reason when it is not known yet.",
         "properties": {
@@ -787,6 +861,150 @@
         "title": "CreateInventionRequest",
         "type": "object"
       },
+      "CreateOpportunityRequest": {
+        "additionalProperties": false,
+        "description": "Start a draft for the acting party.",
+        "properties": {
+          "accepted_stages": {
+            "default": [],
+            "items": {
+              "enum": [
+                "IDEA",
+                "PROTOTYPE",
+                "PILOT",
+                "WORKING",
+                "MARKET"
+              ],
+              "type": "string"
+            },
+            "maxItems": 5,
+            "title": "Accepted Stages",
+            "type": "array"
+          },
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "closes_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Closes At"
+          },
+          "excluded": {
+            "default": "",
+            "maxLength": 2000,
+            "title": "Excluded",
+            "type": "string"
+          },
+          "financial": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FinancialInput"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "included": {
+            "default": "",
+            "maxLength": 2000,
+            "title": "Included",
+            "type": "string"
+          },
+          "keywords": {
+            "default": [],
+            "items": {
+              "maxLength": 120,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 50,
+            "title": "Keywords",
+            "type": "array"
+          },
+          "kind": {
+            "default": "SPECIFIC",
+            "enum": [
+              "SPECIFIC",
+              "GENERAL_INTAKE"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "outcome": {
+            "default": "",
+            "maxLength": 2000,
+            "title": "Outcome",
+            "type": "string"
+          },
+          "relationship_forms": {
+            "default": [],
+            "items": {
+              "enum": [
+                "PROJECT",
+                "LICENSE",
+                "EQUITY"
+              ],
+              "type": "string"
+            },
+            "maxItems": 3,
+            "title": "Relationship Forms",
+            "type": "array"
+          },
+          "requirements": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/RequirementInput"
+            },
+            "maxItems": 50,
+            "title": "Requirements",
+            "type": "array"
+          },
+          "sectors": {
+            "default": [],
+            "items": {
+              "maxLength": 120,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 30,
+            "title": "Sectors",
+            "type": "array"
+          },
+          "support": {
+            "default": "",
+            "maxLength": 2000,
+            "title": "Support",
+            "type": "string"
+          },
+          "timing": {
+            "default": "",
+            "maxLength": 500,
+            "title": "Timing",
+            "type": "string"
+          },
+          "title": {
+            "default": "",
+            "maxLength": 200,
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "acting_party_id"
+        ],
+        "title": "CreateOpportunityRequest",
+        "type": "object"
+      },
       "CreateOrganizationRequest": {
         "description": "Create an organization; the creator becomes a member with every capability.",
         "properties": {
@@ -1433,6 +1651,250 @@
         "title": "FactResponse",
         "type": "object"
       },
+      "FinancialInput": {
+        "additionalProperties": false,
+        "description": "What an opportunity offers: a comparable range, non-cash support, license terms, or an explained unknown.",
+        "properties": {
+          "basis": {
+            "anyOf": [
+              {
+                "enum": [
+                  "total_period",
+                  "monthly",
+                  "yearly"
+                ],
+                "type": "string"
+              },
+              {
+                "const": "per_investment",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Basis"
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "pattern": "^[A-Z]{3}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency"
+          },
+          "max": {
+            "anyOf": [
+              {
+                "maxLength": 24,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max"
+          },
+          "min": {
+            "anyOf": [
+              {
+                "maxLength": 24,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min"
+          },
+          "months": {
+            "anyOf": [
+              {
+                "maximum": 120.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Months"
+          },
+          "noncash": {
+            "default": "",
+            "maxLength": 500,
+            "title": "Noncash",
+            "type": "string"
+          },
+          "period": {
+            "default": "",
+            "maxLength": 80,
+            "title": "Period",
+            "type": "string"
+          },
+          "scope": {
+            "default": "",
+            "maxLength": 2000,
+            "title": "Scope",
+            "type": "string"
+          },
+          "subject": {
+            "default": "partner",
+            "enum": [
+              "partner",
+              "investorCheck",
+              "license"
+            ],
+            "title": "Subject",
+            "type": "string"
+          },
+          "terms": {
+            "default": "",
+            "maxLength": 500,
+            "title": "Terms",
+            "type": "string"
+          },
+          "unknown_reason": {
+            "anyOf": [
+              {
+                "enum": [
+                  "not_determined",
+                  "not_disclosed"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unknown Reason"
+          }
+        },
+        "title": "FinancialInput",
+        "type": "object"
+      },
+      "FinancialResponse": {
+        "description": "A stored financial basis, with amounts as decimal strings.",
+        "properties": {
+          "basis": {
+            "anyOf": [
+              {
+                "enum": [
+                  "total_period",
+                  "monthly",
+                  "yearly"
+                ],
+                "type": "string"
+              },
+              {
+                "const": "per_investment",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Basis"
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency"
+          },
+          "max": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max"
+          },
+          "min": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min"
+          },
+          "months": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Months"
+          },
+          "noncash": {
+            "default": "",
+            "title": "Noncash",
+            "type": "string"
+          },
+          "period": {
+            "default": "",
+            "title": "Period",
+            "type": "string"
+          },
+          "scope": {
+            "default": "",
+            "title": "Scope",
+            "type": "string"
+          },
+          "subject": {
+            "enum": [
+              "partner",
+              "investorCheck",
+              "license"
+            ],
+            "title": "Subject",
+            "type": "string"
+          },
+          "terms": {
+            "default": "",
+            "title": "Terms",
+            "type": "string"
+          },
+          "unknown_reason": {
+            "anyOf": [
+              {
+                "enum": [
+                  "not_determined",
+                  "not_disclosed"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unknown Reason"
+          }
+        },
+        "required": [
+          "subject"
+        ],
+        "title": "FinancialResponse",
+        "type": "object"
+      },
       "FundingRequestInput": {
         "additionalProperties": false,
         "description": "A raise's content. A draft may be incomplete; activation needs a target, a currency and an invention.",
@@ -1875,6 +2337,50 @@
           "downloads"
         ],
         "title": "GrantResponse",
+        "type": "object"
+      },
+      "HandoffResponse": {
+        "description": "An external handoff. It is never a submitted or accepted pitch.",
+        "properties": {
+          "external_url": {
+            "title": "External Url",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "operation_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operation Id"
+          },
+          "partner_party_id": {
+            "format": "uuid",
+            "title": "Partner Party Id",
+            "type": "string"
+          },
+          "submitted": {
+            "const": false,
+            "default": false,
+            "title": "Submitted",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "partner_party_id",
+          "external_url"
+        ],
+        "title": "HandoffResponse",
         "type": "object"
       },
       "InventionResponse": {
@@ -2523,6 +3029,344 @@
         "title": "OperationStatus",
         "type": "string"
       },
+      "OpportunityResponse": {
+        "description": "An opportunity and its current version. ``version`` is for ``expected_version``; ``number`` names the content.",
+        "properties": {
+          "accepted_stages": {
+            "items": {
+              "enum": [
+                "IDEA",
+                "PROTOTYPE",
+                "PILOT",
+                "WORKING",
+                "MARKET"
+              ],
+              "type": "string"
+            },
+            "title": "Accepted Stages",
+            "type": "array"
+          },
+          "closes_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Closes At"
+          },
+          "excluded": {
+            "title": "Excluded",
+            "type": "string"
+          },
+          "financial": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FinancialResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "general_intake_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "General Intake Label"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "included": {
+            "title": "Included",
+            "type": "string"
+          },
+          "keywords": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Keywords",
+            "type": "array"
+          },
+          "kind": {
+            "enum": [
+              "SPECIFIC",
+              "GENERAL_INTAKE"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "number": {
+            "title": "Number",
+            "type": "integer"
+          },
+          "operation_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operation Id"
+          },
+          "outcome": {
+            "title": "Outcome",
+            "type": "string"
+          },
+          "partner_party_id": {
+            "format": "uuid",
+            "title": "Partner Party Id",
+            "type": "string"
+          },
+          "relationship_forms": {
+            "items": {
+              "enum": [
+                "PROJECT",
+                "LICENSE",
+                "EQUITY"
+              ],
+              "type": "string"
+            },
+            "title": "Relationship Forms",
+            "type": "array"
+          },
+          "requirements": {
+            "items": {
+              "$ref": "#/components/schemas/RequirementResponse"
+            },
+            "title": "Requirements",
+            "type": "array"
+          },
+          "sectors": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Sectors",
+            "type": "array"
+          },
+          "status": {
+            "enum": [
+              "DRAFT",
+              "ACTIVE",
+              "PAUSED",
+              "CLOSED",
+              "EXPIRED"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "support": {
+            "title": "Support",
+            "type": "string"
+          },
+          "target_availability": {
+            "$ref": "#/components/schemas/TargetAvailabilityResponse"
+          },
+          "timing": {
+            "title": "Timing",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "number",
+          "title",
+          "outcome",
+          "included",
+          "excluded",
+          "support",
+          "accepted_stages",
+          "relationship_forms",
+          "sectors",
+          "keywords",
+          "timing",
+          "financial",
+          "requirements",
+          "id",
+          "partner_party_id",
+          "version",
+          "kind",
+          "status",
+          "closes_at",
+          "target_availability",
+          "general_intake_label"
+        ],
+        "title": "OpportunityResponse",
+        "type": "object"
+      },
+      "OpportunityTransitionRequest": {
+        "additionalProperties": false,
+        "description": "Activate, pause or close against the version the client saw.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "expected_version": {
+            "title": "Expected Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "expected_version"
+        ],
+        "title": "OpportunityTransitionRequest",
+        "type": "object"
+      },
+      "OpportunityVersionResponse": {
+        "description": "One version as it stood. A pitch keeps pointing at the version it targeted.",
+        "properties": {
+          "accepted_stages": {
+            "items": {
+              "enum": [
+                "IDEA",
+                "PROTOTYPE",
+                "PILOT",
+                "WORKING",
+                "MARKET"
+              ],
+              "type": "string"
+            },
+            "title": "Accepted Stages",
+            "type": "array"
+          },
+          "excluded": {
+            "title": "Excluded",
+            "type": "string"
+          },
+          "financial": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FinancialResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "included": {
+            "title": "Included",
+            "type": "string"
+          },
+          "keywords": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Keywords",
+            "type": "array"
+          },
+          "number": {
+            "title": "Number",
+            "type": "integer"
+          },
+          "opportunity_id": {
+            "format": "uuid",
+            "title": "Opportunity Id",
+            "type": "string"
+          },
+          "outcome": {
+            "title": "Outcome",
+            "type": "string"
+          },
+          "relationship_forms": {
+            "items": {
+              "enum": [
+                "PROJECT",
+                "LICENSE",
+                "EQUITY"
+              ],
+              "type": "string"
+            },
+            "title": "Relationship Forms",
+            "type": "array"
+          },
+          "requirements": {
+            "items": {
+              "$ref": "#/components/schemas/RequirementResponse"
+            },
+            "title": "Requirements",
+            "type": "array"
+          },
+          "sectors": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Sectors",
+            "type": "array"
+          },
+          "status": {
+            "enum": [
+              "DRAFT",
+              "ACTIVE",
+              "PAUSED",
+              "CLOSED",
+              "EXPIRED"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "support": {
+            "title": "Support",
+            "type": "string"
+          },
+          "timing": {
+            "title": "Timing",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "number",
+          "title",
+          "outcome",
+          "included",
+          "excluded",
+          "support",
+          "accepted_stages",
+          "relationship_forms",
+          "sectors",
+          "keywords",
+          "timing",
+          "financial",
+          "requirements",
+          "id",
+          "opportunity_id",
+          "status"
+        ],
+        "title": "OpportunityVersionResponse",
+        "type": "object"
+      },
       "OrganizationResponse": {
         "description": "One organization.",
         "properties": {
@@ -2569,6 +3413,147 @@
           "version"
         ],
         "title": "OrganizationResponse",
+        "type": "object"
+      },
+      "PartnerProfileResponse": {
+        "description": "A partner profile as anyone signed in may read it.",
+        "properties": {
+          "availability": {
+            "$ref": "#/components/schemas/AvailabilityResponse"
+          },
+          "check_range": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RangeResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "contact_route": {
+            "enum": [
+              "IN_APP",
+              "EXTERNAL",
+              "NONE"
+            ],
+            "title": "Contact Route",
+            "type": "string"
+          },
+          "external_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "External Url"
+          },
+          "operation_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operation Id"
+          },
+          "party_id": {
+            "format": "uuid",
+            "title": "Party Id",
+            "type": "string"
+          },
+          "party_name": {
+            "title": "Party Name",
+            "type": "string"
+          },
+          "regions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Regions",
+            "type": "array"
+          },
+          "relationship_forms": {
+            "items": {
+              "enum": [
+                "PROJECT",
+                "LICENSE",
+                "EQUITY"
+              ],
+              "type": "string"
+            },
+            "title": "Relationship Forms",
+            "type": "array"
+          },
+          "review_expectations": {
+            "title": "Review Expectations",
+            "type": "string"
+          },
+          "sectors": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Sectors",
+            "type": "array"
+          },
+          "stages": {
+            "items": {
+              "enum": [
+                "IDEA",
+                "PROTOTYPE",
+                "PILOT",
+                "WORKING",
+                "MARKET"
+              ],
+              "type": "string"
+            },
+            "title": "Stages",
+            "type": "array"
+          },
+          "subtype": {
+            "title": "Subtype",
+            "type": "string"
+          },
+          "support_forms": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Support Forms",
+            "type": "array"
+          },
+          "thesis": {
+            "title": "Thesis",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "party_id",
+          "party_name",
+          "version",
+          "subtype",
+          "thesis",
+          "sectors",
+          "stages",
+          "regions",
+          "support_forms",
+          "relationship_forms",
+          "review_expectations",
+          "check_range",
+          "availability",
+          "contact_route",
+          "external_url"
+        ],
+        "title": "PartnerProfileResponse",
         "type": "object"
       },
       "PolicyResponse": {
@@ -2837,6 +3822,239 @@
         "title": "PublishResponse",
         "type": "object"
       },
+      "RangeInput": {
+        "additionalProperties": false,
+        "description": "An amount range and what it means. Leave min and max empty with a reason when it is not known.",
+        "properties": {
+          "basis": {
+            "anyOf": [
+              {
+                "enum": [
+                  "total_period",
+                  "monthly",
+                  "yearly"
+                ],
+                "type": "string"
+              },
+              {
+                "const": "per_investment",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Basis"
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "pattern": "^[A-Z]{3}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency"
+          },
+          "max": {
+            "anyOf": [
+              {
+                "maxLength": 24,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max"
+          },
+          "min": {
+            "anyOf": [
+              {
+                "maxLength": 24,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min"
+          },
+          "months": {
+            "anyOf": [
+              {
+                "maximum": 120.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Months"
+          },
+          "period": {
+            "default": "",
+            "maxLength": 80,
+            "title": "Period",
+            "type": "string"
+          },
+          "subject": {
+            "default": "partner",
+            "enum": [
+              "partner",
+              "investorCheck",
+              "license"
+            ],
+            "title": "Subject",
+            "type": "string"
+          },
+          "unknown_reason": {
+            "anyOf": [
+              {
+                "enum": [
+                  "not_determined",
+                  "not_disclosed"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unknown Reason"
+          }
+        },
+        "title": "RangeInput",
+        "type": "object"
+      },
+      "RangeResponse": {
+        "description": "A stored range. Unknown money is ``null`` with ``unknown_reason``, never zero.",
+        "properties": {
+          "basis": {
+            "anyOf": [
+              {
+                "enum": [
+                  "total_period",
+                  "monthly",
+                  "yearly"
+                ],
+                "type": "string"
+              },
+              {
+                "const": "per_investment",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Basis"
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency"
+          },
+          "max": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max"
+          },
+          "min": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min"
+          },
+          "months": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Months"
+          },
+          "period": {
+            "title": "Period",
+            "type": "string"
+          },
+          "subject": {
+            "enum": [
+              "partner",
+              "investorCheck",
+              "license"
+            ],
+            "title": "Subject",
+            "type": "string"
+          },
+          "unknown_reason": {
+            "anyOf": [
+              {
+                "enum": [
+                  "not_determined",
+                  "not_disclosed"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unknown Reason"
+          }
+        },
+        "required": [
+          "subject",
+          "basis",
+          "min",
+          "max",
+          "currency",
+          "period",
+          "months",
+          "unknown_reason"
+        ],
+        "title": "RangeResponse",
+        "type": "object"
+      },
+      "RecordHandoffRequest": {
+        "additionalProperties": false,
+        "description": "Record that the acting party followed a partner's external route.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "acting_party_id"
+        ],
+        "title": "RecordHandoffRequest",
+        "type": "object"
+      },
       "RemoveMemberRequest": {
         "description": "Remove a member, acting as the organization.",
         "properties": {
@@ -2855,6 +4073,189 @@
           "expected_version"
         ],
         "title": "RemoveMemberRequest",
+        "type": "object"
+      },
+      "RequirementInput": {
+        "additionalProperties": false,
+        "description": "One requirement. With no operator it is a narrative review question and can never block a pitch.",
+        "properties": {
+          "applies_at": {
+            "default": "SUBMISSION",
+            "enum": [
+              "SUBMISSION",
+              "DISCUSSION",
+              "PILOT",
+              "COMMERCIALIZATION"
+            ],
+            "title": "Applies At",
+            "type": "string"
+          },
+          "field": {
+            "anyOf": [
+              {
+                "maxLength": 80,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Field"
+          },
+          "label": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Label",
+            "type": "string"
+          },
+          "mandatory": {
+            "default": true,
+            "title": "Mandatory",
+            "type": "boolean"
+          },
+          "operator": {
+            "anyOf": [
+              {
+                "enum": [
+                  "equals",
+                  "in_set",
+                  "intersects",
+                  "minimum",
+                  "maximum",
+                  "range_overlap",
+                  "exists",
+                  "manual_review"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operator"
+          },
+          "reason": {
+            "default": "",
+            "maxLength": 1000,
+            "title": "Reason",
+            "type": "string"
+          },
+          "value": {
+            "title": "Value"
+          },
+          "verification_mode": {
+            "default": "DECLARATION",
+            "enum": [
+              "DECLARATION",
+              "DOCUMENT_PRESENT",
+              "REVIEWER_CONFIRMED"
+            ],
+            "title": "Verification Mode",
+            "type": "string"
+          },
+          "visibility": {
+            "default": "PUBLIC",
+            "enum": [
+              "PUBLIC",
+              "PARTNER_ONLY"
+            ],
+            "title": "Visibility",
+            "type": "string"
+          }
+        },
+        "required": [
+          "label"
+        ],
+        "title": "RequirementInput",
+        "type": "object"
+      },
+      "RequirementResponse": {
+        "description": "A stored requirement. ``version`` is the number of the opportunity version it belongs to.",
+        "properties": {
+          "applies_at": {
+            "enum": [
+              "SUBMISSION",
+              "DISCUSSION",
+              "PILOT",
+              "COMMERCIALIZATION"
+            ],
+            "title": "Applies At",
+            "type": "string"
+          },
+          "field": {
+            "title": "Field",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "mandatory": {
+            "title": "Mandatory",
+            "type": "boolean"
+          },
+          "operator": {
+            "enum": [
+              "equals",
+              "in_set",
+              "intersects",
+              "minimum",
+              "maximum",
+              "range_overlap",
+              "exists",
+              "manual_review"
+            ],
+            "title": "Operator",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "value": {
+            "title": "Value"
+          },
+          "verification_mode": {
+            "enum": [
+              "DECLARATION",
+              "DOCUMENT_PRESENT",
+              "REVIEWER_CONFIRMED"
+            ],
+            "title": "Verification Mode",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          },
+          "visibility": {
+            "enum": [
+              "PUBLIC",
+              "PARTNER_ONLY"
+            ],
+            "title": "Visibility",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "field",
+          "operator",
+          "value",
+          "mandatory",
+          "applies_at",
+          "verification_mode",
+          "visibility",
+          "reason",
+          "version"
+        ],
+        "title": "RequirementResponse",
         "type": "object"
       },
       "RevokeRequest": {
@@ -2894,6 +4295,321 @@
           "message"
         ],
         "title": "RevokedResponse",
+        "type": "object"
+      },
+      "SaveOpportunityRequest": {
+        "additionalProperties": false,
+        "description": "Replace the content against the version the client saw.",
+        "properties": {
+          "accepted_stages": {
+            "default": [],
+            "items": {
+              "enum": [
+                "IDEA",
+                "PROTOTYPE",
+                "PILOT",
+                "WORKING",
+                "MARKET"
+              ],
+              "type": "string"
+            },
+            "maxItems": 5,
+            "title": "Accepted Stages",
+            "type": "array"
+          },
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "closes_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Closes At"
+          },
+          "excluded": {
+            "default": "",
+            "maxLength": 2000,
+            "title": "Excluded",
+            "type": "string"
+          },
+          "expected_version": {
+            "title": "Expected Version",
+            "type": "integer"
+          },
+          "financial": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FinancialInput"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "included": {
+            "default": "",
+            "maxLength": 2000,
+            "title": "Included",
+            "type": "string"
+          },
+          "keywords": {
+            "default": [],
+            "items": {
+              "maxLength": 120,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 50,
+            "title": "Keywords",
+            "type": "array"
+          },
+          "outcome": {
+            "default": "",
+            "maxLength": 2000,
+            "title": "Outcome",
+            "type": "string"
+          },
+          "relationship_forms": {
+            "default": [],
+            "items": {
+              "enum": [
+                "PROJECT",
+                "LICENSE",
+                "EQUITY"
+              ],
+              "type": "string"
+            },
+            "maxItems": 3,
+            "title": "Relationship Forms",
+            "type": "array"
+          },
+          "requirements": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/RequirementInput"
+            },
+            "maxItems": 50,
+            "title": "Requirements",
+            "type": "array"
+          },
+          "sectors": {
+            "default": [],
+            "items": {
+              "maxLength": 120,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 30,
+            "title": "Sectors",
+            "type": "array"
+          },
+          "support": {
+            "default": "",
+            "maxLength": 2000,
+            "title": "Support",
+            "type": "string"
+          },
+          "timing": {
+            "default": "",
+            "maxLength": 500,
+            "title": "Timing",
+            "type": "string"
+          },
+          "title": {
+            "default": "",
+            "maxLength": 200,
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "expected_version"
+        ],
+        "title": "SaveOpportunityRequest",
+        "type": "object"
+      },
+      "SavePartnerProfileRequest": {
+        "additionalProperties": false,
+        "description": "Save one's own profile. ``expected_version`` is null only for the first save.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "check_range": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RangeInput"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "contact_route": {
+            "default": "IN_APP",
+            "enum": [
+              "IN_APP",
+              "EXTERNAL",
+              "NONE"
+            ],
+            "title": "Contact Route",
+            "type": "string"
+          },
+          "expected_version": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Version"
+          },
+          "external_url": {
+            "anyOf": [
+              {
+                "format": "uri",
+                "maxLength": 2000,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "External Url"
+          },
+          "intake_from": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Intake From"
+          },
+          "intake_status": {
+            "default": "OPEN",
+            "enum": [
+              "OPEN",
+              "CLOSED"
+            ],
+            "title": "Intake Status",
+            "type": "string"
+          },
+          "intake_until": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Intake Until"
+          },
+          "regions": {
+            "default": [],
+            "items": {
+              "maxLength": 120,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 30,
+            "title": "Regions",
+            "type": "array"
+          },
+          "relationship_forms": {
+            "default": [],
+            "items": {
+              "enum": [
+                "PROJECT",
+                "LICENSE",
+                "EQUITY"
+              ],
+              "type": "string"
+            },
+            "maxItems": 3,
+            "title": "Relationship Forms",
+            "type": "array"
+          },
+          "review_expectations": {
+            "default": "",
+            "maxLength": 2000,
+            "title": "Review Expectations",
+            "type": "string"
+          },
+          "sectors": {
+            "default": [],
+            "items": {
+              "maxLength": 120,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 30,
+            "title": "Sectors",
+            "type": "array"
+          },
+          "stages": {
+            "default": [],
+            "items": {
+              "enum": [
+                "IDEA",
+                "PROTOTYPE",
+                "PILOT",
+                "WORKING",
+                "MARKET"
+              ],
+              "type": "string"
+            },
+            "maxItems": 5,
+            "title": "Stages",
+            "type": "array"
+          },
+          "subtype": {
+            "default": "",
+            "maxLength": 120,
+            "title": "Subtype",
+            "type": "string"
+          },
+          "support_forms": {
+            "default": [],
+            "items": {
+              "maxLength": 120,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 30,
+            "title": "Support Forms",
+            "type": "array"
+          },
+          "thesis": {
+            "default": "",
+            "maxLength": 2000,
+            "title": "Thesis",
+            "type": "string"
+          }
+        },
+        "required": [
+          "acting_party_id"
+        ],
+        "title": "SavePartnerProfileRequest",
         "type": "object"
       },
       "SupportRequestResponse": {
@@ -3017,6 +4733,39 @@
           "budget"
         ],
         "title": "SupportRequestResponse",
+        "type": "object"
+      },
+      "TargetAvailabilityResponse": {
+        "description": "Whether a pitch may target this now, and why not when it may not.",
+        "properties": {
+          "available": {
+            "title": "Available",
+            "type": "boolean"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "enum": [
+                  "TARGET_NOT_ACTIVE",
+                  "EXTERNAL_ROUTE",
+                  "NO_NEW_APPROACHES",
+                  "DIRECT_INTAKE_CLOSED",
+                  "INTAKE_UNCONFIRMED"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          }
+        },
+        "required": [
+          "available",
+          "reason"
+        ],
+        "title": "TargetAvailabilityResponse",
         "type": "object"
       },
       "TransitionRequest": {
@@ -5436,6 +7185,504 @@
         ]
       }
     },
+    "/api/v1/opportunities": {
+      "get": {
+        "description": "List the acting party's opportunities, or what another partner has made visible.\n\nArgs:\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    partner_party_id (UUID | None, optional): Another partner. Defaults to None.\n    limit (Limit, optional): The most to return. Defaults to 100.\n\nReturns:\n    list[OpportunityResponse]: Opportunities.",
+        "operationId": "list_opportunities_api_v1_opportunities_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "partner_party_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Partner Party Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/OpportunityResponse"
+                  },
+                  "title": "Response List Opportunities Api V1 Opportunities Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "List opportunities",
+        "tags": [
+          "partner intake"
+        ]
+      },
+      "post": {
+        "description": "Start a draft for the acting party.\n\nArgs:\n    body (CreateOpportunityRequest): Kind and content.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    OpportunityResponse: The draft.",
+        "operationId": "create_opportunity_api_v1_opportunities_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOpportunityRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpportunityResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Start an opportunity",
+        "tags": [
+          "partner intake"
+        ]
+      }
+    },
+    "/api/v1/opportunities/{opportunity_id}": {
+      "get": {
+        "description": "Read an opportunity with its current version.\n\nArgs:\n    opportunity_id (UUID): The opportunity.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    OpportunityResponse: The opportunity.",
+        "operationId": "read_opportunity_api_v1_opportunities__opportunity_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "opportunity_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Opportunity Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpportunityResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Read an opportunity",
+        "tags": [
+          "partner intake"
+        ]
+      },
+      "put": {
+        "description": "Save the content: a draft in place, a live opportunity as the next version, current at once.\n\nArgs:\n    opportunity_id (UUID): The opportunity.\n    body (SaveOpportunityRequest): Content and ``expected_version``.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried save.\n\nReturns:\n    OpportunityResponse: The opportunity with its new content.",
+        "operationId": "save_opportunity_api_v1_opportunities__opportunity_id__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "opportunity_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Opportunity Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveOpportunityRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpportunityResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Change an opportunity",
+        "tags": [
+          "partner intake"
+        ]
+      }
+    },
+    "/api/v1/opportunities/{opportunity_id}/activate": {
+      "post": {
+        "description": "Move to ACTIVE from DRAFT or PAUSED; going live needs a profile and everything a partner must state.\n\nArgs:\n    opportunity_id (UUID): The opportunity.\n    body (OpportunityTransitionRequest): Acting party and ``expected_version``.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    OpportunityResponse: The opportunity in its new status.",
+        "operationId": "activate_opportunity_api_v1_opportunities__opportunity_id__activate_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "opportunity_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Opportunity Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OpportunityTransitionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpportunityResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Activate an opportunity",
+        "tags": [
+          "partner intake"
+        ]
+      }
+    },
+    "/api/v1/opportunities/{opportunity_id}/close": {
+      "post": {
+        "description": "Move to CLOSED from DRAFT, ACTIVE or PAUSED. New pitches stop; nothing is invented for existing ones.\n\nArgs:\n    opportunity_id (UUID): The opportunity.\n    body (OpportunityTransitionRequest): Acting party and ``expected_version``.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    OpportunityResponse: The opportunity in its new status.",
+        "operationId": "close_opportunity_api_v1_opportunities__opportunity_id__close_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "opportunity_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Opportunity Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OpportunityTransitionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpportunityResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Close an opportunity",
+        "tags": [
+          "partner intake"
+        ]
+      }
+    },
+    "/api/v1/opportunities/{opportunity_id}/pause": {
+      "post": {
+        "description": "Move from ACTIVE to PAUSED.\n\nArgs:\n    opportunity_id (UUID): The opportunity.\n    body (OpportunityTransitionRequest): Acting party and ``expected_version``.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    OpportunityResponse: The opportunity in its new status.",
+        "operationId": "pause_opportunity_api_v1_opportunities__opportunity_id__pause_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "opportunity_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Opportunity Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OpportunityTransitionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpportunityResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Pause an opportunity",
+        "tags": [
+          "partner intake"
+        ]
+      }
+    },
+    "/api/v1/opportunities/{opportunity_id}/versions/{number}": {
+      "get": {
+        "description": "Read one version as it stood.\n\nArgs:\n    opportunity_id (UUID): The opportunity.\n    number (int): The version number.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    OpportunityVersionResponse: The version.",
+        "operationId": "read_opportunity_version_api_v1_opportunities__opportunity_id__versions__number__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "opportunity_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Opportunity Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "number",
+            "required": true,
+            "schema": {
+              "title": "Number",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpportunityVersionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Read one version of an opportunity",
+        "tags": [
+          "partner intake"
+        ]
+      }
+    },
     "/api/v1/organizations": {
       "post": {
         "description": "Create an organization; the creator becomes a member with every capability.\n\nArgs:\n    body (CreateOrganizationRequest): Name and kind.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    OrganizationResponse: The organization and its party.",
@@ -5730,6 +7977,186 @@
         "summary": "Remove a member",
         "tags": [
           "organizations"
+        ]
+      }
+    },
+    "/api/v1/partners/{party_id}": {
+      "get": {
+        "description": "Read what a partner states about itself, as anyone signed in may see it.\n\nArgs:\n    party_id (UUID): The party.\n    _ (PrincipalDep): Any signed-in account.\n    session (SessionDep): Database session.\n\nReturns:\n    PartnerProfileResponse: The profile.",
+        "operationId": "read_partner_api_v1_partners__party_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "party_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Party Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartnerProfileResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Read a partner profile",
+        "tags": [
+          "partner intake"
+        ]
+      },
+      "put": {
+        "description": "Create or replace the profile. ``expected_version`` is null only for the first save.\n\nArgs:\n    party_id (UUID): The party.\n    body (SavePartnerProfileRequest): Content and ``expected_version``.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried save.\n\nReturns:\n    PartnerProfileResponse: The saved profile.",
+        "operationId": "save_partner_api_v1_partners__party_id__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "party_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Party Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SavePartnerProfileRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartnerProfileResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Save one's own partner profile",
+        "tags": [
+          "partner intake"
+        ]
+      }
+    },
+    "/api/v1/partners/{party_id}/handoffs": {
+      "post": {
+        "description": "Record that the acting party followed a partner's external route. This is never a submitted pitch.\n\nArgs:\n    party_id (UUID): The partner.\n    body (RecordHandoffRequest): The acting party.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried click.\n\nReturns:\n    HandoffResponse: The handoff, with the address to open.",
+        "operationId": "record_handoff_api_v1_partners__party_id__handoffs_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "party_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Party Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecordHandoffRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HandoffResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Follow an external route",
+        "tags": [
+          "partner intake"
         ]
       }
     },

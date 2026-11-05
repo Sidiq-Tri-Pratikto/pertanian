@@ -947,6 +947,209 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/opportunities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List opportunities
+         * @description List the acting party's opportunities, or what another partner has made visible.
+         *
+         *     Args:
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         partner_party_id (UUID | None, optional): Another partner. Defaults to None.
+         *         limit (Limit, optional): The most to return. Defaults to 100.
+         *
+         *     Returns:
+         *         list[OpportunityResponse]: Opportunities.
+         */
+        get: operations["list_opportunities_api_v1_opportunities_get"];
+        put?: never;
+        /**
+         * Start an opportunity
+         * @description Start a draft for the acting party.
+         *
+         *     Args:
+         *         body (CreateOpportunityRequest): Kind and content.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         OpportunityResponse: The draft.
+         */
+        post: operations["create_opportunity_api_v1_opportunities_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/opportunities/{opportunity_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read an opportunity
+         * @description Read an opportunity with its current version.
+         *
+         *     Args:
+         *         opportunity_id (UUID): The opportunity.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         OpportunityResponse: The opportunity.
+         */
+        get: operations["read_opportunity_api_v1_opportunities__opportunity_id__get"];
+        /**
+         * Change an opportunity
+         * @description Save the content: a draft in place, a live opportunity as the next version, current at once.
+         *
+         *     Args:
+         *         opportunity_id (UUID): The opportunity.
+         *         body (SaveOpportunityRequest): Content and ``expected_version``.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried save.
+         *
+         *     Returns:
+         *         OpportunityResponse: The opportunity with its new content.
+         */
+        put: operations["save_opportunity_api_v1_opportunities__opportunity_id__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/opportunities/{opportunity_id}/activate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Activate an opportunity
+         * @description Move to ACTIVE from DRAFT or PAUSED; going live needs a profile and everything a partner must state.
+         *
+         *     Args:
+         *         opportunity_id (UUID): The opportunity.
+         *         body (OpportunityTransitionRequest): Acting party and ``expected_version``.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         OpportunityResponse: The opportunity in its new status.
+         */
+        post: operations["activate_opportunity_api_v1_opportunities__opportunity_id__activate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/opportunities/{opportunity_id}/close": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Close an opportunity
+         * @description Move to CLOSED from DRAFT, ACTIVE or PAUSED. New pitches stop; nothing is invented for existing ones.
+         *
+         *     Args:
+         *         opportunity_id (UUID): The opportunity.
+         *         body (OpportunityTransitionRequest): Acting party and ``expected_version``.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         OpportunityResponse: The opportunity in its new status.
+         */
+        post: operations["close_opportunity_api_v1_opportunities__opportunity_id__close_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/opportunities/{opportunity_id}/pause": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Pause an opportunity
+         * @description Move from ACTIVE to PAUSED.
+         *
+         *     Args:
+         *         opportunity_id (UUID): The opportunity.
+         *         body (OpportunityTransitionRequest): Acting party and ``expected_version``.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         OpportunityResponse: The opportunity in its new status.
+         */
+        post: operations["pause_opportunity_api_v1_opportunities__opportunity_id__pause_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/opportunities/{opportunity_id}/versions/{number}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read one version of an opportunity
+         * @description Read one version as it stood.
+         *
+         *     Args:
+         *         opportunity_id (UUID): The opportunity.
+         *         number (int): The version number.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         OpportunityVersionResponse: The version.
+         */
+        get: operations["read_opportunity_version_api_v1_opportunities__opportunity_id__versions__number__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/organizations": {
         parameters: {
             query?: never;
@@ -1068,6 +1271,78 @@ export interface paths {
          *         session (SessionDep): Database session.
          */
         delete: operations["remove_member_api_v1_organizations__organization_id__members__account_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/partners/{party_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read a partner profile
+         * @description Read what a partner states about itself, as anyone signed in may see it.
+         *
+         *     Args:
+         *         party_id (UUID): The party.
+         *         _ (PrincipalDep): Any signed-in account.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         PartnerProfileResponse: The profile.
+         */
+        get: operations["read_partner_api_v1_partners__party_id__get"];
+        /**
+         * Save one's own partner profile
+         * @description Create or replace the profile. ``expected_version`` is null only for the first save.
+         *
+         *     Args:
+         *         party_id (UUID): The party.
+         *         body (SavePartnerProfileRequest): Content and ``expected_version``.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried save.
+         *
+         *     Returns:
+         *         PartnerProfileResponse: The saved profile.
+         */
+        put: operations["save_partner_api_v1_partners__party_id__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/partners/{party_id}/handoffs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Follow an external route
+         * @description Record that the acting party followed a partner's external route. This is never a submitted pitch.
+         *
+         *     Args:
+         *         party_id (UUID): The partner.
+         *         body (RecordHandoffRequest): The acting party.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried click.
+         *
+         *     Returns:
+         *         HandoffResponse: The handoff, with the address to open.
+         */
+        post: operations["record_handoff_api_v1_partners__party_id__handoffs_post"];
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -1376,6 +1651,35 @@ export interface components {
             status: components["schemas"]["CapabilityStatus"];
         };
         /**
+         * AvailabilityResponse
+         * @description Current availability, kept apart from the general thesis and labelled with where it comes from.
+         */
+        AvailabilityResponse: {
+            /**
+             * Current Intake Status
+             * @enum {string}
+             */
+            current_intake_status: "OPEN" | "CLOSED" | "UNCONFIRMED";
+            /** Intake From */
+            intake_from: string | null;
+            /**
+             * Intake Status
+             * @enum {string}
+             */
+            intake_status: "OPEN" | "CLOSED" | "UNCONFIRMED";
+            /** Intake Until */
+            intake_until: string | null;
+            /** Label */
+            label: string;
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "OWNER_CONFIRMED" | "SOURCE_REPORTED";
+            /** Source Label */
+            source_label: string;
+        };
+        /**
          * BudgetInput
          * @description The cost range of the request. Leave min and max empty with a reason when it is not known yet.
          */
@@ -1680,6 +1984,81 @@ export interface components {
              * Format: uuid
              */
             acting_party_id: string;
+        };
+        /**
+         * CreateOpportunityRequest
+         * @description Start a draft for the acting party.
+         */
+        CreateOpportunityRequest: {
+            /**
+             * Accepted Stages
+             * @default []
+             */
+            accepted_stages?: ("IDEA" | "PROTOTYPE" | "PILOT" | "WORKING" | "MARKET")[];
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /** Closes At */
+            closes_at?: string | null;
+            /**
+             * Excluded
+             * @default
+             */
+            excluded?: string;
+            financial?: components["schemas"]["FinancialInput"] | null;
+            /**
+             * Included
+             * @default
+             */
+            included?: string;
+            /**
+             * Keywords
+             * @default []
+             */
+            keywords?: string[];
+            /**
+             * Kind
+             * @default SPECIFIC
+             * @enum {string}
+             */
+            kind?: "SPECIFIC" | "GENERAL_INTAKE";
+            /**
+             * Outcome
+             * @default
+             */
+            outcome?: string;
+            /**
+             * Relationship Forms
+             * @default []
+             */
+            relationship_forms?: ("PROJECT" | "LICENSE" | "EQUITY")[];
+            /**
+             * Requirements
+             * @default []
+             */
+            requirements?: components["schemas"]["RequirementInput"][];
+            /**
+             * Sectors
+             * @default []
+             */
+            sectors?: string[];
+            /**
+             * Support
+             * @default
+             */
+            support?: string;
+            /**
+             * Timing
+             * @default
+             */
+            timing?: string;
+            /**
+             * Title
+             * @default
+             */
+            title?: string;
         };
         /**
          * CreateOrganizationRequest
@@ -1989,6 +2368,93 @@ export interface components {
             value: string;
         };
         /**
+         * FinancialInput
+         * @description What an opportunity offers: a comparable range, non-cash support, license terms, or an explained unknown.
+         */
+        FinancialInput: {
+            /** Basis */
+            basis?: ("total_period" | "monthly" | "yearly") | "per_investment" | null;
+            /** Currency */
+            currency?: string | null;
+            /** Max */
+            max?: string | null;
+            /** Min */
+            min?: string | null;
+            /** Months */
+            months?: number | null;
+            /**
+             * Noncash
+             * @default
+             */
+            noncash?: string;
+            /**
+             * Period
+             * @default
+             */
+            period?: string;
+            /**
+             * Scope
+             * @default
+             */
+            scope?: string;
+            /**
+             * Subject
+             * @default partner
+             * @enum {string}
+             */
+            subject?: "partner" | "investorCheck" | "license";
+            /**
+             * Terms
+             * @default
+             */
+            terms?: string;
+            /** Unknown Reason */
+            unknown_reason?: ("not_determined" | "not_disclosed") | null;
+        };
+        /**
+         * FinancialResponse
+         * @description A stored financial basis, with amounts as decimal strings.
+         */
+        FinancialResponse: {
+            /** Basis */
+            basis?: ("total_period" | "monthly" | "yearly") | "per_investment" | null;
+            /** Currency */
+            currency?: string | null;
+            /** Max */
+            max?: string | null;
+            /** Min */
+            min?: string | null;
+            /** Months */
+            months?: number | null;
+            /**
+             * Noncash
+             * @default
+             */
+            noncash?: string;
+            /**
+             * Period
+             * @default
+             */
+            period?: string;
+            /**
+             * Scope
+             * @default
+             */
+            scope?: string;
+            /**
+             * Subject
+             * @enum {string}
+             */
+            subject: "partner" | "investorCheck" | "license";
+            /**
+             * Terms
+             * @default
+             */
+            terms?: string;
+            /** Unknown Reason */
+            unknown_reason?: ("not_determined" | "not_disclosed") | null;
+        };
+        /**
          * FundingRequestInput
          * @description A raise's content. A draft may be incomplete; activation needs a target, a currency and an invention.
          */
@@ -2147,6 +2613,32 @@ export interface components {
             revoked_at: string | null;
             /** Version */
             version: number;
+        };
+        /**
+         * HandoffResponse
+         * @description An external handoff. It is never a submitted or accepted pitch.
+         */
+        HandoffResponse: {
+            /** External Url */
+            external_url: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Operation Id */
+            operation_id?: string | null;
+            /**
+             * Partner Party Id
+             * Format: uuid
+             */
+            partner_party_id: string;
+            /**
+             * Submitted
+             * @default false
+             * @constant
+             */
+            submitted?: false;
         };
         /**
          * InventionResponse
@@ -2451,6 +2943,125 @@ export interface components {
          */
         OperationStatus: "PENDING" | "COMMITTED" | "UNKNOWN";
         /**
+         * OpportunityResponse
+         * @description An opportunity and its current version. ``version`` is for ``expected_version``; ``number`` names the content.
+         */
+        OpportunityResponse: {
+            /** Accepted Stages */
+            accepted_stages: ("IDEA" | "PROTOTYPE" | "PILOT" | "WORKING" | "MARKET")[];
+            /** Closes At */
+            closes_at: string | null;
+            /** Excluded */
+            excluded: string;
+            financial: components["schemas"]["FinancialResponse"] | null;
+            /** General Intake Label */
+            general_intake_label: string | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Included */
+            included: string;
+            /** Keywords */
+            keywords: string[];
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "SPECIFIC" | "GENERAL_INTAKE";
+            /** Number */
+            number: number;
+            /** Operation Id */
+            operation_id?: string | null;
+            /** Outcome */
+            outcome: string;
+            /**
+             * Partner Party Id
+             * Format: uuid
+             */
+            partner_party_id: string;
+            /** Relationship Forms */
+            relationship_forms: ("PROJECT" | "LICENSE" | "EQUITY")[];
+            /** Requirements */
+            requirements: components["schemas"]["RequirementResponse"][];
+            /** Sectors */
+            sectors: string[];
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "DRAFT" | "ACTIVE" | "PAUSED" | "CLOSED" | "EXPIRED";
+            /** Support */
+            support: string;
+            target_availability: components["schemas"]["TargetAvailabilityResponse"];
+            /** Timing */
+            timing: string;
+            /** Title */
+            title: string;
+            /** Version */
+            version: number;
+        };
+        /**
+         * OpportunityTransitionRequest
+         * @description Activate, pause or close against the version the client saw.
+         */
+        OpportunityTransitionRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /** Expected Version */
+            expected_version: number;
+        };
+        /**
+         * OpportunityVersionResponse
+         * @description One version as it stood. A pitch keeps pointing at the version it targeted.
+         */
+        OpportunityVersionResponse: {
+            /** Accepted Stages */
+            accepted_stages: ("IDEA" | "PROTOTYPE" | "PILOT" | "WORKING" | "MARKET")[];
+            /** Excluded */
+            excluded: string;
+            financial: components["schemas"]["FinancialResponse"] | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Included */
+            included: string;
+            /** Keywords */
+            keywords: string[];
+            /** Number */
+            number: number;
+            /**
+             * Opportunity Id
+             * Format: uuid
+             */
+            opportunity_id: string;
+            /** Outcome */
+            outcome: string;
+            /** Relationship Forms */
+            relationship_forms: ("PROJECT" | "LICENSE" | "EQUITY")[];
+            /** Requirements */
+            requirements: components["schemas"]["RequirementResponse"][];
+            /** Sectors */
+            sectors: string[];
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "DRAFT" | "ACTIVE" | "PAUSED" | "CLOSED" | "EXPIRED";
+            /** Support */
+            support: string;
+            /** Timing */
+            timing: string;
+            /** Title */
+            title: string;
+        };
+        /**
          * OrganizationResponse
          * @description One organization.
          */
@@ -2471,6 +3082,48 @@ export interface components {
              * Format: uuid
              */
             party_id: string;
+            /** Version */
+            version: number;
+        };
+        /**
+         * PartnerProfileResponse
+         * @description A partner profile as anyone signed in may read it.
+         */
+        PartnerProfileResponse: {
+            availability: components["schemas"]["AvailabilityResponse"];
+            check_range: components["schemas"]["RangeResponse"] | null;
+            /**
+             * Contact Route
+             * @enum {string}
+             */
+            contact_route: "IN_APP" | "EXTERNAL" | "NONE";
+            /** External Url */
+            external_url: string | null;
+            /** Operation Id */
+            operation_id?: string | null;
+            /**
+             * Party Id
+             * Format: uuid
+             */
+            party_id: string;
+            /** Party Name */
+            party_name: string;
+            /** Regions */
+            regions: string[];
+            /** Relationship Forms */
+            relationship_forms: ("PROJECT" | "LICENSE" | "EQUITY")[];
+            /** Review Expectations */
+            review_expectations: string;
+            /** Sectors */
+            sectors: string[];
+            /** Stages */
+            stages: ("IDEA" | "PROTOTYPE" | "PILOT" | "WORKING" | "MARKET")[];
+            /** Subtype */
+            subtype: string;
+            /** Support Forms */
+            support_forms: string[];
+            /** Thesis */
+            thesis: string;
             /** Version */
             version: number;
         };
@@ -2580,6 +3233,71 @@ export interface components {
             version: number;
         };
         /**
+         * RangeInput
+         * @description An amount range and what it means. Leave min and max empty with a reason when it is not known.
+         */
+        RangeInput: {
+            /** Basis */
+            basis?: ("total_period" | "monthly" | "yearly") | "per_investment" | null;
+            /** Currency */
+            currency?: string | null;
+            /** Max */
+            max?: string | null;
+            /** Min */
+            min?: string | null;
+            /** Months */
+            months?: number | null;
+            /**
+             * Period
+             * @default
+             */
+            period?: string;
+            /**
+             * Subject
+             * @default partner
+             * @enum {string}
+             */
+            subject?: "partner" | "investorCheck" | "license";
+            /** Unknown Reason */
+            unknown_reason?: ("not_determined" | "not_disclosed") | null;
+        };
+        /**
+         * RangeResponse
+         * @description A stored range. Unknown money is ``null`` with ``unknown_reason``, never zero.
+         */
+        RangeResponse: {
+            /** Basis */
+            basis: ("total_period" | "monthly" | "yearly") | "per_investment" | null;
+            /** Currency */
+            currency: string | null;
+            /** Max */
+            max: string | null;
+            /** Min */
+            min: string | null;
+            /** Months */
+            months: number | null;
+            /** Period */
+            period: string;
+            /**
+             * Subject
+             * @enum {string}
+             */
+            subject: "partner" | "investorCheck" | "license";
+            /** Unknown Reason */
+            unknown_reason: ("not_determined" | "not_disclosed") | null;
+        };
+        /**
+         * RecordHandoffRequest
+         * @description Record that the acting party followed a partner's external route.
+         */
+        RecordHandoffRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+        };
+        /**
          * RemoveMemberRequest
          * @description Remove a member, acting as the organization.
          */
@@ -2591,6 +3309,91 @@ export interface components {
             acting_party_id: string;
             /** Expected Version */
             expected_version: number;
+        };
+        /**
+         * RequirementInput
+         * @description One requirement. With no operator it is a narrative review question and can never block a pitch.
+         */
+        RequirementInput: {
+            /**
+             * Applies At
+             * @default SUBMISSION
+             * @enum {string}
+             */
+            applies_at?: "SUBMISSION" | "DISCUSSION" | "PILOT" | "COMMERCIALIZATION";
+            /** Field */
+            field?: string | null;
+            /** Label */
+            label: string;
+            /**
+             * Mandatory
+             * @default true
+             */
+            mandatory?: boolean;
+            /** Operator */
+            operator?: ("equals" | "in_set" | "intersects" | "minimum" | "maximum" | "range_overlap" | "exists" | "manual_review") | null;
+            /**
+             * Reason
+             * @default
+             */
+            reason?: string;
+            /** Value */
+            value?: unknown;
+            /**
+             * Verification Mode
+             * @default DECLARATION
+             * @enum {string}
+             */
+            verification_mode?: "DECLARATION" | "DOCUMENT_PRESENT" | "REVIEWER_CONFIRMED";
+            /**
+             * Visibility
+             * @default PUBLIC
+             * @enum {string}
+             */
+            visibility?: "PUBLIC" | "PARTNER_ONLY";
+        };
+        /**
+         * RequirementResponse
+         * @description A stored requirement. ``version`` is the number of the opportunity version it belongs to.
+         */
+        RequirementResponse: {
+            /**
+             * Applies At
+             * @enum {string}
+             */
+            applies_at: "SUBMISSION" | "DISCUSSION" | "PILOT" | "COMMERCIALIZATION";
+            /** Field */
+            field: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Label */
+            label: string;
+            /** Mandatory */
+            mandatory: boolean;
+            /**
+             * Operator
+             * @enum {string}
+             */
+            operator: "equals" | "in_set" | "intersects" | "minimum" | "maximum" | "range_overlap" | "exists" | "manual_review";
+            /** Reason */
+            reason: string;
+            /** Value */
+            value: unknown;
+            /**
+             * Verification Mode
+             * @enum {string}
+             */
+            verification_mode: "DECLARATION" | "DOCUMENT_PRESENT" | "REVIEWER_CONFIRMED";
+            /** Version */
+            version: number;
+            /**
+             * Visibility
+             * @enum {string}
+             */
+            visibility: "PUBLIC" | "PARTNER_ONLY";
         };
         /**
          * RevokeRequest
@@ -2614,6 +3417,149 @@ export interface components {
             message: string;
             /** Revoked */
             revoked: boolean;
+        };
+        /**
+         * SaveOpportunityRequest
+         * @description Replace the content against the version the client saw.
+         */
+        SaveOpportunityRequest: {
+            /**
+             * Accepted Stages
+             * @default []
+             */
+            accepted_stages?: ("IDEA" | "PROTOTYPE" | "PILOT" | "WORKING" | "MARKET")[];
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /** Closes At */
+            closes_at?: string | null;
+            /**
+             * Excluded
+             * @default
+             */
+            excluded?: string;
+            /** Expected Version */
+            expected_version: number;
+            financial?: components["schemas"]["FinancialInput"] | null;
+            /**
+             * Included
+             * @default
+             */
+            included?: string;
+            /**
+             * Keywords
+             * @default []
+             */
+            keywords?: string[];
+            /**
+             * Outcome
+             * @default
+             */
+            outcome?: string;
+            /**
+             * Relationship Forms
+             * @default []
+             */
+            relationship_forms?: ("PROJECT" | "LICENSE" | "EQUITY")[];
+            /**
+             * Requirements
+             * @default []
+             */
+            requirements?: components["schemas"]["RequirementInput"][];
+            /**
+             * Sectors
+             * @default []
+             */
+            sectors?: string[];
+            /**
+             * Support
+             * @default
+             */
+            support?: string;
+            /**
+             * Timing
+             * @default
+             */
+            timing?: string;
+            /**
+             * Title
+             * @default
+             */
+            title?: string;
+        };
+        /**
+         * SavePartnerProfileRequest
+         * @description Save one's own profile. ``expected_version`` is null only for the first save.
+         */
+        SavePartnerProfileRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            check_range?: components["schemas"]["RangeInput"] | null;
+            /**
+             * Contact Route
+             * @default IN_APP
+             * @enum {string}
+             */
+            contact_route?: "IN_APP" | "EXTERNAL" | "NONE";
+            /** Expected Version */
+            expected_version?: number | null;
+            /** External Url */
+            external_url?: string | null;
+            /** Intake From */
+            intake_from?: string | null;
+            /**
+             * Intake Status
+             * @default OPEN
+             * @enum {string}
+             */
+            intake_status?: "OPEN" | "CLOSED";
+            /** Intake Until */
+            intake_until?: string | null;
+            /**
+             * Regions
+             * @default []
+             */
+            regions?: string[];
+            /**
+             * Relationship Forms
+             * @default []
+             */
+            relationship_forms?: ("PROJECT" | "LICENSE" | "EQUITY")[];
+            /**
+             * Review Expectations
+             * @default
+             */
+            review_expectations?: string;
+            /**
+             * Sectors
+             * @default []
+             */
+            sectors?: string[];
+            /**
+             * Stages
+             * @default []
+             */
+            stages?: ("IDEA" | "PROTOTYPE" | "PILOT" | "WORKING" | "MARKET")[];
+            /**
+             * Subtype
+             * @default
+             */
+            subtype?: string;
+            /**
+             * Support Forms
+             * @default []
+             */
+            support_forms?: string[];
+            /**
+             * Thesis
+             * @default
+             */
+            thesis?: string;
         };
         /**
          * SupportRequestResponse
@@ -2662,6 +3608,16 @@ export interface components {
             support_forms: string[];
             /** Version */
             version: number;
+        };
+        /**
+         * TargetAvailabilityResponse
+         * @description Whether a pitch may target this now, and why not when it may not.
+         */
+        TargetAvailabilityResponse: {
+            /** Available */
+            available: boolean;
+            /** Reason */
+            reason: ("TARGET_NOT_ACTIVE" | "EXTERNAL_ROUTE" | "NO_NEW_APPROACHES" | "DIRECT_INTAKE_CLOSED" | "INTAKE_UNCONFIRMED") | null;
         };
         /**
          * TransitionRequest
@@ -4323,6 +5279,346 @@ export interface operations {
             };
         };
     };
+    list_opportunities_api_v1_opportunities_get: {
+        parameters: {
+            query?: {
+                partner_party_id?: string | null;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpportunityResponse"][];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    create_opportunity_api_v1_opportunities_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateOpportunityRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpportunityResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    read_opportunity_api_v1_opportunities__opportunity_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                opportunity_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpportunityResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    save_opportunity_api_v1_opportunities__opportunity_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                opportunity_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SaveOpportunityRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpportunityResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    activate_opportunity_api_v1_opportunities__opportunity_id__activate_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                opportunity_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OpportunityTransitionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpportunityResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    close_opportunity_api_v1_opportunities__opportunity_id__close_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                opportunity_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OpportunityTransitionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpportunityResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    pause_opportunity_api_v1_opportunities__opportunity_id__pause_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                opportunity_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OpportunityTransitionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpportunityResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    read_opportunity_version_api_v1_opportunities__opportunity_id__versions__number__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                opportunity_id: string;
+                number: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpportunityVersionResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     create_organization_api_v1_organizations_post: {
         parameters: {
             query?: never;
@@ -4511,6 +5807,134 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    read_partner_api_v1_partners__party_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                party_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PartnerProfileResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    save_partner_api_v1_partners__party_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                party_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SavePartnerProfileRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PartnerProfileResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    record_handoff_api_v1_partners__party_id__handoffs_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                party_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RecordHandoffRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HandoffResponse"];
+                };
             };
             /** @description Validation failed */
             422: {

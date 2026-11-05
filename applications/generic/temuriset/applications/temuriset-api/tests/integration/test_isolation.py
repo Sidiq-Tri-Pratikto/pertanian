@@ -16,7 +16,7 @@ from app.main import app
 pytestmark = [pytest.mark.integration, pytest.mark.usefixtures("clean_tables")]
 
 # Routes with no other party's data: health, the manifest, signing in, one's own account, development helpers, and
-# creating one's own organization, invention or legal entity.
+# creating one's own organization, invention, legal entity or opportunity.
 NOT_DATA_ROUTES = {
     ("GET", "/health/live"),
     ("GET", "/health/ready"),
@@ -30,6 +30,7 @@ NOT_DATA_ROUTES = {
     ("POST", "/api/v1/organizations"),
     ("POST", "/api/v1/inventions"),
     ("POST", "/api/v1/legal-entities"),
+    ("POST", "/api/v1/opportunities"),
 }
 
 
@@ -50,6 +51,7 @@ class Owner:
     support_request_id: str = ""
     published_invention_id: str = ""
     funding_request_id: str = ""
+    opportunity_id: str = ""
 
 
 @dataclass
@@ -202,6 +204,42 @@ ROUTES: dict[tuple[str, str], Case] = {
         )
         for action in ("activate", "pause", "close")
     },
+    # The owner has no profile and only a draft opportunity, so these public reads must not reveal that either exists.
+    ("GET", "/api/v1/partners/{party_id}"): Case("GET", lambda o: f"/api/v1/partners/{o.party_id}"),
+    ("PUT", "/api/v1/partners/{party_id}"): Case(
+        "PUT",
+        lambda o: f"/api/v1/partners/{o.party_id}",
+        lambda _o, actor: {"acting_party_id": actor, "expected_version": None, "thesis": "x"},
+        {"Idempotency-Key": "isolation-partner"},
+    ),
+    ("POST", "/api/v1/partners/{party_id}/handoffs"): Case(
+        "POST",
+        lambda o: f"/api/v1/partners/{o.party_id}/handoffs",
+        lambda _o, actor: {"acting_party_id": actor},
+        {"Idempotency-Key": "isolation-handoff"},
+    ),
+    ("GET", "/api/v1/opportunities"): Case("GET", lambda _o: "/api/v1/opportunities"),
+    ("GET", "/api/v1/opportunities/{opportunity_id}"): Case(
+        "GET", lambda o: f"/api/v1/opportunities/{o.opportunity_id}"
+    ),
+    ("GET", "/api/v1/opportunities/{opportunity_id}/versions/{number}"): Case(
+        "GET", lambda o: f"/api/v1/opportunities/{o.opportunity_id}/versions/1"
+    ),
+    ("PUT", "/api/v1/opportunities/{opportunity_id}"): Case(
+        "PUT",
+        lambda o: f"/api/v1/opportunities/{o.opportunity_id}",
+        lambda _o, actor: {"acting_party_id": actor, "expected_version": 1, "title": "x"},
+        {"Idempotency-Key": "isolation-opportunity-save"},
+    ),
+    **{
+        ("POST", f"/api/v1/opportunities/{{opportunity_id}}/{action}"): Case(
+            "POST",
+            lambda o, action=action: f"/api/v1/opportunities/{o.opportunity_id}/{action}",
+            lambda _o, actor: {"acting_party_id": actor, "expected_version": 1},
+            {"Idempotency-Key": f"isolation-opportunity-{action}"},
+        )
+        for action in ("activate", "pause", "close")
+    },
     # Unpublished, so even the public view must not reveal that it exists.
     ("GET", "/api/v1/inventions/{invention_id}/public"): Case(
         "GET", lambda o: f"/api/v1/inventions/{o.invention_id}/public"
@@ -295,6 +333,13 @@ async def owner(client: AsyncClient, sign_up, published_invention) -> AsyncItera
             headers={"Idempotency-Key": "funding"},
         )
     ).json()
+    opportunity = (
+        await client.post(
+            "/api/v1/opportunities",
+            json={"acting_party_id": party, "title": "Owner Co draft opportunity"},
+            headers={"Idempotency-Key": "opportunity"},
+        )
+    ).json()
     yield Owner(
         organization_id=organization["id"],
         party_id=organization["party_id"],
@@ -309,6 +354,7 @@ async def owner(client: AsyncClient, sign_up, published_invention) -> AsyncItera
         support_request_id=support["id"],
         published_invention_id=published["id"],
         funding_request_id=funding["id"],
+        opportunity_id=opportunity["id"],
     )
 
 
@@ -357,5 +403,6 @@ async def test_unrelated_party_sees_nothing(
         owner.support_request_id,
         owner.published_invention_id,
         owner.funding_request_id,
+        owner.opportunity_id,
     ):
         assert secret not in response.text
