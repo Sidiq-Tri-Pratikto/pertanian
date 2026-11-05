@@ -6,7 +6,7 @@ from uuid import UUID
 from sqlalchemy import delete, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.portfolio.model.schema import ClaimResponse, FactResponse, VersionResponse
+from app.portfolio.model.schema import ClaimResponse, FactResponse, InventionVersionResponse
 from app.portfolio.repository.sqlalchemy.models import (
     InventionClaimRecord,
     InventionFactRecord,
@@ -76,14 +76,14 @@ class SqlAlchemyPortfolioRepository:
         )
         return list(rows)
 
-    async def version(self, version_id: UUID | None) -> VersionResponse | None:
+    async def version(self, version_id: UUID | None) -> InventionVersionResponse | None:
         """Read one version with its facts and claims.
 
         Args:
             version_id (UUID | None): The version.
 
         Returns:
-            VersionResponse | None: The version.
+            InventionVersionResponse | None: The version.
         """
         if version_id is None:
             return None
@@ -100,7 +100,7 @@ class SqlAlchemyPortfolioRepository:
             .where(InventionClaimRecord.version_id == version_id)
             .order_by(InventionClaimRecord.position)
         )
-        return VersionResponse(
+        return InventionVersionResponse(
             number=record.number,
             state=record.state,
             facts=[FactResponse.model_validate(fact, from_attributes=True) for fact in facts],

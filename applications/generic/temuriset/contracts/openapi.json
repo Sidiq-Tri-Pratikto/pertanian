@@ -525,7 +525,7 @@
           },
           "versions": {
             "items": {
-              "$ref": "#/components/schemas/app__documents__model__schema__VersionResponse"
+              "$ref": "#/components/schemas/DocumentVersionResponse"
             },
             "title": "Versions",
             "type": "array"
@@ -539,6 +539,56 @@
           "grants"
         ],
         "title": "DocumentResponse",
+        "type": "object"
+      },
+      "DocumentVersionResponse": {
+        "description": "One version's three independent states.",
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "extraction_state": {
+            "title": "Extraction State",
+            "type": "string"
+          },
+          "file_state": {
+            "title": "File State",
+            "type": "string"
+          },
+          "media_type": {
+            "title": "Media Type",
+            "type": "string"
+          },
+          "number": {
+            "title": "Number",
+            "type": "integer"
+          },
+          "review_state": {
+            "title": "Review State",
+            "type": "string"
+          },
+          "sha256": {
+            "title": "Sha256",
+            "type": "string"
+          },
+          "size_bytes": {
+            "title": "Size Bytes",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "number",
+          "media_type",
+          "size_bytes",
+          "sha256",
+          "file_state",
+          "extraction_state",
+          "review_state",
+          "created_at"
+        ],
+        "title": "DocumentVersionResponse",
         "type": "object"
       },
       "DraftRequest": {
@@ -1070,7 +1120,7 @@
           "draft": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/app__portfolio__model__schema__VersionResponse"
+                "$ref": "#/components/schemas/InventionVersionResponse"
               },
               {
                 "type": "null"
@@ -1109,7 +1159,7 @@
           "published": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/app__portfolio__model__schema__VersionResponse"
+                "$ref": "#/components/schemas/InventionVersionResponse"
               },
               {
                 "type": "null"
@@ -1182,6 +1232,116 @@
           "published_number"
         ],
         "title": "InventionSummaryResponse",
+        "type": "object"
+      },
+      "InventionVersionResponse": {
+        "description": "One version as its owner sees it.",
+        "properties": {
+          "claims": {
+            "items": {
+              "$ref": "#/components/schemas/ClaimResponse"
+            },
+            "title": "Claims",
+            "type": "array"
+          },
+          "facts": {
+            "items": {
+              "$ref": "#/components/schemas/FactResponse"
+            },
+            "title": "Facts",
+            "type": "array"
+          },
+          "intended_users": {
+            "title": "Intended Users",
+            "type": "string"
+          },
+          "keywords": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Keywords",
+            "type": "array"
+          },
+          "number": {
+            "title": "Number",
+            "type": "integer"
+          },
+          "private_notes": {
+            "title": "Private Notes",
+            "type": "string"
+          },
+          "problem": {
+            "title": "Problem",
+            "type": "string"
+          },
+          "published_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Published At"
+          },
+          "sector": {
+            "title": "Sector",
+            "type": "string"
+          },
+          "solution": {
+            "title": "Solution",
+            "type": "string"
+          },
+          "stage": {
+            "anyOf": [
+              {
+                "enum": [
+                  "IDEA",
+                  "PROTOTYPE",
+                  "PILOT",
+                  "WORKING",
+                  "MARKET"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stage"
+          },
+          "state": {
+            "title": "State",
+            "type": "string"
+          },
+          "summary": {
+            "title": "Summary",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "number",
+          "state",
+          "title",
+          "summary",
+          "problem",
+          "solution",
+          "intended_users",
+          "sector",
+          "stage",
+          "keywords",
+          "facts",
+          "claims",
+          "private_notes",
+          "published_at"
+        ],
+        "title": "InventionVersionResponse",
         "type": "object"
       },
       "InvitationDetailResponse": {
@@ -2094,166 +2254,6 @@
           "expected_version"
         ],
         "title": "VersionedActionRequest",
-        "type": "object"
-      },
-      "app__documents__model__schema__VersionResponse": {
-        "description": "One version's three independent states.",
-        "properties": {
-          "created_at": {
-            "format": "date-time",
-            "title": "Created At",
-            "type": "string"
-          },
-          "extraction_state": {
-            "title": "Extraction State",
-            "type": "string"
-          },
-          "file_state": {
-            "title": "File State",
-            "type": "string"
-          },
-          "media_type": {
-            "title": "Media Type",
-            "type": "string"
-          },
-          "number": {
-            "title": "Number",
-            "type": "integer"
-          },
-          "review_state": {
-            "title": "Review State",
-            "type": "string"
-          },
-          "sha256": {
-            "title": "Sha256",
-            "type": "string"
-          },
-          "size_bytes": {
-            "title": "Size Bytes",
-            "type": "integer"
-          }
-        },
-        "required": [
-          "number",
-          "media_type",
-          "size_bytes",
-          "sha256",
-          "file_state",
-          "extraction_state",
-          "review_state",
-          "created_at"
-        ],
-        "title": "VersionResponse",
-        "type": "object"
-      },
-      "app__portfolio__model__schema__VersionResponse": {
-        "description": "One version as its owner sees it.",
-        "properties": {
-          "claims": {
-            "items": {
-              "$ref": "#/components/schemas/ClaimResponse"
-            },
-            "title": "Claims",
-            "type": "array"
-          },
-          "facts": {
-            "items": {
-              "$ref": "#/components/schemas/FactResponse"
-            },
-            "title": "Facts",
-            "type": "array"
-          },
-          "intended_users": {
-            "title": "Intended Users",
-            "type": "string"
-          },
-          "keywords": {
-            "items": {
-              "type": "string"
-            },
-            "title": "Keywords",
-            "type": "array"
-          },
-          "number": {
-            "title": "Number",
-            "type": "integer"
-          },
-          "private_notes": {
-            "title": "Private Notes",
-            "type": "string"
-          },
-          "problem": {
-            "title": "Problem",
-            "type": "string"
-          },
-          "published_at": {
-            "anyOf": [
-              {
-                "format": "date-time",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Published At"
-          },
-          "sector": {
-            "title": "Sector",
-            "type": "string"
-          },
-          "solution": {
-            "title": "Solution",
-            "type": "string"
-          },
-          "stage": {
-            "anyOf": [
-              {
-                "enum": [
-                  "IDEA",
-                  "PROTOTYPE",
-                  "PILOT",
-                  "WORKING",
-                  "MARKET"
-                ],
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Stage"
-          },
-          "state": {
-            "title": "State",
-            "type": "string"
-          },
-          "summary": {
-            "title": "Summary",
-            "type": "string"
-          },
-          "title": {
-            "title": "Title",
-            "type": "string"
-          }
-        },
-        "required": [
-          "number",
-          "state",
-          "title",
-          "summary",
-          "problem",
-          "solution",
-          "intended_users",
-          "sector",
-          "stage",
-          "keywords",
-          "facts",
-          "claims",
-          "private_notes",
-          "published_at"
-        ],
-        "title": "VersionResponse",
         "type": "object"
       }
     }

@@ -2,7 +2,7 @@
 
 from app.core.errors import codes
 from app.core.errors.base import AppError
-from app.portfolio.model.schema import VersionResponse
+from app.portfolio.model.schema import InventionVersionResponse
 
 TITLE_MIN, TITLE_MAX, SUMMARY_MAX = 5, 120, 350
 
@@ -21,11 +21,11 @@ class PublicationInvalidError(AppError):
         super().__init__(public_fields={"details": details})
 
 
-def publication_errors(draft: VersionResponse) -> list[dict]:
+def publication_errors(draft: InventionVersionResponse) -> list[dict]:
     """List what stops a draft from being published, in field order.
 
     Args:
-        draft (VersionResponse): The draft.
+        draft (InventionVersionResponse): The draft.
 
     Returns:
         list[dict]: Field errors; empty when the draft may be published.

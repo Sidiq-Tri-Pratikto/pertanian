@@ -11,7 +11,27 @@ import { StartView } from '@/views/StartView';
 import { CodeView } from '@/views/CodeView';
 import { InvitationView } from '@/views/InvitationView';
 
+import { EditorView } from '@/views/portfolio/EditorView';
+import { InventionsView, InventionView } from '@/views/portfolio/InventionViews';
+import type { Invention } from '@/features/portfolio/model';
+
 import { makeMe } from './fixtures';
+
+const SAMPLE: Invention = {
+  id: 'i',
+  managing_party_id: 'p',
+  status: 'DRAFT',
+  version: 2,
+  history: [1],
+  published: null,
+  operation_id: null,
+  draft: {
+    number: 1, state: 'draft', title: 'Saringan air', summary: '', problem: 'Air keruh', solution: 'Saringan', intended_users: 'Desa', sector: 'Air',
+    stage: 'PILOT', keywords: [], private_notes: '', published_at: null,
+    facts: [{ label: 'Kapasitas', value: '10', unit: 'L/jam', timing: 'CURRENT', provenance: 'SELF_DECLARED', key: null, document_version_id: null }],
+    claims: [{ kind: 'creator', subject_name: 'Rani', party_id: null, scope: '', status: 'not_established', source: '', asserted_at: null }],
+  },
+};
 
 vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn() }) }));
 vi.mock('@/features/actions', () => ({ forgetPersona: async () => {} }));
@@ -71,6 +91,11 @@ describe('accessibility of the base screens', () => {
       />,
     ],
     ['missing invitation', <InvitationView key="n" me={makeMe()} token="t" invitation={null} />],
+    ['empty inventions', <InventionsView key="ie" me={makeMe()} inventions={[]} />],
+    ['inventions', <InventionsView key="il" me={makeMe()} inventions={[{ id: 'i', status: 'PUBLISHED', title: 'Saringan', version: 2, has_draft: true, published_number: 1 }]} />],
+    ...[1, 2, 3, 4].map((step) => [`editor step ${step}`, <EditorView key={`e${step}`} me={makeMe()} invention={SAMPLE} initialStep={step} />] as [string, ReactElement]),
+    ['owner detail', <InventionView key="d" me={makeMe()} invention={SAMPLE} />],
+    ['missing invention', <InventionView key="m" me={makeMe()} />],
   ])('%s has no detectable violations', async (_, element) => {
     expect(await violations(element)).toEqual([]);
   });

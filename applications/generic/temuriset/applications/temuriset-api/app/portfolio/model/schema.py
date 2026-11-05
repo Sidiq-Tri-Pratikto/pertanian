@@ -80,7 +80,7 @@ class ClaimResponse(ClaimInput):
     """A stored claim."""
 
 
-class VersionResponse(BaseModel):
+class InventionVersionResponse(BaseModel):
     """One version as its owner sees it."""
 
     number: int
@@ -106,8 +106,8 @@ class InventionResponse(BaseModel):
     managing_party_id: UUID
     status: str
     version: int
-    draft: VersionResponse | None
-    published: VersionResponse | None
+    draft: InventionVersionResponse | None
+    published: InventionVersionResponse | None
     history: list[int]
     operation_id: UUID | None = None
 

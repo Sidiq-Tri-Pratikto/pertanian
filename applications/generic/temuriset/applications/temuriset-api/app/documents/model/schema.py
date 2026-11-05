@@ -38,7 +38,7 @@ class UploadedResponse(BaseModel):
     file_state: str
 
 
-class VersionResponse(BaseModel):
+class DocumentVersionResponse(BaseModel):
     """One version's three independent states."""
 
     number: int
@@ -69,7 +69,7 @@ class DocumentResponse(BaseModel):
     id: UUID
     title: str
     kind: str
-    versions: list[VersionResponse]
+    versions: list[DocumentVersionResponse]
     grants: list[GrantResponse]
 
 

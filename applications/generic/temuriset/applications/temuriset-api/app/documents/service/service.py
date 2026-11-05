@@ -16,13 +16,13 @@ from app.core.errors.base import AppError, NotFoundError, RequestInvalidError
 from app.core.settings import Settings
 from app.documents.model.schema import (
     DocumentResponse,
+    DocumentVersionResponse,
     GrantRequest,
     GrantResponse,
     RevokedResponse,
     UploadedResponse,
     UploadIntentRequest,
     UploadIntentResponse,
-    VersionResponse,
 )
 from app.documents.repository.sqlalchemy.models import (
     DocumentGrantRecord,
@@ -269,7 +269,7 @@ class DocumentService:
             title=document.title,
             kind=document.kind,
             versions=[
-                VersionResponse.model_validate(version, from_attributes=True)
+                DocumentVersionResponse.model_validate(version, from_attributes=True)
                 for version in await self.repository.versions(document.id)
             ],
             grants=[

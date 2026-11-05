@@ -1148,7 +1148,32 @@ export interface components {
             /** Title */
             title: string;
             /** Versions */
-            versions: components["schemas"]["app__documents__model__schema__VersionResponse"][];
+            versions: components["schemas"]["DocumentVersionResponse"][];
+        };
+        /**
+         * DocumentVersionResponse
+         * @description One version's three independent states.
+         */
+        DocumentVersionResponse: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Extraction State */
+            extraction_state: string;
+            /** File State */
+            file_state: string;
+            /** Media Type */
+            media_type: string;
+            /** Number */
+            number: number;
+            /** Review State */
+            review_state: string;
+            /** Sha256 */
+            sha256: string;
+            /** Size Bytes */
+            size_bytes: number;
         };
         /**
          * DraftRequest
@@ -1396,7 +1421,7 @@ export interface components {
          * @description The owner's view: draft, published version and history.
          */
         InventionResponse: {
-            draft: components["schemas"]["app__portfolio__model__schema__VersionResponse"] | null;
+            draft: components["schemas"]["InventionVersionResponse"] | null;
             /** History */
             history: number[];
             /**
@@ -1411,7 +1436,7 @@ export interface components {
             managing_party_id: string;
             /** Operation Id */
             operation_id?: string | null;
-            published: components["schemas"]["app__portfolio__model__schema__VersionResponse"] | null;
+            published: components["schemas"]["InventionVersionResponse"] | null;
             /** Status */
             status: string;
             /** Version */
@@ -1437,6 +1462,40 @@ export interface components {
             title: string;
             /** Version */
             version: number;
+        };
+        /**
+         * InventionVersionResponse
+         * @description One version as its owner sees it.
+         */
+        InventionVersionResponse: {
+            /** Claims */
+            claims: components["schemas"]["ClaimResponse"][];
+            /** Facts */
+            facts: components["schemas"]["FactResponse"][];
+            /** Intended Users */
+            intended_users: string;
+            /** Keywords */
+            keywords: string[];
+            /** Number */
+            number: number;
+            /** Private Notes */
+            private_notes: string;
+            /** Problem */
+            problem: string;
+            /** Published At */
+            published_at: string | null;
+            /** Sector */
+            sector: string;
+            /** Solution */
+            solution: string;
+            /** Stage */
+            stage: ("IDEA" | "PROTOTYPE" | "PILOT" | "WORKING" | "MARKET") | null;
+            /** State */
+            state: string;
+            /** Summary */
+            summary: string;
+            /** Title */
+            title: string;
         };
         /**
          * InvitationDetailResponse
@@ -1861,65 +1920,6 @@ export interface components {
             acting_party_id: string;
             /** Expected Version */
             expected_version: number;
-        };
-        /**
-         * VersionResponse
-         * @description One version's three independent states.
-         */
-        app__documents__model__schema__VersionResponse: {
-            /**
-             * Created At
-             * Format: date-time
-             */
-            created_at: string;
-            /** Extraction State */
-            extraction_state: string;
-            /** File State */
-            file_state: string;
-            /** Media Type */
-            media_type: string;
-            /** Number */
-            number: number;
-            /** Review State */
-            review_state: string;
-            /** Sha256 */
-            sha256: string;
-            /** Size Bytes */
-            size_bytes: number;
-        };
-        /**
-         * VersionResponse
-         * @description One version as its owner sees it.
-         */
-        app__portfolio__model__schema__VersionResponse: {
-            /** Claims */
-            claims: components["schemas"]["ClaimResponse"][];
-            /** Facts */
-            facts: components["schemas"]["FactResponse"][];
-            /** Intended Users */
-            intended_users: string;
-            /** Keywords */
-            keywords: string[];
-            /** Number */
-            number: number;
-            /** Private Notes */
-            private_notes: string;
-            /** Problem */
-            problem: string;
-            /** Published At */
-            published_at: string | null;
-            /** Sector */
-            sector: string;
-            /** Solution */
-            solution: string;
-            /** Stage */
-            stage: ("IDEA" | "PROTOTYPE" | "PILOT" | "WORKING" | "MARKET") | null;
-            /** State */
-            state: string;
-            /** Summary */
-            summary: string;
-            /** Title */
-            title: string;
         };
     };
     responses: never;

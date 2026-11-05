@@ -16,8 +16,8 @@ export default async function ComingSoonPage({ params }: Props) {
   const { feature: id } = await params;
   const me = await requireMe(`/segera-hadir/${id}`);
   const found = findFeature(id);
-  // A feature that has shipped lives on its own screen; accounts and contexts live in Profil.
-  if (found?.status === 'available') redirect('/settings');
+  // A feature that has shipped lives on its own screen.
+  if (found?.status === 'available') redirect(found.home ?? '/settings');
   // A feature the deployment does not run reads as unknown, so its plan is never advertised.
   const feature = found && isOffered(found, await readCapabilities()) ? found : undefined;
   return <ComingSoonView me={me} feature={feature} showSpecs={process.env.NODE_ENV === 'development'} />;

@@ -29,6 +29,8 @@ make e2e            # Chromium against the production build; needs the API (the 
 | `tests/components.test.tsx` | Design-system ports: Status, NextStep, EmptyState, Button, ChoiceGroup, Screen |
 | `tests/pages.test.tsx` | Every route signed in and out, safe return paths, settings, invitations |
 | `tests/auth.test.tsx` | Sign-up and code screens, error summary focus, context switcher, account and organization forms |
+| `tests/portfolio.test.tsx` | Editor state machine, save and focus, failed save retried with the same key, conflict, publication errors per step, preview, owner and partner detail |
+| `e2e/portfolio.spec.ts` | Chromium: four steps to version 1, failed save and retry, conflict from another tab, partner view |
 | `e2e/auth.spec.ts` | Chromium journeys: both personas sign up, wrong code, return after sign-in, context switch, invitation, sign-out |
 | `tests/service-status.test.tsx` | Service check, retry, final failure, failure parsing |
 | `tests/a11y.test.tsx` | axe on each base view (jsdom: no contrast or reflow) |
@@ -58,6 +60,9 @@ Run one file with `npx vitest run tests/pages.test.tsx`, match by name with `npx
 |---|---|
 | `/start`, `/start?masuk=1` | S01: sign up (persona, name, email, language, time zone) or sign in; never an organization |
 | `/start/kode` | The code step: where the code went, resend, attempts left |
+| `/inventions` | S04 Inovasi Saya: drafts, published and archived, "Ada draf perubahan", **Tambah inovasi** |
+| `/inventions/<id>` | S04 detail: owner view with facts, provenance and claims, or the public projection for others |
+| `/inventions/<id>/edit?step=1..4` | S05 editor: basics, evidence, support (coming), public preview and **Terbitkan versi N** |
 | `/undangan/<token>` | What an invitation grants, then **Terima undangan** |
 | `/home` | S02 Beranda |
 | `/inventions` | Inovasi Saya |

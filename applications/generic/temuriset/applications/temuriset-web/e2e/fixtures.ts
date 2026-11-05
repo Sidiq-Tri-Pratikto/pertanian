@@ -38,6 +38,45 @@ export async function signUp(page: Page, persona: Persona, name = 'Rani'): Promi
   return email;
 }
 
+export const COMPLETE_DRAFT = {
+  title: 'Saringan air keramik desa',
+  summary: 'Saringan air keramik untuk rumah tangga di desa tanpa listrik.',
+  problem: 'Air sumur keruh dan tidak aman diminum.',
+  solution: 'Saringan keramik berpori dengan perak koloid.',
+  intended_users: 'Rumah tangga di desa',
+  sector: 'Air bersih',
+  stage: 'PROTOTYPE',
+  keywords: ['air'],
+  facts: [
+    { label: 'Kapasitas saring', value: '10', unit: 'L/jam', timing: 'CURRENT', provenance: 'SELF_DECLARED' },
+    { label: 'Kapasitas saring', value: '20', unit: 'L/jam', timing: 'PLANNED', provenance: 'SELF_DECLARED' },
+  ],
+  claims: [{ kind: 'authority', subject_name: 'Rani', status: 'not_established' }],
+};
+
+/** Creates an invention through the API as the signed-in account; optionally publishes it. Returns its id. */
+export async function makeInvention(page: Page, publish: boolean): Promise<string> {
+  const headers = { Origin: WEB_ORIGIN };
+  const me = (await (await page.request.get('/api/v1/me')).json()) as { active_party_id: string };
+  const created = (await (
+    await page.request.post('/api/v1/inventions', { data: { acting_party_id: me.active_party_id }, headers: { ...headers, 'Idempotency-Key': uniqueEmail('c') } })
+  ).json()) as { id: string; version: number };
+  const saved = await page.request.put(`/api/v1/inventions/${created.id}/draft`, {
+    data: { acting_party_id: me.active_party_id, expected_version: created.version, ...COMPLETE_DRAFT },
+    headers: { ...headers, 'Idempotency-Key': uniqueEmail('s') },
+  });
+  expect(saved.status(), await saved.text()).toBe(200);
+  if (publish) {
+    const version = ((await saved.json()) as { version: number }).version;
+    const published = await page.request.post(`/api/v1/inventions/${created.id}/publish`, {
+      data: { acting_party_id: me.active_party_id, expected_version: version },
+      headers: { ...headers, 'Idempotency-Key': uniqueEmail('p') },
+    });
+    expect(published.status(), await published.text()).toBe(200);
+  }
+  return created.id;
+}
+
 type Fixtures = {
   /** Opens a route as its persona and fails on console errors, failed requests or an unexpected status. */
   visit: (route: Route) => Promise<Page>;
@@ -69,7 +108,10 @@ export const test = base.extend<Fixtures>({
       expected = route.status ?? 200;
       await context.clearCookies();
       if (route.persona) await signUp(page, route.persona);
-      const response = await page.goto(route.path);
+      let path = route.path;
+      if (path.includes(':draft')) path = path.replace(':draft', await makeInvention(page, false));
+      if (path.includes(':published')) path = path.replace(':published', await makeInvention(page, true));
+      const response = await page.goto(path);
       expect(response?.status(), `status of ${route.path}`).toBe(expected);
       await page.waitForLoadState('networkidle');
       return page;

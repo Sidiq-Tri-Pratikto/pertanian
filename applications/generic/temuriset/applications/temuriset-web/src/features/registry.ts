@@ -15,6 +15,8 @@ export type Feature = {
   status: FeatureStatus;
   /** Optional capability the feature needs; absent from deployments that do not run it. */
   capability?: string;
+  /** Where a shipped feature lives. */
+  home?: string;
 };
 
 export const FEATURES: Feature[] = [
@@ -30,6 +32,7 @@ export const FEATURES: Feature[] = [
     screens: ['S01', 'S18'],
     specs: ['006', '007', '008'],
     status: 'available',
+    home: '/settings',
   },
   {
     id: 'inovasi',
@@ -42,7 +45,8 @@ export const FEATURES: Feature[] = [
     ],
     screens: ['S04', 'S05'],
     specs: ['009', '011'],
-    status: 'coming_soon',
+    status: 'available',
+    home: '/inventions',
   },
   {
     id: 'dokumen',

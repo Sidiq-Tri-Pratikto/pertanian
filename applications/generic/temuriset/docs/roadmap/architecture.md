@@ -182,6 +182,7 @@ A partnership version is identified by a checksum of its values and ceiling. Con
 | D1 | `.tr-choice:has(input:checked)` in `src/design/app.css` | TR.ChoiceGroup sets `.is-selected` from JavaScript; server-rendered forms need a CSS selector | The design system adds the selector |
 | D2 | `.tr-tabbar__item` keeps whole words and drops side padding | At 320 px the design system split "Temukan" across lines | The design system fixes the tab bar |
 | D3 | `Screen` takes real links instead of `onNavigate` | Next.js routing and prefetch | Never; documented port |
+| D4 | `Screen` scrolls a focused control clear of the sticky tab bar | Chrome does not scroll a partly visible control, so a tall textarea took focus under the bar at 360 px (found by the 003 keyboard check) | The design system handles focus scrolling |
 
 ## API conventions
 

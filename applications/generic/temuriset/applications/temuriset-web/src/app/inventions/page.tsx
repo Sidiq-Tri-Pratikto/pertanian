@@ -1,14 +1,13 @@
 import type { Metadata } from 'next';
 
-import { readCapabilities } from '@/features/capabilities';
-import { destinationFor } from '@/features/destinations';
-import { personaOf, requireMe } from '@/features/session';
-import { DestinationView } from '@/views/DestinationView';
+import { serverGet } from '@/api/server';
+import type { InventionSummary } from '@/features/portfolio/model';
+import { requireMe } from '@/features/session';
+import { InventionsView } from '@/views/portfolio/InventionViews';
 
 export const metadata: Metadata = { title: 'Inovasi Saya' };
 
-export default async function Page() {
+export default async function InventionsPage() {
   const me = await requireMe('/inventions');
-  const persona = personaOf(me);
-  return <DestinationView me={me} destination={destinationFor('inventions', persona)} capabilities={await readCapabilities()} />;
+  return <InventionsView me={me} inventions={await serverGet<InventionSummary[]>('/api/v1/inventions')} />;
 }

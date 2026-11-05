@@ -22,6 +22,7 @@ vi.mock('@/api/server', () => ({
       if (!me) throw new ApiError('UNAUTHENTICATED', 'Anda perlu masuk terlebih dahulu.', { retryable: false });
       return me;
     }
+    if (path === '/api/v1/inventions') return [];
     if (path === `/api/v1/organizations/${ORGANIZATION}/members`) {
       return [{ account_id: 'a', display_name: 'Bima', capabilities: ['manage_members'], version: 1 }];
     }
@@ -156,8 +157,9 @@ describe('a signed-in inventor', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Beranda' })).toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: 'Bertindak sebagai' })).toHaveDisplayValue('Rani · Pribadi');
     expect(screen.getByText('Memeriksa layanan…')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Lihat rencana Portofolio inovasi/ })).toHaveAttribute('href', '/segera-hadir/inovasi');
+    expect(screen.getByRole('link', { name: /Lihat rencana Kecocokan/ })).toHaveAttribute('href', '/segera-hadir/kecocokan');
     expect(screen.queryByRole('link', { name: /Lihat rencana Akun dan konteks kerja/ })).toBeNull();
+    expect(screen.queryByRole('link', { name: /Lihat rencana Portofolio inovasi/ })).toBeNull();
   });
 
   it.each([
@@ -302,10 +304,10 @@ describe('features of optional capabilities', () => {
   it('offers no optional feature when the manifest cannot be read', async () => {
     deployed = null;
 
-    render((await InventionsPage()) as ReactElement);
+    render((await SettingsPage({ searchParams: Promise.resolve({}) })) as ReactElement);
 
     expect(screen.queryByRole('link', { name: /Lihat rencana Pendanaan Perusahaan/ })).toBeNull();
-    expect(screen.getByRole('link', { name: /Lihat rencana Portofolio inovasi/ })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Lihat rencana Dokumen/ })).toBeInTheDocument();
   });
 });
 
