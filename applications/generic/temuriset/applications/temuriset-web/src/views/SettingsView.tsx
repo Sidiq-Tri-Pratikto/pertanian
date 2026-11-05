@@ -3,7 +3,7 @@ import { ChoiceGroup } from '@/components/tr/ChoiceGroup';
 import { Screen } from '@/components/tr/Screen';
 import { Status } from '@/components/tr/Status';
 import type { Persona } from '@/features/persona';
-import { FEATURES } from '@/features/registry';
+import { FEATURES, type Capabilities } from '@/features/registry';
 import { ServiceStatus } from '@/features/ServiceStatus';
 import { FeatureList, PersonaContext, PROVENANCE } from '@/views/parts';
 import { PERSONA_CHOICES } from '@/views/StartView';
@@ -13,10 +13,11 @@ type SettingsViewProps = {
   persona: Persona;
   saved: boolean;
   invalid: boolean;
+  capabilities: Capabilities;
 };
 
 /** S18 in the base release: change the persona view, check the service, and read every planned feature. */
-export function SettingsView({ action, persona, saved, invalid }: SettingsViewProps) {
+export function SettingsView({ action, persona, saved, invalid, capabilities }: SettingsViewProps) {
   return (
     <Screen
       persona={persona}
@@ -59,7 +60,7 @@ export function SettingsView({ action, persona, saved, invalid }: SettingsViewPr
         <ServiceStatus />
       </section>
       <div id="rencana">
-        <FeatureList ids={FEATURES.map((feature) => feature.id)} title="Rencana fitur" />
+        <FeatureList ids={FEATURES.map((feature) => feature.id)} capabilities={capabilities} title="Rencana fitur" />
       </div>
     </Screen>
   );

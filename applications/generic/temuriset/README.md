@@ -132,6 +132,7 @@ Each application creates its `.env` from `.env.example` on first run, and the de
 | Variable | Where | Default | Use |
 |---|---|---|---|
 | `COMPOSITION` | API `.env` | `generic-base` | Also `generic-with-review` or `project-support-only` |
+| `COMPOSITION_OVERRIDES` | API `.env` | `{}` | Switch one capability on or off, for example `{"company_funding": false}` |
 | `DATABASE_URL` | API `.env` | Postgres on `localhost:5442` | Point at another database |
 | `API_URL` | web `.env` | `http://localhost:8020` | Where the web app forwards API calls |
 

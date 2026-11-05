@@ -44,6 +44,8 @@ Run one test with `uv run pytest tests/unit/health/test_health.py -v`, or match 
 | `LOG_LEVEL` | no | `INFO` | Log level |
 | `CORS_ALLOWED_ORIGINS` | no | `[]` | JSON list of browser origins; the web client proxies through its own origin and needs none |
 | `COMPOSITION` | no | `generic-base` | `generic-base`, `generic-with-review` or `project-support-only`; anything else stops startup |
+| `COMPOSITION_OVERRIDES` | no | `{}` | JSON object switching capabilities on or off on top of the composition, for example `{"organization_review": true}`. An unknown capability, a missing dependency or a secret-looking value stops startup |
+| `FILE_SCANNER` | no | `development-accept` | `clamav` or `development-accept`; the second stops startup outside development |
 | `SKIP_MIGRATIONS` | no | `false` | Container start skips migrations when `true` |
 | `PORT` | no | `8000` | Container listen port (`make run` uses 8020 on the host) |
 

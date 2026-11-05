@@ -8,6 +8,11 @@ vi.mock('next/headers', () => ({
   cookies: async () => ({ get: (name: string) => (cookieJar.has(name) ? { value: cookieJar.get(name) } : undefined), set: setCookie }),
 }));
 
+// The manifest a page reads; each test can change what the deployment runs.
+let deployed: string[] | null = ['core', 'company_funding'];
+
+vi.mock('@/features/capabilities', () => ({ readCapabilities: async () => deployed }));
+
 class Redirect extends Error {
   constructor(readonly url: string) {
     super(url);
@@ -49,6 +54,7 @@ function form(values: Record<string, string>): FormData {
 }
 
 beforeEach(() => {
+  deployed = ['core', 'company_funding'];
   cookieJar.clear();
   setCookie.mockClear();
   vi.stubGlobal('fetch', vi.fn(() => new Promise(() => {})));
@@ -159,6 +165,39 @@ describe('destinations for an inventor', () => {
     render((await SettingsPage({ searchParams: Promise.resolve({ galat: 'peran' }) })) as ReactElement);
 
     expect(screen.getByRole('alert')).toHaveTextContent('Pilih salah satu tampilan');
+  });
+});
+
+describe('features of optional capabilities', () => {
+  beforeEach(() => {
+    cookieJar.set('tr_persona', 'inovator');
+  });
+
+  it('lists company funding where the deployment runs it, and not organization review', async () => {
+    render((await SettingsPage({ searchParams: Promise.resolve({}) })) as ReactElement);
+
+    expect(screen.getByRole('heading', { name: 'Pendanaan Perusahaan' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Tinjauan organisasi' })).toBeNull();
+  });
+
+  it('hides company funding in a project-support-only deployment, even at its direct address', async () => {
+    deployed = ['core'];
+
+    render((await SettingsPage({ searchParams: Promise.resolve({}) })) as ReactElement);
+    expect(screen.queryByRole('heading', { name: 'Pendanaan Perusahaan' })).toBeNull();
+    expect(screen.getByRole('heading', { name: 'Portofolio inovasi' })).toBeInTheDocument();
+
+    render((await ComingSoon.default({ params: Promise.resolve({ feature: 'pendanaan-perusahaan' }) })) as ReactElement);
+    expect(screen.getByRole('heading', { level: 1, name: 'Fitur tidak dikenal' })).toBeInTheDocument();
+  });
+
+  it('offers no optional feature when the manifest cannot be read', async () => {
+    deployed = null;
+
+    render((await InventionsPage()) as ReactElement);
+
+    expect(screen.queryByRole('link', { name: /Lihat rencana Pendanaan Perusahaan/ })).toBeNull();
+    expect(screen.getByRole('link', { name: /Lihat rencana Portofolio inovasi/ })).toBeInTheDocument();
   });
 });
 

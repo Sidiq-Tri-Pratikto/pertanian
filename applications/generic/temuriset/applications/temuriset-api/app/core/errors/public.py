@@ -49,6 +49,11 @@ PUBLIC_ERROR_BY_CODE: dict[str, PublicError] = {
         "Layanan data sedang tidak tersedia. Coba lagi beberapa menit lagi.",
         {"retryable": True, "retry_after_seconds": 30, "max_attempts": 3},
     ),
+    codes.APP_CAPABILITY_UNAVAILABLE: PublicError(
+        "CAPABILITY_UNAVAILABLE",
+        403,
+        "Fitur ini tidak tersedia pada layanan ini. Hubungi pengelola layanan bila Anda memerlukannya.",
+    ),
 }
 
 PUBLIC_ERROR_BY_STATUS: dict[int, PublicError] = {

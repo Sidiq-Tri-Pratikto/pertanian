@@ -8,7 +8,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.capabilities.router import router as capabilities_router
-from app.capabilities.service.service import SOURCE_RELEASE, build_manifest
+from app.capabilities.service.configuration import validate_configuration
+from app.capabilities.service.service import SOURCE_RELEASE
 from app.core.database import get_engine
 from app.core.errors.database import handle_database_error
 from app.core.errors.handlers import ErrorBoundaryMiddleware, register_exception_handlers
@@ -35,7 +36,7 @@ def create_app() -> FastAPI:
     """
     settings = get_settings()
     setup_logging(settings.log_level)
-    build_manifest(settings.composition)  # An unsupported composition must stop startup.
+    validate_configuration(settings)  # Unsafe or unsupported configuration must never serve traffic.
     app = FastAPI(title="temuriset-api", version=SOURCE_RELEASE, lifespan=lifespan)
     app.add_middleware(ErrorBoundaryMiddleware)
     if settings.cors_allowed_origins:

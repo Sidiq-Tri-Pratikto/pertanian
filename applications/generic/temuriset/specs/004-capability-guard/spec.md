@@ -2,7 +2,7 @@
 
 **Feature Branch**: `004-capability-guard`
 **Created**: 2026-11-05
-**Status**: Seeded, not started
+**Status**: Built, awaiting review
 **Milestone**: M0 Foundations
 **Depends on**: 001
 **Size**: S
