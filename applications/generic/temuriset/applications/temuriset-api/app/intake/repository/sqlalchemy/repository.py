@@ -98,6 +98,20 @@ class SqlAlchemyIntakeRepository:
             query = query.where(OpportunityRecord.status != "DRAFT")
         return list(await self.session.scalars(query.order_by(OpportunityRecord.updated_at.desc()).limit(limit)))
 
+    async def live(self, limit: int) -> list[OpportunityRecord]:
+        """List opportunities stored as active, of every partner, oldest first so the order is stable.
+
+        Args:
+            limit (int): The most to return.
+
+        Returns:
+            list[OpportunityRecord]: Opportunities; the caller still checks ``closes_at``.
+        """
+        query = select(OpportunityRecord).where(OpportunityRecord.status == "ACTIVE")
+        return list(
+            await self.session.scalars(query.order_by(OpportunityRecord.created_at, OpportunityRecord.id).limit(limit))
+        )
+
     async def open_general_intake(self, party_id: UUID) -> OpportunityRecord | None:
         """Find a partner's general intake that is not closed or expired.
 

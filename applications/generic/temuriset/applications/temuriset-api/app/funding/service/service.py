@@ -260,6 +260,37 @@ class FundingService:
         """
         return await self.view(await self._owned(principal, request_id))
 
+    async def source(self, principal: Principal, request_id: UUID) -> tuple[FundingRequestResponse, list[UUID]]:
+        """Read an owned raise for matching, with the invention versions it links (019).
+
+        Args:
+            principal (Principal): Who is signed in.
+            request_id (UUID): The raise.
+
+        Returns:
+            tuple[FundingRequestResponse, list[UUID]]: The raise and its linked invention versions, in order.
+
+        Raises:
+            NotFoundError: When the acting party does not own it.
+        """
+        record = await self._owned(principal, request_id)
+        links = await self.repository.links(record.id)
+        return await self.view(record), [link.invention_version_id for link in links]
+
+    async def published(self, request_id: UUID) -> tuple[UUID, FundingRequestResponse] | None:
+        """Read an active raise as discovery may show it (018). Drafts and ended raises are not published.
+
+        Args:
+            request_id (UUID): The raise.
+
+        Returns:
+            tuple[UUID, FundingRequestResponse] | None: Its owner and content, or None when it is not active.
+        """
+        record = await self.repository.find(request_id)
+        if record is None or record.status != "ACTIVE":
+            return None
+        return record.owner_party_id, await self.view(record)
+
     async def version(self, principal: Principal, request_id: UUID, number: int) -> dict:
         """Read the request as it stood at an earlier version.
 

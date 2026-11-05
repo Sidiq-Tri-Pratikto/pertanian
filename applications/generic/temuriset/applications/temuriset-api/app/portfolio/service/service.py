@@ -18,6 +18,7 @@ from app.portfolio.model.schema import (
     DraftRequest,
     InventionResponse,
     InventionSummaryResponse,
+    InventionVersionResponse,
     PublicClaimResponse,
     PublicFactResponse,
     PublicInventionResponse,
@@ -274,6 +275,7 @@ class PortfolioService:
         names = await party_names(self.session, [invention.managing_party_id])
         return PublicInventionResponse(
             id=invention.id,
+            managing_party_id=invention.managing_party_id,
             managing_party_name=names.get(invention.managing_party_id, ""),
             number=version.number,
             title=version.title,
@@ -288,6 +290,23 @@ class PortfolioService:
             claims=[PublicClaimResponse.model_validate(claim.model_dump()) for claim in version.claims],
             published_at=version.published_at,
         )
+
+
+async def version_view(session: AsyncSession, version_id: UUID) -> InventionVersionResponse:
+    """Read one invention version with its fact keys, document links and claims, for matching (019).
+
+    Callers must have authorized the version first: it includes what only its owner may read.
+
+    Args:
+        session (AsyncSession): The request's session.
+        version_id (UUID): The version.
+
+    Returns:
+        InventionVersionResponse: The version.
+    """
+    version = await SqlAlchemyPortfolioRepository(session).version(version_id)
+    assert version is not None  # noqa: S101 - references are foreign keys
+    return version
 
 
 async def submittable_version(session: AsyncSession, invention_id: UUID) -> UUID:

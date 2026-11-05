@@ -468,6 +468,7 @@ class IntakeService:
             id=record.id,
             partner_party_id=record.partner_party_id,
             version=record.version,
+            current_version_id=version.id,
             kind=record.kind,
             status=status,
             closes_at=record.closes_at,
@@ -796,6 +797,68 @@ class IntakeService:
             )
             for record in records
         ]
+
+    async def _others_views(self, records: list[OpportunityRecord]) -> list[OpportunityResponse]:
+        if not records:
+            return []
+        version_ids = [record.current_version_id for record in records]
+        versions = await self.repository.versions(version_ids)
+        rows = await self.repository.requirements(version_ids)
+        profiles = {
+            party_id: await self.repository.profile(party_id)
+            for party_id in {record.partner_party_id for record in records}
+        }
+        return [
+            self._view(
+                record,
+                versions[record.current_version_id],
+                rows[record.current_version_id],
+                profiles[record.partner_party_id],
+                owner=False,
+            )
+            for record in records
+        ]
+
+    async def published_opportunities(self, party_id: UUID) -> list[OpportunityResponse]:
+        """List a partner's active opportunities as an applicant reads them, for discovery (018).
+
+        Args:
+            party_id (UUID): The partner.
+
+        Returns:
+            list[OpportunityResponse]: Active opportunities with their current version.
+        """
+        records = await self.repository.of_partner(party_id, include_drafts=False, limit=100)
+        views = await self._others_views(records)
+        return [view for view in views if view.status == "ACTIVE"]
+
+    async def active_targets(self, excluded_party_id: UUID, limit: int = 500) -> list[OpportunityResponse]:
+        """List every other partner's active opportunity as an applicant reads it, for matching (019).
+
+        Args:
+            excluded_party_id (UUID): The applicant, whose own opportunities are left out.
+            limit (int, optional): The most to evaluate. Defaults to 500.
+
+        Returns:
+            list[OpportunityResponse]: Active opportunities; ``PARTNER_ONLY`` requirements are not included.
+        """
+        records = [
+            record for record in await self.repository.live(limit) if record.partner_party_id != excluded_party_id
+        ]
+        views = await self._others_views(records)
+        return [view for view in views if view.status == "ACTIVE"]
+
+    async def partner_of(self, opportunity_id: UUID) -> UUID | None:
+        """Return the partner that owns an opportunity.
+
+        Args:
+            opportunity_id (UUID): The opportunity.
+
+        Returns:
+            UUID | None: The partner, or None when it does not exist.
+        """
+        record = await self.repository.find(opportunity_id)
+        return record.partner_party_id if record else None
 
     async def target_availability(self, opportunity_id: UUID) -> TargetAvailabilityResponse:
         """Say whether a pitch may target this now. Matching (019) and submission (023) call this, never their own rule.

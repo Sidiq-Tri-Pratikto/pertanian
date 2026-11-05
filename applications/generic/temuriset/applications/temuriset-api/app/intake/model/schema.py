@@ -250,6 +250,7 @@ class OpportunityResponse(OpportunityVersionContent):
     id: UUID
     partner_party_id: UUID
     version: int
+    current_version_id: UUID
     kind: OpportunityKind
     status: OpportunityStatus
     closes_at: AwareDatetime | None
