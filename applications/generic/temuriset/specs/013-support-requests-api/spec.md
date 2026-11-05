@@ -2,7 +2,7 @@
 
 **Feature Branch**: `013-support-requests-api`
 **Created**: 2026-11-05
-**Status**: Seeded, not started
+**Status**: Built, awaiting review
 **Milestone**: M3 Needs and funding
 **Depends on**: 009
 **Size**: M

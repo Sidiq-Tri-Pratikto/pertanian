@@ -25,6 +25,8 @@ One row per error. Keep in sync with `app/core/errors/codes.py` and `public.py`.
 | `APP-FILE-TYPE-UNSUPPORTED` | `FILE_TYPE_UNSUPPORTED` | 422 | Jenis berkas ini tidak didukung. Unggah PDF, DOCX, PNG, JPEG atau WEBP. | Declared media type not accepted | false | - | - |
 | `APP-FILE-NOT-AVAILABLE` | `FILE_NOT_AVAILABLE` | 409 | Berkas ini belum tersedia atau ditolak saat pemeriksaan. Tunggu pemeriksaan selesai. | Download of a quarantined or rejected version | false | - | - |
 | `APP-GRANT-REVOKED` | `GRANT_REVOKED` | 403 | Akses ke dokumen ini sudah dicabut. Salinan yang sudah diunduh sebelumnya tidak dapat ditarik kembali. | Download under a revoked grant, range requests included | false | - | - |
+| `APP-FIELDS-INVALID` | `VALIDATION_FAILED` | 422 | Ada isian yang belum valid. Perbaiki isian yang ditandai lalu simpan lagi. | A save whose fields break a rule, such as a budget with a negative minimum; `details` names each field in Indonesian and nothing is stored | false | - | - |
+| `APP-INVALID-TRANSITION` | `INVALID_TRANSITION` | 409 | Status ini tidak dapat diubah dengan cara itu. Muat ulang untuk melihat status terbaru. | A status change the current status does not allow, such as reactivating a closed support request | false | - | - |
 
 A missing `Idempotency-Key` on a consequential POST is `BAD_REQUEST` with `details` naming the header.
 

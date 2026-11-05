@@ -89,6 +89,321 @@
         "title": "AdapterResponse",
         "type": "object"
       },
+      "BudgetInput": {
+        "description": "The cost range of the request. Leave min and max empty with a reason when it is not known yet.",
+        "properties": {
+          "assumptions": {
+            "default": "",
+            "maxLength": 2000,
+            "title": "Assumptions",
+            "type": "string"
+          },
+          "basis": {
+            "default": "total_period",
+            "enum": [
+              "total_period",
+              "monthly",
+              "yearly"
+            ],
+            "title": "Basis",
+            "type": "string"
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "pattern": "^[A-Z]{3}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency"
+          },
+          "estimated_on": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimated On"
+          },
+          "financial": {
+            "default": true,
+            "title": "Financial",
+            "type": "boolean"
+          },
+          "lines": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/BudgetLineInput"
+            },
+            "maxItems": 50,
+            "title": "Lines",
+            "type": "array"
+          },
+          "lines_explanation": {
+            "default": "",
+            "maxLength": 1000,
+            "title": "Lines Explanation",
+            "type": "string"
+          },
+          "max": {
+            "anyOf": [
+              {
+                "maxLength": 24,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max"
+          },
+          "min": {
+            "anyOf": [
+              {
+                "maxLength": 24,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min"
+          },
+          "period": {
+            "default": "",
+            "maxLength": 80,
+            "title": "Period",
+            "type": "string"
+          },
+          "scope": {
+            "default": "",
+            "maxLength": 2000,
+            "title": "Scope",
+            "type": "string"
+          },
+          "unknown_reason": {
+            "anyOf": [
+              {
+                "enum": [
+                  "not_determined",
+                  "not_disclosed"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unknown Reason"
+          }
+        },
+        "title": "BudgetInput",
+        "type": "object"
+      },
+      "BudgetLineInput": {
+        "description": "One cost line.",
+        "properties": {
+          "explanation": {
+            "default": "",
+            "maxLength": 500,
+            "title": "Explanation",
+            "type": "string"
+          },
+          "label": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Label",
+            "type": "string"
+          },
+          "quantity": {
+            "maxLength": 24,
+            "title": "Quantity",
+            "type": "string"
+          },
+          "unit_cost": {
+            "maxLength": 24,
+            "title": "Unit Cost",
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "quantity",
+          "unit_cost"
+        ],
+        "title": "BudgetLineInput",
+        "type": "object"
+      },
+      "BudgetLineResponse": {
+        "description": "A stored line and its exact total.",
+        "properties": {
+          "explanation": {
+            "title": "Explanation",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "quantity": {
+            "title": "Quantity",
+            "type": "string"
+          },
+          "total": {
+            "title": "Total",
+            "type": "string"
+          },
+          "unit_cost": {
+            "title": "Unit Cost",
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "quantity",
+          "unit_cost",
+          "total",
+          "explanation"
+        ],
+        "title": "BudgetLineResponse",
+        "type": "object"
+      },
+      "BudgetResponse": {
+        "description": "A stored budget. Unknown money is ``null`` with ``unknown_reason``, never zero.",
+        "properties": {
+          "assumptions": {
+            "title": "Assumptions",
+            "type": "string"
+          },
+          "basis": {
+            "enum": [
+              "total_period",
+              "monthly",
+              "yearly"
+            ],
+            "title": "Basis",
+            "type": "string"
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency"
+          },
+          "estimated_on": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimated On"
+          },
+          "financial": {
+            "title": "Financial",
+            "type": "boolean"
+          },
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/BudgetLineResponse"
+            },
+            "title": "Lines",
+            "type": "array"
+          },
+          "lines_explanation": {
+            "title": "Lines Explanation",
+            "type": "string"
+          },
+          "lines_total": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lines Total"
+          },
+          "max": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max"
+          },
+          "min": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min"
+          },
+          "period": {
+            "title": "Period",
+            "type": "string"
+          },
+          "scope": {
+            "title": "Scope",
+            "type": "string"
+          },
+          "unknown_reason": {
+            "anyOf": [
+              {
+                "enum": [
+                  "not_determined",
+                  "not_disclosed"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unknown Reason"
+          }
+        },
+        "required": [
+          "min",
+          "max",
+          "currency",
+          "basis",
+          "period",
+          "scope",
+          "estimated_on",
+          "assumptions",
+          "unknown_reason",
+          "financial",
+          "lines",
+          "lines_total",
+          "lines_explanation"
+        ],
+        "title": "BudgetResponse",
+        "type": "object"
+      },
       "Capability": {
         "description": "What a member may do as an organization (FR02). A personal party holds every capability.",
         "enum": [
@@ -498,6 +813,111 @@
           "kind"
         ],
         "title": "CreateOrganizationRequest",
+        "type": "object"
+      },
+      "CreateSupportRequest": {
+        "description": "Start a request for a published invention.",
+        "properties": {
+          "accepts_noncash": {
+            "default": false,
+            "title": "Accepts Noncash",
+            "type": "boolean"
+          },
+          "accepts_partial": {
+            "default": false,
+            "title": "Accepts Partial",
+            "type": "boolean"
+          },
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "budget": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BudgetInput"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "invention_id": {
+            "format": "uuid",
+            "title": "Invention Id",
+            "type": "string"
+          },
+          "months": {
+            "anyOf": [
+              {
+                "maximum": 120.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Months"
+          },
+          "noncash_description": {
+            "default": "",
+            "maxLength": 1000,
+            "title": "Noncash Description",
+            "type": "string"
+          },
+          "outcome": {
+            "default": "",
+            "maxLength": 200,
+            "title": "Outcome",
+            "type": "string"
+          },
+          "region": {
+            "default": "",
+            "maxLength": 120,
+            "title": "Region",
+            "type": "string"
+          },
+          "relationship_form": {
+            "default": "PROJECT",
+            "enum": [
+              "PROJECT",
+              "LICENSE"
+            ],
+            "title": "Relationship Form",
+            "type": "string"
+          },
+          "scope": {
+            "default": "",
+            "maxLength": 2000,
+            "title": "Scope",
+            "type": "string"
+          },
+          "support_forms": {
+            "default": [],
+            "items": {
+              "enum": [
+                "project_funding",
+                "testing_support",
+                "mentoring",
+                "facilities",
+                "distribution",
+                "technical_partner",
+                "other"
+              ],
+              "type": "string"
+            },
+            "maxItems": 7,
+            "title": "Support Forms",
+            "type": "array"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "invention_id"
+        ],
+        "title": "CreateSupportRequest",
         "type": "object"
       },
       "DocumentResponse": {
@@ -2032,6 +2452,149 @@
         "title": "RevokedResponse",
         "type": "object"
       },
+      "SupportRequestResponse": {
+        "description": "One support request as its owner sees it.",
+        "properties": {
+          "accepts_noncash": {
+            "title": "Accepts Noncash",
+            "type": "boolean"
+          },
+          "accepts_partial": {
+            "title": "Accepts Partial",
+            "type": "boolean"
+          },
+          "budget": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BudgetResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "invention_id": {
+            "format": "uuid",
+            "title": "Invention Id",
+            "type": "string"
+          },
+          "invention_title": {
+            "title": "Invention Title",
+            "type": "string"
+          },
+          "invention_version": {
+            "title": "Invention Version",
+            "type": "integer"
+          },
+          "months": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Months"
+          },
+          "noncash_description": {
+            "title": "Noncash Description",
+            "type": "string"
+          },
+          "operation_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operation Id"
+          },
+          "outcome": {
+            "title": "Outcome",
+            "type": "string"
+          },
+          "region": {
+            "title": "Region",
+            "type": "string"
+          },
+          "relationship_form": {
+            "enum": [
+              "PROJECT",
+              "LICENSE"
+            ],
+            "title": "Relationship Form",
+            "type": "string"
+          },
+          "scope": {
+            "title": "Scope",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "support_forms": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Support Forms",
+            "type": "array"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "version",
+          "invention_id",
+          "invention_version",
+          "invention_title",
+          "outcome",
+          "support_forms",
+          "relationship_form",
+          "scope",
+          "months",
+          "region",
+          "accepts_partial",
+          "accepts_noncash",
+          "noncash_description",
+          "status",
+          "budget"
+        ],
+        "title": "SupportRequestResponse",
+        "type": "object"
+      },
+      "TransitionRequest": {
+        "description": "Activate, pause or close against the version the client saw.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "expected_version": {
+            "title": "Expected Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "expected_version"
+        ],
+        "title": "TransitionRequest",
+        "type": "object"
+      },
       "UpdateMeRequest": {
         "description": "Change account preferences.",
         "properties": {
@@ -2099,6 +2662,110 @@
           "expected_version"
         ],
         "title": "UpdateMeRequest",
+        "type": "object"
+      },
+      "UpdateSupportRequest": {
+        "description": "Replace the content against the version the client saw.",
+        "properties": {
+          "accepts_noncash": {
+            "default": false,
+            "title": "Accepts Noncash",
+            "type": "boolean"
+          },
+          "accepts_partial": {
+            "default": false,
+            "title": "Accepts Partial",
+            "type": "boolean"
+          },
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "budget": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BudgetInput"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "expected_version": {
+            "title": "Expected Version",
+            "type": "integer"
+          },
+          "months": {
+            "anyOf": [
+              {
+                "maximum": 120.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Months"
+          },
+          "noncash_description": {
+            "default": "",
+            "maxLength": 1000,
+            "title": "Noncash Description",
+            "type": "string"
+          },
+          "outcome": {
+            "default": "",
+            "maxLength": 200,
+            "title": "Outcome",
+            "type": "string"
+          },
+          "region": {
+            "default": "",
+            "maxLength": 120,
+            "title": "Region",
+            "type": "string"
+          },
+          "relationship_form": {
+            "default": "PROJECT",
+            "enum": [
+              "PROJECT",
+              "LICENSE"
+            ],
+            "title": "Relationship Form",
+            "type": "string"
+          },
+          "scope": {
+            "default": "",
+            "maxLength": 2000,
+            "title": "Scope",
+            "type": "string"
+          },
+          "support_forms": {
+            "default": [],
+            "items": {
+              "enum": [
+                "project_funding",
+                "testing_support",
+                "mentoring",
+                "facilities",
+                "distribution",
+                "technical_partner",
+                "other"
+              ],
+              "type": "string"
+            },
+            "maxItems": 7,
+            "title": "Support Forms",
+            "type": "array"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "expected_version"
+        ],
+        "title": "UpdateSupportRequest",
         "type": "object"
       },
       "UploadIntentRequest": {
@@ -3907,6 +4574,380 @@
         "summary": "Remove a member",
         "tags": [
           "organizations"
+        ]
+      }
+    },
+    "/api/v1/support-requests": {
+      "get": {
+        "description": "List the acting party's requests, optionally for one invention.\n\nArgs:\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    invention_id (UUID | None, optional): Only this invention's. Defaults to None.\n\nReturns:\n    list[SupportRequestResponse]: Requests.",
+        "operationId": "list_support_requests_api_v1_support_requests_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "invention_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Invention Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SupportRequestResponse"
+                  },
+                  "title": "Response List Support Requests Api V1 Support Requests Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "List my support requests",
+        "tags": [
+          "support requests"
+        ]
+      },
+      "post": {
+        "description": "Start a draft request for a published invention, with an optional budget.\n\nArgs:\n    body (CreateSupportRequest): Invention and content.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    SupportRequestResponse: The draft.",
+        "operationId": "create_support_request_api_v1_support_requests_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSupportRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupportRequestResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Start a support request",
+        "tags": [
+          "support requests"
+        ]
+      }
+    },
+    "/api/v1/support-requests/{request_id}": {
+      "get": {
+        "description": "Read one request as its owner.\n\nArgs:\n    request_id (UUID): The request.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    SupportRequestResponse: The request.",
+        "operationId": "read_support_request_api_v1_support_requests__request_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "request_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Request Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupportRequestResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Read a support request",
+        "tags": [
+          "support requests"
+        ]
+      },
+      "put": {
+        "description": "Replace the content as a new version against ``expected_version``.\n\nArgs:\n    request_id (UUID): The request.\n    body (UpdateSupportRequest): Content.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried save.\n\nReturns:\n    SupportRequestResponse: The new version.",
+        "operationId": "update_support_request_api_v1_support_requests__request_id__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "request_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Request Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSupportRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupportRequestResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Change a support request",
+        "tags": [
+          "support requests"
+        ]
+      }
+    },
+    "/api/v1/support-requests/{request_id}/versions/{number}": {
+      "get": {
+        "description": "Read a request as it stood at one version.\n\nArgs:\n    request_id (UUID): The request.\n    number (int): The version.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    dict: The snapshot.",
+        "operationId": "read_support_request_version_api_v1_support_requests__request_id__versions__number__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "request_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Request Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "number",
+            "required": true,
+            "schema": {
+              "title": "Number",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Read Support Request Version Api V1 Support Requests  Request Id  Versions  Number  Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Read an earlier version",
+        "tags": [
+          "support requests"
+        ]
+      }
+    },
+    "/api/v1/support-requests/{request_id}/{action}": {
+      "post": {
+        "description": "Change the status: DRAFT to ACTIVE, ACTIVE and PAUSED back and forth, and CLOSED.\n\nArgs:\n    request_id (UUID): The request.\n    action (Literal[\"activate\", \"pause\", \"close\"]): The change.\n    body (TransitionRequest): Acting party and ``expected_version``.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    SupportRequestResponse: The request in its new status.",
+        "operationId": "transition_support_request_api_v1_support_requests__request_id___action__post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "request_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Request Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "action",
+            "required": true,
+            "schema": {
+              "enum": [
+                "activate",
+                "pause",
+                "close"
+              ],
+              "title": "Action",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TransitionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupportRequestResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Activate, pause or close",
+        "tags": [
+          "support requests"
         ]
       }
     },

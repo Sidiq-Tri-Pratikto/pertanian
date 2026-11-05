@@ -144,3 +144,23 @@ class ForbiddenError(AppError):
     """The caller may see the resource but not do this."""
 
     code = codes.APP_FORBIDDEN
+
+
+class FieldsInvalidError(AppError):
+    """A business rule on named fields failed; ``details`` carries one Indonesian message per field."""
+
+    code = codes.APP_FIELDS_INVALID
+
+    def __init__(self, details: list[dict]) -> None:
+        """Carry the field errors.
+
+        Args:
+            details (list[dict]): ``loc``, ``msg`` and ``type`` per field.
+        """
+        super().__init__(public_fields={"details": details})
+
+
+class InvalidTransitionError(AppError):
+    """The requested status change is not allowed from the current status."""
+
+    code = codes.APP_INVALID_TRANSITION

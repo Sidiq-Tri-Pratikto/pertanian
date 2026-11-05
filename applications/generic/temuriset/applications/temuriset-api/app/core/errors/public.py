@@ -113,6 +113,14 @@ PUBLIC_ERROR_BY_CODE: dict[str, PublicError] = {
         403,
         "Akses ke dokumen ini sudah dicabut. Salinan yang sudah diunduh sebelumnya tidak dapat ditarik kembali.",
     ),
+    codes.APP_FIELDS_INVALID: PublicError(
+        "VALIDATION_FAILED", 422, "Ada isian yang belum valid. Perbaiki isian yang ditandai lalu simpan lagi."
+    ),
+    codes.APP_INVALID_TRANSITION: PublicError(
+        "INVALID_TRANSITION",
+        409,
+        "Status ini tidak dapat diubah dengan cara itu. Muat ulang untuk melihat status terbaru.",
+    ),
 }
 
 PUBLIC_ERROR_BY_STATUS: dict[int, PublicError] = {

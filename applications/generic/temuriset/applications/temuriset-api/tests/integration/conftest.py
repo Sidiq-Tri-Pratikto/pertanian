@@ -14,6 +14,7 @@ from app.core.settings import get_settings
 from app.main import app
 
 TABLES = (
+    "project_budget_lines, project_budgets, support_request_versions, support_requests, "
     "download_events, document_grants, document_versions, upload_intents, documents, "
     "invention_claims, invention_facts, invention_versions, inventions, "
     "idempotency_records, audit_events, outbox_deliveries, outbox_events, jobs, "
@@ -119,3 +120,42 @@ def latest_code() -> LatestCode:
 def new_client() -> Callable[[], AsyncClient]:
     """Make another browser: its own cookie jar, same web origin."""
     return lambda: AsyncClient(transport=ASGITransport(app=app), base_url="http://test", headers={"Origin": WEB_ORIGIN})
+
+
+async def _published_invention(client: AsyncClient, title: str = "Saringan air keramik desa") -> dict:
+    """Create and publish an invention as the client's active party; return the owner view."""
+    me = (await client.get("/api/v1/me")).json()
+    party = me["active_party_id"]
+    created = (
+        await client.post(
+            "/api/v1/inventions", json={"acting_party_id": party}, headers={"Idempotency-Key": f"c-{title}"}
+        )
+    ).json()
+    content = {
+        "title": title,
+        "problem": "Air keruh.",
+        "solution": "Saringan keramik.",
+        "intended_users": "Rumah tangga",
+        "stage": "PROTOTYPE",
+        "facts": [{"label": "Kapasitas", "value": "10", "unit": "L/jam", "timing": "CURRENT"}],
+    }
+    saved = (
+        await client.put(
+            f"/api/v1/inventions/{created['id']}/draft",
+            json={"acting_party_id": party, "expected_version": created["version"], **content},
+            headers={"Idempotency-Key": f"s-{title}"},
+        )
+    ).json()
+    published = await client.post(
+        f"/api/v1/inventions/{created['id']}/publish",
+        json={"acting_party_id": party, "expected_version": saved["version"]},
+        headers={"Idempotency-Key": f"p-{title}"},
+    )
+    assert published.status_code == 200, published.text
+    return (await client.get(f"/api/v1/inventions/{created['id']}")).json()
+
+
+@pytest.fixture
+def published_invention() -> Callable[..., Awaitable[dict]]:
+    """Create and publish an invention for the client's active party."""
+    return _published_invention

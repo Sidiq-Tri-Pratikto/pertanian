@@ -35,6 +35,8 @@ make check             # lint, format check, all tests, 80% coverage gate
 | `tests/integration/identity/` | Sign-up for both personas without an organization, codes wrong, expired and used up, 1,000-guess brute force, rate limits, no account leak, sign-out, cross-origin refusal, `PATCH /me` | Postgres |
 | `tests/integration/documents/` | Limits before upload, quarantine and scan (AC13, AC14), scans without text (AC15), signature mismatch, grants, ranges and revocation (AC65), a 20 MB round trip | Postgres |
 | `tests/unit/documents/` | ClamAV INSTREAM against a fake daemon, byte sniffing, extraction, chunked storage | Nothing |
+| `tests/integration/needs/` | Support requests: exact budgets as strings (F01), invalid ranges per field (AC16), unknown money as null with a reason (AC17), exact line totals, status changes, versions, stale saves | Postgres |
+| `tests/unit/needs/` | Budget rules and when two ranges compare directly (AC18) | Nothing |
 | `tests/integration/portfolio/` | Drafts, each publication rule, immutable versions (AC07–AC11), stale drafts, archive, public projection, outbox events | Postgres |
 | `tests/integration/access/` | Organizations, capabilities (AC04), hidden organizations (AC05), a removed member's job denied (AC06), invitations expired and revoked, stale context, last manager | Postgres |
 | `tests/integration/test_isolation.py` | Every data route called as an unrelated party returns `NOT_FOUND` or nothing; fails when a new route is not registered | Postgres |
@@ -102,5 +104,9 @@ Run one test with `uv run pytest tests/unit/health/test_health.py -v`, or match 
 | `GET /api/v1/documents`, `GET /api/v1/documents/{id}` | The acting party's documents: versions with file, extraction and review states, and grants |
 | `POST /api/v1/documents/{id}/grants`, `POST /api/v1/grants/{id}/revoke` | Share one version with one party; revoke and report copies already delivered |
 | `GET /api/v1/documents/{id}/versions/{n}/content` | The gateway: re-authorizes every request and range, records grantee downloads, never issues a storage URL |
+| `POST /api/v1/support-requests`, `GET /api/v1/support-requests?invention_id=` | Start a draft request for a published invention with an optional budget; list the acting party's requests |
+| `GET /api/v1/support-requests/{id}`, `GET /api/v1/support-requests/{id}/versions/{n}` | One request as its owner, and any earlier version as it stood |
+| `PUT /api/v1/support-requests/{id}` | Save the content and budget as a new version against `expected_version`; money travels as decimal strings |
+| `POST /api/v1/support-requests/{id}/{activate,pause,close}` | Status changes; activation needs an outcome and at least one form of support |
 | `GET /api/v1/dev/mailbox?email=` | Development only: the codes and notes that would have been emailed |
 | `GET /api/v1/operations/{id}` | Whether the acting party's operation committed, for a client that lost the response |

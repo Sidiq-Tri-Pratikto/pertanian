@@ -46,6 +46,8 @@ class Owner:
     document_id: str
     intent_id: str
     grant_id: str
+    support_request_id: str = ""
+    published_invention_id: str = ""
 
 
 @dataclass
@@ -136,6 +138,30 @@ ROUTES: dict[tuple[str, str], Case] = {
     ("GET", "/api/v1/documents/{document_id}/versions/{number}/content"): Case(
         "GET", lambda o: f"/api/v1/documents/{o.document_id}/versions/1/content"
     ),
+    ("POST", "/api/v1/support-requests"): Case(
+        "POST",
+        lambda _o: "/api/v1/support-requests",
+        lambda o, actor: {"acting_party_id": actor, "invention_id": o.published_invention_id, "outcome": "x"},
+        {"Idempotency-Key": "isolation-support"},
+    ),
+    ("GET", "/api/v1/support-requests"): Case("GET", lambda _o: "/api/v1/support-requests"),
+    ("GET", "/api/v1/support-requests/{request_id}"): Case(
+        "GET", lambda o: f"/api/v1/support-requests/{o.support_request_id}"
+    ),
+    ("GET", "/api/v1/support-requests/{request_id}/versions/{number}"): Case(
+        "GET", lambda o: f"/api/v1/support-requests/{o.support_request_id}/versions/1"
+    ),
+    ("PUT", "/api/v1/support-requests/{request_id}"): Case(
+        "PUT",
+        lambda o: f"/api/v1/support-requests/{o.support_request_id}",
+        lambda _o, actor: {"acting_party_id": actor, "expected_version": 1, "outcome": "x"},
+        {"Idempotency-Key": "isolation-support-update"},
+    ),
+    ("POST", "/api/v1/support-requests/{request_id}/{action}"): Case(
+        "POST",
+        lambda o: f"/api/v1/support-requests/{o.support_request_id}/close",
+        lambda _o, actor: {"acting_party_id": actor, "expected_version": 1},
+    ),
     # Unpublished, so even the public view must not reveal that it exists.
     ("GET", "/api/v1/inventions/{invention_id}/public"): Case(
         "GET", lambda o: f"/api/v1/inventions/{o.invention_id}/public"
@@ -144,7 +170,7 @@ ROUTES: dict[tuple[str, str], Case] = {
 
 
 @pytest.fixture
-async def owner(client: AsyncClient, sign_up) -> AsyncIterator[Owner]:
+async def owner(client: AsyncClient, sign_up, published_invention) -> AsyncIterator[Owner]:
     """Party A: an organization with a member manager, an operation and a pending invitation."""
     await sign_up(client, "owner@example.com", name="Owner")
     organization = (
@@ -214,6 +240,14 @@ async def owner(client: AsyncClient, sign_up) -> AsyncIterator[Owner]:
             headers={"Idempotency-Key": "grant"},
         )
     ).json()
+    published = await published_invention(client, "Owner Co published invention")
+    support = (
+        await client.post(
+            "/api/v1/support-requests",
+            json={"acting_party_id": party, "invention_id": published["id"], "outcome": "Owner Co pilot"},
+            headers={"Idempotency-Key": "support"},
+        )
+    ).json()
     yield Owner(
         organization_id=organization["id"],
         party_id=organization["party_id"],
@@ -225,6 +259,8 @@ async def owner(client: AsyncClient, sign_up) -> AsyncIterator[Owner]:
         document_id=uploaded["document_id"],
         intent_id=spare["intent_id"],
         grant_id=grant["id"],
+        support_request_id=support["id"],
+        published_invention_id=published["id"],
     )
 
 
@@ -270,5 +306,7 @@ async def test_unrelated_party_sees_nothing(
         owner.invention_id,
         owner.document_id,
         "Owner Co document",
+        owner.support_request_id,
+        owner.published_invention_id,
     ):
         assert secret not in response.text

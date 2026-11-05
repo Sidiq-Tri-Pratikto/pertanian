@@ -832,6 +832,148 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/support-requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List my support requests
+         * @description List the acting party's requests, optionally for one invention.
+         *
+         *     Args:
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         invention_id (UUID | None, optional): Only this invention's. Defaults to None.
+         *
+         *     Returns:
+         *         list[SupportRequestResponse]: Requests.
+         */
+        get: operations["list_support_requests_api_v1_support_requests_get"];
+        put?: never;
+        /**
+         * Start a support request
+         * @description Start a draft request for a published invention, with an optional budget.
+         *
+         *     Args:
+         *         body (CreateSupportRequest): Invention and content.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         SupportRequestResponse: The draft.
+         */
+        post: operations["create_support_request_api_v1_support_requests_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/support-requests/{request_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read a support request
+         * @description Read one request as its owner.
+         *
+         *     Args:
+         *         request_id (UUID): The request.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         SupportRequestResponse: The request.
+         */
+        get: operations["read_support_request_api_v1_support_requests__request_id__get"];
+        /**
+         * Change a support request
+         * @description Replace the content as a new version against ``expected_version``.
+         *
+         *     Args:
+         *         request_id (UUID): The request.
+         *         body (UpdateSupportRequest): Content.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried save.
+         *
+         *     Returns:
+         *         SupportRequestResponse: The new version.
+         */
+        put: operations["update_support_request_api_v1_support_requests__request_id__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/support-requests/{request_id}/versions/{number}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read an earlier version
+         * @description Read a request as it stood at one version.
+         *
+         *     Args:
+         *         request_id (UUID): The request.
+         *         number (int): The version.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         dict: The snapshot.
+         */
+        get: operations["read_support_request_version_api_v1_support_requests__request_id__versions__number__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/support-requests/{request_id}/{action}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Activate, pause or close
+         * @description Change the status: DRAFT to ACTIVE, ACTIVE and PAUSED back and forth, and CLOSED.
+         *
+         *     Args:
+         *         request_id (UUID): The request.
+         *         action (Literal["activate", "pause", "close"]): The change.
+         *         body (TransitionRequest): Acting party and ``expected_version``.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         SupportRequestResponse: The request in its new status.
+         */
+        post: operations["transition_support_request_api_v1_support_requests__request_id___action__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health/live": {
         parameters: {
             query?: never;
@@ -931,6 +1073,126 @@ export interface components {
             /** Id */
             id: string;
             status: components["schemas"]["CapabilityStatus"];
+        };
+        /**
+         * BudgetInput
+         * @description The cost range of the request. Leave min and max empty with a reason when it is not known yet.
+         */
+        BudgetInput: {
+            /**
+             * Assumptions
+             * @default
+             */
+            assumptions?: string;
+            /**
+             * Basis
+             * @default total_period
+             * @enum {string}
+             */
+            basis?: "total_period" | "monthly" | "yearly";
+            /** Currency */
+            currency?: string | null;
+            /** Estimated On */
+            estimated_on?: string | null;
+            /**
+             * Financial
+             * @default true
+             */
+            financial?: boolean;
+            /**
+             * Lines
+             * @default []
+             */
+            lines?: components["schemas"]["BudgetLineInput"][];
+            /**
+             * Lines Explanation
+             * @default
+             */
+            lines_explanation?: string;
+            /** Max */
+            max?: string | null;
+            /** Min */
+            min?: string | null;
+            /**
+             * Period
+             * @default
+             */
+            period?: string;
+            /**
+             * Scope
+             * @default
+             */
+            scope?: string;
+            /** Unknown Reason */
+            unknown_reason?: ("not_determined" | "not_disclosed") | null;
+        };
+        /**
+         * BudgetLineInput
+         * @description One cost line.
+         */
+        BudgetLineInput: {
+            /**
+             * Explanation
+             * @default
+             */
+            explanation?: string;
+            /** Label */
+            label: string;
+            /** Quantity */
+            quantity: string;
+            /** Unit Cost */
+            unit_cost: string;
+        };
+        /**
+         * BudgetLineResponse
+         * @description A stored line and its exact total.
+         */
+        BudgetLineResponse: {
+            /** Explanation */
+            explanation: string;
+            /** Label */
+            label: string;
+            /** Quantity */
+            quantity: string;
+            /** Total */
+            total: string;
+            /** Unit Cost */
+            unit_cost: string;
+        };
+        /**
+         * BudgetResponse
+         * @description A stored budget. Unknown money is ``null`` with ``unknown_reason``, never zero.
+         */
+        BudgetResponse: {
+            /** Assumptions */
+            assumptions: string;
+            /**
+             * Basis
+             * @enum {string}
+             */
+            basis: "total_period" | "monthly" | "yearly";
+            /** Currency */
+            currency: string | null;
+            /** Estimated On */
+            estimated_on: string | null;
+            /** Financial */
+            financial: boolean;
+            /** Lines */
+            lines: components["schemas"]["BudgetLineResponse"][];
+            /** Lines Explanation */
+            lines_explanation: string;
+            /** Lines Total */
+            lines_total: string | null;
+            /** Max */
+            max: string | null;
+            /** Min */
+            min: string | null;
+            /** Period */
+            period: string;
+            /** Scope */
+            scope: string;
+            /** Unknown Reason */
+            unknown_reason: ("not_determined" | "not_disclosed") | null;
         };
         /**
          * Capability
@@ -1130,6 +1392,66 @@ export interface components {
             kind: "company" | "nonprofit" | "community" | "research_group" | "other";
             /** Name */
             name: string;
+        };
+        /**
+         * CreateSupportRequest
+         * @description Start a request for a published invention.
+         */
+        CreateSupportRequest: {
+            /**
+             * Accepts Noncash
+             * @default false
+             */
+            accepts_noncash?: boolean;
+            /**
+             * Accepts Partial
+             * @default false
+             */
+            accepts_partial?: boolean;
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            budget?: components["schemas"]["BudgetInput"] | null;
+            /**
+             * Invention Id
+             * Format: uuid
+             */
+            invention_id: string;
+            /** Months */
+            months?: number | null;
+            /**
+             * Noncash Description
+             * @default
+             */
+            noncash_description?: string;
+            /**
+             * Outcome
+             * @default
+             */
+            outcome?: string;
+            /**
+             * Region
+             * @default
+             */
+            region?: string;
+            /**
+             * Relationship Form
+             * @default PROJECT
+             * @enum {string}
+             */
+            relationship_form?: "PROJECT" | "LICENSE";
+            /**
+             * Scope
+             * @default
+             */
+            scope?: string;
+            /**
+             * Support Forms
+             * @default []
+             */
+            support_forms?: ("project_funding" | "testing_support" | "mentoring" | "facilities" | "distribution" | "technical_partner" | "other")[];
         };
         /**
          * DocumentResponse
@@ -1824,6 +2146,67 @@ export interface components {
             revoked: boolean;
         };
         /**
+         * SupportRequestResponse
+         * @description One support request as its owner sees it.
+         */
+        SupportRequestResponse: {
+            /** Accepts Noncash */
+            accepts_noncash: boolean;
+            /** Accepts Partial */
+            accepts_partial: boolean;
+            budget: components["schemas"]["BudgetResponse"] | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Invention Id
+             * Format: uuid
+             */
+            invention_id: string;
+            /** Invention Title */
+            invention_title: string;
+            /** Invention Version */
+            invention_version: number;
+            /** Months */
+            months: number | null;
+            /** Noncash Description */
+            noncash_description: string;
+            /** Operation Id */
+            operation_id?: string | null;
+            /** Outcome */
+            outcome: string;
+            /** Region */
+            region: string;
+            /**
+             * Relationship Form
+             * @enum {string}
+             */
+            relationship_form: "PROJECT" | "LICENSE";
+            /** Scope */
+            scope: string;
+            /** Status */
+            status: string;
+            /** Support Forms */
+            support_forms: string[];
+            /** Version */
+            version: number;
+        };
+        /**
+         * TransitionRequest
+         * @description Activate, pause or close against the version the client saw.
+         */
+        TransitionRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /** Expected Version */
+            expected_version: number;
+        };
+        /**
          * UpdateMeRequest
          * @description Change account preferences.
          */
@@ -1838,6 +2221,63 @@ export interface components {
             persona?: ("inovator" | "mitra") | null;
             /** Time Zone */
             time_zone?: string | null;
+        };
+        /**
+         * UpdateSupportRequest
+         * @description Replace the content against the version the client saw.
+         */
+        UpdateSupportRequest: {
+            /**
+             * Accepts Noncash
+             * @default false
+             */
+            accepts_noncash?: boolean;
+            /**
+             * Accepts Partial
+             * @default false
+             */
+            accepts_partial?: boolean;
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            budget?: components["schemas"]["BudgetInput"] | null;
+            /** Expected Version */
+            expected_version: number;
+            /** Months */
+            months?: number | null;
+            /**
+             * Noncash Description
+             * @default
+             */
+            noncash_description?: string;
+            /**
+             * Outcome
+             * @default
+             */
+            outcome?: string;
+            /**
+             * Region
+             * @default
+             */
+            region?: string;
+            /**
+             * Relationship Form
+             * @default PROJECT
+             * @enum {string}
+             */
+            relationship_form?: "PROJECT" | "LICENSE";
+            /**
+             * Scope
+             * @default
+             */
+            scope?: string;
+            /**
+             * Support Forms
+             * @default []
+             */
+            support_forms?: ("project_funding" | "testing_support" | "mentoring" | "facilities" | "distribution" | "technical_partner" | "other")[];
         };
         /**
          * UploadIntentRequest
@@ -3138,6 +3578,260 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    list_support_requests_api_v1_support_requests_get: {
+        parameters: {
+            query?: {
+                invention_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupportRequestResponse"][];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    create_support_request_api_v1_support_requests_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateSupportRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupportRequestResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    read_support_request_api_v1_support_requests__request_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupportRequestResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    update_support_request_api_v1_support_requests__request_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateSupportRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupportRequestResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    read_support_request_version_api_v1_support_requests__request_id__versions__number__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: string;
+                number: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    transition_support_request_api_v1_support_requests__request_id___action__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: string;
+                action: "activate" | "pause" | "close";
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TransitionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupportRequestResponse"];
+                };
             };
             /** @description Validation failed */
             422: {

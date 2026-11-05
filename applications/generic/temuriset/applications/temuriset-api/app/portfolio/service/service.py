@@ -304,3 +304,57 @@ async def submittable_version(session: AsyncSession, invention_id: UUID) -> UUID
     if invention.status == "ARCHIVED" or invention.published_version_id is None:
         raise ConflictError(_ARCHIVED if invention.status == "ARCHIVED" else _NO_DRAFT)
     return invention.published_version_id
+
+
+class InventionReference:
+    """What a need or raise shows about the invention version it references."""
+
+    def __init__(self, number: int, title: str, invention_id: UUID) -> None:
+        """Hold the reference.
+
+        Args:
+            number (int): Version number.
+            title (str): Version title.
+            invention_id (UUID): The invention.
+        """
+        self.number = number
+        self.title = title
+        self.invention_id = invention_id
+
+
+async def invention_reference(session: AsyncSession, version_id: UUID) -> InventionReference:
+    """Read the number and title of an invention version.
+
+    Args:
+        session (AsyncSession): The request's session.
+        version_id (UUID): The version.
+
+    Returns:
+        InventionReference: Number and title.
+    """
+    from app.portfolio.repository.sqlalchemy.models import InventionVersionRecord
+
+    record = await session.get(InventionVersionRecord, version_id)
+    assert record is not None  # noqa: S101 - references are foreign keys
+    return InventionReference(record.number, record.title, record.invention_id)
+
+
+async def owned_submittable_version(session: AsyncSession, invention_id: UUID, party_id: UUID) -> UUID:
+    """Return the published version of an active invention the party manages.
+
+    Args:
+        session (AsyncSession): The request's session.
+        invention_id (UUID): The invention.
+        party_id (UUID): The acting party.
+
+    Returns:
+        UUID: The published version.
+
+    Raises:
+        NotFoundError: For another party's invention.
+        ConflictError: When archived or never published.
+    """
+    invention = await SqlAlchemyPortfolioRepository(session).find(invention_id)
+    if invention is None or invention.managing_party_id != party_id:
+        raise NotFoundError()
+    return await submittable_version(session, invention_id)

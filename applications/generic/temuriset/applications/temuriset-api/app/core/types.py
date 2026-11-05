@@ -3,6 +3,8 @@
 import base64
 import binascii
 import json
+import re
+from decimal import Decimal
 from typing import Annotated, Any
 
 from pydantic import BaseModel, Field, StringConstraints
@@ -59,3 +61,31 @@ def decode_cursor(cursor: str) -> dict[str, Any]:
 
 
 _INVALID_CURSOR = "Penanda halaman tidak dikenali. Muat ulang daftar dari awal lalu coba lagi."
+
+
+_DECIMAL = re.compile(r"^-?\d{1,16}(\.\d{1,4})?$")
+_FOUR_PLACES = Decimal("0.0001")
+
+
+def parse_decimal(value: str) -> Decimal | None:
+    """Parse a decimal string exactly; never through float.
+
+    Args:
+        value (str): Up to 16 integer and 4 fraction digits, optionally negative.
+
+    Returns:
+        Decimal | None: The value, or None when the text is not such a number.
+    """
+    return Decimal(value) if _DECIMAL.match(value.strip()) else None
+
+
+def money_text(value: Decimal | None) -> str | None:
+    """Render stored money as the wire's four-place decimal string.
+
+    Args:
+        value (Decimal | None): The amount.
+
+    Returns:
+        str | None: Such as ``"20000.0000"``, or None for unknown money.
+    """
+    return None if value is None else str(value.quantize(_FOUR_PLACES))
