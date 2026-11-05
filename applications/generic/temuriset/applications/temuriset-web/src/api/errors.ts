@@ -11,13 +11,16 @@ export class ApiError extends Error {
   readonly code: string;
   readonly requestId: string | null;
   readonly recovery: Recovery;
+  /** Guesses left for a sign-in code (`CODE_INVALID`). */
+  readonly attemptsLeft: number | null;
 
-  constructor(code: string, message: string, recovery: Recovery, requestId: string | null = null) {
+  constructor(code: string, message: string, recovery: Recovery, requestId: string | null = null, attemptsLeft: number | null = null) {
     super(message);
     this.name = 'ApiError';
     this.code = code;
     this.recovery = recovery;
     this.requestId = requestId;
+    this.attemptsLeft = attemptsLeft;
   }
 
   static unreachable(): ApiError {
@@ -46,5 +49,5 @@ export async function readFailure(response: Response): Promise<ApiError> {
   if (!isErrorBody(body)) {
     return ApiError.unexpected();
   }
-  return new ApiError(body.code, body.message, body.recovery ?? { retryable: false }, body.request_id);
+  return new ApiError(body.code, body.message, body.recovery ?? { retryable: false }, body.request_id, body.attempts_left ?? null);
 }

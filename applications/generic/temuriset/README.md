@@ -32,9 +32,10 @@ The first run takes a few minutes while it installs everything. When it prints t
 
 Check that it works:
 
-1. Open http://localhost:3020/start, pick "Saya punya inovasi dan mencari dukungan", and press **Lanjutkan**.
-2. Beranda shows **Layanan tersedia** and **Versi 0.1.0**. That message came from the API through the web app.
-3. From another terminal, the same path the browser uses:
+1. Open http://localhost:3020/start, pick "Saya punya inovasi dan mencari dukungan", type a name and any email, and press **Kirim kode**.
+2. No real email is sent in development. Read the six-digit code at http://localhost:3020/api/v1/dev/mailbox?email=you@example.com (use the email you typed), enter it and press **Masuk**.
+3. Beranda opens with **Bertindak sebagai** in the bar and **Layanan tersedia** below. That status came from the API through the web app.
+4. From another terminal, the same path the browser uses:
 
    ```bash
    curl http://localhost:3020/api/v1/capabilities
@@ -123,7 +124,8 @@ The web app forwards `/api/v1/*` and `/health/*` to `API_URL` (default `http://l
 | Stop everything started by `make dev` | `Ctrl+C` |
 | Stop Postgres left running by `make check` or `make test-api` | `make stop` |
 | Start again with an empty database | `make reset-db` |
-| Choose the other persona | **Ubah** in the header, or open http://localhost:3020/start |
+| Switch menus or sign out | Profil → **Ubah akun** changes the menu; **Keluar** signs out |
+| Act for an organization | Profil → **Buat organisasi**, then pick it in **Bertindak sebagai** |
 
 ### Configuration
 
@@ -174,7 +176,8 @@ make e2e       # browser checks in Chromium; needs Docker
 | API errors and contract | `applications/temuriset-api/tests/unit/core/` | Indonesian messages, no leaked values, OpenAPI document, no money-movement routes |
 | API health | `applications/temuriset-api/tests/unit/health/`, `tests/integration/` | Liveness without a database, readiness against real Postgres |
 | Web components | `applications/temuriset-web/tests/components.test.tsx` | Ported design-system components behave as specified |
-| Web pages | `applications/temuriset-web/tests/pages.test.tsx` | Every route, persona redirects, the persona form |
+| Web pages | `applications/temuriset-web/tests/pages.test.tsx` | Every route signed in and out, return after sign-in, settings with organizations and invitations |
+| Web sign-in and context | `applications/temuriset-web/tests/auth.test.tsx`, `e2e/auth.spec.ts` | Sign-up for both personas, wrong code focus and attempts left, resend, context switch, invite and accept, sign-out |
 | Web service status | `applications/temuriset-web/tests/service-status.test.tsx` | Available, unreachable with retry, final failure with reference ID |
 | Web accessibility | `applications/temuriset-web/tests/a11y.test.tsx` | axe on every base view in jsdom (no layout, so no contrast or reflow) |
 | Browser checks | `applications/temuriset-web/e2e/` | Every route in `e2e/routes.ts` in Chromium: no console error or failed request, one `h1`, no sideways scroll, 200% text, axe with contrast, focus visible and never under the tab bar, skip link |

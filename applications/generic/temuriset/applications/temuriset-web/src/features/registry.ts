@@ -29,7 +29,7 @@ export const FEATURES: Feature[] = [
     ],
     screens: ['S01', 'S18'],
     specs: ['006', '007', '008'],
-    status: 'coming_soon',
+    status: 'available',
   },
   {
     id: 'inovasi',

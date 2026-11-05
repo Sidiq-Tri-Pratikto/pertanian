@@ -2,7 +2,7 @@ import type { Persona } from '@/features/persona';
 
 export type Route = {
   path: string;
-  /** Persona cookie to set first; `null` means a first visit. */
+  /** Persona of the account signed up first; `null` means a visitor who is not signed in. */
   persona: Persona | null;
   /** Expected document status. */
   status?: number;
@@ -15,22 +15,24 @@ export type Route = {
  * screen is checked everywhere by adding one line here (spec 003 FR-005).
  */
 export const ROUTES: Route[] = [
-  { path: '/start', persona: null, primary: 'Lanjutkan' },
+  { path: '/start', persona: null, primary: 'Kirim kode' },
+  { path: '/start?masuk=1', persona: null, primary: 'Kirim kode' },
   { path: '/home', persona: 'inovator' },
   { path: '/inventions', persona: 'inovator' },
   { path: '/discover', persona: 'inovator' },
   { path: '/pitches', persona: 'inovator' },
-  { path: '/settings', persona: 'inovator', primary: 'Simpan tampilan' },
+  { path: '/settings', persona: 'inovator', primary: 'Keluar' },
+  { path: '/undangan/tidak-ada', persona: 'inovator' },
   { path: '/segera-hadir/inovasi', persona: 'inovator' },
   { path: '/discover', persona: 'mitra' },
   { path: '/opportunities', persona: 'mitra' },
   { path: '/pitches?box=masuk', persona: 'mitra' },
   { path: '/pitches?box=diskusi', persona: 'mitra' },
-  { path: '/settings', persona: 'mitra', primary: 'Simpan tampilan' },
+  { path: '/settings', persona: 'mitra', primary: 'Keluar' },
   { path: '/segera-hadir/tidak-dikenal', persona: 'inovator' },
   { path: '/alamat-yang-tidak-ada', persona: 'inovator', status: 404 },
 ];
 
 export function label(route: Route): string {
-  return `${route.path} as ${route.persona ?? 'first visit'}`;
+  return `${route.path} as ${route.persona ?? 'signed-out visitor'}`;
 }

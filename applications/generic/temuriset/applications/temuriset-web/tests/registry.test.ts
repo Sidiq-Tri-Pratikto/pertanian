@@ -17,8 +17,8 @@ describe('feature registry', () => {
     expect(new Set(FEATURES.map((feature) => feature.id)).size).toBe(FEATURES.length);
   });
 
-  it('claims nothing that has not shipped', () => {
-    expect(FEATURES.filter((feature) => feature.status !== 'coming_soon')).toEqual([]);
+  it('marks available only what has shipped', () => {
+    expect(FEATURES.filter((feature) => feature.status !== 'coming_soon').map((feature) => feature.id)).toEqual(['akun']);
   });
 
   it('keeps spec numbers out of product copy', () => {

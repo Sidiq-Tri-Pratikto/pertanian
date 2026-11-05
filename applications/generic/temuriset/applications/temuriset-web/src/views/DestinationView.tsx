@@ -1,15 +1,18 @@
 import { EmptyState } from '@/components/tr/EmptyState';
 import { Screen } from '@/components/tr/Screen';
 import type { Destination } from '@/features/destinations';
-import type { Persona } from '@/features/persona';
+import type { Me } from '@/api/client';
+import { ContextBar } from '@/features/ContextBar';
+import { readPersona } from '@/features/persona';
 import type { Capabilities } from '@/features/registry';
 import { ServiceStatus } from '@/features/ServiceStatus';
-import { FeatureList, PersonaContext, PROVENANCE } from '@/views/parts';
+import { FeatureList, PROVENANCE } from '@/views/parts';
 
 /** One primary destination in the base release: honest empty state, then what is coming. */
-type DestinationViewProps = { persona: Persona; destination: Destination; capabilities: Capabilities };
+type DestinationViewProps = { me: Me; destination: Destination; capabilities: Capabilities };
 
-export function DestinationView({ persona, destination, capabilities }: DestinationViewProps) {
+export function DestinationView({ me, destination, capabilities }: DestinationViewProps) {
+  const persona = readPersona(me.account.persona) ?? 'inovator';
   return (
     <Screen
       persona={persona}
@@ -17,7 +20,7 @@ export function DestinationView({ persona, destination, capabilities }: Destinat
       title={destination.title}
       subtitle={destination.subtitle}
       provenance={PROVENANCE}
-      context={<PersonaContext persona={persona} />}>
+      context={<ContextBar me={me} />}>
       {destination.showServiceStatus ? <ServiceStatus /> : null}
       <EmptyState icon={destination.empty.icon} title={destination.empty.title}>
         {destination.empty.body}

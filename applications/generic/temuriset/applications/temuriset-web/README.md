@@ -27,7 +27,9 @@ make e2e            # Chromium against the production build; needs the API (the 
 | Path | Covers |
 |---|---|
 | `tests/components.test.tsx` | Design-system ports: Status, NextStep, EmptyState, Button, ChoiceGroup, Screen |
-| `tests/pages.test.tsx` | Every route, persona redirects and the persona form action |
+| `tests/pages.test.tsx` | Every route signed in and out, safe return paths, settings, invitations |
+| `tests/auth.test.tsx` | Sign-up and code screens, error summary focus, context switcher, account and organization forms |
+| `e2e/auth.spec.ts` | Chromium journeys: both personas sign up, wrong code, return after sign-in, context switch, invitation, sign-out |
 | `tests/service-status.test.tsx` | Service check, retry, final failure, failure parsing |
 | `tests/a11y.test.tsx` | axe on each base view (jsdom: no contrast or reflow) |
 | `tests/registry.test.ts` | Every planned feature, screen coverage, links to existing spec folders |
@@ -54,13 +56,15 @@ Run one file with `npx vitest run tests/pages.test.tsx`, match by name with `npx
 
 | Route | Screen |
 |---|---|
-| `/start` | S01: choose Inovator or Investor/Mitra |
+| `/start`, `/start?masuk=1` | S01: sign up (persona, name, email, language, time zone) or sign in; never an organization |
+| `/start/kode` | The code step: where the code went, resend, attempts left |
+| `/undangan/<token>` | What an invitation grants, then **Terima undangan** |
 | `/home` | S02 Beranda |
 | `/inventions` | Inovasi Saya |
 | `/discover` | S03 Temukan Investor/Mitra, or Jelajahi for partners |
 | `/opportunities` | Kebutuhan/Mandat |
 | `/pitches`, `/pitches?box=masuk`, `/pitches?box=diskusi` | S12 lists |
-| `/settings` | S18 Profil dan privasi, including every planned feature |
+| `/settings` | S18: account, organizations, members and invitations of the acting organization, service check, planned features, **Keluar** |
 | `/segera-hadir/<feature>` | What a planned feature will do |
 
 The persona lives in an http-only cookie until accounts arrive in spec 008. It picks menus and language, never access.

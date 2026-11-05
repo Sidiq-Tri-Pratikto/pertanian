@@ -1,10 +1,10 @@
 import { redirect } from 'next/navigation';
 
 import { homeFor } from '@/features/persona';
-import { getPersona } from '@/features/session';
+import { getMe, personaOf } from '@/features/session';
 
-/** Sends a returning visitor to their persona's first destination, and everyone else to the start screen. */
+/** Sends a signed-in account to its persona's first destination, and everyone else to the start screen. */
 export default async function RootPage() {
-  const persona = await getPersona();
-  redirect(persona ? homeFor(persona) : '/start');
+  const me = await getMe();
+  redirect(me ? homeFor(personaOf(me)) : '/start');
 }

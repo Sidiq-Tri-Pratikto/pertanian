@@ -336,6 +336,18 @@
       "ErrorBody": {
         "description": "Public failure content.",
         "properties": {
+          "attempts_left": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Attempts Left"
+          },
           "code": {
             "title": "Code",
             "type": "string"

@@ -1,17 +1,43 @@
 import { render, screen } from '@testing-library/react';
 import type { ReactElement } from 'react';
 
+import { ApiError } from '@/api/errors';
+
+import { makeMe, ORGANIZATION } from './fixtures';
+
+// What the service answers to server reads; each test sets who is signed in.
+let me: ReturnType<typeof makeMe> | null = null;
+let deployed: string[] | null = ['core', 'company_funding'];
 const cookieJar = new Map<string, string>();
-const setCookie = vi.fn((name: string, value: string) => cookieJar.set(name, value));
 
 vi.mock('next/headers', () => ({
-  cookies: async () => ({ get: (name: string) => (cookieJar.has(name) ? { value: cookieJar.get(name) } : undefined), set: setCookie }),
+  cookies: async () => ({ get: (name: string) => (cookieJar.has(name) ? { value: cookieJar.get(name) } : undefined), delete: vi.fn() }),
 }));
 
-// The manifest a page reads; each test can change what the deployment runs.
-let deployed: string[] | null = ['core', 'company_funding'];
-
 vi.mock('@/features/capabilities', () => ({ readCapabilities: async () => deployed }));
+
+vi.mock('@/api/server', () => ({
+  serverGet: async (path: string) => {
+    if (path === '/api/v1/me') {
+      if (!me) throw new ApiError('UNAUTHENTICATED', 'Anda perlu masuk terlebih dahulu.', { retryable: false });
+      return me;
+    }
+    if (path === `/api/v1/organizations/${ORGANIZATION}/members`) {
+      return [{ account_id: 'a', display_name: 'Bima', capabilities: ['manage_members'], version: 1 }];
+    }
+    if (path === `/api/v1/organizations/${ORGANIZATION}/invitations`) {
+      return [{ id: 'i1', email: 'eve@example.com', capabilities: ['schedule'], expires_at: '2026-11-12T02:00:00Z', status: 'pending' }];
+    }
+    if (path === '/api/v1/invitations/good') {
+      return { organization_name: 'Demo Circular Materials Ltd', capabilities: ['edit_portfolio'], expires_at: '2026-11-12T02:00:00Z', status: 'pending' };
+    }
+    if (path === '/api/v1/invitations/old') {
+      return { organization_name: 'Demo Circular Materials Ltd', capabilities: ['edit_portfolio'], expires_at: '2026-11-01T02:00:00Z', status: 'expired' };
+    }
+    if (path === '/api/v1/invitations/down') throw ApiError.unreachable();
+    throw new ApiError('NOT_FOUND', 'Data yang diminta tidak ditemukan.', { retryable: false });
+  },
+}));
 
 class Redirect extends Error {
   constructor(readonly url: string) {
@@ -23,19 +49,22 @@ vi.mock('next/navigation', () => ({
   redirect: (url: string) => {
     throw new Redirect(url);
   },
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn() }),
 }));
 
-const { choosePersona } = await import('@/features/actions');
 const RootPage = (await import('@/app/page')).default;
 const StartPage = (await import('@/app/start/page')).default;
+const CodePage = (await import('@/app/start/kode/page')).default;
 const HomePage = (await import('@/app/home/page')).default;
 const InventionsPage = (await import('@/app/inventions/page')).default;
 const DiscoverPage = (await import('@/app/discover/page')).default;
 const OpportunitiesPage = (await import('@/app/opportunities/page')).default;
 const PitchesPage = (await import('@/app/pitches/page')).default;
 const SettingsPage = (await import('@/app/settings/page')).default;
+const InvitationPage = (await import('@/app/undangan/[token]/page')).default;
 const ComingSoon = await import('@/app/segera-hadir/[feature]/page');
 const NotFound = (await import('@/app/not-found')).default;
+const { safeReturn } = await import('@/features/session');
 
 async function redirectOf(run: () => Promise<unknown>): Promise<string> {
   try {
@@ -47,16 +76,10 @@ async function redirectOf(run: () => Promise<unknown>): Promise<string> {
   throw new Error('expected a redirect');
 }
 
-function form(values: Record<string, string>): FormData {
-  const data = new FormData();
-  Object.entries(values).forEach(([key, value]) => data.set(key, value));
-  return data;
-}
-
 beforeEach(() => {
+  me = null;
   deployed = ['core', 'company_funding'];
   cookieJar.clear();
-  setCookie.mockClear();
   vi.stubGlobal('fetch', vi.fn(() => new Promise(() => {})));
 });
 
@@ -64,59 +87,77 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-describe('routing without a persona', () => {
-  it('sends a first visit to the start screen', async () => {
+describe('a visitor who is not signed in', () => {
+  it('starts at the start screen, and every page returns there after sign-in', async () => {
     expect(await redirectOf(() => RootPage())).toBe('/start');
-    expect(await redirectOf(() => HomePage())).toBe('/start');
+    expect(await redirectOf(() => HomePage())).toBe('/start?kembali=%2Fhome');
+    expect(await redirectOf(() => SettingsPage({ searchParams: Promise.resolve({}) }))).toBe('/start?kembali=%2Fsettings');
+    expect(await redirectOf(() => InvitationPage({ params: Promise.resolve({ token: 'good' }) }))).toBe('/start?kembali=%2Fundangan%2Fgood');
   });
 
-  it('shows the start screen with no form to complete beyond one choice', async () => {
+  it('signs up with persona, name, email, language and time zone, and never an organization', async () => {
     render((await StartPage({ searchParams: Promise.resolve({}) })) as ReactElement);
 
     expect(screen.getByRole('heading', { level: 1, name: 'Selamat datang di TemuRiset' })).toBeInTheDocument();
     expect(screen.getAllByRole('radio')).toHaveLength(2);
-    expect(screen.queryByRole('textbox')).toBeNull();
+    expect(screen.getByRole('textbox', { name: /Nama tampilan/ })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: /Email/ })).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: 'Bahasa' })).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: /Zona waktu/ })).toBeInTheDocument();
+    expect(screen.queryByText(/organisasi|institusi/i, { selector: 'label' })).toBeNull();
   });
 
-  it('explains a submission with no choice', async () => {
-    render((await StartPage({ searchParams: Promise.resolve({ galat: 'peran' }) })) as ReactElement);
+  it('pre-selects the persona chosen before accounts existed', async () => {
+    cookieJar.set('tr_persona', 'mitra');
 
-    expect(screen.getByRole('alert')).toHaveTextContent('Pilih salah satu cara memakai TemuRiset');
+    render((await StartPage({ searchParams: Promise.resolve({}) })) as ReactElement);
+
+    expect(screen.getByRole('radio', { name: /Saya berinvestasi/ })).toBeChecked();
+  });
+
+  it('signs in with only an email', async () => {
+    render((await StartPage({ searchParams: Promise.resolve({ masuk: '1' }) })) as ReactElement);
+
+    expect(screen.getByRole('heading', { level: 1, name: 'Masuk ke TemuRiset' })).toBeInTheDocument();
+    expect(screen.queryByRole('radio')).toBeNull();
+    expect(screen.getByRole('link', { name: 'Daftar' })).toHaveAttribute('href', '/start');
+  });
+
+  it('keeps the return address when switching between sign-up and sign-in', async () => {
+    render((await StartPage({ searchParams: Promise.resolve({ kembali: '/settings' }) })) as ReactElement);
+
+    expect(screen.getByRole('link', { name: 'Masuk' })).toHaveAttribute('href', '/start?masuk=1&kembali=%2Fsettings');
+  });
+
+  it('only follows a return address on this site', () => {
+    expect(safeReturn('/settings')).toBe('/settings');
+    expect(safeReturn('//evil.example')).toBeNull();
+    expect(safeReturn('/\\evil.example')).toBeNull();
+    expect(safeReturn('https://evil.example')).toBeNull();
+    expect(safeReturn(undefined)).toBeNull();
   });
 });
 
-describe('choosing a persona', () => {
-  it('stores the persona in an http-only cookie and opens its first destination', async () => {
-    expect(await redirectOf(() => choosePersona(form({ persona: 'mitra', origin: 'start' })))).toBe('/discover');
-    expect(setCookie).toHaveBeenCalledWith('tr_persona', 'mitra', expect.objectContaining({ httpOnly: true, sameSite: 'lax' }));
-  });
-
-  it('returns to settings with a saved notice when changed there', async () => {
-    expect(await redirectOf(() => choosePersona(form({ persona: 'inovator', origin: 'settings' })))).toBe('/settings?tersimpan=1');
-  });
-
-  it('rejects anything but the two personas without storing it', async () => {
-    expect(await redirectOf(() => choosePersona(form({ persona: 'operator', origin: 'start' })))).toBe('/start?galat=peran');
-    expect(setCookie).not.toHaveBeenCalled();
-  });
-});
-
-describe('destinations for an inventor', () => {
+describe('a signed-in inventor', () => {
   beforeEach(() => {
-    cookieJar.set('tr_persona', 'inovator');
+    me = makeMe();
   });
 
-  it('opens Beranda for a returning inventor', async () => {
+  it('opens Beranda, and the start and code screens send it home or back where it was going', async () => {
     expect(await redirectOf(() => RootPage())).toBe('/home');
+    expect(await redirectOf(() => StartPage({ searchParams: Promise.resolve({}) }))).toBe('/home');
+    expect(await redirectOf(() => StartPage({ searchParams: Promise.resolve({ kembali: '/settings' }) }))).toBe('/settings');
+    expect(await redirectOf(() => CodePage())).toBe('/home');
   });
 
-  it('shows an honest empty Beranda with the service check and planned features', async () => {
+  it('shows an honest empty Beranda with the context in the bar and planned features', async () => {
     render((await HomePage()) as ReactElement);
 
     expect(screen.getByRole('heading', { level: 1, name: 'Beranda' })).toBeInTheDocument();
-    expect(screen.getByText('Belum ada yang perlu dikerjakan')).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: 'Bertindak sebagai' })).toHaveDisplayValue('Rani · Pribadi');
     expect(screen.getByText('Memeriksa layanan…')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Lihat rencana Portofolio inovasi/ })).toHaveAttribute('href', '/segera-hadir/inovasi');
+    expect(screen.queryByRole('link', { name: /Lihat rencana Akun dan konteks kerja/ })).toBeNull();
   });
 
   it.each([
@@ -141,36 +182,104 @@ describe('destinations for an inventor', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Jadwal pertemuan' })).toBeInTheDocument();
     expect(screen.getByText(/Tidak ada data yang dibuat atau disimpan/)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Kembali' })).toHaveAttribute('href', '/home');
-    expect(screen.queryByText(/Spesifikasi/)).toBeNull();
     expect(await ComingSoon.generateMetadata({ params: Promise.resolve({ feature: 'jadwal' }) })).toEqual({ title: 'Jadwal pertemuan' });
   });
 
-  it('says so when a feature address is unknown, and offers a way back', async () => {
+  it('sends a shipped feature to its screen and says so for an unknown one', async () => {
+    expect(await redirectOf(() => ComingSoon.default({ params: Promise.resolve({ feature: 'akun' }) }))).toBe('/settings');
+
     render((await ComingSoon.default({ params: Promise.resolve({ feature: 'escrow' }) })) as ReactElement);
-
     expect(screen.getByRole('heading', { level: 1, name: 'Fitur tidak dikenal' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Lihat semua rencana fitur' })).toHaveAttribute('href', '/settings#rencana');
-    expect(await ComingSoon.generateMetadata({ params: Promise.resolve({ feature: 'escrow' }) })).toEqual({ title: 'Fitur tidak dikenal' });
   });
 
-  it('lists every planned feature in settings and confirms a saved view', async () => {
-    render((await SettingsPage({ searchParams: Promise.resolve({ tersimpan: '1' }) })) as ReactElement);
+  it('shows the account, no organization requirement, and every planned feature in settings', async () => {
+    render((await SettingsPage({ searchParams: Promise.resolve({}) })) as ReactElement);
 
+    expect(screen.getByText('rani@example.com · Email terverifikasi')).toBeInTheDocument();
+    expect(screen.getByText('Asia/Jakarta')).toBeInTheDocument();
+    expect(screen.getByText(/Organisasi tidak wajib/)).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Rencana fitur' })).toBeInTheDocument();
-    expect(screen.getByText('Tampilan tersimpan')).toBeInTheDocument();
-    expect(screen.getByRole('radio', { name: /Saya punya inovasi/ })).toBeChecked();
+    expect(screen.queryByRole('heading', { name: /Anggota/ })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Keluar' })).toBeInTheDocument();
   });
 
-  it('explains an unsaved view change in settings', async () => {
-    render((await SettingsPage({ searchParams: Promise.resolve({ galat: 'peran' }) })) as ReactElement);
+  it('confirms joining an organization', async () => {
+    render((await SettingsPage({ searchParams: Promise.resolve({ bergabung: '1' }) })) as ReactElement);
 
-    expect(screen.getByRole('alert')).toHaveTextContent('Pilih salah satu tampilan');
+    expect(screen.getByText('Anda sudah bergabung dengan organisasi')).toBeInTheDocument();
+  });
+});
+
+describe('an account acting as its organization', () => {
+  beforeEach(() => {
+    me = makeMe({ organization: true, actingAsOrganization: true });
+  });
+
+  it('lists members and invitations with expiry, and offers to invite and revoke', async () => {
+    render((await SettingsPage({ searchParams: Promise.resolve({}) })) as ReactElement);
+
+    expect(screen.getByRole('combobox', { name: 'Bertindak sebagai' })).toHaveDisplayValue('Demo Circular Materials Ltd · Organisasi');
+    expect(screen.getByRole('heading', { name: 'Anggota Demo Circular Materials Ltd' })).toBeInTheDocument();
+    expect(screen.getByText('Bima')).toBeInTheDocument();
+    expect(screen.getByText('eve@example.com', { selector: 'strong' }).parentElement).toHaveTextContent('Menunggu · berlaku sampai 12 Nov 2026');
+    expect(screen.getByRole('button', { name: /Cabut undangan\s*untuk eve@example.com/ })).toBeInTheDocument();
+    expect(screen.getByText('Mengundang sebagai:', { exact: false })).toHaveTextContent('Demo Circular Materials Ltd · Organisasi');
+  });
+});
+
+describe('an invitation link', () => {
+  beforeEach(() => {
+    me = makeMe();
+  });
+
+  it('shows the organization, capabilities and expiry before accepting', async () => {
+    render((await InvitationPage({ params: Promise.resolve({ token: 'good' }) })) as ReactElement);
+
+    expect(screen.getByText('Demo Circular Materials Ltd')).toBeInTheDocument();
+    expect(screen.getByText('Mengubah portofolio')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Terima undangan' })).toBeInTheDocument();
+  });
+
+  it('cannot be accepted once expired', async () => {
+    render((await InvitationPage({ params: Promise.resolve({ token: 'old' }) })) as ReactElement);
+
+    expect(screen.queryByRole('button', { name: 'Terima undangan' })).toBeNull();
+    expect(screen.getByText('Undangan ini tidak dapat diterima')).toBeInTheDocument();
+  });
+
+  it('reveals nothing for another email or an unknown token', async () => {
+    render((await InvitationPage({ params: Promise.resolve({ token: 'other' }) })) as ReactElement);
+
+    expect(screen.getByText('Undangan tidak ditemukan')).toBeInTheDocument();
+  });
+
+  it('lets an outage reach the error page instead of claiming the invitation is gone', async () => {
+    await expect(InvitationPage({ params: Promise.resolve({ token: 'down' }) })).rejects.toMatchObject({ code: 'NETWORK_UNREACHABLE' });
+  });
+});
+
+describe('a partner', () => {
+  beforeEach(() => {
+    me = makeMe({ persona: 'mitra' });
+  });
+
+  it('starts at Jelajahi', async () => {
+    expect(await redirectOf(() => RootPage())).toBe('/discover');
+    render((await DiscoverPage()) as ReactElement);
+
+    expect(screen.getByRole('heading', { level: 1, name: 'Jelajahi' })).toBeInTheDocument();
+  });
+
+  it('reads incoming and discussion boxes', async () => {
+    render((await PitchesPage({ searchParams: Promise.resolve({ box: 'diskusi' }) })) as ReactElement);
+
+    expect(screen.getByRole('heading', { level: 1, name: 'Diskusi dan Jadwal' })).toBeInTheDocument();
   });
 });
 
 describe('features of optional capabilities', () => {
   beforeEach(() => {
-    cookieJar.set('tr_persona', 'inovator');
+    me = makeMe();
   });
 
   it('lists company funding where the deployment runs it, and not organization review', async () => {
@@ -185,7 +294,6 @@ describe('features of optional capabilities', () => {
 
     render((await SettingsPage({ searchParams: Promise.resolve({}) })) as ReactElement);
     expect(screen.queryByRole('heading', { name: 'Pendanaan Perusahaan' })).toBeNull();
-    expect(screen.getByRole('heading', { name: 'Portofolio inovasi' })).toBeInTheDocument();
 
     render((await ComingSoon.default({ params: Promise.resolve({ feature: 'pendanaan-perusahaan' }) })) as ReactElement);
     expect(screen.getByRole('heading', { level: 1, name: 'Fitur tidak dikenal' })).toBeInTheDocument();
@@ -198,30 +306,6 @@ describe('features of optional capabilities', () => {
 
     expect(screen.queryByRole('link', { name: /Lihat rencana Pendanaan Perusahaan/ })).toBeNull();
     expect(screen.getByRole('link', { name: /Lihat rencana Portofolio inovasi/ })).toBeInTheDocument();
-  });
-});
-
-describe('destinations for a partner', () => {
-  beforeEach(() => {
-    cookieJar.set('tr_persona', 'mitra');
-  });
-
-  it('starts at Jelajahi', async () => {
-    render((await DiscoverPage()) as ReactElement);
-
-    expect(screen.getByRole('heading', { level: 1, name: 'Jelajahi' })).toBeInTheDocument();
-  });
-
-  it('reads incoming and discussion boxes', async () => {
-    render((await PitchesPage({ searchParams: Promise.resolve({ box: 'diskusi' }) })) as ReactElement);
-
-    expect(screen.getByRole('heading', { level: 1, name: 'Diskusi dan Jadwal' })).toBeInTheDocument();
-  });
-
-  it('still opens Beranda when asked directly', async () => {
-    render((await HomePage()) as ReactElement);
-
-    expect(screen.getByText(/Pitching yang menunggu keputusan Anda/)).toBeInTheDocument();
   });
 });
 

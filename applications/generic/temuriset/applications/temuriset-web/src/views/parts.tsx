@@ -1,25 +1,8 @@
 import Link from 'next/link';
 
-import { Icon } from '@/components/tr/Icon';
-import { PERSONA_LABEL, type Persona } from '@/features/persona';
 import { findFeature, isOffered, type Capabilities, type Feature } from '@/features/registry';
 
 export const PROVENANCE = 'Versi awal';
-
-/** The persona shown in the bar, with a way to change it. A persona is a view, not an account. */
-export function PersonaContext({ persona }: { persona: Persona }) {
-  return (
-    <p className="tr-context">
-      <Icon name="user" />
-      <span>
-        Tampilan: <strong>{PERSONA_LABEL[persona]}</strong> ·{' '}
-        <Link className="tr-link" href="/settings#tampilan">
-          Ubah
-        </Link>
-      </span>
-    </p>
-  );
-}
 
 /** Planned features for one destination. Each row opens its "Segera hadir" screen. */
 export function FeatureList({
@@ -33,7 +16,7 @@ export function FeatureList({
 }) {
   const features = ids
     .map(findFeature)
-    .filter((feature): feature is Feature => feature !== undefined && isOffered(feature, capabilities));
+    .filter((feature): feature is Feature => feature !== undefined && feature.status === 'coming_soon' && isOffered(feature, capabilities));
   return (
     <section className="tr-stack" aria-labelledby="fitur-segera">
       <h2 id="fitur-segera" className="tr-sys-type-heading-sm">

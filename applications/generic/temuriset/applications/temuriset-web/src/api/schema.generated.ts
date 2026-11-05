@@ -672,6 +672,11 @@ export interface components {
          * @description Public failure content.
          */
         ErrorBody: {
+            /**
+             * Attempts Left
+             * @default null
+             */
+            attempts_left?: number | null;
             /** Code */
             code: string;
             /**
