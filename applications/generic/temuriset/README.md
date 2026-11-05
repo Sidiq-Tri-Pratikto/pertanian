@@ -146,9 +146,10 @@ nvm use        # once per terminal, for the web tests
 make setup     # once, installs both applications
 make test      # a few seconds, no Docker needed
 make check     # before every pull request; needs Docker
+make e2e       # browser checks in Chromium; needs Docker
 ```
 
-`make test` is your fast loop. `make check` is exactly what a pull request must pass, and it leaves Postgres running; `make stop` stops it.
+`make test` is your fast loop. `make check` and `make e2e` are what a pull request must pass. Both leave Postgres running; `make stop` stops it.
 
 ### What each command runs
 
@@ -158,6 +159,7 @@ make check     # before every pull request; needs Docker
 | `make test-api` | Unit and Postgres integration tests | | Docker |
 | `make test-web` | | Unit, page and accessibility tests | Nothing |
 | `make check` | Lint, format check, all tests, 80% coverage gate | Lint with no warnings, typecheck, all tests, 80% coverage gate | Docker |
+| `make e2e` | Runs on port 8029 for the checks | Production build in Chromium at 320, 360, 768 and 1280 px: overflow, 200% text, axe with contrast, keyboard focus | Docker; once `npx playwright install chromium` in the web app |
 
 `make check` also checks that the copied design-system stylesheets match their source and that every PRD requirement still has a spec.
 
@@ -171,7 +173,8 @@ make check     # before every pull request; needs Docker
 | Web components | `applications/temuriset-web/tests/components.test.tsx` | Ported design-system components behave as specified |
 | Web pages | `applications/temuriset-web/tests/pages.test.tsx` | Every route, persona redirects, the persona form |
 | Web service status | `applications/temuriset-web/tests/service-status.test.tsx` | Available, unreachable with retry, final failure with reference ID |
-| Web accessibility | `applications/temuriset-web/tests/a11y.test.tsx` | axe on every base view (jsdom: contrast and reflow come with spec 003) |
+| Web accessibility | `applications/temuriset-web/tests/a11y.test.tsx` | axe on every base view in jsdom (no layout, so no contrast or reflow) |
+| Browser checks | `applications/temuriset-web/e2e/` | Every route in `e2e/routes.ts` in Chromium: no console error or failed request, one `h1`, no sideways scroll, 200% text, axe with contrast, focus visible and never under the tab bar, skip link |
 | Feature registry | `applications/temuriset-web/tests/registry.test.ts` | Every planned feature, screen coverage, links to existing specs |
 | Design-system copy | `applications/temuriset-web/tests/design.test.ts` | `src/design/*.css` equals the design-system source |
 
@@ -187,6 +190,7 @@ make test-integration                                            # integration o
 npx vitest run tests/pages.test.tsx                 # one file
 npx vitest run -t "starts at Jelajahi"              # tests whose name matches
 npx vitest                                          # watch mode: reruns on save
+npx playwright test e2e/axe.spec.ts --project=chromium-360   # one browser check at one width; needs make build and the API
 ```
 
 ### Coverage reports
@@ -217,6 +221,7 @@ From this folder; `make` alone prints the list.
 | `make test-api` | All API tests, including Postgres integration tests |
 | `make test-web` | Web unit, page and accessibility tests |
 | `make check` | Everything a pull request must pass |
+| `make e2e` | Browser checks in Chromium against a production build |
 | `make stop` | Stop the local Postgres |
 | `make reset-db` | Delete the local database volume and start empty |
 

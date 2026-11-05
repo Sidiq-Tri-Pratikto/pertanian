@@ -62,6 +62,7 @@ make test              # API unit tests and web tests, no Docker
 make test-api          # all API tests, including integration; needs Docker
 make test-web          # web tests only
 make check             # everything a pull request must pass; needs Docker
+make e2e               # browser checks in Chromium against a production build; needs Docker
 make stop              # stop the Postgres that make check leaves running
 make reset-db          # delete the local database volume
 ```

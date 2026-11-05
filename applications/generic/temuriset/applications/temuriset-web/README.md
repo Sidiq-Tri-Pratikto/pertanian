@@ -21,6 +21,7 @@ The dev server forwards `/api/v1/*` and `/health/*` to `API_URL`, so browsers on
 make test           # Vitest, no services needed
 make check          # lint (no warnings allowed), typecheck, tests, 80% coverage gate
 make build          # production build
+make e2e            # Chromium against the production build; needs the API (the root `make e2e` starts it)
 ```
 
 | Path | Covers |
@@ -31,6 +32,7 @@ make build          # production build
 | `tests/a11y.test.tsx` | axe on each base view (jsdom: no contrast or reflow) |
 | `tests/registry.test.ts` | Every planned feature, screen coverage, links to existing spec folders |
 | `tests/design.test.ts` | Copied stylesheets equal the design-system source |
+| `e2e/` | Browser checks on every route in `e2e/routes.ts`: console and request errors, overflow at 320–1280 px and 200% text, axe with contrast, keyboard focus. Report in `playwright-report/` |
 
 Run one file with `npx vitest run tests/pages.test.tsx`, match by name with `npx vitest run -t "starts at Jelajahi"`, or rerun on save with `npx vitest`. `make test-coverage` writes an HTML report to `coverage/index.html`.
 

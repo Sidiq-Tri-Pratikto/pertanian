@@ -137,4 +137,4 @@ python3 docs/roadmap/check_traceability.py --write  # rewrites traceability.md
 
 ## What is proven today
 
-Base only: API unit and integration tests against Postgres, web lint, types, unit, page and axe tests in jsdom, a production build, and a manual browser walk of the base screens at desktop and 375 px. No feature, account, document, match, pitch, meeting or relationship exists. All 72 acceptance scenarios remain **NOT RUN**, as PRD section 23 requires.
+Base and M0: API unit and integration tests against Postgres, web lint, types, unit, page and axe tests in jsdom, a production build, and Chromium checks of every base route at 320, 360, 768 and 1280 px (overflow, 200% text, axe with contrast, keyboard focus) in CI. No feature, account, document, match, pitch, meeting or relationship exists. All 72 acceptance scenarios remain **NOT RUN**, as PRD section 23 requires.

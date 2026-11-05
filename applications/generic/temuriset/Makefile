@@ -1,11 +1,14 @@
 API := applications/temuriset-api
 WEB := applications/temuriset-web
+E2E_API_PORT ?= 8029
+# CI provides Postgres as a service, so it clears this.
+API_DEPENDENCIES ?= run-dependencies
 
 .DEFAULT_GOAL := help
 
 .PHONY: help
 help: ## List every command
-	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*## "} {printf "  make %-16s %s\n", $$1, $$2}'
+	@grep -E '^[a-z0-9-]+:.*## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*## "} {printf "  make %-16s %s\n", $$1, $$2}'
 
 .PHONY: setup
 setup: ## Install API and web dependencies
@@ -37,6 +40,16 @@ check: ## Everything a pull request must pass (needs Docker)
 	$(MAKE) -C $(API) check
 	$(MAKE) -C $(WEB) check
 	python3 docs/roadmap/check_traceability.py
+
+# Starts Postgres and the API, runs the web browser checks against a production build, then stops the API.
+.PHONY: e2e
+e2e: ## Browser checks in Chromium against a production build (needs Docker)
+	$(if $(API_DEPENDENCIES),$(MAKE) -C $(API) $(API_DEPENDENCIES))
+	$(MAKE) -C $(API) migrate
+	@(cd $(API) && exec .venv/bin/python -m uvicorn app.main:app --port $(E2E_API_PORT) > /dev/null 2>&1) & api=$$!; \
+	trap 'kill $$api' EXIT; \
+	for i in $$(seq 1 60); do curl -sf http://localhost:$(E2E_API_PORT)/health/ready > /dev/null && break; sleep 0.5; done; \
+	E2E_API_URL=http://localhost:$(E2E_API_PORT) $(MAKE) -C $(WEB) e2e
 
 .PHONY: stop
 stop: ## Stop the local Postgres

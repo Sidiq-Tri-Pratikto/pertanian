@@ -11,7 +11,7 @@ import { StartView } from '@/views/StartView';
 
 const noop = async () => {};
 
-// jsdom has no layout or computed colours, so contrast and reflow are checked in a real browser (spec 003).
+// jsdom has no layout or computed colours, so contrast and reflow are checked in Chromium by `e2e/axe.spec.ts`.
 // Without CSS jsdom also shows both navigations; the design system hides one of them at every width.
 async function violations(element: ReactElement): Promise<string[]> {
   const { container } = render(element);
