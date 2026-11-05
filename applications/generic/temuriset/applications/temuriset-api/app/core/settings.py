@@ -27,6 +27,8 @@ class Settings(BaseSettings):
         storage_path (str): Folder of the local storage adapter; bytes never get a public URL.
         clamav_host (str): ClamAV daemon host for ``FILE_SCANNER=clamav``.
         clamav_port (int): ClamAV daemon port.
+        demo_mode (bool): Offer labelled demo accounts and their reset (spec 021).
+        demo_deployment (bool): This deployment is a demonstration; required for ``demo_mode`` outside development.
     """
 
     # A rejected value never appears in the startup error, so a secret pasted into the wrong setting stays out of logs.
@@ -48,6 +50,8 @@ class Settings(BaseSettings):
     storage_path: str = ".storage"
     clamav_host: str = "localhost"
     clamav_port: int = 3310
+    demo_mode: bool = False
+    demo_deployment: bool = False
 
     @property
     def cookie_secure(self) -> bool:

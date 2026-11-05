@@ -34,6 +34,7 @@ class UploadedResponse(BaseModel):
     """The stored version; available only after the scan."""
 
     document_id: UUID
+    version_id: UUID
     number: int
     file_state: str
 

@@ -108,6 +108,84 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/demo/accounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List demo accounts
+         * @description List the labelled demo accounts.
+         *
+         *     Returns:
+         *         list[DemoAccount]: Accounts, each labelled "Akun demo · data fiktif".
+         */
+        get: operations["list_demo_accounts_api_v1_demo_accounts_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/demo/reset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reset the demo
+         * @description Delete only demo rows and recreate them with the same ids; real accounts are untouched.
+         *
+         *     Args:
+         *         body (DemoResetRequest): Fixture states.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         DemoResetResponse: What was recreated.
+         */
+        post: operations["reset_demo_api_v1_demo_reset_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/demo/sign-in": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Sign in as a demo account
+         * @description Start a session for a demo account. Demo accounts have no code by email; this picker is their only way in.
+         *
+         *     Args:
+         *         body (DemoSignInRequest): The account key.
+         *         response (Response): Carries the session cookie.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         MeResponse: The signed-in demo account.
+         */
+        post: operations["demo_sign_in_api_v1_demo_sign_in_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/dev/mailbox": {
         parameters: {
             query?: never;
@@ -130,6 +208,116 @@ export interface paths {
         put?: never;
         post?: never;
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/discovery": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Search inventions, funding requests or partners
+         * @description Search one result type from the public projection, in sections, with the filters echoed back.
+         *
+         *     Args:
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         type (ResultType, optional): Result type. Defaults to "inventions".
+         *         q (str, optional): Words in Indonesian or English. Defaults to "".
+         *         sector (str | None, optional): Sector. Defaults to None.
+         *         stage (str | None, optional): Stage. Defaults to None.
+         *         support_form (str | None, optional): Form of support. Defaults to None.
+         *         region (str | None, optional): Region. Defaults to None.
+         *         purpose (str | None, optional): Relationship form. Defaults to None.
+         *         intake (str | None, optional): Partner intake state. Defaults to None.
+         *         currency (str | None, optional): Currency of the amount range. Defaults to None.
+         *         basis (str | None, optional): Basis of the amount range. Defaults to None.
+         *         amount_min (str | None, optional): Lowest amount, as a decimal string. Defaults to None.
+         *         amount_max (str | None, optional): Highest amount, as a decimal string. Defaults to None.
+         *         saved (bool, optional): Only saved items. Defaults to False.
+         *         cursor (str | None, optional): From the previous page. Defaults to None.
+         *         limit (int, optional): Page size, at most 100. Defaults to 20.
+         *
+         *     Returns:
+         *         DiscoveryResponse: One page.
+         */
+        get: operations["discover_api_v1_discovery_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/discovery-feedback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List items I marked less relevant
+         * @description List what the acting party marked "Kurang relevan".
+         *
+         *     Args:
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         list[MarkedItem]: Hidden subjects.
+         */
+        get: operations["list_feedback_api_v1_discovery_feedback_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/discovery-feedback/{subject_type}/{subject_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Mark an item less relevant
+         * @description Hide a subject from the acting party's results only; nothing public changes.
+         *
+         *     Args:
+         *         subject_type (SubjectType): Subject type.
+         *         subject_id (UUID): Subject.
+         *         body (ActingPartyRequest): Acting party.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         MarkedItem: The hidden subject.
+         */
+        put: operations["hide_item_api_v1_discovery_feedback__subject_type___subject_id__put"];
+        post?: never;
+        /**
+         * Show an item again
+         * @description Undo "Kurang relevan".
+         *
+         *     Args:
+         *         subject_type (SubjectType): Subject type.
+         *         subject_id (UUID): Subject.
+         *         body (ActingPartyRequest): Acting party.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         */
+        delete: operations["unhide_item_api_v1_discovery_feedback__subject_type___subject_id__delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -848,6 +1036,63 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/match-runs/{run_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read a match run
+         * @description Read a stored run as it was computed.
+         *
+         *     Args:
+         *         run_id (UUID): The run.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         MatchRunResponse: The run.
+         */
+        get: operations["read_match_run_api_v1_match_runs__run_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/matches": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Match a need or raise
+         * @description Evaluate an owned source against every other partner's active opportunity, with reasons and gaps.
+         *
+         *     Args:
+         *         body (MatchRequest): The source.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         MatchRunResponse: The stored run.
+         */
+        post: operations["run_match_api_v1_matches_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/me": {
         parameters: {
             query?: never;
@@ -1348,6 +1593,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/saved-items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List my saved items
+         * @description List what the acting party saved.
+         *
+         *     Args:
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         list[MarkedItem]: Saved subjects.
+         */
+        get: operations["list_saved_api_v1_saved_items_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/saved-items/{subject_type}/{subject_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Save an item
+         * @description Save a published subject for the acting party. Saving twice changes nothing.
+         *
+         *     Args:
+         *         subject_type (SubjectType): Subject type.
+         *         subject_id (UUID): Subject.
+         *         body (ActingPartyRequest): Acting party.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         MarkedItem: The saved subject.
+         */
+        put: operations["save_item_api_v1_saved_items__subject_type___subject_id__put"];
+        post?: never;
+        /**
+         * Unsave an item
+         * @description Remove a saved item.
+         *
+         *     Args:
+         *         subject_type (SubjectType): Subject type.
+         *         subject_id (UUID): Subject.
+         *         body (ActingPartyRequest): Acting party.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         */
+        delete: operations["unsave_item_api_v1_saved_items__subject_type___subject_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/support-requests": {
         parameters: {
             query?: never;
@@ -1631,17 +1944,6 @@ export interface components {
             version: number;
         };
         /**
-         * ActingPartyRequest
-         * @description A consequential action names the party it acts as, so two tabs cannot cross contexts.
-         */
-        ActingPartyRequest: {
-            /**
-             * Acting Party Id
-             * Format: uuid
-             */
-            acting_party_id: string;
-        };
-        /**
          * AdapterResponse
          * @description One data source adapter.
          */
@@ -1817,6 +2119,11 @@ export interface components {
             composition: components["schemas"]["CompositionResponse"];
             /** Default Locale */
             default_locale: string;
+            /**
+             * Demo
+             * @default false
+             */
+            demo?: boolean;
             /** Policies */
             policies: components["schemas"]["PolicyResponse"][];
             /** Schema Version */
@@ -2134,6 +2441,129 @@ export interface components {
             support_forms?: ("project_funding" | "testing_support" | "mentoring" | "facilities" | "distribution" | "technical_partner" | "other")[];
         };
         /**
+         * DemoAccount
+         * @description One account in the demo picker.
+         */
+        DemoAccount: {
+            /** Fixture */
+            fixture: string;
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /** Name */
+            name: string;
+            /**
+             * Persona
+             * @enum {string}
+             */
+            persona: "inovator" | "mitra";
+        };
+        /**
+         * DemoResetRequest
+         * @description Recreate the demo, optionally in a fixture state such as F01-GAP.
+         */
+        DemoResetRequest: {
+            /**
+             * Gap
+             * @default false
+             */
+            gap?: boolean;
+            /**
+             * Proposed Entity
+             * @default false
+             */
+            proposed_entity?: boolean;
+            /**
+             * Scan
+             * @default false
+             */
+            scan?: boolean;
+        };
+        /**
+         * DemoResetResponse
+         * @description What the reset recreated.
+         */
+        DemoResetResponse: {
+            /** Accounts */
+            accounts: number;
+            /** Inventions */
+            inventions: number;
+        };
+        /**
+         * DemoSignInRequest
+         * @description Sign in as one demo account.
+         */
+        DemoSignInRequest: {
+            /** Key */
+            key: string;
+        };
+        /**
+         * DiscoveryItem
+         * @description One result card. ``card`` holds what the owner published, by subject type.
+         */
+        DiscoveryItem: {
+            /** Card */
+            card: {
+                [key: string]: unknown;
+            };
+            /** Curated */
+            curated: boolean;
+            /** Reasons */
+            reasons: string[];
+            /** Saved */
+            saved: boolean;
+            /**
+             * Subject Id
+             * Format: uuid
+             */
+            subject_id: string;
+            /**
+             * Subject Type
+             * @enum {string}
+             */
+            subject_type: "INVENTION" | "FUNDING_REQUEST" | "PARTNER";
+            /** Title */
+            title: string;
+        };
+        /**
+         * DiscoveryResponse
+         * @description One page of discovery results, with the filters that produced it.
+         */
+        DiscoveryResponse: {
+            /** Filters */
+            filters: {
+                [key: string]: unknown;
+            };
+            /** Next Cursor */
+            next_cursor: string | null;
+            relaxation: components["schemas"]["Relaxation"] | null;
+            /** Sections */
+            sections: components["schemas"]["DiscoverySection"][];
+            /** Total Estimate */
+            total_estimate: number;
+            /**
+             * Type
+             * @enum {string}
+             */
+            type: "inventions" | "funding" | "partners";
+        };
+        /**
+         * DiscoverySection
+         * @description A labelled group of results. No section is ever ordered by activity.
+         */
+        DiscoverySection: {
+            /**
+             * Id
+             * @enum {string}
+             */
+            id: "relevant" | "new" | "curated";
+            /** Items */
+            items: components["schemas"]["DiscoveryItem"][];
+            /** Title */
+            title: string;
+        };
+        /**
          * DocumentResponse
          * @description A document as its owner sees it.
          */
@@ -2308,6 +2738,20 @@ export interface components {
             retryable: boolean;
         };
         /**
+         * EvidenceResponse
+         * @description How much of the checklist rests on provided or reviewed evidence.
+         */
+        EvidenceResponse: {
+            /** Applicable */
+            applicable: number;
+            /** Note */
+            note: string | null;
+            /** Provided */
+            provided: number;
+            /** Reviewed */
+            reviewed: number;
+        };
+        /**
          * FactInput
          * @description A fact as the owner states it.
          */
@@ -2453,6 +2897,18 @@ export interface components {
             terms?: string;
             /** Unknown Reason */
             unknown_reason?: ("not_determined" | "not_disclosed") | null;
+        };
+        /**
+         * FitResponse
+         * @description Conservative fit on 0–100 and the share of information it rests on; not a chance of funding.
+         */
+        FitResponse: {
+            /** Coverage */
+            coverage: string;
+            /** Lower */
+            lower: string;
+            /** Upper */
+            upper: string;
         };
         /**
          * FundingRequestInput
@@ -2856,6 +3312,143 @@ export interface components {
             to_email: string;
         };
         /**
+         * MarkedItem
+         * @description A saved or hidden subject.
+         */
+        MarkedItem: {
+            /**
+             * Subject Id
+             * Format: uuid
+             */
+            subject_id: string;
+            /**
+             * Subject Type
+             * @enum {string}
+             */
+            subject_type: "INVENTION" | "FUNDING_REQUEST" | "PARTNER";
+        };
+        /**
+         * MatchRequest
+         * @description Evaluate one owned source against every active opportunity.
+         */
+        MatchRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+            /**
+             * Source Type
+             * @enum {string}
+             */
+            source_type: "SUPPORT_REQUEST" | "FUNDING_REQUEST";
+        };
+        /**
+         * MatchResultResponse
+         * @description One opportunity version's result. Eligibility, readiness and fit are separate on purpose.
+         */
+        MatchResultResponse: {
+            availability: components["schemas"]["TargetAvailabilityResponse"];
+            /**
+             * Eligibility
+             * @enum {string}
+             */
+            eligibility: "ELIGIBLE" | "NEEDS_VERIFICATION" | "INCOMPATIBLE";
+            evidence: components["schemas"]["EvidenceResponse"];
+            fit: components["schemas"]["FitResponse"];
+            gap: components["schemas"]["RequirementRow"] | null;
+            /** Label */
+            label: string;
+            /** Later */
+            later: components["schemas"]["RequirementRow"][];
+            /**
+             * Opportunity Id
+             * Format: uuid
+             */
+            opportunity_id: string;
+            /** Opportunity Version */
+            opportunity_version: number;
+            /**
+             * Opportunity Version Id
+             * Format: uuid
+             */
+            opportunity_version_id: string;
+            /** Partner */
+            partner: string;
+            /**
+             * Partner Party Id
+             * Format: uuid
+             */
+            partner_party_id: string;
+            /**
+             * Readiness
+             * @enum {string}
+             */
+            readiness: "READY_TO_SUBMIT" | "NEEDS_INFORMATION" | "BLOCKED_FOR_THIS_TARGET";
+            /** Reasons */
+            reasons: string[];
+            /** Relevant */
+            relevant: boolean;
+            /** Rows */
+            rows: components["schemas"]["RequirementRow"][];
+            /** Title */
+            title: string;
+        };
+        /**
+         * MatchRunResponse
+         * @description A stored run: recommended results first, then those not to be shown as a positive match.
+         */
+        MatchRunResponse: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Engine */
+            engine: string;
+            /** Excluded */
+            excluded: components["schemas"]["MatchResultResponse"][];
+            /** Operation Id */
+            operation_id?: string | null;
+            /** Policy Versions */
+            policy_versions: {
+                [key: string]: number;
+            };
+            /** Results */
+            results: components["schemas"]["MatchResultResponse"][];
+            /**
+             * Run Id
+             * Format: uuid
+             */
+            run_id: string;
+            source: components["schemas"]["MatchSource"];
+        };
+        /**
+         * MatchSource
+         * @description The source version a run evaluated.
+         */
+        MatchSource: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Title */
+            title: string;
+            /**
+             * Type
+             * @enum {string}
+             */
+            type: "SUPPORT_REQUEST" | "FUNDING_REQUEST";
+            /** Version */
+            version: number;
+        };
+        /**
          * MeResponse
          * @description Who is signed in and as whom they act.
          */
@@ -2951,6 +3544,11 @@ export interface components {
             accepted_stages: ("IDEA" | "PROTOTYPE" | "PILOT" | "WORKING" | "MARKET")[];
             /** Closes At */
             closes_at: string | null;
+            /**
+             * Current Version Id
+             * Format: uuid
+             */
+            current_version_id: string;
             /** Excluded */
             excluded: string;
             financial: components["schemas"]["FinancialResponse"] | null;
@@ -3201,6 +3799,11 @@ export interface components {
             intended_users: string;
             /** Keywords */
             keywords: string[];
+            /**
+             * Managing Party Id
+             * Format: uuid
+             */
+            managing_party_id: string;
             /** Managing Party Name */
             managing_party_name: string;
             /** Number */
@@ -3296,6 +3899,18 @@ export interface components {
              * Format: uuid
              */
             acting_party_id: string;
+        };
+        /**
+         * Relaxation
+         * @description A filter to remove deliberately when nothing matched; the search is never broadened by itself.
+         */
+        Relaxation: {
+            /** Label */
+            label: string;
+            /** Remove */
+            remove: string;
+            /** Total Estimate */
+            total_estimate: number;
         };
         /**
          * RemoveMemberRequest
@@ -3394,6 +4009,36 @@ export interface components {
              * @enum {string}
              */
             visibility: "PUBLIC" | "PARTNER_ONLY";
+        };
+        /**
+         * RequirementRow
+         * @description One requirement's result. ``action`` names what the applicant can do, such as ``complete-budget``.
+         */
+        RequirementRow: {
+            /** Action */
+            action: string | null;
+            /** Applies At */
+            applies_at: string;
+            /** Field */
+            field: string;
+            /** Label */
+            label: string;
+            /** Mandatory */
+            mandatory: boolean;
+            /** Reason */
+            reason: string;
+            /**
+             * Requirement Id
+             * Format: uuid
+             */
+            requirement_id: string;
+            /**
+             * Result
+             * @enum {string}
+             */
+            result: "PASS" | "FAIL" | "UNKNOWN";
+            /** Verification Mode */
+            verification_mode: string;
         };
         /**
          * RevokeRequest
@@ -3825,6 +4470,11 @@ export interface components {
             file_state: string;
             /** Number */
             number: number;
+            /**
+             * Version Id
+             * Format: uuid
+             */
+            version_id: string;
         };
         /**
          * VerifyRequest
@@ -3848,6 +4498,28 @@ export interface components {
             acting_party_id: string;
             /** Expected Version */
             expected_version: number;
+        };
+        /**
+         * ActingPartyRequest
+         * @description A consequential action names the party it acts as, so two tabs cannot cross contexts.
+         */
+        app__access__model__schema__ActingPartyRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+        };
+        /**
+         * ActingPartyRequest
+         * @description The party the client acts as.
+         */
+        app__discovery__router__ActingPartyRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
         };
     };
     responses: never;
@@ -3998,6 +4670,119 @@ export interface operations {
             };
         };
     };
+    list_demo_accounts_api_v1_demo_accounts_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DemoAccount"][];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    reset_demo_api_v1_demo_reset_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DemoResetRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DemoResetResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    demo_sign_in_api_v1_demo_sign_in_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DemoSignInRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     read_mailbox_api_v1_dev_mailbox_get: {
         parameters: {
             query: {
@@ -4017,6 +4802,177 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["MailboxMessageResponse"][];
                 };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    discover_api_v1_discovery_get: {
+        parameters: {
+            query?: {
+                type?: "inventions" | "funding" | "partners";
+                q?: string;
+                sector?: string | null;
+                stage?: string | null;
+                support_form?: string | null;
+                region?: string | null;
+                purpose?: string | null;
+                intake?: string | null;
+                currency?: string | null;
+                basis?: string | null;
+                amount_min?: string | null;
+                amount_max?: string | null;
+                saved?: boolean;
+                cursor?: string | null;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DiscoveryResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    list_feedback_api_v1_discovery_feedback_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MarkedItem"][];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    hide_item_api_v1_discovery_feedback__subject_type___subject_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                subject_type: "INVENTION" | "FUNDING_REQUEST" | "PARTNER";
+                subject_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["app__discovery__router__ActingPartyRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MarkedItem"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    unhide_item_api_v1_discovery_feedback__subject_type___subject_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                subject_type: "INVENTION" | "FUNDING_REQUEST" | "PARTNER";
+                subject_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["app__discovery__router__ActingPartyRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Validation failed */
             422: {
@@ -4942,7 +5898,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["ActingPartyRequest"];
+                "application/json": components["schemas"]["app__access__model__schema__ActingPartyRequest"];
             };
         };
         responses: {
@@ -5104,6 +6060,88 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["LegalEntityResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    read_match_run_api_v1_match_runs__run_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MatchRunResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    run_match_api_v1_matches_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MatchRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MatchRunResponse"];
                 };
             };
             /** @description Validation failed */
@@ -5935,6 +6973,123 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["HandoffResponse"];
                 };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    list_saved_api_v1_saved_items_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MarkedItem"][];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    save_item_api_v1_saved_items__subject_type___subject_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                subject_type: "INVENTION" | "FUNDING_REQUEST" | "PARTNER";
+                subject_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["app__discovery__router__ActingPartyRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MarkedItem"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    unsave_item_api_v1_saved_items__subject_type___subject_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                subject_type: "INVENTION" | "FUNDING_REQUEST" | "PARTNER";
+                subject_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["app__discovery__router__ActingPartyRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Validation failed */
             422: {

@@ -63,7 +63,7 @@ Run one file with `npx vitest run tests/pages.test.tsx`, match by name with `npx
 
 | Route | Screen |
 |---|---|
-| `/start`, `/start?masuk=1` | S01: sign up (persona, name, email, language, time zone) or sign in; never an organization |
+| `/start`, `/start?masuk=1` | S01: sign up (persona, name, email, language, time zone) or sign in; never an organization. With demo mode, a picker of labelled demo accounts and "Atur ulang demo" |
 | `/start/kode` | The code step: where the code went, resend, attempts left |
 | `/inventions` | S04 Inovasi Saya: drafts, published and archived, "Ada draf perubahan", **Tambah inovasi** |
 | `/inventions/<id>` | S04 detail: owner view with facts, provenance and claims, or the public projection for others |
@@ -75,6 +75,8 @@ Run one file with `npx vitest run tests/pages.test.tsx`, match by name with `npx
 | `/support-requests/<id>` | S06 detail and form: labelled money, outcome, forms of support, budget; `?return=` goes back after saving |
 | `/funding-requests/<id>` | S07: one raise card, target and contribution apart, linked inventions |
 | `/funding-requests/<id>/edit` | S07 editor, or a notice when the deployment does not run company funding |
+| `/discover?type=&q=&sector=&stage=&saved=` | S03: inventions, company funding (one card per raise) or partners in labelled sections, filters in the address so Back restores them, save and "Kurang relevan"; empty filters explain themselves |
+| `/matches`, `/matches?source=SUPPORT_REQUEST:<id>` | S10: pick a need, then each mandate's label, reasons, gap and one action, with rows and the score note on request; "Mandat tidak direkomendasikan" and partners' own forms apart |
 | `/undangan/<token>` | What an invitation grants, then **Terima undangan** |
 | `/home` | S02 Beranda |
 | `/inventions` | Inovasi Saya |

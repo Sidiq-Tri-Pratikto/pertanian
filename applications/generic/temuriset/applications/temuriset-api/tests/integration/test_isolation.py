@@ -31,6 +31,13 @@ NOT_DATA_ROUTES = {
     ("POST", "/api/v1/inventions"),
     ("POST", "/api/v1/legal-entities"),
     ("POST", "/api/v1/opportunities"),
+    # Public by design: it reads only the projection, which never holds a draft or private text. The private-text
+    # case is proven by ``test_discovery_reveals_no_private_text`` below.
+    ("GET", "/api/v1/discovery"),
+    # Demo mode only, and they hold labelled fictional accounts, never another party's data.
+    ("GET", "/api/v1/demo/accounts"),
+    ("POST", "/api/v1/demo/sign-in"),
+    ("POST", "/api/v1/demo/reset"),
 }
 
 
@@ -52,6 +59,7 @@ class Owner:
     published_invention_id: str = ""
     funding_request_id: str = ""
     opportunity_id: str = ""
+    match_run_id: str = ""
 
 
 @dataclass
@@ -240,6 +248,28 @@ ROUTES: dict[tuple[str, str], Case] = {
         )
         for action in ("activate", "pause", "close")
     },
+    ("GET", "/api/v1/saved-items"): Case("GET", lambda _o: "/api/v1/saved-items"),
+    ("GET", "/api/v1/discovery-feedback"): Case("GET", lambda _o: "/api/v1/discovery-feedback"),
+    **{
+        (method, f"/api/v1/{path}/{{subject_type}}/{{subject_id}}"): Case(
+            method,
+            lambda o, path=path: f"/api/v1/{path}/INVENTION/{o.invention_id}",
+            lambda _o, actor: {"acting_party_id": actor},
+        )
+        for method in ("PUT", "DELETE")
+        for path in ("saved-items", "discovery-feedback")
+    },
+    ("POST", "/api/v1/matches"): Case(
+        "POST",
+        lambda _o: "/api/v1/matches",
+        lambda o, actor: {
+            "acting_party_id": actor,
+            "source_type": "SUPPORT_REQUEST",
+            "source_id": o.support_request_id,
+        },
+        {"Idempotency-Key": "isolation-match"},
+    ),
+    ("GET", "/api/v1/match-runs/{run_id}"): Case("GET", lambda o: f"/api/v1/match-runs/{o.match_run_id}"),
     # Unpublished, so even the public view must not reveal that it exists.
     ("GET", "/api/v1/inventions/{invention_id}/public"): Case(
         "GET", lambda o: f"/api/v1/inventions/{o.invention_id}/public"
@@ -340,6 +370,13 @@ async def owner(client: AsyncClient, sign_up, published_invention) -> AsyncItera
             headers={"Idempotency-Key": "opportunity"},
         )
     ).json()
+    match_run = (
+        await client.post(
+            "/api/v1/matches",
+            json={"acting_party_id": party, "source_type": "SUPPORT_REQUEST", "source_id": support["id"]},
+            headers={"Idempotency-Key": "match"},
+        )
+    ).json()
     yield Owner(
         organization_id=organization["id"],
         party_id=organization["party_id"],
@@ -355,6 +392,7 @@ async def owner(client: AsyncClient, sign_up, published_invention) -> AsyncItera
         published_invention_id=published["id"],
         funding_request_id=funding["id"],
         opportunity_id=opportunity["id"],
+        match_run_id=match_run["run_id"],
     )
 
 
@@ -404,5 +442,34 @@ async def test_unrelated_party_sees_nothing(
         owner.published_invention_id,
         owner.funding_request_id,
         owner.opportunity_id,
+        owner.match_run_id,
     ):
         assert secret not in response.text
+
+
+async def test_discovery_reveals_no_private_text(owner: Owner, new_client: Callable[[], AsyncClient], sign_up) -> None:
+    """
+    Condition:
+    - Party A holds a draft invention and a published one, and every consumer has run (SC-001). Private notes are
+      proven unsearchable in ``tests/integration/discovery``.
+
+    Expected:
+    - A stranger's search finds the published title only, never the draft, its id or A's other records.
+    """
+    import app.discovery.service.projection  # noqa: F401, PLC0415 - registers the projection consumers
+    from app.core.database import get_session_factory  # noqa: PLC0415
+    from app.worker.loop import dispatch_events  # noqa: PLC0415
+    from app.worker.registry import registry  # noqa: PLC0415
+
+    while await dispatch_events(get_session_factory(), registry):
+        pass
+    async with new_client() as stranger:
+        await sign_up(stranger, "stranger@example.com", name="Stranger")
+        everything = await stranger.get("/api/v1/discovery")
+        draft = await stranger.get("/api/v1/discovery", params={"q": "Owner Co invention"})
+
+    found = [item["title"] for group in draft.json()["sections"] for item in group["items"]]
+    assert found == ["Owner Co published invention"]
+    assert "Owner Co published invention" in everything.text
+    for secret in (owner.invention_id, owner.support_request_id, owner.document_id, "Owner Co document"):
+        assert secret not in everything.text

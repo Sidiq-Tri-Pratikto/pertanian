@@ -22,6 +22,11 @@ run: .env
 worker: .env
 	uv run python -m app.worker
 
+# Recreates the labelled demo accounts and fixtures (spec 021); real accounts are untouched.
+.PHONY: demo-seed
+demo-seed: .env
+	uv run python -m app.demo
+
 .PHONY: run-dependencies
 run-dependencies:
 	docker compose -f dev-compose.yml up -d --wait

@@ -53,3 +53,4 @@ class CapabilityManifestResponse(BaseModel):
     capabilities: list[CapabilityResponse]
     adapters: list[AdapterResponse]
     policies: list[PolicyResponse]
+    demo: bool = False

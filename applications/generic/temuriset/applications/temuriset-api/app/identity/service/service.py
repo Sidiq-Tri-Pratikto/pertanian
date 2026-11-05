@@ -126,6 +126,9 @@ class IdentityService:
         address = hash_address(client_address)
         await self._enforce_rate_limit(email=request.email, address=address)
         account = await self.repository.find_account_by_email(request.email)
+        if account is not None and account.kind == "demo":
+            # Demo accounts sign in only from the demo picker and never receive email (spec 021).
+            return
         if account is None and request.purpose == "sign_in":
             await self.mailbox.send(self.session, to_email=request.email, subject=_CODE_SUBJECT, body=_NO_ACCOUNT_BODY)
             return
@@ -339,4 +342,62 @@ def _me(account: AccountModel, principal: Principal, organizations: list[Members
         active_party_id=principal.active_party_id,
         capabilities=sorted(principal.capabilities),
         organizations=organizations,
+    )
+
+
+async def create_demo_account(
+    session: AsyncSession, *, email: str, display_name: str, persona: str, time_zone: str
+) -> tuple[UUID, UUID]:
+    """Create a labelled demo account with its personal party (spec 021). It never receives email.
+
+    Args:
+        session (AsyncSession): The caller's session.
+        email (str): A reserved address that cannot receive mail, such as ``rani@demo.invalid``.
+        display_name (str): Name.
+        persona (str): ``inovator`` or ``mitra``.
+        time_zone (str): IANA zone.
+
+    Returns:
+        tuple[UUID, UUID]: The account and its personal party.
+    """
+    account = await SqlAlchemyIdentityRepository(session).create_account(
+        email=email,
+        email_verified_at=clock.now(),
+        display_name=display_name,
+        locale="id",
+        time_zone=time_zone,
+        persona=persona,
+        kind="demo",
+    )
+    party_id = await create_personal_party(session, account_id=account.id, display_name=display_name)
+    return account.id, party_id
+
+
+async def start_demo_session(session: AsyncSession, settings: Settings, email: str) -> tuple[str, Principal]:
+    """Sign in to a demo account from the demo picker; only accounts of kind ``demo`` qualify.
+
+    Args:
+        session (AsyncSession): The request's session.
+        settings (Settings): Settings.
+        email (str): The demo account's address.
+
+    Returns:
+        tuple[str, Principal]: The session token and who is now signed in.
+
+    Raises:
+        NotFoundError: When no demo account has that address.
+    """
+    service = IdentityService(session, settings)
+    account = await service.repository.find_account_by_email(email)
+    if account is None or account.kind != "demo":
+        raise NotFoundError()
+    party_id = await personal_party_id(session, account.id)
+    token = new_token()
+    session_id = await service._start_session(account.id, token, party_id)  # noqa: SLF001 - same module
+    return token, Principal(
+        account_id=account.id,
+        session_id=session_id,
+        personal_party_id=party_id,
+        active_party_id=party_id,
+        capabilities=await capabilities_for(session, account.id, party_id) or frozenset(),
     )

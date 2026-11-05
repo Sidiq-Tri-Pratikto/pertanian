@@ -56,21 +56,6 @@
         "title": "AccountResponse",
         "type": "object"
       },
-      "ActingPartyRequest": {
-        "description": "A consequential action names the party it acts as, so two tabs cannot cross contexts.",
-        "properties": {
-          "acting_party_id": {
-            "format": "uuid",
-            "title": "Acting Party Id",
-            "type": "string"
-          }
-        },
-        "required": [
-          "acting_party_id"
-        ],
-        "title": "ActingPartyRequest",
-        "type": "object"
-      },
       "AdapterResponse": {
         "description": "One data source adapter.",
         "properties": {
@@ -515,6 +500,11 @@
           "default_locale": {
             "title": "Default Locale",
             "type": "string"
+          },
+          "demo": {
+            "default": false,
+            "title": "Demo",
+            "type": "boolean"
           },
           "policies": {
             "items": {
@@ -1138,6 +1128,248 @@
         "title": "CreateSupportRequest",
         "type": "object"
       },
+      "DemoAccount": {
+        "description": "One account in the demo picker.",
+        "properties": {
+          "fixture": {
+            "title": "Fixture",
+            "type": "string"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "persona": {
+            "enum": [
+              "inovator",
+              "mitra"
+            ],
+            "title": "Persona",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "name",
+          "persona",
+          "fixture",
+          "label"
+        ],
+        "title": "DemoAccount",
+        "type": "object"
+      },
+      "DemoResetRequest": {
+        "additionalProperties": false,
+        "description": "Recreate the demo, optionally in a fixture state such as F01-GAP.",
+        "properties": {
+          "gap": {
+            "default": false,
+            "title": "Gap",
+            "type": "boolean"
+          },
+          "proposed_entity": {
+            "default": false,
+            "title": "Proposed Entity",
+            "type": "boolean"
+          },
+          "scan": {
+            "default": false,
+            "title": "Scan",
+            "type": "boolean"
+          }
+        },
+        "title": "DemoResetRequest",
+        "type": "object"
+      },
+      "DemoResetResponse": {
+        "description": "What the reset recreated.",
+        "properties": {
+          "accounts": {
+            "title": "Accounts",
+            "type": "integer"
+          },
+          "inventions": {
+            "title": "Inventions",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "accounts",
+          "inventions"
+        ],
+        "title": "DemoResetResponse",
+        "type": "object"
+      },
+      "DemoSignInRequest": {
+        "additionalProperties": false,
+        "description": "Sign in as one demo account.",
+        "properties": {
+          "key": {
+            "title": "Key",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key"
+        ],
+        "title": "DemoSignInRequest",
+        "type": "object"
+      },
+      "DiscoveryItem": {
+        "description": "One result card. ``card`` holds what the owner published, by subject type.",
+        "properties": {
+          "card": {
+            "additionalProperties": true,
+            "title": "Card",
+            "type": "object"
+          },
+          "curated": {
+            "title": "Curated",
+            "type": "boolean"
+          },
+          "reasons": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Reasons",
+            "type": "array"
+          },
+          "saved": {
+            "title": "Saved",
+            "type": "boolean"
+          },
+          "subject_id": {
+            "format": "uuid",
+            "title": "Subject Id",
+            "type": "string"
+          },
+          "subject_type": {
+            "enum": [
+              "INVENTION",
+              "FUNDING_REQUEST",
+              "PARTNER"
+            ],
+            "title": "Subject Type",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "subject_type",
+          "subject_id",
+          "title",
+          "card",
+          "curated",
+          "saved",
+          "reasons"
+        ],
+        "title": "DiscoveryItem",
+        "type": "object"
+      },
+      "DiscoveryResponse": {
+        "description": "One page of discovery results, with the filters that produced it.",
+        "properties": {
+          "filters": {
+            "additionalProperties": true,
+            "title": "Filters",
+            "type": "object"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          },
+          "relaxation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Relaxation"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sections": {
+            "items": {
+              "$ref": "#/components/schemas/DiscoverySection"
+            },
+            "title": "Sections",
+            "type": "array"
+          },
+          "total_estimate": {
+            "title": "Total Estimate",
+            "type": "integer"
+          },
+          "type": {
+            "enum": [
+              "inventions",
+              "funding",
+              "partners"
+            ],
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "sections",
+          "filters",
+          "next_cursor",
+          "total_estimate",
+          "relaxation"
+        ],
+        "title": "DiscoveryResponse",
+        "type": "object"
+      },
+      "DiscoverySection": {
+        "description": "A labelled group of results. No section is ever ordered by activity.",
+        "properties": {
+          "id": {
+            "enum": [
+              "relevant",
+              "new",
+              "curated"
+            ],
+            "title": "Id",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/DiscoveryItem"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "items"
+        ],
+        "title": "DiscoverySection",
+        "type": "object"
+      },
       "DocumentResponse": {
         "description": "A document as its owner sees it.",
         "properties": {
@@ -1495,6 +1727,42 @@
           "retryable"
         ],
         "title": "ErrorRecovery",
+        "type": "object"
+      },
+      "EvidenceResponse": {
+        "description": "How much of the checklist rests on provided or reviewed evidence.",
+        "properties": {
+          "applicable": {
+            "title": "Applicable",
+            "type": "integer"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "provided": {
+            "title": "Provided",
+            "type": "integer"
+          },
+          "reviewed": {
+            "title": "Reviewed",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "provided",
+          "reviewed",
+          "applicable",
+          "note"
+        ],
+        "title": "EvidenceResponse",
         "type": "object"
       },
       "FactInput": {
@@ -1893,6 +2161,30 @@
           "subject"
         ],
         "title": "FinancialResponse",
+        "type": "object"
+      },
+      "FitResponse": {
+        "description": "Conservative fit on 0\u2013100 and the share of information it rests on; not a chance of funding.",
+        "properties": {
+          "coverage": {
+            "title": "Coverage",
+            "type": "string"
+          },
+          "lower": {
+            "title": "Lower",
+            "type": "string"
+          },
+          "upper": {
+            "title": "Upper",
+            "type": "string"
+          }
+        },
+        "required": [
+          "lower",
+          "upper",
+          "coverage"
+        ],
+        "title": "FitResponse",
         "type": "object"
       },
       "FundingRequestInput": {
@@ -2865,6 +3157,280 @@
         "title": "MailboxMessageResponse",
         "type": "object"
       },
+      "MarkedItem": {
+        "description": "A saved or hidden subject.",
+        "properties": {
+          "subject_id": {
+            "format": "uuid",
+            "title": "Subject Id",
+            "type": "string"
+          },
+          "subject_type": {
+            "enum": [
+              "INVENTION",
+              "FUNDING_REQUEST",
+              "PARTNER"
+            ],
+            "title": "Subject Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "subject_type",
+          "subject_id"
+        ],
+        "title": "MarkedItem",
+        "type": "object"
+      },
+      "MatchRequest": {
+        "description": "Evaluate one owned source against every active opportunity.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "source_id": {
+            "format": "uuid",
+            "title": "Source Id",
+            "type": "string"
+          },
+          "source_type": {
+            "enum": [
+              "SUPPORT_REQUEST",
+              "FUNDING_REQUEST"
+            ],
+            "title": "Source Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "source_type",
+          "source_id"
+        ],
+        "title": "MatchRequest",
+        "type": "object"
+      },
+      "MatchResultResponse": {
+        "description": "One opportunity version's result. Eligibility, readiness and fit are separate on purpose.",
+        "properties": {
+          "availability": {
+            "$ref": "#/components/schemas/TargetAvailabilityResponse"
+          },
+          "eligibility": {
+            "enum": [
+              "ELIGIBLE",
+              "NEEDS_VERIFICATION",
+              "INCOMPATIBLE"
+            ],
+            "title": "Eligibility",
+            "type": "string"
+          },
+          "evidence": {
+            "$ref": "#/components/schemas/EvidenceResponse"
+          },
+          "fit": {
+            "$ref": "#/components/schemas/FitResponse"
+          },
+          "gap": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RequirementRow"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "later": {
+            "items": {
+              "$ref": "#/components/schemas/RequirementRow"
+            },
+            "title": "Later",
+            "type": "array"
+          },
+          "opportunity_id": {
+            "format": "uuid",
+            "title": "Opportunity Id",
+            "type": "string"
+          },
+          "opportunity_version": {
+            "title": "Opportunity Version",
+            "type": "integer"
+          },
+          "opportunity_version_id": {
+            "format": "uuid",
+            "title": "Opportunity Version Id",
+            "type": "string"
+          },
+          "partner": {
+            "title": "Partner",
+            "type": "string"
+          },
+          "partner_party_id": {
+            "format": "uuid",
+            "title": "Partner Party Id",
+            "type": "string"
+          },
+          "readiness": {
+            "enum": [
+              "READY_TO_SUBMIT",
+              "NEEDS_INFORMATION",
+              "BLOCKED_FOR_THIS_TARGET"
+            ],
+            "title": "Readiness",
+            "type": "string"
+          },
+          "reasons": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Reasons",
+            "type": "array"
+          },
+          "relevant": {
+            "title": "Relevant",
+            "type": "boolean"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/RequirementRow"
+            },
+            "title": "Rows",
+            "type": "array"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "opportunity_id",
+          "opportunity_version_id",
+          "opportunity_version",
+          "partner_party_id",
+          "partner",
+          "title",
+          "availability",
+          "eligibility",
+          "readiness",
+          "relevant",
+          "label",
+          "fit",
+          "reasons",
+          "gap",
+          "later",
+          "rows",
+          "evidence"
+        ],
+        "title": "MatchResultResponse",
+        "type": "object"
+      },
+      "MatchRunResponse": {
+        "description": "A stored run: recommended results first, then those not to be shown as a positive match.",
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "engine": {
+            "title": "Engine",
+            "type": "string"
+          },
+          "excluded": {
+            "items": {
+              "$ref": "#/components/schemas/MatchResultResponse"
+            },
+            "title": "Excluded",
+            "type": "array"
+          },
+          "operation_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operation Id"
+          },
+          "policy_versions": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Policy Versions",
+            "type": "object"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/MatchResultResponse"
+            },
+            "title": "Results",
+            "type": "array"
+          },
+          "run_id": {
+            "format": "uuid",
+            "title": "Run Id",
+            "type": "string"
+          },
+          "source": {
+            "$ref": "#/components/schemas/MatchSource"
+          }
+        },
+        "required": [
+          "run_id",
+          "created_at",
+          "engine",
+          "policy_versions",
+          "source",
+          "results",
+          "excluded"
+        ],
+        "title": "MatchRunResponse",
+        "type": "object"
+      },
+      "MatchSource": {
+        "description": "The source version a run evaluated.",
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "SUPPORT_REQUEST",
+              "FUNDING_REQUEST"
+            ],
+            "title": "Type",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "type",
+          "id",
+          "version",
+          "title"
+        ],
+        "title": "MatchSource",
+        "type": "object"
+      },
       "MeResponse": {
         "description": "Who is signed in and as whom they act.",
         "properties": {
@@ -3058,6 +3624,11 @@
             ],
             "title": "Closes At"
           },
+          "current_version_id": {
+            "format": "uuid",
+            "title": "Current Version Id",
+            "type": "string"
+          },
           "excluded": {
             "title": "Excluded",
             "type": "string"
@@ -3206,6 +3777,7 @@
           "id",
           "partner_party_id",
           "version",
+          "current_version_id",
           "kind",
           "status",
           "closes_at",
@@ -3713,6 +4285,11 @@
             "title": "Keywords",
             "type": "array"
           },
+          "managing_party_id": {
+            "format": "uuid",
+            "title": "Managing Party Id",
+            "type": "string"
+          },
           "managing_party_name": {
             "title": "Managing Party Name",
             "type": "string"
@@ -3774,6 +4351,7 @@
         },
         "required": [
           "id",
+          "managing_party_id",
           "managing_party_name",
           "number",
           "title",
@@ -4055,6 +4633,30 @@
         "title": "RecordHandoffRequest",
         "type": "object"
       },
+      "Relaxation": {
+        "description": "A filter to remove deliberately when nothing matched; the search is never broadened by itself.",
+        "properties": {
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "remove": {
+            "title": "Remove",
+            "type": "string"
+          },
+          "total_estimate": {
+            "title": "Total Estimate",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "remove",
+          "label",
+          "total_estimate"
+        ],
+        "title": "Relaxation",
+        "type": "object"
+      },
       "RemoveMemberRequest": {
         "description": "Remove a member, acting as the organization.",
         "properties": {
@@ -4256,6 +4858,73 @@
           "version"
         ],
         "title": "RequirementResponse",
+        "type": "object"
+      },
+      "RequirementRow": {
+        "description": "One requirement's result. ``action`` names what the applicant can do, such as ``complete-budget``.",
+        "properties": {
+          "action": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Action"
+          },
+          "applies_at": {
+            "title": "Applies At",
+            "type": "string"
+          },
+          "field": {
+            "title": "Field",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "mandatory": {
+            "title": "Mandatory",
+            "type": "boolean"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "requirement_id": {
+            "format": "uuid",
+            "title": "Requirement Id",
+            "type": "string"
+          },
+          "result": {
+            "enum": [
+              "PASS",
+              "FAIL",
+              "UNKNOWN"
+            ],
+            "title": "Result",
+            "type": "string"
+          },
+          "verification_mode": {
+            "title": "Verification Mode",
+            "type": "string"
+          }
+        },
+        "required": [
+          "requirement_id",
+          "label",
+          "field",
+          "mandatory",
+          "applies_at",
+          "verification_mode",
+          "result",
+          "reason",
+          "action"
+        ],
+        "title": "RequirementRow",
         "type": "object"
       },
       "RevokeRequest": {
@@ -5231,10 +5900,16 @@
           "number": {
             "title": "Number",
             "type": "integer"
+          },
+          "version_id": {
+            "format": "uuid",
+            "title": "Version Id",
+            "type": "string"
           }
         },
         "required": [
           "document_id",
+          "version_id",
           "number",
           "file_state"
         ],
@@ -5281,6 +5956,36 @@
           "expected_version"
         ],
         "title": "VersionedActionRequest",
+        "type": "object"
+      },
+      "app__access__model__schema__ActingPartyRequest": {
+        "description": "A consequential action names the party it acts as, so two tabs cannot cross contexts.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "acting_party_id"
+        ],
+        "title": "ActingPartyRequest",
+        "type": "object"
+      },
+      "app__discovery__router__ActingPartyRequest": {
+        "description": "The party the client acts as.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "acting_party_id"
+        ],
+        "title": "ActingPartyRequest",
         "type": "object"
       }
     }
@@ -5452,6 +6157,146 @@
         ]
       }
     },
+    "/api/v1/demo/accounts": {
+      "get": {
+        "description": "List the labelled demo accounts.\n\nReturns:\n    list[DemoAccount]: Accounts, each labelled \"Akun demo \u00b7 data fiktif\".",
+        "operationId": "list_demo_accounts_api_v1_demo_accounts_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/DemoAccount"
+                  },
+                  "title": "Response List Demo Accounts Api V1 Demo Accounts Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "List demo accounts",
+        "tags": [
+          "demo"
+        ]
+      }
+    },
+    "/api/v1/demo/reset": {
+      "post": {
+        "description": "Delete only demo rows and recreate them with the same ids; real accounts are untouched.\n\nArgs:\n    body (DemoResetRequest): Fixture states.\n    session (SessionDep): Database session.\n\nReturns:\n    DemoResetResponse: What was recreated.",
+        "operationId": "reset_demo_api_v1_demo_reset_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DemoResetRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DemoResetResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Reset the demo",
+        "tags": [
+          "demo"
+        ]
+      }
+    },
+    "/api/v1/demo/sign-in": {
+      "post": {
+        "description": "Start a session for a demo account. Demo accounts have no code by email; this picker is their only way in.\n\nArgs:\n    body (DemoSignInRequest): The account key.\n    response (Response): Carries the session cookie.\n    session (SessionDep): Database session.\n\nReturns:\n    MeResponse: The signed-in demo account.",
+        "operationId": "demo_sign_in_api_v1_demo_sign_in_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DemoSignInRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Sign in as a demo account",
+        "tags": [
+          "demo"
+        ]
+      }
+    },
     "/api/v1/dev/mailbox": {
       "get": {
         "description": "Return the newest messages sent to an email, so sign-in can be tested without real email.\n\nArgs:\n    email (Email): Recipient.\n    session (SessionDep): Database session.\n\nReturns:\n    list[MailboxMessageResponse]: Newest first.",
@@ -5508,6 +6353,457 @@
         "summary": "Read the development mailbox",
         "tags": [
           "development"
+        ]
+      }
+    },
+    "/api/v1/discovery": {
+      "get": {
+        "description": "Search one result type from the public projection, in sections, with the filters echoed back.\n\nArgs:\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    type (ResultType, optional): Result type. Defaults to \"inventions\".\n    q (str, optional): Words in Indonesian or English. Defaults to \"\".\n    sector (str | None, optional): Sector. Defaults to None.\n    stage (str | None, optional): Stage. Defaults to None.\n    support_form (str | None, optional): Form of support. Defaults to None.\n    region (str | None, optional): Region. Defaults to None.\n    purpose (str | None, optional): Relationship form. Defaults to None.\n    intake (str | None, optional): Partner intake state. Defaults to None.\n    currency (str | None, optional): Currency of the amount range. Defaults to None.\n    basis (str | None, optional): Basis of the amount range. Defaults to None.\n    amount_min (str | None, optional): Lowest amount, as a decimal string. Defaults to None.\n    amount_max (str | None, optional): Highest amount, as a decimal string. Defaults to None.\n    saved (bool, optional): Only saved items. Defaults to False.\n    cursor (str | None, optional): From the previous page. Defaults to None.\n    limit (int, optional): Page size, at most 100. Defaults to 20.\n\nReturns:\n    DiscoveryResponse: One page.",
+        "operationId": "discover_api_v1_discovery_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "type",
+            "required": false,
+            "schema": {
+              "default": "inventions",
+              "enum": [
+                "inventions",
+                "funding",
+                "partners"
+              ],
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "default": "",
+              "maxLength": 200,
+              "title": "Q",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sector",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Sector"
+            }
+          },
+          {
+            "in": "query",
+            "name": "stage",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Stage"
+            }
+          },
+          {
+            "in": "query",
+            "name": "support_form",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Support Form"
+            }
+          },
+          {
+            "in": "query",
+            "name": "region",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Region"
+            }
+          },
+          {
+            "in": "query",
+            "name": "purpose",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Purpose"
+            }
+          },
+          {
+            "in": "query",
+            "name": "intake",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Intake"
+            }
+          },
+          {
+            "in": "query",
+            "name": "currency",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Currency"
+            }
+          },
+          {
+            "in": "query",
+            "name": "basis",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Basis"
+            }
+          },
+          {
+            "in": "query",
+            "name": "amount_min",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Amount Min"
+            }
+          },
+          {
+            "in": "query",
+            "name": "amount_max",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Amount Max"
+            }
+          },
+          {
+            "in": "query",
+            "name": "saved",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Saved",
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiscoveryResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Search inventions, funding requests or partners",
+        "tags": [
+          "discovery"
+        ]
+      }
+    },
+    "/api/v1/discovery-feedback": {
+      "get": {
+        "description": "List what the acting party marked \"Kurang relevan\".\n\nArgs:\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    list[MarkedItem]: Hidden subjects.",
+        "operationId": "list_feedback_api_v1_discovery_feedback_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/MarkedItem"
+                  },
+                  "title": "Response List Feedback Api V1 Discovery Feedback Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "List items I marked less relevant",
+        "tags": [
+          "discovery"
+        ]
+      }
+    },
+    "/api/v1/discovery-feedback/{subject_type}/{subject_id}": {
+      "delete": {
+        "description": "Undo \"Kurang relevan\".\n\nArgs:\n    subject_type (SubjectType): Subject type.\n    subject_id (UUID): Subject.\n    body (ActingPartyRequest): Acting party.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.",
+        "operationId": "unhide_item_api_v1_discovery_feedback__subject_type___subject_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "subject_type",
+            "required": true,
+            "schema": {
+              "enum": [
+                "INVENTION",
+                "FUNDING_REQUEST",
+                "PARTNER"
+              ],
+              "title": "Subject Type",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "subject_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Subject Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/app__discovery__router__ActingPartyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Show an item again",
+        "tags": [
+          "discovery"
+        ]
+      },
+      "put": {
+        "description": "Hide a subject from the acting party's results only; nothing public changes.\n\nArgs:\n    subject_type (SubjectType): Subject type.\n    subject_id (UUID): Subject.\n    body (ActingPartyRequest): Acting party.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    MarkedItem: The hidden subject.",
+        "operationId": "hide_item_api_v1_discovery_feedback__subject_type___subject_id__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "subject_type",
+            "required": true,
+            "schema": {
+              "enum": [
+                "INVENTION",
+                "FUNDING_REQUEST",
+                "PARTNER"
+              ],
+              "title": "Subject Type",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "subject_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Subject Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/app__discovery__router__ActingPartyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MarkedItem"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Mark an item less relevant",
+        "tags": [
+          "discovery"
         ]
       }
     },
@@ -6761,7 +8057,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ActingPartyRequest"
+                "$ref": "#/components/schemas/app__access__model__schema__ActingPartyRequest"
               }
             }
           },
@@ -6994,6 +8290,112 @@
         "summary": "Declare a legal entity",
         "tags": [
           "company funding"
+        ]
+      }
+    },
+    "/api/v1/match-runs/{run_id}": {
+      "get": {
+        "description": "Read a stored run as it was computed.\n\nArgs:\n    run_id (UUID): The run.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    MatchRunResponse: The run.",
+        "operationId": "read_match_run_api_v1_match_runs__run_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MatchRunResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Read a match run",
+        "tags": [
+          "matching"
+        ]
+      }
+    },
+    "/api/v1/matches": {
+      "post": {
+        "description": "Evaluate an owned source against every other partner's active opportunity, with reasons and gaps.\n\nArgs:\n    body (MatchRequest): The source.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    MatchRunResponse: The stored run.",
+        "operationId": "run_match_api_v1_matches_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MatchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MatchRunResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Match a need or raise",
+        "tags": [
+          "matching"
         ]
       }
     },
@@ -8157,6 +9559,189 @@
         "summary": "Follow an external route",
         "tags": [
           "partner intake"
+        ]
+      }
+    },
+    "/api/v1/saved-items": {
+      "get": {
+        "description": "List what the acting party saved.\n\nArgs:\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    list[MarkedItem]: Saved subjects.",
+        "operationId": "list_saved_api_v1_saved_items_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/MarkedItem"
+                  },
+                  "title": "Response List Saved Api V1 Saved Items Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "List my saved items",
+        "tags": [
+          "discovery"
+        ]
+      }
+    },
+    "/api/v1/saved-items/{subject_type}/{subject_id}": {
+      "delete": {
+        "description": "Remove a saved item.\n\nArgs:\n    subject_type (SubjectType): Subject type.\n    subject_id (UUID): Subject.\n    body (ActingPartyRequest): Acting party.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.",
+        "operationId": "unsave_item_api_v1_saved_items__subject_type___subject_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "subject_type",
+            "required": true,
+            "schema": {
+              "enum": [
+                "INVENTION",
+                "FUNDING_REQUEST",
+                "PARTNER"
+              ],
+              "title": "Subject Type",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "subject_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Subject Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/app__discovery__router__ActingPartyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Unsave an item",
+        "tags": [
+          "discovery"
+        ]
+      },
+      "put": {
+        "description": "Save a published subject for the acting party. Saving twice changes nothing.\n\nArgs:\n    subject_type (SubjectType): Subject type.\n    subject_id (UUID): Subject.\n    body (ActingPartyRequest): Acting party.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    MarkedItem: The saved subject.",
+        "operationId": "save_item_api_v1_saved_items__subject_type___subject_id__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "subject_type",
+            "required": true,
+            "schema": {
+              "enum": [
+                "INVENTION",
+                "FUNDING_REQUEST",
+                "PARTNER"
+              ],
+              "title": "Subject Type",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "subject_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Subject Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/app__discovery__router__ActingPartyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MarkedItem"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Save an item",
+        "tags": [
+          "discovery"
         ]
       }
     },

@@ -13,6 +13,7 @@ make install           # Python dependencies and pre-commit hooks
 make run-dependencies  # Postgres on host port 5442
 make migrate           # creates .env on first use, then applies migrations
 make run               # API with reload on port 8020
+make demo-seed         # optional: recreate the labelled demo accounts and fixtures (spec 021)
 ```
 
 Open http://localhost:8020/docs. Use `make run PORT=8030` if port 8020 is taken, and `make stop-dependencies` when you finish.
@@ -40,6 +41,11 @@ make check             # lint, format check, all tests, 80% coverage gate
 | `tests/integration/funding/` | One raise with two invention links (AC19), proposed companies, target versions, exact amounts per field, no valuation fields, archived links, and the guard in all three compositions with reads kept (AC67) | Postgres |
 | `tests/integration/intake/` | Partner profiles with honest labels (AC22), closing intake against specific targets (AC23), external handoffs (AC24), separate opportunities (AC25), the availability table, versions, states, expiry, readiness, typed requirements, failure paths | Postgres |
 | `tests/unit/intake/` | Recipients A–E as data, requirement operators and value shapes, states and the availability table | Nothing |
+| `tests/integration/discovery/` | Sections from stated preferences with no trend (AC28–AC30), empty filters echoed with a deliberate relaxation, English aliases and typos, one card per raise, amounts in one currency, saved items and "Kurang relevan" per party, archive removes the row, private notes unsearchable, cursors | Postgres |
+| `tests/unit/matching/` | The engine against every prototype matching oracle: F01–F06, AC18, AC20, AC21, AC25, AC27, AC31–AC33, abstain, no checklist, a mandatory failure never positive | Nothing |
+| `tests/integration/matching/` | Golden results in `contracts/golden/` byte for byte over HTTP (`UPDATE_GOLDEN=1` rewrites them), the F01-GAP repair, stored and reproducible runs, owner-only sources, another party's file proves nothing, the funding guard | Postgres |
+| `tests/integration/demo/` | Demo routes absent outside demo mode, the labelled picker, no email for demo accounts, two resets with identical ids, real accounts untouched, goldens and variants on seeded data, demo activity counts nowhere (AC03) | Postgres |
+| `tests/unit/demo/` | Production refuses demo mode unless marked a demonstration | Nothing |
 | `tests/integration/portfolio/` | Drafts, each publication rule, immutable versions (AC07–AC11), stale drafts, archive, public projection, outbox events | Postgres |
 | `tests/integration/access/` | Organizations, capabilities (AC04), hidden organizations (AC05), a removed member's job denied (AC06), invitations expired and revoked, stale context, last manager | Postgres |
 | `tests/integration/test_isolation.py` | Every data route called as an unrelated party returns `NOT_FOUND` or nothing; fails when a new route is not registered | Postgres |
@@ -65,6 +71,8 @@ Run one test with `uv run pytest tests/unit/health/test_health.py -v`, or match 
 | `CODE_REQUESTS_PER_EMAIL_PER_HOUR` | no | `5` | Sign-in code requests per email per hour |
 | `CODE_REQUESTS_PER_ADDRESS_PER_HOUR` | no | `20` | Sign-in code requests per client address per hour |
 | `STORAGE_PATH` | no | `.storage` | Private folder for uploaded bytes; downloads always go through the gateway |
+| `DEMO_MODE` | no | `false` | Offers the labelled demo accounts, sign-in from the picker and reset under `/api/v1/demo` |
+| `DEMO_DEPLOYMENT` | no | `false` | Marks the deployment as a demonstration; outside development, `DEMO_MODE=true` refuses to start without it |
 | `CLAMAV_HOST`, `CLAMAV_PORT` | no | `localhost`, `3310` | ClamAV daemon for `FILE_SCANNER=clamav` (`--profile scanner` in `dev-compose.yml`) |
 | `SKIP_MIGRATIONS` | no | `false` | Container start skips migrations when `true` |
 | `PORT` | no | `8000` | Container listen port (`make run` uses 8020 on the host) |
@@ -122,5 +130,11 @@ Run one test with `uv run pytest tests/unit/health/test_health.py -v`, or match 
 | `GET /api/v1/opportunities/{id}`, `GET /api/v1/opportunities/{id}/versions/{n}` | The current version, or one version as it stood; others never reach a draft or an earlier version |
 | `PUT /api/v1/opportunities/{id}` | Save against `expected_version` (`Idempotency-Key`): a draft in place, a live one as the next version, current at once, if it passes the activation check |
 | `POST /api/v1/opportunities/{id}/{activate,pause,close}` | Status changes against `expected_version` (`Idempotency-Key`); activation needs a saved profile, the fields a partner must state, and a reason on every mandatory requirement |
+| `GET /api/v1/discovery?type=inventions\|funding\|partners&q=&sector=&stage=&support_form=&region=&purpose=&intake=&currency=&basis=&amount_min=&amount_max=&saved=&cursor=&limit=` | Search the public projection in three sections; filters echoed, a deliberate relaxation when nothing matches, never a trend |
+| `GET`, `PUT`, `DELETE /api/v1/saved-items[/{subject_type}/{subject_id}]` | The acting party's saved items; saving twice changes nothing |
+| `GET`, `PUT`, `DELETE /api/v1/discovery-feedback[/{subject_type}/{subject_id}]` | "Kurang relevan": hides a subject from the acting party's results only |
+| `POST /api/v1/matches` | Match an owned support request or raise against every other partner's active opportunity (`Idempotency-Key`); results, then excluded ones |
+| `GET /api/v1/match-runs/{id}` | A stored run as it was computed, with engine and policy versions |
+| `GET /api/v1/demo/accounts`, `POST /api/v1/demo/sign-in`, `POST /api/v1/demo/reset` | Demo mode only: the labelled accounts, sign-in with no email, and a reset of demo rows with variants `gap`, `scan`, `proposed_entity` |
 | `GET /api/v1/dev/mailbox?email=` | Development only: the codes and notes that would have been emailed |
 | `GET /api/v1/operations/{id}` | Whether the acting party's operation committed, for a client that lost the response |
