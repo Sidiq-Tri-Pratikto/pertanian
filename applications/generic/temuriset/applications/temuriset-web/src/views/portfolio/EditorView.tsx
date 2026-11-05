@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useReducer, useRef, useState, type ReactNode } from 'react';
 
@@ -47,13 +48,15 @@ type EditorViewProps = {
   initialStep: number;
   /** Step 2's document area; spec 012 fills it. */
   documents?: ReactNode;
+  /** Whether this deployment runs company funding; step 3 links to it only then. */
+  fundingOn?: boolean;
 };
 
 /**
  * S05: four steps. Values survive step changes, Back, failed saves and stale versions (UX-03). Every save sends
  * `expected_version` and an idempotency key; a retry of the same save reuses its key.
  */
-export function EditorView({ me, invention, initialStep, documents }: EditorViewProps) {
+export function EditorView({ me, invention, initialStep, documents, fundingOn = false }: EditorViewProps) {
   const router = useRouter();
   const persona = readPersona(me.account.persona) ?? 'inovator';
   const [state, dispatch] = useReducer(reduce, invention, initialState);
@@ -183,9 +186,26 @@ export function EditorView({ me, invention, initialStep, documents }: EditorView
           </div>
         ) : null}
         {step === 3 ? (
-          <Status tone="neutral" label="Segera hadir">
-            <p>Kebutuhan dukungan dan cakupan keuangan akan diisi di langkah ini. Tidak ada yang perlu diisi sekarang.</p>
-          </Status>
+          <div className="tr-stack">
+            <p>
+              Kebutuhan dukungan dan pendanaan dicatat terpisah dari profil, dengan mata uang, periode, dan cakupan pada setiap jumlah. Keduanya
+              merujuk versi inovasi yang sudah terbit.
+            </p>
+            <ul className="tr-stack">
+              <li>
+                <Link className="tr-link" href={`/support-requests?invention=${invention.id}`}>
+                  Nyatakan kebutuhan Dukungan Proyek
+                </Link>
+              </li>
+              {fundingOn ? (
+                <li>
+                  <Link className="tr-link" href="/support-requests#pendanaan">
+                    Catat Pendanaan Perusahaan
+                  </Link>
+                </li>
+              ) : null}
+            </ul>
+          </div>
         ) : null}
         {step === 4 ? <PreviewStep values={values} manager={me} number={nextNumber} /> : null}
         <div className="tr-row">

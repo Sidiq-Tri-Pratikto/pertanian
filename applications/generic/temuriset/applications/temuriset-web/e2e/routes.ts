@@ -2,7 +2,7 @@ import type { Persona } from '@/features/persona';
 
 export type Route = {
   path: string;
-  /** Persona of the account signed up first; `null` means a visitor who is not signed in. `:draft` and `:published` in the path become a new invention. */
+  /** Persona of the account signed up first; `null` means a visitor who is not signed in. `:draft` and `:published` become a new invention, `:support` a support request and `:funding` a company raise. */
   persona: Persona | null;
   /** Expected document status. */
   status?: number;
@@ -29,6 +29,10 @@ export const ROUTES: Route[] = [
   { path: '/inventions/:draft/edit?step=3', persona: 'inovator', primary: 'Simpan dan lanjutkan' },
   { path: '/inventions/:draft/edit?step=4', persona: 'inovator', primary: 'Terbitkan versi 1' },
   { path: '/inventions/:published', persona: 'inovator' },
+  { path: '/support-requests', persona: 'inovator', primary: 'Mulai pendanaan perusahaan' },
+  { path: '/support-requests/:support', persona: 'inovator', primary: 'Simpan kebutuhan' },
+  { path: '/funding-requests/:funding', persona: 'inovator' },
+  { path: '/funding-requests/:funding/edit', persona: 'inovator', primary: 'Simpan pendanaan' },
   { path: '/discover', persona: 'mitra' },
   { path: '/opportunities', persona: 'mitra' },
   { path: '/pitches?box=masuk', persona: 'mitra' },

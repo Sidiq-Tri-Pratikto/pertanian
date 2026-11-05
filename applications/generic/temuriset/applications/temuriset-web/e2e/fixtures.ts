@@ -55,14 +55,14 @@ export const COMPLETE_DRAFT = {
 };
 
 /** Creates an invention through the API as the signed-in account; optionally publishes it. Returns its id. */
-export async function makeInvention(page: Page, publish: boolean): Promise<string> {
+export async function makeInvention(page: Page, publish: boolean, title = COMPLETE_DRAFT.title): Promise<string> {
   const headers = { Origin: WEB_ORIGIN };
   const me = (await (await page.request.get('/api/v1/me')).json()) as { active_party_id: string };
   const created = (await (
     await page.request.post('/api/v1/inventions', { data: { acting_party_id: me.active_party_id }, headers: { ...headers, 'Idempotency-Key': uniqueEmail('c') } })
   ).json()) as { id: string; version: number };
   const saved = await page.request.put(`/api/v1/inventions/${created.id}/draft`, {
-    data: { acting_party_id: me.active_party_id, expected_version: created.version, ...COMPLETE_DRAFT },
+    data: { acting_party_id: me.active_party_id, expected_version: created.version, ...COMPLETE_DRAFT, title },
     headers: { ...headers, 'Idempotency-Key': uniqueEmail('s') },
   });
   expect(saved.status(), await saved.text()).toBe(200);
@@ -75,6 +75,30 @@ export async function makeInvention(page: Page, publish: boolean): Promise<strin
     expect(published.status(), await published.text()).toBe(200);
   }
   return created.id;
+}
+
+/** Starts a support request for a new published invention through the API, optionally with a budget. Returns its id. */
+export async function makeSupportRequest(page: Page, budget?: Record<string, unknown>): Promise<string> {
+  const invention = await makeInvention(page, true);
+  const me = (await (await page.request.get('/api/v1/me')).json()) as { active_party_id: string };
+  const created = await page.request.post('/api/v1/support-requests', {
+    data: { acting_party_id: me.active_party_id, invention_id: invention, outcome: 'Validasi prototipe enam bulan', support_forms: ['project_funding'], budget },
+    headers: { Origin: WEB_ORIGIN, 'Idempotency-Key': uniqueEmail('sr') },
+  });
+  expect(created.status(), await created.text()).toBe(201);
+  return ((await created.json()) as { id: string }).id;
+}
+
+/** Starts a raise for a company not founded yet, linked to a new published invention. Returns its id. */
+export async function makeFundingRequest(page: Page): Promise<string> {
+  const invention = await makeInvention(page, true, 'LoopMaterial');
+  const me = (await (await page.request.get('/api/v1/me')).json()) as { active_party_id: string };
+  const created = await page.request.post('/api/v1/funding-requests', {
+    data: { acting_party_id: me.active_party_id, subject_type: 'PROPOSED_ENTITY', proposed_name: 'PT Loop', currency: 'USD', target_amount: '500000', invention_ids: [invention] },
+    headers: { Origin: WEB_ORIGIN, 'Idempotency-Key': uniqueEmail('fr') },
+  });
+  expect(created.status(), await created.text()).toBe(201);
+  return ((await created.json()) as { id: string }).id;
 }
 
 type Fixtures = {
@@ -111,6 +135,8 @@ export const test = base.extend<Fixtures>({
       let path = route.path;
       if (path.includes(':draft')) path = path.replace(':draft', await makeInvention(page, false));
       if (path.includes(':published')) path = path.replace(':published', await makeInvention(page, true));
+      if (path.includes(':support')) path = path.replace(':support', await makeSupportRequest(page));
+      if (path.includes(':funding')) path = path.replace(':funding', await makeFundingRequest(page));
       const response = await page.goto(path);
       expect(response?.status(), `status of ${route.path}`).toBe(expected);
       await page.waitForLoadState('networkidle');

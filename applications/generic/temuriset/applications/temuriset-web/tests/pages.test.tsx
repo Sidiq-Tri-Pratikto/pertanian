@@ -8,6 +8,7 @@ import { makeMe, ORGANIZATION } from './fixtures';
 // What the service answers to server reads; each test sets who is signed in.
 let me: ReturnType<typeof makeMe> | null = null;
 let deployed: string[] | null = ['core', 'company_funding'];
+let supportRequests: unknown[] = [];
 const cookieJar = new Map<string, string>();
 
 vi.mock('next/headers', () => ({
@@ -23,6 +24,7 @@ vi.mock('@/api/server', () => ({
       return me;
     }
     if (path === '/api/v1/inventions') return [];
+    if (path === '/api/v1/support-requests') return supportRequests;
     if (path === `/api/v1/organizations/${ORGANIZATION}/members`) {
       return [{ account_id: 'a', display_name: 'Bima', capabilities: ['manage_members'], version: 1 }];
     }
@@ -80,6 +82,7 @@ async function redirectOf(run: () => Promise<unknown>): Promise<string> {
 beforeEach(() => {
   me = null;
   deployed = ['core', 'company_funding'];
+  supportRequests = [];
   cookieJar.clear();
   vi.stubGlobal('fetch', vi.fn(() => new Promise(() => {})));
 });
@@ -284,19 +287,21 @@ describe('features of optional capabilities', () => {
     me = makeMe();
   });
 
-  it('lists company funding where the deployment runs it, and not organization review', async () => {
-    render((await SettingsPage({ searchParams: Promise.resolve({}) })) as ReactElement);
+  it('lists organization review only where the deployment runs it', async () => {
+    deployed = ['core', 'company_funding', 'organization_review'];
+    const { unmount } = render((await SettingsPage({ searchParams: Promise.resolve({}) })) as ReactElement);
+    expect(screen.getByRole('heading', { name: 'Tinjauan organisasi' })).toBeInTheDocument();
+    unmount();
 
-    expect(screen.getByRole('heading', { name: 'Pendanaan Perusahaan' })).toBeInTheDocument();
+    deployed = ['core', 'company_funding'];
+    render((await SettingsPage({ searchParams: Promise.resolve({}) })) as ReactElement);
     expect(screen.queryByRole('heading', { name: 'Tinjauan organisasi' })).toBeNull();
   });
 
-  it('hides company funding in a project-support-only deployment, even at its direct address', async () => {
+  it('sends shipped company funding to its screen, and hides it in a project-support-only deployment', async () => {
+    expect(await redirectOf(() => ComingSoon.default({ params: Promise.resolve({ feature: 'pendanaan-perusahaan' }) }))).toBe('/support-requests#pendanaan');
+
     deployed = ['core'];
-
-    render((await SettingsPage({ searchParams: Promise.resolve({}) })) as ReactElement);
-    expect(screen.queryByRole('heading', { name: 'Pendanaan Perusahaan' })).toBeNull();
-
     render((await ComingSoon.default({ params: Promise.resolve({ feature: 'pendanaan-perusahaan' }) })) as ReactElement);
     expect(screen.getByRole('heading', { level: 1, name: 'Fitur tidak dikenal' })).toBeInTheDocument();
   });
@@ -306,7 +311,7 @@ describe('features of optional capabilities', () => {
 
     render((await SettingsPage({ searchParams: Promise.resolve({}) })) as ReactElement);
 
-    expect(screen.queryByRole('link', { name: /Lihat rencana Pendanaan Perusahaan/ })).toBeNull();
+    expect(screen.queryByRole('link', { name: /Lihat rencana Tinjauan organisasi/ })).toBeNull();
     expect(screen.getByRole('link', { name: /Lihat rencana Kecocokan/ })).toBeInTheDocument();
   });
 });

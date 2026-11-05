@@ -73,7 +73,8 @@ export const FEATURES: Feature[] = [
     ],
     screens: ['S06'],
     specs: ['013', '015'],
-    status: 'coming_soon',
+    status: 'available',
+    home: '/support-requests',
   },
   {
     id: 'pendanaan-perusahaan',
@@ -87,7 +88,8 @@ export const FEATURES: Feature[] = [
     ],
     screens: ['S07'],
     specs: ['014', '015'],
-    status: 'coming_soon',
+    status: 'available',
+    home: '/support-requests#pendanaan',
   },
   {
     id: 'profil-mitra',

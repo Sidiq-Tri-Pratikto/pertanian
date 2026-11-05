@@ -31,6 +31,9 @@ make e2e            # Chromium against the production build; needs the API (the 
 | `tests/auth.test.tsx` | Sign-up and code screens, error summary focus, context switcher, account and organization forms |
 | `tests/portfolio.test.tsx` | Editor state machine, save and focus, failed save retried with the same key, conflict, publication errors per step, preview, owner and partner detail |
 | `tests/documents.test.tsx` | Limits before upload, upload progress and polling, cancel, three states, grants, the revoke dialog with focus return and Escape |
+| `tests/needs.test.tsx` | F01 money labels, open ranges and the Beranda queue, invalid range with focus and kept values, `?return=`, activation errors, one raise card, proposed company, funding off, entity then raise saved, axe |
+| `tests/money.test.ts` | String-only money formatter against the `TR.format` cases: grouping, decimals, unknown, open-ended and equal ranges |
+| `e2e/needs.spec.ts` | Chromium: F01 from step 3, invalid range, Beranda queue for an open range, `?return=`, J02 raise for two inventions and Back from an invention |
 | `e2e/documents.spec.ts` | Chromium: PDF scanned and read, scan needing manual reading, rejected file, size limit, revocation then refusal (AC65) |
 | `e2e/portfolio.spec.ts` | Chromium: four steps to version 1, failed save and retry, conflict from another tab, partner view |
 | `e2e/auth.spec.ts` | Chromium journeys: both personas sign up, wrong code, return after sign-in, context switch, invitation, sign-out |
@@ -65,6 +68,10 @@ Run one file with `npx vitest run tests/pages.test.tsx`, match by name with `npx
 | `/inventions` | S04 Inovasi Saya: drafts, published and archived, "Ada draf perubahan", **Tambah inovasi** |
 | `/inventions/<id>` | S04 detail: owner view with facts, provenance and claims, or the public projection for others |
 | `/inventions/<id>/edit?step=1..4` | S05 editor: basics, evidence with private documents (upload, three states, grants, revoke), support (coming), public preview and **Terbitkan versi N** |
+| `/support-requests` | S06 list: support requests per invention, company raises, and starting either |
+| `/support-requests/<id>` | S06 detail and form: labelled money, outcome, forms of support, budget; `?return=` goes back after saving |
+| `/funding-requests/<id>` | S07: one raise card, target and contribution apart, linked inventions |
+| `/funding-requests/<id>/edit` | S07 editor, or a notice when the deployment does not run company funding |
 | `/undangan/<token>` | What an invitation grants, then **Terima undangan** |
 | `/home` | S02 Beranda |
 | `/inventions` | Inovasi Saya |

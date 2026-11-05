@@ -185,9 +185,15 @@ export function InventionView({ me, invention, publicView, justPublished }: Deta
         <h2 id="dukungan-inovasi" className="tr-sys-type-heading-sm">
           Kebutuhan dukungan
         </h2>
-        <Status tone="neutral" label="Segera hadir">
-          <p>Kebutuhan dukungan dan pendanaan akan tampil di sini.</p>
-        </Status>
+        {owner ? (
+          <p>
+            <Link className="tr-link" href={`/support-requests?invention=${invention!.id}`}>
+              Lihat kebutuhan dukungan dan pendanaan
+            </Link>
+          </p>
+        ) : (
+          <p className="tr-muted">Kebutuhan dukungan tampil bersama fitur Jelajahi.</p>
+        )}
       </section>
     </Screen>
   );

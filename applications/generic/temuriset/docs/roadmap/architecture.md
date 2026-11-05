@@ -183,6 +183,7 @@ A partnership version is identified by a checksum of its values and ceiling. Con
 | D2 | `.tr-tabbar__item` keeps whole words and drops side padding | At 320 px the design system split "Temukan" across lines | The design system fixes the tab bar |
 | D3 | `Screen` takes real links instead of `onNavigate` | Next.js routing and prefetch | Never; documented port |
 | D4 | `Screen` scrolls a focused control clear of the sticky tab bar | Chrome does not scroll a partly visible control, so a tall textarea took focus under the bar at 360 px (found by the 003 keyboard check) | The design system handles focus scrolling |
+| D5 | `Checkbox.Group` is the named export `CheckboxGroup`, and `FundingRequestCard` takes linked inventions as nodes, not only titles | Static members do not survive a `'use client'` boundary; S07 links each invention so Back returns to the raise | Never; documented port |
 
 ## API conventions
 

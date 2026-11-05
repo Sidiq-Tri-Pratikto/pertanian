@@ -2,7 +2,7 @@
 
 **Feature Branch**: `015-web-support-funding`
 **Created**: 2026-11-05
-**Status**: Seeded, not started
+**Status**: Built, awaiting review
 **Milestone**: M3 Needs and funding
 **Depends on**: 011, 013, 014
 **Size**: M

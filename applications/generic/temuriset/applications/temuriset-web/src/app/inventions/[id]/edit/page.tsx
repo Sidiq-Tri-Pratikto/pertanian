@@ -5,6 +5,7 @@ import { ApiError } from '@/api/errors';
 import { serverGet } from '@/api/server';
 import type { Invention } from '@/features/portfolio/model';
 import { requireMe } from '@/features/session';
+import { fundingOn } from '@/features/needs/server';
 import { DocumentsPanel } from '@/features/documents/DocumentsPanel';
 import type { DocumentView } from '@/features/documents/model';
 import { EditorView } from '@/views/portfolio/EditorView';
@@ -30,6 +31,7 @@ export default async function EditInventionPage({ params, searchParams }: Props)
       invention={invention}
       initialStep={Number((await searchParams).step) || 1}
       documents={<DocumentsPanel me={me} initial={documents} />}
+      fundingOn={await fundingOn()}
     />
   );
 }
