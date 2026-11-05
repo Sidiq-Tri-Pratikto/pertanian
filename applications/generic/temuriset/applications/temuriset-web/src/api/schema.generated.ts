@@ -389,6 +389,96 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/funding-requests/{request_id}/activate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Activate a raise
+         * @description Move to ACTIVE from DRAFT or PAUSED; activation needs a target and at least one linked invention.
+         *
+         *     Args:
+         *         request_id (UUID): The request.
+         *         body (TransitionRequest): Acting party and ``expected_version``.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         FundingRequestResponse: The request in its new status.
+         */
+        post: operations["activate_funding_request_api_v1_funding_requests__request_id__activate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/funding-requests/{request_id}/close": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Close a raise
+         * @description Move to CLOSED from DRAFT, ACTIVE or PAUSED.
+         *
+         *     Args:
+         *         request_id (UUID): The request.
+         *         body (TransitionRequest): Acting party and ``expected_version``.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         FundingRequestResponse: The request in its new status.
+         */
+        post: operations["close_funding_request_api_v1_funding_requests__request_id__close_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/funding-requests/{request_id}/pause": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Pause a raise
+         * @description Move from ACTIVE to PAUSED.
+         *
+         *     Args:
+         *         request_id (UUID): The request.
+         *         body (TransitionRequest): Acting party and ``expected_version``.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         FundingRequestResponse: The request in its new status.
+         */
+        post: operations["pause_funding_request_api_v1_funding_requests__request_id__pause_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/funding-requests/{request_id}/versions/{number}": {
         parameters: {
             query?: never;
@@ -412,36 +502,6 @@ export interface paths {
         get: operations["read_funding_request_version_api_v1_funding_requests__request_id__versions__number__get"];
         put?: never;
         post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/funding-requests/{request_id}/{action}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Activate, pause or close a raise
-         * @description Change the status.
-         *
-         *     Args:
-         *         request_id (UUID): The request.
-         *         action (Literal["activate", "pause", "close"]): The change.
-         *         body (TransitionRequest): Acting party and ``expected_version``.
-         *         principal (PrincipalDep): Who is signed in.
-         *         session (SessionDep): Database session.
-         *
-         *     Returns:
-         *         FundingRequestResponse: The request in its new status.
-         */
-        post: operations["transition_funding_request_api_v1_funding_requests__request_id___action__post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -564,6 +624,7 @@ export interface paths {
          *         body (VersionedActionRequest): Acting party and ``expected_version``.
          *         principal (PrincipalDep): Who is signed in.
          *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
          *
          *     Returns:
          *         InventionResponse: The archived invention.
@@ -1095,6 +1156,96 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/support-requests/{request_id}/activate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Activate a support request
+         * @description Move to ACTIVE from DRAFT or PAUSED; activation needs an outcome and at least one support form.
+         *
+         *     Args:
+         *         request_id (UUID): The request.
+         *         body (TransitionRequest): Acting party and ``expected_version``.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         SupportRequestResponse: The request in its new status.
+         */
+        post: operations["activate_support_request_api_v1_support_requests__request_id__activate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/support-requests/{request_id}/close": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Close a support request
+         * @description Move to CLOSED from DRAFT, ACTIVE or PAUSED.
+         *
+         *     Args:
+         *         request_id (UUID): The request.
+         *         body (TransitionRequest): Acting party and ``expected_version``.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         SupportRequestResponse: The request in its new status.
+         */
+        post: operations["close_support_request_api_v1_support_requests__request_id__close_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/support-requests/{request_id}/pause": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Pause a support request
+         * @description Move from ACTIVE to PAUSED.
+         *
+         *     Args:
+         *         request_id (UUID): The request.
+         *         body (TransitionRequest): Acting party and ``expected_version``.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         SupportRequestResponse: The request in its new status.
+         */
+        post: operations["pause_support_request_api_v1_support_requests__request_id__pause_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/support-requests/{request_id}/versions/{number}": {
         parameters: {
             query?: never;
@@ -1118,36 +1269,6 @@ export interface paths {
         get: operations["read_support_request_version_api_v1_support_requests__request_id__versions__number__get"];
         put?: never;
         post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/support-requests/{request_id}/{action}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Activate, pause or close
-         * @description Change the status: DRAFT to ACTIVE, ACTIVE and PAUSED back and forth, and CLOSED.
-         *
-         *     Args:
-         *         request_id (UUID): The request.
-         *         action (Literal["activate", "pause", "close"]): The change.
-         *         body (TransitionRequest): Acting party and ``expected_version``.
-         *         principal (PrincipalDep): Who is signed in.
-         *         session (SessionDep): Database session.
-         *
-         *     Returns:
-         *         SupportRequestResponse: The request in its new status.
-         */
-        post: operations["transition_support_request_api_v1_support_requests__request_id___action__post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -3352,17 +3473,20 @@ export interface operations {
             };
         };
     };
-    read_funding_request_version_api_v1_funding_requests__request_id__versions__number__get: {
+    activate_funding_request_api_v1_funding_requests__request_id__activate_post: {
         parameters: {
             query?: never;
             header?: never;
             path: {
                 request_id: string;
-                number: number;
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TransitionRequest"];
+            };
+        };
         responses: {
             /** @description Successful Response */
             200: {
@@ -3370,9 +3494,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
+                    "application/json": components["schemas"]["FundingRequestResponse"];
                 };
             };
             /** @description Validation failed */
@@ -3395,13 +3517,12 @@ export interface operations {
             };
         };
     };
-    transition_funding_request_api_v1_funding_requests__request_id___action__post: {
+    close_funding_request_api_v1_funding_requests__request_id__close_post: {
         parameters: {
             query?: never;
             header?: never;
             path: {
                 request_id: string;
-                action: "activate" | "pause" | "close";
             };
             cookie?: never;
         };
@@ -3418,6 +3539,93 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["FundingRequestResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    pause_funding_request_api_v1_funding_requests__request_id__pause_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TransitionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FundingRequestResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    read_funding_request_version_api_v1_funding_requests__request_id__versions__number__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: string;
+                number: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
                 };
             };
             /** @description Validation failed */
@@ -4490,17 +4698,20 @@ export interface operations {
             };
         };
     };
-    read_support_request_version_api_v1_support_requests__request_id__versions__number__get: {
+    activate_support_request_api_v1_support_requests__request_id__activate_post: {
         parameters: {
             query?: never;
             header?: never;
             path: {
                 request_id: string;
-                number: number;
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TransitionRequest"];
+            };
+        };
         responses: {
             /** @description Successful Response */
             200: {
@@ -4508,9 +4719,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
+                    "application/json": components["schemas"]["SupportRequestResponse"];
                 };
             };
             /** @description Validation failed */
@@ -4533,13 +4742,12 @@ export interface operations {
             };
         };
     };
-    transition_support_request_api_v1_support_requests__request_id___action__post: {
+    close_support_request_api_v1_support_requests__request_id__close_post: {
         parameters: {
             query?: never;
             header?: never;
             path: {
                 request_id: string;
-                action: "activate" | "pause" | "close";
             };
             cookie?: never;
         };
@@ -4556,6 +4764,93 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SupportRequestResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    pause_support_request_api_v1_support_requests__request_id__pause_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TransitionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupportRequestResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    read_support_request_version_api_v1_support_requests__request_id__versions__number__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: string;
+                number: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
                 };
             };
             /** @description Validation failed */

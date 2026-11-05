@@ -98,7 +98,7 @@ Run one test with `uv run pytest tests/unit/health/test_health.py -v`, or match 
 | `POST`, `GET /api/v1/inventions` | Start an invention for the acting party (`Idempotency-Key`); list its inventions with drafts and archived ones |
 | `GET /api/v1/inventions/{id}` | Owner view: draft, published version, history numbers |
 | `PUT /api/v1/inventions/{id}/draft` | Save the whole draft against `expected_version` (`Idempotency-Key`); publication rules do not apply |
-| `POST /api/v1/inventions/{id}/publish`, `.../archive` | Publish an immutable version; archive while keeping history |
+| `POST /api/v1/inventions/{id}/publish`, `.../archive` | Publish an immutable version; archive while keeping history. Each needs `Idempotency-Key` |
 | `GET /api/v1/inventions/{id}/public` | The published version, nothing private; `NOT_FOUND` when unpublished or archived |
 | `POST /api/v1/documents/upload-intents` | Declare title, kind, type and size; unsupported or oversized files are refused before any byte |
 | `PUT /api/v1/documents/upload-intents/{id}/content` | Stream the bytes into quarantine; the worker scans, then reads the text |
@@ -108,10 +108,10 @@ Run one test with `uv run pytest tests/unit/health/test_health.py -v`, or match 
 | `POST /api/v1/support-requests`, `GET /api/v1/support-requests?invention_id=` | Start a draft request for a published invention with an optional budget; list the acting party's requests |
 | `GET /api/v1/support-requests/{id}`, `GET /api/v1/support-requests/{id}/versions/{n}` | One request as its owner, and any earlier version as it stood |
 | `PUT /api/v1/support-requests/{id}` | Save the content and budget as a new version against `expected_version`; money travels as decimal strings |
-| `POST /api/v1/support-requests/{id}/{activate,pause,close}` | Status changes; activation needs an outcome and at least one form of support |
+| `POST /api/v1/support-requests/{id}/{activate,pause,close}` | Status changes against `expected_version` (`Idempotency-Key`); activation needs an outcome and at least one form of support |
 | `POST /api/v1/legal-entities`, `GET /api/v1/legal-entities` | Declare a company (review status `declared`) and list the acting party's |
 | `POST /api/v1/funding-requests`, `GET /api/v1/funding-requests`, `GET /api/v1/funding-requests/{id}` | One raise for an existing or proposed company, owning its target and linking published invention versions |
 | `PUT /api/v1/funding-requests/{id}`, `GET /api/v1/funding-requests/{id}/versions/{n}` | Save as a new version against `expected_version`; earlier versions stay readable |
-| `POST /api/v1/funding-requests/{id}/{activate,pause,close}` | Status changes; activation needs a target and a linked invention |
+| `POST /api/v1/funding-requests/{id}/{activate,pause,close}` | Status changes against `expected_version` (`Idempotency-Key`); activation needs a target and a linked invention |
 | `GET /api/v1/dev/mailbox?email=` | Development only: the codes and notes that would have been emailed |
 | `GET /api/v1/operations/{id}` | Whether the acting party's operation committed, for a client that lost the response |

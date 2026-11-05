@@ -4285,6 +4285,198 @@
         ]
       }
     },
+    "/api/v1/funding-requests/{request_id}/activate": {
+      "post": {
+        "description": "Move to ACTIVE from DRAFT or PAUSED; activation needs a target and at least one linked invention.\n\nArgs:\n    request_id (UUID): The request.\n    body (TransitionRequest): Acting party and ``expected_version``.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    FundingRequestResponse: The request in its new status.",
+        "operationId": "activate_funding_request_api_v1_funding_requests__request_id__activate_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "request_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Request Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TransitionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FundingRequestResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Activate a raise",
+        "tags": [
+          "company funding"
+        ]
+      }
+    },
+    "/api/v1/funding-requests/{request_id}/close": {
+      "post": {
+        "description": "Move to CLOSED from DRAFT, ACTIVE or PAUSED.\n\nArgs:\n    request_id (UUID): The request.\n    body (TransitionRequest): Acting party and ``expected_version``.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    FundingRequestResponse: The request in its new status.",
+        "operationId": "close_funding_request_api_v1_funding_requests__request_id__close_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "request_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Request Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TransitionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FundingRequestResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Close a raise",
+        "tags": [
+          "company funding"
+        ]
+      }
+    },
+    "/api/v1/funding-requests/{request_id}/pause": {
+      "post": {
+        "description": "Move from ACTIVE to PAUSED.\n\nArgs:\n    request_id (UUID): The request.\n    body (TransitionRequest): Acting party and ``expected_version``.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    FundingRequestResponse: The request in its new status.",
+        "operationId": "pause_funding_request_api_v1_funding_requests__request_id__pause_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "request_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Request Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TransitionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FundingRequestResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Pause a raise",
+        "tags": [
+          "company funding"
+        ]
+      }
+    },
     "/api/v1/funding-requests/{request_id}/versions/{number}": {
       "get": {
         "description": "Read a request as it stood at one version.\n\nArgs:\n    request_id (UUID): The request.\n    number (int): The version.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    dict: The snapshot.",
@@ -4345,84 +4537,6 @@
           }
         },
         "summary": "Read an earlier funding request version",
-        "tags": [
-          "company funding"
-        ]
-      }
-    },
-    "/api/v1/funding-requests/{request_id}/{action}": {
-      "post": {
-        "description": "Change the status.\n\nArgs:\n    request_id (UUID): The request.\n    action (Literal[\"activate\", \"pause\", \"close\"]): The change.\n    body (TransitionRequest): Acting party and ``expected_version``.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    FundingRequestResponse: The request in its new status.",
-        "operationId": "transition_funding_request_api_v1_funding_requests__request_id___action__post",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "request_id",
-            "required": true,
-            "schema": {
-              "format": "uuid",
-              "title": "Request Id",
-              "type": "string"
-            }
-          },
-          {
-            "in": "path",
-            "name": "action",
-            "required": true,
-            "schema": {
-              "enum": [
-                "activate",
-                "pause",
-                "close"
-              ],
-              "title": "Action",
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TransitionRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FundingRequestResponse"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Validation failed"
-          },
-          "default": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Failure"
-          }
-        },
-        "summary": "Activate, pause or close a raise",
         "tags": [
           "company funding"
         ]
@@ -4634,7 +4748,7 @@
     },
     "/api/v1/inventions/{invention_id}/archive": {
       "post": {
-        "description": "Archive: hidden from discovery and new submissions; history stays readable.\n\nArgs:\n    invention_id (UUID): The invention.\n    body (VersionedActionRequest): Acting party and ``expected_version``.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    InventionResponse: The archived invention.",
+        "description": "Archive: hidden from discovery and new submissions; history stays readable.\n\nArgs:\n    invention_id (UUID): The invention.\n    body (VersionedActionRequest): Acting party and ``expected_version``.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    InventionResponse: The archived invention.",
         "operationId": "archive_invention_api_v1_inventions__invention_id__archive_post",
         "parameters": [
           {
@@ -5850,6 +5964,198 @@
         ]
       }
     },
+    "/api/v1/support-requests/{request_id}/activate": {
+      "post": {
+        "description": "Move to ACTIVE from DRAFT or PAUSED; activation needs an outcome and at least one support form.\n\nArgs:\n    request_id (UUID): The request.\n    body (TransitionRequest): Acting party and ``expected_version``.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    SupportRequestResponse: The request in its new status.",
+        "operationId": "activate_support_request_api_v1_support_requests__request_id__activate_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "request_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Request Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TransitionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupportRequestResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Activate a support request",
+        "tags": [
+          "support requests"
+        ]
+      }
+    },
+    "/api/v1/support-requests/{request_id}/close": {
+      "post": {
+        "description": "Move to CLOSED from DRAFT, ACTIVE or PAUSED.\n\nArgs:\n    request_id (UUID): The request.\n    body (TransitionRequest): Acting party and ``expected_version``.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    SupportRequestResponse: The request in its new status.",
+        "operationId": "close_support_request_api_v1_support_requests__request_id__close_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "request_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Request Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TransitionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupportRequestResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Close a support request",
+        "tags": [
+          "support requests"
+        ]
+      }
+    },
+    "/api/v1/support-requests/{request_id}/pause": {
+      "post": {
+        "description": "Move from ACTIVE to PAUSED.\n\nArgs:\n    request_id (UUID): The request.\n    body (TransitionRequest): Acting party and ``expected_version``.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    SupportRequestResponse: The request in its new status.",
+        "operationId": "pause_support_request_api_v1_support_requests__request_id__pause_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "request_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Request Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TransitionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupportRequestResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Pause a support request",
+        "tags": [
+          "support requests"
+        ]
+      }
+    },
     "/api/v1/support-requests/{request_id}/versions/{number}": {
       "get": {
         "description": "Read a request as it stood at one version.\n\nArgs:\n    request_id (UUID): The request.\n    number (int): The version.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    dict: The snapshot.",
@@ -5910,84 +6216,6 @@
           }
         },
         "summary": "Read an earlier version",
-        "tags": [
-          "support requests"
-        ]
-      }
-    },
-    "/api/v1/support-requests/{request_id}/{action}": {
-      "post": {
-        "description": "Change the status: DRAFT to ACTIVE, ACTIVE and PAUSED back and forth, and CLOSED.\n\nArgs:\n    request_id (UUID): The request.\n    action (Literal[\"activate\", \"pause\", \"close\"]): The change.\n    body (TransitionRequest): Acting party and ``expected_version``.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    SupportRequestResponse: The request in its new status.",
-        "operationId": "transition_support_request_api_v1_support_requests__request_id___action__post",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "request_id",
-            "required": true,
-            "schema": {
-              "format": "uuid",
-              "title": "Request Id",
-              "type": "string"
-            }
-          },
-          {
-            "in": "path",
-            "name": "action",
-            "required": true,
-            "schema": {
-              "enum": [
-                "activate",
-                "pause",
-                "close"
-              ],
-              "title": "Action",
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TransitionRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SupportRequestResponse"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Validation failed"
-          },
-          "default": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Failure"
-          }
-        },
-        "summary": "Activate, pause or close",
         "tags": [
           "support requests"
         ]

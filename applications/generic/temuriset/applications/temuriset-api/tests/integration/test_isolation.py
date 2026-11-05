@@ -107,6 +107,7 @@ ROUTES: dict[tuple[str, str], Case] = {
         "POST",
         lambda o: f"/api/v1/inventions/{o.invention_id}/archive",
         lambda _o, actor: {"acting_party_id": actor, "expected_version": 1},
+        {"Idempotency-Key": "isolation-archive"},
     ),
     ("POST", "/api/v1/documents/upload-intents"): Case(
         "POST",
@@ -159,11 +160,15 @@ ROUTES: dict[tuple[str, str], Case] = {
         lambda _o, actor: {"acting_party_id": actor, "expected_version": 1, "outcome": "x"},
         {"Idempotency-Key": "isolation-support-update"},
     ),
-    ("POST", "/api/v1/support-requests/{request_id}/{action}"): Case(
-        "POST",
-        lambda o: f"/api/v1/support-requests/{o.support_request_id}/close",
-        lambda _o, actor: {"acting_party_id": actor, "expected_version": 1},
-    ),
+    **{
+        ("POST", f"/api/v1/support-requests/{{request_id}}/{action}"): Case(
+            "POST",
+            lambda o, action=action: f"/api/v1/support-requests/{o.support_request_id}/{action}",
+            lambda _o, actor: {"acting_party_id": actor, "expected_version": 1},
+            {"Idempotency-Key": f"isolation-support-{action}"},
+        )
+        for action in ("activate", "pause", "close")
+    },
     ("GET", "/api/v1/legal-entities"): Case("GET", lambda _o: "/api/v1/legal-entities"),
     ("POST", "/api/v1/funding-requests"): Case(
         "POST",
@@ -188,11 +193,15 @@ ROUTES: dict[tuple[str, str], Case] = {
         lambda _o, actor: {"acting_party_id": actor, "expected_version": 1, "subject_type": "PROPOSED_ENTITY"},
         {"Idempotency-Key": "isolation-funding-update"},
     ),
-    ("POST", "/api/v1/funding-requests/{request_id}/{action}"): Case(
-        "POST",
-        lambda o: f"/api/v1/funding-requests/{o.funding_request_id}/close",
-        lambda _o, actor: {"acting_party_id": actor, "expected_version": 1},
-    ),
+    **{
+        ("POST", f"/api/v1/funding-requests/{{request_id}}/{action}"): Case(
+            "POST",
+            lambda o, action=action: f"/api/v1/funding-requests/{o.funding_request_id}/{action}",
+            lambda _o, actor: {"acting_party_id": actor, "expected_version": 1},
+            {"Idempotency-Key": f"isolation-funding-{action}"},
+        )
+        for action in ("activate", "pause", "close")
+    },
     # Unpublished, so even the public view must not reveal that it exists.
     ("GET", "/api/v1/inventions/{invention_id}/public"): Case(
         "GET", lambda o: f"/api/v1/inventions/{o.invention_id}/public"

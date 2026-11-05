@@ -85,7 +85,8 @@ const fetchMock = vi.fn(async () => {
 
 function sent(index: number) {
   const [path, init] = fetchMock.mock.calls[index] as unknown as [string, RequestInit];
-  return { path, method: init?.method, body: init?.body ? JSON.parse(String(init.body)) : undefined };
+  const key = (init?.headers as Record<string, string> | undefined)?.['Idempotency-Key'];
+  return { path, method: init?.method, key, body: init?.body ? JSON.parse(String(init.body)) : undefined };
 }
 
 beforeEach(() => {
@@ -194,6 +195,29 @@ describe('support requests (S06)', () => {
 
     expect(await screen.findByRole('link', { name: 'Pilih setidaknya satu bentuk dukungan.' })).toHaveAttribute('href', '#sr-forms');
     expect(sent(0)).toMatchObject({ path: '/api/v1/support-requests/sr1/activate', method: 'POST' });
+  });
+
+  it('keeps the activation key only while the request may not have arrived', async () => {
+    fetchMock.mockRejectedValueOnce(new TypeError('offline'));
+    replies = [
+      { status: 409, body: { error: { code: 'STALE_VERSION', message: 'Data ini sudah diubah.', request_id: 'ref_3', recovery: { retryable: false } } } },
+      { status: 200, body: { ...F01, status: 'ACTIVE', version: 2 } },
+    ];
+    render(<SupportView me={makeMe()} request={F01} />);
+    const activate = () => userEvent.click(screen.getByRole('button', { name: 'Aktifkan kebutuhan' }));
+
+    await activate();
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
+    await screen.findByText(/Kode rujukan/);
+    await activate();
+    await screen.findByText(/ref_3/);
+    await activate();
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
+
+    expect(sent(0).key).toEqual(expect.any(String));
+    expect(sent(1).key).toBe(sent(0).key);
+    expect(sent(2).key).toEqual(expect.any(String));
+    expect(sent(2).key).not.toBe(sent(1).key);
   });
 
   it('lists needs and raises, and starts a need for the chosen invention', async () => {

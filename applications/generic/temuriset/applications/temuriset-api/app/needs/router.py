@@ -1,6 +1,5 @@
 """Support requests: create, list, read, update as new versions, and status changes."""
 
-from typing import Literal
 from uuid import UUID
 
 from fastapi import APIRouter, status
@@ -116,24 +115,74 @@ async def update_support_request(
     return await operation.respond(updated, result=OperationResult(type="support_request", id=str(updated.id)))  # type: ignore[return-value]
 
 
-@router.post("/{request_id}/{action}", summary="Activate, pause or close")
-async def transition_support_request(
+# Each status change is its own operation, like publishing: a key spent on an activation says nothing about a close.
+@router.post("/{request_id}/activate", summary="Activate a support request")
+async def activate_support_request(
     request_id: UUID,
-    action: Literal["activate", "pause", "close"],
     body: TransitionRequest,
     principal: PrincipalDep,
     session: SessionDep,
+    operation: Idempotency = idempotent("support_requests.activate"),
 ) -> SupportRequestResponse:
-    """Change the status: DRAFT to ACTIVE, ACTIVE and PAUSED back and forth, and CLOSED.
+    """Move to ACTIVE from DRAFT or PAUSED; activation needs an outcome and at least one support form.
 
     Args:
         request_id (UUID): The request.
-        action (Literal["activate", "pause", "close"]): The change.
         body (TransitionRequest): Acting party and ``expected_version``.
         principal (PrincipalDep): Who is signed in.
         session (SessionDep): Database session.
+        operation (Idempotency): Replays a retried request.
 
     Returns:
         SupportRequestResponse: The request in its new status.
     """
-    return await NeedsService(session).transition(principal, request_id, action, body)
+    moved = await NeedsService(session).transition(principal, request_id, "activate", body, operation.operation_id)
+    return await operation.respond(moved, result=OperationResult(type="support_request", id=str(moved.id)))  # type: ignore[return-value]
+
+
+@router.post("/{request_id}/pause", summary="Pause a support request")
+async def pause_support_request(
+    request_id: UUID,
+    body: TransitionRequest,
+    principal: PrincipalDep,
+    session: SessionDep,
+    operation: Idempotency = idempotent("support_requests.pause"),
+) -> SupportRequestResponse:
+    """Move from ACTIVE to PAUSED.
+
+    Args:
+        request_id (UUID): The request.
+        body (TransitionRequest): Acting party and ``expected_version``.
+        principal (PrincipalDep): Who is signed in.
+        session (SessionDep): Database session.
+        operation (Idempotency): Replays a retried request.
+
+    Returns:
+        SupportRequestResponse: The request in its new status.
+    """
+    moved = await NeedsService(session).transition(principal, request_id, "pause", body, operation.operation_id)
+    return await operation.respond(moved, result=OperationResult(type="support_request", id=str(moved.id)))  # type: ignore[return-value]
+
+
+@router.post("/{request_id}/close", summary="Close a support request")
+async def close_support_request(
+    request_id: UUID,
+    body: TransitionRequest,
+    principal: PrincipalDep,
+    session: SessionDep,
+    operation: Idempotency = idempotent("support_requests.close"),
+) -> SupportRequestResponse:
+    """Move to CLOSED from DRAFT, ACTIVE or PAUSED.
+
+    Args:
+        request_id (UUID): The request.
+        body (TransitionRequest): Acting party and ``expected_version``.
+        principal (PrincipalDep): Who is signed in.
+        session (SessionDep): Database session.
+        operation (Idempotency): Replays a retried request.
+
+    Returns:
+        SupportRequestResponse: The request in its new status.
+    """
+    moved = await NeedsService(session).transition(principal, request_id, "close", body, operation.operation_id)
+    return await operation.respond(moved, result=OperationResult(type="support_request", id=str(moved.id)))  # type: ignore[return-value]

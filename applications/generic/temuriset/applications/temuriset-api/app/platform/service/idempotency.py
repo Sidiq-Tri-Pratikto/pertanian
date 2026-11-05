@@ -77,12 +77,16 @@ async def replay_response(_: Request, replay: Exception) -> JSONResponse:
     return JSONResponse(replay.body, status_code=replay.status_code, headers={REPLAYED_HEADER: "true"})
 
 
-def request_digest(actor_party_id: UUID, operation: str, body: bytes) -> str:
-    """Digest what makes two requests the same: actor, operation and canonical body.
+def request_digest(actor_party_id: UUID, operation: str, path: str, body: bytes) -> str:
+    """Digest what makes two requests the same: actor, operation, path and canonical body.
+
+    The path names the resource, which many bodies do not. Without it, one key sent to a second resource would be
+    answered with the first resource's stored response.
 
     Args:
         actor_party_id (UUID): The acting party.
         operation (str): The operation name.
+        path (str): The request path.
         body (bytes): The raw request body.
 
     Returns:
@@ -92,7 +96,7 @@ def request_digest(actor_party_id: UUID, operation: str, body: bytes) -> str:
         canonical = json.dumps(json.loads(body), sort_keys=True, separators=(",", ":")).encode()
     except ValueError:
         canonical = body
-    return hashlib.sha256(f"{actor_party_id}\n{operation}\n".encode() + canonical).hexdigest()
+    return hashlib.sha256(f"{actor_party_id}\n{operation}\n{path}\n".encode() + canonical).hexdigest()
 
 
 @dataclass
@@ -132,9 +136,9 @@ class Idempotency:
 def idempotent(operation: str) -> DependsParam:
     """Make a consequential POST idempotent.
 
-    The same key and body replays the stored response with ``Idempotent-Replayed: true``. The same key with a
-    different body is refused with ``IDEMPOTENCY_CONFLICT``. Concurrent requests with one key wait on the database,
-    so exactly one of them runs the operation. A request that fails rolls back with its record, so the next
+    The same key, path and body replays the stored response with ``Idempotent-Replayed: true``. The same key with a
+    different path or body is refused with ``IDEMPOTENCY_CONFLICT``. Concurrent requests with one key wait on the
+    database, so exactly one of them runs the operation. A request that fails rolls back with its record, so the next
     identical request completes it.
 
     Args:
@@ -148,7 +152,7 @@ def idempotent(operation: str) -> DependsParam:
         key = request.headers.get(KEY_HEADER)
         if not key or len(key) > _MAX_KEY_LENGTH:
             raise IdempotencyKeyMissingError()
-        digest = request_digest(actor_party_id, operation, await request.body())
+        digest = request_digest(actor_party_id, operation, request.url.path, await request.body())
         repository = SqlAlchemyPlatformRepository(session)
         claim = {"actor_party_id": actor_party_id, "operation": operation, "key": key, "request_sha256": digest}
         record = await repository.claim_idempotency_key(**claim, expires_at=clock.now() + RETENTION)

@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 import { newIdempotencyKey } from '@/api/client';
 import { ApiError } from '@/api/errors';
@@ -122,7 +122,8 @@ export function SupportForm({ request: initial, actingPartyId, returnTo }: Props
   const [attempt, setAttempt] = useState(0);
   const [state, setState] = useState<'idle' | 'saving' | 'saved' | 'failed'>('idle');
   const [key, setKey] = useState(newIdempotencyKey);
-  const edit = <Field extends keyof Values>(field: Field) => (value: Values[Field]) => {
+  const activateKey = useRef<string | null>(null);
+  const edit =<Field extends keyof Values>(field: Field) => (value: Values[Field]) => {
     setValues((current) => ({ ...current, [field]: value }));
     setState((current) => (current === 'saved' ? 'idle' : current));
   };
@@ -155,13 +156,16 @@ export function SupportForm({ request: initial, actingPartyId, returnTo }: Props
   }
 
   async function activate() {
+    activateKey.current ??= newIdempotencyKey();
     try {
-      const moved = await moveSupportRequest(request.id, 'activate', actingPartyId, request.version);
+      const moved = await moveSupportRequest(request.id, 'activate', actingPartyId, request.version, activateKey.current);
+      activateKey.current = null;
       setRequest(moved);
       setFailure(null);
       setErrors({});
       router.refresh();
     } catch (error) {
+      if (!ApiError.from(error).recovery.retryable) activateKey.current = null;
       fail(error);
     }
   }

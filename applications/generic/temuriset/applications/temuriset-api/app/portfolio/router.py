@@ -131,7 +131,11 @@ async def publish_invention(
 
 @router.post("/{invention_id}/archive", summary="Archive an invention")
 async def archive_invention(
-    invention_id: UUID, body: VersionedActionRequest, principal: PrincipalDep, session: SessionDep
+    invention_id: UUID,
+    body: VersionedActionRequest,
+    principal: PrincipalDep,
+    session: SessionDep,
+    operation: Idempotency = idempotent("inventions.archive"),
 ) -> InventionResponse:
     """Archive: hidden from discovery and new submissions; history stays readable.
 
@@ -140,11 +144,15 @@ async def archive_invention(
         body (VersionedActionRequest): Acting party and ``expected_version``.
         principal (PrincipalDep): Who is signed in.
         session (SessionDep): Database session.
+        operation (Idempotency): Replays a retried request.
 
     Returns:
         InventionResponse: The archived invention.
     """
-    return await PortfolioService(session).archive(principal, invention_id, body)
+    archived = await PortfolioService(session).archive(principal, invention_id, body, operation.operation_id)
+    return await operation.respond(  # type: ignore[return-value]
+        archived, result=OperationResult(type="invention", id=str(invention_id))
+    )
 
 
 @router.get("/{invention_id}/public", summary="Read the published version")

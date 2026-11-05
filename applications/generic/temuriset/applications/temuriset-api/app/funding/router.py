@@ -1,6 +1,5 @@
 """Company funding: legal entities and funding requests. Every mutation needs ``company_funding``; reads never do."""
 
-from typing import Literal
 from uuid import UUID
 
 from fastapi import APIRouter, status
@@ -157,24 +156,74 @@ async def update_funding_request(
     return await operation.respond(updated, result=OperationResult(type="funding_request", id=str(updated.id)))  # type: ignore[return-value]
 
 
-@router.post("/funding-requests/{request_id}/{action}", dependencies=GUARD, summary="Activate, pause or close a raise")
-async def transition_funding_request(
+# Each status change is its own operation, like publishing: a key spent on an activation says nothing about a close.
+@router.post("/funding-requests/{request_id}/activate", dependencies=GUARD, summary="Activate a raise")
+async def activate_funding_request(
     request_id: UUID,
-    action: Literal["activate", "pause", "close"],
     body: TransitionRequest,
     principal: PrincipalDep,
     session: SessionDep,
+    operation: Idempotency = idempotent("funding_requests.activate"),
 ) -> FundingRequestResponse:
-    """Change the status.
+    """Move to ACTIVE from DRAFT or PAUSED; activation needs a target and at least one linked invention.
 
     Args:
         request_id (UUID): The request.
-        action (Literal["activate", "pause", "close"]): The change.
         body (TransitionRequest): Acting party and ``expected_version``.
         principal (PrincipalDep): Who is signed in.
         session (SessionDep): Database session.
+        operation (Idempotency): Replays a retried request.
 
     Returns:
         FundingRequestResponse: The request in its new status.
     """
-    return await FundingService(session).transition(principal, request_id, action, body)
+    moved = await FundingService(session).transition(principal, request_id, "activate", body, operation.operation_id)
+    return await operation.respond(moved, result=OperationResult(type="funding_request", id=str(moved.id)))  # type: ignore[return-value]
+
+
+@router.post("/funding-requests/{request_id}/pause", dependencies=GUARD, summary="Pause a raise")
+async def pause_funding_request(
+    request_id: UUID,
+    body: TransitionRequest,
+    principal: PrincipalDep,
+    session: SessionDep,
+    operation: Idempotency = idempotent("funding_requests.pause"),
+) -> FundingRequestResponse:
+    """Move from ACTIVE to PAUSED.
+
+    Args:
+        request_id (UUID): The request.
+        body (TransitionRequest): Acting party and ``expected_version``.
+        principal (PrincipalDep): Who is signed in.
+        session (SessionDep): Database session.
+        operation (Idempotency): Replays a retried request.
+
+    Returns:
+        FundingRequestResponse: The request in its new status.
+    """
+    moved = await FundingService(session).transition(principal, request_id, "pause", body, operation.operation_id)
+    return await operation.respond(moved, result=OperationResult(type="funding_request", id=str(moved.id)))  # type: ignore[return-value]
+
+
+@router.post("/funding-requests/{request_id}/close", dependencies=GUARD, summary="Close a raise")
+async def close_funding_request(
+    request_id: UUID,
+    body: TransitionRequest,
+    principal: PrincipalDep,
+    session: SessionDep,
+    operation: Idempotency = idempotent("funding_requests.close"),
+) -> FundingRequestResponse:
+    """Move to CLOSED from DRAFT, ACTIVE or PAUSED.
+
+    Args:
+        request_id (UUID): The request.
+        body (TransitionRequest): Acting party and ``expected_version``.
+        principal (PrincipalDep): Who is signed in.
+        session (SessionDep): Database session.
+        operation (Idempotency): Replays a retried request.
+
+    Returns:
+        FundingRequestResponse: The request in its new status.
+    """
+    moved = await FundingService(session).transition(principal, request_id, "close", body, operation.operation_id)
+    return await operation.respond(moved, result=OperationResult(type="funding_request", id=str(moved.id)))  # type: ignore[return-value]

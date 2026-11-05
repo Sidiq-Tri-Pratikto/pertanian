@@ -218,7 +218,11 @@ class PortfolioService:
         return PublishResponse(version=draft.number, status=status)
 
     async def archive(
-        self, principal: Principal, invention_id: UUID, request: VersionedActionRequest
+        self,
+        principal: Principal,
+        invention_id: UUID,
+        request: VersionedActionRequest,
+        operation_id: UUID | None = None,
     ) -> InventionResponse:
         """Archive: gone from discovery and new submissions, history kept for authorized parties (AC09).
 
@@ -226,6 +230,7 @@ class PortfolioService:
             principal (Principal): Who is signed in.
             invention_id (UUID): The invention.
             request (VersionedActionRequest): Acting party and ``expected_version``.
+            operation_id (UUID | None, optional): For the response. Defaults to None.
 
         Returns:
             InventionResponse: The archived invention.
@@ -247,7 +252,7 @@ class PortfolioService:
                 actor_account_id=principal.account_id,
                 actor_party_id=principal.active_party_id,
             )
-        return await self._view(invention)
+        return await self._view(invention, operation_id)
 
     async def public_view(self, invention_id: UUID) -> PublicInventionResponse:
         """The published version as anyone may read it; private notes and document links stay out.

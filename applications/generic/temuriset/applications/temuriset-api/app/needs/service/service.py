@@ -227,7 +227,12 @@ class NeedsService:
         return await self.view(record, operation_id)
 
     async def transition(
-        self, principal: Principal, request_id: UUID, action: str, request: TransitionRequest
+        self,
+        principal: Principal,
+        request_id: UUID,
+        action: str,
+        request: TransitionRequest,
+        operation_id: UUID | None = None,
     ) -> SupportRequestResponse:
         """Activate, pause or close. Activation needs an outcome and at least one support form.
 
@@ -236,6 +241,7 @@ class NeedsService:
             request_id (UUID): The request.
             action (str): ``activate``, ``pause`` or ``close``.
             request (TransitionRequest): Acting party and ``expected_version``.
+            operation_id (UUID | None, optional): For the response. Defaults to None.
 
         Returns:
             SupportRequestResponse: The request in its new status.
@@ -283,4 +289,4 @@ class NeedsService:
             actor_account_id=principal.account_id,
             actor_party_id=principal.active_party_id,
         )
-        return await self.view(record)
+        return await self.view(record, operation_id)

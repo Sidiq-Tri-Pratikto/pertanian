@@ -56,7 +56,7 @@ class SqlAlchemyPlatformRepository:
             actor_party_id (UUID): The acting party.
             operation (str): The operation name.
             key (str): The client's key.
-            request_sha256 (str): Digest of actor, operation and canonical body.
+            request_sha256 (str): Digest of actor, operation, path and canonical body.
             expires_at (datetime): When the key may be reused.
 
         Returns:

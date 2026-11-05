@@ -58,6 +58,21 @@ async def create_note(
     )
 
 
+@router.post("/test/notes/{note_id}/touch")
+async def touch_note(
+    note_id: str,
+    body: NoteRequest,
+    session: SessionDep,
+    actor_party_id: ActorDep,
+    operation: Idempotency = idempotent("tests.notes.touch"),
+) -> object:
+    """Test-only mutation of a named resource, whose body does not say which one."""
+    await record_audit(
+        session, action="note.touched", subject_type="note", subject_id=note_id, actor_party_id=actor_party_id
+    )
+    return await operation.respond({"operation_id": str(operation.operation_id), "id": note_id, "text": body.text})
+
+
 app = create_app()
 app.include_router(router)
 
@@ -154,6 +169,37 @@ async def test_same_key_with_another_body_is_a_conflict(api: AsyncClient, caplog
     )
     assert error["recovery"] == {"retryable": False}
     assert error["request_id"] in caplog.text
+    assert await _count(AuditEventRecord) == 1
+
+
+async def test_same_key_on_another_resource_is_a_conflict(api: AsyncClient, caplog: pytest.LogCaptureFixture) -> None:
+    """
+    Condition:
+    - A key and an identical body are sent to one resource and then to another of the same operation.
+
+    Expected:
+    - The second is ``IDEMPOTENCY_CONFLICT``, not a replay of the first resource's answer, and has no effect. A retry
+      on the first resource still replays.
+    """
+    first = await api.post("/test/notes/a/touch", json={"text": "x"}, headers=_headers("k-resource"))
+
+    with caplog.at_level(logging.WARNING):
+        other = await api.post("/test/notes/b/touch", json={"text": "x"}, headers=_headers("k-resource"))
+    retry = await api.post("/test/notes/a/touch", json={"text": "x"}, headers=_headers("k-resource"))
+
+    assert first.status_code == 200
+    assert other.status_code == 409
+    error = other.json()["error"]
+    assert error["code"] == "IDEMPOTENCY_CONFLICT"
+    assert (
+        error["message"]
+        == "Kunci permintaan ini sudah dipakai untuk isi berbeda. Gunakan kunci baru untuk permintaan baru."
+    )
+    assert error["recovery"] == {"retryable": False}
+    assert error["request_id"] in caplog.text
+    assert "Idempotent-Replayed" not in other.headers
+    assert retry.headers["Idempotent-Replayed"] == "true"
+    assert retry.json() == first.json()
     assert await _count(AuditEventRecord) == 1
 
 

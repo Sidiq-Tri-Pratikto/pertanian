@@ -1,12 +1,16 @@
 """Company funding requests through Postgres (spec 014)."""
 
+import logging
 from collections.abc import AsyncIterator, Callable
 from typing import Any
 
 import pytest
 from httpx import AsyncClient
+from sqlalchemy import func, select
 
+from app.core.database import get_session_factory
 from app.core.settings import get_settings
+from app.platform.repository.sqlalchemy.models import AuditEventRecord
 
 pytestmark = [pytest.mark.integration, pytest.mark.usefixtures("clean_tables")]
 
@@ -73,6 +77,14 @@ async def _update(client: AsyncClient, request: dict, version: int, key: str, **
     )
 
 
+async def _move(client: AsyncClient, request: dict, action: str, version: int, key: str | None = None) -> Any:
+    return await client.post(
+        f"/api/v1/funding-requests/{request['id']}/{action}",
+        json={"acting_party_id": client.headers["X-Acting-Party"], "expected_version": version},
+        headers={"Idempotency-Key": key or f"{action}-{version}"},
+    )
+
+
 @pytest.fixture
 def composition(monkeypatch: pytest.MonkeyPatch) -> Callable[[str], None]:
     """Switch the deployment's composition for the capability guard."""
@@ -96,10 +108,7 @@ async def test_ac19_one_raise_owns_its_target_and_links_two_inventions(dcm: Asyn
     """
     created = await _create(dcm)
     body = created.json()
-    party = dcm.headers["X-Acting-Party"]
-    activated = await dcm.post(
-        f"/api/v1/funding-requests/{body['id']}/activate", json={"acting_party_id": party, "expected_version": 1}
-    )
+    activated = await _move(dcm, body, "activate", 1)
     listed = (await dcm.get("/api/v1/funding-requests")).json()
 
     assert created.status_code == 201, created.text
@@ -215,6 +224,7 @@ async def test_an_archived_invention_cannot_be_linked(dcm: AsyncClient) -> None:
     await dcm.post(
         f"/api/v1/inventions/{f05['id']}/archive",
         json={"acting_party_id": dcm.headers["X-Acting-Party"], "expected_version": f05["version"]},
+        headers={"Idempotency-Key": "archive"},
     )
 
     response = await _create(dcm)
@@ -234,20 +244,135 @@ async def test_activation_needs_a_target_and_an_invention(dcm: AsyncClient) -> N
     empty = (
         await _create(dcm, target_amount=None, desired_min=None, desired_max=None, currency=None, invention_ids=[])
     ).json()
-    party = dcm.headers["X-Acting-Party"]
-    refused = await dcm.post(
-        f"/api/v1/funding-requests/{empty['id']}/activate", json={"acting_party_id": party, "expected_version": 1}
-    )
-    closed = await dcm.post(
-        f"/api/v1/funding-requests/{empty['id']}/close", json={"acting_party_id": party, "expected_version": 1}
-    )
-    reopened = await dcm.post(
-        f"/api/v1/funding-requests/{empty['id']}/activate", json={"acting_party_id": party, "expected_version": 2}
-    )
+    refused = await _move(dcm, empty, "activate", 1)
+    closed = await _move(dcm, empty, "close", 1)
+    reopened = await _move(dcm, empty, "activate", 2)
 
     assert [item["loc"][-1] for item in refused.json()["error"]["details"]] == ["target_amount", "invention_ids"]
     assert closed.json()["status"] == "CLOSED"
     assert reopened.json()["error"]["code"] == "INVALID_TRANSITION"
+
+
+@pytest.mark.parametrize(("action", "needs_active"), [("activate", False), ("pause", True), ("close", True)])
+async def test_retried_status_change_is_replayed_and_happens_once(
+    dcm: AsyncClient, action: str, needs_active: bool
+) -> None:
+    """
+    Condition:
+    - A status change is retried with the same key after its response was lost.
+
+    Expected:
+    - The stored response is replayed instead of a stale-version failure, the version moves once, one audit event
+      exists, and the operation reports the raise as its committed result.
+    """
+    created = (await _create(dcm)).json()
+    version = created["version"]
+    if needs_active:
+        version = (await _move(dcm, created, "activate", version, "setup")).json()["version"]
+
+    first = await _move(dcm, created, action, version, "retry")
+    retry = await _move(dcm, created, action, version, "retry")
+
+    operation = (await dcm.get(f"/api/v1/operations/{first.json()['operation_id']}")).json()
+    final = (await dcm.get(f"/api/v1/funding-requests/{created['id']}")).json()
+    async with get_session_factory()() as session:
+        audited = await session.scalar(
+            select(func.count())
+            .select_from(AuditEventRecord)
+            .where(AuditEventRecord.action == f"funding_request.{action}", AuditEventRecord.subject_id == created["id"])
+        )
+    assert first.status_code == 200, first.text
+    assert "Idempotent-Replayed" not in first.headers
+    assert retry.status_code == 200
+    assert retry.headers["Idempotent-Replayed"] == "true"
+    assert retry.json() == first.json()
+    assert final["version"] == version + 1
+    assert audited == 1
+    assert operation["status"] == "COMMITTED"
+    assert operation["result"] == {"type": "funding_request", "id": created["id"]}
+
+
+@pytest.mark.parametrize("action", ["activate", "pause", "close"])
+async def test_status_change_without_a_key_is_refused(
+    dcm: AsyncClient, caplog: pytest.LogCaptureFixture, action: str
+) -> None:
+    """
+    Condition:
+    - A status change arrives with no ``Idempotency-Key``.
+
+    Expected:
+    - ``BAD_REQUEST`` names the header, is not retryable, is recorded under its request ID, and changes nothing.
+    """
+    created = (await _create(dcm)).json()
+
+    with caplog.at_level(logging.WARNING):
+        response = await dcm.post(
+            f"/api/v1/funding-requests/{created['id']}/{action}",
+            json={"acting_party_id": dcm.headers["X-Acting-Party"], "expected_version": created["version"]},
+        )
+
+    error = response.json()["error"]
+    final = (await dcm.get(f"/api/v1/funding-requests/{created['id']}")).json()
+    assert response.status_code == 400
+    assert error["code"] == "BAD_REQUEST"
+    assert error["message"] == "Permintaan ini memerlukan kunci Idempotency-Key. Kirim ulang dengan kunci tersebut."
+    assert error["details"][0]["loc"] == ["header", "Idempotency-Key"]
+    assert error["recovery"] == {"retryable": False}
+    assert error["request_id"] in caplog.text
+    assert (final["status"], final["version"]) == ("DRAFT", created["version"])
+
+
+async def test_status_change_key_reused_for_another_version_is_a_conflict(
+    dcm: AsyncClient, caplog: pytest.LogCaptureFixture
+) -> None:
+    """
+    Condition:
+    - A key that activated version 1 is reused to activate the raise again at a later version.
+
+    Expected:
+    - ``IDEMPOTENCY_CONFLICT``, not retryable, recorded under its request ID, and the raise stays paused.
+    """
+    created = (await _create(dcm)).json()
+    await _move(dcm, created, "activate", 1, "reused")
+    paused = (await _move(dcm, created, "pause", 2, "pause")).json()
+
+    with caplog.at_level(logging.WARNING):
+        response = await _move(dcm, created, "activate", paused["version"], "reused")
+
+    error = response.json()["error"]
+    final = (await dcm.get(f"/api/v1/funding-requests/{created['id']}")).json()
+    assert response.status_code == 409
+    assert error["code"] == "IDEMPOTENCY_CONFLICT"
+    assert (
+        error["message"]
+        == "Kunci permintaan ini sudah dipakai untuk isi berbeda. Gunakan kunci baru untuk permintaan baru."
+    )
+    assert error["recovery"] == {"retryable": False}
+    assert error["request_id"] in caplog.text
+    assert (final["status"], final["version"]) == ("PAUSED", paused["version"])
+
+
+async def test_one_key_on_two_actions_is_never_replayed(dcm: AsyncClient) -> None:
+    """
+    Condition:
+    - The key that activated a raise is reused to close it, first with the same body and then with the current
+      version. The two bodies of the first pair are identical, so only the operation name tells them apart.
+
+    Expected:
+    - The first close is judged on its own and is stale rather than a replay of the activation; the second runs.
+    """
+    created = (await _create(dcm)).json()
+    activated = await _move(dcm, created, "activate", 1, "shared")
+
+    stale = await _move(dcm, created, "close", 1, "shared")
+    between = (await dcm.get(f"/api/v1/funding-requests/{created['id']}")).json()
+    closed = await _move(dcm, created, "close", activated.json()["version"], "shared")
+
+    assert "Idempotent-Replayed" not in stale.headers
+    assert (stale.status_code, stale.json()["error"]["code"]) == (409, "STALE_VERSION")
+    assert between["status"] == "ACTIVE"
+    assert closed.status_code == 200, closed.text
+    assert closed.json()["status"] == "CLOSED"
 
 
 async def test_another_partys_entity_is_not_found(
@@ -294,9 +419,7 @@ async def test_ac67_funding_follows_the_composition_and_stays_readable(
     mutations = [
         await _create(dcm, "again"),
         await _update(dcm, created, 1, "u", target_amount="600000"),
-        await dcm.post(
-            f"/api/v1/funding-requests/{created['id']}/pause", json={"acting_party_id": party, "expected_version": 1}
-        ),
+        await _move(dcm, created, "pause", 1),
         await dcm.post("/api/v1/legal-entities", json={"acting_party_id": party, "name": "PT Lain"}),
     ]
     reads = [

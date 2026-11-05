@@ -1,14 +1,15 @@
 """Support requests and project budgets through Postgres (spec 013)."""
 
+import logging
 from collections.abc import AsyncIterator, Callable
 from typing import Any
 
 import pytest
 from httpx import AsyncClient
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 from app.core.database import get_session_factory
-from app.platform.repository.sqlalchemy.models import OutboxEventRecord
+from app.platform.repository.sqlalchemy.models import AuditEventRecord, OutboxEventRecord
 
 pytestmark = [pytest.mark.integration, pytest.mark.usefixtures("clean_tables")]
 
@@ -59,6 +60,14 @@ async def _update(client: AsyncClient, request: dict, version: int, key: str, **
         f"/api/v1/support-requests/{request['id']}",
         json={"expected_version": version, **_body(client, **content)},
         headers={"Idempotency-Key": key},
+    )
+
+
+async def _move(client: AsyncClient, request: dict, action: str, version: int, key: str | None = None) -> Any:
+    return await client.post(
+        f"/api/v1/support-requests/{request['id']}/{action}",
+        json={"acting_party_id": client.headers["X-Acting-Party"], "expected_version": version},
+        headers={"Idempotency-Key": key or f"{action}-{version}"},
     )
 
 
@@ -215,22 +224,15 @@ async def test_status_moves_and_activation_needs_outcome_and_forms(rani: AsyncCl
       request cannot be reactivated or edited.
     """
     created = (await _create(rani, support_forms=[], budget=F01_BUDGET)).json()
-    party = rani.headers["X-Acting-Party"]
 
-    async def move(action: str, version: int) -> Any:
-        return await rani.post(
-            f"/api/v1/support-requests/{created['id']}/{action}",
-            json={"acting_party_id": party, "expected_version": version},
-        )
-
-    refused = await move("activate", 1)
+    refused = await _move(rani, created, "activate", 1)
     completed = (await _update(rani, created, 1, "forms", support_forms=["mentoring"])).json()
     statuses, version = [], completed["version"]
     for action in ("activate", "pause", "activate", "close"):
-        moved = (await move(action, version)).json()
+        moved = (await _move(rani, created, action, version)).json()
         statuses.append(moved["status"])
         version = moved["version"]
-    reopened = await move("activate", version)
+    reopened = await _move(rani, created, "activate", version)
     edit_closed = await _update(rani, created, version, "after-close")
 
     assert refused.json()["error"]["details"] == [
@@ -241,6 +243,148 @@ async def test_status_moves_and_activation_needs_outcome_and_forms(rani: AsyncCl
     assert edit_closed.status_code == 409
     final = (await rani.get(f"/api/v1/support-requests/{created['id']}")).json()
     assert final["budget"]["min"] == "20000.0000"
+
+
+@pytest.mark.parametrize(("action", "needs_active"), [("activate", False), ("pause", True), ("close", True)])
+async def test_retried_status_change_is_replayed_and_happens_once(
+    rani: AsyncClient, action: str, needs_active: bool
+) -> None:
+    """
+    Condition:
+    - A status change is retried with the same key after its response was lost.
+
+    Expected:
+    - The stored response is replayed instead of a stale-version failure, the version moves once, one audit event
+      exists, and the operation reports the request as its committed result.
+    """
+    created = (await _create(rani)).json()
+    version = created["version"]
+    if needs_active:
+        version = (await _move(rani, created, "activate", version, "setup")).json()["version"]
+
+    first = await _move(rani, created, action, version, "retry")
+    retry = await _move(rani, created, action, version, "retry")
+
+    operation = (await rani.get(f"/api/v1/operations/{first.json()['operation_id']}")).json()
+    final = (await rani.get(f"/api/v1/support-requests/{created['id']}")).json()
+    async with get_session_factory()() as session:
+        audited = await session.scalar(
+            select(func.count())
+            .select_from(AuditEventRecord)
+            .where(AuditEventRecord.action == f"support_request.{action}", AuditEventRecord.subject_id == created["id"])
+        )
+    assert first.status_code == 200, first.text
+    assert "Idempotent-Replayed" not in first.headers
+    assert retry.status_code == 200
+    assert retry.headers["Idempotent-Replayed"] == "true"
+    assert retry.json() == first.json()
+    assert final["version"] == version + 1
+    assert audited == 1
+    assert operation["status"] == "COMMITTED"
+    assert operation["result"] == {"type": "support_request", "id": created["id"]}
+
+
+@pytest.mark.parametrize("action", ["activate", "pause", "close"])
+async def test_status_change_without_a_key_is_refused(
+    rani: AsyncClient, caplog: pytest.LogCaptureFixture, action: str
+) -> None:
+    """
+    Condition:
+    - A status change arrives with no ``Idempotency-Key``.
+
+    Expected:
+    - ``BAD_REQUEST`` names the header, is not retryable, is recorded under its request ID, and changes nothing.
+    """
+    created = (await _create(rani)).json()
+
+    with caplog.at_level(logging.WARNING):
+        response = await rani.post(
+            f"/api/v1/support-requests/{created['id']}/{action}",
+            json={"acting_party_id": rani.headers["X-Acting-Party"], "expected_version": created["version"]},
+        )
+
+    error = response.json()["error"]
+    final = (await rani.get(f"/api/v1/support-requests/{created['id']}")).json()
+    assert response.status_code == 400
+    assert error["code"] == "BAD_REQUEST"
+    assert error["message"] == "Permintaan ini memerlukan kunci Idempotency-Key. Kirim ulang dengan kunci tersebut."
+    assert error["details"][0]["loc"] == ["header", "Idempotency-Key"]
+    assert error["recovery"] == {"retryable": False}
+    assert error["request_id"] in caplog.text
+    assert (final["status"], final["version"]) == ("DRAFT", created["version"])
+
+
+async def test_status_change_key_reused_for_another_version_is_a_conflict(
+    rani: AsyncClient, caplog: pytest.LogCaptureFixture
+) -> None:
+    """
+    Condition:
+    - A key that activated version 1 is reused to activate the request again at a later version.
+
+    Expected:
+    - ``IDEMPOTENCY_CONFLICT``, not retryable, recorded under its request ID, and the request stays paused.
+    """
+    created = (await _create(rani)).json()
+    await _move(rani, created, "activate", 1, "reused")
+    paused = (await _move(rani, created, "pause", 2, "pause")).json()
+
+    with caplog.at_level(logging.WARNING):
+        response = await _move(rani, created, "activate", paused["version"], "reused")
+
+    error = response.json()["error"]
+    final = (await rani.get(f"/api/v1/support-requests/{created['id']}")).json()
+    assert response.status_code == 409
+    assert error["code"] == "IDEMPOTENCY_CONFLICT"
+    assert (
+        error["message"]
+        == "Kunci permintaan ini sudah dipakai untuk isi berbeda. Gunakan kunci baru untuk permintaan baru."
+    )
+    assert error["recovery"] == {"retryable": False}
+    assert error["request_id"] in caplog.text
+    assert (final["status"], final["version"]) == ("PAUSED", paused["version"])
+
+
+async def test_one_key_on_two_actions_is_never_replayed(rani: AsyncClient) -> None:
+    """
+    Condition:
+    - The key that activated a request is reused to close it, first with the same body and then with the current
+      version. The two bodies of the first pair are identical, so only the operation name tells them apart.
+
+    Expected:
+    - The first close is judged on its own and is stale rather than a replay of the activation; the second runs.
+    """
+    created = (await _create(rani)).json()
+    activated = await _move(rani, created, "activate", 1, "shared")
+
+    stale = await _move(rani, created, "close", 1, "shared")
+    between = (await rani.get(f"/api/v1/support-requests/{created['id']}")).json()
+    closed = await _move(rani, created, "close", activated.json()["version"], "shared")
+
+    assert "Idempotent-Replayed" not in stale.headers
+    assert (stale.status_code, stale.json()["error"]["code"]) == (409, "STALE_VERSION")
+    assert between["status"] == "ACTIVE"
+    assert closed.status_code == 200, closed.text
+    assert closed.json()["status"] == "CLOSED"
+
+
+async def test_one_key_on_two_requests_never_answers_for_the_wrong_one(rani: AsyncClient) -> None:
+    """
+    Condition:
+    - The key that activated one request is sent to activate another, with an identical body.
+
+    Expected:
+    - ``IDEMPOTENCY_CONFLICT`` instead of a success carrying the first request, and the second stays a draft.
+    """
+    first = (await _create(rani, "first")).json()
+    second = (await _create(rani, "second")).json()
+    await _move(rani, first, "activate", 1, "shared")
+
+    response = await _move(rani, second, "activate", 1, "shared")
+
+    final = (await rani.get(f"/api/v1/support-requests/{second['id']}")).json()
+    assert (response.status_code, response.json()["error"]["code"]) == (409, "IDEMPOTENCY_CONFLICT")
+    assert "Idempotent-Replayed" not in response.headers
+    assert (final["status"], final["version"]) == ("DRAFT", 1)
 
 
 async def test_editing_makes_a_new_version_and_the_old_one_stays(rani: AsyncClient) -> None:

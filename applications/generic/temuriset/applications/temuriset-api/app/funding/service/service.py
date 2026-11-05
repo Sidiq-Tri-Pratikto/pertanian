@@ -303,7 +303,12 @@ class FundingService:
         return await self.view(record, operation_id)
 
     async def transition(
-        self, principal: Principal, request_id: UUID, action: str, request: TransitionRequest
+        self,
+        principal: Principal,
+        request_id: UUID,
+        action: str,
+        request: TransitionRequest,
+        operation_id: UUID | None = None,
     ) -> FundingRequestResponse:
         """Activate, pause or close. Activation needs a target, a currency and at least one invention.
 
@@ -312,6 +317,7 @@ class FundingService:
             request_id (UUID): The request.
             action (str): ``activate``, ``pause`` or ``close``.
             request (TransitionRequest): Acting party and ``expected_version``.
+            operation_id (UUID | None, optional): For the response. Defaults to None.
 
         Returns:
             FundingRequestResponse: The request in its new status.
@@ -347,4 +353,4 @@ class FundingService:
             actor_account_id=principal.account_id,
             actor_party_id=principal.active_party_id,
         )
-        return await self.view(record)
+        return await self.view(record, operation_id)

@@ -129,7 +129,7 @@ Every mutable aggregate has `version`. Mutations send `expected_version`; a mism
 
 ### Idempotency and operations
 
-Consequential POSTs require `Idempotency-Key`. The record stores a SHA-256 of actor, operation and canonical body. Same key and same body replays the stored response with `Idempotent-Replayed: true`. Same key and a different body returns `IDEMPOTENCY_CONFLICT`. Records live seven days (policy `idempotency-retention` v1). Every consequential response carries `operation_id`. `GET /api/v1/operations/{id}` reports `PENDING`, `COMMITTED` with a result reference, or `UNKNOWN`, and never reveals another actor's operation. A client that never received a response retries with the same key.
+Consequential POSTs require `Idempotency-Key`. The record stores a SHA-256 of actor, operation, path and canonical body. Same key, path and body replays the stored response with `Idempotent-Replayed: true`. Same key and a different path or body returns `IDEMPOTENCY_CONFLICT`, so a key reused on another resource is never answered with the first resource's response. Records live seven days (policy `idempotency-retention` v1). Every consequential response carries `operation_id`. `GET /api/v1/operations/{id}` reports `PENDING`, `COMMITTED` with a result reference, or `UNKNOWN`, and never reveals another actor's operation. A client that never received a response retries with the same key.
 
 ### Audit, outbox and the worker
 

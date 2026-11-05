@@ -9,8 +9,8 @@ export function saveSupportRequest(id: string, body: unknown, key: string): Prom
   return send('PUT', `/api/v1/support-requests/${id}`, body, { idempotencyKey: key });
 }
 
-export function moveSupportRequest(id: string, action: 'activate' | 'pause' | 'close', actingPartyId: string, version: number): Promise<SupportRequest> {
-  return send('POST', `/api/v1/support-requests/${id}/${action}`, { acting_party_id: actingPartyId, expected_version: version });
+export function moveSupportRequest(id: string, action: 'activate' | 'pause' | 'close', actingPartyId: string, version: number, key: string): Promise<SupportRequest> {
+  return send('POST', `/api/v1/support-requests/${id}/${action}`, { acting_party_id: actingPartyId, expected_version: version }, { idempotencyKey: key });
 }
 
 export function createFundingRequest(actingPartyId: string, key: string): Promise<FundingRequest> {

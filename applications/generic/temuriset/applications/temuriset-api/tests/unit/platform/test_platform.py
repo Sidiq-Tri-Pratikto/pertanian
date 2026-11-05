@@ -83,18 +83,21 @@ def test_stale_version_is_refused_with_the_current_version(
 def test_request_digest_ignores_formatting_but_not_content() -> None:
     """
     Condition:
-    - Bodies that differ only in key order or spacing, in content, in operation or in actor.
+    - Bodies that differ only in key order or spacing, in content, in operation, in path or in actor.
 
     Expected:
     - Only formatting leaves the digest unchanged.
     """
-    base = request_digest(ACTOR, "notes", b'{"a":1,"b":2}')
+    base = request_digest(ACTOR, "notes", "/notes/1", b'{"a":1,"b":2}')
 
-    assert request_digest(ACTOR, "notes", b'{ "b": 2, "a": 1 }') == base
-    assert request_digest(ACTOR, "notes", b'{"a":1,"b":3}') != base
-    assert request_digest(ACTOR, "other", b'{"a":1,"b":2}') != base
-    assert request_digest(UUID(int=7), "notes", b'{"a":1,"b":2}') != base
-    assert request_digest(ACTOR, "notes", b"not json") == request_digest(ACTOR, "notes", b"not json")
+    assert request_digest(ACTOR, "notes", "/notes/1", b'{ "b": 2, "a": 1 }') == base
+    assert request_digest(ACTOR, "notes", "/notes/1", b'{"a":1,"b":3}') != base
+    assert request_digest(ACTOR, "other", "/notes/1", b'{"a":1,"b":2}') != base
+    assert request_digest(ACTOR, "notes", "/notes/2", b'{"a":1,"b":2}') != base
+    assert request_digest(UUID(int=7), "notes", "/notes/1", b'{"a":1,"b":2}') != base
+    assert request_digest(ACTOR, "notes", "/notes/1", b"not json") == request_digest(
+        ACTOR, "notes", "/notes/1", b"not json"
+    )
 
 
 async def test_actor_is_the_principals_active_party() -> None:

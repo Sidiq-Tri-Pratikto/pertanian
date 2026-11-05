@@ -1,5 +1,6 @@
 """Inventions, versions, facts and claims through the real application and Postgres (spec 009)."""
 
+import logging
 from collections.abc import AsyncIterator, Callable
 from typing import Any
 
@@ -85,6 +86,14 @@ async def _save(client: AsyncClient, invention: dict, content: dict, version: in
 async def _publish(client: AsyncClient, invention: dict, version: int, key: str) -> Any:
     return await client.post(
         f"/api/v1/inventions/{invention['id']}/publish",
+        json={"acting_party_id": _party(client), "expected_version": version},
+        headers={"Idempotency-Key": key},
+    )
+
+
+async def _archive(client: AsyncClient, invention: dict, version: int, key: str = "archive") -> Any:
+    return await client.post(
+        f"/api/v1/inventions/{invention['id']}/archive",
         json={"acting_party_id": _party(client), "expected_version": version},
         headers={"Idempotency-Key": key},
     )
@@ -291,10 +300,7 @@ async def test_archive_hides_publicly_refuses_new_use_and_keeps_history(rani: As
       its history.
     """
     invention = await _published(rani)
-    archived = await rani.post(
-        f"/api/v1/inventions/{invention['id']}/archive",
-        json={"acting_party_id": _party(rani), "expected_version": invention["version"]},
-    )
+    archived = await _archive(rani, invention, invention["version"])
 
     public = await rani.get(f"/api/v1/inventions/{invention['id']}/public")
     edit = await _save(rani, invention, COMPLETE, archived.json()["version"], "after-archive")
@@ -345,10 +351,7 @@ async def test_publication_and_archive_emit_one_event_each(rani: AsyncClient) ->
     await _publish(rani, invention, saved["version"], "once")
     await _publish(rani, invention, saved["version"], "once")
     after = (await rani.get(f"/api/v1/inventions/{invention['id']}")).json()
-    await rani.post(
-        f"/api/v1/inventions/{invention['id']}/archive",
-        json={"acting_party_id": _party(rani), "expected_version": after["version"]},
-    )
+    await _archive(rani, invention, after["version"])
 
     async with get_session_factory()() as session:
         topics = [
@@ -356,6 +359,91 @@ async def test_publication_and_archive_emit_one_event_each(rani: AsyncClient) ->
             for event in await session.scalars(select(OutboxEventRecord).order_by(OutboxEventRecord.created_at))
         ]
     assert topics == ["invention.published", "invention.archived"]
+
+
+async def test_retried_archive_is_replayed_and_happens_once(rani: AsyncClient) -> None:
+    """
+    Condition:
+    - An archive is retried with the same key after its response was lost.
+
+    Expected:
+    - The stored response is replayed instead of a stale-version failure, one archive event is published, and the
+      operation reports the invention as its committed result.
+    """
+    invention = await _published(rani)
+
+    first = await _archive(rani, invention, invention["version"], "retry")
+    retry = await _archive(rani, invention, invention["version"], "retry")
+
+    operation = (await rani.get(f"/api/v1/operations/{first.json()['operation_id']}")).json()
+    async with get_session_factory()() as session:
+        topics = list(
+            await session.scalars(
+                select(OutboxEventRecord.topic).where(OutboxEventRecord.topic == "invention.archived")
+            )
+        )
+    assert first.status_code == 200, first.text
+    assert "Idempotent-Replayed" not in first.headers
+    assert retry.status_code == 200
+    assert retry.headers["Idempotent-Replayed"] == "true"
+    assert retry.json() == first.json()
+    assert topics == ["invention.archived"]
+    assert operation["status"] == "COMMITTED"
+    assert operation["result"] == {"type": "invention", "id": invention["id"]}
+
+
+async def test_archive_without_a_key_is_refused(rani: AsyncClient, caplog: pytest.LogCaptureFixture) -> None:
+    """
+    Condition:
+    - An archive arrives with no ``Idempotency-Key``.
+
+    Expected:
+    - ``BAD_REQUEST`` names the header, is not retryable, is recorded under its request ID, and changes nothing.
+    """
+    invention = await _published(rani)
+
+    with caplog.at_level(logging.WARNING):
+        response = await rani.post(
+            f"/api/v1/inventions/{invention['id']}/archive",
+            json={"acting_party_id": _party(rani), "expected_version": invention["version"]},
+        )
+
+    error = response.json()["error"]
+    final = (await rani.get(f"/api/v1/inventions/{invention['id']}")).json()
+    assert response.status_code == 400
+    assert error["code"] == "BAD_REQUEST"
+    assert error["message"] == "Permintaan ini memerlukan kunci Idempotency-Key. Kirim ulang dengan kunci tersebut."
+    assert error["details"][0]["loc"] == ["header", "Idempotency-Key"]
+    assert error["recovery"] == {"retryable": False}
+    assert error["request_id"] in caplog.text
+    assert final["status"] == "PUBLISHED"
+
+
+async def test_archive_key_reused_for_another_version_is_a_conflict(
+    rani: AsyncClient, caplog: pytest.LogCaptureFixture
+) -> None:
+    """
+    Condition:
+    - The key that archived an invention is reused with a later ``expected_version``.
+
+    Expected:
+    - ``IDEMPOTENCY_CONFLICT``, not retryable, recorded under its request ID.
+    """
+    invention = await _published(rani)
+    archived = (await _archive(rani, invention, invention["version"], "reused")).json()
+
+    with caplog.at_level(logging.WARNING):
+        response = await _archive(rani, invention, archived["version"], "reused")
+
+    error = response.json()["error"]
+    assert response.status_code == 409
+    assert error["code"] == "IDEMPOTENCY_CONFLICT"
+    assert (
+        error["message"]
+        == "Kunci permintaan ini sudah dipakai untuk isi berbeda. Gunakan kunci baru untuk permintaan baru."
+    )
+    assert error["recovery"] == {"retryable": False}
+    assert error["request_id"] in caplog.text
 
 
 async def test_member_without_edit_capability_cannot_save(
