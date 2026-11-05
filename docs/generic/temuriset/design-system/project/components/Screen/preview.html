@@ -1,0 +1,21 @@
+<!-- @dsCard group="Layout" height=460 width=1000 -->
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Screen — preview</title></head>
+<body>
+<div id="root"></div>
+<script>
+var TR = window.TR, h = React.createElement, F = TR.format, X = TR.demo.fixtures, useState = React.useState;
+function S(label, child) { return h('div', { className: 'tr-stack' }, h('p', { className: 'tr-sys-type-support tr-muted' }, label), child); }
+function Demo() {
+  var c = useState('inovasi'), ctx = useState('pribadi');
+  return h(TR.Screen, { current: c[0], onNavigate: c[1], title: 'Inovasi Saya', subtitle: 'Satu inovasi sedang disiapkan.', provenance: X.provenance,
+    context: h(TR.ContextSwitcher, { value: ctx[0], onChange: ctx[1], options: X.contexts }),
+    next: h(TR.NextStep, { title: 'Lengkapi biaya ClearSpring', action: h(TR.Button, { intent: 'primary' }, 'Lanjutkan pengisian') }, 'Tinggal satu langkah sebelum pratinjau publik.'),
+    aside: h('div', { className: 'tr-panel' }, h('h2', { className: 'tr-sys-type-heading-sm' }, 'Riwayat'), h('p', null, 'Draf disimpan di demo ini.')) },
+    h(TR.EmptyState, { kind: 'noInventions' }));
+}
+ReactDOM.createRoot(document.getElementById('root')).render(h(Demo));
+</script>
+</body>
+</html>

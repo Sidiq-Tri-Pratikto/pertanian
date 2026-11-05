@@ -1,0 +1,24 @@
+<!-- @dsCard group="Feedback" height=360 -->
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Status — preview</title></head>
+<body>
+<div id="root" class="tr-root tr-pad tr-stack"></div>
+<script>
+var TR = window.TR, h = React.createElement, F = TR.format, X = TR.demo.fixtures, useState = React.useState;
+function S(label, child) { return h('div', { className: 'tr-stack' }, h('p', { className: 'tr-sys-type-support tr-muted' }, label), child); }
+function Demo() {
+  return h(React.Fragment, null,
+    S('Labels', h('div', { className: 'tr-row' },
+      h(TR.Status, { tone: 'success', label: 'Terpenuhi' }),
+      h(TR.Status, { tone: 'danger', label: 'Tidak terpenuhi' }),
+      h(TR.Status, { tone: 'warning', label: 'Belum diketahui' }),
+      h(TR.Status, { tone: 'neutral', label: 'Menunggu konfirmasi' }),
+      h(TR.Status, { tone: 'action', label: 'Menunggu Anda' }))),
+    S('With explanation', h(TR.Status, { tone: 'warning', label: 'Perlu konfirmasi' }, 'Kewenangan hak belum diperiksa. Ini bukan penolakan.')),
+    S('Approval is not funding', h(TR.Status, { tone: 'success', label: 'Disetujui untuk diskusi' }, 'Mitra bersedia berdiskusi. Ini belum berarti pendanaan atau kerja sama.')));
+}
+ReactDOM.createRoot(document.getElementById('root')).render(h(Demo));
+</script>
+</body>
+</html>

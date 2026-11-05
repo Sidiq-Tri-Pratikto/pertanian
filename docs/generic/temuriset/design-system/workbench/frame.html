@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>TemuRiset preview (standalone)</title></head>
+<body>
+<script>
+// Standalone single-preview surface: frame.html?Name[&text200][&reduce]. The real browser viewport is the test width.
+var BASE = new URL('../project/components/', location.href).href;
+var q = location.search.slice(1).split('&'), name = q[0] || 'PatternDiscovery';
+fetch(BASE + name + '/preview.html').then(function (r) { return r.text(); }).then(function (html) {
+  var head = '<link rel="stylesheet" href="' + new URL('tokens.css', location.href).href + '"><link rel="stylesheet" href="' + BASE + 'bundle.css">' +
+    ['lib/react.production.min.js', 'lib/react-dom.production.min.js', 'bundle.js'].map(function (f) { return '<script src="' + BASE + f + '"><\/script>'; }).join('') +
+    (q.indexOf('text200') >= 0 ? '<style>html{font-size:200%}<\/style>' : '');
+  html = html.replace('<html lang="id">', '<html lang="id" data-theme="light"' + (q.indexOf('reduce') >= 0 ? ' class="tr-reduce-motion"' : '') + '>').replace('<head>', '<head>' + head);
+  document.open(); document.write(html); document.close();
+});
+</script>
+</body>
+</html>

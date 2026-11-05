@@ -1,0 +1,20 @@
+<!-- @dsCard group="Inputs" height=400 -->
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>TextField — preview</title></head>
+<body>
+<div id="root" class="tr-root tr-pad tr-stack"></div>
+<script>
+var TR = window.TR, h = React.createElement, F = TR.format, X = TR.demo.fixtures, useState = React.useState;
+function S(label, child) { return h('div', { className: 'tr-stack' }, h('p', { className: 'tr-sys-type-support tr-muted' }, label), child); }
+function Demo() {
+  var a = useState('ClearSpring'), b = useState('20000'), c = useState('-1');
+  return h(React.Fragment, null,
+    h(TR.TextField, { label: 'Judul inovasi', hint: 'Antara 5 sampai 120 karakter.', required: true, value: a[0], onChange: a[1] }),
+    h(TR.TextField, { label: 'Biaya minimum', type: 'decimal', prefix: 'USD', value: b[0], onChange: b[1] }),
+    h(TR.TextField, { label: 'Biaya maksimum', type: 'decimal', prefix: 'USD', value: c[0], onChange: c[1], error: 'Biaya tidak boleh kurang dari 0.' }));
+}
+ReactDOM.createRoot(document.getElementById('root')).render(h(Demo));
+</script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!-- @dsCard group="Patterns" height=1100 page -->
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>PatternRevisionSchedule — preview</title></head>
+<body>
+<div id="root"></div>
+<script>
+var TR = window.TR, h = React.createElement, F = TR.format, X = TR.demo.fixtures, useState = React.useState;
+function S(label, child) { return h('div', { className: 'tr-stack' }, h('p', { className: 'tr-sys-type-support tr-muted' }, label), child); }
+function Demo() {
+  var tab = useState('revisi'), a1 = useState({}), a2 = useState({ response: 'CANNOT', text: 'Kapasitas 20 L/jam masih direncanakan.' });
+  var attempt = useState(0), phase = useState('revision'), sel = useState(null), meeting = useState(null), failReplace = useState(false), failure = useState(false), busy = useState(false), replacing = useState(false);
+  var nav = useState('pitching'), ctx = useState('pribadi');
+  var missing = !a1[0].response;
+  var errors = missing ? [{ fieldId: 'q1', message: 'Pilih tanggapan untuk pertanyaan anggaran pilot.' }] : [];
+  function resubmit() { if (missing) { attempt[1](attempt[0] + 1); return; } attempt[1](0); phase[1]('waiting'); }
+  var slots = X.slots.map(function (s) { return Object.assign({}, s, { conflict: F.overlaps(s.start, s.minutes, X.booked.start, X.booked.minutes) }); });
+  function confirmSlot() {
+    busy[1](true);
+    setTimeout(function () {
+      busy[1](false);
+      if (replacing[0] && failReplace[0]) { failure[1](true); return; }
+      failure[1](false); meeting[1](sel[0]); sel[1](null); replacing[1](false);
+    }, 600);
+  }
+  function reset() { phase[1]('revision'); a1[1]({}); sel[1](null); meeting[1](null); failReplace[1](false); failure[1](false); replacing[1](false); attempt[1](0); tab[1]('revisi'); }
+  var next = phase[0] === 'revision'
+    ? h(TR.NextStep, { title: 'Jawab pertanyaan revisi', due: '2026-11-10', action: h(TR.Button, { intent: 'primary', onClick: function () { tab[1]('revisi'); } }, 'Jawab revisi') }, 'Mitra Demo A menunggu satu jawaban wajib sebelum memutuskan.')
+    : phase[0] === 'waiting'
+      ? h(TR.NextStep, { who: 'other', title: 'Mitra Demo A sedang meninjau jawaban Anda' }, 'Anda tidak perlu melakukan apa pun sekarang.')
+      : meeting[0]
+        ? h(TR.NextStep, { who: 'other', title: 'Pertemuan sudah dikonfirmasi' }, 'Catat hasil pertemuan setelah selesai. Waktu yang berlalu saja tidak berarti diskusi selesai.')
+        : h(TR.NextStep, { title: 'Pilih waktu diskusi', action: h(TR.Button, { intent: 'primary', onClick: function () { tab[1]('jadwal'); } }, 'Pilih waktu') }, 'Mitra menyetujui diskusi. Ini belum berarti pendanaan atau kerja sama.');
+  var revision = phase[0] === 'revision'
+    ? h('div', { className: 'tr-stack' },
+        attempt[0] > 0 && errors.length ? h(TR.ErrorSummary, { errors: errors, focusKey: attempt[0] }) : null,
+        h(TR.RevisionItem, { id: 'q1', round: 1, index: 1, required: true, due: '2026-11-10', question: 'Berapa anggaran pilot yang Anda perlukan?', reason: 'Kami perlu menilai cakupan pilot.', value: a1[0], onChange: a1[1], error: attempt[0] > 0 && missing ? 'Pilih tanggapan untuk pertanyaan anggaran pilot.' : null }),
+        h(TR.RevisionItem, { round: 1, index: 2, question: 'Apakah kapasitas 20 L/jam dapat ikut diuji?', reason: 'Kapasitas itu masih direncanakan.', value: a2[0], onChange: a2[1] }),
+        h('div', { className: 'tr-row' }, h(TR.Button, { intent: 'primary', onClick: resubmit }, 'Kirim ulang pitching')))
+    : h(TR.Status, { tone: 'neutral', label: 'Jawaban terkirim' }, 'Putaran 1 tersimpan di riwayat. Rencana 20 L/jam tetap berstatus direncanakan.');
+  var schedule = phase[0] !== 'approved'
+    ? h(TR.EmptyState, { icon: 'calendar', title: 'Belum ada usulan waktu' }, 'Jadwal dibuka setelah mitra menyetujui diskusi.')
+    : h('div', { className: 'tr-stack' },
+        meeting[0] ? h(TR.Status, { tone: 'success', label: 'Pertemuan berlaku' }, F.longDate(slots.filter(function (s) { return s.id === meeting[0]; })[0].start, 'Asia/Jakarta') + ', ' + F.slotTime(slots.filter(function (s) { return s.id === meeting[0]; })[0].start, 60, 'Asia/Jakarta')) : null,
+        meeting[0] && !replacing[0] ? h('div', { className: 'tr-row' }, h(TR.Button, { onClick: function () { replacing[1](true); } }, 'Usulkan penggantian')) : null,
+        !meeting[0] || replacing[0] ? h(TR.ScheduleSlotList, { slots: slots.map(function (s) { return Object.assign({}, s, { conflict: s.conflict || s.id === meeting[0] }); }), zone: 'Asia/Jakarta', otherZone: 'Asia/Makassar', agenda: 'Membahas cakupan validasi prototipe.', selectedId: sel[0], onSelect: sel[1], busy: busy[0], onConfirm: confirmSlot, onPropose: function () {},
+          error: failure[0] ? h(TR.Status, { tone: 'danger', label: 'Penggantian gagal', live: 'alert' }, 'Jadwal semula tetap berlaku. Pilihan Anda belum hilang, silakan coba lagi.') : null }) : null);
+  return h(TR.Screen, { current: nav[0], onNavigate: nav[1], provenance: X.provenance, title: 'ClearSpring dan Mitra Demo A', subtitle: 'Dukungan Proyek: validasi prototipe',
+    context: h(TR.ContextSwitcher, { value: ctx[0], onChange: ctx[1], options: X.contexts }), next: next,
+    aside: h('div', { className: 'tr-panel' }, h('h2', { className: 'tr-sys-type-heading-sm' }, 'Status saat ini'),
+      h(TR.Status, { tone: 'neutral', icon: 'chat', label: phase[0] === 'revision' ? 'Revisi diminta' : phase[0] === 'waiting' ? 'Sedang ditinjau' : 'Disetujui untuk diskusi' }),
+      h(TR.FinancialScope, Object.assign({ compact: true }, X.F01.financial))) },
+    h(TR.Tabs, { label: 'Ruang pitching', value: tab[0], onChange: tab[1], tabs: [
+      { id: 'revisi', label: 'Revisi', content: revision },
+      { id: 'jadwal', label: 'Jadwal', content: schedule }] }),
+    h(TR.demo.Controls, { state: { reset: reset } },
+      h(TR.Button, { onClick: function () { phase[1]('approved'); tab[1]('jadwal'); } }, 'Mitra menyetujui diskusi'),
+      h(TR.Checkbox, { label: 'Penggantian jadwal gagal', checked: failReplace[0], onChange: failReplace[1] })));
+}
+ReactDOM.createRoot(document.getElementById('root')).render(h(Demo));
+</script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Profil mitra</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/temuriset/tokens.css">
+<link rel="stylesheet" href="ds/temuriset/components/bundle.css">
+<script src="ds/temuriset/components/bundle.js"></script>
+<script src="./domain.js"></script>
+<script src="./views.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+</style>
+</helmet>
+<x-import component-from-global-scope="TemuRisetApp.Slotted" of="TR.Screen" dc-props="{{shell}}">
+<div data-slot="context" style="display:contents"><x-import component-from-global-scope="TR.ContextSwitcher" dc-props="{{ctx}}"></x-import></div>
+<div data-slot="back" style="display:contents"><sc-if value="{{found}}" hint-placeholder-val="{{true}}"><x-import component-from-global-scope="TR.Link" on-click="{{back}}">{{backLabel}}</x-import></sc-if></div>
+<sc-if value="{{hasNotice}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.Status" dc-props="{{notice}}"></x-import></sc-if>
+<sc-if value="{{nothing}}" hint-placeholder-val="{{false}}">
+<x-import component-from-global-scope="TemuRisetApp.Slotted" of="TR.EmptyState" icon="partner" title="Profil mitra belum ada" body="Akun ini belum memiliki profil Investor/Mitra.">
+<div data-slot="action" style="display:contents"><x-import component-from-global-scope="TR.Button" on-click="{{leave}}">Kembali</x-import></div>
+</x-import>
+</sc-if>
+<sc-if value="{{found}}" hint-placeholder-val="{{true}}">
+<div class="tr-section">
+<sc-if value="{{hasIncoming}}" hint-placeholder-val="{{false}}">
+<x-import component-from-global-scope="TemuRisetApp.Slotted" of="TR.NextStep" dc-props="{{incomingNext}}">
+<div data-slot="action" style="display:contents"><x-import component-from-global-scope="TR.Button" intent="primary" on-click="{{openIncoming}}">Buka Pitching Masuk</x-import></div>
+</x-import>
+</sc-if>
+<section class="tr-panel tr-stack" aria-label="Profil">
+<div class="tr-row"><x-import component-from-global-scope="TR.Status" dc-props="{{intake}}"></x-import><span class="tr-tag tr-sys-type-support">{{source}}</span></div>
+<p>{{x.thesis}}</p>
+<p><strong>Sektor.</strong> {{sectors}}</p>
+<p><strong>Tahap yang diterima.</strong> {{x.stages}}</p>
+<p><strong>Wilayah.</strong> {{x.regions}}</p>
+<p><strong>Bentuk dukungan.</strong> {{x.forms}}</p>
+<sc-if value="{{hasCheck}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.FinancialScope" dc-props="{{check}}"></x-import></sc-if>
+<sc-if value="{{external}}" hint-placeholder-val="{{false}}">
+<div class="tr-stack">
+<p class="tr-muted">Mitra ini menerima lewat formulirnya sendiri. Membukanya bukan pitching yang terkirim dan tidak tercatat di TemuRiset.</p>
+<div class="tr-row"><x-import component-from-global-scope="TR.Link" href="{{externalUrl}}" external="{{true}}">Buka formulir mitra</x-import></div>
+</div>
+</sc-if>
+</section>
+<section class="tr-stack" aria-label="Mandat">
+<h2 class="tr-sys-type-heading-sm">Mandat</h2>
+<sc-for list="{{opps}}" as="o" hint-placeholder-count="1">
+<article class="tr-panel tr-stack">
+<div class="tr-req__head"><h3 class="tr-sys-type-label">{{o.title}}</h3><span class="tr-tag tr-sys-type-support">{{o.statusLabel}} · {{o.version}}</span></div>
+<p>{{o.outcome}}</p>
+<p class="tr-muted"><strong>Dukungan.</strong> {{o.support}}. {{o.timing}}.</p>
+<x-import component-from-global-scope="TR.FinancialScope" dc-props="{{o.fin}}"></x-import>
+<x-import component-from-global-scope="TR.Disclosure" label="Syarat mandat ini">
+<ul class="tr-stack">
+<sc-for list="{{o.reqs}}" as="r" hint-placeholder-count="2"><li>{{r.label}}</li></sc-for>
+</ul>
+</x-import>
+<sc-if value="{{o.canEdit}}" hint-placeholder-val="{{false}}">
+<div class="tr-row">
+<x-import component-from-global-scope="TR.Button" icon="edit" on-click="{{o.edit}}">Ubah mandat</x-import>
+<x-import component-from-global-scope="TR.Button" on-click="{{o.toggle}}">{{o.toggleLabel}}</x-import>
+</div>
+</sc-if>
+</article>
+</sc-for>
+</section>
+</div>
+</sc-if>
+</x-import>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1100}}'>
+class Component extends DCLogic {
+  off = TemuRisetApp.attach(this, 'Partner');
+  componentWillUnmount() { this.off(); }
+  renderVals() { return TemuRisetApp.vm.partner(); }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+<!-- @dsCard group="Domain" height=560 -->
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>DocumentItem — preview</title></head>
+<body>
+<div id="root" class="tr-root tr-pad tr-stack"></div>
+<script>
+var TR = window.TR, h = React.createElement, F = TR.format, X = TR.demo.fixtures, useState = React.useState;
+function S(label, child) { return h('div', { className: 'tr-stack' }, h('p', { className: 'tr-sys-type-support tr-muted' }, label), child); }
+function Demo() {
+  var a = TR.demo.useAxes({ file: 'AVAILABLE', extraction: 'NEEDS_MANUAL_INPUT', review: 'PROVIDED_UNREVIEWED', grant: 'none' });
+  return h(React.Fragment, null,
+    h(TR.demo.Controls, { state: a, axes: [
+      { id: 'file', label: 'File availability', options: ['CREATED', 'UPLOADING', 'QUARANTINED', 'AVAILABLE', 'REJECTED'] },
+      { id: 'extraction', label: 'Extraction', options: ['NOT_REQUESTED', 'PENDING', 'RUNNING', 'SUCCEEDED', 'FAILED', 'NEEDS_MANUAL_INPUT'] },
+      { id: 'review', label: 'Review', options: ['PROVIDED_UNREVIEWED', 'REVIEWED_SUPPORTED', 'REVIEWED_UNSUPPORTED', 'NEEDS_CLARIFICATION', 'EXPIRED', 'SUPERSEDED'] },
+      { id: 'grant', label: 'Grant', options: ['none', 'granted', 'revoked', 'denied viewer'] }] }),
+    h(TR.DocumentItem, { title: 'Laporan uji fungsi', version: 2, file: a.value.file, extraction: a.value.extraction, review: a.value.review, denied: a.value.grant === 'denied viewer',
+      grant: a.value.grant === 'granted' ? { recipient: 'Mitra Demo A' } : a.value.grant === 'revoked' ? { recipient: 'Mitra Demo A', revoked: true } : null,
+      action: h(TR.Button, {}, a.value.grant === 'denied viewer' ? 'Minta akses' : 'Isi data manual') }));
+}
+ReactDOM.createRoot(document.getElementById('root')).render(h(Demo));
+</script>
+</body>
+</html>

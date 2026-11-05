@@ -4,8 +4,52 @@
     {
       "name": "hematdaya-workbench",
       "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "8787", "--bind", "127.0.0.1", "--directory", "docs/generic/hematdaya/design-system"],
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8787",
+        "--bind",
+        "127.0.0.1",
+        "--directory",
+        "docs/generic/hematdaya/design-system"
+      ],
       "port": 8787
+    },
+    {
+      "name": "temuriset-workbench",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8788",
+        "--bind",
+        "127.0.0.1",
+        "--directory",
+        "docs/generic/temuriset/design-system"
+      ],
+      "port": 8788
+    },
+    {
+      "name": "temuriset-prototype",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8789",
+        "--bind",
+        "127.0.0.1",
+        "--directory",
+        "docs/generic/temuriset/app-prototype/.harness"
+      ],
+      "port": 8789
+    },
+    {
+      "name": "temuriset-app",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": [
+        "applications/generic/temuriset/local-start.sh"
+      ],
+      "port": 3020
     }
   ]
 }

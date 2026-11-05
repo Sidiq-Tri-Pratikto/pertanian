@@ -1,0 +1,187 @@
+[
+  {
+    "name": "Foundations",
+    "group": "Foundations",
+    "page": true
+  },
+  {
+    "name": "StateAxes",
+    "group": "Foundations",
+    "page": true
+  },
+  {
+    "name": "PatternDiscovery",
+    "group": "Patterns",
+    "page": true
+  },
+  {
+    "name": "PatternPortfolio",
+    "group": "Patterns",
+    "page": true
+  },
+  {
+    "name": "PatternRevisionSchedule",
+    "group": "Patterns",
+    "page": true
+  },
+  {
+    "name": "PatternRelationship",
+    "group": "Patterns",
+    "page": true
+  },
+  {
+    "name": "Button",
+    "group": "Actions",
+    "page": false
+  },
+  {
+    "name": "Link",
+    "group": "Actions",
+    "page": false
+  },
+  {
+    "name": "TextField",
+    "group": "Inputs",
+    "page": false
+  },
+  {
+    "name": "TextArea",
+    "group": "Inputs",
+    "page": false
+  },
+  {
+    "name": "Select",
+    "group": "Inputs",
+    "page": false
+  },
+  {
+    "name": "ChoiceGroup",
+    "group": "Inputs",
+    "page": false
+  },
+  {
+    "name": "Checkbox",
+    "group": "Inputs",
+    "page": false
+  },
+  {
+    "name": "FieldError",
+    "group": "Inputs",
+    "page": false
+  },
+  {
+    "name": "ErrorSummary",
+    "group": "Inputs",
+    "page": false
+  },
+  {
+    "name": "Dialog",
+    "group": "Overlays",
+    "page": false
+  },
+  {
+    "name": "Disclosure",
+    "group": "Overlays",
+    "page": false
+  },
+  {
+    "name": "Tabs",
+    "group": "Overlays",
+    "page": false
+  },
+  {
+    "name": "Status",
+    "group": "Feedback",
+    "page": false
+  },
+  {
+    "name": "EmptyState",
+    "group": "Feedback",
+    "page": false
+  },
+  {
+    "name": "SaveState",
+    "group": "Feedback",
+    "page": false
+  },
+  {
+    "name": "ContextSwitcher",
+    "group": "Navigation",
+    "page": false
+  },
+  {
+    "name": "NextStep",
+    "group": "Navigation",
+    "page": false
+  },
+  {
+    "name": "Steps",
+    "group": "Navigation",
+    "page": false
+  },
+  {
+    "name": "SummaryList",
+    "group": "Navigation",
+    "page": false
+  },
+  {
+    "name": "InventionCard",
+    "group": "Domain",
+    "page": false
+  },
+  {
+    "name": "FundingRequestCard",
+    "group": "Domain",
+    "page": false
+  },
+  {
+    "name": "FinancialScope",
+    "group": "Domain",
+    "page": false
+  },
+  {
+    "name": "RequirementRow",
+    "group": "Domain",
+    "page": false
+  },
+  {
+    "name": "FactSource",
+    "group": "Domain",
+    "page": false
+  },
+  {
+    "name": "DocumentItem",
+    "group": "Domain",
+    "page": false
+  },
+  {
+    "name": "RevisionItem",
+    "group": "Domain",
+    "page": false
+  },
+  {
+    "name": "ScheduleSlotList",
+    "group": "Domain",
+    "page": false
+  },
+  {
+    "name": "PartnershipConsent",
+    "group": "Domain",
+    "page": false
+  },
+  {
+    "name": "VersionConflict",
+    "group": "Domain",
+    "page": false
+  },
+  {
+    "name": "Screen",
+    "group": "Layout",
+    "page": false
+  },
+  {
+    "name": "Icon",
+    "group": "Layout",
+    "page": false
+  }
+]

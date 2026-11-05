@@ -1,0 +1,1260 @@
+{
+  "$schema": "temuriset-tokens/1 (custom; not a W3C DTCG file; documented in guide/01-token-registry.md)",
+  "system": "TemuRiset Design System",
+  "version": "1.0.0-draft",
+  "authority": "project/tokens.json",
+  "authoritySha256": "311fe8545a4561c32580f108774b7aba0df7d251f3c5b3553e1e8145c0b55d2c",
+  "themes": [
+    {
+      "id": "light",
+      "name": "Light"
+    }
+  ],
+  "idRule": "id = \"TR.\" + css name without its \"tr-\" prefix, with \"-\" replaced by \".\"; cssVar = \"--\" + css name. Segments never contain \"-\", so the mapping is reversible.",
+  "dtcgConversion": "Not claimed. To produce DTCG 2025.10: nest id segments as groups, use $root where an id is also a group (TR.sys.color.surface), and convert colour and dimension values to their object forms.",
+  "tokens": [
+    {
+      "id": "TR.ref.color.white",
+      "cssVar": "--tr-ref-color-white",
+      "layer": "primitive",
+      "type": "color",
+      "value": "#ffffff",
+      "alias": null,
+      "resolved": "#ffffff",
+      "unit": null,
+      "usage": "Primitive (seed). Surface, focus gap and text on dark fills. Read through tr-sys-color-surface, tr-sys-color-focus-gap and the foreground roles."
+    },
+    {
+      "id": "TR.ref.color.slate.50",
+      "cssVar": "--tr-ref-color-slate-50",
+      "layer": "primitive",
+      "type": "color",
+      "value": "#f8fafc",
+      "alias": null,
+      "resolved": "#f8fafc",
+      "unit": null,
+      "usage": "Primitive (seed). Read through tr-sys-color-canvas."
+    },
+    {
+      "id": "TR.ref.color.slate.100",
+      "cssVar": "--tr-ref-color-slate-100",
+      "layer": "primitive",
+      "type": "color",
+      "value": "#f1f5f9",
+      "alias": null,
+      "resolved": "#f1f5f9",
+      "unit": null,
+      "usage": "Primitive (seed). Read through tr-sys-color-surface-subtle and tr-sys-color-disabled-surface."
+    },
+    {
+      "id": "TR.ref.color.slate.300",
+      "cssVar": "--tr-ref-color-slate-300",
+      "layer": "primitive",
+      "type": "color",
+      "value": "#cbd5e1",
+      "alias": null,
+      "resolved": "#cbd5e1",
+      "unit": null,
+      "usage": "Primitive (seed). Read through tr-sys-color-border-decorative."
+    },
+    {
+      "id": "TR.ref.color.slate.500",
+      "cssVar": "--tr-ref-color-slate-500",
+      "layer": "primitive",
+      "type": "color",
+      "value": "#64748b",
+      "alias": null,
+      "resolved": "#64748b",
+      "unit": null,
+      "usage": "Primitive (seed). Read through tr-sys-color-border-control."
+    },
+    {
+      "id": "TR.ref.color.slate.600",
+      "cssVar": "--tr-ref-color-slate-600",
+      "layer": "primitive",
+      "type": "color",
+      "value": "#475569",
+      "alias": null,
+      "resolved": "#475569",
+      "unit": null,
+      "usage": "Primitive (seed). Read through tr-sys-color-text-secondary and tr-sys-color-disabled-foreground."
+    },
+    {
+      "id": "TR.ref.color.slate.900",
+      "cssVar": "--tr-ref-color-slate-900",
+      "layer": "primitive",
+      "type": "color",
+      "value": "#0f172a",
+      "alias": null,
+      "resolved": "#0f172a",
+      "unit": null,
+      "usage": "Primitive (seed). Read through tr-sys-color-text-primary."
+    },
+    {
+      "id": "TR.ref.color.teal.50",
+      "cssVar": "--tr-ref-color-teal-50",
+      "layer": "primitive",
+      "type": "color",
+      "value": "#f0fdfa",
+      "alias": null,
+      "resolved": "#f0fdfa",
+      "unit": null,
+      "usage": "Primitive (seed). Read through tr-sys-color-selected-surface."
+    },
+    {
+      "id": "TR.ref.color.teal.700",
+      "cssVar": "--tr-ref-color-teal-700",
+      "layer": "primitive",
+      "type": "color",
+      "value": "#0f766e",
+      "alias": null,
+      "resolved": "#0f766e",
+      "unit": null,
+      "usage": "Primitive (seed). Read through tr-sys-color-action-primary-background."
+    },
+    {
+      "id": "TR.ref.color.teal.800",
+      "cssVar": "--tr-ref-color-teal-800",
+      "layer": "primitive",
+      "type": "color",
+      "value": "#115e59",
+      "alias": null,
+      "resolved": "#115e59",
+      "unit": null,
+      "usage": "Primitive (seed). Read through the primary hover, secondary foreground, link and selected foreground roles."
+    },
+    {
+      "id": "TR.ref.color.teal.900",
+      "cssVar": "--tr-ref-color-teal-900",
+      "layer": "primitive",
+      "type": "color",
+      "value": "#134e4a",
+      "alias": null,
+      "resolved": "#134e4a",
+      "unit": null,
+      "usage": "Primitive (added in 1.0.0-draft). Pressed primary action."
+    },
+    {
+      "id": "TR.ref.color.blue.700",
+      "cssVar": "--tr-ref-color-blue-700",
+      "layer": "primitive",
+      "type": "color",
+      "value": "#005fcc",
+      "alias": null,
+      "resolved": "#005fcc",
+      "unit": null,
+      "usage": "Primitive (seed). Read through tr-sys-color-focus only; blue never carries product meaning here."
+    },
+    {
+      "id": "TR.ref.color.red.50",
+      "cssVar": "--tr-ref-color-red-50",
+      "layer": "primitive",
+      "type": "color",
+      "value": "#fef2f2",
+      "alias": null,
+      "resolved": "#fef2f2",
+      "unit": null,
+      "usage": "Primitive (seed). Read through tr-sys-color-danger-surface."
+    },
+    {
+      "id": "TR.ref.color.red.700",
+      "cssVar": "--tr-ref-color-red-700",
+      "layer": "primitive",
+      "type": "color",
+      "value": "#b91c1c",
+      "alias": null,
+      "resolved": "#b91c1c",
+      "unit": null,
+      "usage": "Primitive (seed). Read through tr-sys-color-danger-text and the destructive action."
+    },
+    {
+      "id": "TR.ref.color.red.800",
+      "cssVar": "--tr-ref-color-red-800",
+      "layer": "primitive",
+      "type": "color",
+      "value": "#991b1b",
+      "alias": null,
+      "resolved": "#991b1b",
+      "unit": null,
+      "usage": "Primitive (added in 1.0.0-draft). Destructive action hover."
+    },
+    {
+      "id": "TR.ref.color.green.50",
+      "cssVar": "--tr-ref-color-green-50",
+      "layer": "primitive",
+      "type": "color",
+      "value": "#f0fdf4",
+      "alias": null,
+      "resolved": "#f0fdf4",
+      "unit": null,
+      "usage": "Primitive (seed). Read through tr-sys-color-success-surface."
+    },
+    {
+      "id": "TR.ref.color.green.800",
+      "cssVar": "--tr-ref-color-green-800",
+      "layer": "primitive",
+      "type": "color",
+      "value": "#166534",
+      "alias": null,
+      "resolved": "#166534",
+      "unit": null,
+      "usage": "Primitive (seed). Read through tr-sys-color-success-text."
+    },
+    {
+      "id": "TR.ref.color.amber.50",
+      "cssVar": "--tr-ref-color-amber-50",
+      "layer": "primitive",
+      "type": "color",
+      "value": "#fffbeb",
+      "alias": null,
+      "resolved": "#fffbeb",
+      "unit": null,
+      "usage": "Primitive (seed). Read through tr-sys-color-warning-surface."
+    },
+    {
+      "id": "TR.ref.color.amber.800",
+      "cssVar": "--tr-ref-color-amber-800",
+      "layer": "primitive",
+      "type": "color",
+      "value": "#92400e",
+      "alias": null,
+      "resolved": "#92400e",
+      "unit": null,
+      "usage": "Primitive (seed). Read through tr-sys-color-warning-text."
+    },
+    {
+      "id": "TR.ref.color.overlay",
+      "cssVar": "--tr-ref-color-overlay",
+      "layer": "primitive",
+      "type": "color",
+      "value": "rgba(15, 23, 42, 0.5)",
+      "alias": null,
+      "resolved": "rgba(15, 23, 42, 0.5)",
+      "unit": null,
+      "usage": "Primitive (added in 1.0.0-draft). Dialog backdrop only; never behind text that must be read."
+    },
+    {
+      "id": "TR.sys.color.canvas",
+      "cssVar": "--tr-sys-color-canvas",
+      "layer": "semantic",
+      "type": "color",
+      "value": "{TR.ref.color.slate.50}",
+      "alias": "TR.ref.color.slate.50",
+      "resolved": "#f8fafc",
+      "unit": null,
+      "usage": "Application canvas. Holds tr-sys-color-text-primary and tr-sys-color-text-secondary."
+    },
+    {
+      "id": "TR.sys.color.surface",
+      "cssVar": "--tr-sys-color-surface",
+      "layer": "semantic",
+      "type": "color",
+      "value": "{TR.ref.color.white}",
+      "alias": "TR.ref.color.white",
+      "resolved": "#ffffff",
+      "unit": null,
+      "usage": "Primary content surface: cards, forms, dialogs."
+    },
+    {
+      "id": "TR.sys.color.surface.subtle",
+      "cssVar": "--tr-sys-color-surface-subtle",
+      "layer": "semantic",
+      "type": "color",
+      "value": "{TR.ref.color.slate.100}",
+      "alias": "TR.ref.color.slate.100",
+      "resolved": "#f1f5f9",
+      "unit": null,
+      "usage": "Secondary grouping and neutral status backgrounds."
+    },
+    {
+      "id": "TR.sys.color.text.primary",
+      "cssVar": "--tr-sys-color-text-primary",
+      "layer": "semantic",
+      "type": "color",
+      "value": "{TR.ref.color.slate.900}",
+      "alias": "TR.ref.color.slate.900",
+      "resolved": "#0f172a",
+      "unit": null,
+      "usage": "Main text on canvas, surface, subtle, selected and every status surface."
+    },
+    {
+      "id": "TR.sys.color.text.secondary",
+      "cssVar": "--tr-sys-color-text-secondary",
+      "layer": "semantic",
+      "type": "color",
+      "value": "{TR.ref.color.slate.600}",
+      "alias": "TR.ref.color.slate.600",
+      "resolved": "#475569",
+      "unit": null,
+      "usage": "Supporting text on canvas, surface, subtle and selected surfaces. Never the only carrier of a primary action or a blocking gap."
+    },
+    {
+      "id": "TR.sys.color.link",
+      "cssVar": "--tr-sys-color-link",
+      "layer": "semantic",
+      "type": "color",
+      "value": "{TR.ref.color.teal.800}",
+      "alias": "TR.ref.color.teal.800",
+      "resolved": "#115e59",
+      "unit": null,
+      "usage": "Links on canvas, surface, subtle and selected surfaces. Always underlined."
+    },
+    {
+      "id": "TR.sys.color.action.primary.background",
+      "cssVar": "--tr-sys-color-action-primary-background",
+      "layer": "semantic",
+      "type": "color",
+      "value": "{TR.ref.color.teal.700}",
+      "alias": "TR.ref.color.teal.700",
+      "resolved": "#0f766e",
+      "unit": null,
+      "usage": "One primary action per task region."
+    },
+    {
+      "id": "TR.sys.color.action.primary.hover",
+      "cssVar": "--tr-sys-color-action-primary-hover",
+      "layer": "semantic",
+      "type": "color",
+      "value": "{TR.ref.color.teal.800}",
+      "alias": "TR.ref.color.teal.800",
+      "resolved": "#115e59",
+      "unit": null,
+      "usage": "Primary action on hover."
+    },
+    {
+      "id": "TR.sys.color.action.primary.pressed",
+      "cssVar": "--tr-sys-color-action-primary-pressed",
+      "layer": "semantic",
+      "type": "color",
+      "value": "{TR.ref.color.teal.900}",
+      "alias": "TR.ref.color.teal.900",
+      "resolved": "#134e4a",
+      "unit": null,
+      "usage": "Primary action while pressed."
+    },
+    {
+      "id": "TR.sys.color.action.primary.foreground",
+      "cssVar": "--tr-sys-color-action-primary-foreground",
+      "layer": "semantic",
+      "type": "color",
+      "value": "{TR.ref.color.white}",
+      "alias": "TR.ref.color.white",
+      "resolved": "#ffffff",
+      "unit": null,
+      "usage": "Text and icons on the primary action in all its states."
+    },
+    {
+      "id": "TR.sys.color.action.secondary.foreground",
+      "cssVar": "--tr-sys-color-action-secondary-foreground",
+      "layer": "semantic",
+      "type": "color",
+      "value": "{TR.ref.color.teal.800}",
+      "alias": "TR.ref.color.teal.800",
+      "resolved": "#115e59",
+      "unit": null,
+      "usage": "Secondary action label on surface, canvas and subtle."
+    },
+    {
+      "id": "TR.sys.color.action.secondary.hover",
+      "cssVar": "--tr-sys-color-action-secondary-hover",
+      "layer": "semantic",
+      "type": "color",
+      "value": "{TR.ref.color.teal.50}",
+      "alias": "TR.ref.color.teal.50",
+      "resolved": "#f0fdfa",
+      "unit": null,
+      "usage": "Secondary action background on hover."
+    },
+    {
+      "id": "TR.sys.color.action.danger.background",
+      "cssVar": "--tr-sys-color-action-danger-background",
+      "layer": "semantic",
+      "type": "color",
+      "value": "{TR.ref.color.red.700}",
+      "alias": "TR.ref.color.red.700",
+      "resolved": "#b91c1c",
+      "unit": null,
+      "usage": "Destructive action fill. Used only with copy naming the actual effect."
+    },
+    {
+      "id": "TR.sys.color.action.danger.hover",
+      "cssVar": "--tr-sys-color-action-danger-hover",
+      "layer": "semantic",
+      "type": "color",
+      "value": "{TR.ref.color.red.800}",
+      "alias": "TR.ref.color.red.800",
+      "resolved": "#991b1b",
+      "unit": null,
+      "usage": "Destructive action on hover and press."
+    },
+    {
+      "id": "TR.sys.color.action.danger.foreground",
+      "cssVar": "--tr-sys-color-action-danger-foreground",
+      "layer": "semantic",
+      "type": "color",
+      "value": "{TR.ref.color.white}",
+      "alias": "TR.ref.color.white",
+      "resolved": "#ffffff",
+      "unit": null,
+      "usage": "Text and icons on the destructive action."
+    },
+    {
+      "id": "TR.sys.color.selected.surface",
+      "cssVar": "--tr-sys-color-selected-surface",
+      "layer": "semantic",
+      "type": "color",
+      "value": "{TR.ref.color.teal.50}",
+      "alias": "TR.ref.color.teal.50",
+      "resolved": "#f0fdfa",
+      "unit": null,
+      "usage": "Selected contextual surface and the your-turn band. Always paired with a non-colour cue."
+    },
+    {
+      "id": "TR.sys.color.selected.border",
+      "cssVar": "--tr-sys-color-selected-border",
+      "layer": "semantic",
+      "type": "color",
+      "value": "{TR.ref.color.teal.700}",
+      "alias": "TR.ref.color.teal.700",
+      "resolved": "#0f766e",
+      "unit": null,
+      "usage": "Selected control boundary, drawn at tr-sys-size-borderSelected."
+    },
+    {
+      "id": "TR.sys.color.selected.foreground",
+      "cssVar": "--tr-sys-color-selected-foreground",
+      "layer": "semantic",
+      "type": "color",
+      "value": "{TR.ref.color.teal.800}",
+      "alias": "TR.ref.color.teal.800",
+      "resolved": "#115e59",
+      "unit": null,
+      "usage": "Text on tr-sys-color-selected-surface that says what is selected or whose turn it is."
+    },
+    {
+      "id": "TR.sys.color.disabled.surface",
+      "cssVar": "--tr-sys-color-disabled-surface",
+      "layer": "semantic",
+      "type": "color",
+      "value": "{TR.ref.color.slate.100}",
+      "alias": "TR.ref.color.slate.100",
+      "resolved": "#f1f5f9",
+      "unit": null,
+      "usage": "Disabled control background. Never blanket opacity."
+    },
+    {
+      "id": "TR.sys.color.disabled.foreground",
+      "cssVar": "--tr-sys-color-disabled-foreground",
+      "layer": "semantic",
+      "type": "color",
+      "value": "{TR.ref.color.slate.600}",
+      "alias": "TR.ref.color.slate.600",
+      "resolved": "#475569",
+      "unit": null,
+      "usage": "Disabled label on tr-sys-color-disabled-surface, kept readable because the reason matters."
+    },
+    {
+      "id": "TR.sys.color.border.decorative",
+      "cssVar": "--tr-sys-color-border-decorative",
+      "layer": "semantic",
+      "type": "color",
+      "value": "{TR.ref.color.slate.300}",
+      "alias": "TR.ref.color.slate.300",
+      "resolved": "#cbd5e1",
+      "unit": null,
+      "usage": "Nonessential dividers only. Fails 3:1 on purpose and must never be the only boundary of a control."
+    },
+    {
+      "id": "TR.sys.color.border.control",
+      "cssVar": "--tr-sys-color-border-control",
+      "layer": "semantic",
+      "type": "color",
+      "value": "{TR.ref.color.slate.500}",
+      "alias": "TR.ref.color.slate.500",
+      "resolved": "#64748b",
+      "unit": null,
+      "usage": "Required control boundary on surface, canvas and subtle."
+    },
+    {
+      "id": "TR.sys.color.focus",
+      "cssVar": "--tr-sys-color-focus",
+      "layer": "semantic",
+      "type": "color",
+      "value": "{TR.ref.color.blue.700}",
+      "alias": "TR.ref.color.blue.700",
+      "resolved": "#005fcc",
+      "unit": null,
+      "usage": "Visible focus ring, always with tr-sys-color-focus-gap inside it."
+    },
+    {
+      "id": "TR.sys.color.focus.gap",
+      "cssVar": "--tr-sys-color-focus-gap",
+      "layer": "semantic",
+      "type": "color",
+      "value": "{TR.ref.color.white}",
+      "alias": "TR.ref.color.white",
+      "resolved": "#ffffff",
+      "unit": null,
+      "usage": "Light separation between a control and its focus ring."
+    },
+    {
+      "id": "TR.sys.color.danger.text",
+      "cssVar": "--tr-sys-color-danger-text",
+      "layer": "semantic",
+      "type": "color",
+      "value": "{TR.ref.color.red.700}",
+      "alias": "TR.ref.color.red.700",
+      "resolved": "#b91c1c",
+      "unit": null,
+      "usage": "Error text and FAIL labels on surface, canvas and danger surface."
+    },
+    {
+      "id": "TR.sys.color.danger.surface",
+      "cssVar": "--tr-sys-color-danger-surface",
+      "layer": "semantic",
+      "type": "color",
+      "value": "{TR.ref.color.red.50}",
+      "alias": "TR.ref.color.red.50",
+      "resolved": "#fef2f2",
+      "unit": null,
+      "usage": "Error background."
+    },
+    {
+      "id": "TR.sys.color.success.text",
+      "cssVar": "--tr-sys-color-success-text",
+      "layer": "semantic",
+      "type": "color",
+      "value": "{TR.ref.color.green.800}",
+      "alias": "TR.ref.color.green.800",
+      "resolved": "#166534",
+      "unit": null,
+      "usage": "Confirmed-success text on surface, canvas and success surface. Only after a real result, never for pending work."
+    },
+    {
+      "id": "TR.sys.color.success.surface",
+      "cssVar": "--tr-sys-color-success-surface",
+      "layer": "semantic",
+      "type": "color",
+      "value": "{TR.ref.color.green.50}",
+      "alias": "TR.ref.color.green.50",
+      "resolved": "#f0fdf4",
+      "unit": null,
+      "usage": "Success background."
+    },
+    {
+      "id": "TR.sys.color.warning.text",
+      "cssVar": "--tr-sys-color-warning-text",
+      "layer": "semantic",
+      "type": "color",
+      "value": "{TR.ref.color.amber.800}",
+      "alias": "TR.ref.color.amber.800",
+      "resolved": "#92400e",
+      "unit": null,
+      "usage": "UNKNOWN and warning text on surface, canvas and warning surface."
+    },
+    {
+      "id": "TR.sys.color.warning.surface",
+      "cssVar": "--tr-sys-color-warning-surface",
+      "layer": "semantic",
+      "type": "color",
+      "value": "{TR.ref.color.amber.50}",
+      "alias": "TR.ref.color.amber.50",
+      "resolved": "#fffbeb",
+      "unit": null,
+      "usage": "Supporting surface for UNKNOWN and warnings."
+    },
+    {
+      "id": "TR.sys.color.overlay",
+      "cssVar": "--tr-sys-color-overlay",
+      "layer": "semantic",
+      "type": "color",
+      "value": "{TR.ref.color.overlay}",
+      "alias": "TR.ref.color.overlay",
+      "resolved": "rgba(15, 23, 42, 0.5)",
+      "unit": null,
+      "usage": "Dialog backdrop."
+    },
+    {
+      "id": "TR.comp.button.primary.background",
+      "cssVar": "--tr-comp-button-primary-background",
+      "layer": "component",
+      "type": "color",
+      "value": "{TR.sys.color.action.primary.background}",
+      "alias": "TR.sys.color.action.primary.background",
+      "resolved": "#0f766e",
+      "unit": null,
+      "usage": "Component alias of the primary action background."
+    },
+    {
+      "id": "TR.comp.button.primary.hover",
+      "cssVar": "--tr-comp-button-primary-hover",
+      "layer": "component",
+      "type": "color",
+      "value": "{TR.sys.color.action.primary.hover}",
+      "alias": "TR.sys.color.action.primary.hover",
+      "resolved": "#115e59",
+      "unit": null,
+      "usage": "Component alias of the primary action hover."
+    },
+    {
+      "id": "TR.comp.button.primary.foreground",
+      "cssVar": "--tr-comp-button-primary-foreground",
+      "layer": "component",
+      "type": "color",
+      "value": "{TR.sys.color.action.primary.foreground}",
+      "alias": "TR.sys.color.action.primary.foreground",
+      "resolved": "#ffffff",
+      "unit": null,
+      "usage": "Component alias of the primary action label."
+    },
+    {
+      "id": "TR.comp.field.border",
+      "cssVar": "--tr-comp-field-border",
+      "layer": "component",
+      "type": "color",
+      "value": "{TR.sys.color.border.control}",
+      "alias": "TR.sys.color.border.control",
+      "resolved": "#64748b",
+      "unit": null,
+      "usage": "Field boundary."
+    },
+    {
+      "id": "TR.comp.field.borderError",
+      "cssVar": "--tr-comp-field-borderError",
+      "layer": "component",
+      "type": "color",
+      "value": "{TR.sys.color.danger.text}",
+      "alias": "TR.sys.color.danger.text",
+      "resolved": "#b91c1c",
+      "unit": null,
+      "usage": "Field boundary while invalid, drawn at tr-sys-size-borderSelected."
+    },
+    {
+      "id": "TR.comp.field.focus",
+      "cssVar": "--tr-comp-field-focus",
+      "layer": "component",
+      "type": "color",
+      "value": "{TR.sys.color.focus}",
+      "alias": "TR.sys.color.focus",
+      "resolved": "#005fcc",
+      "unit": null,
+      "usage": "Field focus ring."
+    },
+    {
+      "id": "TR.ref.space.4",
+      "cssVar": "--tr-ref-space-4",
+      "layer": "primitive",
+      "type": "dimension",
+      "value": "0.25rem",
+      "alias": null,
+      "resolved": "0.25rem",
+      "unit": "rem",
+      "usage": "Primitive. 4 CSS px at default text size."
+    },
+    {
+      "id": "TR.ref.space.8",
+      "cssVar": "--tr-ref-space-8",
+      "layer": "primitive",
+      "type": "dimension",
+      "value": "0.5rem",
+      "alias": null,
+      "resolved": "0.5rem",
+      "unit": "rem",
+      "usage": "Primitive. 8 CSS px."
+    },
+    {
+      "id": "TR.ref.space.12",
+      "cssVar": "--tr-ref-space-12",
+      "layer": "primitive",
+      "type": "dimension",
+      "value": "0.75rem",
+      "alias": null,
+      "resolved": "0.75rem",
+      "unit": "rem",
+      "usage": "Primitive. 12 CSS px."
+    },
+    {
+      "id": "TR.ref.space.16",
+      "cssVar": "--tr-ref-space-16",
+      "layer": "primitive",
+      "type": "dimension",
+      "value": "1rem",
+      "alias": null,
+      "resolved": "1rem",
+      "unit": "rem",
+      "usage": "Primitive. 16 CSS px."
+    },
+    {
+      "id": "TR.ref.space.24",
+      "cssVar": "--tr-ref-space-24",
+      "layer": "primitive",
+      "type": "dimension",
+      "value": "1.5rem",
+      "alias": null,
+      "resolved": "1.5rem",
+      "unit": "rem",
+      "usage": "Primitive. 24 CSS px."
+    },
+    {
+      "id": "TR.ref.space.32",
+      "cssVar": "--tr-ref-space-32",
+      "layer": "primitive",
+      "type": "dimension",
+      "value": "2rem",
+      "alias": null,
+      "resolved": "2rem",
+      "unit": "rem",
+      "usage": "Primitive. 32 CSS px."
+    },
+    {
+      "id": "TR.ref.space.48",
+      "cssVar": "--tr-ref-space-48",
+      "layer": "primitive",
+      "type": "dimension",
+      "value": "3rem",
+      "alias": null,
+      "resolved": "3rem",
+      "unit": "rem",
+      "usage": "Primitive. 48 CSS px."
+    },
+    {
+      "id": "TR.ref.space.64",
+      "cssVar": "--tr-ref-space-64",
+      "layer": "primitive",
+      "type": "dimension",
+      "value": "4rem",
+      "alias": null,
+      "resolved": "4rem",
+      "unit": "rem",
+      "usage": "Primitive. 64 CSS px."
+    },
+    {
+      "id": "TR.sys.space.controlGap",
+      "cssVar": "--tr-sys-space-controlGap",
+      "layer": "semantic",
+      "type": "dimension",
+      "value": "0.5rem",
+      "alias": "TR.ref.space.8",
+      "resolved": "0.5rem",
+      "unit": "rem",
+      "usage": "Alias: tr-ref-space-8. Gap between neighbouring controls; widen where touch separation needs it."
+    },
+    {
+      "id": "TR.sys.space.stack",
+      "cssVar": "--tr-sys-space-stack",
+      "layer": "semantic",
+      "type": "dimension",
+      "value": "1rem",
+      "alias": "TR.ref.space.16",
+      "resolved": "1rem",
+      "unit": "rem",
+      "usage": "Alias: tr-ref-space-16. Gap between items in one group."
+    },
+    {
+      "id": "TR.sys.space.section",
+      "cssVar": "--tr-sys-space-section",
+      "layer": "semantic",
+      "type": "dimension",
+      "value": "1.5rem",
+      "alias": "TR.ref.space.24",
+      "resolved": "1.5rem",
+      "unit": "rem",
+      "usage": "Alias: tr-ref-space-24. Gap between sections below the wide breakpoint."
+    },
+    {
+      "id": "TR.sys.space.sectionWide",
+      "cssVar": "--tr-sys-space-sectionWide",
+      "layer": "semantic",
+      "type": "dimension",
+      "value": "2rem",
+      "alias": "TR.ref.space.32",
+      "resolved": "2rem",
+      "unit": "rem",
+      "usage": "Alias: tr-ref-space-32. Gap between sections from the wide breakpoint."
+    },
+    {
+      "id": "TR.sys.layout.gutter",
+      "cssVar": "--tr-sys-layout-gutter",
+      "layer": "semantic",
+      "type": "dimension",
+      "value": "1rem",
+      "alias": "TR.ref.space.16",
+      "resolved": "1rem",
+      "unit": "rem",
+      "usage": "Alias: tr-ref-space-16. Page gutter on narrow screens."
+    },
+    {
+      "id": "TR.sys.layout.gutterWide",
+      "cssVar": "--tr-sys-layout-gutterWide",
+      "layer": "semantic",
+      "type": "dimension",
+      "value": "1.5rem",
+      "alias": "TR.ref.space.24",
+      "resolved": "1.5rem",
+      "unit": "rem",
+      "usage": "Alias: tr-ref-space-24. Page gutter from the wide breakpoint."
+    },
+    {
+      "id": "TR.ref.radius.6",
+      "cssVar": "--tr-ref-radius-6",
+      "layer": "primitive",
+      "type": "dimension",
+      "value": "6px",
+      "alias": null,
+      "resolved": "6px",
+      "unit": "px",
+      "usage": "Primitive. Read through tr-sys-radius-control."
+    },
+    {
+      "id": "TR.ref.radius.8",
+      "cssVar": "--tr-ref-radius-8",
+      "layer": "primitive",
+      "type": "dimension",
+      "value": "8px",
+      "alias": null,
+      "resolved": "8px",
+      "unit": "px",
+      "usage": "Primitive. Read through tr-sys-radius-surface."
+    },
+    {
+      "id": "TR.ref.radius.12",
+      "cssVar": "--tr-ref-radius-12",
+      "layer": "primitive",
+      "type": "dimension",
+      "value": "12px",
+      "alias": null,
+      "resolved": "12px",
+      "unit": "px",
+      "usage": "Primitive. Read through tr-sys-radius-dialog."
+    },
+    {
+      "id": "TR.sys.radius.control",
+      "cssVar": "--tr-sys-radius-control",
+      "layer": "semantic",
+      "type": "dimension",
+      "value": "6px",
+      "alias": "TR.ref.radius.6",
+      "resolved": "6px",
+      "unit": "px",
+      "usage": "Alias: tr-ref-radius-6. Controls and status labels."
+    },
+    {
+      "id": "TR.sys.radius.surface",
+      "cssVar": "--tr-sys-radius-surface",
+      "layer": "semantic",
+      "type": "dimension",
+      "value": "8px",
+      "alias": "TR.ref.radius.8",
+      "resolved": "8px",
+      "unit": "px",
+      "usage": "Alias: tr-ref-radius-8. Ordinary surfaces."
+    },
+    {
+      "id": "TR.sys.radius.dialog",
+      "cssVar": "--tr-sys-radius-dialog",
+      "layer": "semantic",
+      "type": "dimension",
+      "value": "12px",
+      "alias": "TR.ref.radius.12",
+      "resolved": "12px",
+      "unit": "px",
+      "usage": "Alias: tr-ref-radius-12. Large dialogs."
+    },
+    {
+      "id": "TR.sys.size.controlComfort",
+      "cssVar": "--tr-sys-size-controlComfort",
+      "layer": "semantic",
+      "type": "dimension",
+      "value": "2.75rem",
+      "alias": null,
+      "resolved": "2.75rem",
+      "unit": "rem",
+      "usage": "Comfortable 44 CSS px minimum for common controls. A product preference; AA itself asks 24 CSS px with exceptions."
+    },
+    {
+      "id": "TR.sys.size.icon",
+      "cssVar": "--tr-sys-size-icon",
+      "layer": "semantic",
+      "type": "dimension",
+      "value": "1.25rem",
+      "alias": null,
+      "resolved": "1.25rem",
+      "unit": "rem",
+      "usage": "Default glyph, 20 CSS px."
+    },
+    {
+      "id": "TR.sys.size.iconSmall",
+      "cssVar": "--tr-sys-size-iconSmall",
+      "layer": "semantic",
+      "type": "dimension",
+      "value": "1.125rem",
+      "alias": null,
+      "resolved": "1.125rem",
+      "unit": "rem",
+      "usage": "Small glyph inside status labels, 18 CSS px."
+    },
+    {
+      "id": "TR.sys.size.border",
+      "cssVar": "--tr-sys-size-border",
+      "layer": "semantic",
+      "type": "dimension",
+      "value": "1px",
+      "alias": null,
+      "resolved": "1px",
+      "unit": "px",
+      "usage": "Ordinary boundary width."
+    },
+    {
+      "id": "TR.sys.size.borderSelected",
+      "cssVar": "--tr-sys-size-borderSelected",
+      "layer": "semantic",
+      "type": "dimension",
+      "value": "2px",
+      "alias": null,
+      "resolved": "2px",
+      "unit": "px",
+      "usage": "Selected and invalid boundary width; the non-colour cue."
+    },
+    {
+      "id": "TR.sys.size.focusGap",
+      "cssVar": "--tr-sys-size-focusGap",
+      "layer": "semantic",
+      "type": "dimension",
+      "value": "2px",
+      "alias": null,
+      "resolved": "2px",
+      "unit": "px",
+      "usage": "Light gap inside the focus ring."
+    },
+    {
+      "id": "TR.sys.size.focusRing",
+      "cssVar": "--tr-sys-size-focusRing",
+      "layer": "semantic",
+      "type": "dimension",
+      "value": "2px",
+      "alias": null,
+      "resolved": "2px",
+      "unit": "px",
+      "usage": "Focus ring width."
+    },
+    {
+      "id": "TR.sys.layout.contentMax",
+      "cssVar": "--tr-sys-layout-contentMax",
+      "layer": "semantic",
+      "type": "dimension",
+      "value": "75rem",
+      "alias": null,
+      "resolved": "75rem",
+      "unit": "rem",
+      "usage": "Maximum page width, 1,200 CSS px."
+    },
+    {
+      "id": "TR.sys.layout.readingMeasure",
+      "cssVar": "--tr-sys-layout-readingMeasure",
+      "layer": "semantic",
+      "type": "dimension",
+      "value": "65ch",
+      "alias": null,
+      "resolved": "65ch",
+      "unit": "ch",
+      "usage": "Long prose measure, about 60 to 70 characters."
+    },
+    {
+      "id": "TR.sys.layout.asideWidth",
+      "cssVar": "--tr-sys-layout-asideWidth",
+      "layer": "semantic",
+      "type": "dimension",
+      "value": "20rem",
+      "alias": null,
+      "resolved": "20rem",
+      "unit": "rem",
+      "usage": "Supporting column beside the active task from the wide breakpoint."
+    },
+    {
+      "id": "TR.sys.layout.breakpointWide",
+      "cssVar": "--tr-sys-layout-breakpointWide",
+      "layer": "semantic",
+      "type": "dimension",
+      "value": "48rem",
+      "alias": null,
+      "resolved": "48rem",
+      "unit": "rem",
+      "usage": "Wide layout starts at 768 CSS px. Documents the media query in bundle.css."
+    },
+    {
+      "id": "TR.ref.weight.regular",
+      "cssVar": "--tr-ref-weight-regular",
+      "layer": "primitive",
+      "type": "fontWeight",
+      "value": "400",
+      "alias": null,
+      "resolved": "400",
+      "unit": "weight (CSS 1–1000)",
+      "usage": "Body text."
+    },
+    {
+      "id": "TR.ref.weight.medium",
+      "cssVar": "--tr-ref-weight-medium",
+      "layer": "primitive",
+      "type": "fontWeight",
+      "value": "500",
+      "alias": null,
+      "resolved": "500",
+      "unit": "weight (CSS 1–1000)",
+      "usage": "Labels and actions."
+    },
+    {
+      "id": "TR.ref.weight.semibold",
+      "cssVar": "--tr-ref-weight-semibold",
+      "layer": "primitive",
+      "type": "fontWeight",
+      "value": "600",
+      "alias": null,
+      "resolved": "600",
+      "unit": "weight (CSS 1–1000)",
+      "usage": "Headings, amounts and status labels."
+    },
+    {
+      "id": "TR.sys.motion.feedback",
+      "cssVar": "--tr-sys-motion-feedback",
+      "layer": "semantic",
+      "type": "duration",
+      "value": "150ms",
+      "alias": null,
+      "resolved": "150ms",
+      "unit": "ms",
+      "usage": "State feedback at most. Reduced motion sets it to 0 ms."
+    },
+    {
+      "id": "TR.sys.motion.easing",
+      "cssVar": "--tr-sys-motion-easing",
+      "layer": "semantic",
+      "type": "cubicBezier",
+      "value": "cubic-bezier(0.2, 0, 0, 1)",
+      "alias": null,
+      "resolved": "cubic-bezier(0.2, 0, 0, 1)",
+      "unit": null,
+      "usage": "Standard easing for state feedback."
+    },
+    {
+      "id": "TR.sys.shadow.dialog",
+      "cssVar": "--tr-sys-shadow-dialog",
+      "layer": "semantic",
+      "type": "shadow",
+      "value": "0 8px 32px rgba(15, 23, 42, 0.24)",
+      "alias": null,
+      "resolved": "0 8px 32px rgba(15, 23, 42, 0.24)",
+      "unit": null,
+      "usage": "Dialogs only. Cards and pages stay flat."
+    },
+    {
+      "id": "TR.sys.type.body",
+      "cssVar": null,
+      "cssClass": ".tr-sys-type-body",
+      "layer": "semantic",
+      "type": "typography",
+      "value": {
+        "fontFamily": "{TR.font.sans}",
+        "fontSize": "1rem",
+        "lineHeight": 1.5,
+        "fontWeight": 400
+      },
+      "alias": null,
+      "resolved": {
+        "fontFamily": "system-ui, -apple-system, \"Segoe UI\", \"Helvetica Neue\", Arial, sans-serif",
+        "fontSize": "1rem",
+        "lineHeight": 1.5,
+        "fontWeight": 400
+      },
+      "unit": "rem (1rem = 16 CSS px at default text size)",
+      "usage": "Running text and answers."
+    },
+    {
+      "id": "TR.sys.type.body.strong",
+      "cssVar": null,
+      "cssClass": ".tr-sys-type-body-strong",
+      "layer": "semantic",
+      "type": "typography",
+      "value": {
+        "fontFamily": "{TR.font.sans}",
+        "fontSize": "1rem",
+        "lineHeight": 1.5,
+        "fontWeight": 600
+      },
+      "alias": null,
+      "resolved": {
+        "fontFamily": "system-ui, -apple-system, \"Segoe UI\", \"Helvetica Neue\", Arial, sans-serif",
+        "fontSize": "1rem",
+        "lineHeight": 1.5,
+        "fontWeight": 600
+      },
+      "unit": "rem (1rem = 16 CSS px at default text size)",
+      "usage": "Emphasis inside running text."
+    },
+    {
+      "id": "TR.sys.type.label",
+      "cssVar": null,
+      "cssClass": ".tr-sys-type-label",
+      "layer": "semantic",
+      "type": "typography",
+      "value": {
+        "fontFamily": "{TR.font.sans}",
+        "fontSize": "1rem",
+        "lineHeight": 1.4,
+        "fontWeight": 500
+      },
+      "alias": null,
+      "resolved": {
+        "fontFamily": "system-ui, -apple-system, \"Segoe UI\", \"Helvetica Neue\", Arial, sans-serif",
+        "fontSize": "1rem",
+        "lineHeight": 1.4,
+        "fontWeight": 500
+      },
+      "unit": "rem (1rem = 16 CSS px at default text size)",
+      "usage": "Field labels, buttons and tabs."
+    },
+    {
+      "id": "TR.sys.type.support",
+      "cssVar": null,
+      "cssClass": ".tr-sys-type-support",
+      "layer": "semantic",
+      "type": "typography",
+      "value": {
+        "fontFamily": "{TR.font.sans}",
+        "fontSize": "0.875rem",
+        "lineHeight": 1.5,
+        "fontWeight": 400
+      },
+      "alias": null,
+      "resolved": {
+        "fontFamily": "system-ui, -apple-system, \"Segoe UI\", \"Helvetica Neue\", Arial, sans-serif",
+        "fontSize": "0.875rem",
+        "lineHeight": 1.5,
+        "fontWeight": 400
+      },
+      "unit": "rem (1rem = 16 CSS px at default text size)",
+      "usage": "Hints and metadata. Never the sole carrier of a primary action or a critical gap."
+    },
+    {
+      "id": "TR.sys.type.support.strong",
+      "cssVar": null,
+      "cssClass": ".tr-sys-type-support-strong",
+      "layer": "semantic",
+      "type": "typography",
+      "value": {
+        "fontFamily": "{TR.font.sans}",
+        "fontSize": "0.875rem",
+        "lineHeight": 1.5,
+        "fontWeight": 600
+      },
+      "alias": null,
+      "resolved": {
+        "fontFamily": "system-ui, -apple-system, \"Segoe UI\", \"Helvetica Neue\", Arial, sans-serif",
+        "fontSize": "0.875rem",
+        "lineHeight": 1.5,
+        "fontWeight": 600
+      },
+      "unit": "rem (1rem = 16 CSS px at default text size)",
+      "usage": "Status labels and short tags."
+    },
+    {
+      "id": "TR.sys.type.heading.sm",
+      "cssVar": null,
+      "cssClass": ".tr-sys-type-heading-sm",
+      "layer": "semantic",
+      "type": "typography",
+      "value": {
+        "fontFamily": "{TR.font.sans}",
+        "fontSize": "1.25rem",
+        "lineHeight": 1.4,
+        "fontWeight": 600
+      },
+      "alias": null,
+      "resolved": {
+        "fontFamily": "system-ui, -apple-system, \"Segoe UI\", \"Helvetica Neue\", Arial, sans-serif",
+        "fontSize": "1.25rem",
+        "lineHeight": 1.4,
+        "fontWeight": 600
+      },
+      "unit": "rem (1rem = 16 CSS px at default text size)",
+      "usage": "Card and section headings."
+    },
+    {
+      "id": "TR.sys.type.heading.md",
+      "cssVar": null,
+      "cssClass": ".tr-sys-type-heading-md",
+      "layer": "semantic",
+      "type": "typography",
+      "value": {
+        "fontFamily": "{TR.font.sans}",
+        "fontSize": "1.5rem",
+        "lineHeight": 1.3,
+        "fontWeight": 600
+      },
+      "alias": null,
+      "resolved": {
+        "fontFamily": "system-ui, -apple-system, \"Segoe UI\", \"Helvetica Neue\", Arial, sans-serif",
+        "fontSize": "1.5rem",
+        "lineHeight": 1.3,
+        "fontWeight": 600
+      },
+      "unit": "rem (1rem = 16 CSS px at default text size)",
+      "usage": "Task region headings and dialog titles."
+    },
+    {
+      "id": "TR.sys.type.heading.lg",
+      "cssVar": null,
+      "cssClass": ".tr-sys-type-heading-lg",
+      "layer": "semantic",
+      "type": "typography",
+      "value": {
+        "fontFamily": "{TR.font.sans}",
+        "fontSize": "2rem",
+        "lineHeight": 1.2,
+        "fontWeight": 600
+      },
+      "alias": null,
+      "resolved": {
+        "fontFamily": "system-ui, -apple-system, \"Segoe UI\", \"Helvetica Neue\", Arial, sans-serif",
+        "fontSize": "2rem",
+        "lineHeight": 1.2,
+        "fontWeight": 600
+      },
+      "unit": "rem (1rem = 16 CSS px at default text size)",
+      "usage": "Page titles."
+    },
+    {
+      "id": "TR.sys.type.amount",
+      "cssVar": null,
+      "cssClass": ".tr-sys-type-amount",
+      "layer": "semantic",
+      "type": "typography",
+      "value": {
+        "fontFamily": "{TR.font.sans}",
+        "fontSize": "1.25rem",
+        "lineHeight": 1.4,
+        "fontWeight": 600
+      },
+      "alias": null,
+      "resolved": {
+        "fontFamily": "system-ui, -apple-system, \"Segoe UI\", \"Helvetica Neue\", Arial, sans-serif",
+        "fontSize": "1.25rem",
+        "lineHeight": 1.4,
+        "fontWeight": 600
+      },
+      "unit": "rem (1rem = 16 CSS px at default text size)",
+      "usage": "Money with its currency; always tabular and kept with its unit."
+    },
+    {
+      "id": "TR.font.sans",
+      "cssVar": "--font-sans",
+      "layer": "primitive",
+      "type": "fontFamily",
+      "value": "system-ui, -apple-system, \"Segoe UI\", \"Helvetica Neue\", Arial, sans-serif",
+      "alias": null,
+      "resolved": "system-ui, -apple-system, \"Segoe UI\", \"Helvetica Neue\", Arial, sans-serif",
+      "unit": null,
+      "usage": "System sans-serif stack; no font files are fetched."
+    }
+  ]
+}

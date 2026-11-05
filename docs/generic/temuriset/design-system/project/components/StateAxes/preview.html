@@ -1,0 +1,44 @@
+<!-- @dsCard group="Foundations" height=980 page -->
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>StateAxes — preview</title></head>
+<body>
+<div id="root" class="tr-root tr-pad tr-stack"></div>
+<script>
+var TR = window.TR, h = React.createElement, F = TR.format, X = TR.demo.fixtures, useState = React.useState;
+function S(label, child) { return h('div', { className: 'tr-stack' }, h('p', { className: 'tr-sys-type-support tr-muted' }, label), child); }
+function Demo() {
+  var a = TR.demo.useAxes({ save: 'saved', file: 'AVAILABLE', extraction: 'NEEDS_MANUAL_INPUT', review: 'PROVIDED_UNREVIEWED', requirement: 'UNKNOWN', pitch: 'Dikirim', schedule: 'Usulan terbuka', relationship: 'Menunggu konfirmasi', disclosure: 'Nilai dukungan privat' });
+  var combos = [
+    ['Saved answer, quarantined file', { save: 'saved', file: 'QUARANTINED', extraction: 'NOT_REQUESTED', review: 'PROVIDED_UNREVIEWED' }],
+    ['Available scan, manual extraction', { file: 'AVAILABLE', extraction: 'NEEDS_MANUAL_INPUT', review: 'PROVIDED_UNREVIEWED' }],
+    ['Saved draft, unknown requirement', { save: 'saved', requirement: 'UNKNOWN' }],
+    ['Stale preflight, retained message', { save: 'conflict' }],
+    ['Confirmed relationship, private amount', { relationship: 'Dikonfirmasi kedua pihak', disclosure: 'Nilai dukungan privat' }]];
+  var v = a.value;
+  return h(React.Fragment, null,
+    h(TR.demo.Controls, { state: a, axes: [
+      { id: 'save', label: 'Draft saving', options: ['local', 'saving', 'saved', 'failed', 'conflict'] },
+      { id: 'file', label: 'File availability', options: ['CREATED', 'UPLOADING', 'QUARANTINED', 'AVAILABLE', 'REJECTED'] },
+      { id: 'extraction', label: 'Extraction', options: ['NOT_REQUESTED', 'PENDING', 'RUNNING', 'SUCCEEDED', 'FAILED', 'NEEDS_MANUAL_INPUT'] },
+      { id: 'review', label: 'Review', options: ['PROVIDED_UNREVIEWED', 'REVIEWED_SUPPORTED', 'REVIEWED_UNSUPPORTED', 'NEEDS_CLARIFICATION', 'EXPIRED', 'SUPERSEDED'] },
+      { id: 'requirement', label: 'Requirement', options: ['PASS', 'FAIL', 'UNKNOWN', 'NOT_APPLICABLE'] },
+      { id: 'pitch', label: 'Pitch', options: ['Dikirim', 'Sedang ditinjau', 'Revisi diminta', 'Disetujui untuk diskusi', 'Ditolak', 'Ditarik', 'Ditutup'] },
+      { id: 'schedule', label: 'Scheduling', options: ['Usulan terbuka', 'Dipilih, belum dikonfirmasi', 'Waktu dikonfirmasi', 'Kedaluwarsa', 'Diganti', 'Dibatalkan'] },
+      { id: 'relationship', label: 'Relationship', options: ['Draf', 'Menunggu konfirmasi', 'Perubahan diminta', 'Ditolak', 'Dikonfirmasi kedua pihak'] },
+      { id: 'disclosure', label: 'Disclosure', options: ['Nilai dukungan privat', 'Disembunyikan oleh pembatasan'] }] },
+      combos.map(function (c) { return h(TR.Button, { key: c[0], onClick: function () { Object.keys(c[1]).forEach(function (k) { a.set(k, c[1][k]); }); } }, c[0]); })),
+    h(TR.SaveState, { state: v.save, savedAt: '2026-10-31T07:32:00Z' }),
+    v.save === 'conflict' ? h(TR.VersionConflict, { what: 'Persyaratan berubah sejak pemeriksaan terakhir.', draft: 'Kami ingin memvalidasi prototipe selama 6 bulan.', onRefresh: function () {}, refreshLabel: 'Periksa ulang' }) : null,
+    h(TR.DocumentItem, { title: 'Laporan uji fungsi', version: 2, file: v.file, extraction: v.extraction, review: v.review }),
+    h('ul', { className: 'tr-reqs' }, h(TR.RequirementRow, { label: 'Hasil uji diperiksa peninjau', result: v.requirement, stage: 'SUBMISSION', mode: 'REVIEWER_CONFIRMED' })),
+    h('div', { className: 'tr-row' },
+      h(TR.Status, { tone: 'neutral', icon: 'chat', label: 'Pitching: ' + v.pitch }),
+      h(TR.Status, { tone: 'neutral', icon: 'calendar', label: 'Jadwal: ' + v.schedule }),
+      h(TR.Status, { tone: v.relationship === 'Dikonfirmasi kedua pihak' ? 'success' : 'neutral', label: 'Kerja Sama: ' + v.relationship }),
+      h(TR.Status, { tone: 'neutral', icon: 'eyeOff', label: v.disclosure })));
+}
+ReactDOM.createRoot(document.getElementById('root')).render(h(Demo));
+</script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+name: TemuRiset Web
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - applications/generic/temuriset/**
+      - docs/generic/temuriset/design-system/**
+      - .github/workflows/temuriset-web.yml
+  pull_request:
+    paths:
+      - applications/generic/temuriset/**
+      - docs/generic/temuriset/design-system/**
+      - .github/workflows/temuriset-web.yml
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: applications/generic/temuriset/applications/temuriset-web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: applications/generic/temuriset/applications/temuriset-web/.nvmrc
+          cache: npm
+          cache-dependency-path: applications/generic/temuriset/applications/temuriset-web/package-lock.json
+      - run: npm ci
+      # Includes the design-system drift test and the registry-to-spec links.
+      - run: make check
+      - run: make generate-api && git diff --exit-code src/api/schema.generated.ts
+      - run: make build
+      - run: npm audit --omit=dev --audit-level=high
+      - run: python3 ../../docs/roadmap/check_traceability.py

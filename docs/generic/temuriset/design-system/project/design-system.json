@@ -1,0 +1,17 @@
+{
+  "v": 3,
+  "layout": "files",
+  "createdOnFiles": { "v": 1, "at": "2026-10-31T08:20:00Z" },
+  "title": "TemuRiset Design System",
+  "namespace": "TR",
+  "libraries": [
+    { "name": "react", "version": "18.3.1", "global": "React", "file": "components/lib/react.production.min.js" },
+    { "name": "react-dom", "version": "18.3.1", "global": "ReactDOM", "file": "components/lib/react-dom.production.min.js" }
+  ],
+  "sections": {},
+  "groups": [],
+  "assetGroups": {},
+  "blobs": {},
+  "docs": { "sections": [] },
+  "lastChange": { "by": "awidardi", "at": "2026-10-31T08:20:00Z", "via": "Claude Code (desktop)", "note": "1.0.0-draft: tokens, 26 TR components plus 5 additions, four pattern pages, UX guide and validation report" }
+}

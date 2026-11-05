@@ -1,0 +1,87 @@
+{
+  "system": "TemuRiset Design System",
+  "version": "1.0.0-draft",
+  "reviewStatus": "draft — not owner-approved; validation recorded in guide/05-validation-report.md",
+  "productContract": "TemuRiset PRD generic v1.1",
+  "handoff": "04_Claude_Design_System_TemuRiset_EN.md v1.0",
+  "runtime": "Claude Design System artifact type (contract 0.2.47), private artifact; React 18.3.1 previews; local workbench served over http from the same files",
+  "supply": {
+    "kind": "portable local reference, mirrored to a private artifact made from the Design System type",
+    "artifact": "https://claude.ai/artifact/KU4iHKHaVL7QgL8bhSgfWV",
+    "registeredInClaudePicker": "not verified",
+    "published": false,
+    "organizationDefault": false
+  },
+  "sourceFormat": {
+    "tokens": "tokens.json (Design System type list grammar)",
+    "export": "exports/temuriset-design-system.tokens.json (temuriset-tokens/1, custom)",
+    "components": "components/bundle.js — one classic script assigning window.TR, hand-written ES2017 using React.createElement; no build step",
+    "styles": "components/bundle.css",
+    "types": "components/index.d.ts (documentation)",
+    "contracts": "tools/catalog.mjs generates each README and preview"
+  },
+  "namespace": "TR",
+  "components": [
+    "TR.Button",
+    "TR.Link",
+    "TR.TextField",
+    "TR.TextArea",
+    "TR.Select",
+    "TR.ChoiceGroup",
+    "TR.Checkbox",
+    "TR.FieldError",
+    "TR.ErrorSummary",
+    "TR.Dialog",
+    "TR.Disclosure",
+    "TR.Tabs",
+    "TR.Status",
+    "TR.EmptyState",
+    "TR.SaveState",
+    "TR.ContextSwitcher",
+    "TR.InventionCard",
+    "TR.FundingRequestCard",
+    "TR.FinancialScope",
+    "TR.RequirementRow",
+    "TR.FactSource",
+    "TR.DocumentItem",
+    "TR.RevisionItem",
+    "TR.ScheduleSlotList",
+    "TR.PartnershipConsent",
+    "TR.VersionConflict",
+    "TR.NextStep",
+    "TR.Steps",
+    "TR.SummaryList",
+    "TR.Screen",
+    "TR.Icon"
+  ],
+  "intentionalAdditions": [
+    "TR.NextStep",
+    "TR.Steps",
+    "TR.SummaryList",
+    "TR.Screen",
+    "TR.Icon"
+  ],
+  "themes": [
+    "light"
+  ],
+  "patterns": [
+    "PatternDiscovery",
+    "PatternPortfolio",
+    "PatternRevisionSchedule",
+    "PatternRelationship"
+  ],
+  "fingerprints": {
+    "tokens.json": "sha256:311fe8545a4561c32580f108774b7aba0df7d251f3c5b3553e1e8145c0b55d2c",
+    "components/bundle.js": "sha256:41dd7f2f5f3084d84301bee55a7208d279a217cda6aef6e9fee6caa49bb8bc43",
+    "components/bundle.css": "sha256:7189831e86b576f5f55465b1f9422f47086854ce89499af316cd754236b568f1",
+    "components/index.d.ts": "sha256:d666de04c646302e64bc165da56c005bd74f90c46567118a01d6ea485b7aea58"
+  },
+  "limitations": [
+    "Light theme only.",
+    "React web only; no server, database, file scanning, booking or authorization exists here.",
+    "No participant study; comprehension is unverified.",
+    "No screen-reader run.",
+    "Previews use fictional fixtures (Demo · Data fiktif)."
+  ],
+  "secrets": "none"
+}

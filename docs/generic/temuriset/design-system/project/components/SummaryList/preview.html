@@ -1,0 +1,20 @@
+<!-- @dsCard group="Navigation" height=260 -->
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>SummaryList — preview</title></head>
+<body>
+<div id="root" class="tr-root tr-pad tr-stack"></div>
+<script>
+var TR = window.TR, h = React.createElement, F = TR.format, X = TR.demo.fixtures, useState = React.useState;
+function S(label, child) { return h('div', { className: 'tr-stack' }, h('p', { className: 'tr-sys-type-support tr-muted' }, label), child); }
+function Demo() {
+  function noop() {}
+  return h(TR.SummaryList, { rows: [
+    { id: 'penerima', label: 'Penerima', value: 'Mitra Demo A \u00b7 Validasi prototipe', onChange: noop },
+    { id: 'biaya', label: 'Biaya proyek', value: 'USD 20.000\u201330.000 selama 6 bulan', onChange: noop },
+    { id: 'peran', label: 'Dikirim sebagai', value: 'Rani \u00b7 Pribadi' }] });
+}
+ReactDOM.createRoot(document.getElementById('root')).render(h(Demo));
+</script>
+</body>
+</html>

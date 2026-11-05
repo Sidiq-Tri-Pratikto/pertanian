@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Beranda</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/temuriset/tokens.css">
+<link rel="stylesheet" href="ds/temuriset/components/bundle.css">
+<script src="ds/temuriset/components/bundle.js"></script>
+<script src="./domain.js"></script>
+<script src="./views.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+</style>
+</helmet>
+<x-import component-from-global-scope="TemuRisetApp.Slotted" of="TR.Screen" dc-props="{{shell}}">
+<div data-slot="context" style="display:contents"><x-import component-from-global-scope="TR.ContextSwitcher" dc-props="{{ctx}}"></x-import></div>
+<sc-if value="{{hasNotice}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.Status" dc-props="{{notice}}"></x-import></sc-if>
+<sc-if value="{{hasFirst}}" hint-placeholder-val="{{true}}">
+<x-import component-from-global-scope="TemuRisetApp.Slotted" of="TR.NextStep" dc-props="{{first}}">
+<div data-slot="action" style="display:contents"><x-import component-from-global-scope="TR.Button" intent="primary" icon="arrow" on-click="{{firstAct}}">{{firstLabel}}</x-import></div>
+</x-import>
+</sc-if>
+<sc-if value="{{empty}}" hint-placeholder-val="{{false}}">
+<x-import component-from-global-scope="TemuRisetApp.Slotted" of="TR.EmptyState" icon="bulb" title="Belum ada yang perlu dikerjakan" body="Mulai dengan menambahkan inovasi, atau lihat investor dan mitra yang tersedia.">
+<div data-slot="action" style="display:contents">
+<x-import component-from-global-scope="TR.Button" intent="primary" on-click="{{addInvention}}">Tambah inovasi</x-import>
+<x-import component-from-global-scope="TR.Button" intent="secondary" on-click="{{explore}}">Temukan Investor/Mitra</x-import>
+</div>
+</x-import>
+</sc-if>
+<sc-if value="{{hasRest}}" hint-placeholder-val="{{false}}">
+<section class="tr-stack" aria-label="Pekerjaan lain">
+<h2 class="tr-sys-type-heading-sm">Berikutnya</h2>
+<sc-for list="{{rest}}" as="item" hint-placeholder-count="2">
+<article class="tr-panel tr-stack">
+<x-import component-from-global-scope="TR.Status" dc-props="{{item.status}}"></x-import>
+<h3 class="tr-sys-type-label">{{item.title}}</h3>
+<p class="tr-muted">{{item.text}}</p>
+<div class="tr-row"><x-import component-from-global-scope="TR.Button" intent="secondary" on-click="{{item.act}}">{{item.label}}</x-import></div>
+</article>
+</sc-for>
+</section>
+</sc-if>
+<section class="tr-stack" aria-label="Pemberitahuan">
+<h2 class="tr-sys-type-heading-sm">Pemberitahuan</h2>
+<sc-if value="{{noNotes}}" hint-placeholder-val="{{true}}"><p class="tr-muted">Belum ada pemberitahuan baru.</p></sc-if>
+<sc-for list="{{notes}}" as="n" hint-placeholder-count="0">
+<p>{{n.text}} <span class="tr-muted tr-sys-type-support">{{n.at}}</span></p>
+</sc-for>
+</section>
+</x-import>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1100}}'>
+class Component extends DCLogic {
+  off = TemuRisetApp.attach(this, 'Home');
+  componentWillUnmount() { this.off(); }
+  renderVals() { return TemuRisetApp.vm.home(); }
+}
+</script>
+</body>
+</html>

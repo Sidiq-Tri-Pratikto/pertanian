@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dukungan Proyek</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/temuriset/tokens.css">
+<link rel="stylesheet" href="ds/temuriset/components/bundle.css">
+<script src="ds/temuriset/components/bundle.js"></script>
+<script src="./domain.js"></script>
+<script src="./views.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+</style>
+</helmet>
+<x-import component-from-global-scope="TemuRisetApp.Slotted" of="TR.Screen" dc-props="{{shell}}">
+<div data-slot="context" style="display:contents"><x-import component-from-global-scope="TR.ContextSwitcher" dc-props="{{ctx}}"></x-import></div>
+<div data-slot="back" style="display:contents"><sc-if value="{{isForm}}" hint-placeholder-val="{{true}}"><x-import component-from-global-scope="TR.Link" on-click="{{back}}">Kembali</x-import></sc-if></div>
+<div data-slot="save" style="display:contents"><sc-if value="{{isForm}}" hint-placeholder-val="{{true}}"><x-import component-from-global-scope="TR.SaveState" dc-props="{{save}}"></x-import></sc-if></div>
+<sc-if value="{{hasNotice}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.Status" dc-props="{{notice}}"></x-import></sc-if>
+<sc-if value="{{denied}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.EmptyState" kind="denied"></x-import></sc-if>
+<sc-if value="{{isList}}" hint-placeholder-val="{{false}}">
+<section class="tr-stack" aria-label="Daftar kebutuhan">
+<sc-if value="{{empty}}" hint-placeholder-val="{{false}}">
+<x-import component-from-global-scope="TemuRisetApp.Slotted" of="TR.EmptyState" icon="bulb" title="Belum ada kebutuhan" body="Buka inovasi Anda untuk menambahkan kebutuhan dukungan.">
+<div data-slot="action" style="display:contents"><x-import component-from-global-scope="TR.Button" intent="primary" on-click="{{explore}}">Buka Inovasi Saya</x-import></div>
+</x-import>
+</sc-if>
+<sc-for list="{{items}}" as="r" hint-placeholder-count="1">
+<article class="tr-panel tr-stack">
+<h2 class="tr-sys-type-label">{{r.title}}</h2>
+<p class="tr-muted">{{r.inv}}</p>
+<x-import component-from-global-scope="TR.FinancialScope" dc-props="{{r.fin}}"></x-import>
+<div class="tr-row"><x-import component-from-global-scope="TR.Button" on-click="{{r.open}}">Buka kebutuhan</x-import></div>
+</article>
+</sc-for>
+</section>
+</sc-if>
+<sc-if value="{{isForm}}" hint-placeholder-val="{{true}}">
+<div class="tr-section">
+<sc-if value="{{gap}}" hint-placeholder-val="{{false}}">
+<x-import component-from-global-scope="TR.NextStep" who="you" title="Lengkapi kisaran biaya pilot untuk kebutuhan ini">Mitra dengan kisaran pada cakupan yang sama perlu angka ini saat pengajuan.</x-import>
+</sc-if>
+<sc-if value="{{showSummary}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.ErrorSummary" dc-props="{{summaryProps}}"></x-import></sc-if>
+<section class="tr-panel tr-stack" aria-label="Kebutuhan">
+<x-import component-from-global-scope="TR.TextField" dc-props="{{outcome}}"></x-import>
+<x-import component-from-global-scope="TR.ChoiceGroup" dc-props="{{relationship}}"></x-import>
+<div class="tr-grid">
+<x-import component-from-global-scope="TR.TextField" dc-props="{{formType}}"></x-import>
+<x-import component-from-global-scope="TR.TextField" dc-props="{{months}}"></x-import>
+<x-import component-from-global-scope="TR.TextField" dc-props="{{region}}"></x-import>
+</div>
+<x-import component-from-global-scope="TR.Checkbox" dc-props="{{partial}}"></x-import>
+<x-import component-from-global-scope="TR.Checkbox" dc-props="{{noncashOn}}"></x-import>
+</section>
+<section class="tr-panel tr-stack" aria-label="Anggaran proyek">
+<h2 class="tr-sys-type-heading-sm">Anggaran proyek</h2>
+<sc-if value="{{isNoncash}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.TextField" dc-props="{{noncash}}"></x-import></sc-if>
+<sc-if value="{{isCash}}" hint-placeholder-val="{{true}}">
+<div class="tr-stack">
+<p class="tr-muted">{{scopeLabel}}</p>
+<div class="tr-grid">
+<x-import component-from-global-scope="TR.TextField" dc-props="{{min}}"></x-import>
+<x-import component-from-global-scope="TR.TextField" dc-props="{{max}}"></x-import>
+<x-import component-from-global-scope="TR.TextField" dc-props="{{period}}"></x-import>
+</div>
+<x-import component-from-global-scope="TR.TextArea" dc-props="{{assumptions}}"></x-import>
+</div>
+</sc-if>
+</section>
+<div class="tr-row">
+<x-import component-from-global-scope="TR.Button" intent="primary" busy="{{saveBusy}}" busy-label="Menyimpan…" on-click="{{doSave}}">{{saveLabel}}</x-import>
+<sc-if value="{{canActivate}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.Button" on-click="{{activate}}">Aktifkan kebutuhan</x-import></sc-if>
+<sc-if value="{{canMatch}}" hint-placeholder-val="{{true}}"><x-import component-from-global-scope="TR.Button" on-click="{{findMatch}}">Lihat kecocokan</x-import></sc-if>
+</div>
+</div>
+</sc-if>
+</x-import>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1100}}'>
+class Component extends DCLogic {
+  off = TemuRisetApp.attach(this, 'Support');
+  componentWillUnmount() { this.off(); }
+  renderVals() { return TemuRisetApp.vm.support(); }
+}
+</script>
+</body>
+</html>

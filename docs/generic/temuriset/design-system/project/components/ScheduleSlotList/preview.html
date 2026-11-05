@@ -1,0 +1,19 @@
+<!-- @dsCard group="Domain" height=620 -->
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>ScheduleSlotList — preview</title></head>
+<body>
+<div id="root" class="tr-root tr-pad tr-stack"></div>
+<script>
+var TR = window.TR, h = React.createElement, F = TR.format, X = TR.demo.fixtures, useState = React.useState;
+function S(label, child) { return h('div', { className: 'tr-stack' }, h('p', { className: 'tr-sys-type-support tr-muted' }, label), child); }
+function Demo() {
+  var sel = useState(null), done = useState(null), slots = X.slots.map(function (s) {
+    return Object.assign({}, s, { conflict: F.overlaps(s.start, s.minutes, X.booked.start, X.booked.minutes) });
+  });
+  return h(TR.ScheduleSlotList, { slots: slots, zone: 'Asia/Jakarta', otherZone: 'Asia/Makassar', agenda: 'Membahas cakupan validasi prototipe.', selectedId: sel[0], onSelect: sel[1], confirmedId: done[0], onConfirm: function () { done[1](sel[0]); sel[1](null); }, onPropose: function () {} });
+}
+ReactDOM.createRoot(document.getElementById('root')).render(h(Demo));
+</script>
+</body>
+</html>

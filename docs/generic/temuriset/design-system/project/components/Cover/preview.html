@@ -1,0 +1,53 @@
+<!-- @dsCard height=288 -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>TemuRiset Design System</title>
+<style>
+  html, body { margin: 0; height: 100%; }
+  body { background: var(--tr-sys-color-canvas); color: var(--tr-sys-color-text-primary); font-family: var(--font-sans); overflow: hidden; }
+  .cover { position: relative; height: 288px; overflow: hidden; }
+  .band { position: absolute; top: 0; left: 0; width: 960px; height: 120px; }
+  .band svg { display: block; width: 960px; height: 120px; }
+  .teal { fill: var(--tr-sys-color-action-primary-background); }
+  .deep { fill: var(--tr-sys-color-action-primary-pressed); }
+  .ink { fill: var(--tr-sys-color-text-primary); }
+  .tint { fill: var(--tr-sys-color-selected-surface); }
+  .white { fill: var(--tr-sys-color-surface); }
+  .words { position: absolute; left: var(--tr-ref-space-24); right: var(--tr-ref-space-24); bottom: var(--tr-ref-space-24); }
+  .name { margin: 0; font-size: 64px; line-height: .95; font-weight: 600; letter-spacing: -.01em; color: var(--tr-sys-color-text-primary); }
+  .tag { margin: var(--tr-ref-space-8) 0 0 2px; font-size: 14px; line-height: 20px; color: var(--tr-sys-color-text-secondary); max-width: 440px; }
+</style>
+</head>
+<body>
+<div class="cover">
+<div class="band" aria-hidden="true">
+<svg viewBox="0 0 960 120" width="960" height="120">
+<!--
+  blocks      tr-sys-color-action-primary-background 352x120 (identity teal, largest) · tr-sys-color-text-primary 112x120 · tr-sys-color-selected-surface 320x120 · tr-sys-color-action-primary-pressed 176x120
+  arrangement full-width strip of unequal bands across the top; the name is too wide for its zone at 64px
+  pattern     literal motif: two discs that approach, touch, then overlap, because the product finds a partner and only their shared consent becomes public
+  scales      unit tr-ref-space-16 (widths are multiples); disc radius tr-ref-space-32; pitch tr-ref-space-64
+-->
+<defs><clipPath id="lens"><circle cx="848" cy="60" r="32"/></clipPath></defs>
+<rect class="teal" x="0" y="0" width="352" height="120"/>
+<rect class="ink" x="352" y="0" width="112" height="120"/>
+<rect class="tint" x="464" y="0" width="320" height="120"/>
+<rect class="deep" x="784" y="0" width="176" height="120"/>
+<circle class="white" cx="80" cy="60" r="32"/>
+<circle class="white" cx="272" cy="60" r="32"/>
+<circle class="teal" cx="592" cy="60" r="32"/>
+<circle class="ink" cx="656" cy="60" r="32"/>
+<circle class="tint" cx="848" cy="60" r="32"/>
+<circle class="white" cx="896" cy="60" r="32"/>
+<circle class="teal" cx="896" cy="60" r="32" clip-path="url(#lens)"/>
+</svg>
+</div>
+<div class="words">
+<h1 class="name">TemuRiset Design System</h1>
+<p class="tag">Langkah berikutnya selalu jelas, dan bukti selalu jujur.</p>
+</div>
+</div>
+</body>
+</html>
