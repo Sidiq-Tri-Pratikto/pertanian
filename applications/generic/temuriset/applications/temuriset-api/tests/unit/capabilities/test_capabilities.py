@@ -56,7 +56,7 @@ def test_nothing_claims_more_than_exists(composition: str) -> None:
     assert {adapter.id: adapter.status for adapter in manifest.adapters} == {
         "object-storage": "available",
         "file-scanner": "available",
-        "lexical-rules": "planned",
+        "lexical-rules": "available",
         "ics-export": "planned",
     }
 

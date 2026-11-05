@@ -30,7 +30,7 @@ DEPENDENCIES: dict[str, tuple[str, ...]] = {"reranking": ("dense_retrieval",)}
 ADAPTERS = (
     AdapterResponse(id="object-storage", status=CapabilityStatus.AVAILABLE),
     AdapterResponse(id="file-scanner", status=CapabilityStatus.AVAILABLE),
-    AdapterResponse(id="lexical-rules", status=CapabilityStatus.PLANNED),
+    AdapterResponse(id="lexical-rules", status=CapabilityStatus.AVAILABLE),
     AdapterResponse(id="ics-export", status=CapabilityStatus.PLANNED),
 )
 POLICIES = (

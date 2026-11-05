@@ -176,6 +176,22 @@ class NeedsService:
         """
         return await self.view(await self._owned(principal, request_id))
 
+    async def source(self, principal: Principal, request_id: UUID) -> tuple[SupportRequestResponse, UUID]:
+        """Read an owned request for matching, with the invention version it references (019).
+
+        Args:
+            principal (Principal): Who is signed in.
+            request_id (UUID): The request.
+
+        Returns:
+            tuple[SupportRequestResponse, UUID]: The request and its invention version.
+
+        Raises:
+            NotFoundError: When the acting party does not own it.
+        """
+        record = await self._owned(principal, request_id)
+        return await self.view(record), record.invention_version_id
+
     async def version(self, principal: Principal, request_id: UUID, number: int) -> dict:
         """Read the request as it stood at an earlier version, for submissions that reference it.
 

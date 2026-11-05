@@ -103,6 +103,28 @@ def evidence_status(version: DocumentVersionRecord | None, mode: str) -> str:
     return "PASS"
 
 
+async def evidence_results(
+    session: AsyncSession, owner_party_id: UUID, version_ids: list[UUID]
+) -> dict[UUID, dict[str, str]]:
+    """Evaluate linked document versions for both verification modes, for matching (019).
+
+    A version whose document another party owns counts as absent, so linking someone else's file proves nothing.
+
+    Args:
+        session (AsyncSession): The request's session.
+        owner_party_id (UUID): The party whose evidence this is.
+        version_ids (list[UUID]): Linked versions.
+
+    Returns:
+        dict[UUID, dict[str, str]]: ``PASS`` or ``UNKNOWN`` per mode, for each owned version.
+    """
+    versions = await SqlAlchemyDocumentRepository(session).owned_versions(owner_party_id, version_ids)
+    return {
+        version.id: {mode: evidence_status(version, mode) for mode in ("DOCUMENT_PRESENT", "REVIEWER_CONFIRMED")}
+        for version in versions
+    }
+
+
 class DocumentService:
     """Documents of the acting party, and downloads by grantees."""
 
@@ -231,7 +253,9 @@ class DocumentService:
             actor_party_id=principal.active_party_id,
             detail={"number": number, "file_state": version.file_state},
         )
-        return UploadedResponse(document_id=document.id, number=number, file_state=version.file_state)
+        return UploadedResponse(
+            document_id=document.id, version_id=version.id, number=number, file_state=version.file_state
+        )
 
     async def list_mine(self, principal: Principal) -> list[DocumentResponse]:
         """List the acting party's documents with every version and grant.

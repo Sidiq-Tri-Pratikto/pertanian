@@ -1,0 +1,69 @@
+{
+  "availability": {
+    "available": true,
+    "reason": null
+  },
+  "eligibility": "ELIGIBLE",
+  "evidence": {
+    "applicable": 3,
+    "note": null,
+    "provided": 3,
+    "reviewed": 0
+  },
+  "fit": {
+    "coverage": "0.95",
+    "lower": "94.74",
+    "upper": "100.00"
+  },
+  "gap": null,
+  "label": "Kecocokan kuat",
+  "later": [],
+  "opportunity_id": "<id>",
+  "opportunity_version": 1,
+  "opportunity_version_id": "<id>",
+  "partner": "Investor B",
+  "partner_party_id": "<id>",
+  "readiness": "READY_TO_SUBMIT",
+  "reasons": [
+    "Bentuk kerja sama sesuai.",
+    "Badan usaha sudah disebutkan.",
+    "Kisaran investasi beririsan dengan kontribusi yang diinginkan, bukan dengan seluruh target."
+  ],
+  "relevant": true,
+  "rows": [
+    {
+      "action": null,
+      "applies_at": "SUBMISSION",
+      "field": "relationship",
+      "label": "Bentuk pendanaan",
+      "mandatory": true,
+      "reason": "Bentuk kerja sama sesuai.",
+      "requirement_id": "<id>",
+      "result": "PASS",
+      "verification_mode": "DECLARATION"
+    },
+    {
+      "action": null,
+      "applies_at": "SUBMISSION",
+      "field": "entity",
+      "label": "Badan usaha yang sudah berdiri",
+      "mandatory": true,
+      "reason": "Badan usaha sudah disebutkan.",
+      "requirement_id": "<id>",
+      "result": "PASS",
+      "verification_mode": "DECLARATION"
+    },
+    {
+      "action": null,
+      "applies_at": "SUBMISSION",
+      "field": "contribution",
+      "label": "Kisaran kontribusi",
+      "mandatory": true,
+      "reason": "Kisaran investasi beririsan dengan kontribusi yang diinginkan, bukan dengan seluruh target.",
+      "requirement_id": "<id>",
+      "result": "PASS",
+      "verification_mode": "DECLARATION"
+    }
+  ],
+  "title": "Investasi ekuitas pre-seed"
+}
