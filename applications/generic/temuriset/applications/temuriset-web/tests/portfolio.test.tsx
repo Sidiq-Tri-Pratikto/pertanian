@@ -251,6 +251,7 @@ describe('Inovasi Saya and the detail (S04)', () => {
   it('shows a partner only the public projection and "Simpan inovasi"', () => {
     const publicView: PublicInvention = {
       id: ID,
+      managing_party_id: 'party-rani',
       managing_party_name: 'Rani',
       number: 1,
       title: 'Saringan air keramik desa',

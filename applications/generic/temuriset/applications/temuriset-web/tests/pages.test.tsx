@@ -26,6 +26,11 @@ vi.mock('@/api/server', () => ({
     if (path === '/api/v1/inventions') return [];
     if (path === '/api/v1/support-requests') return supportRequests;
     if (path === '/api/v1/opportunities') return [];
+    if (path === '/api/v1/funding-requests') return [];
+    if (path.startsWith('/api/v1/discovery?')) {
+      const sections = ['relevant', 'new', 'curated'].map((id) => ({ id, title: id, items: [] }));
+      return { type: 'partners', sections, filters: {}, next_cursor: null, total_estimate: 0, relaxation: null };
+    }
     if (path === `/api/v1/organizations/${ORGANIZATION}/members`) {
       return [{ account_id: 'a', display_name: 'Bima', capabilities: ['manage_members'], version: 1 }];
     }
@@ -161,7 +166,7 @@ describe('a signed-in inventor', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Beranda' })).toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: 'Bertindak sebagai' })).toHaveDisplayValue('Rani · Pribadi');
     expect(screen.getByText('Memeriksa layanan…')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Lihat rencana Kecocokan/ })).toHaveAttribute('href', '/segera-hadir/kecocokan');
+    expect(screen.getByRole('link', { name: /Lihat rencana Diskusi/ })).toHaveAttribute('href', '/segera-hadir/diskusi');
     expect(screen.queryByRole('link', { name: /Lihat rencana Akun dan konteks kerja/ })).toBeNull();
     expect(screen.queryByRole('link', { name: /Lihat rencana Portofolio inovasi/ })).toBeNull();
   });
@@ -171,7 +176,7 @@ describe('a signed-in inventor', () => {
     [DiscoverPage, 'Temukan Investor/Mitra'],
     [OpportunitiesPage, 'Kebutuhan/Mandat'],
   ])('renders %#: %s', async (Page, title) => {
-    render((await Page()) as ReactElement);
+    render((await Page({ searchParams: Promise.resolve({}) })) as ReactElement);
 
     expect(screen.getByRole('heading', { level: 1, name: title })).toBeInTheDocument();
   });
@@ -271,7 +276,7 @@ describe('a partner', () => {
 
   it('starts at Jelajahi', async () => {
     expect(await redirectOf(() => RootPage())).toBe('/discover');
-    render((await DiscoverPage()) as ReactElement);
+    render((await DiscoverPage({ searchParams: Promise.resolve({}) })) as ReactElement);
 
     expect(screen.getByRole('heading', { level: 1, name: 'Jelajahi' })).toBeInTheDocument();
   });
@@ -313,7 +318,7 @@ describe('features of optional capabilities', () => {
     render((await SettingsPage({ searchParams: Promise.resolve({}) })) as ReactElement);
 
     expect(screen.queryByRole('link', { name: /Lihat rencana Tinjauan organisasi/ })).toBeNull();
-    expect(screen.getByRole('link', { name: /Lihat rencana Kecocokan/ })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Lihat rencana Diskusi/ })).toBeInTheDocument();
   });
 });
 

@@ -86,6 +86,7 @@ export const A1: Mandate = {
   id: 'a1',
   partner_party_id: PERSONAL,
   version: 2,
+  current_version_id: 'a1-v2',
   kind: 'SPECIFIC',
   status: 'ACTIVE',
   closes_at: '2027-03-01T00:00:00Z',
