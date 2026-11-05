@@ -7,6 +7,7 @@ from alembic import context
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import create_async_engine
 
+import app.platform.repository.sqlalchemy.models  # noqa: F401 - registers the tables for autogenerate
 from app.core.database import Base
 from app.core.settings import get_settings
 

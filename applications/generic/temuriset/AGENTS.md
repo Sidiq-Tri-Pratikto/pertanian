@@ -74,6 +74,7 @@ make install           # uv sync and pre-commit hooks
 make run-dependencies  # local Postgres on host port 5442
 make migrate           # Alembic migrations
 make run               # API on port 8020 with reload
+make worker            # outbox and job worker: python -m app.worker
 make test-unit         # unit tests, no services needed
 make test-integration  # integration tests, needs Postgres
 make openapi           # export the API contract to contracts/openapi.json

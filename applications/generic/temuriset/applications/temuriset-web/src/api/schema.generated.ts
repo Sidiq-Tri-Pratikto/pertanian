@@ -27,6 +27,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/operations/{operation_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Report on an operation
+         * @description Tell the acting party whether its operation committed.
+         *
+         *     Args:
+         *         operation_id (UUID): From the response the client may have lost.
+         *         session (SessionDep): Database session.
+         *         actor_party_id (ActorDep): The acting party.
+         *
+         *     Returns:
+         *         OperationResponse: ``COMMITTED`` with a result reference, ``PENDING``, or ``UNKNOWN`` for an id the service
+         *             has no record of.
+         *
+         *     Raises:
+         *         NotFoundError: When the operation belongs to another party.
+         */
+        get: operations["get_operation_api_v1_operations__operation_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health/live": {
         parameters: {
             query?: never;
@@ -145,6 +177,11 @@ export interface components {
             /** Code */
             code: string;
             /**
+             * Current Version
+             * @default null
+             */
+            current_version?: number | null;
+            /**
              * Details
              * @default null
              */
@@ -193,6 +230,35 @@ export interface components {
             retryable: boolean;
         };
         /**
+         * OperationResponse
+         * @description Status of one operation, for a client that never received its response.
+         */
+        OperationResponse: {
+            /**
+             * Operation Id
+             * Format: uuid
+             */
+            operation_id: string;
+            result?: components["schemas"]["OperationResult"] | null;
+            status: components["schemas"]["OperationStatus"];
+        };
+        /**
+         * OperationResult
+         * @description What a committed operation produced.
+         */
+        OperationResult: {
+            /** Id */
+            id: string;
+            /** Type */
+            type: string;
+        };
+        /**
+         * OperationStatus
+         * @description What a client may know about an operation it started.
+         * @enum {string}
+         */
+        OperationStatus: "PENDING" | "COMMITTED" | "UNKNOWN";
+        /**
          * PolicyResponse
          * @description One versioned product policy, such as matching weights or proposal expiry.
          */
@@ -227,6 +293,48 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CapabilityManifestResponse"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    get_operation_api_v1_operations__operation_id__get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-party-id"?: string | null;
+            };
+            path: {
+                operation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OperationResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
             /** @description Failure */

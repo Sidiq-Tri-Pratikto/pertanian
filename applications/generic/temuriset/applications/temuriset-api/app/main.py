@@ -17,6 +17,8 @@ from app.core.logging import setup_logging
 from app.core.openapi import install_error_schema
 from app.core.settings import get_settings
 from app.health.router import router as health_router
+from app.platform.router import router as platform_router
+from app.platform.service.idempotency import IdempotentReplay, replay_response
 
 API_PREFIX = "/api/v1"
 
@@ -46,8 +48,10 @@ def create_app() -> FastAPI:
         )
     register_exception_handlers(app)
     app.add_exception_handler(SQLAlchemyError, handle_database_error)
+    app.add_exception_handler(IdempotentReplay, replay_response)
     app.include_router(health_router)
     app.include_router(capabilities_router, prefix=API_PREFIX)
+    app.include_router(platform_router, prefix=API_PREFIX)
     install_error_schema(app)
     return app
 

@@ -28,6 +28,7 @@ def respond(
     *,
     details: list[dict] | None = None,
     headers: dict[str, str] | None = None,
+    extra: dict | None = None,
 ) -> JSONResponse:
     """Build an envelope response, adding ``Retry-After`` when retry timing exists.
 
@@ -36,6 +37,7 @@ def respond(
         request_id (str): The failure's reference ID.
         details (list[dict] | None, optional): Safe field errors. Defaults to None.
         headers (dict[str, str] | None, optional): Protocol headers. Defaults to None.
+        extra (dict | None, optional): Safe typed fields for the envelope. Defaults to None.
 
     Returns:
         JSONResponse: The response.
@@ -46,7 +48,7 @@ def respond(
         response_headers["Retry-After"] = str(retry_after)
     return JSONResponse(
         status_code=public.http_status,
-        content=error_response(public, request_id, details=details),
+        content=error_response(public, request_id, details=details, extra=extra),
         headers=response_headers,
     )
 
@@ -73,7 +75,7 @@ async def handle_app_error(request: Request, error: AppError) -> JSONResponse:
     """
     public = replace(public_error_for_code(error.code), recovery=dict(error.recovery))
     _record(request, error, public.http_status)
-    return respond(public, error.reference_id)
+    return respond(public, error.reference_id, extra=error.public_fields)
 
 
 async def handle_http_error(request: Request, error: StarletteHTTPException) -> JSONResponse:

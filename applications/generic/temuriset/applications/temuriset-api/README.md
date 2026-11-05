@@ -27,10 +27,12 @@ make check             # lint, format check, all tests, 80% coverage gate
 
 | Path | Covers | Needs |
 |---|---|---|
-| `tests/unit/capabilities/` | Manifest and composition | Nothing |
-| `tests/unit/core/` | Errors, database session, OpenAPI document, no money-movement routes | Nothing |
+| `tests/unit/capabilities/` | Manifest, compositions and overrides, capability guard, startup configuration checks | Nothing |
+| `tests/unit/core/` | Errors, database session, OpenAPI document, no money-movement routes, clock, money and cursors | Nothing |
+| `tests/unit/platform/` | Stale versions, request digest, acting-party placeholder, worker backoff and registry | Nothing |
 | `tests/unit/health/` | Liveness and readiness | Nothing |
 | `tests/integration/` | Real requests against Postgres after migrations | Postgres |
+| `tests/integration/platform/` | Idempotent replay and conflict, 20 parallel requests with one key, operations, append-only audit, outbox atomic with the request, worker retries, two workers, jobs | Postgres |
 
 Run one test with `uv run pytest tests/unit/health/test_health.py -v`, or match by name with `uv run pytest tests -k capabilities`. `make test-coverage` also writes an HTML report to `htmlcov/index.html`.
 
@@ -54,6 +56,7 @@ Run one test with `uv run pytest tests/unit/health/test_health.py -v`, or match 
 | Command | Does |
 |---|---|
 | `make openapi` | Export the API contract to `contracts/openapi.json` |
+| `make worker` | Run `python -m app.worker`: dispatch outbox events and run jobs; Ctrl+C finishes the current pass |
 | `make test-integration` | Integration tests only, needs Postgres |
 | `make reset-dependencies` | Stop Postgres and delete its volume, for an empty database |
 | `make lint` | Ruff lint and format check |
@@ -65,3 +68,4 @@ Run one test with `uv run pytest tests/unit/health/test_health.py -v`, or match 
 | `GET /health/live` | Liveness |
 | `GET /health/ready` | Readiness, checks the database |
 | `GET /api/v1/capabilities` | Non-secret deployment manifest; explains, never authorizes |
+| `GET /api/v1/operations/{id}` | Whether the acting party's operation committed, for a client that lost the response. Until spec 007 the acting party is the `X-Party-Id` header, honoured only in development |

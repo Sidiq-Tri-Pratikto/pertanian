@@ -11,5 +11,10 @@ One row per error. Keep in sync with `app/core/errors/codes.py` and `public.py`.
 | `APP-DB-ERROR` | `DATA_ERROR` | 500 | Permintaan gagal karena kesalahan data. Hubungi dukungan dan sebutkan ID referensi. | Database failure | false | - | - |
 | `APP-DB-UNAVAILABLE` | `DATABASE_UNAVAILABLE` | 503 | Layanan data sedang tidak tersedia. Coba lagi beberapa menit lagi. | Connection, pool, or operational failure | true | 30 | 3 |
 | `APP-CAPABILITY-UNAVAILABLE` | `CAPABILITY_UNAVAILABLE` | 403 | Fitur ini tidak tersedia pada layanan ini. Hubungi pengelola layanan bila Anda memerlukannya. | Route guarded by `require_capability` for a capability this deployment does not select | false | - | - |
+| `APP-UNAUTHENTICATED` | `UNAUTHENTICATED` | 401 | Anda perlu masuk terlebih dahulu. Masuk lalu coba lagi. | No trusted acting party (until 007: the development-only `X-Party-Id` header is missing, or the service is not in development) | false | - | - |
+| `APP-STALE-VERSION` | `STALE_VERSION` | 409 | Data ini sudah diubah sejak Anda membukanya. Muat ulang versi terbaru lalu ulangi perubahan Anda. | `expected_version` differs from the stored version; the envelope adds `current_version` | false | - | - |
+| `APP-IDEMPOTENCY-CONFLICT` | `IDEMPOTENCY_CONFLICT` | 409 | Kunci permintaan ini sudah dipakai untuk isi berbeda. Gunakan kunci baru untuk permintaan baru. | `Idempotency-Key` reused by the same actor and operation with a different body | false | - | - |
+
+A missing `Idempotency-Key` on a consequential POST is `BAD_REQUEST` with `details` naming the header.
 
 Framework failures use the status map in `public.py`: `UNAUTHORIZED` 401, `FORBIDDEN` 403, `METHOD_NOT_ALLOWED` 405, `VALIDATION_FAILED` 422, `RATE_LIMITED` 429.

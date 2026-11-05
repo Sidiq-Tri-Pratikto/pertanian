@@ -17,6 +17,11 @@ lock:
 run: .env
 	uv run uvicorn app.main:app --host 0.0.0.0 --port $(PORT) --reload
 
+# Dispatches outbox events and runs jobs; Ctrl+C finishes the current pass.
+.PHONY: worker
+worker: .env
+	uv run python -m app.worker
+
 .PHONY: run-dependencies
 run-dependencies:
 	docker compose -f dev-compose.yml up -d --wait

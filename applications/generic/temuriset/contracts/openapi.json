@@ -138,6 +138,18 @@
             "title": "Code",
             "type": "string"
           },
+          "current_version": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Current Version"
+          },
           "details": {
             "anyOf": [
               {
@@ -259,6 +271,64 @@
         "title": "ErrorRecovery",
         "type": "object"
       },
+      "OperationResponse": {
+        "description": "Status of one operation, for a client that never received its response.",
+        "properties": {
+          "operation_id": {
+            "format": "uuid",
+            "title": "Operation Id",
+            "type": "string"
+          },
+          "result": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OperationResult"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status": {
+            "$ref": "#/components/schemas/OperationStatus"
+          }
+        },
+        "required": [
+          "operation_id",
+          "status"
+        ],
+        "title": "OperationResponse",
+        "type": "object"
+      },
+      "OperationResult": {
+        "description": "What a committed operation produced.",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "type": {
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "id"
+        ],
+        "title": "OperationResult",
+        "type": "object"
+      },
+      "OperationStatus": {
+        "description": "What a client may know about an operation it started.",
+        "enum": [
+          "PENDING",
+          "COMMITTED",
+          "UNKNOWN"
+        ],
+        "title": "OperationStatus",
+        "type": "string"
+      },
       "PolicyResponse": {
         "description": "One versioned product policy, such as matching weights or proposal expiry.",
         "properties": {
@@ -315,6 +385,77 @@
         "summary": "Describe this deployment",
         "tags": [
           "capabilities"
+        ]
+      }
+    },
+    "/api/v1/operations/{operation_id}": {
+      "get": {
+        "description": "Tell the acting party whether its operation committed.\n\nArgs:\n    operation_id (UUID): From the response the client may have lost.\n    session (SessionDep): Database session.\n    actor_party_id (ActorDep): The acting party.\n\nReturns:\n    OperationResponse: ``COMMITTED`` with a result reference, ``PENDING``, or ``UNKNOWN`` for an id the service\n        has no record of.\n\nRaises:\n    NotFoundError: When the operation belongs to another party.",
+        "operationId": "get_operation_api_v1_operations__operation_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "operation_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Operation Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-party-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Party-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Report on an operation",
+        "tags": [
+          "operations"
         ]
       }
     },

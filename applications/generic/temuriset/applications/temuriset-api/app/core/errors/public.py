@@ -25,6 +25,8 @@ class PublicError:
     recovery: dict[str, Any] = field(default_factory=lambda: {"retryable": False})
 
 
+_FIXED_FIELDS = frozenset({"code", "message", "request_id", "recovery"})
+
 FALLBACK_PUBLIC_ERROR = PublicError("INTERNAL_ERROR", 500, _FALLBACK_MESSAGE)
 
 PUBLIC_ERROR_BY_CODE: dict[str, PublicError] = {
@@ -53,6 +55,19 @@ PUBLIC_ERROR_BY_CODE: dict[str, PublicError] = {
         "CAPABILITY_UNAVAILABLE",
         403,
         "Fitur ini tidak tersedia pada layanan ini. Hubungi pengelola layanan bila Anda memerlukannya.",
+    ),
+    codes.APP_UNAUTHENTICATED: PublicError(
+        "UNAUTHENTICATED", 401, "Anda perlu masuk terlebih dahulu. Masuk lalu coba lagi."
+    ),
+    codes.APP_STALE_VERSION: PublicError(
+        "STALE_VERSION",
+        409,
+        "Data ini sudah diubah sejak Anda membukanya. Muat ulang versi terbaru lalu ulangi perubahan Anda.",
+    ),
+    codes.APP_IDEMPOTENCY_CONFLICT: PublicError(
+        "IDEMPOTENCY_CONFLICT",
+        409,
+        "Kunci permintaan ini sudah dipakai untuk isi berbeda. Gunakan kunci baru untuk permintaan baru.",
     ),
 }
 
@@ -145,13 +160,21 @@ def public_error_for_status(status_code: int) -> PublicError:
     return PublicError(code, status_code, _FALLBACK_MESSAGE)
 
 
-def error_response(public: PublicError, request_id: str, *, details: list[dict[str, Any]] | None = None) -> dict:
+def error_response(
+    public: PublicError,
+    request_id: str,
+    *,
+    details: list[dict[str, Any]] | None = None,
+    extra: dict[str, Any] | None = None,
+) -> dict:
     """Build the public envelope.
 
     Args:
         public (PublicError): The public definition.
         request_id (str): The failure's reference ID.
         details (list[dict[str, Any]] | None, optional): Safe field errors for validation failures. Defaults to None.
+        extra (dict[str, Any] | None, optional): Safe typed fields such as ``current_version``; they never replace
+            the fixed fields. Defaults to None.
 
     Returns:
         dict: The response body.
@@ -162,6 +185,7 @@ def error_response(public: PublicError, request_id: str, *, details: list[dict[s
         "request_id": request_id,
         "recovery": dict(public.recovery),
     }
+    error.update({key: value for key, value in (extra or {}).items() if key not in _FIXED_FIELDS})
     if details is not None:
         error["details"] = details
     return {"error": error}

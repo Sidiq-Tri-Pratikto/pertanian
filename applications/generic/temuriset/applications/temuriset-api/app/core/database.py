@@ -1,10 +1,12 @@
 """Async database engine and session management."""
 
 from collections.abc import AsyncIterator
+from datetime import datetime
 from functools import lru_cache
 from typing import Annotated
 
 from fastapi import Depends
+from sqlalchemy import DateTime
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
 
@@ -13,7 +15,9 @@ from app.core.settings import get_settings
 
 
 class Base(DeclarativeBase):
-    """Declarative base for ORM models."""
+    """Declarative base for ORM models. Every timestamp is ``timestamptz``."""
+
+    type_annotation_map = {datetime: DateTime(timezone=True)}
 
 
 @lru_cache

@@ -169,6 +169,8 @@ make e2e       # browser checks in Chromium; needs Docker
 | Area | Where | Checks |
 |---|---|---|
 | API capability manifest | `applications/temuriset-api/tests/unit/capabilities/` | Honest `planned` statuses, the three compositions, unknown composition stops startup |
+| API capability guard and configuration | `applications/temuriset-api/tests/unit/capabilities/test_guard.py`, `test_configuration.py` | `CAPABILITY_UNAVAILABLE` before body validation, overrides and dependencies, secrets never logged, development-only scanner |
+| API platform core | `applications/temuriset-api/tests/unit/platform/`, `tests/integration/platform/` | Idempotent replay and conflict, one effect from 20 parallel requests, operations per actor, append-only audit, outbox and worker retries |
 | API errors and contract | `applications/temuriset-api/tests/unit/core/` | Indonesian messages, no leaked values, OpenAPI document, no money-movement routes |
 | API health | `applications/temuriset-api/tests/unit/health/`, `tests/integration/` | Liveness without a database, readiness against real Postgres |
 | Web components | `applications/temuriset-web/tests/components.test.tsx` | Ported design-system components behave as specified |
