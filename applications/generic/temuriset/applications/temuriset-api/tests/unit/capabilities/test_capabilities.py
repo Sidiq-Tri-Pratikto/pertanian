@@ -42,14 +42,17 @@ def test_manifest_describes_the_deployment() -> None:
 def test_nothing_claims_more_than_exists(composition: str) -> None:
     """
     Condition:
-    - Storage and scanning shipped in spec 010; no product capability has completed a journey yet.
+    - Storage and scanning shipped in spec 010 and company funding in spec 014; nothing else has.
 
     Expected:
-    - Only those two adapters report available; everything else stays planned.
+    - Only those report available, where the composition selects them; everything else stays planned.
     """
     manifest = build_manifest(composition)
 
-    assert {item.status for item in manifest.capabilities} == {"planned"}
+    assert {item.id: item.status for item in manifest.capabilities if item.status == "available"} == (
+        {} if composition == "project-support-only" else {"company_funding": "available"}
+    )
+    assert {item.status for item in manifest.capabilities if item.id != "company_funding"} == {"planned"}
     assert {adapter.id: adapter.status for adapter in manifest.adapters} == {
         "object-storage": "available",
         "file-scanner": "available",

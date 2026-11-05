@@ -307,6 +307,147 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/funding-requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List my funding requests
+         * @description List the acting party's funding requests, also when company funding is switched off (AC67).
+         *
+         *     Args:
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         list[FundingRequestResponse]: Requests.
+         */
+        get: operations["list_funding_requests_api_v1_funding_requests_get"];
+        put?: never;
+        /**
+         * Start a funding request
+         * @description Start a draft raise linked to published inventions.
+         *
+         *     Args:
+         *         body (FundingRequestInput): Content and links.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         FundingRequestResponse: The draft.
+         */
+        post: operations["create_funding_request_api_v1_funding_requests_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/funding-requests/{request_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read a funding request
+         * @description Read one request as its owner.
+         *
+         *     Args:
+         *         request_id (UUID): The request.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         FundingRequestResponse: The request.
+         */
+        get: operations["read_funding_request_api_v1_funding_requests__request_id__get"];
+        /**
+         * Change a funding request
+         * @description Replace the content as a new version against ``expected_version``.
+         *
+         *     Args:
+         *         request_id (UUID): The request.
+         *         body (UpdateFundingRequest): Content.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried save.
+         *
+         *     Returns:
+         *         FundingRequestResponse: The new version.
+         */
+        put: operations["update_funding_request_api_v1_funding_requests__request_id__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/funding-requests/{request_id}/versions/{number}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read an earlier funding request version
+         * @description Read a request as it stood at one version.
+         *
+         *     Args:
+         *         request_id (UUID): The request.
+         *         number (int): The version.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         dict: The snapshot.
+         */
+        get: operations["read_funding_request_version_api_v1_funding_requests__request_id__versions__number__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/funding-requests/{request_id}/{action}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Activate, pause or close a raise
+         * @description Change the status.
+         *
+         *     Args:
+         *         request_id (UUID): The request.
+         *         action (Literal["activate", "pause", "close"]): The change.
+         *         body (TransitionRequest): Acting party and ``expected_version``.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         FundingRequestResponse: The request in its new status.
+         */
+        post: operations["transition_funding_request_api_v1_funding_requests__request_id___action__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/grants/{grant_id}/revoke": {
         parameters: {
             query?: never;
@@ -601,6 +742,45 @@ export interface paths {
          *         OrganizationResponse: The organization joined.
          */
         post: operations["accept_invitation_api_v1_invitations__token__accept_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/legal-entities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List my legal entities
+         * @description List the acting party's legal entities.
+         *
+         *     Args:
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         list[LegalEntityResponse]: Entities.
+         */
+        get: operations["list_legal_entities_api_v1_legal_entities_get"];
+        put?: never;
+        /**
+         * Declare a legal entity
+         * @description Record a company as declared by the acting party.
+         *
+         *     Args:
+         *         body (LegalEntityInput): Name, jurisdiction and registration reference.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         LegalEntityResponse: The entity.
+         */
+        post: operations["declare_legal_entity_api_v1_legal_entities_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1688,6 +1868,115 @@ export interface components {
             value: string;
         };
         /**
+         * FundingRequestInput
+         * @description A raise's content. A draft may be incomplete; activation needs a target, a currency and an invention.
+         */
+        FundingRequestInput: {
+            /**
+             * Accepts Partial
+             * @default false
+             */
+            accepts_partial?: boolean;
+            /**
+             * Accepts Syndicated
+             * @default false
+             */
+            accepts_syndicated?: boolean;
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /** Currency */
+            currency?: string | null;
+            /** Desired Max */
+            desired_max?: string | null;
+            /** Desired Min */
+            desired_min?: string | null;
+            /** Financing Form */
+            financing_form?: ("equity" | "convertible_note" | "safe" | "debt" | "revenue_based") | null;
+            /** Financing Stage */
+            financing_stage?: ("pre_seed" | "seed" | "series_a" | "series_b_plus" | "bridge") | null;
+            /**
+             * Intended Use
+             * @default
+             */
+            intended_use?: string;
+            /**
+             * Invention Ids
+             * @default []
+             */
+            invention_ids?: string[];
+            /** Legal Entity Id */
+            legal_entity_id?: string | null;
+            /**
+             * Proposed Name
+             * @default
+             */
+            proposed_name?: string;
+            /**
+             * Subject Type
+             * @enum {string}
+             */
+            subject_type: "EXISTING_ENTITY" | "PROPOSED_ENTITY";
+            /** Target Amount */
+            target_amount?: string | null;
+            /**
+             * Timing
+             * @default
+             */
+            timing?: string;
+        };
+        /**
+         * FundingRequestResponse
+         * @description One funding request as its owner sees it.
+         */
+        FundingRequestResponse: {
+            /** Accepts Partial */
+            accepts_partial: boolean;
+            /** Accepts Syndicated */
+            accepts_syndicated: boolean;
+            /** Currency */
+            currency: string | null;
+            /** Desired Max */
+            desired_max: string | null;
+            /** Desired Min */
+            desired_min: string | null;
+            /** Financing Form */
+            financing_form: ("equity" | "convertible_note" | "safe" | "debt" | "revenue_based") | null;
+            /** Financing Stage */
+            financing_stage: ("pre_seed" | "seed" | "series_a" | "series_b_plus" | "bridge") | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Intended Use */
+            intended_use: string;
+            /** Inventions */
+            inventions: components["schemas"]["LinkedInvention"][];
+            legal_entity: components["schemas"]["LegalEntityResponse"] | null;
+            /** Operation Id */
+            operation_id?: string | null;
+            /** Proposed Name */
+            proposed_name: string;
+            /** Status */
+            status: string;
+            /** Subject Label */
+            subject_label: string;
+            /**
+             * Subject Type
+             * @enum {string}
+             */
+            subject_type: "EXISTING_ENTITY" | "PROPOSED_ENTITY";
+            /** Target Amount */
+            target_amount: string | null;
+            /** Timing */
+            timing: string;
+            /** Version */
+            version: number;
+        };
+        /**
          * GrantRequest
          * @description Share one version with one party for one purpose.
          */
@@ -1880,6 +2169,66 @@ export interface components {
             capabilities: components["schemas"]["Capability"][];
             /** Email */
             email: string;
+        };
+        /**
+         * LegalEntityInput
+         * @description A company the acting party declares.
+         */
+        LegalEntityInput: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /**
+             * Jurisdiction
+             * @default
+             */
+            jurisdiction?: string;
+            /** Name */
+            name: string;
+            /**
+             * Registration Reference
+             * @default
+             */
+            registration_reference?: string;
+        };
+        /**
+         * LegalEntityResponse
+         * @description A legal entity. ``declared`` means the owner said so; nobody has checked it yet.
+         */
+        LegalEntityResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Jurisdiction */
+            jurisdiction: string;
+            /** Name */
+            name: string;
+            /** Registration Reference */
+            registration_reference: string;
+            /**
+             * Review Status
+             * @enum {string}
+             */
+            review_status: "declared" | "verified";
+        };
+        /**
+         * LinkedInvention
+         * @description An invention version the raise develops.
+         */
+        LinkedInvention: {
+            /**
+             * Invention Id
+             * Format: uuid
+             */
+            invention_id: string;
+            /** Title */
+            title: string;
+            /** Version */
+            version: number;
         };
         /**
          * MailboxMessageResponse
@@ -2205,6 +2554,68 @@ export interface components {
             acting_party_id: string;
             /** Expected Version */
             expected_version: number;
+        };
+        /**
+         * UpdateFundingRequest
+         * @description Replace the content against the version the client saw.
+         */
+        UpdateFundingRequest: {
+            /**
+             * Accepts Partial
+             * @default false
+             */
+            accepts_partial?: boolean;
+            /**
+             * Accepts Syndicated
+             * @default false
+             */
+            accepts_syndicated?: boolean;
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /** Currency */
+            currency?: string | null;
+            /** Desired Max */
+            desired_max?: string | null;
+            /** Desired Min */
+            desired_min?: string | null;
+            /** Expected Version */
+            expected_version: number;
+            /** Financing Form */
+            financing_form?: ("equity" | "convertible_note" | "safe" | "debt" | "revenue_based") | null;
+            /** Financing Stage */
+            financing_stage?: ("pre_seed" | "seed" | "series_a" | "series_b_plus" | "bridge") | null;
+            /**
+             * Intended Use
+             * @default
+             */
+            intended_use?: string;
+            /**
+             * Invention Ids
+             * @default []
+             */
+            invention_ids?: string[];
+            /** Legal Entity Id */
+            legal_entity_id?: string | null;
+            /**
+             * Proposed Name
+             * @default
+             */
+            proposed_name?: string;
+            /**
+             * Subject Type
+             * @enum {string}
+             */
+            subject_type: "EXISTING_ENTITY" | "PROPOSED_ENTITY";
+            /** Target Amount */
+            target_amount?: string | null;
+            /**
+             * Timing
+             * @default
+             */
+            timing?: string;
         };
         /**
          * UpdateMeRequest
@@ -2786,6 +3197,249 @@ export interface operations {
             };
         };
     };
+    list_funding_requests_api_v1_funding_requests_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FundingRequestResponse"][];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    create_funding_request_api_v1_funding_requests_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FundingRequestInput"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FundingRequestResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    read_funding_request_api_v1_funding_requests__request_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FundingRequestResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    update_funding_request_api_v1_funding_requests__request_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateFundingRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FundingRequestResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    read_funding_request_version_api_v1_funding_requests__request_id__versions__number__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: string;
+                number: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    transition_funding_request_api_v1_funding_requests__request_id___action__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: string;
+                action: "activate" | "pause" | "close";
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TransitionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FundingRequestResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     revoke_grant_api_v1_grants__grant_id__revoke_post: {
         parameters: {
             query?: never;
@@ -3215,6 +3869,77 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["OrganizationResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    list_legal_entities_api_v1_legal_entities_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LegalEntityResponse"][];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    declare_legal_entity_api_v1_legal_entities_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LegalEntityInput"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LegalEntityResponse"];
                 };
             };
             /** @description Validation failed */

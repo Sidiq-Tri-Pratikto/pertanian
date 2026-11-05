@@ -16,7 +16,7 @@ from app.main import app
 pytestmark = [pytest.mark.integration, pytest.mark.usefixtures("clean_tables")]
 
 # Routes with no other party's data: health, the manifest, signing in, one's own account, development helpers, and
-# creating one's own organization.
+# creating one's own organization, invention or legal entity.
 NOT_DATA_ROUTES = {
     ("GET", "/health/live"),
     ("GET", "/health/ready"),
@@ -29,6 +29,7 @@ NOT_DATA_ROUTES = {
     ("GET", "/api/v1/dev/mailbox"),
     ("POST", "/api/v1/organizations"),
     ("POST", "/api/v1/inventions"),
+    ("POST", "/api/v1/legal-entities"),
 }
 
 
@@ -48,6 +49,7 @@ class Owner:
     grant_id: str
     support_request_id: str = ""
     published_invention_id: str = ""
+    funding_request_id: str = ""
 
 
 @dataclass
@@ -162,6 +164,35 @@ ROUTES: dict[tuple[str, str], Case] = {
         lambda o: f"/api/v1/support-requests/{o.support_request_id}/close",
         lambda _o, actor: {"acting_party_id": actor, "expected_version": 1},
     ),
+    ("GET", "/api/v1/legal-entities"): Case("GET", lambda _o: "/api/v1/legal-entities"),
+    ("POST", "/api/v1/funding-requests"): Case(
+        "POST",
+        lambda _o: "/api/v1/funding-requests",
+        lambda o, actor: {
+            "acting_party_id": actor,
+            "subject_type": "PROPOSED_ENTITY",
+            "invention_ids": [o.published_invention_id],
+        },
+        {"Idempotency-Key": "isolation-funding"},
+    ),
+    ("GET", "/api/v1/funding-requests"): Case("GET", lambda _o: "/api/v1/funding-requests"),
+    ("GET", "/api/v1/funding-requests/{request_id}"): Case(
+        "GET", lambda o: f"/api/v1/funding-requests/{o.funding_request_id}"
+    ),
+    ("GET", "/api/v1/funding-requests/{request_id}/versions/{number}"): Case(
+        "GET", lambda o: f"/api/v1/funding-requests/{o.funding_request_id}/versions/1"
+    ),
+    ("PUT", "/api/v1/funding-requests/{request_id}"): Case(
+        "PUT",
+        lambda o: f"/api/v1/funding-requests/{o.funding_request_id}",
+        lambda _o, actor: {"acting_party_id": actor, "expected_version": 1, "subject_type": "PROPOSED_ENTITY"},
+        {"Idempotency-Key": "isolation-funding-update"},
+    ),
+    ("POST", "/api/v1/funding-requests/{request_id}/{action}"): Case(
+        "POST",
+        lambda o: f"/api/v1/funding-requests/{o.funding_request_id}/close",
+        lambda _o, actor: {"acting_party_id": actor, "expected_version": 1},
+    ),
     # Unpublished, so even the public view must not reveal that it exists.
     ("GET", "/api/v1/inventions/{invention_id}/public"): Case(
         "GET", lambda o: f"/api/v1/inventions/{o.invention_id}/public"
@@ -248,6 +279,13 @@ async def owner(client: AsyncClient, sign_up, published_invention) -> AsyncItera
             headers={"Idempotency-Key": "support"},
         )
     ).json()
+    funding = (
+        await client.post(
+            "/api/v1/funding-requests",
+            json={"acting_party_id": party, "subject_type": "PROPOSED_ENTITY", "invention_ids": [published["id"]]},
+            headers={"Idempotency-Key": "funding"},
+        )
+    ).json()
     yield Owner(
         organization_id=organization["id"],
         party_id=organization["party_id"],
@@ -261,6 +299,7 @@ async def owner(client: AsyncClient, sign_up, published_invention) -> AsyncItera
         grant_id=grant["id"],
         support_request_id=support["id"],
         published_invention_id=published["id"],
+        funding_request_id=funding["id"],
     )
 
 
@@ -308,5 +347,6 @@ async def test_unrelated_party_sees_nothing(
         "Owner Co document",
         owner.support_request_id,
         owner.published_invention_id,
+        owner.funding_request_id,
     ):
         assert secret not in response.text

@@ -20,6 +20,7 @@ from app.core.security import OriginCheckMiddleware
 from app.core.settings import get_settings
 from app.dev.router import router as dev_router
 from app.documents.router import router as documents_router
+from app.funding.router import router as funding_router
 from app.health.router import router as health_router
 from app.identity.router import auth_router, me_router
 from app.needs.router import router as needs_router
@@ -66,6 +67,7 @@ def create_app() -> FastAPI:
     app.include_router(portfolio_router, prefix=API_PREFIX)
     app.include_router(documents_router, prefix=API_PREFIX)
     app.include_router(needs_router, prefix=API_PREFIX)
+    app.include_router(funding_router, prefix=API_PREFIX)
     if settings.environment == "development":
         app.include_router(dev_router, prefix=API_PREFIX)
     install_error_schema(app)

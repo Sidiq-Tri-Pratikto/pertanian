@@ -165,7 +165,7 @@ A partnership version is identified by a checksum of its values and ceiling. Con
 
 ### Capabilities and compositions
 
-`company_funding` and `organization_review` are optional capabilities; AI summary, external email and external calendar join as adapters in 042–044. A disabled capability is refused at the service boundary by one dependency, `require_capability`, with `CAPABILITY_UNAVAILABLE` (HTTP 403, not retryable), wherever the request comes from. The manifest explains; it never grants. Startup refuses an unknown composition, a missing core, an unsupported combination, or a secret written into composition config (AC69).
+`company_funding` and `organization_review` are optional capabilities; AI summary, external email and external calendar join as adapters in 042–044. A disabled capability is refused at the service boundary by one dependency, `require_capability`, with `CAPABILITY_UNAVAILABLE` (HTTP 403, not retryable), wherever the request comes from. The manifest explains; it never grants. Startup refuses an unknown composition, a missing core, an unsupported combination, or a secret written into composition config (AC69). Funding mutations carry the guard; funding reads do not, so owners keep reading their records when the capability is off (AC67 overrides the wording of 014 FR-004).
 
 ### Web client
 

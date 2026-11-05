@@ -1433,6 +1433,349 @@
         "title": "FactResponse",
         "type": "object"
       },
+      "FundingRequestInput": {
+        "additionalProperties": false,
+        "description": "A raise's content. A draft may be incomplete; activation needs a target, a currency and an invention.",
+        "properties": {
+          "accepts_partial": {
+            "default": false,
+            "title": "Accepts Partial",
+            "type": "boolean"
+          },
+          "accepts_syndicated": {
+            "default": false,
+            "title": "Accepts Syndicated",
+            "type": "boolean"
+          },
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "pattern": "^[A-Z]{3}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency"
+          },
+          "desired_max": {
+            "anyOf": [
+              {
+                "maxLength": 24,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Desired Max"
+          },
+          "desired_min": {
+            "anyOf": [
+              {
+                "maxLength": 24,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Desired Min"
+          },
+          "financing_form": {
+            "anyOf": [
+              {
+                "enum": [
+                  "equity",
+                  "convertible_note",
+                  "safe",
+                  "debt",
+                  "revenue_based"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Financing Form"
+          },
+          "financing_stage": {
+            "anyOf": [
+              {
+                "enum": [
+                  "pre_seed",
+                  "seed",
+                  "series_a",
+                  "series_b_plus",
+                  "bridge"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Financing Stage"
+          },
+          "intended_use": {
+            "default": "",
+            "maxLength": 2000,
+            "minLength": 0,
+            "title": "Intended Use",
+            "type": "string"
+          },
+          "invention_ids": {
+            "default": [],
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Invention Ids",
+            "type": "array"
+          },
+          "legal_entity_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Legal Entity Id"
+          },
+          "proposed_name": {
+            "default": "",
+            "maxLength": 200,
+            "minLength": 0,
+            "title": "Proposed Name",
+            "type": "string"
+          },
+          "subject_type": {
+            "enum": [
+              "EXISTING_ENTITY",
+              "PROPOSED_ENTITY"
+            ],
+            "title": "Subject Type",
+            "type": "string"
+          },
+          "target_amount": {
+            "anyOf": [
+              {
+                "maxLength": 24,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Amount"
+          },
+          "timing": {
+            "default": "",
+            "maxLength": 200,
+            "minLength": 0,
+            "title": "Timing",
+            "type": "string"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "subject_type"
+        ],
+        "title": "FundingRequestInput",
+        "type": "object"
+      },
+      "FundingRequestResponse": {
+        "description": "One funding request as its owner sees it.",
+        "properties": {
+          "accepts_partial": {
+            "title": "Accepts Partial",
+            "type": "boolean"
+          },
+          "accepts_syndicated": {
+            "title": "Accepts Syndicated",
+            "type": "boolean"
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency"
+          },
+          "desired_max": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Desired Max"
+          },
+          "desired_min": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Desired Min"
+          },
+          "financing_form": {
+            "anyOf": [
+              {
+                "enum": [
+                  "equity",
+                  "convertible_note",
+                  "safe",
+                  "debt",
+                  "revenue_based"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Financing Form"
+          },
+          "financing_stage": {
+            "anyOf": [
+              {
+                "enum": [
+                  "pre_seed",
+                  "seed",
+                  "series_a",
+                  "series_b_plus",
+                  "bridge"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Financing Stage"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "intended_use": {
+            "title": "Intended Use",
+            "type": "string"
+          },
+          "inventions": {
+            "items": {
+              "$ref": "#/components/schemas/LinkedInvention"
+            },
+            "title": "Inventions",
+            "type": "array"
+          },
+          "legal_entity": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LegalEntityResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "operation_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operation Id"
+          },
+          "proposed_name": {
+            "title": "Proposed Name",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "subject_label": {
+            "title": "Subject Label",
+            "type": "string"
+          },
+          "subject_type": {
+            "enum": [
+              "EXISTING_ENTITY",
+              "PROPOSED_ENTITY"
+            ],
+            "title": "Subject Type",
+            "type": "string"
+          },
+          "target_amount": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Amount"
+          },
+          "timing": {
+            "title": "Timing",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "version",
+          "subject_type",
+          "subject_label",
+          "legal_entity",
+          "proposed_name",
+          "financing_stage",
+          "financing_form",
+          "currency",
+          "target_amount",
+          "desired_min",
+          "desired_max",
+          "accepts_partial",
+          "accepts_syndicated",
+          "intended_use",
+          "timing",
+          "inventions",
+          "status"
+        ],
+        "title": "FundingRequestResponse",
+        "type": "object"
+      },
       "GrantRequest": {
         "description": "Share one version with one party for one purpose.",
         "properties": {
@@ -1889,6 +2232,107 @@
           "capabilities"
         ],
         "title": "InviteRequest",
+        "type": "object"
+      },
+      "LegalEntityInput": {
+        "additionalProperties": false,
+        "description": "A company the acting party declares.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "jurisdiction": {
+            "default": "",
+            "maxLength": 120,
+            "minLength": 0,
+            "title": "Jurisdiction",
+            "type": "string"
+          },
+          "name": {
+            "maxLength": 200,
+            "minLength": 2,
+            "title": "Name",
+            "type": "string"
+          },
+          "registration_reference": {
+            "default": "",
+            "maxLength": 120,
+            "minLength": 0,
+            "title": "Registration Reference",
+            "type": "string"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "name"
+        ],
+        "title": "LegalEntityInput",
+        "type": "object"
+      },
+      "LegalEntityResponse": {
+        "description": "A legal entity. ``declared`` means the owner said so; nobody has checked it yet.",
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "jurisdiction": {
+            "title": "Jurisdiction",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "registration_reference": {
+            "title": "Registration Reference",
+            "type": "string"
+          },
+          "review_status": {
+            "enum": [
+              "declared",
+              "verified"
+            ],
+            "title": "Review Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "jurisdiction",
+          "registration_reference",
+          "review_status"
+        ],
+        "title": "LegalEntityResponse",
+        "type": "object"
+      },
+      "LinkedInvention": {
+        "description": "An invention version the raise develops.",
+        "properties": {
+          "invention_id": {
+            "format": "uuid",
+            "title": "Invention Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "invention_id",
+          "version",
+          "title"
+        ],
+        "title": "LinkedInvention",
         "type": "object"
       },
       "MailboxMessageResponse": {
@@ -2593,6 +3037,173 @@
           "expected_version"
         ],
         "title": "TransitionRequest",
+        "type": "object"
+      },
+      "UpdateFundingRequest": {
+        "additionalProperties": false,
+        "description": "Replace the content against the version the client saw.",
+        "properties": {
+          "accepts_partial": {
+            "default": false,
+            "title": "Accepts Partial",
+            "type": "boolean"
+          },
+          "accepts_syndicated": {
+            "default": false,
+            "title": "Accepts Syndicated",
+            "type": "boolean"
+          },
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "pattern": "^[A-Z]{3}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency"
+          },
+          "desired_max": {
+            "anyOf": [
+              {
+                "maxLength": 24,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Desired Max"
+          },
+          "desired_min": {
+            "anyOf": [
+              {
+                "maxLength": 24,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Desired Min"
+          },
+          "expected_version": {
+            "title": "Expected Version",
+            "type": "integer"
+          },
+          "financing_form": {
+            "anyOf": [
+              {
+                "enum": [
+                  "equity",
+                  "convertible_note",
+                  "safe",
+                  "debt",
+                  "revenue_based"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Financing Form"
+          },
+          "financing_stage": {
+            "anyOf": [
+              {
+                "enum": [
+                  "pre_seed",
+                  "seed",
+                  "series_a",
+                  "series_b_plus",
+                  "bridge"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Financing Stage"
+          },
+          "intended_use": {
+            "default": "",
+            "maxLength": 2000,
+            "minLength": 0,
+            "title": "Intended Use",
+            "type": "string"
+          },
+          "invention_ids": {
+            "default": [],
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Invention Ids",
+            "type": "array"
+          },
+          "legal_entity_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Legal Entity Id"
+          },
+          "proposed_name": {
+            "default": "",
+            "maxLength": 200,
+            "minLength": 0,
+            "title": "Proposed Name",
+            "type": "string"
+          },
+          "subject_type": {
+            "enum": [
+              "EXISTING_ENTITY",
+              "PROPOSED_ENTITY"
+            ],
+            "title": "Subject Type",
+            "type": "string"
+          },
+          "target_amount": {
+            "anyOf": [
+              {
+                "maxLength": 24,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Amount"
+          },
+          "timing": {
+            "default": "",
+            "maxLength": 200,
+            "minLength": 0,
+            "title": "Timing",
+            "type": "string"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "subject_type",
+          "expected_version"
+        ],
+        "title": "UpdateFundingRequest",
         "type": "object"
       },
       "UpdateMeRequest": {
@@ -3472,6 +4083,351 @@
         ]
       }
     },
+    "/api/v1/funding-requests": {
+      "get": {
+        "description": "List the acting party's funding requests, also when company funding is switched off (AC67).\n\nArgs:\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    list[FundingRequestResponse]: Requests.",
+        "operationId": "list_funding_requests_api_v1_funding_requests_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/FundingRequestResponse"
+                  },
+                  "title": "Response List Funding Requests Api V1 Funding Requests Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "List my funding requests",
+        "tags": [
+          "company funding"
+        ]
+      },
+      "post": {
+        "description": "Start a draft raise linked to published inventions.\n\nArgs:\n    body (FundingRequestInput): Content and links.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    FundingRequestResponse: The draft.",
+        "operationId": "create_funding_request_api_v1_funding_requests_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FundingRequestInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FundingRequestResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Start a funding request",
+        "tags": [
+          "company funding"
+        ]
+      }
+    },
+    "/api/v1/funding-requests/{request_id}": {
+      "get": {
+        "description": "Read one request as its owner.\n\nArgs:\n    request_id (UUID): The request.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    FundingRequestResponse: The request.",
+        "operationId": "read_funding_request_api_v1_funding_requests__request_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "request_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Request Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FundingRequestResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Read a funding request",
+        "tags": [
+          "company funding"
+        ]
+      },
+      "put": {
+        "description": "Replace the content as a new version against ``expected_version``.\n\nArgs:\n    request_id (UUID): The request.\n    body (UpdateFundingRequest): Content.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried save.\n\nReturns:\n    FundingRequestResponse: The new version.",
+        "operationId": "update_funding_request_api_v1_funding_requests__request_id__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "request_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Request Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateFundingRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FundingRequestResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Change a funding request",
+        "tags": [
+          "company funding"
+        ]
+      }
+    },
+    "/api/v1/funding-requests/{request_id}/versions/{number}": {
+      "get": {
+        "description": "Read a request as it stood at one version.\n\nArgs:\n    request_id (UUID): The request.\n    number (int): The version.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    dict: The snapshot.",
+        "operationId": "read_funding_request_version_api_v1_funding_requests__request_id__versions__number__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "request_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Request Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "number",
+            "required": true,
+            "schema": {
+              "title": "Number",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Read Funding Request Version Api V1 Funding Requests  Request Id  Versions  Number  Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Read an earlier funding request version",
+        "tags": [
+          "company funding"
+        ]
+      }
+    },
+    "/api/v1/funding-requests/{request_id}/{action}": {
+      "post": {
+        "description": "Change the status.\n\nArgs:\n    request_id (UUID): The request.\n    action (Literal[\"activate\", \"pause\", \"close\"]): The change.\n    body (TransitionRequest): Acting party and ``expected_version``.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    FundingRequestResponse: The request in its new status.",
+        "operationId": "transition_funding_request_api_v1_funding_requests__request_id___action__post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "request_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Request Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "action",
+            "required": true,
+            "schema": {
+              "enum": [
+                "activate",
+                "pause",
+                "close"
+              ],
+              "title": "Action",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TransitionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FundingRequestResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Activate, pause or close a raise",
+        "tags": [
+          "company funding"
+        ]
+      }
+    },
     "/api/v1/grants/{grant_id}/revoke": {
       "post": {
         "description": "Block new downloads. Copies already delivered cannot be recalled, and the answer says so.\n\nArgs:\n    grant_id (UUID): The grant.\n    body (RevokeRequest): Acting party.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    RevokedResponse: The outcome.",
@@ -4089,6 +5045,92 @@
         "summary": "Accept an invitation",
         "tags": [
           "organizations"
+        ]
+      }
+    },
+    "/api/v1/legal-entities": {
+      "get": {
+        "description": "List the acting party's legal entities.\n\nArgs:\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    list[LegalEntityResponse]: Entities.",
+        "operationId": "list_legal_entities_api_v1_legal_entities_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/LegalEntityResponse"
+                  },
+                  "title": "Response List Legal Entities Api V1 Legal Entities Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "List my legal entities",
+        "tags": [
+          "company funding"
+        ]
+      },
+      "post": {
+        "description": "Record a company as declared by the acting party.\n\nArgs:\n    body (LegalEntityInput): Name, jurisdiction and registration reference.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    LegalEntityResponse: The entity.",
+        "operationId": "declare_legal_entity_api_v1_legal_entities_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LegalEntityInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegalEntityResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Declare a legal entity",
+        "tags": [
+          "company funding"
         ]
       }
     },

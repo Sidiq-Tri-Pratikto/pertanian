@@ -37,6 +37,7 @@ make check             # lint, format check, all tests, 80% coverage gate
 | `tests/unit/documents/` | ClamAV INSTREAM against a fake daemon, byte sniffing, extraction, chunked storage | Nothing |
 | `tests/integration/needs/` | Support requests: exact budgets as strings (F01), invalid ranges per field (AC16), unknown money as null with a reason (AC17), exact line totals, status changes, versions, stale saves | Postgres |
 | `tests/unit/needs/` | Budget rules and when two ranges compare directly (AC18) | Nothing |
+| `tests/integration/funding/` | One raise with two invention links (AC19), proposed companies, target versions, exact amounts per field, no valuation fields, archived links, and the guard in all three compositions with reads kept (AC67) | Postgres |
 | `tests/integration/portfolio/` | Drafts, each publication rule, immutable versions (AC07–AC11), stale drafts, archive, public projection, outbox events | Postgres |
 | `tests/integration/access/` | Organizations, capabilities (AC04), hidden organizations (AC05), a removed member's job denied (AC06), invitations expired and revoked, stale context, last manager | Postgres |
 | `tests/integration/test_isolation.py` | Every data route called as an unrelated party returns `NOT_FOUND` or nothing; fails when a new route is not registered | Postgres |
@@ -108,5 +109,9 @@ Run one test with `uv run pytest tests/unit/health/test_health.py -v`, or match 
 | `GET /api/v1/support-requests/{id}`, `GET /api/v1/support-requests/{id}/versions/{n}` | One request as its owner, and any earlier version as it stood |
 | `PUT /api/v1/support-requests/{id}` | Save the content and budget as a new version against `expected_version`; money travels as decimal strings |
 | `POST /api/v1/support-requests/{id}/{activate,pause,close}` | Status changes; activation needs an outcome and at least one form of support |
+| `POST /api/v1/legal-entities`, `GET /api/v1/legal-entities` | Declare a company (review status `declared`) and list the acting party's |
+| `POST /api/v1/funding-requests`, `GET /api/v1/funding-requests`, `GET /api/v1/funding-requests/{id}` | One raise for an existing or proposed company, owning its target and linking published invention versions |
+| `PUT /api/v1/funding-requests/{id}`, `GET /api/v1/funding-requests/{id}/versions/{n}` | Save as a new version against `expected_version`; earlier versions stay readable |
+| `POST /api/v1/funding-requests/{id}/{activate,pause,close}` | Status changes; activation needs a target and a linked invention |
 | `GET /api/v1/dev/mailbox?email=` | Development only: the codes and notes that would have been emailed |
 | `GET /api/v1/operations/{id}` | Whether the acting party's operation committed, for a client that lost the response |

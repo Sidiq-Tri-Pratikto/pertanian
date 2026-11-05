@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import create_async_engine
 
 import app.access.repository.sqlalchemy.models  # noqa: F401 - registers the tables for autogenerate
 import app.documents.repository.sqlalchemy.models  # noqa: F401
+import app.funding.repository.sqlalchemy.models  # noqa: F401
 import app.identity.repository.sqlalchemy.models  # noqa: F401
 import app.needs.repository.sqlalchemy.models  # noqa: F401
 import app.platform.repository.sqlalchemy.models  # noqa: F401 - registers the tables for autogenerate
