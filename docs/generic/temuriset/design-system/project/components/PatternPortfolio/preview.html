@@ -1,0 +1,76 @@
+<!-- @dsCard group="Patterns" height=1100 page -->
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>PatternPortfolio — preview</title></head>
+<body>
+<div id="root"></div>
+<script>
+var TR = window.TR, h = React.createElement, F = TR.format, X = TR.demo.fixtures, useState = React.useState;
+function S(label, child) { return h('div', { className: 'tr-stack' }, h('p', { className: 'tr-sys-type-support tr-muted' }, label), child); }
+function Demo() {
+  var STEPS = [{ id: 'dasar', label: 'Dasar' }, { id: 'bukti', label: 'Yang sudah ada dan bukti' }, { id: 'uang', label: 'Dukungan dan biaya' }, { id: 'publik', label: 'Pratinjau publik' }];
+  var FIRST = { title: 'ClearSpring', problem: 'Keluarga tanpa akses air bersih perlu cara menyaring air yang mudah dirawat.', solution: 'Prototipe filter air yang sudah berfungsi.', current: '10 L/jam', planned: '20 L/jam', min: '20000', max: '30000', period: '6 bulan' };
+  var step = useState('dasar'), data = useState(FIRST), save = useState('saved'), failNext = useState(false), noBudget = useState(false);
+  var attempt = useState(0), confirm = useState(false), share = useState(false), done = useState(false), timer = React.useRef(null);
+  var d = data[0];
+  var nav = useState('inovasi'), ctx = useState('pribadi');
+  function persist() {
+    save[1]('saving');
+    clearTimeout(timer.current);
+    timer.current = setTimeout(function () { save[1](failNext[0] ? 'failed' : 'saved'); }, 700);
+  }
+  function set(k) { return function (v) { var n = Object.assign({}, data[0]); n[k] = v; data[1](n); save[1]('local'); clearTimeout(timer.current); timer.current = setTimeout(persist, 900); }; }
+  function toggleBudget(v) { noBudget[1](v); var n = Object.assign({}, data[0]); n.min = v ? '' : FIRST.min; n.max = v ? '' : FIRST.max; data[1](n); }
+  var errors = [];
+  if (d.min !== '' && Number(d.min) < 0) errors.push({ fieldId: 'f-min', message: 'Biaya minimum tidak boleh kurang dari 0.' });
+  if (d.min !== '' && d.max !== '' && Number(d.max) < Number(d.min)) errors.push({ fieldId: 'f-max', message: 'Biaya maksimum tidak boleh lebih kecil dari biaya minimum.' });
+  function err(id) { var e = attempt[0] > 0 && errors.filter(function (x) { return x.fieldId === id; })[0]; return e ? e.message : null; }
+  var i = STEPS.map(function (s) { return s.id; }).indexOf(step[0]);
+  function next() { if (step[0] === 'uang' && errors.length) { attempt[1](attempt[0] + 1); return; } attempt[1](0); step[1](STEPS[i + 1].id); }
+  var hasBudget = d.min !== '' && d.max !== '';
+  var fin = { subject: 'project', currency: 'USD', min: d.min === '' ? null : d.min, max: d.max === '' ? null : d.max, period: d.period, scope: 'Validasi prototipe' };
+  var body = {
+    dasar: h('div', { className: 'tr-stack' },
+      h(TR.TextField, { label: 'Judul inovasi', required: true, hint: 'Antara 5 sampai 120 karakter.', value: d.title, onChange: set('title') }),
+      h(TR.TextArea, { label: 'Masalah yang diselesaikan', hint: 'Tulis tanpa informasi rahasia.', rows: 3, value: d.problem, onChange: set('problem') })),
+    bukti: h('div', { className: 'tr-stack' },
+      h(TR.TextArea, { label: 'Yang sudah ada saat ini', rows: 3, value: d.solution, onChange: set('solution') }),
+      h(TR.TextField, { label: 'Kapasitas saat ini', hint: 'Yang benar-benar berfungsi sekarang.', value: d.current, onChange: set('current') }),
+      h(TR.TextField, { label: 'Kapasitas yang direncanakan', hint: 'Rencana tidak memenuhi syarat untuk hal yang harus sudah ada.', value: d.planned, onChange: set('planned') }),
+      h(TR.DocumentItem, { title: 'Laporan uji fungsi', version: 2, file: 'AVAILABLE', extraction: 'NEEDS_MANUAL_INPUT', review: 'PROVIDED_UNREVIEWED', action: h(TR.Button, {}, 'Isi data manual') })),
+    uang: h('div', { className: 'tr-stack' },
+      attempt[0] > 0 && errors.length ? h(TR.ErrorSummary, { errors: errors, focusKey: attempt[0] }) : null,
+      h('p', null, 'Anda dapat melewati bagian ini saat menyimpan draf. Biaya diperlukan sebelum mengirim.'),
+      h(TR.TextField, { id: 'f-min', label: 'Biaya minimum', type: 'decimal', prefix: 'USD', value: d.min, onChange: set('min'), error: err('f-min') }),
+      h(TR.TextField, { id: 'f-max', label: 'Biaya maksimum', type: 'decimal', prefix: 'USD', value: d.max, onChange: set('max'), error: err('f-max') }),
+      h(TR.TextField, { label: 'Lama proyek', value: d.period, onChange: set('period') })),
+    publik: h('div', { className: 'tr-stack' },
+      h('p', null, 'Inilah yang dilihat investor dan mitra. Berkas tidak ikut tampil.'),
+      h(TR.InventionCard, { title: d.title, category: 'Air bersih', manager: 'Dikelola Rani \u00b7 Pribadi', problem: d.problem, solution: d.solution, maturity: 'Prototipe', support: 'Validasi prototipe', financial: fin }),
+      h(TR.Checkbox, { label: 'Bagikan laporan uji fungsi versi 2 kepada Mitra Demo A', hint: 'Hanya versi ini dan hanya penerima ini.', checked: share[0], onChange: share[1] }),
+      h(TR.ContextSwitcher, { readOnly: true, value: ctx[0], options: X.contexts, actionLabel: 'Akan dikirim sebagai' }),
+      done[0] ? h(TR.Status, { tone: 'success', label: 'Terkirim ke Mitra Demo A', live: true }, 'Data publik dan satu versi berkas telah dibagikan. Ini bukan persetujuan dari mitra.') : null)
+  }[step[0]];
+  var last = step[0] === 'publik';
+  var actions = h('div', { className: 'tr-row' },
+    last
+      ? h(TR.Button, { intent: 'primary', id: 'send-open', disabledReason: !hasBudget ? 'Isi kisaran biaya di langkah 3 terlebih dahulu.' : null, onClick: function () { confirm[1](true); } }, 'Tinjau dan kirim')
+      : h(TR.Button, { intent: 'primary', onClick: next }, 'Lanjut'),
+    i > 0 ? h(TR.Button, { onClick: function () { step[1](STEPS[i - 1].id); } }, 'Kembali') : null);
+  return h(TR.Screen, { current: nav[0], onNavigate: nav[1], provenance: X.provenance, title: 'Siapkan ClearSpring', subtitle: 'Isi bertahap. Draf tersimpan otomatis.',
+    context: h(TR.ContextSwitcher, { value: ctx[0], onChange: ctx[1], options: X.contexts }),
+    save: h(TR.SaveState, { state: save[0], savedAt: '2026-10-31T07:32:00Z', onRetry: persist }),
+    aside: !hasBudget ? h(TR.Status, { tone: 'warning', label: 'Biaya belum ditentukan' }, 'Draf tetap tersimpan. Isi biaya sebelum mengirim.') : undefined },
+    h(TR.Steps, { steps: STEPS, current: step[0], onSelect: function (s) { attempt[1](0); step[1](s); } }),
+    h('section', { className: 'tr-panel' }, h('h2', { className: 'tr-sys-type-heading-md' }, STEPS[i].label), body, actions),
+    h(TR.demo.Controls, { state: { reset: function () { data[1](FIRST); step[1]('dasar'); save[1]('saved'); failNext[1](false); noBudget[1](false); share[1](false); done[1](false); attempt[1](0); } } },
+      h(TR.Checkbox, { label: 'Penyimpanan berikutnya gagal', checked: failNext[0], onChange: failNext[1] }),
+      h(TR.Checkbox, { label: 'Tanpa anggaran', checked: noBudget[0], onChange: toggleBudget })),
+    h(TR.Dialog, { open: confirm[0], onClose: function () { confirm[1](false); }, returnFocusId: 'send-open', title: 'Kirim ke Mitra Demo A?',
+      primary: { label: 'Kirim sekarang', onClick: function () { confirm[1](false); done[1](true); } }, secondary: { label: 'Periksa lagi' } },
+      h(TR.SummaryList, { rows: [{ id: 'd1', label: 'Penerima', value: 'Mitra Demo A' }, { id: 'd2', label: 'Data publik', value: 'Judul, masalah, solusi, tahap dan biaya' }, { id: 'd3', label: 'Berkas', value: share[0] ? 'Laporan uji fungsi versi 2' : 'Tidak ada berkas' }] })));
+}
+ReactDOM.createRoot(document.getElementById('root')).render(h(Demo));
+</script>
+</body>
+</html>

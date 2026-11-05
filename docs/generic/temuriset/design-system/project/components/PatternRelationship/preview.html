@@ -1,0 +1,44 @@
+<!-- @dsCard group="Patterns" height=1100 page -->
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>PatternRelationship — preview</title></head>
+<body>
+<div id="root"></div>
+<script>
+var TR = window.TR, h = React.createElement, F = TR.format, X = TR.demo.fixtures, useState = React.useState;
+function S(label, child) { return h('div', { className: 'tr-stack' }, h('p', { className: 'tr-sys-type-support tr-muted' }, label), child); }
+function Demo() {
+  var FIELDS = [{ id: 'nama', label: 'Nama mitra', value: 'Mitra Demo A' }, { id: 'jenis', label: 'Jenis hubungan', value: 'Proyek' }, { id: 'cakupan', label: 'Cakupan', value: 'Validasi prototipe selama 6 bulan' }, { id: 'tanggal', label: 'Tanggal mulai', value: '1 Desember 2026' }, { id: 'nilai', label: 'Nilai dukungan', value: 'USD 25.000' }];
+  var ALL = FIELDS.map(function (f) { return f.id; });
+  var version = useState(1), mine = useState(ALL), mineConf = useState(null), otherConf = useState(null), restricted = useState([]), busy = useState(false);
+  var nav = useState('pitching'), ctx = useState('pribadi'), asked = useState(false);
+  var otherSelected = ['nama', 'jenis', 'cakupan', 'tanggal'];
+  var v = version[0], both = mineConf[0] === v && otherConf[0] === v;
+  function toggle(id, on) { mine[1](on ? mine[0].concat(id) : mine[0].filter(function (x) { return x !== id; })); }
+  function confirm() { busy[1](true); setTimeout(function () { busy[1](false); mineConf[1](v); }, 500); }
+  function correction() { version[1](2); mineConf[1](null); otherConf[1](null); asked[1](true); restricted[1]([]); }
+  function reset() { version[1](1); mine[1](ALL); mineConf[1](null); otherConf[1](null); restricted[1]([]); asked[1](false); }
+  var props = { version: v, type: 'Kerja Sama proyek. Hubungan ini bukan kepemilikan saham, walaupun memuat nilai uang.', fields: FIELDS,
+    mine: { name: 'Rani', selected: mine[0], confirmedVersion: mineConf[0] }, other: { name: 'Mitra Demo A', selected: otherSelected, confirmedVersion: otherConf[0] }, restricted: restricted[0],
+    summary: h(TR.SummaryList, { rows: [{ id: 'r1', label: 'Pihak', value: 'Rani (ClearSpring) dan Mitra Demo A' }, { id: 'r2', label: 'Ringkasan', value: v === 1 ? 'Validasi prototipe.' : 'Validasi prototipe selama 6 bulan, termasuk uji kapasitas 10 L/jam.' }] }),
+    busy: busy[0], onToggle: toggle, onConfirm: confirm, onRequestChange: function () {}, onRestrict: function (id) { restricted[1](restricted[0].concat(id)); } };
+  var pub = TR.effectiveFields(props);
+  var next = both
+    ? h(TR.NextStep, { who: 'other', title: 'Kerja Sama dikonfirmasi kedua pihak' }, 'Konfirmasi ini mencatat ringkasan yang disepakati. Ini bukan pelaksanaan transaksi hukum.')
+    : mineConf[0] === v
+      ? h(TR.NextStep, { who: 'other', title: 'Menunggu Mitra Demo A mengonfirmasi versi ' + v }, 'Satu konfirmasi belum berarti disepakati bersama.')
+      : h(TR.NextStep, { title: 'Periksa dan konfirmasi versi ' + v }, asked[0] ? 'Mitra Demo A mengoreksi ringkasan, jadi konfirmasi versi 1 tidak berlaku lagi.' : 'Pilih data yang boleh tampil, lalu konfirmasi.');
+  return h(TR.Screen, { current: nav[0], onNavigate: nav[1], provenance: X.provenance, title: 'Kerja Sama ClearSpring', subtitle: 'Dengan Mitra Demo A', next: next,
+    context: h(TR.ContextSwitcher, { value: ctx[0], onChange: ctx[1], options: X.contexts }),
+    aside: h('div', { className: 'tr-panel' }, h('h2', { className: 'tr-sys-type-heading-sm' }, 'Tampilan publik'),
+      pub.length ? h(TR.SummaryList, { rows: FIELDS.filter(function (f) { return pub.indexOf(f.id) >= 0; }).map(function (f) { return { id: 'p-' + f.id, label: f.label, value: f.value }; }) })
+        : h('p', { className: 'tr-muted' }, 'Belum ada yang tampil. Publik baru terlihat setelah kedua pihak mengonfirmasi versi yang sama.')) },
+    h('section', { className: 'tr-panel' }, h(TR.PartnershipConsent, props)),
+    h(TR.demo.Controls, { state: { reset: reset } },
+      v === 1 ? h(TR.Button, { onClick: correction }, 'Mitra mengoreksi ke versi 2') : null,
+      mineConf[0] === v && otherConf[0] !== v ? h(TR.Button, { onClick: function () { otherConf[1](v); } }, 'Mitra mengonfirmasi versi ' + v) : null));
+}
+ReactDOM.createRoot(document.getElementById('root')).render(h(Demo));
+</script>
+</body>
+</html>

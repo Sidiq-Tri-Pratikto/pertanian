@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Antrean tinjauan</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/temuriset/tokens.css">
+<link rel="stylesheet" href="ds/temuriset/components/bundle.css">
+<script src="ds/temuriset/components/bundle.js"></script>
+<script src="./domain.js"></script>
+<script src="./views.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+</style>
+</helmet>
+<x-import component-from-global-scope="TemuRisetApp.Slotted" of="TR.Screen" dc-props="{{shell}}">
+<div data-slot="context" style="display:contents"><x-import component-from-global-scope="TR.ContextSwitcher" dc-props="{{ctx}}"></x-import></div>
+<sc-if value="{{hasNotice}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.Status" dc-props="{{notice}}"></x-import></sc-if>
+<sc-if value="{{unavailable}}" hint-placeholder-val="{{false}}">
+<x-import component-from-global-scope="TemuRisetApp.Slotted" of="TR.EmptyState" kind="denied" title="Antrean tidak tersedia" body="{{reasonText}}">
+<div data-slot="action" style="display:contents"><x-import component-from-global-scope="TR.Button" on-click="{{leave}}">Kembali</x-import></div>
+</x-import>
+</sc-if>
+<sc-if value="{{available}}" hint-placeholder-val="{{true}}">
+<div class="tr-section">
+<sc-if value="{{showSummary}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.ErrorSummary" dc-props="{{summaryProps}}"></x-import></sc-if>
+<sc-if value="{{none}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.EmptyState" icon="inbox" title="Antrean kosong" body="Tidak ada versi yang menunggu tinjauan."></x-import></sc-if>
+<sc-for list="{{items}}" as="i" hint-placeholder-count="1">
+<article class="tr-panel tr-stack">
+<div class="tr-req__head"><h2 class="tr-sys-type-label">{{i.title}}</h2><x-import component-from-global-scope="TR.Status" dc-props="{{i.state}}"></x-import></div>
+<p class="tr-muted">{{i.scope}}</p>
+<sc-if value="{{i.queued}}" hint-placeholder-val="{{true}}">
+<div class="tr-row">
+<x-import component-from-global-scope="TR.Button" intent="primary" on-click="{{i.approve}}">Setujui versi ini</x-import>
+<x-import component-from-global-scope="TR.Button" on-click="{{i.ret}}">Kembalikan</x-import>
+</div>
+</sc-if>
+</article>
+</sc-for>
+<sc-if value="{{hasItems}}" hint-placeholder-val="{{true}}"><x-import component-from-global-scope="TR.TextArea" dc-props="{{reason}}"></x-import></sc-if>
+</div>
+</sc-if>
+</x-import>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1100}}'>
+class Component extends DCLogic {
+  off = TemuRisetApp.attach(this, 'ReviewQueue');
+  componentWillUnmount() { this.off(); }
+  renderVals() { return TemuRisetApp.vm.review(); }
+}
+</script>
+</body>
+</html>

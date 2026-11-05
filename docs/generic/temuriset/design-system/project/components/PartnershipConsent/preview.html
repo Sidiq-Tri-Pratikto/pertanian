@@ -1,0 +1,21 @@
+<!-- @dsCard group="Domain" height=760 -->
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>PartnershipConsent — preview</title></head>
+<body>
+<div id="root" class="tr-root tr-pad tr-stack"></div>
+<script>
+var TR = window.TR, h = React.createElement, F = TR.format, X = TR.demo.fixtures, useState = React.useState;
+function S(label, child) { return h('div', { className: 'tr-stack' }, h('p', { className: 'tr-sys-type-support tr-muted' }, label), child); }
+function Demo() {
+  var ids = ['nama', 'jenis', 'cakupan', 'nilai'];
+  var labels = { nama: 'Nama mitra', jenis: 'Jenis hubungan', cakupan: 'Cakupan', nilai: 'Nilai dukungan' };
+  return h(TR.PartnershipConsent, { version: 2, type: 'Kerja Sama proyek', fields: ids.map(function (i) { return { id: i, label: labels[i] }; }),
+    mine: { name: 'Rani', selected: ids, confirmedVersion: 2 },
+    other: { name: 'Mitra Demo A', selected: ['nama', 'jenis', 'cakupan'], confirmedVersion: 2 },
+    onRestrict: function () {} });
+}
+ReactDOM.createRoot(document.getElementById('root')).render(h(Demo));
+</script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inovasi Saya</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/temuriset/tokens.css">
+<link rel="stylesheet" href="ds/temuriset/components/bundle.css">
+<script src="ds/temuriset/components/bundle.js"></script>
+<script src="./domain.js"></script>
+<script src="./views.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+</style>
+</helmet>
+<x-import component-from-global-scope="TemuRisetApp.Slotted" of="TR.Screen" dc-props="{{shell}}">
+<div data-slot="context" style="display:contents"><x-import component-from-global-scope="TR.ContextSwitcher" dc-props="{{ctx}}"></x-import></div>
+<sc-if value="{{hasNotice}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.Status" dc-props="{{notice}}"></x-import></sc-if>
+<sc-if value="{{empty}}" hint-placeholder-val="{{false}}">
+<x-import component-from-global-scope="TemuRisetApp.Slotted" of="TR.EmptyState" kind="noInventions">
+<div data-slot="action" style="display:contents"><x-import component-from-global-scope="TR.Button" intent="primary" on-click="{{add}}">Tambah inovasi</x-import></div>
+</x-import>
+</sc-if>
+<div class="tr-row"><x-import component-from-global-scope="TR.Button" intent="secondary" icon="edit" on-click="{{add}}">Tambah inovasi</x-import></div>
+<sc-if value="{{hasDrafts}}" hint-placeholder-val="{{false}}">
+<section class="tr-stack" aria-label="Draf">
+<h2 class="tr-sys-type-heading-sm">Draf belum terbit</h2>
+<sc-for list="{{drafts}}" as="d" hint-placeholder-count="1">
+<div class="tr-panel tr-row" style="justify-content: space-between;">
+<span>{{d.title}}</span>
+<x-import component-from-global-scope="TR.Button" intent="secondary" on-click="{{d.open}}">Lanjutkan draf</x-import>
+</div>
+</sc-for>
+</section>
+</sc-if>
+<div class="tr-grid">
+<sc-for list="{{cards}}" as="c" hint-placeholder-count="1">
+<x-import component-from-global-scope="TemuRisetApp.Slotted" of="TR.InventionCard" dc-props="{{c.card}}">
+<div data-slot="gap" style="display:contents"><sc-if value="{{c.hasDraft}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.Status" tone="neutral" label="Ada draf perubahan" icon="edit"></x-import></sc-if></div>
+<div data-slot="action" style="display:contents"><x-import component-from-global-scope="TR.Button" intent="secondary" on-click="{{c.open}}">Buka inovasi</x-import></div>
+</x-import>
+</sc-for>
+</div>
+</x-import>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1100}}'>
+class Component extends DCLogic {
+  off = TemuRisetApp.attach(this, 'Inventions');
+  componentWillUnmount() { this.off(); }
+  renderVals() { return TemuRisetApp.vm.inventions(); }
+}
+</script>
+</body>
+</html>

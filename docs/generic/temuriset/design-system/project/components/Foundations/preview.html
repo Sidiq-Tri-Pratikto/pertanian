@@ -1,0 +1,30 @@
+<!-- @dsCard group="Foundations" height=900 page -->
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Foundations — preview</title></head>
+<body>
+<div id="root" class="tr-root tr-pad tr-stack"></div>
+<script>
+var TR = window.TR, h = React.createElement, F = TR.format, X = TR.demo.fixtures, useState = React.useState;
+function S(label, child) { return h('div', { className: 'tr-stack' }, h('p', { className: 'tr-sys-type-support tr-muted' }, label), child); }
+function Demo() {
+  var roles = ['canvas', 'surface', 'surface-subtle', 'text-primary', 'text-secondary', 'action-primary-background', 'action-primary-hover', 'action-secondary-foreground', 'selected-surface', 'border-decorative', 'border-control', 'focus', 'danger-text', 'danger-surface', 'success-text', 'success-surface', 'warning-text', 'warning-surface'];
+  var type = ['heading-lg', 'heading-md', 'heading-sm', 'body', 'body-strong', 'label', 'support', 'amount'];
+  return h(React.Fragment, null,
+    h('h2', { className: 'tr-sys-type-heading-md' }, 'Colour roles'),
+    h('div', { className: 'tr-grid' }, roles.map(function (r) {
+      return h('p', { key: r, className: 'tr-swatch tr-sys-type-support' }, h('i', { style: { background: 'var(--tr-sys-color-' + r + ')' } }), 'tr-sys-color-' + r);
+    })),
+    h('h2', { className: 'tr-sys-type-heading-md' }, 'Type'),
+    type.map(function (t) { return h('p', { key: t, className: 'tr-sys-type-' + t }, t + ' \u00b7 Periksa sebelum mengirim'); }),
+    h('h2', { className: 'tr-sys-type-heading-md' }, 'Focus and targets'),
+    h('p', null, 'Tab through these: a white gap, then a blue ring, on each surface.'),
+    ['surface', 'surface-subtle', 'selected-surface', 'danger-surface', 'warning-surface', 'success-surface'].map(function (s) {
+      return h('div', { key: s, className: 'tr-row', style: { background: 'var(--tr-sys-color-' + s + ')', padding: 'var(--tr-ref-space-12)' } },
+        h(TR.Button, { intent: 'primary' }, 'Kirim pitching'), h(TR.Button, {}, 'Lihat bukti'), h(TR.Link, { href: '#x' }, s));
+    }));
+}
+ReactDOM.createRoot(document.getElementById('root')).render(h(Demo));
+</script>
+</body>
+</html>

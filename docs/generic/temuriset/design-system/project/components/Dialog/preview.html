@@ -1,0 +1,22 @@
+<!-- @dsCard group="Overlays" height=190 -->
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Dialog — preview</title></head>
+<body>
+<div id="root" class="tr-root tr-pad tr-stack"></div>
+<script>
+var TR = window.TR, h = React.createElement, F = TR.format, X = TR.demo.fixtures, useState = React.useState;
+function S(label, child) { return h('div', { className: 'tr-stack' }, h('p', { className: 'tr-sys-type-support tr-muted' }, label), child); }
+function Demo() {
+  var o = useState(false), err = useState(false);
+  return h(React.Fragment, null,
+    h('div', { className: 'tr-row' }, h(TR.Button, { intent: 'primary', id: 'open-dialog', onClick: function () { o[1](true); } }, 'Bagikan dokumen')),
+    h(TR.Dialog, { open: o[0], onClose: function () { o[1](false); err[1](false); }, title: 'Bagikan dokumen ini?',
+      primary: { label: 'Bagikan versi ini', onClick: function () { err[1](true); } }, secondary: { label: 'Kembali memeriksa' } },
+      h('p', null, 'Mitra Demo A dapat membuka laporan uji fungsi versi 2. Versi berikutnya tidak ikut dibagikan.'),
+      err[0] ? h(TR.Status, { tone: 'danger', label: 'Gagal membagikan', live: true }, 'Koneksi terputus. Pilihan Anda tidak hilang.') : null));
+}
+ReactDOM.createRoot(document.getElementById('root')).render(h(Demo));
+</script>
+</body>
+</html>

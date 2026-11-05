@@ -1,0 +1,594 @@
+# TemuRiset — Generic product requirements
+
+Version 1.1 · 31 October 2026 · Asia/Jakarta
+
+Status: product and architecture direction accepted by the user; detailed implementation defaults remain proposals where identified. Application and design-system behavior have not been implemented or verified against this document.
+
+Primary audience: product, design, engineering, quality assurance and delivery teams.
+
+Document language: English, canonical for exact technical contracts. A complete Indonesian edition represents the same accepted direction. Initial user interface: Indonesian, with configurable localization.
+
+## 0. Authority and interpretation
+
+This document defines a reusable TemuRiset product base. A client addendum identifies deliberate differences using the companion [extension template](CLIENT_EXTENSION_TEMPLATE.md). Unmentioned behavior inherits this document. An addendum cannot silently weaken authorization, evidence labels, monetary semantics, transaction integrity or consent. Changes to those invariants require a reviewed base-version change and migration plan.
+
+The user has accepted a modular monolith with a maintained reusable core, validated configuration, tested capabilities, concrete adapters and shared source releases, with optional isolated client deployments. This is an accepted design direction, not proof of implementation. Specific stack/provider choices, model selection, numeric policies and unmeasured performance details remain starting proposals. Both language editions preserve the same requirements; resolve a technical translation discrepancy against this canonical English contract and correct the Indonesian text rather than silently changing behavior.
+
+Requirements marked **R1** belong to the first complete working release. **R2** strengthens the product for a wider operational pilot. **L** means later work requiring separate justification. These are delivery priorities, not statements of completed work. Every acceptance scenario in section 23 starts **NOT RUN**. Numeric limits, weights, thresholds and performance objectives are proposed defaults to be measured and revised; they are not research findings or guaranteed service levels.
+
+An invention is a product label for an applied solution or development project, not a certification of novelty, patentability, ownership or commercial value. “Investor” describes expressed interest and support criteria, not a platform endorsement. “Confirmed” describes an agreement to a recorded summary within the application, not independent verification or execution of a legal transaction.
+
+## 1. Purpose, problem and desired outcomes
+
+TemuRiset helps inventors find investors and other partners who can help advance their inventions. It connects a clear account of a problem, a current solution and a support request with a recipient's expressed mandate, resources and intake requirements. The product carries that introduction through review, revisions, discussion and a separately confirmed relationship.
+
+An inventor can be an independent individual, a startup team, an employee acting for an organization, a corporate research group, a nonprofit, a community team or a researcher. An invention can be a device, software product, process, material, formulation or other applied solution. Sector-specific terminology and evidence are configured for relevant opportunities. An institutional affiliation, company registration, patent, formal readiness score or video is not universally required.
+
+Inventors currently face fragmented presentation, unclear partner fit and repeated requests for information. Investors and partners need to understand what exists, what support is sought, who has authority, what remains unknown and what action to take next. A directory alone does not resolve these questions. The product therefore joins discovery to a shared evaluation workflow while keeping sensitive disclosure deliberate.
+
+The primary outcome is a **qualified discussion completed with both parties understanding the requested support, current evidence and next step**. Supporting measures include time to prepare a suitable pitch, itemized revisions resolved, meeting confirmation and accurately recorded outcomes. Funding raised, licenses executed and adoption are longer-term outcomes reported with dates and provenance; they cannot be inferred from clicks, a saved invention or an approved pitch.
+
+## 2. Product boundaries and release scope
+
+R1 must support the complete path: establish identity → prepare a nonconfidential invention profile → express support or company funding needs → find relevant investors or partners → inspect requirements → submit a deliberate pitch → review or request revisions → negotiate a meeting → record the result → request and confirm a relationship summary. Manual forms, deterministic rules and template briefs must work without AI.
+
+R1 includes project funding, co-development, validation, manufacturing, distribution and licensing discovery, plus company-investment discovery. The interface reveals only fields relevant to the selected purpose. Investor discovery is a primary task, not an optional directory hidden behind institutional review. A small launch can recruit one supply-and-demand cohort while retaining a cross-sector model and tests.
+
+| Capability | R1 | R2 | L |
+|---|---|---|---|
+| Identity and permissions | Verified email or clearly labelled closed-demo accounts; personal and organization contexts; basic expiring/revocable team invitations | Richer team administration and operational verification queues | Additional identity providers when contracted |
+| Portfolio and evidence | Drafts, images, HTTPS video links, selected files, sources and versioned publication | Media processing and richer evidence workflows | Verified registry integrations |
+| Investment and partner discovery | Explicit mandates, active intake, support requests and company funding requests | Curated sourcing/import with owner confirmation | Validated behavioral personalization |
+| Matching | Typed rules, full small-corpus evaluation, lexical baseline and reasons | Optional measured dense retrieval and reranking | Trained ranking after sufficient outcome labels |
+| Collaboration | Pitch snapshots, three decisions, revisions, discussion, slots, ICS and relationship confirmation | Email preferences, deeper team workflow, optional calendar sync | Agreement-provider integration after a separate design |
+| Reuse | Shared source, validated composition and client addendum | Supported client deployments and adapters as required | Pooled SaaS or federation only after explicit approval |
+
+Excluded from this base: holding or transferring money, issuing shares, executing securities offerings, crowdfunding transactions, automated valuation, investment advice, guaranteed introductions, cap-table administration, legal ownership determination, universal regulatory certification, patentability assessment, mass unsolicited outreach, public inventor ratings and a general enterprise CRM. Financing forms such as debt, convertible instruments, grants or sponsorship may be recorded as declared discussion categories; executing or administering them requires a separate product decision.
+
+## 3. People, contexts and authority
+
+There are exactly two public onboarding personas: **Inventor** and **Investor/Partner**. Persona selects language, initial navigation and onboarding questions. It is not an access-control role. Investors, manufacturers, distributors, validation facilities, mentors and other supporters are subtypes of the second persona. Reviewers, moderators and operators receive scoped capabilities; they are not additional market personas.
+
+Use a shared natural Indonesian UI lexicon: Inventor → **Inovator**; Investor/Partner → **Investor/Mitra**; the portfolio destination → **Inovasi Saya**; discovery → **Temukan Investor/Mitra**; project support → **Dukungan Proyek**; company funding → **Pendanaan Perusahaan**; round target → **Target Pendanaan**; investor contribution range → **Kisaran kontribusi per investor**; relationship/partnership → **Kerja Sama**. The English domain entity Invention remains unchanged; user-facing copy does not require literal translations of technical entity names.
+
+An account has one primary onboarding intention in R1. A person may subsequently act in multiple authorized contexts without combining their permissions. Selecting an organization changes the active working context only after membership has been checked. Independent inventors and individual investors use supported personal contexts; neither must create a fictitious institution or business.
+
+| Concept | Meaning and boundary |
+|---|---|
+| Account | A login identity with verified contact status, locale and display timezone |
+| Person or contributor | A named human associated with work; need not have an account |
+| Organization | A business actor, such as a company, nonprofit, community or research group |
+| Legal entity | An identified legal subject; its existence and review status are stated separately |
+| Workspace | An operational context holding membership, private work and review policy |
+| Customer | A party contracting for a delivered product; not automatically an invention owner |
+| Marketplace | A chosen catalog and collaboration network governed by explicit visibility rules |
+| Deployment | A running installation with its own databases, storage, identities and configuration |
+| Tenant | A customer-isolation boundary only when the delivery model explicitly defines one |
+
+Use a PartyReference wherever an owner, requester, recipient or confirming party is needed: exactly one PERSONAL_PARTY or ORGANIZATION_PARTY reference. A personal party resolves to its authorized account/context; an organization party resolves through active membership and the required capability. Partner profiles, opportunities, pitch addressing, grants, meeting coordination and relationship confirmation all accept that union. Do not require an organization id merely to address an individual investor. LegalEntity is a separate reference, required for an actual equity subject rather than for every counterparty.
+
+Creators, managing parties, asserted rights holders and authorized decision makers are distinct. Editing an invention does not prove ownership or permission to license it. Organizational administration does not confer the recipient's investment authority. Rights claims and authority claims have a subject, scope, source, assertion date, review status and responsible party. Public disclosure can affect protection, and ownership depends on context; the application must prompt a deliberate public preview without declaring that publication is legally safe. [WIPO technology-transfer FAQ](https://www.wipo.int/en/web/technology-transfer/faq).
+
+## 4. Invariants shared by every composition
+
+1. Private work and documents are denied by default. Every read, write, preview, search projection, model input, job result and download is authorized on the server.
+2. A published summary grants no right to every underlying file. Sharing one selected version does not share its later versions or the entire portfolio.
+3. Current, planned and requested capabilities are different facts. A plan cannot satisfy a requirement for an existing feature.
+4. Source-reported, self-declared, provided and reviewed information retain their labels. Uploading a document cannot verify its contents.
+5. Missing, conflicting, expired or insufficiently reviewed information produces UNKNOWN where relevant. It is not silently interpreted as failure, zero, absence or success.
+6. Eligibility, ranking, pitch readiness, evidence coverage and later commercialization gaps are separate outputs.
+7. Money is compared only when its purpose, subject, currency, period and basis are compatible. Project support is not company equity or a license price.
+8. A company funding request linked to multiple inventions remains one request. It does not create several raises or ownership relationships.
+9. Pitch approval authorizes discussion only. A meeting proposal is not a booking; an elapsed meeting is not a completed discussion.
+10. A relationship or its material amendment requires both authorized parties to confirm the same summary version and proposed disclosure ceiling. Each party chooses its own consent subset; effective public fields are their intersection, further reduced by live disclosure restrictions.
+11. Retries do not duplicate consequential actions. Stale decisions do not overwrite current state. Notifications do not determine business truth.
+12. Reusing source does not share data or identities between deployments. Branding and hidden buttons are not isolation controls.
+
+These rules apply even when optional capabilities, AI or external integrations are disabled. They are acceptance conditions rather than evidence of a completed security review.
+
+## 5. Functional requirements
+
+Each requirement has three numbered acceptance scenarios in section 23. R1 includes all requirements unless a paragraph explicitly identifies an optional composition or later addition.
+
+### FR01 — Accounts and onboarding
+
+Offer the two personas with plain explanations: “I have an invention and seek support” and “I invest or provide support.” Collect display name, email, locale and timezone; collect organization or affiliation only when relevant. Verification badges state exactly what was checked. A verified email does not imply verified funds, expertise, identity documents or ownership. Authentication failure must preserve nonsecret form content and provide a recoverable path. Closed demonstrations use isolated, visibly labelled accounts excluded from real-activity metrics. Acceptance: AC01–AC03.
+
+### FR02 — Membership and delegated authority
+
+A personal workspace is available immediately. Organization invitations specify capabilities such as edit portfolio, submit pitch, review publication, decide incoming pitch and confirm relationship. Invitations expire and can be revoked. Server checks both active membership and the specific object's permission. Removing a member stops new access and queued work performed under that membership; historical authorship remains. The UI shows the acting context before a consequential action. Acceptance: AC04–AC06.
+
+### FR03 — Invention portfolio and publication versions
+
+One managing context can hold many inventions. Required publication fields are title, nonconfidential problem and solution summary, intended users, current stage, current capabilities and contact/management context. Support details are required when opening intake, not to save a draft. Title length is initially 5–120 characters and short summary at most 350 characters. Sector, searchable keywords and appropriate images aid discovery; a category illustration is the fallback.
+
+Use a four-step editor: basics; what exists and evidence; support and financial scope; public preview. Save drafts with visible saved/unsaved/error state. Publish an immutable version, optionally after configured review. Material edits create a draft successor while the current published version stays available until replacement approval. Archiving removes new discovery and submission availability, preserves permitted history and does not cancel existing discussions. Acceptance: AC07–AC09.
+
+### FR04 — Rights claims and deliberate disclosure
+
+Record creators, contributors, managers, asserted rights holders and authority to discuss or license separately. Accept explicit “not yet established” states and supporting references. Do not require a patent or company to publish a safe summary. A target may require particular evidence at a stated stage, with a reason visible to applicants. Before publication or sharing, show the public fields, recipient and selected private evidence. A recorded confidentiality acknowledgement is not represented as an executed NDA. Agreement types and scopes differ; model agreements need contextual adaptation. [WIPO agreements guidance](https://www.wipo.int/en/web/technology-transfer/agreements). Acceptance: AC10–AC12.
+
+### FR05 — Documents, extraction and evidence review
+
+Support images, PDF/DOCX and safe links in R1. Documents default PRIVATE. File availability/security states are CREATED, UPLOADING, QUARANTINED, AVAILABLE and REJECTED. Extraction has a separate status: NOT_REQUESTED, PENDING, RUNNING, SUCCEEDED, FAILED or NEEDS_MANUAL_INPUT. A completed network transfer is not available evidence until security/format checks succeed. Once those checks pass, an authorized scan can be AVAILABLE and satisfy DOCUMENT_PRESENT even when extraction needs manual input; extracted-content criteria remain UNKNOWN. Proposed limits are 20 MB per PDF/DOCX and 5 MB per image, shown before selection; video uses an approved HTTPS link. An interrupted transfer preserves the draft and offers retry.
+
+Metadata includes type, asserted issuer, subject/scope, dates, expiry, source, checksum, version and access grants. Extraction proposes facts with document version and page/paragraph location. The user confirms them; conflicts require clarification. Scans without supported OCR remain available after security checks for authorized manual review but never become invented extracted content. File availability, extraction and evidence-review status cannot overwrite one another. Review states include PROVIDED_UNREVIEWED, REVIEWED_SUPPORTED, REVIEWED_UNSUPPORTED, NEEDS_CLARIFICATION, EXPIRED and SUPERSEDED, with reviewer and scope. Acceptance: AC13–AC15.
+
+### FR06 — Support requests and project budgets
+
+An invention may have several SupportRequests for distinct outcomes, such as a validation pilot, manufacturing assistance or licensing discussion. Each identifies selected invention versions, desired support, proposed relationship form, scope, timing, geography and acceptance of partial or noncash support. One specific request is selected when pitching. Support categories describe resources; PROJECT, LICENSE and EQUITY describe relationship records. Neither is inferred from the other.
+
+A ProjectBudget contains decimal minimum/maximum, currency, scope, period, estimate date and assumptions. Minimum must be nonnegative and maximum at least minimum. Unknown is null, displayed “Belum ditentukan.” A zero monetary requirement is permitted only for an explicitly nonfinancial scope. Optional lines calculate deterministically using quantity × unit cost; discrepancies require an explanation such as partial scope. An extracted spreadsheet/PDF total remains a draft until confirmed. Acceptance: AC16–AC18.
+
+### FR07 — Company funding requests
+
+A FundingRequest represents one proposed company or venture raise, separate from invention-specific costs. It records owner PartyReference, subject type EXISTING_ENTITY or PROPOSED_ENTITY, identified entity when present, company financing stage, financing form, total target, currency, intended use, timing, partial/syndicated funding preferences and optional desired contribution range. Company financing stage and each invention's technology/product maturity are independent dimensions; an early-revenue company can contain a prototype invention. A proposed venture is labelled “company not yet formed”; it must not impersonate an existing legal entity. Link zero or more managed inventions; when an invention is used as evidence in a pitch, select its version and grant explicitly.
+
+Show one funding-request card with related inventions. A USD500,000 round target and an investor's USD50,000–100,000 check range are different bases, not a proven budget mismatch. Compare a declared desired contribution range if available; otherwise ask about contribution and syndication. Neither commitments nor received amounts are inferred from pitch status. Confirmed EQUITY records require an identified actual legal entity and both parties' authority. Acceptance: AC19–AC21.
+
+### FR08 — Investor and partner profiles
+
+Partners specify subtype, sectors/problems of interest, accepted stages, geography, offered support, relationship/financing forms, relevant check or project-support ranges, review expectations, preferred route and active intake dates. Individual investors need no invented organization. Profiles distinguish general thesis from current availability, and source-reported directory data from owner-confirmed intake. Display stale or unconfirmed availability honestly. Do not fabricate assets under management, investment capacity or credentials. Contact preferences govern whether the product offers in-app pitching, an external route or no new approaches. Acceptance: AC22–AC24.
+
+### FR09 — Opportunities, mandates and direct intake
+
+A partner can publish several versioned opportunities or mandates, each with a clear outcome, scope included/excluded, offered support, accepted stages, timing, financial basis and typed requirements. Use DRAFT, ACTIVE, PAUSED, CLOSED and EXPIRED states. Applicants can read all requirements that may block their submission. Narrative criteria remain review questions until an approved typed mapping exists. No secret criterion can automatically reject a pitch.
+
+An active specific opportunity is the target. A versioned general-intake profile may be used only when direct pitching is enabled, labelled “based on general partner profile.” Do not combine favorable requirements from one mandate and resources from another. An external application click is tracked as an external handoff, not a submitted or accepted in-app pitch. Acceptance: AC25–AC27.
+
+### FR10 — Browse, search and saved lists
+
+Provide relevant suggestions from explicit preferences or active needs, curator selections and newly published inventions. Partners can browse inventions or funding requests using separate result types; inventors browse suitable investor/partner targets. Filters include sector, stage, purpose, support form, location, financial range when comparable and current intake. Search accepts Indonesian and English. Empty results explain filters and allow deliberate relaxation; the product does not secretly broaden hard requirements.
+
+Cards prioritize problem, existing solution, requested support, stage and a few reasons. Save and “less relevant” feedback affect the actor's list, not public reputation. No trend label appears from demo events or insufficient activity. Proposed trending requires at least five qualifying independent partner actors in a 14-day window, with self-events/bots excluded and per-actor caps; it remains optional and separate from fit. Acceptance: AC28–AC30.
+
+### FR11 — Explainable matching and requirement results
+
+The engine evaluates the selected source request/version against one opportunity or general-intake version in an authorized context. Preserve source/target purpose, evidence permissions and financial basis. Return eligibility, target-specific readiness, score bounds/coverage, provided/reviewed evidence counts, reasons, gaps and next actions. A known failed mandatory requirement cannot be compensated by semantic similarity. Show “Perlu konfirmasi” when mandatory facts are UNKNOWN and abstain from a positive shortlist for INCOMPATIBLE pairs. Detailed ranking belongs behind a secondary action. Acceptance: AC31–AC33.
+
+### FR12 — Preflight and editable brief
+
+Before submission show recipient, exact request and invention/funding versions, purpose, requirements, shared files, budget/raise scope and a short editable brief. A preflight token references these versions, configuration and permission context. Recheck them at submission; changes require a fresh preflight. READY_TO_SUBMIT, NEEDS_INFORMATION and BLOCKED_FOR_THIS_TARGET are distinct outcomes.
+
+The deterministic brief template contains problem, current solution, evidence/stage, requested support, relevance, financial subject/basis, unresolved work, team and authority sources. Optional AI can summarize supplied facts but cannot add claims, submit, publish or certify. Unsupported quantitative claims are rejected or explicitly marked for correction. HTML print view and text/Markdown export follow current source permissions. Acceptance: AC34–AC36.
+
+### FR13 — Deliberate pitch submission
+
+A Pitch targets one recipient and opportunity or intake version. Its subject is one SupportRequest or one FundingRequest, not both hidden in the same request. A funding pitch may reference multiple invention versions without creating extra raises. A PitchSubmission freezes request versions, brief, selected document references, declared facts and permission metadata. Protect confidential material within that snapshot; immutable history is not a permanent retrieval grant.
+
+The user explicitly sends after preflight. Subject–recipient–target scope permits at most one active pitch for the same purpose. Retry keys return the original result. A proposed default limit is five new pitches per actor per day, configurable and disclosed. Existing discussions remain readable by authorized parties when intake closes; new submissions stop. Acceptance: AC37–AC39.
+
+### FR14 — Recipient decisions
+
+Authorized recipients choose “Setujui untuk diskusi,” “Minta revisi,” or “Tolak.” Approval opens discussion scheduling only. Rejection requires a concise private reason; it does not lower public reputation. Starting review is an intermediate status, not a decision. Decisions reference submission version and expected Pitch version. Only one valid concurrent decision commits. Silence never auto-approves. Withdrawal stops later decisions on that active submission. Acceptance: AC40–AC42.
+
+### FR15 — Itemized revision rounds
+
+Each round contains one or more itemized requests with category, question, reason, requested evidence, required/optional flag and optional due date. Responses include text, selected attachments and “Dapat dipenuhi,” “Perlu diskusi,” or “Belum dapat dipenuhi.” All required items need an answer before resubmission; a candid inability is an answer, not approval. The recipient accepts or requests detail for each item.
+
+Rounds and answers are versioned and retained. New requested features remain PLANNED unless actual evidence changes. Resubmission deliberately selects changed source versions and shared files; it does not silently replace the previous snapshot or globally edit an opportunity's requirements. Material changes may require optional workspace reapproval. Acceptance: AC43–AC45.
+
+### FR16 — Shared discussion, tasks and notifications
+
+One pitch room presents summary, revisions, documents, discussion, schedule and timeline. Show “Menunggu Anda” and “Menunggu pihak lain,” with a direct next action. R1 uses threaded messages and polling; realtime transport is unnecessary. Tasks have owner, due date, status and a reference to the relevant request or evidence gap. Participants explicitly record meeting outcome and next step. An elapsed slot alone does not prove attendance.
+
+In-app notifications cover submissions, decisions, revisions, scheduling and confirmation. Optional email delivery has preferences and retries independent of state changes. Domain change, audit event and notification intent are committed atomically through an outbox; consumers deduplicate event/recipient/channel. Delivery failure does not repeat the underlying decision. Acceptance: AC46–AC48.
+
+### FR17 — Meeting negotiation
+
+After approval, either authorized coordinator can propose 2–5 available slots, a 30- or 60-minute duration, IANA timezone, agenda and optional HTTPS meeting link. The UI identifies the proposer and whose turn it is. The other party chooses a slot or sends 2–5 alternatives. Choosing a slot in the UI is a draft selection; explicit acceptance and successful server booking confirm it.
+
+Store UTC instants and display each user's zone. A proposal expires after a proposed default 72 hours or when all slots have passed. Proposals are not exclusive reservations. Accepting a slot atomically checks and books every required participant. Conflicts leave the proposal recoverable. A replacement meeting leaves the existing confirmed meeting in effect until the replacement succeeds or explicit cancellation. Confirmed schedules offer ICS; external free/busy is unknown without a contracted calendar adapter. Acceptance: AC49–AC51.
+
+### FR18 — Relationship proposal and confirmation
+
+A relationship is a separate record with PROJECT, LICENSE or EQUITY type, parties, scope, dates, status, entity reference where relevant, confidential evidence and publication-field choices. PROJECT may describe support, co-development, validation, manufacturing or distribution. LICENSE describes stated rights, permitted use, territory and period when known; it is not an assignment. EQUITY identifies the actual company/entity; percentages are optional, dated and never derived from invested amount.
+
+Both authorized parties confirm the exact same summary version and proposed public-field ceiling, while independently choosing which ceiling fields they consent to disclose. Their selections need not be identical; only the intersection can be public. Material summary edits, an expanded ceiling or a proposed expansion of previously confirmed disclosure requires a new version/confirmation round. Narrowing or withdrawing disclosure hides affected fields immediately through an auditable restriction event and does not erase historical confirmation. Either party can request a correction or decline. One-sided statements can remain private drafts or source-reported claims, but cannot display a mutual-confirmation badge. Evidence review and mutual confirmation have distinct labels. The application records summaries rather than executing rights transfers or share issuance. Acceptance: AC52–AC54.
+
+### FR19 — Public profiles and relationship transparency
+
+Public profiles show only deliberately published fields and current publication versions. Separate creator, manager, claimed rights holder, project partner, licensee and investor in a named entity. A confirmed relationship publishes only the intersection of both parties' selected public fields within that version's proposed ceiling, minus any later live restrictions. Funding amounts default private. Optional equity percentages require an explicit permission, company reference and effective date. A withdrawal or narrowing takes effect immediately on new public reads; publication expansion needs fresh confirmation. Requesting relationship review can hide a contested public claim while preserving authorized history. Acceptance: AC55–AC57.
+
+### FR20 — Optional organization review
+
+The organization_review capability adds configured publication and/or submission gates for a workspace. It is optional for personal inventors and disabled in the default generic composition. Review policy references a versioned checklist and authorized reviewers, with scope and reasons visible. Reviewers cannot make a partner's decision or certify fields outside their assignment. Approval binds to the reviewed version; only material changes defined in policy require another approval. Disabling the capability cannot strand pending items: an authorized migration resolves or transfers each before activation of the new configuration. Acceptance: AC58–AC60.
+
+### FR21 — Imports, exports and integrations
+
+R1 supports validated JSON import/export with schema version, external system/id, provenance and a preview before apply. Importing twice upserts by external system plus external id within the managed context. Imports never overwrite a reviewed fact silently, merge organizations by name alone or upgrade source-reported relationships to mutually confirmed records. Private fields need an explicit authorized mapping. Exports, queued generation and downloaded results recheck current grants. External tools receive no permission merely because a mapping contains a workspace id. Acceptance: AC61–AC63.
+
+### FR22 — Moderation, privacy and retention
+
+Users can report suspected impersonation, unsupported claims, unwanted contact or abusive content with a private reason and relevant object. Operators use scoped queues and logged actions; they cannot browse all confidential files without a documented operational purpose. Suspension prevents new actions and removes affected public discovery while preserving permitted ongoing-case handling.
+
+Before a real pilot, publish retention periods, deletion-request handling, audit/legal-hold exceptions, backup-expiry behavior and operator responsibilities. Default analytics omit message/file contents. Do not use conversations or private evidence for model training by default. Revoking a grant blocks future source and derived-output retrieval; it cannot recall copies already downloaded. A deletion request must report what was removed, retained and why rather than promising impossible instantaneous erasure from recipients or backups. Acceptance: AC64–AC66.
+
+### FR23 — Product composition and adapters
+
+A supported composition identifies a source release, configuration schema/version, brand/locale, enabled tested capabilities, governed taxonomy/checklists and named adapter versions. Reject invalid combinations before serving traffic. Capability visibility and mutation availability must agree on server and client. Configuration cannot disable the invariants in section 4. New client needs are classified as data/configuration, a repeatable capability, a concrete adapter or a separate product; they are not scattered client-name checks. Acceptance: AC67–AC69.
+
+### FR24 — Release, operation and recovery
+
+Maintain one source history and reproducible releases for related variants. Each environment records code, configuration, capability, adapter and database-schema versions. Shared fixes are implemented and regression-tested once, then rolled out deliberately to each supported composition. Use forward-compatible expand/migrate/contract schema changes, tested backup/restore and a deployment-specific rollback or forward-repair plan. Publishing a release does not update every deployment automatically. Operations must distinguish partial delivery failure from committed business intent. Acceptance: AC70–AC72.
+
+## 6. Core model and ownership constraints
+
+The following are conceptual records, not a requirement to build a service or table for every row. Combining storage is permitted when ownership, version semantics and access remain testable. Identifiers are opaque and never substitute for authorization.
+
+| Record | Required semantics |
+|---|---|
+| Account, Profile | Persona preference, verified contact status, locale, timezone and account state |
+| Organization, LegalEntity | Business actor versus identified legal subject; source and review status |
+| Workspace, Membership | Personal/organization context; active membership and explicit capabilities |
+| Invention, InventionVersion | Stable identity; draft/published versions; stage and nonconfidential content |
+| Contribution, RightsClaim, AuthorityClaim | Who created, manages, asserts rights and may act; scope and evidence |
+| EvidenceFact, EvidenceReview | Value/unit, current/planned state, source/location, review scope/version |
+| Document, DocumentVersion | Immutable bytes/checksum/storage key; independent security/availability and extraction states; evidence review tracked separately |
+| AccessGrant | Named resource/version, permitted actor/context, purpose, start, expiry and revocation |
+| SupportRequest, ProjectBudget | Invention outcome and resources; project-specific financial basis/version |
+| FundingRequest | One venture/company raise; subject/entity, round target, contribution preference and status |
+| FundingInventionLink | A versioned supporting relationship; not a duplicate raise or ownership share |
+| PartnerProfile, OpportunityVersion | General intake versus specific mandate; current status and contact route |
+| Requirement | Typed rule, mandatory flag, stage, verification mode, source, visibility and version |
+| MatchRun, MatchResult | Input versions/access context, engine/rule/model versions, features/results/reasons |
+| Pitch, PitchSubmission, Decision | Target and subject, immutable submission metadata, decision on exact version |
+| RevisionRound, RevisionItem | Required questions, answers, selected files, actor and review history |
+| Message, Task | Pitch-scoped discussion and assigned next actions |
+| ScheduleProposal, Slot, Meeting, Booking | Negotiation rounds, UTC ranges, status and atomic participant reservations |
+| Partnership, PartnershipVersion, Confirmation | Type, PartyReferences, exact summary/ceiling version, per-party consent subset and decisions; append-only disclosure restriction events |
+| AuditEvent, OutboxEvent, Notification | Committed intent, attributable state transition and delivery attempts |
+| ImportRun, ExternalReference, Job | Preview/apply provenance, unique external identity and authorized async result |
+
+An Invention has exactly one responsible managing context in R1, with contributors from other contexts allowed. Reassignment requires both authorized source and destination plus an audit; it is not a name edit. FundingRequest owns its raise target; a link cannot copy that amount into each invention. Pitch subject uses an explicit SUPPORT_REQUEST or FUNDING_REQUEST discriminator with exactly one subject reference. Business values use decimal types and currency identifiers, not floating-point arithmetic. Timestamps use UTC with IANA zones for display; effective calendar dates use date values.
+
+Versioned submissions reference facts and file versions with the permissions under which sharing occurred. Participant-facing retrieval still evaluates current grants. A restricted audit record can preserve the fact that a document was included without exposing its bytes or dependent confidential text after revocation. Deleting or correcting a current profile cannot silently rewrite the historical decision context.
+
+## 7. States and valid transitions
+
+Publication states are DRAFT → PENDING_REVIEW when configured → PUBLISHED → ARCHIVED. A returned review goes to DRAFT with reasons. Republishing a changed version updates the public pointer only after required review. SupportRequest, FundingRequest and Opportunity use DRAFT → ACTIVE ↔ PAUSED → CLOSED, with EXPIRED when a configured deadline passes. Closing stops new pitches without inventing an outcome for existing ones.
+
+| Pitch state | Action and authorized actor | Result |
+|---|---|---|
+| DRAFT | Submit by authorized inventor after fresh preflight | SUBMITTED or PENDING_WORKSPACE_REVIEW |
+| PENDING_WORKSPACE_REVIEW | Reviewer approves exact queued version | SUBMITTED |
+| PENDING_WORKSPACE_REVIEW | Reviewer returns with reason | Previous DRAFT or REVISION_REQUESTED origin |
+| SUBMITTED | Recipient begins review | UNDER_REVIEW |
+| SUBMITTED / UNDER_REVIEW | Recipient requests itemized revision | REVISION_REQUESTED |
+| REVISION_REQUESTED | Inventor resubmits answered required items | SUBMITTED or PENDING_WORKSPACE_REVIEW |
+| SUBMITTED / UNDER_REVIEW | Recipient approves discussion | APPROVED_FOR_DISCUSSION |
+| SUBMITTED / UNDER_REVIEW | Recipient declines with reason | REJECTED |
+| Nonterminal before final decision | Inventor withdraws | WITHDRAWN |
+| APPROVED_FOR_DISCUSSION | Authorized party closes discussion with reason | CLOSED |
+
+Store the review origin and queued source versions. A rejected or withdrawn submission is not reopened by editing its profile. A genuinely new pitch needs recipient permission or a configurable resubmission policy, initially a seven-day pause plus material change. After discussion approval, additional clarification uses tasks; it does not erase approval history. Scheduling and relationship states are independent, so a pipeline label is a projection rather than one destructive enum.
+
+ScheduleProposal states are OPEN, ACCEPTED, SUPERSEDED, EXPIRED and CANCELLED. Counterproposal supersedes the previous open round. Meeting states are CONFIRMED, COMPLETED, CANCELLED and NO_SHOW_REPORTED. Completion requires a recorded participant outcome; disagreement remains visible. Reschedule acceptance changes old/new bookings in one transaction. A cancelled proposal does not cancel an existing meeting unless the user explicitly chooses that separate action.
+
+PartnershipVersion moves DRAFT → PENDING_COUNTERPARTY → CONFIRMED, with CHANGES_REQUESTED or DECLINED alternatives. The first sending party confirms the submitted summary and proposed disclosure ceiling; the counterpart confirms that same checksum/version but can choose a different subset of ceiling fields. Effective public fields are the intersection of those per-party subsets, reduced by any live restrictions. A material summary change or disclosure expansion creates a new version/confirmation round with no inherited confirmations. An append-only restriction event can narrow or revoke current disclosure immediately without rewriting prior confirmation history. Publication is a separate authorized projection of the confirmed version and current restrictions. An ended relationship retains dates and history; removal from the public profile does not erase the private record.
+
+## 8. Authorization and confidentiality contract
+
+| Operation | Invention manager | Recipient decision maker | Assigned reviewer | Operator |
+|---|---|---|---|---|
+| Read published nonconfidential catalog | Yes | Yes | Yes | Yes |
+| Edit source invention/request | If scoped edit capability | No | Only explicitly granted edit | No routine access |
+| View private document | Ownership/member grant | Selected active grant only | Assigned scope only | Documented case-specific grant |
+| Submit/resubmit pitch | Scoped submit capability | No | Approve workspace gate only | No |
+| Decide pitch | No | Scoped recipient capability | No | No |
+| Accept schedule | Named participant/coordinator | Named participant/coordinator | Only if authorized participant | No |
+| Confirm relationship | Authorized party representative | Authorized party representative | Only when representing a party | No |
+| Moderate public listing | No, may report | No, may report | No | Scoped moderation capability |
+
+Authorization is deny-by-default and checked on every request, including static-resource delivery. Search uses an explicitly public or otherwise permitted projection; private technical evidence does not enter a global public index. Cached values are not authority. Cache keys include source/target versions, viewer/access context and permission generation; a grant change invalidates dependent outputs. Workers re-establish actor/resource authorization before processing and before releasing results. [OWASP authorization guidance](https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html), [OWASP multi-tenant guidance](https://cheatsheetseries.owasp.org/cheatsheets/Multi_Tenant_Security_Cheat_Sheet.html).
+
+A generated brief must retain its fact/document dependency references. If access to a confidential dependency is revoked, refuse the protected artifact or render a clearly labelled redacted projection; do not silently change the submitted original or serve an obsolete cache. A party's private decision metadata can remain under a separate, justified retention policy. Previously downloaded material cannot be recalled technically. R1 uses a protected download gateway that reauthorizes each new fetch, including range requests, before returning protected bytes; it does not issue client-visible direct object-storage URLs. Revocation therefore blocks new retrieval requests but cannot recall bytes already delivered or responses already in flight. Any later direct signed-URL adapter must explicitly document its maximum outstanding-URL lifetime and revocation window, and revise the corresponding guarantee rather than pretending issued URLs can be instantly recalled.
+
+Validate file extension, actual media type, signature, size and parsing limits; generate safe storage keys and quarantine new content. Do not execute document macros or arbitrary embed HTML. Scan using an approved processor without disclosing confidential material to an unapproved public service. URL imports cannot fetch unrestricted internal addresses. Model context is assembled from allowed facts only. Retrieved instructions are treated as untrusted data; structured output references must resolve to supplied facts. One controlled retry may repair invalid output, then deterministic fallback applies. These controls follow relevant OWASP guidance and still require implementation threat modeling. [File upload](https://cheatsheetseries.owasp.org/cheatsheets/File_Upload_Cheat_Sheet.html), [prompt injection prevention](https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html).
+
+## 9. Matching unit, typed constraints and stage semantics
+
+A matching unit is source request version + supporting invention versions + target opportunity/intake version + selected purpose + financial basis + authorized viewer context. A FundingRequest remains the source subject even when two inventions support it. Opportunity-specific candidates remain distinct before partner-level grouping.
+
+A Requirement contains field, operator, value, unit/basis where relevant, mandatory/preference, applies_at, verification_mode, source, accountable reviewer, visibility and version. Supported operators are equals, in_set, intersects, minimum, maximum, range_overlap, exists and manual_review. R1 implements bounded typed code; administrators cannot upload arbitrary expressions. Stage values are SUBMISSION, DISCUSSION, PILOT and COMMERCIALIZATION. Verification modes are DECLARATION, DOCUMENT_PRESENT and REVIEWER_CONFIRMED.
+
+PASS requires comparable sufficient permitted evidence. FAIL requires sufficient evidence that disproves the stated criterion. UNKNOWN means absent, conflicting, stale, incomparable or insufficiently reviewed evidence. NOT_APPLICABLE needs an explicit reason. A known CURRENT requirement cannot be satisfied by a PLANNED fact. A narrative requirement with no approved mapping returns UNKNOWN/manual review, never guessed compliance.
+
+Evaluate hard constraints for the opportunity's entry stage first. A regulation needed before commercialization does not automatically block a prototype co-development pitch. If the recipient only accepts market-ready solutions, that criterion must be stated as a submission-stage rule. A recipient can explicitly record an authorized exception to its own criterion; it cannot waive platform authorization or another party's authority.
+
+Return match eligibility ELIGIBLE, NEEDS_VERIFICATION or INCOMPATIBLE separately from pitch readiness READY_TO_SUBMIT, NEEDS_INFORMATION or BLOCKED_FOR_THIS_TARGET. Report provided/reviewed evidence as counts over applicable requirements, never a universal readiness percentage. With no checklist, show “Belum ada checklist.” A maturity scale is optional, identified by scale/version and source; it is not calculated from document count.
+
+## 10. Candidate retrieval and conservative ranking
+
+For a small catalog, evaluate all authorized active candidates and explain exclusions. Start with a lexical baseline plus structured rules. Optional hybrid mode uses actual BM25 and normalized multilingual dense representations, combines ranks with Reciprocal Rank Fusion, then reranks a bounded candidate set if measured benefit justifies it. RRF combines ranks, not raw lexical and cosine scores; retrieve-and-rerank is an established pattern, but its usefulness here still needs a local benchmark. [Original RRF paper](https://cormack.uwaterloo.ca/cormacksigir09-rrf.pdf), [Sentence Transformers retrieve and rerank](https://sbert.net/examples/sentence_transformer/applications/retrieve_rerank/README.html).
+
+Proposed hybrid defaults: up to 50 lexical and 50 dense results, RRF constant k=60 with one-based ranks, rerank at most 30 merged candidates, return up to five first-page matches. A retriever contributes zero for a candidate it did not retrieve. No meaningful lexical overlap means no invented lexical relevance. Do not mix cosine and cross-encoder outputs inside one feature as though their scales are equivalent. Pin model identity/revision, tokenizer, truncation rules, input template and feature calibration. Protect critical requirements from silent truncation.
+
+Engine modes are LEXICAL_RULES, HYBRID_NO_RERANK and HYBRID_RERANK. A model outage falls back explicitly; numeric thresholds are calibrated separately per mode. If no relevance signal supports a match, compatible geography and budget alone cannot create a strong recommendation. Return fewer than five or no positive match when justified. A zero-result explanation is a valid result.
+
+Proposed reciprocal features use two weighted directions. Direction A asks how the invention/request meets the recipient's opportunity: problem relevance .45, accepted stage .15, sector/application scope .15, compatible financial contribution .15 and timing .10. Direction B asks whether the recipient helps the requester: required support coverage .40, relationship/financing form .30, geographical reach .15 and availability .15. These are design hypotheses. Mandatory rules are evaluated independently and cannot be averaged away.
+
+For known features, use values between zero and one with documented mappings. Unknown feature weight remains unknown rather than renormalizing known positives. For direction A calculate A_low as the sum of known weighted values and A_high as A_low plus unknown weights; do the same for B. Let H(a,b)=0 when a+b=0 and otherwise 2ab/(a+b). Fit bounds are 100H(A_low,B_low) and 100H(A_high,B_high). Coverage is half the sum of known feature weights in both directions. The interval describes missing information, not a statistical confidence interval or probability of funding.
+
+Example: A is known at .80; B has known contribution .65 and unknown weight .15. The lower index is 100×2×.80×.65/(.80+.65)=71.72 and upper index is 80.00. If a mandatory budget fact is unknown, the main label remains “Perlu konfirmasi” regardless of those numbers. Proposed strong-fit presentation requires lower bound ≥70, coverage ≥.70 and ELIGIBLE status; potential fit requires ≥50 and ≥.50. Coverage below .40 displays insufficient information. These thresholds are versioned parameters awaiting validation.
+
+Financial compatibility compares the same subject and basis. Project totals compare with project-support totals for the same period/scope. Desired individual contribution compares with compatible check ranges, not automatically with a whole round target. License fees and royalty rates are different quantities. Same-basis overlapping ranges yield an indicative feature of 1; nonoverlap with explicitly accepted partial support yields .5; known nonoverlap where full support is mandatory yields 0. Missing currency conversion, incompatible instrument, unclear contribution basis or unlike periods yields UNKNOWN or a typed mismatch as appropriate. R1 does not invent exchange rates or valuations.
+
+Rank within eligibility groups by conservative lower bound, then relevant signal and stable id. Group a partner's opportunities only after evaluating them separately, showing the best qualifying opportunity and up to two genuine alternatives. Limit repeated managing contexts to two of the first five results when relevant alternatives exist. FundingRequest deduplication precedes presentation; related inventions must not crowd the list as duplicate raises. Curated/new sections give new entrants visibility without fabricating interest.
+
+## 11. Transaction, retry and event guarantees
+
+Every consequential mutation includes expected_version and an actor/scope/operation-bound Idempotency-Key. Store the request digest and committed result atomically. Reusing a key with different parameters returns a conflict; the same request returns a semantically equivalent result. Proposed key retention is seven days for submissions, decisions, booking and relationship confirmation, with operation status available afterward; define final retention before real use. Idempotency prevents duplicate intent, while optimistic version checks prevent stale conflicting intent. [AWS idempotent API guidance](https://aws.amazon.com/builders-library/making-retries-safe-with-idempotent-APIs/).
+
+Use a database uniqueness rule for active subject–recipient–target–purpose pitches. Commit state changes, attributable audit events and outbox intent together. Event delivery is at least once; consumer deduplication is required. Retry email or indexing independently; a failed side effect does not roll back an already visible decision or repeat it. [AWS transactional outbox](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html).
+
+Accepting a meeting checks every required participant's active interval and writes bookings atomically. Use suitable database constraints or locking; a UI availability check alone is insufficient. PostgreSQL range exclusion constraints are one concrete mechanism for preventing overlap on the same resource. Accepting a reschedule replaces the old booking in the same transaction, with no interval in which both conflicting meetings become committed. [PostgreSQL range types](https://www.postgresql.org/docs/current/rangetypes.html).
+
+After a network timeout, a client that knows operation_id can query the authorized operation-status route. If it never received that id, it retries the identical request with the original idempotency key within its retention period. UNKNOWN status is uncertainty, not proof of failure or permission to send a new key. Conflicts return the current version and one recovery action without discarding entered text. Intake or access changes between preflight and submission are rechecked. Permission revocation during a queued job prevents result disclosure even if execution already produced an artifact.
+
+## 12. API contract
+
+Use JSON under /api/v1, documented in OpenAPI. All endpoints enforce object authorization and version/capability rules. The routes below define responsibilities; they do not imply that an implementation already exists.
+
+| Area | Concrete routes |
+|---|---|
+| Account/context | GET /me; PATCH /me; GET /workspaces; POST /workspaces/{id}/invitations; POST /invitations/{id}/accept |
+| Portfolio | POST /inventions; GET /inventions; GET/PATCH /inventions/{id}; GET /inventions/{id}/versions; POST /inventions/{id}/publish; POST /inventions/{id}/archive |
+| Rights/evidence | POST /inventions/{id}/rights-claims; GET /inventions/{id}/evidence; POST /evidence/{id}/reviews |
+| Files/grants | POST /documents/upload-intents; POST /documents/{id}/complete; GET /documents/{id}/download; POST /documents/{id}/grants; POST /grants/{id}/revoke |
+| Support/project | POST/GET /support-requests; GET/PATCH /support-requests/{id}; POST /support-requests/{id}/activate; POST/GET /support-requests/{id}/budgets |
+| Company funding | POST/GET /funding-requests; GET/PATCH /funding-requests/{id}; POST /funding-requests/{id}/activate; POST /funding-requests/{id}/inventions |
+| Recipient intake | GET/PATCH /partners/{id}; POST/GET /opportunities; GET/PATCH /opportunities/{id}; POST /opportunities/{id}/activate; POST /opportunities/{id}/close |
+| Discovery | GET /discovery; POST /saved-items; DELETE /saved-items/{id}; POST /discovery-feedback |
+| Matching/jobs | POST /matches; GET /match-runs/{id}; GET /jobs/{id}; POST /jobs/{id}/cancel |
+| Operation status | GET /operations/{id} |
+| Preflight/brief | POST /pitches/preflight; POST /briefs; GET /briefs/{id}; GET /briefs/{id}/export |
+| Pitch/decision | POST /pitches; GET /pitches; GET /pitches/{id}; POST /pitches/{id}/submit; POST /pitches/{id}/decisions; POST /pitches/{id}/withdraw |
+| Revisions | POST /pitches/{id}/revision-rounds; PATCH /revision-items/{id}/response; POST /pitches/{id}/resubmit |
+| Discussion | GET/POST /pitches/{id}/messages; GET/POST /pitches/{id}/tasks; GET /notifications; POST /notifications/{id}/read |
+| Scheduling | POST /pitches/{id}/schedule-proposals; POST /schedule-proposals/{id}/accept; POST /schedule-proposals/{id}/counter; POST /schedule-proposals/{id}/cancel |
+| Meetings | GET /meetings/{id}; POST /meetings/{id}/reschedule; POST /meetings/{id}/cancel; POST /meetings/{id}/outcome; GET /meetings/{id}/calendar.ics |
+| Relationships | POST /partnerships; GET/PATCH /partnerships/{id}; POST /partnerships/{id}/confirmations; POST /partnerships/{id}/publish; POST /partnerships/{id}/request-review |
+| Review/moderation | GET /workspace/review-queue; POST /workspace/reviews; POST /reports; GET /operator/reports; POST /operator/reports/{id}/actions |
+| Portability/privacy | POST /imports/validate; POST /imports/{id}/apply; POST /exports; POST /privacy-requests; GET /privacy-requests/{id} |
+
+Long parsing, matching, brief and export operations may return 202 with job_id and authorized status URL. Jobs use PENDING, RUNNING, SUCCEEDED, FAILED, CANCELLED and NEEDS_MANUAL_INPUT; cancellation is best effort and never implies reversal of committed domain changes. GET /operations/{id} is distinct from job progress: after checking actor/scope authorization it reports PENDING, COMMITTED with an authorized result reference, or UNKNOWN when no retained authoritative result can be established. It cannot expose another actor's operation or infer a business failure from missing status. Lists use validated cursor pagination. Return 401 for unauthenticated requests, 403/404 consistently for unauthorized objects, 422 for field/domain validation, 409 for stale versions/duplicate scope/conflicting booking, and 429 with retry guidance for rate limits. A disabled capability returns a documented CAPABILITY_UNAVAILABLE response without accepting the mutation.
+
+Errors include stable code, plain message, field_errors when relevant, retryable flag, operation_id and correlation_id. Do not expose stack traces, private prompts, source contents or other actors' existence. There is no generic endpoint that lets a client set any business state directly. OpenAPI and generated clients must preserve decimal serialization, null/unknown semantics and timezone format.
+
+## 13. Interface and recovery design
+
+Default navigation for inventors is Beranda, Inovasi Saya, Temukan Investor/Mitra, Pitching dan Diskusi, Profil. Partners start at Jelajahi, then Kebutuhan/Mandat, Pitching Masuk, Diskusi dan Jadwal, Profil. Mobile exposes at most four primary destinations plus Lainnya. Scheduling stays inside the pitch workspace; partnership information appears on the relevant invention/entity profile. Do not add top-level pages for every state.
+
+Use one primary action per screen, concise plain Indonesian and progressive detail. Invention pages prioritize problem, existing solution, requested support, financial scope, evidence and responsible people. Investment views label company funding separately from project support. Avoid unexplained score badges, automatic claims of readiness or decorative analytics. Labels distinguish “company not formed,” “not provided,” “source reported” and “reviewed for this criterion.” Explain any optional technical scale in context.
+
+The design must cover five connected journeys: independent inventor seeking project support; startup raising for two inventions through one funding request; partner requesting and reviewing itemized revisions; slot counterproposal and conflict recovery; and relationship correction followed by two-party confirmation. Each journey must include empty, loading, validation, stale-version, permission-denied and interrupted-network states where relevant. Preserve nonsecret input after recoverable failures and announce saved/unsaved state. Do not show a success toast before committed server confirmation.
+
+The accessibility target is WCAG 2.2 AA, requiring rendered verification rather than a conformance claim from this document. Text contrast is at least 4.5:1, or 3:1 for text meeting the standard's large-text definition; essential control boundaries and meaningful non-text graphics need 3:1 against adjacent colors where required. Support text enlargement to 200% and reflow at 320 CSS px without loss of content or function, subject to the standard's legitimate two-dimensional-content exceptions. Interactive targets meet the 24×24 CSS px minimum or the standard's specified exceptions; a comfortable 44×44 CSS px target is our stronger product preference, not a universal AA threshold. Also verify core journeys at 360 px and desktop. [WCAG 2.2](https://www.w3.org/TR/WCAG22/).
+
+All actions are keyboard-operable with visible, unobscured focus. Labels and field-linked errors explain correction; status updates are announced without unnecessary focus movement. Dialogs have accessible names, logical focus containment, a safe close action and return focus to the invoking control when appropriate. Respect reduced-motion preferences and remove nonessential motion; status cannot rely on animation or color alone. Destructive actions describe the actual effect; withdrawing a pitch, deleting a draft and revoking a document grant are different actions. A denied document page offers a request-access or return action without exposing its title if the title itself is protected. Accessibility and user comprehension require actual component, assembled-page and user-flow evidence.
+
+## 14. Modular monolith and module ownership
+
+The accepted architecture is a modular monolith with one domain authority, clear internal boundaries and a maintained reusable core. The baseline implementation proposal uses Python/FastAPI, a responsive Next.js/TypeScript web client, PostgreSQL, private object storage and an optional worker from the same backend release. Those stack details are starting choices, not a benchmark comparison or proof of a built application. The server owns domain truth; web, workers, imports and adapters call the same use cases. PostgreSQL job/outbox tables suffice initially. A separate process for long jobs does not require a microservice per module.
+
+| Module | Owns | Allowed collaboration |
+|---|---|---|
+| Identity/access | Accounts, membership, capabilities, grants and policy evaluation | Exposes authorization/context queries; no caller reads its repository directly |
+| Portfolio/evidence | Inventions, versions, claims, files and reviewed facts | Publishes authorized projections and source-version references |
+| Support/funding | Support requests, project budgets and venture raises | Resolves financial subject and compatible scope for matching/pitches |
+| Partner intake | Profiles, mandates, opportunities and typed requirements | Publishes active target versions and intake policies |
+| Discovery/matching | Index projections, match runs, features and explanations | Reads explicit authorized source/target interfaces; never grants access |
+| Pitch collaboration | Submission, decisions, revisions, discussion and tasks | Orchestrates source snapshots and approved scheduling eligibility |
+| Scheduling | Proposals, meetings and participant bookings | Requires pitch eligibility; owns atomic booking constraints |
+| Relationship records | Proposals, entity links, confirmation and public projection | Validates party authority and exact consent/version agreement |
+| Delivery/operations | Jobs, outbox delivery, audit transport, import/export orchestration | Calls use cases with actor context; no independent rule implementation |
+
+Dependencies pass through module interfaces and data contracts. Hide repositories; reject import cycles and cross-module persistence access with architecture checks where language visibility is insufficient. Keep rule evaluation and money semantics in one server implementation. Frontend validation improves feedback but cannot be the sole check. Shared fixtures/OpenAPI bridge languages without duplicating the matching engine in TypeScript.
+
+Transactions are scoped to a use case rather than an HTTP endpoint or background handler. Submission, booking and relationship confirmation can orchestrate modules inside one database transaction with explicit ownership. External calls occur outside the business transaction, using outbox/jobs and retry-safe callbacks. This is the proposed application of enforced modularity, not proof of existing module boundaries. [Simon Brown on modular monoliths](https://simonbrown.je/modular-monolith/).
+
+Do not build a public plugin SDK, dynamically load client code, introduce a freeform workflow language or split services for hypothetical scale. A later extraction needs measured contention, separate ownership/release requirements or a concrete isolation need, with a new decision record. Monolith-first guidance explains an operational tradeoff and is itself explicitly tentative; it does not guarantee easy future decomposition. [Fowler, Monolith First](https://martinfowler.com/bliki/MonolithFirst.html).
+
+## 15. Reusable product family and permitted variation
+
+The user has accepted TemuRiset as a reusable invention-partnership core with a lightweight product-family strategy. Related offerings share the work of discovery, evidence-led evaluation, controlled disclosure and collaboration. White-label describes presenting an offering under another brand. SaaS describes hosting and maintaining it as a service. Multitenancy describes chosen sharing/isolation in a running system. These choices are independent; shared source alone does not establish pooled SaaS. [SEI product-line curriculum](https://www.sei.cmu.edu/library/software-product-lines-curriculum/), [Microsoft SaaS and multitenancy](https://learn.microsoft.com/en-us/azure/architecture/guide/saas-multitenant-solution-architecture/).
+
+Use configuration for brand/copy, locale, supported currencies, approved taxonomy/checklist identifiers, named review policies, adapter selection and tested capability combinations. Use an ordinary capability module for repeatable behavior such as organization review or structured technical diligence. Use an adapter for an actual external identity, catalog, model, storage, email or calendar service. A new business problem that changes the core meaning of discovery, rights, support or collaboration can be a separate product sharing only proven technical components.
+
+The default R1 composition enables project support, company funding, licensing discovery, documents, manual meeting slots, template briefs and in-app notifications. Organization review, dense retrieval, reranking, AI summarization, external calendars and external email delivery are optional. Disabling AI leaves template briefs and manual facts functional. Disabling external calendars leaves internal conflict checks and ICS. Disabling company_funding hides raise creation and rejects its mutations while project support still works; historical authorized funding records remain readable under a documented transition. Organization review has the explicit queue migration in FR20. Unsupported combinations fail configuration validation rather than failing halfway through a user journey.
+
+An illustrative composition record contains config_schema_version, config_revision, source_release, marketplace_id, brand_id, default_locale, supported_currencies, capability_ids with versions, checklist_policy_ids and adapter_ids with versions. It contains secret references only; credentials live in deployment secret storage. A schema validates permitted values and dependencies. Client names and logos are content, never conditionals inside matching or permission rules. Persist configuration identity on preflight, submissions and match runs so changes can be reproduced.
+
+Each supported composition needs core invariant tests, enabled/disabled capability tests, adapter contract tests, full representative journeys, permission/export tests and migration/recovery evidence. Temporary rollout flags expire and differ from persistent product capabilities. Common-source and consistent deployment guidance supports this approach, while each specific module/composition remains our proposal. [Microsoft deployment and configuration guidance](https://learn.microsoft.com/en-us/azure/architecture/guide/multitenant/approaches/deployment-configuration).
+
+## 16. Marketplace sharing and deployment choices
+
+The accepted reuse direction allows one shared source to serve optional isolated client deployments. The initial delivery proposal is one marketplace deployment with many personal and organization workspaces. Published public projections are intentionally discoverable across organizations; private workspace content remains restricted. A bilateral pitch room shares selected information with its named parties. Adding organization_id filters everywhere would both break discovery and fail to express actual document permissions. An organization is therefore not automatically a sealed customer tenant.
+
+A client needing isolation can run the same supported release with its own database, object store, secrets, identity configuration and operator policy. That deployment has its own network of users and opportunities. It does not automatically participate in another marketplace, share sign-ins or expose catalog entries to another client. Cross-deployment federation requires an explicit identity, consent, sharing, synchronization and governance design; it is outside R1/R2.
+
+Choose pooled SaaS only with an explicit customer/tenant definition and operational model. If adopted, derive tenant context from verified identity/membership, then enforce it across database queries, caches, jobs, files, search, exports, support access and telemetry. Intentionally public resources and authorized cross-party collaboration need explicit policies within that model. Do not use branding, URL parameters or a frontend selector as tenant authority. No measured cost or scale data currently proves pooled or isolated hosting optimal.
+
+## 17. Client extension and shared-release workflow
+
+The accepted maintenance approach is shared releases with deliberate client variation. For a new client, write an addendum against a pinned base PRD and source release. Identify actual users, required outcomes, changed requirements and examples before implementing variation. Classify each difference as content/configuration, a repeatable capability, an external adapter or a separate product. Preserve shared invariants and record the accountable owner of every client checklist and policy. A new brand requires neither duplicated core logic nor a new tenant architecture.
+
+Keep common improvements in the shared source. A client adapter or capability has contract tests and is composed deliberately. Avoid long-lived client branches that accumulate conflicting versions of identity, money, matching and consent. If a deliberate fork is unavoidable, assign backport ownership and its cost explicitly; do not promise automatic updates. Repository templates start independent source histories and are appropriate only when that independence is intended. [GitHub template semantics](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template).
+
+Release flow is: commit reviewed change → run core and supported-composition tests → build immutable artifacts → record version inventory → test migration/restore → deploy a canary environment → verify actual journey and observability → roll out per deployment → retain rollback/forward-repair instructions. Schema changes expand first, migrate with resumable evidence, switch reads/writes after compatibility checks, then contract only after old releases are retired. A code rollback cannot safely undo every data transformation; document when forward repair or restored backup is required and the resulting data-loss window.
+
+Record deployment owner, supported release window, migration status, backup/restore evidence and outstanding exceptions. A fix available in source is not proof it reached a client. Extract a versioned shared package only when a real independently released consumer needs it. Internal modules in one release do not each need a package registry or separate release pipeline.
+
+## 18. Operational data, performance and accessibility targets
+
+| Area | Proposed target and required test conditions |
+|---|---|
+| Standard API | p95 ≤500 ms at 20 concurrent users, 1,000 published inventions, 100 active opportunities, no upload/AI work; record hardware/cache |
+| Cached discovery | p95 ≤2 seconds for authorized first page on the same dataset; test permission changes separately |
+| New matching | May use a job; report actual candidate count and elapsed time, with progress/cancel feedback; no fake instantaneous SLA |
+| Text parsing/brief | Initial objective ≤60 seconds for a 20-page text document on recorded hardware/provider settings; manual fallback remains usable |
+| Responsive UX | Core journeys usable at 360 px, 768 px and desktop; reflow at 320 CSS px and text enlargement to 200% without lost content/function, with WCAG exceptions respected |
+| Accessibility | WCAG 2.2 AA target: text4.5:1/large3:1, essential non-text controls3:1 where required, targets24×24 CSS px or standard exceptions; comfortable44×44 preference, keyboard/focus/errors/status/dialog/reduced-motion behavior verified in rendered views |
+| Integrity | No known failed hard criterion presented as passed; zero unauthorized cross-context reads in the defined security tests |
+| Reliability | Repeated requests yield one intended effect; restore/migration exercises documented before real pilot data |
+| Observability | Correlation/operation ids, queue age, fallback mode, model/config versions, failures and cost; no private content in routine logs |
+
+These are hypotheses for planning, not production claims. Measure cold/warm paths, network conditions, file sizes, provider limits and representative concurrency. Set retention, availability, backup frequency, recovery point/time and incident contact before real service commitments. R1 can use a small deployment with supervised operations; this does not remove integrity or authorization requirements.
+
+Do not collect national identifiers, financial credentials or sensitive personal documents merely to create a public inventor profile. Any later verification program must define necessity, restricted access, retention and what its badge actually means. Publish privacy and processing explanations before real uploads. Review model-provider processing terms before sending private content; use only enabled, approved adapters and permit a manual-only deployment.
+
+## 19. Generic synthetic fixtures and exact oracles
+
+All names, support amounts, organizations, documents and activity in this section are fictional DEMO fixtures, excluded from real trends and outcome metrics. They are test contracts, not evidence of customers or actual investment interest. Use five sectors and deliberately varied ownership/stage contexts.
+
+| Fixture | Subject and declared state | Request and target | Expected core outcome |
+|---|---|---|---|
+| F01 ClearSpring | Independent inventor; water filter prototype; no company/patent; CURRENT 10 L/hour, PLANNED 20 L/hour; function file provided | USD20,000–30,000 six-month validation project; partner accepts prototypes, offers same-scope USD15,000–40,000 and requires file presence at submission | Stage/file/budget PASS; READY_TO_SUBMIT; absence of a company or patent is not a blocker |
+| F02 FieldDry | Community agritech drying process; pilot stage; rights authority not established | Noncash test facility; target requires reviewed authority before submission | Authority UNKNOWN; NEEDS_INFORMATION; no invented cash amount or ownership claim |
+| F03 QueueNest | Small software team; functioning scheduling tool; license discussion; CURRENT offline export, PLANNED SSO | Target requires CURRENT SSO at submission | SSO FAIL; INCOMPATIBLE/BLOCKED_FOR_THIS_TARGET despite strong topic similarity |
+| F04 LoopMaterial | Materials startup represented by the fictional incorporated entity Demo Circular Materials Ltd; company at pre-seed financing stage, packaging material at prototype maturity | FRaise01 total USD500,000 equity raise, desired contribution USD50,000–100,000, partial/syndicated funding explicitly accepted; individual investor offers equity checks USD50,000–150,000 and accepts pre-seed companies with prototypes | Contribution compatibility PASS; raise is one request, not five investment checks or a valuation; no organization required for the individual investor |
+| F05 ReFormPress | Manufacturing invention managed by the same actual demo entity as F04 | Second invention linked to FRaise01, same recipient | One funding-request result and one active funding pitch; two supporting invention links |
+| F06 GridShare | Community energy-monitoring solution; nonprofit team; idea stage; cash requirement unknown; legal-entity status unconfirmed | Partner accepts early concepts for mentoring/noncash support; other target requires incorporated equity subject | Mentoring route can pass stated criteria; equity entity requirement is UNKNOWN because legal-entity status is unconfirmed |
+
+Use Recipient A as the prototype validation partner, Recipient B as an incorporated-company equity investor, Recipient C as a market-ready distributor requiring current certification at submission and Recipient D as the software license target. Each opportunity states its own version, active intake and requirement stages. A future commercialization certificate does not block Recipient A's prototype path; Recipient C's explicit submission certificate can.
+
+Additional exact oracles: F01 minimum -1 or maximum below minimum is invalid; USD monthly support cannot be compared to USD six-month total without a confirmed equivalent basis; EUR and USD are UNKNOWN without an enabled dated conversion; project funding versus equity-only mandate is a relationship-form FAIL. If a separate fixture explicitly confirms that no legal entity exists and its target requires an existing entity at submission, that criterion is FAIL; this must not replace F06's UNKNOWN result for unconfirmed status. If F01's supplied file is unreviewed, DOCUMENT_PRESENT passes but REVIEWER_CONFIRMED remains UNKNOWN. A demand for CURRENT20 L/hour fails against the known CURRENT10 value; the PLANNED20 value cannot rescue it.
+
+For schedule tests, participant P is booked 09:00–10:00 UTC. A candidate 09:30–10:30 conflicts; 10:00–11:00 is allowed using half-open intervals. 09:00 UTC displays 16:00 Asia/Jakarta and 17:00 Asia/Makassar for the same instant. Concurrent acceptance of overlapping meetings yields one committed booking and a recoverable conflict. For confirmation, changing summary version 1 to version 2 invalidates version-1 consent; one party's version-2 confirmation cannot publish a mutual badge.
+
+## 20. Evaluation and product learning
+
+Create a reviewed dataset including relevant, incompatible and unknown pairs across the fixture sectors, then add permissioned real cases. At least two reviewers independently label relevance, requirement outcomes and explanation support; retain disagreements and adjudication. Group splits by underlying invention/entity/funding request and related opportunities. Near-duplicate paraphrases and two inventions supporting the same company raise must not leak across development and held-out evaluation. Tune weights and thresholds only on development data. This applies established leakage guidance to the proposed domain. [scikit-learn common pitfalls](https://scikit-learn.org/stable/common_pitfalls.html).
+
+Compare lexical+rules, dense+rules, hybrid+rules and optional reranking on the same allowed corpus and input versions. Measure candidate recall, precision over returned results, P@5 where defined, nDCG@5, known hard-constraint violations, UNKNOWN correctness, factual source support, coverage/abstention, latency/cost and exposure across new/established managers. Report actual result counts; do not redefine P@5 to conceal fewer returned results. Proposed pilot goals are no known hard-rule violations and fully traceable inspected factual claims; relevance goals are set after the first labelled baseline rather than claimed here.
+
+Conduct initial task sessions with 5–8 people covering independent inventors, startup managers and investors/partners, including keyboard/mobile use. This sample finds problems rather than estimating a population effect. Proposed goals: at least 80% of defined tasks completed without moderator help, median prepared-profile pitch under five minutes, slot selection under two minutes and correct understanding that approval does not equal funding. Record failures, assistance and terminology comprehension, then revise. Do not claim these goals have been reached.
+
+Track confirmed discussions per active request, time to appropriate next action, revision resolution, accepted/declined/expired reasons and consented follow-up outcomes. Keep views/saves as activity signals only. A reported investment amount needs subject, date, source and agreed reporting permission; it cannot be manufactured from proposal totals. Record outcome denominators and missing follow-up data so success claims remain interpretable.
+
+## 21. Implementation sequence and composition proof
+
+Build vertical slices in this order: identity/authorization with personal contexts; versioned invention and evidence; support/project budgets and company funding; partner intake and typed requirements; deterministic matching/preflight/template brief; pitch/decision/revision; shared discussion and race-safe scheduling; relationship confirmation/public projection; imports/operations/composition migration. Every slice includes meaningful failure behavior and its acceptance scenarios.
+
+The first demonstrated composition is the generic base with manual facts and lexical rules. A second supported composition enables organization review while leaving domain semantics unchanged. A third disables company_funding but retains project support, selected to prove supported disabled behavior rather than to create an arbitrary commercial edition. Optional AI and calendar adapters get contract/fallback tests only when actually implemented. A composition is not supported merely because its toggle appears in configuration.
+
+R2 adds proven workflow needs, approved real data, email preferences, external calendar adapters and measured matching improvements. L items require a fresh problem statement and operating model: pooled SaaS, federation, model training, transaction execution, advanced legal workflows or a public extension SDK. Do not add them solely because the architecture permits future modules.
+
+## 22. Design and implementation handoff
+
+Designers receive this complete PRD, selected composition/version and synthetic fixtures. Produce a screen map, reusable tokens/components, primary/secondary copy, role-specific views and connected journeys with success/error/recovery states. Record routes, source requirements, access expectations, responsive decisions and simulation limits. The prototype must identify local simulation versus server-enforced behavior. A design file's existence does not prove actual authorization, booking consistency or financial correctness.
+
+Use the design-system-first sequence: start with [04_Claude_Design_System_TemuRiset_EN.md](04_Claude_Design_System_TemuRiset_EN.md) and [05_Prompt_Claude_Design_System_EN.md](05_Prompt_Claude_Design_System_EN.md); create and inspect the actual system or portable reference; record its name/version, source/artifact identifier, token/component inventory, binding method, validation status and deviations; then use [02_Claude_Design_TemuRiset_EN.md](02_Claude_Design_TemuRiset_EN.md) with [03_Prompt_Claude_Design_EN.md](03_Prompt_Claude_Design_EN.md) to compose the application from that reference. The application handoff carries the exact complete canonical English PRD. A Markdown handoff does not itself register a design system or make it an organization default.
+
+Check the actual authoring surface and available import/component mechanism. If registered-system support is unavailable, use a clearly labelled portable/local reference and report that binding honestly; do not claim inheritance from an unavailable system or silently substitute a different default. The system workbench precedes the application and validates tokens, components and representative patterns. The later consuming application must verify its own binding, complete journeys and available exports. Neither stage has been executed merely because these specifications exist.
+
+Engineers produce database migrations, domain use cases, OpenAPI, adapter contracts, permissioned seed data, composition schema, regression fixtures, operational instructions and a capability/status ledger. Reference FR and AC identifiers in implementation work. Record deliberate deviations, rationale and approved replacement acceptance criteria. Avoid reinterpreting ambiguous business terms independently in separate modules.
+
+Delivery must include a run guide, environment/secret references, immutable build identity, schema/config inventory, backup/restore procedure and rollback/forward-repair instructions. Generated artifacts, new client addenda and release notes remain versioned in the same repository so cloud/local work can resume against the same commit. Do not rely on a previous chat or temporary attachment path to define runtime behavior.
+
+## 23. Acceptance scenarios
+
+All scenarios below are **NOT RUN**. Implementation must supply evidence, environment, composition, source/config version and actual result. Each row is a behavioral oracle; passing document checks is not passing these tests.
+
+| ID | Requirement | Scenario | Required result |
+|---|---|---|---|
+| AC01 | FR01 | Independent inventor registers without institution/company | Personal context and Inventor flow available; no fabricated affiliation |
+| AC02 | FR01 | Individual investor chooses Investor/Partner | Investor mandate/intake fields available without organization requirement |
+| AC03 | FR01 | Demo account creates saves/views | Events visibly DEMO and excluded from real trends/outcomes |
+| AC04 | FR02 | Member can edit but not decide an incoming pitch | Edit permitted in scope; decision rejected server-side |
+| AC05 | FR02 | User changes selected workspace to an unjoined id | Context/access rejected; no private resource metadata revealed |
+| AC06 | FR02 | Membership revoked while export job is pending | Job/result access rechecked and denied for revoked actor |
+| AC07 | FR03 | One actor publishes two inventions | Versions, evidence, requests and pipelines remain separate |
+| AC08 | FR03 | Published invention edited after submission | New draft/version created; submitted snapshot unchanged |
+| AC09 | FR03 | Invention archived during ongoing discussion | New discovery/submissions stop; authorized history remains |
+| AC10 | FR04 | Creator differs from asserted rights holder | Separate identities/scopes displayed; no ownership inference |
+| AC11 | FR04 | Inventor has no patent but target does not require one | Publication/pitch not blocked for that absence |
+| AC12 | FR04 | User previews disclosure | Public projection and selected recipient/file versions explicit; no automatic NDA claim |
+| AC13 | FR05 | Upload transferred but quarantine/security checks incomplete | File not AVAILABLE and DOCUMENT_PRESENT remains UNKNOWN; extraction status cannot bypass security checks |
+| AC14 | FR05 | File provided but review criterion requires confirmation | DOCUMENT_PRESENT can pass; REVIEWER_CONFIRMED remains UNKNOWN |
+| AC15 | FR05 | Scan passes security checks but has no supported OCR | File AVAILABLE and DOCUMENT_PRESENT can pass; extraction NEEDS_MANUAL_INPUT, unreviewed content UNKNOWN; no invented facts/readiness score |
+| AC16 | FR06 | Budget min negative or max below min | 422 field error; draft values preserved for correction |
+| AC17 | FR06 | Noncash validation support, money unknown | Noncash scope usable; money null, not fake zero or inferred raise |
+| AC18 | FR06 | Monthly and total-project amounts share currency | No direct compatibility score without confirmed equivalent basis |
+| AC19 | FR07 | FRaise01 links F04 and F05 | One raise/result, two invention references; target not doubled |
+| AC20 | FR07 | Round target500k versus check50–150k, desired contribution50–100k | Check compared to contribution; overlap PASS, no automatic whole-round mismatch |
+| AC21 | FR07 | Pre-incorporation team accepted by mandate then proposes confirmed equity | Discussion permitted; confirmation requires actual identified entity |
+| AC22 | FR08 | Directory profile has unconfirmed intake | Label source/availability; no invented active investment intent |
+| AC23 | FR08 | Partner closes direct intake | General direct pitch unavailable; specific valid opportunities evaluated separately |
+| AC24 | FR08 | Partner's preferred route is external form | External handoff shown; click not recorded as submitted in-app pitch |
+| AC25 | FR09 | Partner publishes two different mandates | Evaluate separately; never merge favorable fields across them |
+| AC26 | FR09 | Active opportunity closes before submit | Fresh submit rejected with recoverable target-state explanation |
+| AC27 | FR09 | Narrative criterion has no approved typed mapping | UNKNOWN/manual clarification; no hidden automatic failure |
+| AC28 | FR10 | New user has no behavior history | Explicit preferences/curation/new items work without fake trend |
+| AC29 | FR10 | Filters produce no matches | Explain and offer deliberate filter edits; no silent broadening |
+| AC30 | FR10 | Owner repeatedly refreshes own invention | No qualified partner trend increment |
+| AC31 | FR11 | F03 has PLANNED SSO, target requires CURRENT SSO | Known feature failure; no positive shortlist despite relevance |
+| AC32 | FR11 | Rights evidence missing | UNKNOWN and needs information; no assumption rights do not exist |
+| AC33 | FR11 | A=.80, B_low=.65, unknown B weight=.15 | Bounds71.72–80.00; mandatory UNKNOWN label takes precedence |
+| AC34 | FR12 | Opportunity changes after preflight | 409/version response and preflight refresh; entered message retained |
+| AC35 | FR12 | AI unavailable or emits unsupported reference | Deterministic editable brief; invalid claim not sent |
+| AC36 | FR12 | Brief depends on revoked private source | Protected artifact denied/redacted under current grants; no stale cached disclosure |
+| AC37 | FR13 | Same submission key retried after network timeout | One committed pitch and equivalent result |
+| AC38 | FR13 | Same key reused with changed target/body | Conflict; no second or silently changed submission |
+| AC39 | FR13 | Same funding request/target submitted through another linked invention | Active duplicate prevented; existing pitch returned/referenced |
+| AC40 | FR14 | Recipient approves pitch | APPROVED_FOR_DISCUSSION only; no funding or partnership record |
+| AC41 | FR14 | Two conflicting decisions race on same version | One commit; loser receives version conflict |
+| AC42 | FR14 | Recipient decides withdrawn submission | Rejected state transition; no reopening or public reputation change |
+| AC43 | FR15 | Required revision answered “Belum dapat dipenuhi” | Resubmit allowed after all required items answered; not auto-approved |
+| AC44 | FR15 | Revised proposed feature added in response | Remains PLANNED; current capabilities unchanged absent evidence |
+| AC45 | FR15 | New round/versions selected on resubmit | Previous answers/snapshot retained; material review gate reapplied when enabled |
+| AC46 | FR16 | Email delivery fails after decision commit | Decision remains once; delivery retried/deduplicated separately |
+| AC47 | FR16 | Meeting time passes without outcome confirmation | No automatic COMPLETED or funding outcome |
+| AC48 | FR16 | Unrelated user opens pitch-room URL | Unauthorized/hidden response; no messages/files/metadata leakage |
+| AC49 | FR17 | UTC09:00 viewed in Jakarta/Makassar | Same instant shown16:00/17:00 with timezone labels |
+| AC50 | FR17 | Concurrent overlapping slot acceptance for same participant | One conflicting booking commits; other gets recoverable conflict |
+| AC51 | FR17 | Reschedule proposed but not accepted | Existing meeting/bookings remain until atomic replacement or explicit cancellation |
+| AC52 | FR18 | One party confirms relationship version1 | No mutually confirmed public badge |
+| AC53 | FR18 | Other party edits summary to version2 | Version1 confirmations cannot confirm version2 |
+| AC54 | FR18 | Project funds are recorded without equity | PROJECT relationship only; no inferred ownership/share percentage |
+| AC55 | FR19 | Both parties confirm same summary but only one permits amount publication; later a party withdraws a public field | Amount remains private; only consent intersection public; withdrawn field hidden immediately on new reads; expansion requires a new confirmation round |
+| AC56 | FR19 | One company equity relationship supports two inventions | One entity-level relationship, two links; no doubled shares |
+| AC57 | FR19 | Party requests review of contested public relationship | Public claim hidden/reviewed per policy; private audit preserved |
+| AC58 | FR20 | organization_review disabled for independent inventor | No invented institutional approval gate; core pitch flow works |
+| AC59 | FR20 | Reviewer approves old source version | Approval does not authorize material successor version |
+| AC60 | FR20 | Disable review capability with pending queue | Configuration migration blocked until explicit item resolution/transfer |
+| AC61 | FR21 | Same external system/id imported twice | Scoped upsert; no duplicate invention or source-reported partnership upgrade |
+| AC62 | FR21 | Import conflicts with reviewed rights fact | Preview flags conflict; no silent overwrite |
+| AC63 | FR21 | Grant revoked before export result download | Current authorization denies dependent content and expires/invalidate result access |
+| AC64 | FR22 | User reports impersonation | Private case created; scope-limited operator action audited |
+| AC65 | FR22 | Grant revoked after recipient downloaded file | New gateway retrieval/range requests blocked; prior copies/in-flight bytes cannot be recalled and interface states that limit |
+| AC66 | FR22 | Deletion request meets retention exception | Response identifies retained categories/reason and policy; no false complete-erasure claim |
+| AC67 | FR23 | company_funding disabled | New funding mutations rejected; project support works and permitted history handled explicitly |
+| AC68 | FR23 | AI/calendar adapters disabled | Manual facts/template brief/internal slots+ICS remain usable |
+| AC69 | FR23 | Configuration contains secret or invalid capability combination | Validation rejects before serving traffic; invariants cannot be disabled |
+| AC70 | FR24 | Shared fix released to two client compositions | Both suites and version inventories required; release availability not mistaken for rollout |
+| AC71 | FR24 | Schema change deployed with supported old/new code | Expand/migrate compatibility verified; contract/removal waits for retirement |
+| AC72 | FR24 | Migration cannot be undone by code rollback | Explicit forward-repair/restore procedure and data-loss window tested/documented |
+
+## 24. Completion, assumptions and evidence limits
+
+The user has accepted the product and monolith/reuse direction; implementation, design-system creation and runtime verification remain separate unfinished work. R1 is complete only when core journeys work using permissioned real or visibly synthetic data, all R1 acceptance evidence is recorded, supported compositions pass, essential operations are exercised and remaining limitations are visible before demonstrations or pilot invitations. A polished prototype alone does not satisfy server authorization, concurrency, privacy or delivery requirements. A PRD and research report do not establish an implemented reusable platform.
+
+Open product questions include the first recruitment cohort, investor intake verification, review capacity, preferred terminology, supported initial countries/currencies, provider processing terms, final retention policy and delivery/support ownership. Resolve market-specific obligations and actual agreement procedures with appropriate responsible parties before offering those features. The base does not assume one checklist, maturity scale or legal regime answers every sector.
+
+Sources motivate a design, not guaranteed demand or effectiveness. No field interviews, investment outcomes, penetration test, model benchmark, production load result or accessibility conformance assessment has been completed under this specification. Validate the smallest complete generic flow and one real variation before building broader infrastructure.
+
+## 25. Selected primary references
+
+All pages below were opened during research on 31 October 2026. Vendor pages establish described product capabilities, not independently validated results. The product and modular-monolith/reuse direction has been accepted by the user. Detailed schema, stack/model choices, numeric weights/policies and unmeasured release/performance assumptions remain proposals where identified; acceptance is not implementation evidence.
+
+- [WIPO GREEN overview](https://www3.wipo.int/wipogreen/en/aboutus/) — technology providers/seekers and collaboration context.
+- [WIPO technology-transfer FAQ](https://www.wipo.int/en/web/technology-transfer/faq) and [agreements](https://www.wipo.int/en/web/technology-transfer/agreements) — ownership, disclosure and distinct agreement purposes.
+- [Halo innovator guide](https://knowledge.halo.science/articles/8946411648-guide-for-innovators) and [opportunity application guide](https://knowledge.halo.science/articles/4031823346-finding-and-applying-to-opportunities-on-halo) — varied innovator types and task flows.
+- [Inpart Campaigns](https://www.inpart.io/network/campaigns) — opportunity-specific requirements and collaboration outcomes.
+- [OpenVC investor database](https://www.openvc.app/investor-database) and [outreach routes](https://www.openvc.app/investor-outreach) — stages, check ranges, mandates and preferred contact paths.
+- [SEI software product lines](https://www.sei.cmu.edu/library/software-product-lines-curriculum/) — managed common assets and related-product variation.
+- [Simon Brown, Modular monolith](https://simonbrown.je/modular-monolith/) and [Fowler, Monolith First](https://martinfowler.com/bliki/MonolithFirst.html) — enforced boundaries and initial service tradeoffs.
+- [Microsoft SaaS/multitenancy](https://learn.microsoft.com/en-us/azure/architecture/guide/saas-multitenant-solution-architecture/) and [deployment/configuration](https://learn.microsoft.com/en-us/azure/architecture/guide/multitenant/approaches/deployment-configuration) — independent delivery/isolation choices and common source.
+- [GitHub repository templates](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template) — independent generated histories.
+- [Reciprocal Rank Fusion](https://cormack.uwaterloo.ca/cormacksigir09-rrf.pdf) and [Sentence Transformers retrieval/reranking](https://sbert.net/examples/sentence_transformer/applications/retrieve_rerank/README.html) — retrieval patterns.
+- [OWASP authorization](https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html), [multitenancy](https://cheatsheetseries.owasp.org/cheatsheets/Multi_Tenant_Security_Cheat_Sheet.html), [file upload](https://cheatsheetseries.owasp.org/cheatsheets/File_Upload_Cheat_Sheet.html), [prompt injection](https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html) — implementation security requirements.
+- [PostgreSQL ranges](https://www.postgresql.org/docs/current/rangetypes.html), [AWS outbox](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html), [AWS idempotency](https://aws.amazon.com/builders-library/making-retries-safe-with-idempotent-APIs/) — transaction and retry mechanisms.
+- [scikit-learn leakage guidance](https://scikit-learn.org/stable/common_pitfalls.html) — separating model selection and held-out evidence.
+- [WCAG 2.2](https://www.w3.org/TR/WCAG22/) — accessibility target, numerical criteria, applicable exceptions and conformance requirements; no achieved conformance is claimed.

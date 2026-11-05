@@ -1,0 +1,17 @@
+<!-- @dsCard group="Navigation" height=200 -->
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Steps — preview</title></head>
+<body>
+<div id="root" class="tr-root tr-pad tr-stack"></div>
+<script>
+var TR = window.TR, h = React.createElement, F = TR.format, X = TR.demo.fixtures, useState = React.useState;
+function S(label, child) { return h('div', { className: 'tr-stack' }, h('p', { className: 'tr-sys-type-support tr-muted' }, label), child); }
+function Demo() {
+  var a = useState('uang');
+  return h(TR.Steps, { current: a[0], onSelect: a[1], steps: [{ id: 'dasar', label: 'Dasar' }, { id: 'bukti', label: 'Yang sudah ada dan bukti' }, { id: 'uang', label: 'Dukungan dan biaya' }, { id: 'publik', label: 'Pratinjau publik' }] });
+}
+ReactDOM.createRoot(document.getElementById('root')).render(h(Demo));
+</script>
+</body>
+</html>

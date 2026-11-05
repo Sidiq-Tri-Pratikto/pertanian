@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pendanaan Perusahaan</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/temuriset/tokens.css">
+<link rel="stylesheet" href="ds/temuriset/components/bundle.css">
+<script src="ds/temuriset/components/bundle.js"></script>
+<script src="./domain.js"></script>
+<script src="./views.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+</style>
+</helmet>
+<x-import component-from-global-scope="TemuRisetApp.Slotted" of="TR.Screen" dc-props="{{shell}}">
+<div data-slot="context" style="display:contents"><x-import component-from-global-scope="TR.ContextSwitcher" dc-props="{{ctx}}"></x-import></div>
+<sc-if value="{{hasNotice}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.Status" dc-props="{{notice}}"></x-import></sc-if>
+<sc-if value="{{off}}" hint-placeholder-val="{{false}}">
+<x-import component-from-global-scope="TR.Status" tone="warning" icon="alert" label="Pendanaan Perusahaan tidak aktif pada komposisi ini">Riwayat yang ada tetap dapat dibaca. Permintaan baru dan perubahan tidak diterima. Dukungan Proyek tetap berjalan.</x-import>
+</sc-if>
+<sc-if value="{{reading}}" hint-placeholder-val="{{true}}">
+<div class="tr-section">
+<p class="tr-muted">{{entityNote}}</p>
+<x-import component-from-global-scope="TemuRisetApp.Slotted" of="TR.FundingRequestCard" dc-props="{{card}}">
+<div data-slot="action" style="display:contents">
+<sc-if value="{{hasPitch}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.Button" intent="primary" on-click="{{openPitch}}">{{pitchLabel}}</x-import></sc-if>
+<sc-if value="{{owner}}" hint-placeholder-val="{{true}}"><x-import component-from-global-scope="TR.Button" on-click="{{findInvestors}}">Temukan investor</x-import></sc-if>
+<sc-if value="{{canEdit}}" hint-placeholder-val="{{true}}"><x-import component-from-global-scope="TR.Button" icon="edit" on-click="{{edit}}">Ubah permintaan</x-import></sc-if>
+</div>
+</x-import>
+<section class="tr-stack" aria-label="Inovasi terkait">
+<h2 class="tr-sys-type-heading-sm">Inovasi terkait</h2>
+<div class="tr-grid">
+<sc-for list="{{linked}}" as="l" hint-placeholder-count="2">
+<article class="tr-panel tr-stack">
+<h3 class="tr-sys-type-label">{{l.title}}</h3>
+<p class="tr-muted tr-sys-type-support">{{l.version}} · Kematangan: {{l.stage}}</p>
+<div class="tr-row">
+<x-import component-from-global-scope="TR.Button" on-click="{{l.open}}">Buka inovasi</x-import>
+<sc-if value="{{owner}}" hint-placeholder-val="{{true}}"><x-import component-from-global-scope="TR.Button" on-click="{{l.prep}}">Siapkan pitching</x-import></sc-if>
+</div>
+</article>
+</sc-for>
+</div>
+</section>
+<sc-if value="{{hasHistory}}" hint-placeholder-val="{{false}}">
+<x-import component-from-global-scope="TR.Disclosure" label="Riwayat versi">
+<sc-for list="{{history}}" as="h" hint-placeholder-count="1"><p>{{h.text}}</p></sc-for>
+</x-import>
+</sc-if>
+</div>
+</sc-if>
+<sc-if value="{{editing}}" hint-placeholder-val="{{false}}">
+<div class="tr-section">
+<sc-if value="{{showSummary}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.ErrorSummary" dc-props="{{summaryProps}}"></x-import></sc-if>
+<section class="tr-panel tr-stack" aria-label="Ubah permintaan pendanaan">
+<x-import component-from-global-scope="TR.TextField" dc-props="{{stage}}"></x-import>
+<x-import component-from-global-scope="TR.TextField" dc-props="{{target}}"></x-import>
+<div class="tr-grid">
+<x-import component-from-global-scope="TR.TextField" dc-props="{{desiredMin}}"></x-import>
+<x-import component-from-global-scope="TR.TextField" dc-props="{{desiredMax}}"></x-import>
+</div>
+<x-import component-from-global-scope="TR.TextArea" dc-props="{{purpose}}"></x-import>
+<x-import component-from-global-scope="TR.TextField" dc-props="{{timing}}"></x-import>
+<x-import component-from-global-scope="TR.Checkbox" dc-props="{{partial}}"></x-import>
+<p class="tr-muted">Perubahan membuat versi baru. Pitching yang sudah terkirim tetap memakai versinya.</p>
+</section>
+<div class="tr-row">
+<x-import component-from-global-scope="TR.Button" intent="primary" busy="{{saving}}" busy-label="Menyimpan…" on-click="{{save}}">{{saveLabel}}</x-import>
+<x-import component-from-global-scope="TR.Button" on-click="{{cancel}}">Batal</x-import>
+</div>
+</div>
+</sc-if>
+</x-import>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1100}}'>
+class Component extends DCLogic {
+  off = TemuRisetApp.attach(this, 'Funding');
+  componentWillUnmount() { this.off(); }
+  renderVals() { return TemuRisetApp.vm.funding(); }
+}
+</script>
+</body>
+</html>

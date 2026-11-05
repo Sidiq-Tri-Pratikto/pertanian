@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="id" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TemuRiset consuming sample</title>
+<!-- Binding: TemuRiset Design System 1.0.0-draft, supplied as portable local files (see binding.json).
+     This is an imported reference, not automatic inheritance from a registered Claude design system. -->
+<link rel="stylesheet" href="../workbench/tokens.css">
+<link rel="stylesheet" href="../project/components/bundle.css">
+<script src="../project/components/lib/react.production.min.js"></script>
+<script src="../project/components/lib/react-dom.production.min.js"></script>
+<script src="../project/components/bundle.js"></script>
+</head>
+<body>
+<div id="app"></div>
+<script>
+  var TR = window.TR, h = React.createElement, X = TR.demo.fixtures, ADJUSTED = '#7c2d12';
+  function App() {
+    var title = React.useState(X.F01.title), adjusted = React.useState(false), binding = React.useState('');
+    React.useEffect(function () {
+      fetch('binding.json').then(function (r) { return r.json(); }).then(function (b) {
+        binding[1]('Binding: ' + b.system.name + ' ' + b.system.version + ' (' + b.supply.method + '); bundle reports ' + TR.version + (b.system.version === TR.version ? ', cocok.' : ', TIDAK COCOK.'));
+      });
+    }, []);
+    function toggle(on) {
+      adjusted[1](on);
+      if (on) document.documentElement.style.setProperty('--tr-sys-color-action-primary-background', ADJUSTED);
+      else document.documentElement.style.removeProperty('--tr-sys-color-action-primary-background');
+    }
+    return h(TR.Screen, { title: 'Contoh konsumen', subtitle: binding[0], provenance: X.provenance, current: 'inovasi' },
+      h(TR.demo.Controls, { state: { reset: function () { toggle(false); title[1](X.F01.title); } } },
+        h(TR.Checkbox, { id: 'adjust', label: 'Ubah satu token semantik', hint: '--tr-sys-color-action-primary-background', checked: adjusted[0], onChange: toggle })),
+      h('section', { className: 'tr-panel' },
+        h(TR.TextField, { label: 'Judul inovasi', value: title[0], onChange: title[1] }),
+        h('div', { className: 'tr-row' }, h(TR.Button, { intent: 'primary', id: 'primitive-action' }, 'Simpan judul'))),
+      h(TR.InventionCard, Object.assign({}, X.F01, { title: title[0], action: h(TR.Button, { intent: 'primary', id: 'pattern-action' }, 'Siapkan pitching') })));
+  }
+  ReactDOM.createRoot(document.getElementById('app')).render(h(App));
+</script>
+</body>
+</html>

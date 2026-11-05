@@ -1,0 +1,18 @@
+<!-- @dsCard group="Navigation" height=340 -->
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>NextStep — preview</title></head>
+<body>
+<div id="root" class="tr-root tr-pad tr-stack"></div>
+<script>
+var TR = window.TR, h = React.createElement, F = TR.format, X = TR.demo.fixtures, useState = React.useState;
+function S(label, child) { return h('div', { className: 'tr-stack' }, h('p', { className: 'tr-sys-type-support tr-muted' }, label), child); }
+function Demo() {
+  return h(React.Fragment, null,
+    h(TR.NextStep, { title: 'Jawab satu pertanyaan revisi', due: '2026-11-10', action: h(TR.Button, { intent: 'primary' }, 'Jawab revisi') }, 'Mitra Demo A meminta anggaran pilot sebelum memutuskan.'),
+    h(TR.NextStep, { who: 'other', title: 'Mitra Demo A sedang meninjau' }, 'Anda tidak perlu melakukan apa pun sekarang. Kami memberi tahu Anda saat ada jawaban.'));
+}
+ReactDOM.createRoot(document.getElementById('root')).render(h(Demo));
+</script>
+</body>
+</html>

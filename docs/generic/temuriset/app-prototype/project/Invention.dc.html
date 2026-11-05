@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Detail inovasi</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/temuriset/tokens.css">
+<link rel="stylesheet" href="ds/temuriset/components/bundle.css">
+<script src="ds/temuriset/components/bundle.js"></script>
+<script src="./domain.js"></script>
+<script src="./views.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+</style>
+</helmet>
+<x-import component-from-global-scope="TemuRisetApp.Slotted" of="TR.Screen" dc-props="{{shell}}">
+<div data-slot="context" style="display:contents"><x-import component-from-global-scope="TR.ContextSwitcher" dc-props="{{ctx}}"></x-import></div>
+<div data-slot="back" style="display:contents"><sc-if value="{{found}}" hint-placeholder-val="{{true}}"><x-import component-from-global-scope="TR.Link" on-click="{{back}}">{{backLabel}}</x-import></sc-if></div>
+<sc-if value="{{missing}}" hint-placeholder-val="{{false}}">
+<x-import component-from-global-scope="TemuRisetApp.Slotted" of="TR.EmptyState" kind="denied" title="Inovasi ini tidak tersedia" body="Inovasi mungkin diarsipkan atau belum diterbitkan.">
+<div data-slot="action" style="display:contents"><x-import component-from-global-scope="TR.Button" on-click="{{leave}}">Kembali</x-import></div>
+</x-import>
+</sc-if>
+<sc-if value="{{found}}" hint-placeholder-val="{{true}}">
+<div class="tr-section">
+<sc-if value="{{hasNotice}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.Status" dc-props="{{notice}}"></x-import></sc-if>
+<x-import component-from-global-scope="TemuRisetApp.Slotted" of="TR.NextStep" dc-props="{{next}}">
+<div data-slot="action" style="display:contents">
+<x-import component-from-global-scope="TR.Button" intent="primary" icon="arrow" on-click="{{primary}}">{{primaryLabel}}</x-import>
+<sc-if value="{{owner}}" hint-placeholder-val="{{true}}"><x-import component-from-global-scope="TR.Button" intent="secondary" icon="edit" on-click="{{edit}}">Ubah inovasi</x-import></sc-if>
+</div>
+</x-import>
+<section class="tr-panel tr-stack" aria-label="Masalah dan solusi">
+<h2 class="tr-sys-type-heading-sm">Masalah dan solusi</h2>
+<p><strong>Masalah.</strong> {{v.problem}}</p>
+<p><strong>Solusi saat ini.</strong> {{v.solution}}</p>
+<p><strong>Pengguna.</strong> {{v.users}}</p>
+<sc-if value="{{hasFacts}}" hint-placeholder-val="{{true}}">
+<div class="tr-stack">
+<h3 class="tr-sys-type-label">Yang sudah ada dan yang direncanakan</h3>
+<sc-for list="{{facts}}" as="f" hint-placeholder-count="2">
+<div class="tr-row"><span>{{f.label}}</span><x-import component-from-global-scope="TR.FactSource" dc-props="{{f.source}}"></x-import></div>
+</sc-for>
+</div>
+</sc-if>
+</section>
+<sc-if value="{{hasReqs}}" hint-placeholder-val="{{true}}">
+<section class="tr-stack" aria-label="Dukungan yang dicari">
+<h2 class="tr-sys-type-heading-sm">Dukungan Proyek yang dicari</h2>
+<sc-for list="{{reqs}}" as="r" hint-placeholder-count="1">
+<article class="tr-panel tr-stack">
+<div class="tr-req__head"><h3 class="tr-sys-type-label">{{r.title}}</h3><x-import component-from-global-scope="TR.Status" dc-props="{{r.status}}"></x-import></div>
+<x-import component-from-global-scope="TR.FinancialScope" dc-props="{{r.fin}}"></x-import>
+<sc-if value="{{owner}}" hint-placeholder-val="{{true}}"><div class="tr-row"><x-import component-from-global-scope="TR.Button" intent="secondary" on-click="{{r.open}}">Buka kebutuhan</x-import></div></sc-if>
+</article>
+</sc-for>
+</section>
+</sc-if>
+<sc-if value="{{hasFunding}}" hint-placeholder-val="{{false}}">
+<section class="tr-stack" aria-label="Pendanaan perusahaan terkait">
+<h2 class="tr-sys-type-heading-sm">Mendukung satu Pendanaan Perusahaan</h2>
+<x-import component-from-global-scope="TemuRisetApp.Slotted" of="TR.FundingRequestCard" dc-props="{{funding.card}}">
+<div data-slot="action" style="display:contents"><x-import component-from-global-scope="TR.Button" intent="secondary" on-click="{{funding.open}}">Buka permintaan pendanaan</x-import></div>
+</x-import>
+</section>
+</sc-if>
+<sc-if value="{{hasDocs}}" hint-placeholder-val="{{false}}">
+<section class="tr-stack" aria-label="Dokumen">
+<h2 class="tr-sys-type-heading-sm">Dokumen privat</h2>
+<sc-for list="{{docs}}" as="d" hint-placeholder-count="1"><x-import component-from-global-scope="TR.DocumentItem" dc-props="{{d.props}}"></x-import></sc-for>
+</section>
+</sc-if>
+<sc-if value="{{notOwner}}" hint-placeholder-val="{{false}}"><p class="tr-muted">Dokumen tetap privat. Pengelola membagikan versi tertentu saat mengirim pitching.</p></sc-if>
+<section class="tr-panel tr-stack" aria-label="Orang dan hak">
+<h2 class="tr-sys-type-heading-sm">Orang dan hak</h2>
+<sc-for list="{{people}}" as="p" hint-placeholder-count="2"><p><strong>{{p.role}}.</strong> {{p.name}}</p></sc-for>
+<p class="tr-muted tr-sys-type-support">Profil ini mencatat pernyataan pengelola. Ini bukan sertifikat kepemilikan.</p>
+</section>
+<sc-if value="{{hasRels}}" hint-placeholder-val="{{false}}">
+<section class="tr-panel tr-stack" aria-label="Kerja Sama">
+<h2 class="tr-sys-type-heading-sm">Kerja Sama</h2>
+<sc-for list="{{rels}}" as="r" hint-placeholder-count="1"><div class="tr-stack">
+<x-import component-from-global-scope="TR.Status" tone="success" label="Dikonfirmasi kedua pihak"></x-import>
+<sc-for list="{{r.rows}}" as="x" hint-placeholder-count="3"><p><strong>{{x.label}}.</strong> {{x.value}}</p></sc-for>
+</div></sc-for>
+</section>
+</sc-if>
+<sc-if value="{{owner}}" hint-placeholder-val="{{true}}"><div class="tr-row"><x-import component-from-global-scope="TR.Button" intent="secondary" on-click="{{archive}}">Arsipkan inovasi</x-import></div></sc-if>
+</div>
+</sc-if>
+</x-import>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1100}}'>
+class Component extends DCLogic {
+  off = TemuRisetApp.attach(this, 'Invention');
+  componentWillUnmount() { this.off(); }
+  renderVals() { return TemuRisetApp.vm.invention(); }
+}
+</script>
+</body>
+</html>

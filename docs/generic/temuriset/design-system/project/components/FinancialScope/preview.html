@@ -1,0 +1,21 @@
+<!-- @dsCard group="Domain" height=400 -->
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>FinancialScope — preview</title></head>
+<body>
+<div id="root" class="tr-root tr-pad tr-stack"></div>
+<script>
+var TR = window.TR, h = React.createElement, F = TR.format, X = TR.demo.fixtures, useState = React.useState;
+function S(label, child) { return h('div', { className: 'tr-stack' }, h('p', { className: 'tr-sys-type-support tr-muted' }, label), child); }
+function Demo() {
+  return h(React.Fragment, null,
+    h(TR.FinancialScope, X.F01.financial),
+    h(TR.FinancialScope, { subject: 'companyTarget', currency: 'USD', min: '500000', max: '500000' }),
+    h(TR.FinancialScope, { subject: 'contribution', currency: 'USD', min: '50000', max: '100000' }),
+    h(TR.FinancialScope, { subject: 'project', currency: 'USD', min: null, max: null, scope: 'Validasi prototipe' }),
+    h(TR.FinancialScope, X.F02.financial));
+}
+ReactDOM.createRoot(document.getElementById('root')).render(h(Demo));
+</script>
+</body>
+</html>

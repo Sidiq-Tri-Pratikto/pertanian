@@ -1,0 +1,19 @@
+<!-- @dsCard group="Feedback" height=300 -->
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>SaveState — preview</title></head>
+<body>
+<div id="root" class="tr-root tr-pad tr-stack"></div>
+<script>
+var TR = window.TR, h = React.createElement, F = TR.format, X = TR.demo.fixtures, useState = React.useState;
+function S(label, child) { return h('div', { className: 'tr-stack' }, h('p', { className: 'tr-sys-type-support tr-muted' }, label), child); }
+function Demo() {
+  var a = TR.demo.useAxes({ state: 'saved' });
+  return h(React.Fragment, null,
+    h(TR.demo.Controls, { state: a, axes: [{ id: 'state', label: 'Draft saving', options: ['local', 'saving', 'saved', 'failed', 'conflict'] }] }),
+    h(TR.SaveState, { state: a.value.state, savedAt: '2026-10-31T07:32:00Z', onRetry: function () { a.set('state', 'saving'); } }));
+}
+ReactDOM.createRoot(document.getElementById('root')).render(h(Demo));
+</script>
+</body>
+</html>
