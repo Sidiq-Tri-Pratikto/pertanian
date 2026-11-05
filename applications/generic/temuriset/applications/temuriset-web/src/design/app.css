@@ -1,0 +1,18 @@
+/* App-level additions to the copied design system. Each one is a recorded deviation in docs/roadmap/architecture.md. */
+body {
+  margin: 0;
+  background: var(--tr-sys-color-canvas);
+}
+
+/* D1: TR.ChoiceGroup marks selection with a class set in JavaScript; server-rendered forms use :has instead. */
+.tr-choice:has(input:checked) {
+  background: var(--tr-sys-color-selected-surface);
+  border: var(--tr-sys-size-borderSelected) solid var(--tr-sys-color-selected-border);
+}
+
+/* D2: at 320 px the design system's overflow-wrap split "Temukan" across lines in the tab bar. */
+.tr-tabbar__item {
+  overflow-wrap: normal;
+  padding-left: 0;
+  padding-right: 0;
+}

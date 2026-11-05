@@ -1,0 +1,1 @@
+../../.claude/rules/007-git-workflow.md

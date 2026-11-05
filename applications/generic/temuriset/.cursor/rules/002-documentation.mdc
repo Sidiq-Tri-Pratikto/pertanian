@@ -1,0 +1,1 @@
+../../.claude/rules/002-documentation.md
