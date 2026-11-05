@@ -12,6 +12,7 @@ from app.core.database import get_engine
 from app.main import app
 
 TABLES = (
+    "invention_claims, invention_facts, invention_versions, inventions, "
     "idempotency_records, audit_events, outbox_deliveries, outbox_events, jobs, "
     "invitations, memberships, sessions, email_codes, mailbox_messages, parties, organizations, accounts"
 )

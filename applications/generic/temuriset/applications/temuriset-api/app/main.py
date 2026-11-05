@@ -23,6 +23,7 @@ from app.health.router import router as health_router
 from app.identity.router import auth_router, me_router
 from app.platform.router import router as platform_router
 from app.platform.service.idempotency import IdempotentReplay, replay_response
+from app.portfolio.router import router as portfolio_router
 
 API_PREFIX = "/api/v1"
 
@@ -60,6 +61,7 @@ def create_app() -> FastAPI:
     app.include_router(auth_router, prefix=API_PREFIX)
     app.include_router(me_router, prefix=API_PREFIX)
     app.include_router(access_router, prefix=API_PREFIX)
+    app.include_router(portfolio_router, prefix=API_PREFIX)
     if settings.environment == "development":
         app.include_router(dev_router, prefix=API_PREFIX)
     install_error_schema(app)

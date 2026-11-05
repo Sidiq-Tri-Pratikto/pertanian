@@ -20,6 +20,7 @@ One row per error. Keep in sync with `app/core/errors/codes.py` and `public.py`.
 | `APP-RATE-LIMITED` | `RATE_LIMITED` | 429 | Terlalu banyak permintaan kode. Tunggu sebentar lalu coba lagi. | Over 5 code requests per email or 20 per address in an hour; `retry_after_seconds` says when the window frees up | true | per request | 3 |
 | `APP-STALE-CONTEXT` | `STALE_CONTEXT` | 409 | Anda kini bertindak sebagai pihak lain di tab berbeda. Muat ulang halaman lalu ulangi tindakan Anda. | `acting_party_id` differs from the session's active party | false | - | - |
 | `APP-INVITATION-EXPIRED` | `INVITATION_EXPIRED` | 410 | Undangan ini sudah tidak berlaku. Minta undangan baru kepada pengelola organisasi. | Invitation older than seven days, revoked, or already accepted | false | - | - |
+| `APP-PUBLICATION-INVALID` | `VALIDATION_FAILED` | 422 | Draf belum siap diterbitkan. Lengkapi isian yang ditandai lalu terbitkan lagi. | Publishing a draft that breaks a PRD publication rule; `details` names each field in Indonesian | false | - | - |
 
 A missing `Idempotency-Key` on a consequential POST is `BAD_REQUEST` with `details` naming the header.
 

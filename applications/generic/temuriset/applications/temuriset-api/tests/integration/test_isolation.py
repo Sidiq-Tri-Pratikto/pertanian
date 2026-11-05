@@ -28,6 +28,7 @@ NOT_DATA_ROUTES = {
     ("PATCH", "/api/v1/me"),
     ("GET", "/api/v1/dev/mailbox"),
     ("POST", "/api/v1/organizations"),
+    ("POST", "/api/v1/inventions"),
 }
 
 
@@ -41,6 +42,7 @@ class Owner:
     operation_id: str
     invitation_id: str
     invitation_token: str
+    invention_id: str
 
 
 @dataclass
@@ -80,6 +82,29 @@ ROUTES: dict[tuple[str, str], Case] = {
         "POST", lambda o: f"/api/v1/invitations/{o.invitation_id}/revoke", lambda _o, actor: {"acting_party_id": actor}
     ),
     ("PUT", "/api/v1/me/context"): Case("PUT", lambda _o: "/api/v1/me/context", lambda o, _a: {"party_id": o.party_id}),
+    ("GET", "/api/v1/inventions"): Case("GET", lambda _o: "/api/v1/inventions"),
+    ("GET", "/api/v1/inventions/{invention_id}"): Case("GET", lambda o: f"/api/v1/inventions/{o.invention_id}"),
+    ("PUT", "/api/v1/inventions/{invention_id}/draft"): Case(
+        "PUT",
+        lambda o: f"/api/v1/inventions/{o.invention_id}/draft",
+        lambda _o, actor: {"acting_party_id": actor, "expected_version": 1, "title": "x"},
+        {"Idempotency-Key": "isolation-draft"},
+    ),
+    ("POST", "/api/v1/inventions/{invention_id}/publish"): Case(
+        "POST",
+        lambda o: f"/api/v1/inventions/{o.invention_id}/publish",
+        lambda _o, actor: {"acting_party_id": actor, "expected_version": 1},
+        {"Idempotency-Key": "isolation-publish"},
+    ),
+    ("POST", "/api/v1/inventions/{invention_id}/archive"): Case(
+        "POST",
+        lambda o: f"/api/v1/inventions/{o.invention_id}/archive",
+        lambda _o, actor: {"acting_party_id": actor, "expected_version": 1},
+    ),
+    # Unpublished, so even the public view must not reveal that it exists.
+    ("GET", "/api/v1/inventions/{invention_id}/public"): Case(
+        "GET", lambda o: f"/api/v1/inventions/{o.invention_id}/public"
+    ),
 }
 
 
@@ -105,6 +130,16 @@ async def owner(client: AsyncClient, sign_up) -> AsyncIterator[Owner]:
         )
     ).json()
     mail = (await client.get("/api/v1/dev/mailbox", params={"email": "guest@example.com"})).json()
+    invention = (
+        await client.post(
+            "/api/v1/inventions", json={"acting_party_id": organization["party_id"]}, headers={"Idempotency-Key": "inv"}
+        )
+    ).json()
+    await client.put(
+        f"/api/v1/inventions/{invention['id']}/draft",
+        json={"acting_party_id": organization["party_id"], "expected_version": 1, "title": "Owner Co invention"},
+        headers={"Idempotency-Key": "inv-draft"},
+    )
     yield Owner(
         organization_id=organization["id"],
         party_id=organization["party_id"],
@@ -112,6 +147,7 @@ async def owner(client: AsyncClient, sign_up) -> AsyncIterator[Owner]:
         operation_id=organization["operation_id"],
         invitation_id=invitation["id"],
         invitation_token=mail[0]["body"].rsplit("/", 1)[1],
+        invention_id=invention["id"],
     )
 
 
@@ -148,5 +184,12 @@ async def test_unrelated_party_sees_nothing(
         )
 
     assert response.status_code == 404 or (response.status_code == 200 and response.json() == []), response.text
-    for secret in ("Owner Co", owner.organization_id, owner.party_id, owner.account_id, "guest@example.com"):
+    for secret in (
+        "Owner Co",
+        owner.organization_id,
+        owner.party_id,
+        owner.account_id,
+        "guest@example.com",
+        owner.invention_id,
+    ):
         assert secret not in response.text

@@ -33,6 +33,7 @@ make check             # lint, format check, all tests, 80% coverage gate
 | `tests/unit/health/` | Liveness and readiness | Nothing |
 | `tests/integration/` | Real requests against Postgres after migrations | Postgres |
 | `tests/integration/identity/` | Sign-up for both personas without an organization, codes wrong, expired and used up, 1,000-guess brute force, rate limits, no account leak, sign-out, cross-origin refusal, `PATCH /me` | Postgres |
+| `tests/integration/portfolio/` | Drafts, each publication rule, immutable versions (AC07–AC11), stale drafts, archive, public projection, outbox events | Postgres |
 | `tests/integration/access/` | Organizations, capabilities (AC04), hidden organizations (AC05), a removed member's job denied (AC06), invitations expired and revoked, stale context, last manager | Postgres |
 | `tests/integration/test_isolation.py` | Every data route called as an unrelated party returns `NOT_FOUND` or nothing; fails when a new route is not registered | Postgres |
 | `tests/integration/platform/` | Idempotent replay and conflict, 20 parallel requests with one key, operations, append-only audit, outbox atomic with the request, worker retries, two workers, jobs | Postgres |
@@ -87,5 +88,10 @@ Run one test with `uv run pytest tests/unit/health/test_health.py -v`, or match 
 | `GET /api/v1/invitations/{token}`, `POST .../accept` | What the invitation grants; join. Only the invited email sees it |
 | `POST /api/v1/invitations/{id}/revoke` | Revoke a pending invitation |
 | `PUT /api/v1/me/context` | Act as the personal party or a joined organization; anything else is `NOT_FOUND` |
+| `POST`, `GET /api/v1/inventions` | Start an invention for the acting party (`Idempotency-Key`); list its inventions with drafts and archived ones |
+| `GET /api/v1/inventions/{id}` | Owner view: draft, published version, history numbers |
+| `PUT /api/v1/inventions/{id}/draft` | Save the whole draft against `expected_version` (`Idempotency-Key`); publication rules do not apply |
+| `POST /api/v1/inventions/{id}/publish`, `.../archive` | Publish an immutable version; archive while keeping history |
+| `GET /api/v1/inventions/{id}/public` | The published version, nothing private; `NOT_FOUND` when unpublished or archived |
 | `GET /api/v1/dev/mailbox?email=` | Development only: the codes and notes that would have been emailed |
 | `GET /api/v1/operations/{id}` | Whether the acting party's operation committed, for a client that lost the response |

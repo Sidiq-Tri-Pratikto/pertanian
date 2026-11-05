@@ -250,3 +250,17 @@ class SqlAlchemyAccessRepository:
         await self.session.execute(
             update(InvitationRecord).where(InvitationRecord.id == invitation_id).values(**values)
         )
+
+    async def party_names(self, party_ids: list[UUID]) -> dict[UUID, str]:
+        """Read party display names.
+
+        Args:
+            party_ids (list[UUID]): The parties.
+
+        Returns:
+            dict[UUID, str]: Display name per party that exists.
+        """
+        rows = await self.session.execute(
+            select(PartyRecord.id, PartyRecord.display_name).where(PartyRecord.id.in_(party_ids))
+        )
+        return {party_id: name for party_id, name in rows}

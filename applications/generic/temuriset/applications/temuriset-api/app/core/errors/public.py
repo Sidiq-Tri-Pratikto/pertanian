@@ -94,6 +94,9 @@ PUBLIC_ERROR_BY_CODE: dict[str, PublicError] = {
         410,
         "Undangan ini sudah tidak berlaku. Minta undangan baru kepada pengelola organisasi.",
     ),
+    codes.APP_PUBLICATION_INVALID: PublicError(
+        "VALIDATION_FAILED", 422, "Draf belum siap diterbitkan. Lengkapi isian yang ditandai lalu terbitkan lagi."
+    ),
 }
 
 PUBLIC_ERROR_BY_STATUS: dict[int, PublicError] = {

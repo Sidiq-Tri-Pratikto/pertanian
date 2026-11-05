@@ -427,3 +427,16 @@ def invitation_response(invitation: InvitationModel, operation_id: UUID | None =
         status=_status(invitation),  # type: ignore[arg-type]
         operation_id=operation_id,
     )
+
+
+async def party_names(session: AsyncSession, party_ids: list[UUID]) -> dict[UUID, str]:
+    """Return how parties are shown to others.
+
+    Args:
+        session (AsyncSession): The request's session.
+        party_ids (list[UUID]): The parties.
+
+    Returns:
+        dict[UUID, str]: Display name per party that exists.
+    """
+    return await SqlAlchemyAccessRepository(session).party_names(party_ids)

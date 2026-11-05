@@ -135,6 +135,191 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/inventions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List my inventions
+         * @description List the acting party's inventions, drafts and archived ones included.
+         *
+         *     Args:
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         list[InventionSummaryResponse]: Inventions.
+         */
+        get: operations["list_inventions_api_v1_inventions_get"];
+        put?: never;
+        /**
+         * Start an invention
+         * @description Start an invention with an empty draft for the acting party.
+         *
+         *     Args:
+         *         body (CreateInventionRequest): Acting party.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         InventionResponse: The invention.
+         */
+        post: operations["create_invention_api_v1_inventions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/inventions/{invention_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read an invention as its owner
+         * @description Read draft, published version and history.
+         *
+         *     Args:
+         *         invention_id (UUID): The invention.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         InventionResponse: The invention.
+         */
+        get: operations["read_invention_api_v1_inventions__invention_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/inventions/{invention_id}/archive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Archive an invention
+         * @description Archive: hidden from discovery and new submissions; history stays readable.
+         *
+         *     Args:
+         *         invention_id (UUID): The invention.
+         *         body (VersionedActionRequest): Acting party and ``expected_version``.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         InventionResponse: The archived invention.
+         */
+        post: operations["archive_invention_api_v1_inventions__invention_id__archive_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/inventions/{invention_id}/draft": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Save the draft
+         * @description Save the whole draft against ``expected_version``; publication rules do not apply here.
+         *
+         *     Args:
+         *         invention_id (UUID): The invention.
+         *         body (DraftRequest): Content.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried save.
+         *
+         *     Returns:
+         *         InventionResponse: The invention with its saved draft.
+         */
+        put: operations["save_draft_api_v1_inventions__invention_id__draft_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/inventions/{invention_id}/public": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read the published version
+         * @description Read what anyone signed in may see: the published version, nothing private.
+         *
+         *     Args:
+         *         invention_id (UUID): The invention.
+         *         _ (PrincipalDep): Any signed-in account.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         PublicInventionResponse: The projection.
+         */
+        get: operations["read_public_api_v1_inventions__invention_id__public_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/inventions/{invention_id}/publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Publish the draft
+         * @description Publish the draft as an immutable version.
+         *
+         *     Args:
+         *         invention_id (UUID): The invention.
+         *         body (VersionedActionRequest): Acting party and ``expected_version``.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         PublishResponse: The version number and status.
+         */
+        post: operations["publish_invention_api_v1_inventions__invention_id__publish_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/invitations/{invitation_id}/revoke": {
         parameters: {
             query?: never;
@@ -590,6 +775,72 @@ export interface components {
          */
         CapabilityStatus: "planned" | "simulated" | "available";
         /**
+         * ClaimInput
+         * @description A people-and-rights claim as the owner states it.
+         */
+        ClaimInput: {
+            /** Asserted At */
+            asserted_at?: string | null;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "creator" | "contributor" | "manager" | "rights_holder" | "authority";
+            /** Party Id */
+            party_id?: string | null;
+            /**
+             * Scope
+             * @default
+             */
+            scope?: string;
+            /**
+             * Source
+             * @default
+             */
+            source?: string;
+            /**
+             * Status
+             * @default asserted
+             * @enum {string}
+             */
+            status?: "asserted" | "not_established" | "reviewed";
+            /** Subject Name */
+            subject_name: string;
+        };
+        /**
+         * ClaimResponse
+         * @description A stored claim.
+         */
+        ClaimResponse: {
+            /** Asserted At */
+            asserted_at?: string | null;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "creator" | "contributor" | "manager" | "rights_holder" | "authority";
+            /** Party Id */
+            party_id?: string | null;
+            /**
+             * Scope
+             * @default
+             */
+            scope?: string;
+            /**
+             * Source
+             * @default
+             */
+            source?: string;
+            /**
+             * Status
+             * @default asserted
+             * @enum {string}
+             */
+            status?: "asserted" | "not_established" | "reviewed";
+            /** Subject Name */
+            subject_name: string;
+        };
+        /**
          * CodeRequest
          * @description Ask for a sign-in code. Sign-up also carries the profile, applied only when the code is verified.
          */
@@ -655,6 +906,17 @@ export interface components {
             party_id: string;
         };
         /**
+         * CreateInventionRequest
+         * @description Start an invention for the acting party.
+         */
+        CreateInventionRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+        };
+        /**
          * CreateOrganizationRequest
          * @description Create an organization; the creator becomes a member with every capability.
          */
@@ -666,6 +928,71 @@ export interface components {
             kind: "company" | "nonprofit" | "community" | "research_group" | "other";
             /** Name */
             name: string;
+        };
+        /**
+         * DraftRequest
+         * @description The whole draft. Optional fields never block a save; publication rules apply only on publish.
+         */
+        DraftRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /**
+             * Claims
+             * @default []
+             */
+            claims?: components["schemas"]["ClaimInput"][];
+            /** Expected Version */
+            expected_version: number;
+            /**
+             * Facts
+             * @default []
+             */
+            facts?: components["schemas"]["FactInput"][];
+            /**
+             * Intended Users
+             * @default
+             */
+            intended_users?: string;
+            /**
+             * Keywords
+             * @default []
+             */
+            keywords?: string[];
+            /**
+             * Private Notes
+             * @default
+             */
+            private_notes?: string;
+            /**
+             * Problem
+             * @default
+             */
+            problem?: string;
+            /**
+             * Sector
+             * @default
+             */
+            sector?: string;
+            /**
+             * Solution
+             * @default
+             */
+            solution?: string;
+            /** Stage */
+            stage?: ("IDEA" | "PROTOTYPE" | "PILOT" | "WORKING" | "MARKET") | null;
+            /**
+             * Summary
+             * @default
+             */
+            summary?: string;
+            /**
+             * Title
+             * @default
+             */
+            title?: string;
         };
         /**
          * ErrorBody
@@ -731,6 +1058,113 @@ export interface components {
             retry_after_seconds?: number | null;
             /** Retryable */
             retryable: boolean;
+        };
+        /**
+         * FactInput
+         * @description A fact as the owner states it.
+         */
+        FactInput: {
+            /** Document Version Id */
+            document_version_id?: string | null;
+            /** Key */
+            key?: string | null;
+            /** Label */
+            label: string;
+            /**
+             * Provenance
+             * @default SELF_DECLARED
+             * @enum {string}
+             */
+            provenance?: "SOURCE_REPORTED" | "SELF_DECLARED" | "PROVIDED" | "REVIEWED" | "UNKNOWN";
+            /**
+             * Timing
+             * @enum {string}
+             */
+            timing: "CURRENT" | "PLANNED" | "REQUESTED";
+            /**
+             * Unit
+             * @default
+             */
+            unit?: string;
+            /** Value */
+            value: string;
+        };
+        /**
+         * FactResponse
+         * @description A stored fact.
+         */
+        FactResponse: {
+            /** Document Version Id */
+            document_version_id?: string | null;
+            /** Key */
+            key?: string | null;
+            /** Label */
+            label: string;
+            /**
+             * Provenance
+             * @default SELF_DECLARED
+             * @enum {string}
+             */
+            provenance?: "SOURCE_REPORTED" | "SELF_DECLARED" | "PROVIDED" | "REVIEWED" | "UNKNOWN";
+            /**
+             * Timing
+             * @enum {string}
+             */
+            timing: "CURRENT" | "PLANNED" | "REQUESTED";
+            /**
+             * Unit
+             * @default
+             */
+            unit?: string;
+            /** Value */
+            value: string;
+        };
+        /**
+         * InventionResponse
+         * @description The owner's view: draft, published version and history.
+         */
+        InventionResponse: {
+            draft: components["schemas"]["VersionResponse"] | null;
+            /** History */
+            history: number[];
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Managing Party Id
+             * Format: uuid
+             */
+            managing_party_id: string;
+            /** Operation Id */
+            operation_id?: string | null;
+            published: components["schemas"]["VersionResponse"] | null;
+            /** Status */
+            status: string;
+            /** Version */
+            version: number;
+        };
+        /**
+         * InventionSummaryResponse
+         * @description One row of Inovasi Saya.
+         */
+        InventionSummaryResponse: {
+            /** Has Draft */
+            has_draft: boolean;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Published Number */
+            published_number: number | null;
+            /** Status */
+            status: string;
+            /** Title */
+            title: string;
+            /** Version */
+            version: number;
         };
         /**
          * InvitationDetailResponse
@@ -928,6 +1362,101 @@ export interface components {
             version: number;
         };
         /**
+         * PublicClaimResponse
+         * @description A claim as anyone may read it.
+         */
+        PublicClaimResponse: {
+            /** Asserted At */
+            asserted_at: string | null;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "creator" | "contributor" | "manager" | "rights_holder" | "authority";
+            /** Scope */
+            scope: string;
+            /** Source */
+            source: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "asserted" | "not_established" | "reviewed";
+            /** Subject Name */
+            subject_name: string;
+        };
+        /**
+         * PublicFactResponse
+         * @description A fact as anyone may read it.
+         */
+        PublicFactResponse: {
+            /** Label */
+            label: string;
+            /**
+             * Provenance
+             * @enum {string}
+             */
+            provenance: "SOURCE_REPORTED" | "SELF_DECLARED" | "PROVIDED" | "REVIEWED" | "UNKNOWN";
+            /**
+             * Timing
+             * @enum {string}
+             */
+            timing: "CURRENT" | "PLANNED" | "REQUESTED";
+            /** Unit */
+            unit: string;
+            /** Value */
+            value: string;
+        };
+        /**
+         * PublicInventionResponse
+         * @description The published version and nothing private.
+         */
+        PublicInventionResponse: {
+            /** Claims */
+            claims: components["schemas"]["PublicClaimResponse"][];
+            /** Facts */
+            facts: components["schemas"]["PublicFactResponse"][];
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Intended Users */
+            intended_users: string;
+            /** Keywords */
+            keywords: string[];
+            /** Managing Party Name */
+            managing_party_name: string;
+            /** Number */
+            number: number;
+            /** Problem */
+            problem: string;
+            /** Published At */
+            published_at: string | null;
+            /** Sector */
+            sector: string;
+            /** Solution */
+            solution: string;
+            /** Stage */
+            stage: ("IDEA" | "PROTOTYPE" | "PILOT" | "WORKING" | "MARKET") | null;
+            /** Summary */
+            summary: string;
+            /** Title */
+            title: string;
+        };
+        /**
+         * PublishResponse
+         * @description The outcome of a publication.
+         */
+        PublishResponse: {
+            /** Operation Id */
+            operation_id?: string | null;
+            /** Status */
+            status: string;
+            /** Version */
+            version: number;
+        };
+        /**
          * RemoveMemberRequest
          * @description Remove a member, acting as the organization.
          */
@@ -965,6 +1494,53 @@ export interface components {
             code: string;
             /** Email */
             email: string;
+        };
+        /**
+         * VersionResponse
+         * @description One version as its owner sees it.
+         */
+        VersionResponse: {
+            /** Claims */
+            claims: components["schemas"]["ClaimResponse"][];
+            /** Facts */
+            facts: components["schemas"]["FactResponse"][];
+            /** Intended Users */
+            intended_users: string;
+            /** Keywords */
+            keywords: string[];
+            /** Number */
+            number: number;
+            /** Private Notes */
+            private_notes: string;
+            /** Problem */
+            problem: string;
+            /** Published At */
+            published_at: string | null;
+            /** Sector */
+            sector: string;
+            /** Solution */
+            solution: string;
+            /** Stage */
+            stage: ("IDEA" | "PROTOTYPE" | "PILOT" | "WORKING" | "MARKET") | null;
+            /** State */
+            state: string;
+            /** Summary */
+            summary: string;
+            /** Title */
+            title: string;
+        };
+        /**
+         * VersionedActionRequest
+         * @description Publish or archive against the version the client saw.
+         */
+        VersionedActionRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /** Expected Version */
+            expected_version: number;
         };
     };
     responses: never;
@@ -1133,6 +1709,289 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MailboxMessageResponse"][];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    list_inventions_api_v1_inventions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventionSummaryResponse"][];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    create_invention_api_v1_inventions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateInventionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventionResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    read_invention_api_v1_inventions__invention_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                invention_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventionResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    archive_invention_api_v1_inventions__invention_id__archive_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                invention_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VersionedActionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventionResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    save_draft_api_v1_inventions__invention_id__draft_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                invention_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DraftRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventionResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    read_public_api_v1_inventions__invention_id__public_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                invention_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicInventionResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    publish_invention_api_v1_inventions__invention_id__publish_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                invention_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VersionedActionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublishResponse"];
                 };
             };
             /** @description Validation failed */

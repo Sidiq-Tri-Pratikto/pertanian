@@ -196,6 +196,158 @@
         "title": "CapabilityStatus",
         "type": "string"
       },
+      "ClaimInput": {
+        "description": "A people-and-rights claim as the owner states it.",
+        "properties": {
+          "asserted_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Asserted At"
+          },
+          "kind": {
+            "enum": [
+              "creator",
+              "contributor",
+              "manager",
+              "rights_holder",
+              "authority"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "party_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Party Id"
+          },
+          "scope": {
+            "default": "",
+            "maxLength": 200,
+            "minLength": 0,
+            "title": "Scope",
+            "type": "string"
+          },
+          "source": {
+            "default": "",
+            "maxLength": 200,
+            "minLength": 0,
+            "title": "Source",
+            "type": "string"
+          },
+          "status": {
+            "default": "asserted",
+            "enum": [
+              "asserted",
+              "not_established",
+              "reviewed"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "subject_name": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Subject Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "subject_name"
+        ],
+        "title": "ClaimInput",
+        "type": "object"
+      },
+      "ClaimResponse": {
+        "description": "A stored claim.",
+        "properties": {
+          "asserted_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Asserted At"
+          },
+          "kind": {
+            "enum": [
+              "creator",
+              "contributor",
+              "manager",
+              "rights_holder",
+              "authority"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "party_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Party Id"
+          },
+          "scope": {
+            "default": "",
+            "maxLength": 200,
+            "minLength": 0,
+            "title": "Scope",
+            "type": "string"
+          },
+          "source": {
+            "default": "",
+            "maxLength": 200,
+            "minLength": 0,
+            "title": "Source",
+            "type": "string"
+          },
+          "status": {
+            "default": "asserted",
+            "enum": [
+              "asserted",
+              "not_established",
+              "reviewed"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "subject_name": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Subject Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "subject_name"
+        ],
+        "title": "ClaimResponse",
+        "type": "object"
+      },
       "CodeRequest": {
         "description": "Ask for a sign-in code. Sign-up also carries the profile, applied only when the code is verified.",
         "properties": {
@@ -305,6 +457,21 @@
         "title": "ContextRequest",
         "type": "object"
       },
+      "CreateInventionRequest": {
+        "description": "Start an invention for the acting party.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "acting_party_id"
+        ],
+        "title": "CreateInventionRequest",
+        "type": "object"
+      },
       "CreateOrganizationRequest": {
         "description": "Create an organization; the creator becomes a member with every capability.",
         "properties": {
@@ -331,6 +498,122 @@
           "kind"
         ],
         "title": "CreateOrganizationRequest",
+        "type": "object"
+      },
+      "DraftRequest": {
+        "description": "The whole draft. Optional fields never block a save; publication rules apply only on publish.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "claims": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ClaimInput"
+            },
+            "maxItems": 50,
+            "title": "Claims",
+            "type": "array"
+          },
+          "expected_version": {
+            "title": "Expected Version",
+            "type": "integer"
+          },
+          "facts": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/FactInput"
+            },
+            "maxItems": 50,
+            "title": "Facts",
+            "type": "array"
+          },
+          "intended_users": {
+            "default": "",
+            "maxLength": 2000,
+            "minLength": 0,
+            "title": "Intended Users",
+            "type": "string"
+          },
+          "keywords": {
+            "default": [],
+            "items": {
+              "maxLength": 40,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Keywords",
+            "type": "array"
+          },
+          "private_notes": {
+            "default": "",
+            "maxLength": 5000,
+            "minLength": 0,
+            "title": "Private Notes",
+            "type": "string"
+          },
+          "problem": {
+            "default": "",
+            "maxLength": 5000,
+            "minLength": 0,
+            "title": "Problem",
+            "type": "string"
+          },
+          "sector": {
+            "default": "",
+            "maxLength": 80,
+            "minLength": 0,
+            "title": "Sector",
+            "type": "string"
+          },
+          "solution": {
+            "default": "",
+            "maxLength": 5000,
+            "minLength": 0,
+            "title": "Solution",
+            "type": "string"
+          },
+          "stage": {
+            "anyOf": [
+              {
+                "enum": [
+                  "IDEA",
+                  "PROTOTYPE",
+                  "PILOT",
+                  "WORKING",
+                  "MARKET"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stage"
+          },
+          "summary": {
+            "default": "",
+            "maxLength": 2000,
+            "minLength": 0,
+            "title": "Summary",
+            "type": "string"
+          },
+          "title": {
+            "default": "",
+            "maxLength": 200,
+            "minLength": 0,
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "expected_version"
+        ],
+        "title": "DraftRequest",
         "type": "object"
       },
       "ErrorBody": {
@@ -483,6 +766,280 @@
           "retryable"
         ],
         "title": "ErrorRecovery",
+        "type": "object"
+      },
+      "FactInput": {
+        "description": "A fact as the owner states it.",
+        "properties": {
+          "document_version_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Version Id"
+          },
+          "key": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "minLength": 0,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Key"
+          },
+          "label": {
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Label",
+            "type": "string"
+          },
+          "provenance": {
+            "default": "SELF_DECLARED",
+            "enum": [
+              "SOURCE_REPORTED",
+              "SELF_DECLARED",
+              "PROVIDED",
+              "REVIEWED",
+              "UNKNOWN"
+            ],
+            "title": "Provenance",
+            "type": "string"
+          },
+          "timing": {
+            "enum": [
+              "CURRENT",
+              "PLANNED",
+              "REQUESTED"
+            ],
+            "title": "Timing",
+            "type": "string"
+          },
+          "unit": {
+            "default": "",
+            "maxLength": 40,
+            "minLength": 0,
+            "title": "Unit",
+            "type": "string"
+          },
+          "value": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Value",
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "value",
+          "timing"
+        ],
+        "title": "FactInput",
+        "type": "object"
+      },
+      "FactResponse": {
+        "description": "A stored fact.",
+        "properties": {
+          "document_version_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Version Id"
+          },
+          "key": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "minLength": 0,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Key"
+          },
+          "label": {
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Label",
+            "type": "string"
+          },
+          "provenance": {
+            "default": "SELF_DECLARED",
+            "enum": [
+              "SOURCE_REPORTED",
+              "SELF_DECLARED",
+              "PROVIDED",
+              "REVIEWED",
+              "UNKNOWN"
+            ],
+            "title": "Provenance",
+            "type": "string"
+          },
+          "timing": {
+            "enum": [
+              "CURRENT",
+              "PLANNED",
+              "REQUESTED"
+            ],
+            "title": "Timing",
+            "type": "string"
+          },
+          "unit": {
+            "default": "",
+            "maxLength": 40,
+            "minLength": 0,
+            "title": "Unit",
+            "type": "string"
+          },
+          "value": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Value",
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "value",
+          "timing"
+        ],
+        "title": "FactResponse",
+        "type": "object"
+      },
+      "InventionResponse": {
+        "description": "The owner's view: draft, published version and history.",
+        "properties": {
+          "draft": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/VersionResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "history": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "History",
+            "type": "array"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "managing_party_id": {
+            "format": "uuid",
+            "title": "Managing Party Id",
+            "type": "string"
+          },
+          "operation_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operation Id"
+          },
+          "published": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/VersionResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "managing_party_id",
+          "status",
+          "version",
+          "draft",
+          "published",
+          "history"
+        ],
+        "title": "InventionResponse",
+        "type": "object"
+      },
+      "InventionSummaryResponse": {
+        "description": "One row of Inovasi Saya.",
+        "properties": {
+          "has_draft": {
+            "title": "Has Draft",
+            "type": "boolean"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "published_number": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Published Number"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "title",
+          "version",
+          "has_draft",
+          "published_number"
+        ],
+        "title": "InventionSummaryResponse",
         "type": "object"
       },
       "InvitationDetailResponse": {
@@ -867,6 +1424,253 @@
         "title": "PolicyResponse",
         "type": "object"
       },
+      "PublicClaimResponse": {
+        "description": "A claim as anyone may read it.",
+        "properties": {
+          "asserted_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Asserted At"
+          },
+          "kind": {
+            "enum": [
+              "creator",
+              "contributor",
+              "manager",
+              "rights_holder",
+              "authority"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "scope": {
+            "title": "Scope",
+            "type": "string"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "asserted",
+              "not_established",
+              "reviewed"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "subject_name": {
+            "title": "Subject Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "subject_name",
+          "scope",
+          "status",
+          "source",
+          "asserted_at"
+        ],
+        "title": "PublicClaimResponse",
+        "type": "object"
+      },
+      "PublicFactResponse": {
+        "description": "A fact as anyone may read it.",
+        "properties": {
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "provenance": {
+            "enum": [
+              "SOURCE_REPORTED",
+              "SELF_DECLARED",
+              "PROVIDED",
+              "REVIEWED",
+              "UNKNOWN"
+            ],
+            "title": "Provenance",
+            "type": "string"
+          },
+          "timing": {
+            "enum": [
+              "CURRENT",
+              "PLANNED",
+              "REQUESTED"
+            ],
+            "title": "Timing",
+            "type": "string"
+          },
+          "unit": {
+            "title": "Unit",
+            "type": "string"
+          },
+          "value": {
+            "title": "Value",
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "value",
+          "unit",
+          "timing",
+          "provenance"
+        ],
+        "title": "PublicFactResponse",
+        "type": "object"
+      },
+      "PublicInventionResponse": {
+        "description": "The published version and nothing private.",
+        "properties": {
+          "claims": {
+            "items": {
+              "$ref": "#/components/schemas/PublicClaimResponse"
+            },
+            "title": "Claims",
+            "type": "array"
+          },
+          "facts": {
+            "items": {
+              "$ref": "#/components/schemas/PublicFactResponse"
+            },
+            "title": "Facts",
+            "type": "array"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "intended_users": {
+            "title": "Intended Users",
+            "type": "string"
+          },
+          "keywords": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Keywords",
+            "type": "array"
+          },
+          "managing_party_name": {
+            "title": "Managing Party Name",
+            "type": "string"
+          },
+          "number": {
+            "title": "Number",
+            "type": "integer"
+          },
+          "problem": {
+            "title": "Problem",
+            "type": "string"
+          },
+          "published_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Published At"
+          },
+          "sector": {
+            "title": "Sector",
+            "type": "string"
+          },
+          "solution": {
+            "title": "Solution",
+            "type": "string"
+          },
+          "stage": {
+            "anyOf": [
+              {
+                "enum": [
+                  "IDEA",
+                  "PROTOTYPE",
+                  "PILOT",
+                  "WORKING",
+                  "MARKET"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stage"
+          },
+          "summary": {
+            "title": "Summary",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "managing_party_name",
+          "number",
+          "title",
+          "summary",
+          "problem",
+          "solution",
+          "intended_users",
+          "sector",
+          "stage",
+          "keywords",
+          "facts",
+          "claims",
+          "published_at"
+        ],
+        "title": "PublicInventionResponse",
+        "type": "object"
+      },
+      "PublishResponse": {
+        "description": "The outcome of a publication.",
+        "properties": {
+          "operation_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operation Id"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "version",
+          "status"
+        ],
+        "title": "PublishResponse",
+        "type": "object"
+      },
       "RemoveMemberRequest": {
         "description": "Remove a member, acting as the organization.",
         "properties": {
@@ -976,6 +1780,136 @@
           "code"
         ],
         "title": "VerifyRequest",
+        "type": "object"
+      },
+      "VersionResponse": {
+        "description": "One version as its owner sees it.",
+        "properties": {
+          "claims": {
+            "items": {
+              "$ref": "#/components/schemas/ClaimResponse"
+            },
+            "title": "Claims",
+            "type": "array"
+          },
+          "facts": {
+            "items": {
+              "$ref": "#/components/schemas/FactResponse"
+            },
+            "title": "Facts",
+            "type": "array"
+          },
+          "intended_users": {
+            "title": "Intended Users",
+            "type": "string"
+          },
+          "keywords": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Keywords",
+            "type": "array"
+          },
+          "number": {
+            "title": "Number",
+            "type": "integer"
+          },
+          "private_notes": {
+            "title": "Private Notes",
+            "type": "string"
+          },
+          "problem": {
+            "title": "Problem",
+            "type": "string"
+          },
+          "published_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Published At"
+          },
+          "sector": {
+            "title": "Sector",
+            "type": "string"
+          },
+          "solution": {
+            "title": "Solution",
+            "type": "string"
+          },
+          "stage": {
+            "anyOf": [
+              {
+                "enum": [
+                  "IDEA",
+                  "PROTOTYPE",
+                  "PILOT",
+                  "WORKING",
+                  "MARKET"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stage"
+          },
+          "state": {
+            "title": "State",
+            "type": "string"
+          },
+          "summary": {
+            "title": "Summary",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "number",
+          "state",
+          "title",
+          "summary",
+          "problem",
+          "solution",
+          "intended_users",
+          "sector",
+          "stage",
+          "keywords",
+          "facts",
+          "claims",
+          "private_notes",
+          "published_at"
+        ],
+        "title": "VersionResponse",
+        "type": "object"
+      },
+      "VersionedActionRequest": {
+        "description": "Publish or archive against the version the client saw.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "expected_version": {
+            "title": "Expected Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "expected_version"
+        ],
+        "title": "VersionedActionRequest",
         "type": "object"
       }
     }
@@ -1203,6 +2137,392 @@
         "summary": "Read the development mailbox",
         "tags": [
           "development"
+        ]
+      }
+    },
+    "/api/v1/inventions": {
+      "get": {
+        "description": "List the acting party's inventions, drafts and archived ones included.\n\nArgs:\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    list[InventionSummaryResponse]: Inventions.",
+        "operationId": "list_inventions_api_v1_inventions_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/InventionSummaryResponse"
+                  },
+                  "title": "Response List Inventions Api V1 Inventions Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "List my inventions",
+        "tags": [
+          "inventions"
+        ]
+      },
+      "post": {
+        "description": "Start an invention with an empty draft for the acting party.\n\nArgs:\n    body (CreateInventionRequest): Acting party.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    InventionResponse: The invention.",
+        "operationId": "create_invention_api_v1_inventions_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateInventionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InventionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Start an invention",
+        "tags": [
+          "inventions"
+        ]
+      }
+    },
+    "/api/v1/inventions/{invention_id}": {
+      "get": {
+        "description": "Read draft, published version and history.\n\nArgs:\n    invention_id (UUID): The invention.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    InventionResponse: The invention.",
+        "operationId": "read_invention_api_v1_inventions__invention_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "invention_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Invention Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InventionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Read an invention as its owner",
+        "tags": [
+          "inventions"
+        ]
+      }
+    },
+    "/api/v1/inventions/{invention_id}/archive": {
+      "post": {
+        "description": "Archive: hidden from discovery and new submissions; history stays readable.\n\nArgs:\n    invention_id (UUID): The invention.\n    body (VersionedActionRequest): Acting party and ``expected_version``.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    InventionResponse: The archived invention.",
+        "operationId": "archive_invention_api_v1_inventions__invention_id__archive_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "invention_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Invention Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VersionedActionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InventionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Archive an invention",
+        "tags": [
+          "inventions"
+        ]
+      }
+    },
+    "/api/v1/inventions/{invention_id}/draft": {
+      "put": {
+        "description": "Save the whole draft against ``expected_version``; publication rules do not apply here.\n\nArgs:\n    invention_id (UUID): The invention.\n    body (DraftRequest): Content.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried save.\n\nReturns:\n    InventionResponse: The invention with its saved draft.",
+        "operationId": "save_draft_api_v1_inventions__invention_id__draft_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "invention_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Invention Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DraftRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InventionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Save the draft",
+        "tags": [
+          "inventions"
+        ]
+      }
+    },
+    "/api/v1/inventions/{invention_id}/public": {
+      "get": {
+        "description": "Read what anyone signed in may see: the published version, nothing private.\n\nArgs:\n    invention_id (UUID): The invention.\n    _ (PrincipalDep): Any signed-in account.\n    session (SessionDep): Database session.\n\nReturns:\n    PublicInventionResponse: The projection.",
+        "operationId": "read_public_api_v1_inventions__invention_id__public_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "invention_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Invention Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicInventionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Read the published version",
+        "tags": [
+          "inventions"
+        ]
+      }
+    },
+    "/api/v1/inventions/{invention_id}/publish": {
+      "post": {
+        "description": "Publish the draft as an immutable version.\n\nArgs:\n    invention_id (UUID): The invention.\n    body (VersionedActionRequest): Acting party and ``expected_version``.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    PublishResponse: The version number and status.",
+        "operationId": "publish_invention_api_v1_inventions__invention_id__publish_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "invention_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Invention Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VersionedActionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Publish the draft",
+        "tags": [
+          "inventions"
         ]
       }
     },
