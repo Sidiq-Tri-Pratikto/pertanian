@@ -9,6 +9,8 @@ RUN uv sync --frozen --no-dev --no-install-project
 
 FROM python:3.13-slim AS runtime
 
+# Take Debian security fixes the base image has not picked up yet, so the image scan passes.
+RUN apt-get update && apt-get upgrade -y --no-install-recommends && rm -rf /var/lib/apt/lists/*
 # The app runs from .venv and never needs pip, whose vendored packages fail the image scan.
 RUN python -m pip uninstall --yes pip
 RUN useradd --system --uid 1000 --no-create-home appuser
