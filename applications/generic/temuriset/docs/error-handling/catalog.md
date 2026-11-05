@@ -21,6 +21,10 @@ One row per error. Keep in sync with `app/core/errors/codes.py` and `public.py`.
 | `APP-STALE-CONTEXT` | `STALE_CONTEXT` | 409 | Anda kini bertindak sebagai pihak lain di tab berbeda. Muat ulang halaman lalu ulangi tindakan Anda. | `acting_party_id` differs from the session's active party | false | - | - |
 | `APP-INVITATION-EXPIRED` | `INVITATION_EXPIRED` | 410 | Undangan ini sudah tidak berlaku. Minta undangan baru kepada pengelola organisasi. | Invitation older than seven days, revoked, or already accepted | false | - | - |
 | `APP-PUBLICATION-INVALID` | `VALIDATION_FAILED` | 422 | Draf belum siap diterbitkan. Lengkapi isian yang ditandai lalu terbitkan lagi. | Publishing a draft that breaks a PRD publication rule; `details` names each field in Indonesian | false | - | - |
+| `APP-FILE-TOO-LARGE` | `FILE_TOO_LARGE` | 422 | Berkas melebihi batas 20 MB untuk PDF dan DOCX (5 MB untuk gambar). Kecilkan berkas lalu unggah lagi. | Declared size over the limit before upload, or more bytes than declared during it | false | - | - |
+| `APP-FILE-TYPE-UNSUPPORTED` | `FILE_TYPE_UNSUPPORTED` | 422 | Jenis berkas ini tidak didukung. Unggah PDF, DOCX, PNG, JPEG atau WEBP. | Declared media type not accepted | false | - | - |
+| `APP-FILE-NOT-AVAILABLE` | `FILE_NOT_AVAILABLE` | 409 | Berkas ini belum tersedia atau ditolak saat pemeriksaan. Tunggu pemeriksaan selesai. | Download of a quarantined or rejected version | false | - | - |
+| `APP-GRANT-REVOKED` | `GRANT_REVOKED` | 403 | Akses ke dokumen ini sudah dicabut. Salinan yang sudah diunduh sebelumnya tidak dapat ditarik kembali. | Download under a revoked grant, range requests included | false | - | - |
 
 A missing `Idempotency-Key` on a consequential POST is `BAD_REQUEST` with `details` naming the header.
 

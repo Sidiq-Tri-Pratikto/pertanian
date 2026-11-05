@@ -17,5 +17,12 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
 
+  # Optional real malware scanner: `docker compose -f dev-compose.yml --profile scanner up -d`, then FILE_SCANNER=clamav.
+  clamav:
+    image: clamav/clamav:1.4
+    profiles: ["scanner"]
+    ports:
+      - "3310:3310"
+
 volumes:
   postgres-data:

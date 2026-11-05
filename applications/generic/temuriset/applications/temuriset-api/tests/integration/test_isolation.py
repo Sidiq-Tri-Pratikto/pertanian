@@ -43,6 +43,9 @@ class Owner:
     invitation_id: str
     invitation_token: str
     invention_id: str
+    document_id: str
+    intent_id: str
+    grant_id: str
 
 
 @dataclass
@@ -101,6 +104,38 @@ ROUTES: dict[tuple[str, str], Case] = {
         lambda o: f"/api/v1/inventions/{o.invention_id}/archive",
         lambda _o, actor: {"acting_party_id": actor, "expected_version": 1},
     ),
+    ("POST", "/api/v1/documents/upload-intents"): Case(
+        "POST",
+        lambda _o: "/api/v1/documents/upload-intents",
+        lambda o, actor: {
+            "acting_party_id": actor,
+            "title": "x",
+            "kind": "other",
+            "media_type": "application/pdf",
+            "size_bytes": 10,
+            "document_id": o.document_id,
+        },
+    ),
+    ("PUT", "/api/v1/documents/upload-intents/{intent_id}/content"): Case(
+        "PUT", lambda o: f"/api/v1/documents/upload-intents/{o.intent_id}/content"
+    ),
+    ("GET", "/api/v1/documents"): Case("GET", lambda _o: "/api/v1/documents"),
+    ("GET", "/api/v1/documents/{document_id}"): Case("GET", lambda o: f"/api/v1/documents/{o.document_id}"),
+    ("POST", "/api/v1/documents/{document_id}/grants"): Case(
+        "POST",
+        lambda o: f"/api/v1/documents/{o.document_id}/grants",
+        lambda _o, actor: {"acting_party_id": actor, "version": 1, "grantee_party_id": actor, "purpose": "pitch"},
+        {"Idempotency-Key": "isolation-grant"},
+    ),
+    ("POST", "/api/v1/grants/{grant_id}/revoke"): Case(
+        "POST",
+        lambda o: f"/api/v1/grants/{o.grant_id}/revoke",
+        lambda _o, actor: {"acting_party_id": actor},
+        {"Idempotency-Key": "isolation-revoke"},
+    ),
+    ("GET", "/api/v1/documents/{document_id}/versions/{number}/content"): Case(
+        "GET", lambda o: f"/api/v1/documents/{o.document_id}/versions/1/content"
+    ),
     # Unpublished, so even the public view must not reveal that it exists.
     ("GET", "/api/v1/inventions/{invention_id}/public"): Case(
         "GET", lambda o: f"/api/v1/inventions/{o.invention_id}/public"
@@ -140,6 +175,45 @@ async def owner(client: AsyncClient, sign_up) -> AsyncIterator[Owner]:
         json={"acting_party_id": organization["party_id"], "expected_version": 1, "title": "Owner Co invention"},
         headers={"Idempotency-Key": "inv-draft"},
     )
+    party = organization["party_id"]
+    pdf = b"%PDF-1.4 owner co document"
+    intent = (
+        await client.post(
+            "/api/v1/documents/upload-intents",
+            json={
+                "acting_party_id": party,
+                "title": "Owner Co document",
+                "kind": "evidence",
+                "media_type": "application/pdf",
+                "size_bytes": len(pdf),
+            },
+        )
+    ).json()
+    uploaded = (await client.put(intent["upload_url"], content=pdf)).json()
+    spare = (
+        await client.post(
+            "/api/v1/documents/upload-intents",
+            json={
+                "acting_party_id": party,
+                "title": "Owner Co spare",
+                "kind": "other",
+                "media_type": "application/pdf",
+                "size_bytes": len(pdf),
+            },
+        )
+    ).json()
+    grant = (
+        await client.post(
+            f"/api/v1/documents/{uploaded['document_id']}/grants",
+            json={
+                "acting_party_id": party,
+                "version": 1,
+                "grantee_party_id": me["personal_party_id"],
+                "purpose": "pitch",
+            },
+            headers={"Idempotency-Key": "grant"},
+        )
+    ).json()
     yield Owner(
         organization_id=organization["id"],
         party_id=organization["party_id"],
@@ -148,6 +222,9 @@ async def owner(client: AsyncClient, sign_up) -> AsyncIterator[Owner]:
         invitation_id=invitation["id"],
         invitation_token=mail[0]["body"].rsplit("/", 1)[1],
         invention_id=invention["id"],
+        document_id=uploaded["document_id"],
+        intent_id=spare["intent_id"],
+        grant_id=grant["id"],
     )
 
 
@@ -191,5 +268,7 @@ async def test_unrelated_party_sees_nothing(
         owner.account_id,
         "guest@example.com",
         owner.invention_id,
+        owner.document_id,
+        "Owner Co document",
     ):
         assert secret not in response.text

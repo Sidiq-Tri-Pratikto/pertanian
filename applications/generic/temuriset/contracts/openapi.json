@@ -500,6 +500,47 @@
         "title": "CreateOrganizationRequest",
         "type": "object"
       },
+      "DocumentResponse": {
+        "description": "A document as its owner sees it.",
+        "properties": {
+          "grants": {
+            "items": {
+              "$ref": "#/components/schemas/GrantResponse"
+            },
+            "title": "Grants",
+            "type": "array"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "versions": {
+            "items": {
+              "$ref": "#/components/schemas/app__documents__model__schema__VersionResponse"
+            },
+            "title": "Versions",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "kind",
+          "versions",
+          "grants"
+        ],
+        "title": "DocumentResponse",
+        "type": "object"
+      },
       "DraftRequest": {
         "description": "The whole draft. Optional fields never block a save; publication rules apply only on publish.",
         "properties": {
@@ -922,13 +963,114 @@
         "title": "FactResponse",
         "type": "object"
       },
+      "GrantRequest": {
+        "description": "Share one version with one party for one purpose.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "grantee_party_id": {
+            "format": "uuid",
+            "title": "Grantee Party Id",
+            "type": "string"
+          },
+          "pitch_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pitch Id"
+          },
+          "purpose": {
+            "enum": [
+              "pitch",
+              "discussion"
+            ],
+            "title": "Purpose",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "version",
+          "grantee_party_id",
+          "purpose"
+        ],
+        "title": "GrantRequest",
+        "type": "object"
+      },
+      "GrantResponse": {
+        "description": "Who may download which version, and how many copies already left.",
+        "properties": {
+          "downloads": {
+            "title": "Downloads",
+            "type": "integer"
+          },
+          "grantee_name": {
+            "title": "Grantee Name",
+            "type": "string"
+          },
+          "grantee_party_id": {
+            "format": "uuid",
+            "title": "Grantee Party Id",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "purpose": {
+            "title": "Purpose",
+            "type": "string"
+          },
+          "revoked_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Revoked At"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "version",
+          "grantee_party_id",
+          "grantee_name",
+          "purpose",
+          "revoked_at",
+          "downloads"
+        ],
+        "title": "GrantResponse",
+        "type": "object"
+      },
       "InventionResponse": {
         "description": "The owner's view: draft, published version and history.",
         "properties": {
           "draft": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/VersionResponse"
+                "$ref": "#/components/schemas/app__portfolio__model__schema__VersionResponse"
               },
               {
                 "type": "null"
@@ -967,7 +1109,7 @@
           "published": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/VersionResponse"
+                "$ref": "#/components/schemas/app__portfolio__model__schema__VersionResponse"
               },
               {
                 "type": "null"
@@ -1691,6 +1833,45 @@
         "title": "RemoveMemberRequest",
         "type": "object"
       },
+      "RevokeRequest": {
+        "description": "Stop new downloads, acting as the owner.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "acting_party_id"
+        ],
+        "title": "RevokeRequest",
+        "type": "object"
+      },
+      "RevokedResponse": {
+        "description": "Revocation is honest about copies that already left.",
+        "properties": {
+          "copies_already_delivered": {
+            "title": "Copies Already Delivered",
+            "type": "integer"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "revoked": {
+            "title": "Revoked",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "revoked",
+          "copies_already_delivered",
+          "message"
+        ],
+        "title": "RevokedResponse",
+        "type": "object"
+      },
       "UpdateMeRequest": {
         "description": "Change account preferences.",
         "properties": {
@@ -1760,6 +1941,119 @@
         "title": "UpdateMeRequest",
         "type": "object"
       },
+      "UploadIntentRequest": {
+        "description": "Declare a file before sending it, so size and type are refused before any byte moves.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "document_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Id"
+          },
+          "kind": {
+            "enum": [
+              "evidence",
+              "presentation",
+              "technical",
+              "other"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "media_type": {
+            "maxLength": 120,
+            "title": "Media Type",
+            "type": "string"
+          },
+          "size_bytes": {
+            "exclusiveMinimum": 0.0,
+            "title": "Size Bytes",
+            "type": "integer"
+          },
+          "title": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "title",
+          "kind",
+          "media_type",
+          "size_bytes"
+        ],
+        "title": "UploadIntentRequest",
+        "type": "object"
+      },
+      "UploadIntentResponse": {
+        "description": "Where and until when to send the bytes.",
+        "properties": {
+          "expires_at": {
+            "format": "date-time",
+            "title": "Expires At",
+            "type": "string"
+          },
+          "intent_id": {
+            "format": "uuid",
+            "title": "Intent Id",
+            "type": "string"
+          },
+          "max_bytes": {
+            "title": "Max Bytes",
+            "type": "integer"
+          },
+          "upload_url": {
+            "title": "Upload Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "intent_id",
+          "upload_url",
+          "max_bytes",
+          "expires_at"
+        ],
+        "title": "UploadIntentResponse",
+        "type": "object"
+      },
+      "UploadedResponse": {
+        "description": "The stored version; available only after the scan.",
+        "properties": {
+          "document_id": {
+            "format": "uuid",
+            "title": "Document Id",
+            "type": "string"
+          },
+          "file_state": {
+            "title": "File State",
+            "type": "string"
+          },
+          "number": {
+            "title": "Number",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "document_id",
+          "number",
+          "file_state"
+        ],
+        "title": "UploadedResponse",
+        "type": "object"
+      },
       "VerifyRequest": {
         "description": "Prove control of the email.",
         "properties": {
@@ -1782,7 +2076,77 @@
         "title": "VerifyRequest",
         "type": "object"
       },
-      "VersionResponse": {
+      "VersionedActionRequest": {
+        "description": "Publish or archive against the version the client saw.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "expected_version": {
+            "title": "Expected Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "expected_version"
+        ],
+        "title": "VersionedActionRequest",
+        "type": "object"
+      },
+      "app__documents__model__schema__VersionResponse": {
+        "description": "One version's three independent states.",
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "extraction_state": {
+            "title": "Extraction State",
+            "type": "string"
+          },
+          "file_state": {
+            "title": "File State",
+            "type": "string"
+          },
+          "media_type": {
+            "title": "Media Type",
+            "type": "string"
+          },
+          "number": {
+            "title": "Number",
+            "type": "integer"
+          },
+          "review_state": {
+            "title": "Review State",
+            "type": "string"
+          },
+          "sha256": {
+            "title": "Sha256",
+            "type": "string"
+          },
+          "size_bytes": {
+            "title": "Size Bytes",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "number",
+          "media_type",
+          "size_bytes",
+          "sha256",
+          "file_state",
+          "extraction_state",
+          "review_state",
+          "created_at"
+        ],
+        "title": "VersionResponse",
+        "type": "object"
+      },
+      "app__portfolio__model__schema__VersionResponse": {
         "description": "One version as its owner sees it.",
         "properties": {
           "claims": {
@@ -1890,26 +2254,6 @@
           "published_at"
         ],
         "title": "VersionResponse",
-        "type": "object"
-      },
-      "VersionedActionRequest": {
-        "description": "Publish or archive against the version the client saw.",
-        "properties": {
-          "acting_party_id": {
-            "format": "uuid",
-            "title": "Acting Party Id",
-            "type": "string"
-          },
-          "expected_version": {
-            "title": "Expected Version",
-            "type": "integer"
-          }
-        },
-        "required": [
-          "acting_party_id",
-          "expected_version"
-        ],
-        "title": "VersionedActionRequest",
         "type": "object"
       }
     }
@@ -2137,6 +2481,391 @@
         "summary": "Read the development mailbox",
         "tags": [
           "development"
+        ]
+      }
+    },
+    "/api/v1/documents": {
+      "get": {
+        "description": "List the acting party's documents.\n\nArgs:\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    list[DocumentResponse]: Documents with versions and grants.",
+        "operationId": "list_documents_api_v1_documents_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/DocumentResponse"
+                  },
+                  "title": "Response List Documents Api V1 Documents Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "List my documents",
+        "tags": [
+          "documents"
+        ]
+      }
+    },
+    "/api/v1/documents/upload-intents": {
+      "post": {
+        "description": "Refuse an unsupported type or a size over the limit before any byte is sent.\n\nArgs:\n    body (UploadIntentRequest): Title, kind, media type and size.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    UploadIntentResponse: Where to send the bytes.",
+        "operationId": "create_upload_intent_api_v1_documents_upload_intents_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UploadIntentRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadIntentResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Declare an upload",
+        "tags": [
+          "documents"
+        ]
+      }
+    },
+    "/api/v1/documents/upload-intents/{intent_id}/content": {
+      "put": {
+        "description": "Stream the file into quarantine; it becomes available only after the scan.\n\nArgs:\n    intent_id (UUID): The intent.\n    request (Request): The streamed body.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    UploadedResponse: The new version and its file state.",
+        "operationId": "upload_content_api_v1_documents_upload_intents__intent_id__content_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "intent_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Intent Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadedResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Send the bytes",
+        "tags": [
+          "documents"
+        ]
+      }
+    },
+    "/api/v1/documents/{document_id}": {
+      "get": {
+        "description": "Read versions, their three states, and grants.\n\nArgs:\n    document_id (UUID): The document.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    DocumentResponse: The document.",
+        "operationId": "read_document_api_v1_documents__document_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "document_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Document Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Read a document as its owner",
+        "tags": [
+          "documents"
+        ]
+      }
+    },
+    "/api/v1/documents/{document_id}/grants": {
+      "post": {
+        "description": "Share one version with one party for one purpose.\n\nArgs:\n    document_id (UUID): The document.\n    body (GrantRequest): Version, grantee and purpose.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    GrantResponse: The grant.",
+        "operationId": "grant_document_api_v1_documents__document_id__grants_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "document_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Document Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GrantRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GrantResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Share one version",
+        "tags": [
+          "documents"
+        ]
+      }
+    },
+    "/api/v1/documents/{document_id}/versions/{number}/content": {
+      "get": {
+        "description": "Stream a version after re-authorizing this exact request, ranges included. No storage URL is ever issued.\n\nArgs:\n    document_id (UUID): The document.\n    number (int): The version.\n    request (Request): Carries the optional ``Range`` header.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    StreamingResponse: The bytes, or the requested range with 206.",
+        "operationId": "download_api_v1_documents__document_id__versions__number__content_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "document_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Document Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "number",
+            "required": true,
+            "schema": {
+              "title": "Number",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Download a version",
+        "tags": [
+          "documents"
+        ]
+      }
+    },
+    "/api/v1/grants/{grant_id}/revoke": {
+      "post": {
+        "description": "Block new downloads. Copies already delivered cannot be recalled, and the answer says so.\n\nArgs:\n    grant_id (UUID): The grant.\n    body (RevokeRequest): Acting party.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    RevokedResponse: The outcome.",
+        "operationId": "revoke_grant_api_v1_grants__grant_id__revoke_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "grant_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Grant Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RevokeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RevokedResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Revoke a grant",
+        "tags": [
+          "documents"
         ]
       }
     },

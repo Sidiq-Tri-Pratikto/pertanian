@@ -33,6 +33,8 @@ make check             # lint, format check, all tests, 80% coverage gate
 | `tests/unit/health/` | Liveness and readiness | Nothing |
 | `tests/integration/` | Real requests against Postgres after migrations | Postgres |
 | `tests/integration/identity/` | Sign-up for both personas without an organization, codes wrong, expired and used up, 1,000-guess brute force, rate limits, no account leak, sign-out, cross-origin refusal, `PATCH /me` | Postgres |
+| `tests/integration/documents/` | Limits before upload, quarantine and scan (AC13, AC14), scans without text (AC15), signature mismatch, grants, ranges and revocation (AC65), a 20 MB round trip | Postgres |
+| `tests/unit/documents/` | ClamAV INSTREAM against a fake daemon, byte sniffing, extraction, chunked storage | Nothing |
 | `tests/integration/portfolio/` | Drafts, each publication rule, immutable versions (AC07–AC11), stale drafts, archive, public projection, outbox events | Postgres |
 | `tests/integration/access/` | Organizations, capabilities (AC04), hidden organizations (AC05), a removed member's job denied (AC06), invitations expired and revoked, stale context, last manager | Postgres |
 | `tests/integration/test_isolation.py` | Every data route called as an unrelated party returns `NOT_FOUND` or nothing; fails when a new route is not registered | Postgres |
@@ -57,6 +59,8 @@ Run one test with `uv run pytest tests/unit/health/test_health.py -v`, or match 
 | `MAILBOX_ADAPTER` | no | `development` | Writes email to `mailbox_messages`, readable at `GET /api/v1/dev/mailbox` in development; stops startup elsewhere until spec 042 |
 | `CODE_REQUESTS_PER_EMAIL_PER_HOUR` | no | `5` | Sign-in code requests per email per hour |
 | `CODE_REQUESTS_PER_ADDRESS_PER_HOUR` | no | `20` | Sign-in code requests per client address per hour |
+| `STORAGE_PATH` | no | `.storage` | Private folder for uploaded bytes; downloads always go through the gateway |
+| `CLAMAV_HOST`, `CLAMAV_PORT` | no | `localhost`, `3310` | ClamAV daemon for `FILE_SCANNER=clamav` (`--profile scanner` in `dev-compose.yml`) |
 | `SKIP_MIGRATIONS` | no | `false` | Container start skips migrations when `true` |
 | `PORT` | no | `8000` | Container listen port (`make run` uses 8020 on the host) |
 
@@ -93,5 +97,10 @@ Run one test with `uv run pytest tests/unit/health/test_health.py -v`, or match 
 | `PUT /api/v1/inventions/{id}/draft` | Save the whole draft against `expected_version` (`Idempotency-Key`); publication rules do not apply |
 | `POST /api/v1/inventions/{id}/publish`, `.../archive` | Publish an immutable version; archive while keeping history |
 | `GET /api/v1/inventions/{id}/public` | The published version, nothing private; `NOT_FOUND` when unpublished or archived |
+| `POST /api/v1/documents/upload-intents` | Declare title, kind, type and size; unsupported or oversized files are refused before any byte |
+| `PUT /api/v1/documents/upload-intents/{id}/content` | Stream the bytes into quarantine; the worker scans, then reads the text |
+| `GET /api/v1/documents`, `GET /api/v1/documents/{id}` | The acting party's documents: versions with file, extraction and review states, and grants |
+| `POST /api/v1/documents/{id}/grants`, `POST /api/v1/grants/{id}/revoke` | Share one version with one party; revoke and report copies already delivered |
+| `GET /api/v1/documents/{id}/versions/{n}/content` | The gateway: re-authorizes every request and range, records grantee downloads, never issues a storage URL |
 | `GET /api/v1/dev/mailbox?email=` | Development only: the codes and notes that would have been emailed |
 | `GET /api/v1/operations/{id}` | Whether the acting party's operation committed, for a client that lost the response |

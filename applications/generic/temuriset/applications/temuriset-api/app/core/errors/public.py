@@ -97,6 +97,22 @@ PUBLIC_ERROR_BY_CODE: dict[str, PublicError] = {
     codes.APP_PUBLICATION_INVALID: PublicError(
         "VALIDATION_FAILED", 422, "Draf belum siap diterbitkan. Lengkapi isian yang ditandai lalu terbitkan lagi."
     ),
+    codes.APP_FILE_TOO_LARGE: PublicError(
+        "FILE_TOO_LARGE", 422, "Berkas melebihi batas ukuran. Kecilkan berkas lalu unggah lagi."
+    ),
+    codes.APP_FILE_TYPE_UNSUPPORTED: PublicError(
+        "FILE_TYPE_UNSUPPORTED", 422, "Jenis berkas ini tidak didukung. Unggah PDF, DOCX, PNG, JPEG atau WEBP."
+    ),
+    codes.APP_FILE_NOT_AVAILABLE: PublicError(
+        "FILE_NOT_AVAILABLE",
+        409,
+        "Berkas ini belum tersedia atau ditolak saat pemeriksaan. Tunggu pemeriksaan selesai.",
+    ),
+    codes.APP_GRANT_REVOKED: PublicError(
+        "GRANT_REVOKED",
+        403,
+        "Akses ke dokumen ini sudah dicabut. Salinan yang sudah diunduh sebelumnya tidak dapat ditarik kembali.",
+    ),
 }
 
 PUBLIC_ERROR_BY_STATUS: dict[int, PublicError] = {

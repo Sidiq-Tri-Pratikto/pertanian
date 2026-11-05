@@ -42,14 +42,20 @@ def test_manifest_describes_the_deployment() -> None:
 def test_nothing_claims_more_than_exists(composition: str) -> None:
     """
     Condition:
-    - Base release: no feature, adapter or integration has shipped.
+    - Storage and scanning shipped in spec 010; no product capability has completed a journey yet.
 
     Expected:
-    - Every capability and adapter reports planned, never available.
+    - Only those two adapters report available; everything else stays planned.
     """
     manifest = build_manifest(composition)
 
-    assert {item.status for item in [*manifest.capabilities, *manifest.adapters]} == {"planned"}
+    assert {item.status for item in manifest.capabilities} == {"planned"}
+    assert {adapter.id: adapter.status for adapter in manifest.adapters} == {
+        "object-storage": "available",
+        "file-scanner": "available",
+        "lexical-rules": "planned",
+        "ics-export": "planned",
+    }
 
 
 @pytest.mark.parametrize(

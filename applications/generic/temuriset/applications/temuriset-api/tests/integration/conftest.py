@@ -3,15 +3,18 @@
 import subprocess
 import sys
 from collections.abc import AsyncIterator, Awaitable, Callable, Iterator
+from pathlib import Path
 
 import pytest
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy import text
 
 from app.core.database import get_engine
+from app.core.settings import get_settings
 from app.main import app
 
 TABLES = (
+    "download_events, document_grants, document_versions, upload_intents, documents, "
     "invention_claims, invention_facts, invention_versions, inventions, "
     "idempotency_records, audit_events, outbox_deliveries, outbox_events, jobs, "
     "invitations, memberships, sessions, email_codes, mailbox_messages, parties, organizations, accounts"
@@ -24,6 +27,15 @@ def migrated_database() -> Iterator[None]:
     """Apply migrations once; a failure here means Postgres is not running (``make run-dependencies``)."""
     subprocess.run([sys.executable, "-m", "alembic", "upgrade", "head"], check=True)
     yield
+
+
+@pytest.fixture(autouse=True)
+def storage(tmp_path: Path) -> Iterator[Path]:
+    """Store uploaded bytes in a temporary folder."""
+    settings = get_settings()
+    previous, settings.storage_path = settings.storage_path, str(tmp_path)
+    yield tmp_path
+    settings.storage_path = previous
 
 
 @pytest.fixture

@@ -24,6 +24,9 @@ class Settings(BaseSettings):
         mailbox_adapter (str): Email delivery; ``development`` writes to a table and is refused outside development.
         code_requests_per_email_per_hour (int): Sign-in code requests allowed per email in an hour.
         code_requests_per_address_per_hour (int): Sign-in code requests allowed per client address in an hour.
+        storage_path (str): Folder of the local storage adapter; bytes never get a public URL.
+        clamav_host (str): ClamAV daemon host for ``FILE_SCANNER=clamav``.
+        clamav_port (int): ClamAV daemon port.
     """
 
     # A rejected value never appears in the startup error, so a secret pasted into the wrong setting stays out of logs.
@@ -42,6 +45,9 @@ class Settings(BaseSettings):
     mailbox_adapter: Literal["development"] = "development"
     code_requests_per_email_per_hour: int = 5
     code_requests_per_address_per_hour: int = 20
+    storage_path: str = ".storage"
+    clamav_host: str = "localhost"
+    clamav_port: int = 3310
 
     @property
     def cookie_secure(self) -> bool:

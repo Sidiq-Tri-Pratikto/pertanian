@@ -66,7 +66,8 @@ class InventionFactRecord(Row, Base):
     timing: Mapped[str] = mapped_column(String(16))
     provenance: Mapped[str] = mapped_column(String(16))
     key: Mapped[str | None] = mapped_column(String(64))
-    document_version_id: Mapped[UUID | None]
+    # The fact keeps naming the version it came from, even after a newer version supersedes it.
+    document_version_id: Mapped[UUID | None] = mapped_column(ForeignKey("document_versions.id", ondelete="RESTRICT"))
 
 
 class InventionClaimRecord(Row, Base):

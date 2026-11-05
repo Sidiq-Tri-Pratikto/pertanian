@@ -135,6 +135,208 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/documents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List my documents
+         * @description List the acting party's documents.
+         *
+         *     Args:
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         list[DocumentResponse]: Documents with versions and grants.
+         */
+        get: operations["list_documents_api_v1_documents_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/documents/upload-intents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Declare an upload
+         * @description Refuse an unsupported type or a size over the limit before any byte is sent.
+         *
+         *     Args:
+         *         body (UploadIntentRequest): Title, kind, media type and size.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         UploadIntentResponse: Where to send the bytes.
+         */
+        post: operations["create_upload_intent_api_v1_documents_upload_intents_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/documents/upload-intents/{intent_id}/content": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Send the bytes
+         * @description Stream the file into quarantine; it becomes available only after the scan.
+         *
+         *     Args:
+         *         intent_id (UUID): The intent.
+         *         request (Request): The streamed body.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         UploadedResponse: The new version and its file state.
+         */
+        put: operations["upload_content_api_v1_documents_upload_intents__intent_id__content_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/documents/{document_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read a document as its owner
+         * @description Read versions, their three states, and grants.
+         *
+         *     Args:
+         *         document_id (UUID): The document.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         DocumentResponse: The document.
+         */
+        get: operations["read_document_api_v1_documents__document_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/documents/{document_id}/grants": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Share one version
+         * @description Share one version with one party for one purpose.
+         *
+         *     Args:
+         *         document_id (UUID): The document.
+         *         body (GrantRequest): Version, grantee and purpose.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         GrantResponse: The grant.
+         */
+        post: operations["grant_document_api_v1_documents__document_id__grants_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/documents/{document_id}/versions/{number}/content": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Download a version
+         * @description Stream a version after re-authorizing this exact request, ranges included. No storage URL is ever issued.
+         *
+         *     Args:
+         *         document_id (UUID): The document.
+         *         number (int): The version.
+         *         request (Request): Carries the optional ``Range`` header.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         StreamingResponse: The bytes, or the requested range with 206.
+         */
+        get: operations["download_api_v1_documents__document_id__versions__number__content_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/grants/{grant_id}/revoke": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Revoke a grant
+         * @description Block new downloads. Copies already delivered cannot be recalled, and the answer says so.
+         *
+         *     Args:
+         *         grant_id (UUID): The grant.
+         *         body (RevokeRequest): Acting party.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         RevokedResponse: The outcome.
+         */
+        post: operations["revoke_grant_api_v1_grants__grant_id__revoke_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/inventions": {
         parameters: {
             query?: never;
@@ -930,6 +1132,25 @@ export interface components {
             name: string;
         };
         /**
+         * DocumentResponse
+         * @description A document as its owner sees it.
+         */
+        DocumentResponse: {
+            /** Grants */
+            grants: components["schemas"]["GrantResponse"][];
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Kind */
+            kind: string;
+            /** Title */
+            title: string;
+            /** Versions */
+            versions: components["schemas"]["app__documents__model__schema__VersionResponse"][];
+        };
+        /**
          * DraftRequest
          * @description The whole draft. Optional fields never block a save; publication rules apply only on publish.
          */
@@ -1120,11 +1341,62 @@ export interface components {
             value: string;
         };
         /**
+         * GrantRequest
+         * @description Share one version with one party for one purpose.
+         */
+        GrantRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /**
+             * Grantee Party Id
+             * Format: uuid
+             */
+            grantee_party_id: string;
+            /** Pitch Id */
+            pitch_id?: string | null;
+            /**
+             * Purpose
+             * @enum {string}
+             */
+            purpose: "pitch" | "discussion";
+            /** Version */
+            version: number;
+        };
+        /**
+         * GrantResponse
+         * @description Who may download which version, and how many copies already left.
+         */
+        GrantResponse: {
+            /** Downloads */
+            downloads: number;
+            /** Grantee Name */
+            grantee_name: string;
+            /**
+             * Grantee Party Id
+             * Format: uuid
+             */
+            grantee_party_id: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Purpose */
+            purpose: string;
+            /** Revoked At */
+            revoked_at: string | null;
+            /** Version */
+            version: number;
+        };
+        /**
          * InventionResponse
          * @description The owner's view: draft, published version and history.
          */
         InventionResponse: {
-            draft: components["schemas"]["VersionResponse"] | null;
+            draft: components["schemas"]["app__portfolio__model__schema__VersionResponse"] | null;
             /** History */
             history: number[];
             /**
@@ -1139,7 +1411,7 @@ export interface components {
             managing_party_id: string;
             /** Operation Id */
             operation_id?: string | null;
-            published: components["schemas"]["VersionResponse"] | null;
+            published: components["schemas"]["app__portfolio__model__schema__VersionResponse"] | null;
             /** Status */
             status: string;
             /** Version */
@@ -1470,6 +1742,29 @@ export interface components {
             expected_version: number;
         };
         /**
+         * RevokeRequest
+         * @description Stop new downloads, acting as the owner.
+         */
+        RevokeRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+        };
+        /**
+         * RevokedResponse
+         * @description Revocation is honest about copies that already left.
+         */
+        RevokedResponse: {
+            /** Copies Already Delivered */
+            copies_already_delivered: number;
+            /** Message */
+            message: string;
+            /** Revoked */
+            revoked: boolean;
+        };
+        /**
          * UpdateMeRequest
          * @description Change account preferences.
          */
@@ -1486,6 +1781,65 @@ export interface components {
             time_zone?: string | null;
         };
         /**
+         * UploadIntentRequest
+         * @description Declare a file before sending it, so size and type are refused before any byte moves.
+         */
+        UploadIntentRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /** Document Id */
+            document_id?: string | null;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "evidence" | "presentation" | "technical" | "other";
+            /** Media Type */
+            media_type: string;
+            /** Size Bytes */
+            size_bytes: number;
+            /** Title */
+            title: string;
+        };
+        /**
+         * UploadIntentResponse
+         * @description Where and until when to send the bytes.
+         */
+        UploadIntentResponse: {
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            /**
+             * Intent Id
+             * Format: uuid
+             */
+            intent_id: string;
+            /** Max Bytes */
+            max_bytes: number;
+            /** Upload Url */
+            upload_url: string;
+        };
+        /**
+         * UploadedResponse
+         * @description The stored version; available only after the scan.
+         */
+        UploadedResponse: {
+            /**
+             * Document Id
+             * Format: uuid
+             */
+            document_id: string;
+            /** File State */
+            file_state: string;
+            /** Number */
+            number: number;
+        };
+        /**
          * VerifyRequest
          * @description Prove control of the email.
          */
@@ -1496,10 +1850,48 @@ export interface components {
             email: string;
         };
         /**
+         * VersionedActionRequest
+         * @description Publish or archive against the version the client saw.
+         */
+        VersionedActionRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /** Expected Version */
+            expected_version: number;
+        };
+        /**
+         * VersionResponse
+         * @description One version's three independent states.
+         */
+        app__documents__model__schema__VersionResponse: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Extraction State */
+            extraction_state: string;
+            /** File State */
+            file_state: string;
+            /** Media Type */
+            media_type: string;
+            /** Number */
+            number: number;
+            /** Review State */
+            review_state: string;
+            /** Sha256 */
+            sha256: string;
+            /** Size Bytes */
+            size_bytes: number;
+        };
+        /**
          * VersionResponse
          * @description One version as its owner sees it.
          */
-        VersionResponse: {
+        app__portfolio__model__schema__VersionResponse: {
             /** Claims */
             claims: components["schemas"]["ClaimResponse"][];
             /** Facts */
@@ -1528,19 +1920,6 @@ export interface components {
             summary: string;
             /** Title */
             title: string;
-        };
-        /**
-         * VersionedActionRequest
-         * @description Publish or archive against the version the client saw.
-         */
-        VersionedActionRequest: {
-            /**
-             * Acting Party Id
-             * Format: uuid
-             */
-            acting_party_id: string;
-            /** Expected Version */
-            expected_version: number;
         };
     };
     responses: never;
@@ -1709,6 +2088,286 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MailboxMessageResponse"][];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    list_documents_api_v1_documents_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocumentResponse"][];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    create_upload_intent_api_v1_documents_upload_intents_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UploadIntentRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UploadIntentResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    upload_content_api_v1_documents_upload_intents__intent_id__content_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                intent_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UploadedResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    read_document_api_v1_documents__document_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                document_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocumentResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    grant_document_api_v1_documents__document_id__grants_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                document_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GrantRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GrantResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    download_api_v1_documents__document_id__versions__number__content_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                document_id: string;
+                number: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    revoke_grant_api_v1_grants__grant_id__revoke_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                grant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RevokeRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RevokedResponse"];
                 };
             };
             /** @description Validation failed */
