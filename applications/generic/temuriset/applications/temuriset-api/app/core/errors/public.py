@@ -121,6 +121,26 @@ PUBLIC_ERROR_BY_CODE: dict[str, PublicError] = {
         409,
         "Status ini tidak dapat diubah dengan cara itu. Muat ulang untuk melihat status terbaru.",
     ),
+    codes.APP_DUPLICATE_PITCH: PublicError(
+        "DUPLICATE_PITCH",
+        409,
+        "Pitching untuk kebutuhan dan mandat ini sudah ada. Buka pitching yang ada untuk melanjutkannya.",
+    ),
+    codes.APP_TARGET_CLOSED: PublicError(
+        "TARGET_CLOSED",
+        409,
+        "Mandat ini tidak lagi menerima pitching baru. Diskusi yang sudah berjalan tetap berlanjut.",
+    ),
+    codes.APP_PREFLIGHT_STALE: PublicError(
+        "PREFLIGHT_STALE",
+        409,
+        "Ada yang berubah sejak pemeriksaan. Periksa ulang sebelum mengirim; brief Anda tetap tersimpan.",
+    ),
+    codes.APP_NOT_READY: PublicError(
+        "NOT_READY",
+        422,
+        "Masih ada syarat pengajuan yang belum selesai. Lengkapi syarat yang disebutkan lalu periksa ulang.",
+    ),
 }
 
 PUBLIC_ERROR_BY_STATUS: dict[int, PublicError] = {

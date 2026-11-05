@@ -2,7 +2,7 @@
 
 **Feature Branch**: `023-pitch-submission-api`
 **Created**: 2026-11-05
-**Status**: Seeded, not started
+**Status**: Built, awaiting review
 **Milestone**: M6 Pitch submission
 **Depends on**: 022
 **Size**: L
