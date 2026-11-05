@@ -41,13 +41,14 @@ check: ## Everything a pull request must pass (needs Docker)
 	$(MAKE) -C $(WEB) check
 	python3 docs/roadmap/check_traceability.py
 
-# Starts Postgres and the API, runs the web browser checks against a production build, then stops the API.
+# Starts Postgres, the API and the worker, runs the web browser checks against a production build, then stops them.
 .PHONY: e2e
 e2e: ## Browser checks in Chromium against a production build (needs Docker)
 	$(if $(API_DEPENDENCIES),$(MAKE) -C $(API) $(API_DEPENDENCIES))
 	$(MAKE) -C $(API) migrate
 	@(cd $(API) && WEB_ORIGIN=http://localhost:3029 CODE_REQUESTS_PER_ADDRESS_PER_HOUR=1000 exec .venv/bin/python -m uvicorn app.main:app --port $(E2E_API_PORT) > /dev/null 2>&1) & api=$$!; \
-	trap 'kill $$api' EXIT; \
+	(cd $(API) && exec .venv/bin/python -m app.worker > /dev/null 2>&1) & worker=$$!; \
+	trap 'kill $$api $$worker' EXIT; \
 	for i in $$(seq 1 60); do curl -sf http://localhost:$(E2E_API_PORT)/health/ready > /dev/null && break; sleep 0.5; done; \
 	E2E_API_URL=http://localhost:$(E2E_API_PORT) $(MAKE) -C $(WEB) e2e
 

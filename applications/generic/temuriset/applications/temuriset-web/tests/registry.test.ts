@@ -18,7 +18,7 @@ describe('feature registry', () => {
   });
 
   it('marks available only what has shipped', () => {
-    expect(FEATURES.filter((feature) => feature.status !== 'coming_soon').map((feature) => feature.id)).toEqual(['akun', 'inovasi']);
+    expect(FEATURES.filter((feature) => feature.status !== 'coming_soon').map((feature) => feature.id)).toEqual(['akun', 'inovasi', 'dokumen']);
   });
 
   it('keeps spec numbers out of product copy', () => {

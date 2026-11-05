@@ -30,6 +30,8 @@ make e2e            # Chromium against the production build; needs the API (the 
 | `tests/pages.test.tsx` | Every route signed in and out, safe return paths, settings, invitations |
 | `tests/auth.test.tsx` | Sign-up and code screens, error summary focus, context switcher, account and organization forms |
 | `tests/portfolio.test.tsx` | Editor state machine, save and focus, failed save retried with the same key, conflict, publication errors per step, preview, owner and partner detail |
+| `tests/documents.test.tsx` | Limits before upload, upload progress and polling, cancel, three states, grants, the revoke dialog with focus return and Escape |
+| `e2e/documents.spec.ts` | Chromium: PDF scanned and read, scan needing manual reading, rejected file, size limit, revocation then refusal (AC65) |
 | `e2e/portfolio.spec.ts` | Chromium: four steps to version 1, failed save and retry, conflict from another tab, partner view |
 | `e2e/auth.spec.ts` | Chromium journeys: both personas sign up, wrong code, return after sign-in, context switch, invitation, sign-out |
 | `tests/service-status.test.tsx` | Service check, retry, final failure, failure parsing |
@@ -62,7 +64,7 @@ Run one file with `npx vitest run tests/pages.test.tsx`, match by name with `npx
 | `/start/kode` | The code step: where the code went, resend, attempts left |
 | `/inventions` | S04 Inovasi Saya: drafts, published and archived, "Ada draf perubahan", **Tambah inovasi** |
 | `/inventions/<id>` | S04 detail: owner view with facts, provenance and claims, or the public projection for others |
-| `/inventions/<id>/edit?step=1..4` | S05 editor: basics, evidence, support (coming), public preview and **Terbitkan versi N** |
+| `/inventions/<id>/edit?step=1..4` | S05 editor: basics, evidence with private documents (upload, three states, grants, revoke), support (coming), public preview and **Terbitkan versi N** |
 | `/undangan/<token>` | What an invitation grants, then **Terima undangan** |
 | `/home` | S02 Beranda |
 | `/inventions` | Inovasi Saya |

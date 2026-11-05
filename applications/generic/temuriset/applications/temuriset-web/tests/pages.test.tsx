@@ -307,7 +307,7 @@ describe('features of optional capabilities', () => {
     render((await SettingsPage({ searchParams: Promise.resolve({}) })) as ReactElement);
 
     expect(screen.queryByRole('link', { name: /Lihat rencana Pendanaan Perusahaan/ })).toBeNull();
-    expect(screen.getByRole('link', { name: /Lihat rencana Dokumen/ })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Lihat rencana Kecocokan/ })).toBeInTheDocument();
   });
 });
 

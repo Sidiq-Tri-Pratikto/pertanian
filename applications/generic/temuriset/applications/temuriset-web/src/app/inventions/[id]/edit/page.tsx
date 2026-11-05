@@ -5,6 +5,8 @@ import { ApiError } from '@/api/errors';
 import { serverGet } from '@/api/server';
 import type { Invention } from '@/features/portfolio/model';
 import { requireMe } from '@/features/session';
+import { DocumentsPanel } from '@/features/documents/DocumentsPanel';
+import type { DocumentView } from '@/features/documents/model';
 import { EditorView } from '@/views/portfolio/EditorView';
 
 export const metadata: Metadata = { title: 'Ubah inovasi' };
@@ -21,5 +23,13 @@ export default async function EditInventionPage({ params, searchParams }: Props)
     if (error instanceof ApiError && error.code === 'NOT_FOUND') notFound();
     throw error;
   }
-  return <EditorView me={me} invention={invention} initialStep={Number((await searchParams).step) || 1} />;
+  const documents = await serverGet<DocumentView[]>('/api/v1/documents');
+  return (
+    <EditorView
+      me={me}
+      invention={invention}
+      initialStep={Number((await searchParams).step) || 1}
+      documents={<DocumentsPanel me={me} initial={documents} />}
+    />
+  );
 }

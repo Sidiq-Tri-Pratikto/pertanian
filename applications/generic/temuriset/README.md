@@ -177,6 +177,7 @@ make e2e       # browser checks in Chromium; needs Docker
 | API health | `applications/temuriset-api/tests/unit/health/`, `tests/integration/` | Liveness without a database, readiness against real Postgres |
 | Web components | `applications/temuriset-web/tests/components.test.tsx` | Ported design-system components behave as specified |
 | Web pages | `applications/temuriset-web/tests/pages.test.tsx` | Every route signed in and out, return after sign-in, settings with organizations and invitations |
+| Portfolio and documents | `applications/temuriset-api/tests/integration/{portfolio,documents}/`, `applications/temuriset-web/tests/{portfolio,documents}.test.tsx`, `e2e/{portfolio,documents}.spec.ts` | Drafts and immutable versions, publication rules, the editor, uploads through scan, grants and revocation |
 | Web sign-in and context | `applications/temuriset-web/tests/auth.test.tsx`, `e2e/auth.spec.ts` | Sign-up for both personas, wrong code focus and attempts left, resend, context switch, invite and accept, sign-out |
 | Web service status | `applications/temuriset-web/tests/service-status.test.tsx` | Available, unreachable with retry, final failure with reference ID |
 | Web accessibility | `applications/temuriset-web/tests/a11y.test.tsx` | axe on every base view in jsdom (no layout, so no contrast or reflow) |

@@ -11,6 +11,7 @@ import { StartView } from '@/views/StartView';
 import { CodeView } from '@/views/CodeView';
 import { InvitationView } from '@/views/InvitationView';
 
+import { DocumentsPanel } from '@/features/documents/DocumentsPanel';
 import { EditorView } from '@/views/portfolio/EditorView';
 import { InventionsView, InventionView } from '@/views/portfolio/InventionViews';
 import type { Invention } from '@/features/portfolio/model';
@@ -95,6 +96,20 @@ describe('accessibility of the base screens', () => {
     ['inventions', <InventionsView key="il" me={makeMe()} inventions={[{ id: 'i', status: 'PUBLISHED', title: 'Saringan', version: 2, has_draft: true, published_number: 1 }]} />],
     ...[1, 2, 3, 4].map((step) => [`editor step ${step}`, <EditorView key={`e${step}`} me={makeMe()} invention={SAMPLE} initialStep={step} />] as [string, ReactElement]),
     ['owner detail', <InventionView key="d" me={makeMe()} invention={SAMPLE} />],
+    [
+      'documents',
+      <DocumentsPanel
+        key="docs"
+        me={makeMe()}
+        initial={[
+          {
+            id: 'd1', title: 'Laporan uji', kind: 'evidence',
+            grants: [{ id: 'g1', version: 1, grantee_party_id: 'p2', grantee_name: 'Mitra A', purpose: 'pitch', revoked_at: null, downloads: 0 }],
+            versions: [{ number: 1, media_type: 'application/pdf', size_bytes: 10, sha256: 'x', file_state: 'AVAILABLE', extraction_state: 'NEEDS_MANUAL_INPUT', review_state: 'PROVIDED_UNREVIEWED', created_at: '' }],
+          },
+        ]}
+      />,
+    ],
     ['missing invention', <InventionView key="m" me={makeMe()} />],
   ])('%s has no detectable violations', async (_, element) => {
     expect(await violations(element)).toEqual([]);

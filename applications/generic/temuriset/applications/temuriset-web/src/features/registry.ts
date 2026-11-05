@@ -59,7 +59,8 @@ export const FEATURES: Feature[] = [
     ],
     screens: ['S05', 'S13'],
     specs: ['010', '012'],
-    status: 'coming_soon',
+    status: 'available',
+    home: '/inventions',
   },
   {
     id: 'dukungan-proyek',

@@ -174,7 +174,14 @@ export function EditorView({ me, invention, initialStep, documents }: EditorView
           {current.label}
         </h2>
         {step === 1 ? <BasicsStep values={values} errors={errors} edit={edit} /> : null}
-        {step === 2 ? <EvidenceStep values={values} errors={errors} edit={edit} documents={documents} /> : null}
+        {step === 2 ? <EvidenceStep values={values} errors={errors} edit={edit} hasDocuments={Boolean(documents)} /> : null}
+        {/* Kept mounted on every step, so a transfer continues while the person moves on. */}
+        {documents ? (
+          <div hidden={step !== 2} className="tr-stack">
+            <h3 className="tr-sys-type-heading-sm">Dokumen bukti</h3>
+            {documents}
+          </div>
+        ) : null}
         {step === 3 ? (
           <Status tone="neutral" label="Segera hadir">
             <p>Kebutuhan dukungan dan cakupan keuangan akan diisi di langkah ini. Tidak ada yang perlu diisi sekarang.</p>
@@ -222,7 +229,7 @@ function BasicsStep({ values, errors, edit }: StepProps) {
   );
 }
 
-function EvidenceStep({ values, errors, edit, documents }: StepProps & { documents?: ReactNode }) {
+function EvidenceStep({ values, errors, edit, hasDocuments }: StepProps & { hasDocuments: boolean }) {
   function setFact(index: number, patch: Partial<DraftValues['facts'][number]>) {
     edit({ facts: values.facts.map((fact, position) => (position === index ? { ...fact, ...patch } : fact)) });
   }
@@ -277,11 +284,13 @@ function EvidenceStep({ values, errors, edit, documents }: StepProps & { documen
       <div className="tr-row">
         <Button onClick={() => edit({ claims: [...values.claims, { ...EMPTY_CLAIM }] })}>Tambah klaim</Button>
       </div>
-      <h3 className="tr-sys-type-heading-sm">Dokumen bukti</h3>
-      {documents ?? (
-        <Status tone="neutral" label="Segera hadir">
-          <p>Dokumen bukti dapat diunggah di langkah ini segera. Dokumen selalu privat sampai Anda membagikannya.</p>
-        </Status>
+      {hasDocuments ? null : (
+        <>
+          <h3 className="tr-sys-type-heading-sm">Dokumen bukti</h3>
+          <Status tone="neutral" label="Segera hadir">
+            <p>Dokumen bukti dapat diunggah di langkah ini segera. Dokumen selalu privat sampai Anda membagikannya.</p>
+          </Status>
+        </>
       )}
       <TextArea
         id="catatan"
