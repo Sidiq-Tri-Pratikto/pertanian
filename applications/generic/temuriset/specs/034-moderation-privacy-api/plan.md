@@ -5,16 +5,23 @@
 ## Project Structure
 
 ```text
-app/moderation/
-├── router.py                     # /reports, /operator/reports, /operator/reports/{id}/actions, /privacy-requests
-├── service/reports.py, service/privacy.py, service/retention.py
-└── repository/sqlalchemy/        # reports, operator_actions, privacy_requests, retention_policies
-migrations/versions/0019_moderation.py
+applications/temuriset-api/
+├── app/moderation/router.py
+├── app/moderation/__main__.py
+├── app/moderation/service/{reports,suspension,privacy,retention}.py
+├── app/moderation/repository/sqlalchemy/
+├── app/access/service/policy.py
+├── app/documents/service/{jobs,service,storage_service}.py
+└── migrations/versions/0009_moderation.py
 ```
+
+The merged migration chain ends at 0008. Revision 0009 adds reports, scoped grants, listing suspensions, privacy requests, retention policies and holds. It adds document states for pending erasure and erased bytes.
+
+The API exposes account-scoped reads and writes at `/reports` and `/privacy-requests`, including the fresh export download. Live operator scope gates `/operator/reports` and `/operator/privacy-requests`, including case actions, protected case-file downloads and fulfilment. The local administration command manages scoped grants.
 
 ## Test Plan
 
-AC64, AC66; suspension effects on discovery; operator scope; isolation of reports.
+AC64 and AC66, current public listing reads and suspension effects, report and export isolation, operator scope, exact file grants, retention holds, and erase retry. Spec 018 owns the deferred public discovery projection check. Production outcome mail depends on 042.
 
 ## Out of Scope
 

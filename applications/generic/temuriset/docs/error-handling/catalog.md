@@ -27,6 +27,7 @@ One row per error. Keep in sync with `app/core/errors/codes.py` and `public.py`.
 | `APP-GRANT-REVOKED` | `GRANT_REVOKED` | 403 | Akses ke dokumen ini sudah dicabut. Salinan yang sudah diunduh sebelumnya tidak dapat ditarik kembali. | Download under a revoked grant, range requests included | false | - | - |
 | `APP-FIELDS-INVALID` | `VALIDATION_FAILED` | 422 | Ada isian yang belum valid. Perbaiki isian yang ditandai lalu simpan lagi. | A save whose fields break a rule, such as a budget with a negative minimum; `details` names each field in Indonesian and nothing is stored | false | - | - |
 | `APP-INVALID-TRANSITION` | `INVALID_TRANSITION` | 409 | Status ini tidak dapat diubah dengan cara itu. Muat ulang untuk melihat status terbaru. | A status change the current status does not allow, such as reactivating a closed support request | false | - | - |
+| `APP-LISTING-SUSPENDED` | `LISTING_SUSPENDED` | 409 | Daftar ini sedang ditangguhkan. Hubungi pengelola layanan bila Anda merasa ini keliru. | Saving, publishing, activating or referencing a listing an operator suspended | false | - | - |
 
 A missing `Idempotency-Key` on a consequential POST is `BAD_REQUEST` with `details` naming the header.
 

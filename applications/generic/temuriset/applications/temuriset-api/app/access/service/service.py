@@ -440,3 +440,8 @@ async def party_names(session: AsyncSession, party_ids: list[UUID]) -> dict[UUID
         dict[UUID, str]: Display name per party that exists.
     """
     return await SqlAlchemyAccessRepository(session).party_names(party_ids)
+
+
+async def anonymize_personal_party(session: AsyncSession, account_id: UUID) -> None:
+    """Remove the personal display name and end active memberships while retaining history."""
+    await SqlAlchemyAccessRepository(session).anonymize_personal_party(account_id, clock.now())

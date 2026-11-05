@@ -44,3 +44,21 @@ def require(principal: Principal, action: Capability, owner_party_id: UUID) -> N
         raise NotFoundError()
     if action not in principal.capabilities:
         raise ForbiddenError()
+
+
+def require_account(principal: Principal, owner_account_id: UUID) -> None:
+    """Restrict a private record to its owning account, even in an organization context."""
+    if principal.account_id != owner_account_id:
+        raise NotFoundError()
+
+
+def require_operator_scope(*, granted: bool) -> None:
+    """Keep operator surfaces invisible to accounts without the required live grant."""
+    if not granted:
+        raise NotFoundError()
+
+
+def require_case_file(*, granted: bool) -> None:
+    """Deny a file action within an already visible operator case without an exact grant."""
+    if not granted:
+        raise ForbiddenError()

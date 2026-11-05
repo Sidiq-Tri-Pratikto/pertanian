@@ -73,6 +73,14 @@ class DocumentResponse(BaseModel):
     grants: list[GrantResponse]
 
 
+class PersonalDocumentMetadata(BaseModel):
+    """Requester-owned document metadata without file bytes or other parties' grants."""
+
+    id: UUID
+    title: str
+    kind: str
+
+
 class GrantRequest(BaseModel):
     """Share one version with one party for one purpose."""
 

@@ -2,6 +2,7 @@
 
 import hashlib
 import json
+from collections.abc import Callable, Coroutine
 from dataclasses import dataclass
 from datetime import timedelta
 from typing import Any
@@ -18,7 +19,7 @@ from app.core.database import SessionDep
 from app.core.errors import codes
 from app.core.errors.base import AppError, RequestInvalidError
 from app.core.errors.public import field_message
-from app.platform.actor import ActorDep
+from app.platform.actor import current_actor_party_id
 from app.platform.model.schema import OperationResult
 from app.platform.repository.sqlalchemy.repository import SqlAlchemyPlatformRepository
 
@@ -133,7 +134,9 @@ class Idempotency:
         return JSONResponse(content, status_code=status_code)
 
 
-def idempotent(operation: str) -> DependsParam:
+def idempotent(
+    operation: str, *, actor: Callable[..., Coroutine[Any, Any, UUID]] = current_actor_party_id
+) -> DependsParam:
     """Make a consequential POST idempotent.
 
     The same key, path and body replays the stored response with ``Idempotent-Replayed: true``. The same key with a
@@ -143,12 +146,13 @@ def idempotent(operation: str) -> DependsParam:
 
     Args:
         operation (str): Stable operation name, such as ``pitches.submit``.
+        actor: Resolves the scope before a stored response can be replayed.
 
     Returns:
         DependsParam: A dependency yielding an ``Idempotency``.
     """
 
-    async def begin(request: Request, session: SessionDep, actor_party_id: ActorDep) -> Idempotency:
+    async def begin(request: Request, session: SessionDep, actor_party_id: UUID = Depends(actor)) -> Idempotency:
         key = request.headers.get(KEY_HEADER)
         if not key or len(key) > _MAX_KEY_LENGTH:
             raise IdempotencyKeyMissingError()

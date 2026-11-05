@@ -14,6 +14,8 @@ from app.core.settings import get_settings
 from app.main import app
 
 TABLES = (
+    "operator_file_grants, operator_actions, listing_suspensions, operator_grants, privacy_requests, "
+    "retention_holds, reports, "
     "external_handoffs, requirements, opportunity_versions, opportunities, partner_profiles, "
     "funding_invention_links, funding_request_versions, funding_requests, legal_entities, "
     "project_budget_lines, project_budgets, support_request_versions, support_requests, "

@@ -26,18 +26,18 @@ router = APIRouter(tags=["partner intake"])
 
 
 @router.get("/partners/{party_id}", summary="Read a partner profile")
-async def read_partner(party_id: UUID, _: PrincipalDep, session: SessionDep) -> PartnerProfileResponse:
+async def read_partner(party_id: UUID, principal: PrincipalDep, session: SessionDep) -> PartnerProfileResponse:
     """Read what a partner states about itself, as anyone signed in may see it.
 
     Args:
         party_id (UUID): The party.
-        _ (PrincipalDep): Any signed-in account.
+        principal (PrincipalDep): Any signed-in account.
         session (SessionDep): Database session.
 
     Returns:
         PartnerProfileResponse: The profile.
     """
-    return await IntakeService(session).read_profile(party_id)
+    return await IntakeService(session).read_profile(party_id, owner=principal.active_party_id == party_id)
 
 
 @router.put("/partners/{party_id}", summary="Save one's own partner profile")

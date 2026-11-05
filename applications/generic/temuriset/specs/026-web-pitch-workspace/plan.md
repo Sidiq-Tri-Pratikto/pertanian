@@ -33,3 +33,7 @@ Discussion and schedule tabs (029).
 4. Revision tab.
 5. Documents and history tabs.
 6. J03 journey, registry flip.
+
+### Reporting integration
+
+When the authorized workspace is available, link **Laporkan** to the shared settings report form with `reportHref("PITCH", pitchId)`. Pass only the subject type and opaque ID. The 035 browser acceptance case must start in the workspace and submit a prefilled report.

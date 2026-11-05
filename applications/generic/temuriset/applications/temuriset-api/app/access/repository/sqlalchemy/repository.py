@@ -264,3 +264,16 @@ class SqlAlchemyAccessRepository:
             select(PartyRecord.id, PartyRecord.display_name).where(PartyRecord.id.in_(party_ids))
         )
         return {party_id: name for party_id, name in rows}
+
+    async def anonymize_personal_party(self, account_id: UUID, now: datetime) -> None:
+        """Clear personal presentation and end membership access without changing organizations."""
+        await self.session.execute(
+            update(PartyRecord)
+            .where(PartyRecord.account_id == account_id)
+            .values(display_name="Akun dihapus", version=PartyRecord.version + 1)
+        )
+        await self.session.execute(
+            update(MembershipRecord)
+            .where(MembershipRecord.account_id == account_id, MembershipRecord.status == "active")
+            .values(status="removed", revoked_at=now, version=MembershipRecord.version + 1)
+        )

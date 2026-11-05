@@ -24,6 +24,7 @@ from app.funding.router import router as funding_router
 from app.health.router import router as health_router
 from app.identity.router import auth_router, me_router
 from app.intake.router import router as intake_router
+from app.moderation.router import router as moderation_router
 from app.needs.router import router as needs_router
 from app.platform.router import router as platform_router
 from app.platform.service.idempotency import IdempotentReplay, replay_response
@@ -70,6 +71,7 @@ def create_app() -> FastAPI:
     app.include_router(needs_router, prefix=API_PREFIX)
     app.include_router(funding_router, prefix=API_PREFIX)
     app.include_router(intake_router, prefix=API_PREFIX)
+    app.include_router(moderation_router, prefix=API_PREFIX)
     if settings.environment == "development":
         app.include_router(dev_router, prefix=API_PREFIX)
     install_error_schema(app)

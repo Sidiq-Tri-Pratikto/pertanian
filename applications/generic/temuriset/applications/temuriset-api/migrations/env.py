@@ -12,6 +12,7 @@ import app.documents.repository.sqlalchemy.models  # noqa: F401
 import app.funding.repository.sqlalchemy.models  # noqa: F401
 import app.identity.repository.sqlalchemy.models  # noqa: F401
 import app.intake.repository.sqlalchemy.models  # noqa: F401
+import app.moderation.repository.sqlalchemy.models  # noqa: F401
 import app.needs.repository.sqlalchemy.models  # noqa: F401
 import app.platform.repository.sqlalchemy.models  # noqa: F401 - registers the tables for autogenerate
 import app.portfolio.repository.sqlalchemy.models  # noqa: F401

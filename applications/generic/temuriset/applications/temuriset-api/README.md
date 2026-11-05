@@ -42,6 +42,7 @@ make check             # lint, format check, all tests, 80% coverage gate
 | `tests/unit/intake/` | Recipients A–E as data, requirement operators and value shapes, states and the availability table | Nothing |
 | `tests/integration/portfolio/` | Drafts, each publication rule, immutable versions (AC07–AC11), stale drafts, archive, public projection, outbox events | Postgres |
 | `tests/integration/access/` | Organizations, capabilities (AC04), hidden organizations (AC05), a removed member's job denied (AC06), invitations expired and revoked, stale context, last manager | Postgres |
+| `tests/integration/moderation/` | Private cases, scope and audit, suspension, protected downloads, policy-based privacy requests and deferred erasure | Postgres |
 | `tests/integration/test_isolation.py` | Every data route called as an unrelated party returns `NOT_FOUND` or nothing; fails when a new route is not registered | Postgres |
 | `tests/integration/platform/` | Idempotent replay and conflict, 20 parallel requests with one key, operations, append-only audit, outbox atomic with the request, worker retries, two workers, jobs | Postgres |
 
@@ -124,3 +125,16 @@ Run one test with `uv run pytest tests/unit/health/test_health.py -v`, or match 
 | `POST /api/v1/opportunities/{id}/{activate,pause,close}` | Status changes against `expected_version` (`Idempotency-Key`); activation needs a saved profile, the fields a partner must state, and a reason on every mandatory requirement |
 | `GET /api/v1/dev/mailbox?email=` | Development only: the codes and notes that would have been emailed |
 | `GET /api/v1/operations/{id}` | Whether the acting party's operation committed, for a client that lost the response |
+
+### Moderation and privacy
+
+| Endpoints | Purpose |
+|---|---|
+| `POST /api/v1/reports`, `GET /api/v1/reports[/{report_id}]` | File a private report and read its case receipt |
+| `GET /api/v1/operator/reports`, `POST /api/v1/operator/reports/{report_id}/actions` | Scoped queue and versioned, audited case decisions |
+| `GET /api/v1/operator/reports/{report_id}/documents/{document_id}/versions/{number}/content` | Protected download after checking the exact live case grant |
+| `POST /api/v1/privacy-requests`, `GET /api/v1/privacy-requests[/{request_id}]` | Request an export or deletion and read account-scoped receipts |
+| `GET /api/v1/privacy-requests/{request_id}/export` | Download a fresh, authorized JSON export |
+| `GET /api/v1/operator/privacy-requests`, `POST /api/v1/operator/privacy-requests/{request_id}/fulfill` | List pending deletions and start versioned fulfilment |
+
+Use `python -m app.moderation --help` from the service for local grant administration. Operator actions require an explicit account grant. A case-file grant names one report, operator, document version, purpose and expiry. Run the worker to finish deletion requests. The development mailbox provides outcome delivery during development. Production delivery depends on spec 042.

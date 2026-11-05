@@ -28,7 +28,7 @@ async def scan(session: AsyncSession, job_input: dict[str, Any]) -> dict[str, An
     """
     settings = get_settings()
     repository = SqlAlchemyDocumentRepository(session)
-    version = await repository.version(version_id=UUID(job_input["version_id"]))
+    version = await repository.version(version_id=UUID(job_input["version_id"]), lock=True)
     if version is None or version.file_state != "QUARANTINED":
         return {"type": "document_version", "id": job_input["version_id"]}
     path = LocalStorage(settings.storage_path).local_path(version.storage_key)
@@ -55,7 +55,7 @@ async def extract(session: AsyncSession, job_input: dict[str, Any]) -> dict[str,
         dict[str, Any]: The version and its extraction state.
     """
     repository = SqlAlchemyDocumentRepository(session)
-    version = await repository.version(version_id=UUID(job_input["version_id"]))
+    version = await repository.version(version_id=UUID(job_input["version_id"]), lock=True)
     if version is None or version.file_state != "AVAILABLE":
         return {"type": "document_version", "id": job_input["version_id"]}
     path = LocalStorage(get_settings().storage_path).local_path(version.storage_key)
@@ -67,3 +67,13 @@ async def extract(session: AsyncSession, job_input: dict[str, Any]) -> dict[str,
         state, characters = ("SUCCEEDED", len(text)) if text else ("NEEDS_MANUAL_INPUT", None)
     await repository.update_version(version.id, extraction_state=state, extracted_characters=characters)
     return {"type": "document_version", "id": str(version.id), "extraction_state": state}
+
+
+@registry.job("documents.erase")
+async def erase(session: AsyncSession, job_input: dict[str, Any]) -> dict[str, Any]:
+    """Complete a privacy removal after its private bytes are erased."""
+    from app.moderation.service.privacy import PrivacyService
+
+    request_id = UUID(job_input["privacy_request_id"])
+    await PrivacyService(session).finish(request_id)
+    return {"type": "privacy_request", "id": str(request_id)}

@@ -1,9 +1,10 @@
 """Document data access. Writes join the caller's transaction."""
 
+from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import func, select, update
+from sqlalchemy import delete, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.documents.repository.sqlalchemy.models import (
@@ -96,8 +97,13 @@ class SqlAlchemyDocumentRepository:
         return list(rows)
 
     async def version(
-        self, *, version_id: UUID | None = None, document_id: UUID | None = None, number: int | None = None
-    ):
+        self,
+        *,
+        version_id: UUID | None = None,
+        document_id: UUID | None = None,
+        number: int | None = None,
+        lock: bool = False,
+    ) -> DocumentVersionRecord | None:
         """Find one version by id, or by document and number.
 
         Args:
@@ -109,7 +115,7 @@ class SqlAlchemyDocumentRepository:
             DocumentVersionRecord | None: The version.
         """
         if version_id is not None:
-            return await self.session.get(DocumentVersionRecord, version_id)
+            return await self.session.get(DocumentVersionRecord, version_id, with_for_update=lock)
         return await self.session.scalar(
             select(DocumentVersionRecord).where(
                 DocumentVersionRecord.document_id == document_id, DocumentVersionRecord.number == number
@@ -227,3 +233,29 @@ class SqlAlchemyDocumentRepository:
             )
             or 0
         )
+
+    async def prepare_party_erasure(self, party_id: UUID, now: datetime) -> None:
+        """Invalidate new uploads and downloads while preserving version and download history."""
+        await self.session.execute(delete(UploadIntentRecord).where(UploadIntentRecord.owner_party_id == party_id))
+        documents = select(DocumentRecord.id).where(DocumentRecord.owner_party_id == party_id)
+        versions = select(DocumentVersionRecord.id).where(DocumentVersionRecord.document_id.in_(documents))
+        await self.session.execute(
+            update(DocumentVersionRecord)
+            .where(DocumentVersionRecord.document_id.in_(documents), DocumentVersionRecord.file_state != "ERASED")
+            .values(file_state="ERASURE_PENDING")
+        )
+        await self.session.execute(
+            update(DocumentGrantRecord)
+            .where(DocumentGrantRecord.document_version_id.in_(versions), DocumentGrantRecord.revoked_at.is_(None))
+            .values(revoked_at=now)
+        )
+
+    async def pending_erase_versions(self, party_id: UUID) -> list[DocumentVersionRecord]:
+        """Lock only versions this deletion already marked for erasure."""
+        query = (
+            select(DocumentVersionRecord)
+            .join(DocumentRecord, DocumentRecord.id == DocumentVersionRecord.document_id)
+            .where(DocumentRecord.owner_party_id == party_id, DocumentVersionRecord.file_state == "ERASURE_PENDING")
+            .with_for_update(of=DocumentVersionRecord)
+        )
+        return list(await self.session.scalars(query))
