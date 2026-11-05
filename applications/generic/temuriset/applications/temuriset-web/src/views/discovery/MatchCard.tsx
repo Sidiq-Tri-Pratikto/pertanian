@@ -23,7 +23,7 @@ function primaryAction(result: MatchResult, source: MatchSourceRef) {
     return { href: `/funding-requests/${source.id}/edit?return=${back}`, label: 'Lengkapi kisaran kontribusi' };
   }
   if (result.readiness === 'READY_TO_SUBMIT' && result.availability.available) {
-    return { href: '/segera-hadir/pemeriksaan-pitching', label: 'Siapkan pitching' };
+    return { href: `/pitches/new?source=${source.type}:${source.id}&target=${result.opportunity_id}`, label: 'Siapkan pitching' };
   }
   return { href: `/opportunities/${result.opportunity_id}`, label: 'Lihat mandat' };
 }

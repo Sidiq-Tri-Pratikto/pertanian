@@ -1,10 +1,12 @@
+import AxeBuilder from '@axe-core/playwright';
+
 import { A1_MANDATE, expect, makePartnerProfile, makeSupportRequest, signUp, test, uniqueEmail, WEB_ORIGIN } from './fixtures';
 
 test.beforeEach(({}, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium-1280', 'Journeys run at one width.');
 });
 
-test('J01: from Beranda to "Siapkan pitching", repairing the open range on the way (S03, S10)', async ({ page, browser }) => {
+test('J01: from Beranda through the range repair and the match to a submitted pitch Mitra J01 receives (S03, S10, S11)', async ({ page, browser }) => {
   // A partner with one active mandate that compares budgets; its title is unique, so other runs never collide.
   const title = `Validasi J01 ${uniqueEmail('m').split('@')[0]}`;
   const partner = await browser.newPage({ baseURL: WEB_ORIGIN });
@@ -31,7 +33,6 @@ test('J01: from Beranda to "Siapkan pitching", repairing the open range on the w
     headers: { Origin: WEB_ORIGIN, 'Idempotency-Key': uniqueEmail('oa') },
   });
   expect(activated.status(), await activated.text()).toBe(200);
-  await partner.close();
 
   // F01-GAP: Rani's need with the range still open, active.
   await signUp(page, 'inovator');
@@ -67,7 +68,23 @@ test('J01: from Beranda to "Siapkan pitching", repairing the open range on the w
   await expect(card.getByText('Siap dikirim')).toBeVisible();
   await card.getByText('Tentang kisaran kecocokan').click();
   await expect(card.getByText(/bukan peluang pendanaan/)).toBeVisible();
-  await expect(card.getByRole('link', { name: 'Siapkan pitching' })).toBeVisible();
+  await card.getByRole('link', { name: 'Siapkan pitching' }).click();
+
+  await expect(page).toHaveURL(new RegExp(`/pitches/new\\?source=SUPPORT_REQUEST:${need}&target=${mandate.id}$`));
+  await expect(page.getByText('Siap dikirim')).toBeVisible();
+  await expect(page.getByText('Rani', { exact: true })).toBeVisible();
+  const { violations } = await new AxeBuilder({ page }).analyze();
+  expect(violations.map((violation) => violation.id)).toEqual([]);
+  await page.getByRole('textbox', { name: /Brief pitching/ }).press('End');
+  await page.getByRole('button', { name: 'Kirim pitching kepada Mitra J01' }).click();
+
+  await expect(page).toHaveURL(/\/pitches\/[0-9a-f-]{36}\?terkirim=1$/);
+  await expect(page.getByText('Pitching terkirim kepada Mitra J01')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Menunggu Mitra J01 meninjau' })).toBeVisible();
+
+  await partner.goto('/pitches?box=masuk');
+  await expect(partner.getByRole('link', { name: new RegExp(title) })).toBeVisible();
+  await partner.close();
 });
 
 test('discovery keeps its filters in the address, so Back returns to them', async ({ page }) => {

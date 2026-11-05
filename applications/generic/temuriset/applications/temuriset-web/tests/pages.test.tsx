@@ -27,6 +27,7 @@ vi.mock('@/api/server', () => ({
     if (path === '/api/v1/support-requests') return supportRequests;
     if (path === '/api/v1/opportunities') return [];
     if (path === '/api/v1/funding-requests') return [];
+    if (path.startsWith('/api/v1/pitches?')) return [];
     if (path.startsWith('/api/v1/discovery?')) {
       const sections = ['relevant', 'new', 'curated'].map((id) => ({ id, title: id, items: [] }));
       return { type: 'partners', sections, filters: {}, next_cursor: null, total_estimate: 0, relaxation: null };

@@ -148,6 +148,78 @@
         "title": "AvailabilityResponse",
         "type": "object"
       },
+      "BriefResponse": {
+        "description": "The editable brief. ``summarizer_status`` says whether a summary was used, off, or refused as untraceable.",
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "preflight_id": {
+            "format": "uuid",
+            "title": "Preflight Id",
+            "type": "string"
+          },
+          "sentences": {
+            "items": {
+              "$ref": "#/components/schemas/BriefSentence"
+            },
+            "title": "Sentences",
+            "type": "array"
+          },
+          "summarizer": {
+            "title": "Summarizer",
+            "type": "string"
+          },
+          "summarizer_status": {
+            "default": "off",
+            "enum": [
+              "off",
+              "used",
+              "refused"
+            ],
+            "title": "Summarizer Status",
+            "type": "string"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "preflight_id",
+          "text",
+          "sentences",
+          "summarizer"
+        ],
+        "title": "BriefResponse",
+        "type": "object"
+      },
+      "BriefSentence": {
+        "description": "One sentence and the supplied facts it rests on.",
+        "properties": {
+          "refs": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Refs",
+            "type": "array"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "text",
+          "refs"
+        ],
+        "title": "BriefSentence",
+        "type": "object"
+      },
       "BudgetInput": {
         "description": "The cost range of the request. Leave min and max empty with a reason when it is not known yet.",
         "properties": {
@@ -574,6 +646,28 @@
         ],
         "title": "CapabilityStatus",
         "type": "string"
+      },
+      "ChosenFile": {
+        "additionalProperties": false,
+        "description": "One file version to share with the recipient.",
+        "properties": {
+          "document_id": {
+            "format": "uuid",
+            "title": "Document Id",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 1.0,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "document_id",
+          "version"
+        ],
+        "title": "ChosenFile",
+        "type": "object"
       },
       "ClaimInput": {
         "description": "A people-and-rights claim as the owner states it.",
@@ -4128,6 +4222,303 @@
         "title": "PartnerProfileResponse",
         "type": "object"
       },
+      "PartyName": {
+        "description": "A party as a name.",
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "party_id": {
+            "format": "uuid",
+            "title": "Party Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "party_id",
+          "name"
+        ],
+        "title": "PartyName",
+        "type": "object"
+      },
+      "PinnedInvention": {
+        "description": "One invention version the source reads.",
+        "properties": {
+          "invention_id": {
+            "format": "uuid",
+            "title": "Invention Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          },
+          "version_id": {
+            "format": "uuid",
+            "title": "Version Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "invention_id",
+          "version_id",
+          "version",
+          "title"
+        ],
+        "title": "PinnedInvention",
+        "type": "object"
+      },
+      "PinnedOpportunity": {
+        "description": "The opportunity version a preflight pinned.",
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          },
+          "version_id": {
+            "format": "uuid",
+            "title": "Version Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "version_id",
+          "version",
+          "title"
+        ],
+        "title": "PinnedOpportunity",
+        "type": "object"
+      },
+      "PinnedSource": {
+        "description": "The source version a preflight pinned.",
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "SUPPORT_REQUEST",
+              "FUNDING_REQUEST"
+            ],
+            "title": "Type",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "type",
+          "id",
+          "version",
+          "title"
+        ],
+        "title": "PinnedSource",
+        "type": "object"
+      },
+      "PitchResponse": {
+        "description": "A pitch with its frozen submissions, for its requester or recipient.",
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "opportunity_id": {
+            "format": "uuid",
+            "title": "Opportunity Id",
+            "type": "string"
+          },
+          "opportunity_title": {
+            "title": "Opportunity Title",
+            "type": "string"
+          },
+          "purpose": {
+            "title": "Purpose",
+            "type": "string"
+          },
+          "recipient_name": {
+            "title": "Recipient Name",
+            "type": "string"
+          },
+          "recipient_party_id": {
+            "format": "uuid",
+            "title": "Recipient Party Id",
+            "type": "string"
+          },
+          "requester_name": {
+            "title": "Requester Name",
+            "type": "string"
+          },
+          "requester_party_id": {
+            "format": "uuid",
+            "title": "Requester Party Id",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "subject_id": {
+            "format": "uuid",
+            "title": "Subject Id",
+            "type": "string"
+          },
+          "subject_title": {
+            "title": "Subject Title",
+            "type": "string"
+          },
+          "subject_type": {
+            "enum": [
+              "SUPPORT_REQUEST",
+              "FUNDING_REQUEST"
+            ],
+            "title": "Subject Type",
+            "type": "string"
+          },
+          "submissions": {
+            "items": {
+              "$ref": "#/components/schemas/SubmissionResponse"
+            },
+            "title": "Submissions",
+            "type": "array"
+          },
+          "submitted_at": {
+            "format": "date-time",
+            "title": "Submitted At",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "subject_type",
+          "subject_id",
+          "subject_title",
+          "opportunity_id",
+          "opportunity_title",
+          "requester_party_id",
+          "requester_name",
+          "recipient_party_id",
+          "recipient_name",
+          "purpose",
+          "submitted_at",
+          "version",
+          "submissions"
+        ],
+        "title": "PitchResponse",
+        "type": "object"
+      },
+      "PitchSummary": {
+        "description": "One row of a pitch list.",
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "opportunity_id": {
+            "format": "uuid",
+            "title": "Opportunity Id",
+            "type": "string"
+          },
+          "opportunity_title": {
+            "title": "Opportunity Title",
+            "type": "string"
+          },
+          "purpose": {
+            "title": "Purpose",
+            "type": "string"
+          },
+          "recipient_name": {
+            "title": "Recipient Name",
+            "type": "string"
+          },
+          "recipient_party_id": {
+            "format": "uuid",
+            "title": "Recipient Party Id",
+            "type": "string"
+          },
+          "requester_name": {
+            "title": "Requester Name",
+            "type": "string"
+          },
+          "requester_party_id": {
+            "format": "uuid",
+            "title": "Requester Party Id",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "subject_id": {
+            "format": "uuid",
+            "title": "Subject Id",
+            "type": "string"
+          },
+          "subject_title": {
+            "title": "Subject Title",
+            "type": "string"
+          },
+          "subject_type": {
+            "enum": [
+              "SUPPORT_REQUEST",
+              "FUNDING_REQUEST"
+            ],
+            "title": "Subject Type",
+            "type": "string"
+          },
+          "submitted_at": {
+            "format": "date-time",
+            "title": "Submitted At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "subject_type",
+          "subject_id",
+          "subject_title",
+          "opportunity_id",
+          "opportunity_title",
+          "requester_party_id",
+          "requester_name",
+          "recipient_party_id",
+          "recipient_name",
+          "purpose",
+          "submitted_at"
+        ],
+        "title": "PitchSummary",
+        "type": "object"
+      },
       "PolicyResponse": {
         "description": "One versioned product policy, such as matching weights or proposal expiry.",
         "properties": {
@@ -4145,6 +4536,190 @@
           "version"
         ],
         "title": "PolicyResponse",
+        "type": "object"
+      },
+      "PreflightRequest": {
+        "additionalProperties": false,
+        "description": "Check one owned source against one opportunity before anything is sent.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "opportunity_id": {
+            "format": "uuid",
+            "title": "Opportunity Id",
+            "type": "string"
+          },
+          "source_id": {
+            "format": "uuid",
+            "title": "Source Id",
+            "type": "string"
+          },
+          "source_type": {
+            "enum": [
+              "SUPPORT_REQUEST",
+              "FUNDING_REQUEST"
+            ],
+            "title": "Source Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "source_type",
+          "source_id",
+          "opportunity_id"
+        ],
+        "title": "PreflightRequest",
+        "type": "object"
+      },
+      "PreflightResponse": {
+        "description": "Exactly what would be sent, under a token that pins every version and the permission generation.",
+        "properties": {
+          "availability": {
+            "$ref": "#/components/schemas/TargetAvailabilityResponse"
+          },
+          "brief": {
+            "$ref": "#/components/schemas/BriefResponse"
+          },
+          "duplicate_pitch_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duplicate Pitch Id"
+          },
+          "eligibility": {
+            "enum": [
+              "ELIGIBLE",
+              "NEEDS_VERIFICATION",
+              "INCOMPATIBLE"
+            ],
+            "title": "Eligibility",
+            "type": "string"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "title": "Expires At",
+            "type": "string"
+          },
+          "fit": {
+            "$ref": "#/components/schemas/FitResponse"
+          },
+          "gap": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RequirementRow"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "inventions": {
+            "items": {
+              "$ref": "#/components/schemas/PinnedInvention"
+            },
+            "title": "Inventions",
+            "type": "array"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "later": {
+            "items": {
+              "$ref": "#/components/schemas/RequirementRow"
+            },
+            "title": "Later",
+            "type": "array"
+          },
+          "opportunity": {
+            "$ref": "#/components/schemas/PinnedOpportunity"
+          },
+          "preflight_id": {
+            "format": "uuid",
+            "title": "Preflight Id",
+            "type": "string"
+          },
+          "purpose": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Purpose"
+          },
+          "readiness": {
+            "enum": [
+              "READY_TO_SUBMIT",
+              "NEEDS_INFORMATION",
+              "BLOCKED_FOR_THIS_TARGET"
+            ],
+            "title": "Readiness",
+            "type": "string"
+          },
+          "recipient": {
+            "$ref": "#/components/schemas/PartyName"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/RequirementRow"
+            },
+            "title": "Rows",
+            "type": "array"
+          },
+          "sender": {
+            "$ref": "#/components/schemas/PartyName"
+          },
+          "shareable_files": {
+            "items": {
+              "$ref": "#/components/schemas/ShareableFile"
+            },
+            "title": "Shareable Files",
+            "type": "array"
+          },
+          "source": {
+            "$ref": "#/components/schemas/PinnedSource"
+          },
+          "token": {
+            "title": "Token",
+            "type": "string"
+          }
+        },
+        "required": [
+          "preflight_id",
+          "token",
+          "expires_at",
+          "readiness",
+          "eligibility",
+          "label",
+          "fit",
+          "sender",
+          "recipient",
+          "opportunity",
+          "source",
+          "inventions",
+          "purpose",
+          "availability",
+          "rows",
+          "gap",
+          "later",
+          "shareable_files",
+          "brief",
+          "duplicate_pitch_id"
+        ],
+        "title": "PreflightResponse",
         "type": "object"
       },
       "PublicClaimResponse": {
@@ -5281,6 +5856,195 @@
         "title": "SavePartnerProfileRequest",
         "type": "object"
       },
+      "ShareableFile": {
+        "description": "A file version the applicant may choose to share; nothing is shared until submission.",
+        "properties": {
+          "document_id": {
+            "format": "uuid",
+            "title": "Document Id",
+            "type": "string"
+          },
+          "fact_keys": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Fact Keys",
+            "type": "array"
+          },
+          "file_state": {
+            "title": "File State",
+            "type": "string"
+          },
+          "review_state": {
+            "title": "Review State",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          },
+          "version_id": {
+            "format": "uuid",
+            "title": "Version Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "document_id",
+          "version_id",
+          "version",
+          "title",
+          "file_state",
+          "review_state",
+          "fact_keys"
+        ],
+        "title": "ShareableFile",
+        "type": "object"
+      },
+      "SubmissionResponse": {
+        "description": "One frozen submission.",
+        "properties": {
+          "brief": {
+            "title": "Brief",
+            "type": "string"
+          },
+          "files": {
+            "items": {
+              "$ref": "#/components/schemas/SubmittedFile"
+            },
+            "title": "Files",
+            "type": "array"
+          },
+          "number": {
+            "title": "Number",
+            "type": "integer"
+          },
+          "snapshot": {
+            "additionalProperties": true,
+            "title": "Snapshot",
+            "type": "object"
+          },
+          "submitted_at": {
+            "format": "date-time",
+            "title": "Submitted At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "number",
+          "brief",
+          "snapshot",
+          "files",
+          "submitted_at"
+        ],
+        "title": "SubmissionResponse",
+        "type": "object"
+      },
+      "SubmitPitchRequest": {
+        "additionalProperties": false,
+        "description": "Send on purpose: the fresh preflight, the brief as edited, and the files chosen.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "brief": {
+            "maxLength": 10000,
+            "minLength": 1,
+            "title": "Brief",
+            "type": "string"
+          },
+          "files": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ChosenFile"
+            },
+            "maxItems": 20,
+            "title": "Files",
+            "type": "array"
+          },
+          "preflight_token": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Preflight Token",
+            "type": "string"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "preflight_token",
+          "brief"
+        ],
+        "title": "SubmitPitchRequest",
+        "type": "object"
+      },
+      "SubmitPitchResponse": {
+        "description": "The submitted pitch.",
+        "properties": {
+          "operation_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operation Id"
+          },
+          "pitch_id": {
+            "format": "uuid",
+            "title": "Pitch Id",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "submission": {
+            "title": "Submission",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "pitch_id",
+          "status",
+          "submission"
+        ],
+        "title": "SubmitPitchResponse",
+        "type": "object"
+      },
+      "SubmittedFile": {
+        "description": "A file version a submission shared.",
+        "properties": {
+          "document_id": {
+            "format": "uuid",
+            "title": "Document Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "document_id",
+          "version",
+          "title"
+        ],
+        "title": "SubmittedFile",
+        "type": "object"
+      },
       "SupportRequestResponse": {
         "description": "One support request as its owner sees it.",
         "properties": {
@@ -6122,6 +6886,183 @@
         "summary": "Verify a code and sign in",
         "tags": [
           "auth"
+        ]
+      }
+    },
+    "/api/v1/briefs/{brief_id}": {
+      "get": {
+        "description": "Read one's own brief with its references.\n\nArgs:\n    brief_id (UUID): The brief.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    BriefResponse: The brief.",
+        "operationId": "read_brief_api_v1_briefs__brief_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "brief_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Brief Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BriefResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Read a brief",
+        "tags": [
+          "briefs"
+        ]
+      }
+    },
+    "/api/v1/briefs/{brief_id}/export": {
+      "get": {
+        "description": "Export under today's permissions; a sentence resting on a file no longer accessible is redacted.\n\nArgs:\n    brief_id (UUID): The brief.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    format (str, optional): ``md`` or ``txt``. Defaults to \"md\".\n\nReturns:\n    PlainTextResponse: The export.",
+        "operationId": "export_brief_api_v1_briefs__brief_id__export_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "brief_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Brief Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "format",
+            "required": false,
+            "schema": {
+              "default": "md",
+              "enum": [
+                "md",
+                "txt"
+              ],
+              "title": "Format",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "text/markdown": {},
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Export a brief",
+        "tags": [
+          "briefs"
+        ]
+      }
+    },
+    "/api/v1/briefs/{brief_id}/summary": {
+      "post": {
+        "description": "Ask the summarizer. When it is off, fails or adds anything untraceable, the template brief comes back.\n\nArgs:\n    brief_id (UUID): The brief.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    BriefResponse: The brief, with ``summarizer_status``.",
+        "operationId": "summarize_brief_api_v1_briefs__brief_id__summary_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "brief_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Brief Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BriefResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Ask for a shorter brief",
+        "tags": [
+          "briefs"
         ]
       }
     },
@@ -9559,6 +10500,236 @@
         "summary": "Follow an external route",
         "tags": [
           "partner intake"
+        ]
+      }
+    },
+    "/api/v1/pitches": {
+      "get": {
+        "description": "List the acting party's sent or received pitches.\n\nArgs:\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    box (Box, optional): ``outgoing`` or ``incoming``. Defaults to \"outgoing\".\n    limit (int, optional): The most to return. Defaults to 50.\n\nReturns:\n    list[PitchSummary]: Newest first.",
+        "operationId": "list_pitches_api_v1_pitches_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "box",
+            "required": false,
+            "schema": {
+              "default": "outgoing",
+              "enum": [
+                "outgoing",
+                "incoming"
+              ],
+              "title": "Box",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PitchSummary"
+                  },
+                  "title": "Response List Pitches Api V1 Pitches Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "List my pitches",
+        "tags": [
+          "pitches"
+        ]
+      },
+      "post": {
+        "description": "Recheck a fresh preflight, freeze what is sent, share the chosen file versions and notify the recipient.\n\nArgs:\n    body (SubmitPitchRequest): Token, brief and files.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request; the same key with another body is a conflict.\n\nReturns:\n    SubmitPitchResponse: The pitch.",
+        "operationId": "submit_pitch_api_v1_pitches_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitPitchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmitPitchResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Send a pitch",
+        "tags": [
+          "pitches"
+        ]
+      }
+    },
+    "/api/v1/pitches/preflight": {
+      "post": {
+        "description": "Evaluate one owned source against one opportunity and pin every version under a 30-minute token.\n\nNothing is sent. Repeating it is safe and gives a new token.\n\nArgs:\n    body (PreflightRequest): Source and target.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    PreflightResponse: Recipient, versions, rows, shareable files and the template brief.",
+        "operationId": "preflight_api_v1_pitches_preflight_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreflightRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreflightResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Check a pitch before sending",
+        "tags": [
+          "briefs"
+        ]
+      }
+    },
+    "/api/v1/pitches/{pitch_id}": {
+      "get": {
+        "description": "Read a pitch as its requester or recipient.\n\nArgs:\n    pitch_id (UUID): The pitch.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    PitchResponse: The pitch and its frozen submissions.",
+        "operationId": "read_pitch_api_v1_pitches__pitch_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pitch_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Pitch Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PitchResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Read a pitch",
+        "tags": [
+          "pitches"
         ]
       }
     },

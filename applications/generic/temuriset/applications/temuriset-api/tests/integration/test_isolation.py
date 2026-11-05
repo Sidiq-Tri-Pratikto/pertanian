@@ -60,6 +60,9 @@ class Owner:
     funding_request_id: str = ""
     opportunity_id: str = ""
     match_run_id: str = ""
+    brief_id: str = ""
+    preflight_token: str = ""
+    pitch_id: str = ""
 
 
 @dataclass
@@ -270,6 +273,27 @@ ROUTES: dict[tuple[str, str], Case] = {
         {"Idempotency-Key": "isolation-match"},
     ),
     ("GET", "/api/v1/match-runs/{run_id}"): Case("GET", lambda o: f"/api/v1/match-runs/{o.match_run_id}"),
+    ("POST", "/api/v1/pitches/preflight"): Case(
+        "POST",
+        lambda _o: "/api/v1/pitches/preflight",
+        lambda o, actor: {
+            "acting_party_id": actor,
+            "source_type": "SUPPORT_REQUEST",
+            "source_id": o.support_request_id,
+            "opportunity_id": o.opportunity_id,
+        },
+    ),
+    ("GET", "/api/v1/briefs/{brief_id}"): Case("GET", lambda o: f"/api/v1/briefs/{o.brief_id}"),
+    ("POST", "/api/v1/briefs/{brief_id}/summary"): Case("POST", lambda o: f"/api/v1/briefs/{o.brief_id}/summary"),
+    ("GET", "/api/v1/briefs/{brief_id}/export"): Case("GET", lambda o: f"/api/v1/briefs/{o.brief_id}/export"),
+    ("POST", "/api/v1/pitches"): Case(
+        "POST",
+        lambda _o: "/api/v1/pitches",
+        lambda o, actor: {"acting_party_id": actor, "preflight_token": o.preflight_token, "brief": "x", "files": []},
+        {"Idempotency-Key": "isolation-pitch"},
+    ),
+    ("GET", "/api/v1/pitches"): Case("GET", lambda _o: "/api/v1/pitches?box=incoming"),
+    ("GET", "/api/v1/pitches/{pitch_id}"): Case("GET", lambda o: f"/api/v1/pitches/{o.pitch_id}"),
     # Unpublished, so even the public view must not reveal that it exists.
     ("GET", "/api/v1/inventions/{invention_id}/public"): Case(
         "GET", lambda o: f"/api/v1/inventions/{o.invention_id}/public"
@@ -277,8 +301,46 @@ ROUTES: dict[tuple[str, str], Case] = {
 }
 
 
+async def _pitch_to_a_partner(
+    new_client: Callable[[], AsyncClient], sign_up, client: AsyncClient, party: str, support_id: str
+) -> dict[str, str]:
+    """Party A preflights its support request against another partner's mandate and sends a pitch."""
+    from tests.factories.recipients import OPPORTUNITIES, PROFILES, create_opportunity, move_opportunity, save_profile  # noqa: PLC0415
+
+    async with new_client() as partner:
+        me = await sign_up(partner, "partner@example.com", persona="mitra", name="Partner")
+        partner.headers["X-Acting-Party"] = me["active_party_id"]
+        await save_profile(partner, me["active_party_id"], PROFILES["A"]["content"])
+        created = (await create_opportunity(partner, me["active_party_id"], OPPORTUNITIES["A3"]["content"])).json()
+        await move_opportunity(partner, me["active_party_id"], created["id"], "activate", 1)
+    checked = (
+        await client.post(
+            "/api/v1/pitches/preflight",
+            json={
+                "acting_party_id": party,
+                "source_type": "SUPPORT_REQUEST",
+                "source_id": support_id,
+                "opportunity_id": created["id"],
+            },
+        )
+    ).json()
+    pitch = await client.post(
+        "/api/v1/pitches",
+        json={"acting_party_id": party, "preflight_token": checked["token"], "brief": "Brief", "files": []},
+        headers={"Idempotency-Key": "pitch"},
+    )
+    assert pitch.status_code == 201, pitch.text
+    return {
+        "brief_id": checked["brief"]["id"],
+        "preflight_token": checked["token"],
+        "pitch_id": pitch.json()["pitch_id"],
+    }
+
+
 @pytest.fixture
-async def owner(client: AsyncClient, sign_up, published_invention) -> AsyncIterator[Owner]:
+async def owner(
+    client: AsyncClient, new_client: Callable[[], AsyncClient], sign_up, published_invention
+) -> AsyncIterator[Owner]:
     """Party A: an organization with a member manager, an operation and a pending invitation."""
     await sign_up(client, "owner@example.com", name="Owner")
     organization = (
@@ -377,6 +439,7 @@ async def owner(client: AsyncClient, sign_up, published_invention) -> AsyncItera
             headers={"Idempotency-Key": "match"},
         )
     ).json()
+    pitch = await _pitch_to_a_partner(new_client, sign_up, client, party, support["id"])
     yield Owner(
         organization_id=organization["id"],
         party_id=organization["party_id"],
@@ -393,6 +456,7 @@ async def owner(client: AsyncClient, sign_up, published_invention) -> AsyncItera
         funding_request_id=funding["id"],
         opportunity_id=opportunity["id"],
         match_run_id=match_run["run_id"],
+        **pitch,
     )
 
 
@@ -443,6 +507,8 @@ async def test_unrelated_party_sees_nothing(
         owner.funding_request_id,
         owner.opportunity_id,
         owner.match_run_id,
+        owner.brief_id,
+        owner.pitch_id,
     ):
         assert secret not in response.text
 

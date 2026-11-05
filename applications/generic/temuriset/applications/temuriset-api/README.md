@@ -44,6 +44,8 @@ make check             # lint, format check, all tests, 80% coverage gate
 | `tests/integration/discovery/` | Sections from stated preferences with no trend (AC28–AC30), empty filters echoed with a deliberate relaxation, English aliases and typos, one card per raise, amounts in one currency, saved items and "Kurang relevan" per party, archive removes the row, private notes unsearchable, cursors | Postgres |
 | `tests/unit/matching/` | The engine against every prototype matching oracle: F01–F06, AC18, AC20, AC21, AC25, AC27, AC31–AC33, abstain, no checklist, a mandatory failure never positive | Nothing |
 | `tests/integration/matching/` | Golden results in `contracts/golden/` byte for byte over HTTP (`UPDATE_GOLDEN=1` rewrites them), the F01-GAP repair, stored and reproducible runs, owner-only sources, another party's file proves nothing, the funding guard | Postgres |
+| `tests/integration/pitches/` | Preflight pins, shareable files and the template brief per fixture, the summarizer off, failing or untraceable (AC35, AC68), export redaction (AC36); submission with grants and notification, replay and conflict (AC37, AC38), duplicates (AC39), races, closed targets (AC26), stale and expired preflights (AC34), required files, frozen snapshots, the daily limit | Postgres |
+| `tests/unit/briefs/` | Amount grouping and the summary traceability check | Nothing |
 | `tests/integration/demo/` | Demo routes absent outside demo mode, the labelled picker, no email for demo accounts, two resets with identical ids, real accounts untouched, goldens and variants on seeded data, demo activity counts nowhere (AC03) | Postgres |
 | `tests/unit/demo/` | Production refuses demo mode unless marked a demonstration | Nothing |
 | `tests/integration/portfolio/` | Drafts, each publication rule, immutable versions (AC07–AC11), stale drafts, archive, public projection, outbox events | Postgres |
@@ -135,6 +137,10 @@ Run one test with `uv run pytest tests/unit/health/test_health.py -v`, or match 
 | `GET`, `PUT`, `DELETE /api/v1/discovery-feedback[/{subject_type}/{subject_id}]` | "Kurang relevan": hides a subject from the acting party's results only |
 | `POST /api/v1/matches` | Match an owned support request or raise against every other partner's active opportunity (`Idempotency-Key`); results, then excluded ones |
 | `GET /api/v1/match-runs/{id}` | A stored run as it was computed, with engine and policy versions |
+| `POST /api/v1/pitches/preflight` | Check an owned source against one opportunity: recipient, pinned versions, rows, shareable files and the template brief, under a 30-minute token; nothing is sent |
+| `GET /api/v1/briefs/{id}`, `POST /api/v1/briefs/{id}/summary`, `GET /api/v1/briefs/{id}/export?format=md\|txt` | One's own brief with references; a summary only when traceable; export redacts what depends on a file no longer accessible |
+| `POST /api/v1/pitches` | Send on purpose (`Idempotency-Key`) with a fresh preflight token, the edited brief and chosen file versions; `PREFLIGHT_STALE`, `TARGET_CLOSED`, `DUPLICATE_PITCH`, `NOT_READY`, `RATE_LIMITED` |
+| `GET /api/v1/pitches?box=outgoing\|incoming`, `GET /api/v1/pitches/{id}` | Sent or received pitches, and one pitch with its frozen submissions, for its two sides only |
 | `GET /api/v1/demo/accounts`, `POST /api/v1/demo/sign-in`, `POST /api/v1/demo/reset` | Demo mode only: the labelled accounts, sign-in with no email, and a reset of demo rows with variants `gap`, `scan`, `proposed_entity` |
 | `GET /api/v1/dev/mailbox?email=` | Development only: the codes and notes that would have been emailed |
 | `GET /api/v1/operations/{id}` | Whether the acting party's operation committed, for a client that lost the response |

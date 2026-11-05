@@ -168,7 +168,8 @@ export const FEATURES: Feature[] = [
     ],
     screens: ['S11'],
     specs: ['022', '024'],
-    status: 'coming_soon',
+    status: 'available',
+    home: '/matches',
   },
   {
     id: 'pitching',
@@ -181,7 +182,8 @@ export const FEATURES: Feature[] = [
     ],
     screens: ['S11', 'S12'],
     specs: ['023', '024'],
-    status: 'coming_soon',
+    status: 'available',
+    home: '/pitches',
   },
   {
     id: 'keputusan-revisi',

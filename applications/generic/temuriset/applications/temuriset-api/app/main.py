@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.access.router import router as access_router
+from app.briefs.router import router as briefs_router
 from app.capabilities.router import router as capabilities_router
 from app.capabilities.service.configuration import validate_configuration
 from app.capabilities.service.service import SOURCE_RELEASE
@@ -28,6 +29,7 @@ from app.identity.router import auth_router, me_router
 from app.intake.router import router as intake_router
 from app.matching.router import router as matching_router
 from app.needs.router import router as needs_router
+from app.pitches.router import router as pitches_router
 from app.platform.router import router as platform_router
 from app.platform.service.idempotency import IdempotentReplay, replay_response
 from app.portfolio.router import router as portfolio_router
@@ -75,6 +77,8 @@ def create_app() -> FastAPI:
     app.include_router(intake_router, prefix=API_PREFIX)
     app.include_router(discovery_router, prefix=API_PREFIX)
     app.include_router(matching_router, prefix=API_PREFIX)
+    app.include_router(briefs_router, prefix=API_PREFIX)
+    app.include_router(pitches_router, prefix=API_PREFIX)
     app.include_router(demo_router, prefix=API_PREFIX)
     if settings.environment == "development":
         app.include_router(dev_router, prefix=API_PREFIX)
