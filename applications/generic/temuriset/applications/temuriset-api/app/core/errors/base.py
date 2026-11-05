@@ -132,3 +132,15 @@ class ConflictError(AppError):
     """The request conflicts with current state."""
 
     code = codes.APP_CONFLICT
+
+
+class UnauthenticatedError(AppError):
+    """The request has no live session."""
+
+    code = codes.APP_UNAUTHENTICATED
+
+
+class ForbiddenError(AppError):
+    """The caller may see the resource but not do this."""
+
+    code = codes.APP_FORBIDDEN

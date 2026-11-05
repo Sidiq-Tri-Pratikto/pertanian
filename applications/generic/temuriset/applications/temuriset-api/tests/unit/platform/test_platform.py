@@ -3,7 +3,6 @@
 import json
 import logging
 from datetime import timedelta
-from unittest.mock import patch
 from uuid import UUID
 
 import pytest
@@ -12,8 +11,8 @@ from fastapi.testclient import TestClient
 from pydantic import BaseModel
 
 from app.core.errors.handlers import ErrorBoundaryMiddleware, register_exception_handlers
-from app.core.settings import Settings
-from app.platform.actor import UnauthenticatedError, current_actor_party_id
+from app.identity.model.models import Principal
+from app.platform.actor import current_actor_party_id
 from app.platform.service.idempotency import request_digest
 from app.platform.service.versions import check_expected
 from app.worker.loop import backoff
@@ -98,24 +97,19 @@ def test_request_digest_ignores_formatting_but_not_content() -> None:
     assert request_digest(ACTOR, "notes", b"not json") == request_digest(ACTOR, "notes", b"not json")
 
 
-async def test_actor_placeholder_is_trusted_only_in_development() -> None:
+async def test_actor_is_the_principals_active_party() -> None:
     """
     Condition:
-    - The placeholder ``X-Party-Id`` header outside development, or no header.
+    - A signed-in principal acting as an organization.
 
     Expected:
-    - ``UNAUTHENTICATED`` (401) until sessions arrive in spec 007.
+    - The idempotency actor is that active party, not the personal one.
     """
-    production = Settings(database_url="postgresql+asyncpg://a:b@localhost/c", environment="production")
-    development = Settings(database_url="postgresql+asyncpg://a:b@localhost/c")
+    principal = Principal(
+        account_id=UUID(int=1), session_id=UUID(int=2), personal_party_id=UUID(int=3), active_party_id=ACTOR
+    )
 
-    with patch("app.platform.actor.get_settings", return_value=production), pytest.raises(UnauthenticatedError):
-        await current_actor_party_id(ACTOR)
-    with patch("app.platform.actor.get_settings", return_value=development):
-        assert await current_actor_party_id(ACTOR) == ACTOR
-        with pytest.raises(UnauthenticatedError) as raised:
-            await current_actor_party_id(None)
-    assert str(raised.value) == "Anda perlu masuk terlebih dahulu. Masuk lalu coba lagi."
+    assert await current_actor_party_id(principal) == ACTOR
 
 
 @pytest.mark.parametrize(

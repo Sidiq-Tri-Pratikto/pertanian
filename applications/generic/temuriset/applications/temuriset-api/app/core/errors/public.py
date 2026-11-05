@@ -84,6 +84,16 @@ PUBLIC_ERROR_BY_CODE: dict[str, PublicError] = {
         "Terlalu banyak permintaan kode. Tunggu sebentar lalu coba lagi.",
         {"retryable": True, "retry_after_seconds": 60, "max_attempts": 3},
     ),
+    codes.APP_STALE_CONTEXT: PublicError(
+        "STALE_CONTEXT",
+        409,
+        "Anda kini bertindak sebagai pihak lain di tab berbeda. Muat ulang halaman lalu ulangi tindakan Anda.",
+    ),
+    codes.APP_INVITATION_EXPIRED: PublicError(
+        "INVITATION_EXPIRED",
+        410,
+        "Undangan ini sudah tidak berlaku. Minta undangan baru kepada pengelola organisasi.",
+    ),
 }
 
 PUBLIC_ERROR_BY_STATUS: dict[int, PublicError] = {

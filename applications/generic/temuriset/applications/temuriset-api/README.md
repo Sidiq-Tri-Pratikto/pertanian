@@ -33,6 +33,8 @@ make check             # lint, format check, all tests, 80% coverage gate
 | `tests/unit/health/` | Liveness and readiness | Nothing |
 | `tests/integration/` | Real requests against Postgres after migrations | Postgres |
 | `tests/integration/identity/` | Sign-up for both personas without an organization, codes wrong, expired and used up, 1,000-guess brute force, rate limits, no account leak, sign-out, cross-origin refusal, `PATCH /me` | Postgres |
+| `tests/integration/access/` | Organizations, capabilities (AC04), hidden organizations (AC05), a removed member's job denied (AC06), invitations expired and revoked, stale context, last manager | Postgres |
+| `tests/integration/test_isolation.py` | Every data route called as an unrelated party returns `NOT_FOUND` or nothing; fails when a new route is not registered | Postgres |
 | `tests/integration/platform/` | Idempotent replay and conflict, 20 parallel requests with one key, operations, append-only audit, outbox atomic with the request, worker retries, two workers, jobs | Postgres |
 
 Run one test with `uv run pytest tests/unit/health/test_health.py -v`, or match by name with `uv run pytest tests -k capabilities`. `make test-coverage` also writes an HTML report to `htmlcov/index.html`.
@@ -78,5 +80,12 @@ Run one test with `uv run pytest tests/unit/health/test_health.py -v`, or match 
 | `POST /api/v1/auth/verify` | Check the code, set the `tr_session` cookie, return `/me`; sign-up creates the account and its personal party |
 | `POST /api/v1/auth/sign-out` | Revoke this session and clear the cookie |
 | `GET /api/v1/me`, `PATCH /api/v1/me` | The signed-in account; changes need `expected_version` |
+| `POST /api/v1/organizations` | Create an organization; the creator joins with every capability. Needs `Idempotency-Key` |
+| `GET /api/v1/organizations/{id}/members` | Members and capabilities, to members only |
+| `DELETE /api/v1/organizations/{id}/members/{account_id}` | Remove a member: `acting_party_id`, `expected_version`, `manage_members`; never the last manager |
+| `POST`, `GET /api/v1/organizations/{id}/invitations` | Invite an email with capabilities for seven days (`Idempotency-Key`); list invitations |
+| `GET /api/v1/invitations/{token}`, `POST .../accept` | What the invitation grants; join. Only the invited email sees it |
+| `POST /api/v1/invitations/{id}/revoke` | Revoke a pending invitation |
+| `PUT /api/v1/me/context` | Act as the personal party or a joined organization; anything else is `NOT_FOUND` |
 | `GET /api/v1/dev/mailbox?email=` | Development only: the codes and notes that would have been emailed |
-| `GET /api/v1/operations/{id}` | Whether the acting party's operation committed, for a client that lost the response. Until spec 007 the acting party is the `X-Party-Id` header, honoured only in development |
+| `GET /api/v1/operations/{id}` | Whether the acting party's operation committed, for a client that lost the response |

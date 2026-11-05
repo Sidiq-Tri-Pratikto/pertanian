@@ -57,7 +57,7 @@ Created by the spec named. Every table has `id` (UUID), `created_at` and, when m
 | `outbox_events` | `topic`, `payload` JSONB, `available_at`, `attempts`, `dispatched_at`, `last_error_code` | 005 |
 | `outbox_deliveries` | `event_id`, `consumer`; unique pair, so consumers are idempotent | 005 |
 | `jobs` | `kind`, `status` (`PENDING`, `RUNNING`, `SUCCEEDED`, `FAILED`, `CANCELLED`, `NEEDS_MANUAL_INPUT`), `actor_party_id`, `input`, `result_ref`, `attempts`, `run_after` | 005 |
-| `accounts` | `email` (citext, unique), `email_verified_at`, `display_name`, `locale`, `time_zone`, `persona` (`inovator`, `mitra`), `kind` (`user`, `demo`), `status` | 006 |
+| `accounts` | `email` (stored trimmed and lower-case, unique; no `citext` extension needed), `email_verified_at`, `display_name`, `locale`, `time_zone`, `persona` (`inovator`, `mitra`), `kind` (`user`, `demo`), `status` | 006 |
 | `email_codes` | `account_id` or `email`, `code_sha256`, `purpose`, `expires_at`, `attempts`, `consumed_at` | 006 |
 | `sessions` | `account_id`, `token_sha256` (unique), `active_party_id`, `expires_at`, `revoked_at`, `last_seen_at` | 006 |
 | `mailbox_messages` | Development and test mailbox only: `to_email`, `subject`, `body`, `created_at` | 006 |

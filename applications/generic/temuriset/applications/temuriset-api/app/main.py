@@ -7,6 +7,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.exc import SQLAlchemyError
 
+from app.access.router import router as access_router
 from app.capabilities.router import router as capabilities_router
 from app.capabilities.service.configuration import validate_configuration
 from app.capabilities.service.service import SOURCE_RELEASE
@@ -58,6 +59,7 @@ def create_app() -> FastAPI:
     app.include_router(platform_router, prefix=API_PREFIX)
     app.include_router(auth_router, prefix=API_PREFIX)
     app.include_router(me_router, prefix=API_PREFIX)
+    app.include_router(access_router, prefix=API_PREFIX)
     if settings.environment == "development":
         app.include_router(dev_router, prefix=API_PREFIX)
     install_error_schema(app)

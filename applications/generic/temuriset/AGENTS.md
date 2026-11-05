@@ -102,4 +102,6 @@ A second Python service: copy `applications/temuriset-api/` without `.venv`, ren
 - Run targeted tests before the full suite.
 - Treat a failing bootstrap (no Docker, no network) as an environment blocker, not a product regression.
 - Never claim a check passed without running it and reading its output.
+- Register every new API data route in `tests/integration/test_isolation.py`; the harness fails until you do.
+- Authorize through `app/access/service/policy.py` only: `NOT_FOUND` for what the active party cannot see, `FORBIDDEN` for a missing capability.
 - A browser check in jsdom never proves contrast, focus visibility or reflow; say which runtime was exercised.

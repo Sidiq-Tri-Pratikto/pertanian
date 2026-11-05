@@ -2,19 +2,25 @@
 
 import hashlib
 import math
-from dataclasses import dataclass, field
 from datetime import timedelta
 from uuid import UUID, uuid4
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.access.service.service import create_personal_party, personal_party_id
+from app.access.service.service import capabilities_for, create_personal_party, memberships_for, personal_party_id
 from app.core import clock
 from app.core.errors import codes as error_codes
-from app.core.errors.base import AppError
+from app.core.errors.base import AppError, NotFoundError
 from app.core.settings import Settings
-from app.identity.model.models import AccountModel
-from app.identity.model.schema import AccountResponse, CodeRequest, MeResponse, UpdateMeRequest, VerifyRequest
+from app.identity.model.models import AccountModel, Principal
+from app.identity.model.schema import (
+    AccountResponse,
+    CodeRequest,
+    MembershipResponse,
+    MeResponse,
+    UpdateMeRequest,
+    VerifyRequest,
+)
 from app.identity.repository.sqlalchemy.repository import SqlAlchemyIdentityRepository
 from app.identity.service.codes import (
     MAX_CODE_ATTEMPTS,
@@ -75,25 +81,6 @@ class RateLimitedError(AppError):
         """
         super().__init__()
         self.recovery["retry_after_seconds"] = retry_after_seconds
-
-
-@dataclass(frozen=True)
-class Principal:
-    """Who is making the request, rechecked on every request.
-
-    Attributes:
-        account_id (UUID): The signed-in account.
-        session_id (UUID): The session.
-        personal_party_id (UUID): The account's own party.
-        active_party_id (UUID): The party the account acts as now.
-        capabilities (frozenset[str]): What the account may do as the active party.
-    """
-
-    account_id: UUID
-    session_id: UUID
-    personal_party_id: UUID
-    active_party_id: UUID
-    capabilities: frozenset[str] = field(default_factory=frozenset)
 
 
 def hash_address(address: str) -> str:
@@ -217,7 +204,11 @@ class IdentityService:
         token = new_token()
         session_id = await self._start_session(account.id, token, party_id)
         return token, Principal(
-            account_id=account.id, session_id=session_id, personal_party_id=party_id, active_party_id=party_id
+            account_id=account.id,
+            session_id=session_id,
+            personal_party_id=party_id,
+            active_party_id=party_id,
+            capabilities=await capabilities_for(self.session, account.id, party_id) or frozenset(),
         )
 
     async def _start_session(self, account_id: UUID, token: str, party_id: UUID) -> UUID:
@@ -248,11 +239,45 @@ class IdentityService:
             return None
         if now - found.last_seen_at >= SESSION_REFRESH:
             await self.repository.update_session(found.id, last_seen_at=now, expires_at=now + SESSION_LIFETIME)
+        personal = await personal_party_id(self.session, found.account_id)
+        active = found.active_party_id
+        capabilities = await capabilities_for(self.session, found.account_id, active)
+        if capabilities is None:
+            # The membership behind this context ended: fall back to the personal party.
+            active = personal
+            capabilities = await capabilities_for(self.session, found.account_id, personal)
+            await self.repository.update_session(found.id, active_party_id=personal)
         return Principal(
             account_id=found.account_id,
             session_id=found.id,
-            personal_party_id=await personal_party_id(self.session, found.account_id),
-            active_party_id=found.active_party_id,
+            personal_party_id=personal,
+            active_party_id=active,
+            capabilities=capabilities or frozenset(),
+        )
+
+    async def set_active_party(self, principal: Principal, party_id: UUID) -> Principal:
+        """Act as another party: the personal party or an organization the account belongs to.
+
+        Args:
+            principal (Principal): Who is signed in.
+            party_id (UUID): The party to act as.
+
+        Returns:
+            Principal: The principal in the new context.
+
+        Raises:
+            NotFoundError: When the account may not act as that party; nothing about it is revealed (AC05).
+        """
+        capabilities = await capabilities_for(self.session, principal.account_id, party_id)
+        if capabilities is None:
+            raise NotFoundError()
+        await self.repository.update_session(principal.session_id, active_party_id=party_id)
+        return Principal(
+            account_id=principal.account_id,
+            session_id=principal.session_id,
+            personal_party_id=principal.personal_party_id,
+            active_party_id=party_id,
+            capabilities=capabilities,
         )
 
     async def sign_out(self, principal: Principal) -> None:
@@ -274,7 +299,7 @@ class IdentityService:
         """
         account = await self.repository.find_account(principal.account_id)
         assert account is not None  # noqa: S101 - a live session keeps its account (ON DELETE CASCADE)
-        return _me(account, principal)
+        return _me(account, principal, await memberships_for(self.session, principal.account_id))
 
     async def update_me(self, principal: Principal, request: UpdateMeRequest) -> MeResponse:
         """Change account preferences against the version the client saw.
@@ -294,10 +319,10 @@ class IdentityService:
         if account is None:
             current = await self.repository.find_account(principal.account_id)
             raise StaleVersionError(current.version if current else 0)
-        return _me(account, principal)
+        return _me(account, principal, await memberships_for(self.session, principal.account_id))
 
 
-def _me(account: AccountModel, principal: Principal) -> MeResponse:
+def _me(account: AccountModel, principal: Principal, organizations: list[MembershipResponse]) -> MeResponse:
     return MeResponse(
         account=AccountResponse(
             id=account.id,
@@ -313,4 +338,5 @@ def _me(account: AccountModel, principal: Principal) -> MeResponse:
         personal_party_id=principal.personal_party_id,
         active_party_id=principal.active_party_id,
         capabilities=sorted(principal.capabilities),
+        organizations=organizations,
     )

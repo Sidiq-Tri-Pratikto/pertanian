@@ -113,7 +113,8 @@ async def _run_one(
         failure = AppError(error=error)
         record_failure(failure, operation=f"job:{job.kind}", http_status=_FAILURE_STATUS)
         attempts = job.attempts + 1
-        retry = attempts < MAX_ATTEMPTS
+        # A refusal such as FORBIDDEN will not change on retry (AC06): stop now instead of trying eight times.
+        retry = attempts < MAX_ATTEMPTS and not (isinstance(error, AppError) and not error.recovery["retryable"])
         await repository.update_job(
             job.id,
             attempts=attempts,

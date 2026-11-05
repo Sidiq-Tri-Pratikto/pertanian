@@ -6,28 +6,16 @@ from fastapi import Depends, Request
 from starlette.types import ASGIApp, Receive, Scope, Send
 
 from app.core.database import SessionDep
-from app.core.errors import codes
-from app.core.errors.base import AppError
+from app.core.errors.base import ForbiddenError, UnauthenticatedError
 from app.core.errors.handlers import respond
 from app.core.errors.public import public_error_for_code
 from app.core.errors.recorder import record_failure
 from app.core.settings import get_settings
-from app.identity.service.service import IdentityService, Principal
+from app.identity.model.models import Principal
+from app.identity.service.service import IdentityService
 
 SESSION_COOKIE = "tr_session"
 _SAFE_METHODS = frozenset({"GET", "HEAD", "OPTIONS"})
-
-
-class UnauthenticatedError(AppError):
-    """The request has no live session."""
-
-    code = codes.APP_UNAUTHENTICATED
-
-
-class ForbiddenError(AppError):
-    """The caller may see the resource but not do this."""
-
-    code = codes.APP_FORBIDDEN
 
 
 async def current_principal(request: Request, session: SessionDep) -> Principal:

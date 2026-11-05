@@ -13,7 +13,7 @@ from app.main import app
 
 TABLES = (
     "idempotency_records, audit_events, outbox_deliveries, outbox_events, jobs, "
-    "sessions, email_codes, mailbox_messages, parties, accounts"
+    "invitations, memberships, sessions, email_codes, mailbox_messages, parties, organizations, accounts"
 )
 WEB_ORIGIN = "http://localhost:3020"
 

@@ -73,7 +73,7 @@ async def handle_app_error(request: Request, error: AppError) -> JSONResponse:
     Returns:
         JSONResponse: The envelope.
     """
-    public = replace(public_error_for_code(error.code), recovery=dict(error.recovery))
+    public = replace(public_error_for_code(error.code), message=error.message, recovery=dict(error.recovery))
     _record(request, error, public.http_status)
     return respond(public, error.reference_id, extra=error.public_fields)
 

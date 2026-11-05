@@ -1,5 +1,6 @@
 """Identity domain models."""
 
+from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
 from uuid import UUID
@@ -42,3 +43,22 @@ class SessionModel(BaseModel):
     active_party_id: UUID
     expires_at: datetime
     last_seen_at: datetime
+
+
+@dataclass(frozen=True)
+class Principal:
+    """Who is making the request, rechecked on every request.
+
+    Attributes:
+        account_id (UUID): The signed-in account.
+        session_id (UUID): The session.
+        personal_party_id (UUID): The account's own party.
+        active_party_id (UUID): The party the account acts as now.
+        capabilities (frozenset[str]): What the account may do as the active party.
+    """
+
+    account_id: UUID
+    session_id: UUID
+    personal_party_id: UUID
+    active_party_id: UUID
+    capabilities: frozenset[str] = field(default_factory=frozenset)

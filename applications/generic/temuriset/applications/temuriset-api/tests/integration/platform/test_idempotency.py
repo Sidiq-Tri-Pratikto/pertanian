@@ -27,7 +27,6 @@ from app.platform.service.outbox import publish
 pytestmark = [pytest.mark.integration, pytest.mark.usefixtures("clean_tables")]
 
 ACTOR = UUID("00000000-0000-4000-8000-000000000001")
-OTHER_ACTOR = UUID("00000000-0000-4000-8000-000000000002")
 fail_before_commit: list[bool] = []
 
 
@@ -63,18 +62,31 @@ app = create_app()
 app.include_router(router)
 
 
+WEB_ORIGIN = "http://localhost:3020"
+
+
+def _client() -> AsyncClient:
+    return AsyncClient(transport=ASGITransport(app=app), base_url="http://test", headers={"Origin": WEB_ORIGIN})
+
+
 @pytest.fixture
-async def api() -> AsyncIterator[AsyncClient]:
-    """Client for the application with the test-only route."""
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+async def api(sign_up) -> AsyncIterator[AsyncClient]:
+    """A signed-in client for the application with the test-only route."""
+    async with _client() as client:
+        await sign_up(client, "rani@example.com")
         yield client
 
 
-def _headers(key: str | None, actor: UUID = ACTOR) -> dict[str, str]:
-    headers = {"X-Party-Id": str(actor)}
-    if key is not None:
-        headers["Idempotency-Key"] = key
-    return headers
+@pytest.fixture
+async def other_api(sign_up) -> AsyncIterator[AsyncClient]:
+    """Another party, signed in from another browser."""
+    async with _client() as client:
+        await sign_up(client, "bima@example.com", persona="mitra", name="Bima")
+        yield client
+
+
+def _headers(key: str | None) -> dict[str, str]:
+    return {"Idempotency-Key": key} if key is not None else {}
 
 
 async def _count(model: type) -> int:
@@ -145,7 +157,7 @@ async def test_same_key_with_another_body_is_a_conflict(api: AsyncClient, caplog
     assert await _count(AuditEventRecord) == 1
 
 
-async def test_same_key_from_another_actor_is_another_request(api: AsyncClient) -> None:
+async def test_same_key_from_another_actor_is_another_request(api: AsyncClient, other_api: AsyncClient) -> None:
     """
     Condition:
     - Two parties use the same key.
@@ -154,7 +166,7 @@ async def test_same_key_from_another_actor_is_another_request(api: AsyncClient) 
     - Each gets its own operation.
     """
     mine = await api.post("/test/notes", json={"text": "a"}, headers=_headers("shared"))
-    theirs = await api.post("/test/notes", json={"text": "a"}, headers=_headers("shared", OTHER_ACTOR))
+    theirs = await other_api.post("/test/notes", json={"text": "a"}, headers=_headers("shared"))
 
     assert mine.json()["operation_id"] != theirs.json()["operation_id"]
     assert await _count(AuditEventRecord) == 2
@@ -173,6 +185,7 @@ async def test_missing_key_is_refused_with_a_field_message(api: AsyncClient) -> 
     assert response.status_code == 400
     error = response.json()["error"]
     assert error["code"] == "BAD_REQUEST"
+    assert error["message"] == "Permintaan ini memerlukan kunci Idempotency-Key. Kirim ulang dengan kunci tersebut."
     assert error["details"] == [
         {"loc": ["header", "Idempotency-Key"], "msg": "Isian ini wajib diisi.", "type": "missing"}
     ]
@@ -204,7 +217,7 @@ async def test_failure_before_commit_leaves_nothing_and_the_retry_completes(api:
     assert await _count(AuditEventRecord) == 1
 
 
-async def test_lost_response_is_recovered_through_the_operation(api: AsyncClient) -> None:
+async def test_lost_response_is_recovered_through_the_operation(api: AsyncClient, other_api: AsyncClient) -> None:
     """
     Condition:
     - A request committed but the client lost the response; it asks for the operation.
@@ -216,7 +229,7 @@ async def test_lost_response_is_recovered_through_the_operation(api: AsyncClient
     created = (await api.post("/test/notes", json={"text": "a"}, headers=_headers("k4"))).json()
 
     mine = await api.get(f"/api/v1/operations/{created['operation_id']}", headers=_headers(None))
-    theirs = await api.get(f"/api/v1/operations/{created['operation_id']}", headers=_headers(None, OTHER_ACTOR))
+    theirs = await other_api.get(f"/api/v1/operations/{created['operation_id']}", headers=_headers(None))
     unknown = await api.get(f"/api/v1/operations/{uuid4()}", headers=_headers(None))
 
     assert mine.status_code == 200

@@ -135,6 +135,91 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/invitations/{invitation_id}/revoke": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Revoke an invitation
+         * @description Revoke a pending invitation, acting as the organization with ``manage_members``.
+         *
+         *     Args:
+         *         invitation_id (UUID): The invitation.
+         *         body (ActingPartyRequest): Acting party.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         InvitationResponse: The revoked invitation.
+         */
+        post: operations["revoke_invitation_api_v1_invitations__invitation_id__revoke_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/invitations/{token}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read an invitation
+         * @description Show the invited account what it would join.
+         *
+         *     Args:
+         *         token (str): The emailed token.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         InvitationDetailResponse: Organization, capabilities, expiry and status.
+         */
+        get: operations["read_invitation_api_v1_invitations__token__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/invitations/{token}/accept": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Accept an invitation
+         * @description Join the organization. Accepting twice is harmless; an expired or revoked invitation is refused.
+         *
+         *     Args:
+         *         token (str): The emailed token.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         OrganizationResponse: The organization joined.
+         */
+        post: operations["accept_invitation_api_v1_invitations__token__accept_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/me": {
         parameters: {
             query?: never;
@@ -174,6 +259,34 @@ export interface paths {
         patch: operations["update_me_api_v1_me_patch"];
         trace?: never;
     };
+    "/api/v1/me/context": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Change who you act as
+         * @description Act as the personal party or an organization the account belongs to.
+         *
+         *     Args:
+         *         body (ContextRequest): The party to act as.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         MeResponse: The account in its new context.
+         */
+        put: operations["set_context_api_v1_me_context_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/operations/{operation_id}": {
         parameters: {
             query?: never;
@@ -201,6 +314,132 @@ export interface paths {
         put?: never;
         post?: never;
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/organizations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create an organization
+         * @description Create an organization; the creator becomes a member with every capability.
+         *
+         *     Args:
+         *         body (CreateOrganizationRequest): Name and kind.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         OrganizationResponse: The organization and its party.
+         */
+        post: operations["create_organization_api_v1_organizations_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/organizations/{organization_id}/invitations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List invitations
+         * @description List invitations to the organization's member managers.
+         *
+         *     Args:
+         *         organization_id (UUID): The organization.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         list[InvitationResponse]: Invitations with status and expiry.
+         */
+        get: operations["list_invitations_api_v1_organizations__organization_id__invitations_get"];
+        put?: never;
+        /**
+         * Invite a member
+         * @description Email an invitation with explicit capabilities, valid for seven days.
+         *
+         *     Args:
+         *         organization_id (UUID): The organization.
+         *         body (InviteRequest): Acting party, email and capabilities.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         InvitationResponse: The invitation, without its token.
+         */
+        post: operations["invite_api_v1_organizations__organization_id__invitations_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/organizations/{organization_id}/members": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List members
+         * @description List an organization's members to its members.
+         *
+         *     Args:
+         *         organization_id (UUID): The organization.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         list[MemberResponse]: Members and capabilities.
+         */
+        get: operations["list_members_api_v1_organizations__organization_id__members_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/organizations/{organization_id}/members/{account_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Remove a member
+         * @description Remove a member, acting as the organization with ``manage_members``.
+         *
+         *     Args:
+         *         organization_id (UUID): The organization.
+         *         account_id (UUID): The member.
+         *         body (RemoveMemberRequest): Acting party and ``expected_version``.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         */
+        delete: operations["remove_member_api_v1_organizations__organization_id__members__account_id__delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -287,6 +526,17 @@ export interface components {
             version: number;
         };
         /**
+         * ActingPartyRequest
+         * @description A consequential action names the party it acts as, so two tabs cannot cross contexts.
+         */
+        ActingPartyRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+        };
+        /**
          * AdapterResponse
          * @description One data source adapter.
          */
@@ -295,6 +545,12 @@ export interface components {
             id: string;
             status: components["schemas"]["CapabilityStatus"];
         };
+        /**
+         * Capability
+         * @description What a member may do as an organization (FR02). A personal party holds every capability.
+         * @enum {string}
+         */
+        Capability: "edit_portfolio" | "submit_pitch" | "review_publication" | "decide_pitch" | "confirm_relationship" | "schedule" | "manage_members";
         /**
          * CapabilityManifestResponse
          * @description Non-secret explanation of this deployment. It grants nothing; the service still authorizes every request.
@@ -388,6 +644,30 @@ export interface components {
             version: number;
         };
         /**
+         * ContextRequest
+         * @description Act as another party: the personal party or an organization the account belongs to.
+         */
+        ContextRequest: {
+            /**
+             * Party Id
+             * Format: uuid
+             */
+            party_id: string;
+        };
+        /**
+         * CreateOrganizationRequest
+         * @description Create an organization; the creator becomes a member with every capability.
+         */
+        CreateOrganizationRequest: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "company" | "nonprofit" | "community" | "research_group" | "other";
+            /** Name */
+            name: string;
+        };
+        /**
          * ErrorBody
          * @description Public failure content.
          */
@@ -448,6 +728,68 @@ export interface components {
             retryable: boolean;
         };
         /**
+         * InvitationDetailResponse
+         * @description What the invited account sees before accepting.
+         */
+        InvitationDetailResponse: {
+            /** Capabilities */
+            capabilities: string[];
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            /** Organization Name */
+            organization_name: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "pending" | "accepted" | "revoked" | "expired";
+        };
+        /**
+         * InvitationResponse
+         * @description One invitation, as its organization sees it.
+         */
+        InvitationResponse: {
+            /** Capabilities */
+            capabilities: string[];
+            /** Email */
+            email: string;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Operation Id */
+            operation_id?: string | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "pending" | "accepted" | "revoked" | "expired";
+        };
+        /**
+         * InviteRequest
+         * @description Invite an email with explicit capabilities, acting as the organization.
+         */
+        InviteRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /** Capabilities */
+            capabilities: components["schemas"]["Capability"][];
+            /** Email */
+            email: string;
+        };
+        /**
          * MailboxMessageResponse
          * @description One development mailbox message.
          */
@@ -479,6 +821,23 @@ export interface components {
              * Format: uuid
              */
             personal_party_id: string;
+        };
+        /**
+         * MemberResponse
+         * @description One member and what they may do.
+         */
+        MemberResponse: {
+            /**
+             * Account Id
+             * Format: uuid
+             */
+            account_id: string;
+            /** Capabilities */
+            capabilities: string[];
+            /** Display Name */
+            display_name: string;
+            /** Version */
+            version: number;
         };
         /**
          * MembershipResponse
@@ -530,6 +889,30 @@ export interface components {
          */
         OperationStatus: "PENDING" | "COMMITTED" | "UNKNOWN";
         /**
+         * OrganizationResponse
+         * @description One organization.
+         */
+        OrganizationResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Kind */
+            kind: string;
+            /** Name */
+            name: string;
+            /** Operation Id */
+            operation_id?: string | null;
+            /**
+             * Party Id
+             * Format: uuid
+             */
+            party_id: string;
+            /** Version */
+            version: number;
+        };
+        /**
          * PolicyResponse
          * @description One versioned product policy, such as matching weights or proposal expiry.
          */
@@ -538,6 +921,19 @@ export interface components {
             id: string;
             /** Version */
             version: number;
+        };
+        /**
+         * RemoveMemberRequest
+         * @description Remove a member, acting as the organization.
+         */
+        RemoveMemberRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /** Expected Version */
+            expected_version: number;
         };
         /**
          * UpdateMeRequest
@@ -754,6 +1150,130 @@ export interface operations {
             };
         };
     };
+    revoke_invitation_api_v1_invitations__invitation_id__revoke_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                invitation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ActingPartyRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvitationResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    read_invitation_api_v1_invitations__token__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvitationDetailResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    accept_invitation_api_v1_invitations__token__accept_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrganizationResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     get_me_api_v1_me_get: {
         parameters: {
             query?: never;
@@ -825,12 +1345,52 @@ export interface operations {
             };
         };
     };
+    set_context_api_v1_me_context_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ContextRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     get_operation_api_v1_operations__operation_id__get: {
         parameters: {
             query?: never;
-            header?: {
-                "x-party-id"?: string | null;
-            };
+            header?: never;
             path: {
                 operation_id: string;
             };
@@ -846,6 +1406,215 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["OperationResponse"];
                 };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    create_organization_api_v1_organizations_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateOrganizationRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrganizationResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    list_invitations_api_v1_organizations__organization_id__invitations_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                organization_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvitationResponse"][];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    invite_api_v1_organizations__organization_id__invitations_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                organization_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InviteRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvitationResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    list_members_api_v1_organizations__organization_id__members_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                organization_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberResponse"][];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    remove_member_api_v1_organizations__organization_id__members__account_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                organization_id: string;
+                account_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RemoveMemberRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Validation failed */
             422: {
