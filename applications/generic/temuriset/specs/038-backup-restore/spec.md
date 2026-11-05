@@ -2,7 +2,7 @@
 
 **Feature Branch**: `038-backup-restore`
 **Created**: 2026-11-05
-**Status**: Seeded, not started
+**Status**: Implemented and rehearsed on local synthetic Compose. Staging and previous-release evidence remain open.
 **Milestone**: M11 Portability and operations
 **Depends on**: 037
 **Size**: M
