@@ -138,3 +138,9 @@ Run one test with `uv run pytest tests/unit/health/test_health.py -v`, or match 
 | `GET /api/v1/operator/privacy-requests`, `POST /api/v1/operator/privacy-requests/{request_id}/fulfill` | List pending deletions and start versioned fulfilment |
 
 Use `python -m app.moderation --help` from the service for local grant administration. Operator actions require an explicit account grant. A case-file grant names one report, operator, document version, purpose and expiry. Run the worker to finish deletion requests. The development mailbox provides outcome delivery during development. Production delivery depends on spec 042.
+
+## Staging and production runtime
+
+Use the [deployment runbook](../../../../../deployment/temuriset/RUNBOOK.md) for the pinned Compose topology and secret-store setup. Configure `STORAGE_ADAPTER=s3` with the private origin, bucket, region and scoped access keys in `.env.example`. Configure `FILE_SCANNER=clamav` and `MAILBOX_ADAPTER=disabled` outside development. The public capability manifest reports storage and scanner implementations. Download and range authorization remain in the API, and storage errors omit provider details.
+
+The same non-root image accepts the `api`, `worker` and `migrate` commands. The deployment runs `migrate` before API or worker startup. Running the image without a command retains the existing development startup behavior. With disabled mail, sign-in code requests and invitations return `MAIL_UNAVAILABLE`. A deletion outcome can be ready even when its email could not be sent.

@@ -1,6 +1,7 @@
 """Startup validation: unsafe configuration never serves traffic."""
 
 import re
+from urllib.parse import urlsplit
 
 from app.capabilities.service.service import select_capabilities
 from app.core.errors.sanitize import REDACTED, redact_text
@@ -65,4 +66,29 @@ def validate_configuration(settings: Settings) -> tuple[str, ...]:
             f"MAILBOX_ADAPTER=development is allowed only in development. Configure email delivery for "
             f"{settings.environment} (spec 042)."
         )
+    if settings.environment != "development" and settings.storage_adapter != "s3":
+        raise ConfigurationError("STORAGE_ADAPTER=s3 is required outside development.")
+    if settings.storage_adapter == "s3":
+        if not all(
+            (
+                settings.s3_endpoint_url,
+                settings.s3_bucket,
+                settings.s3_region,
+                settings.s3_access_key,
+                settings.s3_secret_key,
+            )
+        ):
+            raise ConfigurationError("S3 requires endpoint, bucket, region and scoped credentials.")
+        try:
+            endpoint = urlsplit(settings.s3_endpoint_url.get_secret_value())
+            valid_endpoint = (
+                endpoint.scheme in ("https", "http")
+                and endpoint.hostname is not None
+                and not any((endpoint.username, endpoint.password, endpoint.query, endpoint.fragment))
+                and endpoint.path in ("", "/")
+            )
+        except ValueError:
+            valid_endpoint = False
+        if not valid_endpoint:
+            raise ConfigurationError("S3 endpoint must be an HTTP(S) origin without embedded credentials.")
     return capability_ids

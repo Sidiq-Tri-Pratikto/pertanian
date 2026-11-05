@@ -85,3 +85,11 @@ Run one file with `npx vitest run tests/pages.test.tsx`, match by name with `npx
 | `/segera-hadir/<feature>` | What a planned feature will do |
 
 The persona lives in an http-only cookie until accounts arrive in spec 008. It picks menus and language, never access.
+
+## Staging browser checks
+
+The [deployment runbook](../../../../../deployment/temuriset/RUNBOOK.md) uses the standalone web image with `API_URL=http://api:8000` at build and runtime. Use that internal address or build another image when the target changes. The browser stays on the web origin.
+
+For the deployed suite, set `E2E_STAGING_URL` to the approved HTTPS origin and `E2E_STAGING_FIXTURES_FILE` to an operator-provisioned private JSON file outside the checkout. Run `npx playwright test` without a test filter. In this mode Playwright uses the deployed app, requires the 003 and `j01.spec.ts` through `j05.spec.ts` files and checks authenticated fixtures against `/api/v1/me`. It does not start a local server. The report must contain successful results for every required suite and rejects skipped journeys.
+
+The fixture file has `origin`, `synthetic: true`, `syntheticEmailDomain` set to the operator-approved lowercase DNS domain dedicated to staging accounts, and a `sessions` object keyed by `project > test file > test title`, including any enclosing suite titles. Each entry maps a persona to an array of unused `{ "email": "fixture@qa.example.org", "session": "<operator-provisioned token>" }` values, in test invocation order. The address must be lowercase and its domain must exactly match `syntheticEmailDomain`. QA uses synthetic, fresh accounts authenticated through the approved staging access path and revokes them after the run. Keep session files and outputs in approved restricted storage. The 042 authentication path and journey prerequisites remain required before a real staging acceptance run. `make e2e` is for the local production build with the development API and synthetic fixture creation.

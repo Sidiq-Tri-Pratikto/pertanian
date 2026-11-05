@@ -2,7 +2,7 @@
 
 **Feature Branch**: `037-deploy-release`
 **Created**: 2026-11-05
-**Status**: Seeded, not started
+**Status**: Local implementation validated. Actual staging and release acceptance are open.
 **Milestone**: M11 Portability and operations
 **Depends on**: 003, 005
 **Size**: L

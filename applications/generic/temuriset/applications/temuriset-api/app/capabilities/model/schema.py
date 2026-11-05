@@ -33,6 +33,7 @@ class AdapterResponse(BaseModel):
 
     id: str
     status: CapabilityStatus
+    implementation: str | None = None
 
 
 class PolicyResponse(BaseModel):

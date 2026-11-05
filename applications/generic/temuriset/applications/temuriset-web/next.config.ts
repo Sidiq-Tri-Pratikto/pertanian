@@ -6,6 +6,7 @@ const apiUrl = process.env.API_URL ?? 'http://localhost:8020';
 
 const config: NextConfig = {
   reactStrictMode: true,
+  output: 'standalone',
   // Next is always started from this folder; pinning the root stops it adopting lockfiles found further up.
   turbopack: { root: process.cwd() },
   poweredByHeader: false,

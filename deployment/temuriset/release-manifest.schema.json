@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TemuRiset release manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "commit", "tag", "configuration", "alembic_head", "images", "infrastructure_images", "compositions", "publication", "rollouts"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "tag": {"type": "string", "pattern": "^temuriset-v[0-9]+[.][0-9]+[.][0-9]+$"},
+    "configuration": {
+      "type": "object", "additionalProperties": false, "required": ["version", "web_api_origin"],
+      "properties": {"version": {"const": 1}, "web_api_origin": {"const": "http://api:8000"}}
+    },
+    "alembic_head": {"type": "string", "pattern": "^[0-9a-z_]{1,32}$"},
+    "images": {
+      "type": "object", "additionalProperties": false, "required": ["api", "worker", "web"],
+      "properties": {
+        "api": {"$ref": "#/$defs/image"}, "worker": {"$ref": "#/$defs/image"}, "web": {"$ref": "#/$defs/image"}
+      }
+    },
+    "infrastructure_images": {
+      "type": "object", "additionalProperties": false,
+      "required": ["postgres", "object-store", "clamav", "edge"],
+      "properties": {
+        "postgres": {"$ref": "#/$defs/pinned"}, "object-store": {"$ref": "#/$defs/pinned"},
+        "clamav": {"$ref": "#/$defs/pinned"}, "edge": {"$ref": "#/$defs/pinned"}
+      }
+    },
+    "compositions": {
+      "type": "array", "minItems": 3, "maxItems": 3,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "version", "source_release", "capability_schema", "capabilities", "adapters", "policies", "smoke"],
+        "properties": {
+          "id": {"enum": ["generic-base", "generic-with-review", "project-support-only"]},
+          "version": {"type": "integer", "minimum": 1},
+          "source_release": {"type": "string", "pattern": "^[0-9]+[.][0-9]+[.][0-9]+$"},
+          "capability_schema": {"type": "integer", "minimum": 1},
+          "capabilities": {
+            "type": "array", "minItems": 1,
+            "items": {
+              "type": "object", "additionalProperties": false, "required": ["id", "status", "optional"],
+              "properties": {
+                "id": {"$ref": "#/$defs/id"}, "status": {"$ref": "#/$defs/status"}, "optional": {"type": "boolean"}
+              }
+            }
+          },
+          "adapters": {
+            "type": "array", "minItems": 1,
+            "items": {
+              "type": "object", "additionalProperties": false, "required": ["id", "status"],
+              "properties": {
+                "id": {"$ref": "#/$defs/id"}, "status": {"$ref": "#/$defs/status"},
+                "implementation": {"enum": ["s3", "local", "clamav", "development-accept", null]}
+              }
+            }
+          },
+          "policies": {
+            "type": "array",
+            "items": {
+              "type": "object", "additionalProperties": false, "required": ["id", "version"],
+              "properties": {"id": {"$ref": "#/$defs/id"}, "version": {"type": "integer", "minimum": 1}}
+            }
+          },
+          "smoke": {"const": "passed"}
+        }
+      }
+    },
+    "publication": {"enum": ["candidate", "published"]},
+    "rollouts": {"type": "array", "maxItems": 0}
+  },
+  "$defs": {
+    "image": {"type": "string", "pattern": "^[a-z0-9./_-]+(?::[0-9]+)?@sha256:[0-9a-f]{64}$"},
+    "pinned": {"type": "string", "pattern": "^[a-z0-9./_-]+:[a-zA-Z0-9._-]+@sha256:[0-9a-f]{64}$"},
+    "id": {"type": "string", "pattern": "^[a-z0-9_-]{1,64}$"},
+    "status": {"enum": ["planned", "simulated", "available"]}
+  }
+}

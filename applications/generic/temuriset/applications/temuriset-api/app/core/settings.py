@@ -42,10 +42,16 @@ class Settings(BaseSettings):
     file_scanner: Literal["clamav", "development-accept"] = "development-accept"
     web_origin: str = "http://localhost:3020"
     session_cookie_secure: bool | None = None
-    mailbox_adapter: Literal["development"] = "development"
+    mailbox_adapter: Literal["development", "disabled"] = "development"
     code_requests_per_email_per_hour: int = 5
     code_requests_per_address_per_hour: int = 20
+    storage_adapter: Literal["local", "s3"] = "local"
     storage_path: str = ".storage"
+    s3_endpoint_url: SecretStr | None = None
+    s3_bucket: str = ""
+    s3_region: str = "us-east-1"
+    s3_access_key: SecretStr | None = None
+    s3_secret_key: SecretStr | None = None
     clamav_host: str = "localhost"
     clamav_port: int = 3310
 

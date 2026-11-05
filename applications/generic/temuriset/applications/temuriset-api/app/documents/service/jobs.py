@@ -10,7 +10,7 @@ from app.core.settings import get_settings
 from app.documents.repository.sqlalchemy.repository import SqlAlchemyDocumentRepository
 from app.documents.service.extraction import extract_text
 from app.documents.service.scanner_service import scanner_for
-from app.documents.service.storage_service import LocalStorage
+from app.documents.service.storage_service import storage_for
 from app.platform.service.outbox import enqueue_job
 from app.worker.registry import registry
 
@@ -31,8 +31,8 @@ async def scan(session: AsyncSession, job_input: dict[str, Any]) -> dict[str, An
     version = await repository.version(version_id=UUID(job_input["version_id"]), lock=True)
     if version is None or version.file_state != "QUARANTINED":
         return {"type": "document_version", "id": job_input["version_id"]}
-    path = LocalStorage(settings.storage_path).local_path(version.storage_key)
-    clean = await scanner_for(settings).is_clean(path)
+    async with storage_for(settings).materialize(version.storage_key, version.size_bytes) as path:
+        clean = await scanner_for(settings).is_clean(path)
     await repository.update_version(
         version.id,
         file_state="AVAILABLE" if clean else "REJECTED",
@@ -58,9 +58,9 @@ async def extract(session: AsyncSession, job_input: dict[str, Any]) -> dict[str,
     version = await repository.version(version_id=UUID(job_input["version_id"]), lock=True)
     if version is None or version.file_state != "AVAILABLE":
         return {"type": "document_version", "id": job_input["version_id"]}
-    path = LocalStorage(get_settings().storage_path).local_path(version.storage_key)
     try:
-        text = await anyio.to_thread.run_sync(extract_text, path, version.media_type)
+        async with storage_for(get_settings()).materialize(version.storage_key, version.size_bytes) as path:
+            text = await anyio.to_thread.run_sync(extract_text, path, version.media_type)
     except ValueError:
         state, characters = "FAILED", None
     else:

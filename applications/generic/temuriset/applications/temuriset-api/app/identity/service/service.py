@@ -31,7 +31,7 @@ from app.identity.service.codes import (
     new_salt,
     new_token,
 )
-from app.identity.service.mailbox_service import DevelopmentMailbox, MailboxAdapter
+from app.identity.service.mailbox_service import DisabledMailbox, MailboxAdapter, MailUnavailableError, mailbox_for
 from app.platform.service.versions import StaleVersionError
 
 CODE_LIFETIME = timedelta(minutes=10)
@@ -108,7 +108,7 @@ class IdentityService:
         """
         self.session = session
         self.settings = settings
-        self.mailbox = mailbox or DevelopmentMailbox()
+        self.mailbox = mailbox or mailbox_for(settings)
         self.repository = SqlAlchemyIdentityRepository(session)
 
     async def request_code(self, request: CodeRequest, client_address: str) -> None:
@@ -123,6 +123,8 @@ class IdentityService:
         Raises:
             RateLimitedError: Over five requests per email or 20 per address in an hour.
         """
+        if isinstance(self.mailbox, DisabledMailbox):
+            raise MailUnavailableError()
         address = hash_address(client_address)
         await self._enforce_rate_limit(email=request.email, address=address)
         account = await self.repository.find_account_by_email(request.email, lock=True)

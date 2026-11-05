@@ -1,6 +1,8 @@
 """Documents: upload intents, streamed upload, owner views, grants, and the download gateway."""
 
 import re
+from collections.abc import AsyncIterator
+from contextlib import aclosing
 from uuid import UUID
 
 from fastapi import APIRouter, Request, status
@@ -20,7 +22,7 @@ from app.documents.model.schema import (
     UploadIntentResponse,
 )
 from app.documents.service.service import DocumentService, Download
-from app.documents.service.storage_service import LocalStorage
+from app.documents.service.storage_service import storage_for
 from app.platform.model.schema import OperationResult
 from app.platform.service.idempotency import Idempotency, idempotent
 
@@ -162,10 +164,10 @@ async def download(
     """
     byte_range = request.headers.get("range")
     file = await DocumentService(session, get_settings()).authorize_download(principal, document_id, number, byte_range)
-    return stream_download(file, byte_range)
+    return await stream_download(file, byte_range)
 
 
-def stream_download(file: Download, byte_range: str | None) -> StreamingResponse:
+async def stream_download(file: Download, byte_range: str | None) -> StreamingResponse:
     """Stream an already authorized document using the shared range and cache policy."""
     start, end, partial = 0, file.size_bytes - 1, False
     match = _RANGE.match(byte_range or "")
@@ -187,9 +189,20 @@ def stream_download(file: Download, byte_range: str | None) -> StreamingResponse
     }
     if partial:
         headers["Content-Range"] = f"bytes {start}-{end}/{file.size_bytes}"
-    storage = LocalStorage(get_settings().storage_path)
+    storage = storage_for(get_settings())
+    stream = storage.read(file.storage_key, start, end)
+    # Acquire the object before committing HTTP headers so startup errors keep the normal error envelope.
+    first = await anext(stream, b"")
+
+    async def content() -> AsyncIterator[bytes]:
+        async with aclosing(stream):
+            if first:
+                yield first
+            async for chunk in stream:
+                yield chunk
+
     return StreamingResponse(
-        storage.read(file.storage_key, start, end),
+        content(),
         status_code=206 if partial else 200,
         media_type=file.media_type,
         headers=headers,

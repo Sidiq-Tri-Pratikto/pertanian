@@ -10,6 +10,8 @@ One row per error. Keep in sync with `app/core/errors/codes.py` and `public.py`.
 | `APP-CONFLICT` | `CONFLICT` | 409 | Permintaan bertentangan dengan kondisi saat ini. Tinjau datanya lalu coba lagi. | State conflict | false | - | - |
 | `APP-DB-ERROR` | `DATA_ERROR` | 500 | Permintaan gagal karena kesalahan data. Hubungi dukungan dan sebutkan ID referensi. | Database failure | false | - | - |
 | `APP-DB-UNAVAILABLE` | `DATABASE_UNAVAILABLE` | 503 | Layanan data sedang tidak tersedia. Coba lagi beberapa menit lagi. | Connection, pool, or operational failure | true | 30 | 3 |
+| `APP-MAIL-UNAVAILABLE` | `MAIL_UNAVAILABLE` | 503 | Pengiriman email belum tersedia. Hubungi pengelola layanan. | Sign-in code or invitation while mail delivery is disabled | false | - | - |
+| `APP-STORAGE-UNAVAILABLE` | `STORAGE_UNAVAILABLE` | 503 | Penyimpanan berkas belum dapat diakses. Coba lagi nanti. | The private object store cannot complete the operation | false | - | - |
 | `APP-CAPABILITY-UNAVAILABLE` | `CAPABILITY_UNAVAILABLE` | 403 | Fitur ini tidak tersedia pada layanan ini. Hubungi pengelola layanan bila Anda memerlukannya. | Route guarded by `require_capability` for a capability this deployment does not select | false | - | - |
 | `APP-UNAUTHENTICATED` | `UNAUTHENTICATED` | 401 | Anda perlu masuk terlebih dahulu. Masuk lalu coba lagi. | No trusted acting party (until 007: the development-only `X-Party-Id` header is missing, or the service is not in development) | false | - | - |
 | `APP-STALE-VERSION` | `STALE_VERSION` | 409 | Data ini sudah diubah sejak Anda membukanya. Muat ulang versi terbaru lalu ulangi perubahan Anda. | `expected_version` differs from the stored version; the envelope adds `current_version` | false | - | - |
