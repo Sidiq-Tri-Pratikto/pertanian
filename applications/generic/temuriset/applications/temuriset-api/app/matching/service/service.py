@@ -129,7 +129,9 @@ class MatchingService:
         self.session = session
         self.repository = SqlAlchemyMatchingRepository(session)
 
-    async def source_of(self, principal: Principal, source_type: str, source_id: UUID) -> tuple[Source, str]:
+    async def source_of(
+        self, principal: Principal, source_type: str, source_id: UUID
+    ) -> tuple[Source, str, list[UUID]]:
         """Build the engine's source from what the acting party owns.
 
         Args:
@@ -138,7 +140,7 @@ class MatchingService:
             source_id (UUID): The source.
 
         Returns:
-            tuple[Source, str]: The engine input and a title to show.
+            tuple[Source, str, list[UUID]]: The engine input, a title to show, and the invention versions it reads.
 
         Raises:
             NotFoundError: When the acting party does not own it.
@@ -169,7 +171,7 @@ class MatchingService:
                 documents=await _evidence(self.session, owner, versions),
                 **_invention_fields(versions),
             )
-            return source, request.invention_title
+            return source, request.invention_title, [version_id]
         settings = get_settings()
         if "company_funding" not in select_capabilities(settings.composition, settings.composition_overrides):
             raise CapabilityUnavailableError()
@@ -188,7 +190,7 @@ class MatchingService:
             documents=await _evidence(self.session, owner, versions),
             **_invention_fields(versions),
         )
-        return source, raise_.subject_label
+        return source, raise_.subject_label, version_ids
 
     async def run(self, principal: Principal, request: MatchRequest) -> MatchRunResponse:
         """Evaluate the source against each active opportunity separately, then order and persist the run.
@@ -201,7 +203,7 @@ class MatchingService:
             MatchRunResponse: The stored run.
         """
         check_context(principal, request.acting_party_id)
-        source, title = await self.source_of(principal, request.source_type, request.source_id)
+        source, title, _ = await self.source_of(principal, request.source_type, request.source_id)
         opportunities = await IntakeService(self.session).active_targets(principal.active_party_id)
         names = await party_names(self.session, list({item.partner_party_id for item in opportunities}))
         results = [evaluate(source, target_of(item, names.get(item.partner_party_id, ""))) for item in opportunities]

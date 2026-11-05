@@ -3,6 +3,7 @@
 from collections.abc import AsyncIterator
 from dataclasses import dataclass
 from datetime import timedelta
+from typing import Any
 from uuid import UUID, uuid4
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -123,6 +124,38 @@ async def evidence_results(
         version.id: {mode: evidence_status(version, mode) for mode in ("DOCUMENT_PRESENT", "REVIEWER_CONFIRMED")}
         for version in versions
     }
+
+
+async def owned_version_details(
+    session: AsyncSession, owner_party_id: UUID, version_ids: list[UUID]
+) -> list[dict[str, Any]]:
+    """Describe the party's own document versions among ``version_ids``, for preflight's file list (022).
+
+    Args:
+        session (AsyncSession): The request's session.
+        owner_party_id (UUID): The owner.
+        version_ids (list[UUID]): Candidate versions, such as those linked from invention facts.
+
+    Returns:
+        list[dict[str, Any]]: Document id, version id and number, title, file and review states; another party's
+            versions are left out.
+    """
+    repository = SqlAlchemyDocumentRepository(session)
+    details = []
+    for version in await repository.owned_versions(owner_party_id, version_ids):
+        document = await repository.document(version.document_id)
+        assert document is not None  # noqa: S101 - versions cascade with their document
+        details.append(
+            {
+                "document_id": str(document.id),
+                "version_id": str(version.id),
+                "version": version.number,
+                "title": document.title,
+                "file_state": version.file_state,
+                "review_state": version.review_state,
+            }
+        )
+    return sorted(details, key=lambda item: (item["title"], item["version"]))
 
 
 class DocumentService:
@@ -310,13 +343,21 @@ class DocumentService:
             ],
         )
 
-    async def grant(self, principal: Principal, document_id: UUID, request: GrantRequest) -> GrantResponse:
+    async def grant(
+        self,
+        principal: Principal,
+        document_id: UUID,
+        request: GrantRequest,
+        capability: Capability = Capability.EDIT_PORTFOLIO,
+    ) -> GrantResponse:
         """Share one version with one party for one purpose; repeating it returns the same grant.
 
         Args:
             principal (Principal): Who is signed in.
             document_id (UUID): The document.
             request (GrantRequest): Version, grantee and purpose.
+            capability (Capability, optional): What the member needs; a submission shares with ``submit_pitch``.
+                Defaults to ``edit_portfolio``.
 
         Returns:
             GrantResponse: The grant.
@@ -326,7 +367,7 @@ class DocumentService:
         """
         check_context(principal, request.acting_party_id)
         document = await self._owned(principal, document_id)
-        require(principal, Capability.EDIT_PORTFOLIO, document.owner_party_id)
+        require(principal, capability, document.owner_party_id)
         version = await self.repository.version(document_id=document.id, number=request.version)
         names = await party_names(self.session, [request.grantee_party_id])
         if version is None or request.grantee_party_id not in names:

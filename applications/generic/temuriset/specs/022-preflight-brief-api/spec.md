@@ -2,7 +2,7 @@
 
 **Feature Branch**: `022-preflight-brief-api`
 **Created**: 2026-11-05
-**Status**: Seeded, not started
+**Status**: Built, awaiting review
 **Milestone**: M6 Pitch submission
 **Depends on**: 010, 019
 **Size**: M
