@@ -32,9 +32,10 @@ The first run takes a few minutes while it installs everything. When it prints t
 
 Check that it works:
 
-1. Open http://localhost:3020/start, pick "Saya punya inovasi dan mencari dukungan", and press **Lanjutkan**.
-2. Beranda shows **Layanan tersedia** and **Versi 0.1.0**. That message came from the API through the web app.
-3. From another terminal, the same path the browser uses:
+1. Open http://localhost:3020/start, pick "Saya punya inovasi dan mencari dukungan", type a name and any email, and press **Kirim kode**.
+2. No real email is sent in development. Read the six-digit code at http://localhost:3020/api/v1/dev/mailbox?email=you@example.com (use the email you typed), enter it and press **Masuk**.
+3. Beranda opens with **Bertindak sebagai** in the bar and **Layanan tersedia** below. That status came from the API through the web app.
+4. From another terminal, the same path the browser uses:
 
    ```bash
    curl http://localhost:3020/api/v1/capabilities
@@ -123,7 +124,8 @@ The web app forwards `/api/v1/*` and `/health/*` to `API_URL` (default `http://l
 | Stop everything started by `make dev` | `Ctrl+C` |
 | Stop Postgres left running by `make check` or `make test-api` | `make stop` |
 | Start again with an empty database | `make reset-db` |
-| Choose the other persona | **Ubah** in the header, or open http://localhost:3020/start |
+| Switch menus or sign out | Profil → **Ubah akun** changes the menu; **Keluar** signs out |
+| Act for an organization | Profil → **Buat organisasi**, then pick it in **Bertindak sebagai** |
 
 ### Configuration
 
@@ -132,6 +134,7 @@ Each application creates its `.env` from `.env.example` on first run, and the de
 | Variable | Where | Default | Use |
 |---|---|---|---|
 | `COMPOSITION` | API `.env` | `generic-base` | Also `generic-with-review` or `project-support-only` |
+| `COMPOSITION_OVERRIDES` | API `.env` | `{}` | Switch one capability on or off, for example `{"company_funding": false}` |
 | `DATABASE_URL` | API `.env` | Postgres on `localhost:5442` | Point at another database |
 | `API_URL` | web `.env` | `http://localhost:8020` | Where the web app forwards API calls |
 
@@ -146,9 +149,10 @@ nvm use        # once per terminal, for the web tests
 make setup     # once, installs both applications
 make test      # a few seconds, no Docker needed
 make check     # before every pull request; needs Docker
+make e2e       # browser checks in Chromium; needs Docker
 ```
 
-`make test` is your fast loop. `make check` is exactly what a pull request must pass, and it leaves Postgres running; `make stop` stops it.
+`make test` is your fast loop. `make check` and `make e2e` are what a pull request must pass. Both leave Postgres running; `make stop` stops it.
 
 ### What each command runs
 
@@ -158,6 +162,7 @@ make check     # before every pull request; needs Docker
 | `make test-api` | Unit and Postgres integration tests | | Docker |
 | `make test-web` | | Unit, page and accessibility tests | Nothing |
 | `make check` | Lint, format check, all tests, 80% coverage gate | Lint with no warnings, typecheck, all tests, 80% coverage gate | Docker |
+| `make e2e` | Runs on port 8029 for the checks | Production build in Chromium at 320, 360, 768 and 1280 px: overflow, 200% text, axe with contrast, keyboard focus | Docker; once `npx playwright install chromium` in the web app |
 
 `make check` also checks that the copied design-system stylesheets match their source and that every PRD requirement still has a spec.
 
@@ -166,12 +171,17 @@ make check     # before every pull request; needs Docker
 | Area | Where | Checks |
 |---|---|---|
 | API capability manifest | `applications/temuriset-api/tests/unit/capabilities/` | Honest `planned` statuses, the three compositions, unknown composition stops startup |
+| API capability guard and configuration | `applications/temuriset-api/tests/unit/capabilities/test_guard.py`, `test_configuration.py` | `CAPABILITY_UNAVAILABLE` before body validation, overrides and dependencies, secrets never logged, development-only scanner |
+| API platform core | `applications/temuriset-api/tests/unit/platform/`, `tests/integration/platform/` | Idempotent replay and conflict, one effect from 20 parallel requests, operations per actor, append-only audit, outbox and worker retries |
 | API errors and contract | `applications/temuriset-api/tests/unit/core/` | Indonesian messages, no leaked values, OpenAPI document, no money-movement routes |
 | API health | `applications/temuriset-api/tests/unit/health/`, `tests/integration/` | Liveness without a database, readiness against real Postgres |
 | Web components | `applications/temuriset-web/tests/components.test.tsx` | Ported design-system components behave as specified |
-| Web pages | `applications/temuriset-web/tests/pages.test.tsx` | Every route, persona redirects, the persona form |
+| Web pages | `applications/temuriset-web/tests/pages.test.tsx` | Every route signed in and out, return after sign-in, settings with organizations and invitations |
+| Portfolio and documents | `applications/temuriset-api/tests/integration/{portfolio,documents}/`, `applications/temuriset-web/tests/{portfolio,documents}.test.tsx`, `e2e/{portfolio,documents}.spec.ts` | Drafts and immutable versions, publication rules, the editor, uploads through scan, grants and revocation |
+| Web sign-in and context | `applications/temuriset-web/tests/auth.test.tsx`, `e2e/auth.spec.ts` | Sign-up for both personas, wrong code focus and attempts left, resend, context switch, invite and accept, sign-out |
 | Web service status | `applications/temuriset-web/tests/service-status.test.tsx` | Available, unreachable with retry, final failure with reference ID |
-| Web accessibility | `applications/temuriset-web/tests/a11y.test.tsx` | axe on every base view (jsdom: contrast and reflow come with spec 003) |
+| Web accessibility | `applications/temuriset-web/tests/a11y.test.tsx` | axe on every base view in jsdom (no layout, so no contrast or reflow) |
+| Browser checks | `applications/temuriset-web/e2e/` | Every route in `e2e/routes.ts` in Chromium: no console error or failed request, one `h1`, no sideways scroll, 200% text, axe with contrast, focus visible and never under the tab bar, skip link |
 | Feature registry | `applications/temuriset-web/tests/registry.test.ts` | Every planned feature, screen coverage, links to existing specs |
 | Design-system copy | `applications/temuriset-web/tests/design.test.ts` | `src/design/*.css` equals the design-system source |
 
@@ -187,6 +197,7 @@ make test-integration                                            # integration o
 npx vitest run tests/pages.test.tsx                 # one file
 npx vitest run -t "starts at Jelajahi"              # tests whose name matches
 npx vitest                                          # watch mode: reruns on save
+npx playwright test e2e/axe.spec.ts --project=chromium-360   # one browser check at one width; needs make build and the API
 ```
 
 ### Coverage reports
@@ -217,6 +228,7 @@ From this folder; `make` alone prints the list.
 | `make test-api` | All API tests, including Postgres integration tests |
 | `make test-web` | Web unit, page and accessibility tests |
 | `make check` | Everything a pull request must pass |
+| `make e2e` | Browser checks in Chromium against a production build |
 | `make stop` | Stop the local Postgres |
 | `make reset-db` | Delete the local database volume and start empty |
 

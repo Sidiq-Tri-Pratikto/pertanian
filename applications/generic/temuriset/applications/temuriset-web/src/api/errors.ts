@@ -11,13 +11,28 @@ export class ApiError extends Error {
   readonly code: string;
   readonly requestId: string | null;
   readonly recovery: Recovery;
+  /** Guesses left for a sign-in code (`CODE_INVALID`). */
+  readonly attemptsLeft: number | null;
+  /** The stored version after `STALE_VERSION`. */
+  readonly currentVersion: number | null;
+  /** Field errors after `VALIDATION_FAILED`. */
+  readonly details: { loc: (string | number)[]; msg: string }[];
 
-  constructor(code: string, message: string, recovery: Recovery, requestId: string | null = null) {
+  constructor(
+    code: string,
+    message: string,
+    recovery: Recovery,
+    requestId: string | null = null,
+    extra: { attemptsLeft?: number | null; currentVersion?: number | null; details?: { loc: (string | number)[]; msg: string }[] } = {},
+  ) {
     super(message);
     this.name = 'ApiError';
     this.code = code;
     this.recovery = recovery;
     this.requestId = requestId;
+    this.attemptsLeft = extra.attemptsLeft ?? null;
+    this.currentVersion = extra.currentVersion ?? null;
+    this.details = extra.details ?? [];
   }
 
   static unreachable(): ApiError {
@@ -46,5 +61,9 @@ export async function readFailure(response: Response): Promise<ApiError> {
   if (!isErrorBody(body)) {
     return ApiError.unexpected();
   }
-  return new ApiError(body.code, body.message, body.recovery ?? { retryable: false }, body.request_id);
+  return new ApiError(body.code, body.message, body.recovery ?? { retryable: false }, body.request_id, {
+    attemptsLeft: body.attempts_left ?? null,
+    currentVersion: body.current_version ?? null,
+    details: (body.details ?? []).map((detail) => ({ loc: detail.loc, msg: detail.msg })),
+  });
 }

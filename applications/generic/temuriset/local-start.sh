@@ -45,6 +45,7 @@ cleanup() {
   trap - EXIT INT TERM
   say "Stopping"
   if [ -n "${API_PID:-}" ]; then kill -- "-$API_PID" 2>/dev/null || true; fi
+  if [ -n "${WORKER_PID:-}" ]; then kill "$WORKER_PID" 2>/dev/null || true; fi
   make -C "$API_DIR" stop-dependencies >/dev/null 2>&1 || true
 }
 
@@ -62,9 +63,9 @@ say "[2/4] Starting Postgres on port 5442 and applying migrations"
 make -C "$API_DIR" run-dependencies >/dev/null 2>&1 || die "Postgres did not start. Is port 5442 already in use?"
 make -C "$API_DIR" migrate >/dev/null
 
-say "[3/4] Starting API on port $API_PORT"
+say "[3/4] Starting API on port $API_PORT and the worker"
 set -m # Own process group, so cleanup also stops uvicorn's reloader.
-make -C "$API_DIR" run PORT="$API_PORT" &
+WEB_ORIGIN="http://localhost:$WEB_PORT" make -C "$API_DIR" run PORT="$API_PORT" &
 API_PID=$!
 set +m
 
@@ -74,6 +75,10 @@ for _ in $(seq 1 30); do
 done
 curl -sf "http://127.0.0.1:$API_PORT/health/ready" >/dev/null || die "The API did not become ready. See its log above."
 
+# The worker scans uploads and reads their text; without it every file stays in quarantine.
+(cd "$API_DIR" && exec .venv/bin/python -m app.worker) &
+WORKER_PID=$!
+
 say "[4/4] Starting web app on port $WEB_PORT"
 cat <<READY
 
@@ -81,7 +86,7 @@ cat <<READY
   API docs   http://localhost:$API_PORT/docs
   Health     http://localhost:$API_PORT/health/ready
 
-  Ctrl+C stops the web app, the API and Postgres.
+  Ctrl+C stops the web app, the API, the worker and Postgres.
 
 READY
 API_URL="http://localhost:$API_PORT" make -C "$WEB_DIR" run PORT="$WEB_PORT"

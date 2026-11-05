@@ -2,7 +2,7 @@
 
 **Feature Branch**: `008-web-auth-context`
 **Created**: 2026-11-05
-**Status**: Seeded, not started
+**Status**: Built, awaiting review
 **Milestone**: M1 Identity and access
 **Depends on**: 002, 007
 **Size**: L

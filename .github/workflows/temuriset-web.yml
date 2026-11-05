@@ -33,3 +33,49 @@ jobs:
       - run: make build
       - run: npm audit --omit=dev --audit-level=high
       - run: python3 ../../docs/roadmap/check_traceability.py
+
+  # Spec 003: Chromium against `next build` + `next start` and a live API, at 320, 360, 768 and 1280 px.
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: applications/generic/temuriset
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: app
+          POSTGRES_PASSWORD: app
+          POSTGRES_DB: app
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U app"
+          --health-interval 2s
+          --health-timeout 2s
+          --health-retries 15
+    env:
+      DATABASE_URL: postgresql+asyncpg://app:app@localhost:5432/app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: applications/generic/temuriset/applications/temuriset-web/.nvmrc
+          cache: npm
+          cache-dependency-path: applications/generic/temuriset/applications/temuriset-web/package-lock.json
+      - run: uv sync --frozen
+        working-directory: applications/generic/temuriset/applications/temuriset-api
+      - run: npm ci
+        working-directory: applications/generic/temuriset/applications/temuriset-web
+      - run: make e2e-install
+        working-directory: applications/generic/temuriset/applications/temuriset-web
+      # The Postgres service replaces `make run-dependencies`.
+      - run: make e2e API_DEPENDENCIES=
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: applications/generic/temuriset/applications/temuriset-web/playwright-report
+          retention-days: 14

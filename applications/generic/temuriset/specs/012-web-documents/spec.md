@@ -2,7 +2,7 @@
 
 **Feature Branch**: `012-web-documents`
 **Created**: 2026-11-05
-**Status**: Seeded, not started
+**Status**: Built, awaiting review
 **Milestone**: M2 Portfolio and evidence
 **Depends on**: 010, 011
 **Size**: M

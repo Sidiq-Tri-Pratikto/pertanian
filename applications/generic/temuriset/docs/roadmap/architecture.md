@@ -57,7 +57,7 @@ Created by the spec named. Every table has `id` (UUID), `created_at` and, when m
 | `outbox_events` | `topic`, `payload` JSONB, `available_at`, `attempts`, `dispatched_at`, `last_error_code` | 005 |
 | `outbox_deliveries` | `event_id`, `consumer`; unique pair, so consumers are idempotent | 005 |
 | `jobs` | `kind`, `status` (`PENDING`, `RUNNING`, `SUCCEEDED`, `FAILED`, `CANCELLED`, `NEEDS_MANUAL_INPUT`), `actor_party_id`, `input`, `result_ref`, `attempts`, `run_after` | 005 |
-| `accounts` | `email` (citext, unique), `email_verified_at`, `display_name`, `locale`, `time_zone`, `persona` (`inovator`, `mitra`), `kind` (`user`, `demo`), `status` | 006 |
+| `accounts` | `email` (stored trimmed and lower-case, unique; no `citext` extension needed), `email_verified_at`, `display_name`, `locale`, `time_zone`, `persona` (`inovator`, `mitra`), `kind` (`user`, `demo`), `status` | 006 |
 | `email_codes` | `account_id` or `email`, `code_sha256`, `purpose`, `expires_at`, `attempts`, `consumed_at` | 006 |
 | `sessions` | `account_id`, `token_sha256` (unique), `active_party_id`, `expires_at`, `revoked_at`, `last_seen_at` | 006 |
 | `mailbox_messages` | Development and test mailbox only: `to_email`, `subject`, `body`, `created_at` | 006 |
@@ -79,10 +79,11 @@ Created by the spec named. Every table has `id` (UUID), `created_at` and, when m
 | `legal_entities` | `name`, `jurisdiction`, `registration_ref`, `review_status` (`declared`, `reviewed`) | 014 |
 | `funding_requests` | `owner_party_id`, `subject_type` (`EXISTING_ENTITY`, `PROPOSED_ENTITY`), `legal_entity_id`, `financing_stage`, `financing_form`, `target_amount`, `currency`, `desired_min`, `desired_max`, `accepts_partial`, `intended_use`, `timing`, `status`; `legal_entity_id` required for `EXISTING_ENTITY` | 014 |
 | `funding_invention_links` | `funding_request_id`, `invention_version_id`; unique pair | 014 |
-| `partner_profiles` | `party_id` (unique), `subtype`, `thesis`, `sectors`, `stages`, `regions`, `support_forms`, `check_min`, `check_max`, `currency`, `intake_status` (`OPEN`, `CLOSED`, `UNCONFIRMED`), `source` (`OWNER_CONFIRMED`, `SOURCE_REPORTED`), `contact_route` (`IN_APP`, `EXTERNAL`, `NONE`), `external_url`, `general_intake_version_id` | 016 |
-| `opportunities` | `partner_party_id`, `status` (`DRAFT`, `ACTIVE`, `PAUSED`, `CLOSED`, `EXPIRED`), `current_version_id`, `closes_at` | 016 |
-| `opportunity_versions` | `opportunity_id`, `number`, `title`, `outcome`, `included`, `excluded`, `support`, `accepted_stages`, `relationship_forms`, `sectors`, `keywords`, `financial` JSONB, `timing` | 016 |
-| `requirements` | `opportunity_version_id`, `label`, `field`, `operator` (`equals`, `in_set`, `intersects`, `minimum`, `maximum`, `range_overlap`, `exists`, `manual_review`), `value` JSONB, `mandatory`, `applies_at` (`SUBMISSION`, `DISCUSSION`, `PILOT`, `COMMERCIALIZATION`), `verification_mode` (`DECLARATION`, `DOCUMENT_PRESENT`, `REVIEWER_CONFIRMED`), `reason` | 016 |
+| `partner_profiles` | `party_id` (unique), `subtype`, `thesis`, `sectors`, `stages`, `regions`, `support_forms`, `relationship_forms`, `review_expectations`, `check_min`, `check_max`, `currency`, `range_subject`, `range_basis`, `range_period`, `range_months`, `unknown_reason`, `intake_status` (`OPEN`, `CLOSED`, `UNCONFIRMED`), `intake_from`, `intake_until`, `source` (`OWNER_CONFIRMED`, `SOURCE_REPORTED`), `contact_route` (`IN_APP`, `EXTERNAL`, `NONE`), `external_url`, `general_intake_version_id` | 016 |
+| `opportunities` | `partner_party_id`, `kind` (`SPECIFIC`, `GENERAL_INTAKE`), `status` (`DRAFT`, `ACTIVE`, `PAUSED`, `CLOSED`, `EXPIRED`), `current_version_id`, `closes_at`; at most one open `GENERAL_INTAKE` per partner | 016 |
+| `opportunity_versions` | `opportunity_id`, `number`, `title`, `outcome`, `included`, `excluded`, `support`, `accepted_stages`, `relationship_forms`, `sectors`, `keywords`, `financial` JSONB (`subject`, `basis`, `min`, `max`, `currency`, `period`, `months`, `scope`, `noncash`, `terms`, `unknown_reason`), `timing` | 016 |
+| `requirements` | `opportunity_version_id`, `position`, `label`, `field`, `operator` (`equals`, `in_set`, `intersects`, `minimum`, `maximum`, `range_overlap`, `exists`, `manual_review`), `value` JSONB, `mandatory`, `applies_at` (`SUBMISSION`, `DISCUSSION`, `PILOT`, `COMMERCIALIZATION`), `verification_mode` (`DECLARATION`, `DOCUMENT_PRESENT`, `REVIEWER_CONFIRMED`), `visibility` (`PUBLIC`, `PARTNER_ONLY`), `reason`; `CHECK (NOT mandatory OR visibility = 'PUBLIC')` | 016 |
+| `external_handoffs` | `partner_party_id`, `actor_party_id`, `external_url`; append-only, and never a pitch | 016 |
 | `search_documents` | `subject_type`, `subject_id`, `version_id`, `title`, `body`, `tsv` (generated `tsvector`), `filters` JSONB, `published_at`, `curated`; GIN index | 018 |
 | `saved_items`, `relevance_feedback` | `party_id`, `subject_type`, `subject_id`; unique | 018 |
 | `match_runs` | `actor_party_id`, `source_type`, `source_id`, `source_version`, `engine`, `policy_versions`, `created_at` | 019 |
@@ -125,11 +126,11 @@ Deny by default, in one policy module, `app/access/service/policy.py`. A route a
 
 ### Versions and concurrency
 
-Every mutable aggregate has `version`. Mutations send `expected_version`; a mismatch returns `STALE_VERSION` with the current version and never overwrites. Published content is immutable: an edit creates a draft successor. Submissions freeze references to exact versions plus a JSONB snapshot of the facts shown, so history never changes when a profile does (AC08).
+Every mutable aggregate has `version`. Mutations send `expected_version`; a mismatch returns `STALE_VERSION` with the current version and never overwrites. A published invention is immutable: an edit creates a draft successor. Support requests, funding requests and opportunities have no draft successor: a save on a live one creates the next version, current at once, and earlier versions stay frozen. Submissions freeze references to exact versions plus a JSONB snapshot of the facts shown, so history never changes when a profile does (AC08).
 
 ### Idempotency and operations
 
-Consequential POSTs require `Idempotency-Key`. The record stores a SHA-256 of actor, operation and canonical body. Same key and same body replays the stored response with `Idempotent-Replayed: true`. Same key and a different body returns `IDEMPOTENCY_CONFLICT`. Records live seven days (policy `idempotency-retention` v1). Every consequential response carries `operation_id`. `GET /api/v1/operations/{id}` reports `PENDING`, `COMMITTED` with a result reference, or `UNKNOWN`, and never reveals another actor's operation. A client that never received a response retries with the same key.
+Consequential POSTs require `Idempotency-Key`. The record stores a SHA-256 of actor, operation, path and canonical body. Same key, path and body replays the stored response with `Idempotent-Replayed: true`. Same key and a different path or body returns `IDEMPOTENCY_CONFLICT`, so a key reused on another resource is never answered with the first resource's response. Records live seven days (policy `idempotency-retention` v1). Every consequential response carries `operation_id`. `GET /api/v1/operations/{id}` reports `PENDING`, `COMMITTED` with a result reference, or `UNKNOWN`, and never reveals another actor's operation. A client that never received a response retries with the same key.
 
 ### Audit, outbox and the worker
 
@@ -163,9 +164,21 @@ Accepting a slot inserts a booking for every required party inside the request's
 
 A partnership version is identified by a checksum of its values and ceiling. Confirmations bind to that version, so a correction starts a new version with no confirmations. Public fields are computed on read: the intersection of both parties' subsets within the ceiling, minus restrictions. Narrowing appends a restriction and takes effect on the next read. EQUITY needs an identified legal entity and dated optional percentage permission.
 
+### Partner intake
+
+Mandates are changed with `edit_portfolio`, the only edit capability 007 defines. In an organization that is both inventor and partner, an invention editor can also publish a mandate, so review this when a second edit capability is justified.
+
+A profile has no draft state: others read it once it is saved. Others never reach a `DRAFT` opportunity or an earlier version, and read every other status of the current one. A save on an `ACTIVE` or `PAUSED` opportunity passes the same check as activation: a saved profile, every field a partner must state, and a reason on every mandatory requirement. `SOURCE_REPORTED` profiles are written only through `IntakeService.record_directory_profile`, so nobody can claim a source through the API. The first profile save sends a null `expected_version`, and the loser of two first saves gets `STALE_VERSION`.
+
+A cash range always states subject, basis and period, and a `total_period` range also states `months`, because `directly_comparable` compares months and not period text. `per_investment` extends the project budget's bases for one investor's check, with the period `per investasi`.
+
+A mandatory requirement is always `PUBLIC`, so no secret criterion can reject a pitch. A requirement with no operator is stored as a non-mandatory `narrative` `manual_review`.
+
+`IntakeService.target_availability` is the one answer to whether a pitch may target an opportunity, and 019 and 023 call it. Checks run in order, and the first that fails gives the reason: not `ACTIVE` is `TARGET_NOT_ACTIVE`, an `EXTERNAL` route is `EXTERNAL_ROUTE`, a `NONE` route is `NO_NEW_APPROACHES`. A general intake also needs direct intake open: `CLOSED` is `DIRECT_INTAKE_CLOSED`, and `UNCONFIRMED` or a date outside `intake_from` and `intake_until` is `INTAKE_UNCONFIRMED`. A specific opportunity ignores direct intake (AC23). An external route blocks in-app pitching and offers the handoff instead.
+
 ### Capabilities and compositions
 
-`company_funding` and `organization_review` are optional capabilities; AI summary, external email and external calendar join as adapters in 042–044. A disabled capability is refused at the service boundary by one dependency, `require_capability`, with `CAPABILITY_UNAVAILABLE` (HTTP 403, not retryable), wherever the request comes from. The manifest explains; it never grants. Startup refuses an unknown composition, a missing core, an unsupported combination, or a secret written into composition config (AC69).
+`company_funding` and `organization_review` are optional capabilities; AI summary, external email and external calendar join as adapters in 042–044. A disabled capability is refused at the service boundary by one dependency, `require_capability`, with `CAPABILITY_UNAVAILABLE` (HTTP 403, not retryable), wherever the request comes from. The manifest explains; it never grants. Startup refuses an unknown composition, a missing core, an unsupported combination, or a secret written into composition config (AC69). Funding mutations carry the guard; funding reads do not, so owners keep reading their records when the capability is off (AC67 overrides the wording of 014 FR-004).
 
 ### Web client
 
@@ -182,6 +195,10 @@ A partnership version is identified by a checksum of its values and ceiling. Con
 | D1 | `.tr-choice:has(input:checked)` in `src/design/app.css` | TR.ChoiceGroup sets `.is-selected` from JavaScript; server-rendered forms need a CSS selector | The design system adds the selector |
 | D2 | `.tr-tabbar__item` keeps whole words and drops side padding | At 320 px the design system split "Temukan" across lines | The design system fixes the tab bar |
 | D3 | `Screen` takes real links instead of `onNavigate` | Next.js routing and prefetch | Never; documented port |
+| D4 | `Screen` scrolls a focused control clear of the sticky tab bar | Chrome does not scroll a partly visible control, so a tall textarea took focus under the bar at 360 px (found by the 003 keyboard check) | The design system handles focus scrolling |
+| D5 | `Checkbox.Group` is the named export `CheckboxGroup`, and `FundingRequestCard` takes linked inventions as nodes, not only titles | Static members do not survive a `'use client'` boundary; S07 links each invention so Back returns to the raise | Never; documented port |
+| D6 | `RequirementRow` takes an optional `headingLevel` | S09 places rows directly under a section heading, so a fixed `h4` would skip a level | The design system adds the prop |
+| D7 | `Link` runs `onClick` beside the navigation instead of preventing it | D3 chose real links; following an external route must both open the site and record the handoff | Never; documented port |
 
 ## API conventions
 

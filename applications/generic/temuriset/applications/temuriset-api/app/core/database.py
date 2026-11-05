@@ -1,19 +1,39 @@
 """Async database engine and session management."""
 
 from collections.abc import AsyncIterator
+from datetime import datetime
 from functools import lru_cache
 from typing import Annotated
+from uuid import UUID, uuid4
 
 from fastapi import Depends
+from sqlalchemy import DateTime
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
-from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
+from app.core import clock
 from app.core.errors.database import DatabaseUnavailableError
 from app.core.settings import get_settings
 
 
 class Base(DeclarativeBase):
-    """Declarative base for ORM models."""
+    """Declarative base for ORM models. Every timestamp is ``timestamptz``."""
+
+    type_annotation_map = {datetime: DateTime(timezone=True)}
+
+
+class Row:
+    """Columns every table has: a UUID id and the product time it was created."""
+
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    created_at: Mapped[datetime] = mapped_column(default=clock.now)
+
+
+class MutableRow(Row):
+    """Columns every mutable table adds: when it last changed and its version for ``expected_version``."""
+
+    updated_at: Mapped[datetime] = mapped_column(default=clock.now, onupdate=clock.now)
+    version: Mapped[int] = mapped_column(default=1, server_default="1")
 
 
 @lru_cache

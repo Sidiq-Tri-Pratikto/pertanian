@@ -2,7 +2,7 @@
 
 **Feature Branch**: `009-inventions-api`
 **Created**: 2026-11-05
-**Status**: Seeded, not started
+**Status**: Built, awaiting review
 **Milestone**: M2 Portfolio and evidence
 **Depends on**: 007
 **Size**: L

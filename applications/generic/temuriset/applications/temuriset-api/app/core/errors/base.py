@@ -48,18 +48,28 @@ class AppError(Exception):
         reference_id (str): Failure occurrence ID, preserved through wrapping.
         debug_info (DebugInfo): Sanitized diagnostics.
         recovery (RecoveryInfo): Retry guidance.
+        public_fields (dict[str, Any]): Safe fields added to the public envelope, such as ``current_version``
+            or field ``details``. Never derived from exception text.
     """
 
     code: ClassVar[str] = codes.APP_UNKNOWN
 
-    def __init__(self, message: str | None = None, *, error: BaseException | None = None) -> None:
+    def __init__(
+        self,
+        message: str | None = None,
+        *,
+        error: BaseException | None = None,
+        public_fields: dict[str, Any] | None = None,
+    ) -> None:
         """Initialize a typed failure.
 
         Args:
             message (str | None, optional): Safe message replacing the catalog default. Defaults to None.
             error (BaseException | None, optional): The cause. Defaults to None.
+            public_fields (dict[str, Any] | None, optional): Safe fields for the envelope. Defaults to None.
         """
         self.error = error
+        self.public_fields = dict(public_fields or {})
         wrapped = error if isinstance(error, AppError) else None
         if wrapped is not None and type(self).code == codes.APP_UNKNOWN:
             self.code = wrapped.code
@@ -68,6 +78,8 @@ class AppError(Exception):
         self.message = public.message if message is None else message
         self.recovery = cast(RecoveryInfo, dict(public.recovery))
         self.reference_id = wrapped.reference_id if wrapped is not None else new_reference_id()
+        if wrapped is not None and not self.public_fields:
+            self.public_fields = dict(wrapped.public_fields)
         self._recorded = wrapped._recorded if wrapped is not None else False
         self.debug_info = self._build_debug_info(wrapped)
         super().__init__(self.message)
@@ -120,3 +132,35 @@ class ConflictError(AppError):
     """The request conflicts with current state."""
 
     code = codes.APP_CONFLICT
+
+
+class UnauthenticatedError(AppError):
+    """The request has no live session."""
+
+    code = codes.APP_UNAUTHENTICATED
+
+
+class ForbiddenError(AppError):
+    """The caller may see the resource but not do this."""
+
+    code = codes.APP_FORBIDDEN
+
+
+class FieldsInvalidError(AppError):
+    """A business rule on named fields failed; ``details`` carries one Indonesian message per field."""
+
+    code = codes.APP_FIELDS_INVALID
+
+    def __init__(self, details: list[dict]) -> None:
+        """Carry the field errors.
+
+        Args:
+            details (list[dict]): ``loc``, ``msg`` and ``type`` per field.
+        """
+        super().__init__(public_fields={"details": details})
+
+
+class InvalidTransitionError(AppError):
+    """The requested status change is not allowed from the current status."""
+
+    code = codes.APP_INVALID_TRANSITION

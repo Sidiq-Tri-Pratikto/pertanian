@@ -3,12 +3,82 @@ import userEvent from '@testing-library/user-event';
 
 import { Button } from '@/components/tr/Button';
 import { ChoiceGroup } from '@/components/tr/ChoiceGroup';
+import { Disclosure } from '@/components/tr/Disclosure';
 import { EmptyState } from '@/components/tr/EmptyState';
+import { Link } from '@/components/tr/Link';
 import { NextStep } from '@/components/tr/NextStep';
+import { RequirementRow } from '@/components/tr/RequirementRow';
 import { Screen } from '@/components/tr/Screen';
 import { Status } from '@/components/tr/Status';
 
 describe('TR component ports', () => {
+  it('RequirementRow says "Tidak berlaku" with stage, weight, mode and reason, so no pass or fail is implied', () => {
+    render(
+      <ul>
+        <RequirementRow label="Berkas uji fungsi" result="NOT_APPLICABLE" stage="SUBMISSION" mandatory mode="DOCUMENT_PRESENT" reason="Mitra perlu melihat bukti." />
+      </ul>,
+    );
+
+    expect(screen.getByRole('heading', { level: 4, name: 'Berkas uji fungsi' })).toBeInTheDocument();
+    expect(screen.getByText('Tidak berlaku')).toBeInTheDocument();
+    expect(screen.getByText('Saat pengajuan · Wajib · Dokumen tersedia')).toBeInTheDocument();
+    expect(screen.getByText('Mitra perlu melihat bukti.')).toBeInTheDocument();
+  });
+
+  it('RequirementRow marks later-stage work as not blocking, takes a heading level, and shows its action', () => {
+    render(
+      <ul>
+        <RequirementRow headingLevel={3} label="Sertifikat" result="NOT_APPLICABLE" stage="COMMERCIALIZATION" mandatory={false} mode="REVIEWER_CONFIRMED" action={<span>Ditinjau manual</span>} />
+      </ul>,
+    );
+
+    expect(screen.getByRole('heading', { level: 3, name: 'Sertifikat' })).toBeInTheDocument();
+    expect(screen.getByText('Saat komersialisasi · Preferensi · Diperiksa peninjau')).toBeInTheDocument();
+    expect(screen.getByText('Untuk tahap berikutnya. Tidak menghalangi pengajuan.')).toBeInTheDocument();
+    expect(screen.getByText('Ditinjau manual')).toBeInTheDocument();
+  });
+
+  it('Disclosure opens on demand and can start open', async () => {
+    render(
+      <>
+        <Disclosure label="Syarat">Isi tertutup</Disclosure>
+        <Disclosure label="Lainnya" defaultOpen>
+          Isi terbuka
+        </Disclosure>
+      </>,
+    );
+
+    const details = screen.getByText('Syarat').closest('details');
+    expect(details).not.toHaveAttribute('open');
+    expect(screen.getByText('Lainnya').closest('details')).toHaveAttribute('open');
+    await userEvent.click(screen.getByText('Syarat'));
+    expect(details).toHaveAttribute('open');
+  });
+
+  it('Link keeps a real address, says when it leaves the site, and adds hidden context', async () => {
+    const onClick = vi.fn();
+    render(
+      <Link href="https://example.org/formulir" external context="milik mitra" onClick={onClick}>
+        Buka formulir
+      </Link>,
+    );
+
+    const link = screen.getByRole('link', { name: /Buka formulir.*milik mitra.*membuka situs lain/ });
+    expect(link).toHaveAttribute('href', 'https://example.org/formulir');
+    expect(link).toHaveAttribute('target', '_blank');
+    expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+    // Runs after React's handler, and stops jsdom trying to navigate.
+    let prevented: boolean | undefined;
+    const afterReact = (event: Event) => {
+      prevented = event.defaultPrevented;
+      event.preventDefault();
+    };
+    window.addEventListener('click', afterReact, { once: true });
+    await userEvent.click(link);
+    expect(prevented).toBe(false);
+    expect(onClick).toHaveBeenCalledTimes(1);
+  });
+
   it('Status carries meaning in words and announces when live', () => {
     render(<Status tone="warning" label="Belum diketahui" live="alert" />);
 

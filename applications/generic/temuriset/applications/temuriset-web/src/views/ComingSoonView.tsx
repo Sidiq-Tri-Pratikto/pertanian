@@ -3,19 +3,22 @@ import Link from 'next/link';
 import { EmptyState } from '@/components/tr/EmptyState';
 import { Screen } from '@/components/tr/Screen';
 import { Status } from '@/components/tr/Status';
-import { homeFor, type Persona } from '@/features/persona';
+import type { Me } from '@/api/client';
+import { ContextBar } from '@/features/ContextBar';
+import { homeFor, readPersona } from '@/features/persona';
 import type { Feature } from '@/features/registry';
-import { PersonaContext, PROVENANCE } from '@/views/parts';
+import { PROVENANCE } from '@/views/parts';
 
 type ComingSoonViewProps = {
-  persona: Persona;
+  me: Me;
   feature: Feature | undefined;
   /** Engineers see the spec folders in development builds only. */
   showSpecs?: boolean;
 };
 
 /** What a planned feature will do. Nothing here creates or stores data. */
-export function ComingSoonView({ persona, feature, showSpecs = false }: ComingSoonViewProps) {
+export function ComingSoonView({ me, feature, showSpecs = false }: ComingSoonViewProps) {
+  const persona = readPersona(me.account.persona) ?? 'inovator';
   const home = homeFor(persona);
   const back = (
     <Link className="tr-link" href={home}>
@@ -25,7 +28,7 @@ export function ComingSoonView({ persona, feature, showSpecs = false }: ComingSo
 
   if (!feature) {
     return (
-      <Screen persona={persona} title="Fitur tidak dikenal" provenance={PROVENANCE} context={<PersonaContext persona={persona} />}>
+      <Screen persona={persona} title="Fitur tidak dikenal" provenance={PROVENANCE} context={<ContextBar me={me} />}>
         <EmptyState
           icon="question"
           title="Alamat ini tidak menunjuk ke fitur yang direncanakan"
@@ -47,7 +50,7 @@ export function ComingSoonView({ persona, feature, showSpecs = false }: ComingSo
       subtitle={feature.summary}
       back={back}
       provenance={PROVENANCE}
-      context={<PersonaContext persona={persona} />}>
+      context={<ContextBar me={me} />}>
       <Status tone="neutral" label="Segera hadir">
         <p>Fitur ini belum tersedia pada versi ini. Tidak ada data yang dibuat atau disimpan.</p>
       </Status>

@@ -1,6 +1,7 @@
 """Application settings, validated at startup."""
 
 from functools import lru_cache
+from typing import Literal
 
 from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -16,9 +17,20 @@ class Settings(BaseSettings):
         database_url (SecretStr): Async SQLAlchemy connection URL. Required.
         cors_allowed_origins (list[str]): Browser origins allowed to call the API. Native clients need none.
         composition (str): Supported product composition; an unknown value stops startup.
+        composition_overrides (dict[str, bool]): Capabilities switched on or off on top of the composition.
+        file_scanner (str): Upload scanner adapter; ``development-accept`` is refused outside development.
+        web_origin (str): The web client's origin. Unsafe requests carrying a session must come from it.
+        session_cookie_secure (bool | None): ``Secure`` flag on the session cookie; None means outside development.
+        mailbox_adapter (str): Email delivery; ``development`` writes to a table and is refused outside development.
+        code_requests_per_email_per_hour (int): Sign-in code requests allowed per email in an hour.
+        code_requests_per_address_per_hour (int): Sign-in code requests allowed per client address in an hour.
+        storage_path (str): Folder of the local storage adapter; bytes never get a public URL.
+        clamav_host (str): ClamAV daemon host for ``FILE_SCANNER=clamav``.
+        clamav_port (int): ClamAV daemon port.
     """
 
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    # A rejected value never appears in the startup error, so a secret pasted into the wrong setting stays out of logs.
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore", hide_input_in_errors=True)
 
     service_name: str = "temuriset-api"
     environment: str = "development"
@@ -26,6 +38,27 @@ class Settings(BaseSettings):
     database_url: SecretStr
     cors_allowed_origins: list[str] = []
     composition: str = "generic-base"
+    composition_overrides: dict[str, bool] = {}
+    file_scanner: Literal["clamav", "development-accept"] = "development-accept"
+    web_origin: str = "http://localhost:3020"
+    session_cookie_secure: bool | None = None
+    mailbox_adapter: Literal["development"] = "development"
+    code_requests_per_email_per_hour: int = 5
+    code_requests_per_address_per_hour: int = 20
+    storage_path: str = ".storage"
+    clamav_host: str = "localhost"
+    clamav_port: int = 3310
+
+    @property
+    def cookie_secure(self) -> bool:
+        """Whether the session cookie is ``Secure``.
+
+        Returns:
+            bool: The explicit setting, or True outside development.
+        """
+        return (
+            self.session_cookie_secure if self.session_cookie_secure is not None else self.environment != "development"
+        )
 
 
 @lru_cache

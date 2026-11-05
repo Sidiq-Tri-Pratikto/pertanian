@@ -19,12 +19,17 @@ CORE = "core"
 # Status moves here feature by feature, in the pull request that ships it. Nothing may claim more than exists.
 CAPABILITIES = {
     CORE: CapabilityResponse(id=CORE, optional=False, status=CapabilityStatus.PLANNED),
-    "company_funding": CapabilityResponse(id="company_funding", optional=True, status=CapabilityStatus.PLANNED),
+    "company_funding": CapabilityResponse(id="company_funding", optional=True, status=CapabilityStatus.AVAILABLE),
     "organization_review": CapabilityResponse(id="organization_review", optional=True, status=CapabilityStatus.PLANNED),
+    # Gated retrieval (spec 045); no composition selects them, but an override may.
+    "dense_retrieval": CapabilityResponse(id="dense_retrieval", optional=True, status=CapabilityStatus.PLANNED),
+    "reranking": CapabilityResponse(id="reranking", optional=True, status=CapabilityStatus.PLANNED),
 }
+# A capability works only beside the ones it builds on.
+DEPENDENCIES: dict[str, tuple[str, ...]] = {"reranking": ("dense_retrieval",)}
 ADAPTERS = (
-    AdapterResponse(id="object-storage", status=CapabilityStatus.PLANNED),
-    AdapterResponse(id="file-scanner", status=CapabilityStatus.PLANNED),
+    AdapterResponse(id="object-storage", status=CapabilityStatus.AVAILABLE),
+    AdapterResponse(id="file-scanner", status=CapabilityStatus.AVAILABLE),
     AdapterResponse(id="lexical-rules", status=CapabilityStatus.PLANNED),
     AdapterResponse(id="ics-export", status=CapabilityStatus.PLANNED),
 )
@@ -51,35 +56,64 @@ def validate_composition(capability_ids: tuple[str, ...]) -> None:
         capability_ids (tuple[str, ...]): The selected capabilities.
 
     Raises:
-        ValueError: When the core is missing or a capability is unknown.
+        ValueError: When the core is missing, a capability is unknown, or a dependency is not selected.
     """
     if CORE not in capability_ids:
         raise ValueError("The portfolio, matching and collaboration core is required.")
     unknown = sorted(set(capability_ids) - set(CAPABILITIES))
     if unknown:
         raise ValueError(f"Unsupported capabilities: {', '.join(unknown)}.")
+    for capability_id in capability_ids:
+        missing = [needed for needed in DEPENDENCIES.get(capability_id, ()) if needed not in capability_ids]
+        if missing:
+            raise ValueError(f"Capability {capability_id} needs {', '.join(missing)}.")
 
 
-def build_manifest(composition_id: str) -> CapabilityManifestResponse:
+def select_capabilities(composition_id: str, overrides: dict[str, bool] | None = None) -> tuple[str, ...]:
+    """Resolve the capabilities a deployment runs: its composition, then any overrides.
+
+    Args:
+        composition_id (str): A supported composition.
+        overrides (dict[str, bool] | None, optional): Capabilities to switch on (True) or off (False).
+            Defaults to None.
+
+    Returns:
+        tuple[str, ...]: The selected capability ids, in catalog order.
+
+    Raises:
+        ValueError: When the composition is unsupported or the result is not a supported selection.
+    """
+    if composition_id not in COMPOSITIONS:
+        raise ValueError(f"Unsupported composition: {composition_id}.")
+    selected = set(COMPOSITIONS[composition_id][1])
+    unknown = sorted(set(overrides or {}) - set(CAPABILITIES))
+    if unknown:
+        raise ValueError(f"Unsupported capabilities: {', '.join(unknown)}.")
+    for capability_id, enabled in (overrides or {}).items():
+        (selected.add if enabled else selected.discard)(capability_id)
+    capability_ids = tuple(capability_id for capability_id in CAPABILITIES if capability_id in selected)
+    validate_composition(capability_ids)
+    return capability_ids
+
+
+def build_manifest(composition_id: str, overrides: dict[str, bool] | None = None) -> CapabilityManifestResponse:
     """Build the manifest for one composition.
 
     Args:
         composition_id (str): A supported composition.
+        overrides (dict[str, bool] | None, optional): Capability overrides. Defaults to None.
 
     Returns:
-        CapabilityManifestResponse: The manifest.
+        CapabilityManifestResponse: The manifest. A capability that is not selected is absent, not ``planned``.
 
     Raises:
-        ValueError: When the composition is not supported.
+        ValueError: When the composition or the overrides are not supported.
     """
-    if composition_id not in COMPOSITIONS:
-        raise ValueError(f"Unsupported composition: {composition_id}.")
-    version, capability_ids = COMPOSITIONS[composition_id]
-    validate_composition(capability_ids)
+    capability_ids = select_capabilities(composition_id, overrides)
     return CapabilityManifestResponse(
         schema_version=MANIFEST_SCHEMA_VERSION,
         source_release=SOURCE_RELEASE,
-        composition=CompositionResponse(id=composition_id, version=version),
+        composition=CompositionResponse(id=composition_id, version=COMPOSITIONS[composition_id][0]),
         default_locale=DEFAULT_LOCALE,
         supported_currencies=list(SUPPORTED_CURRENCIES),
         capabilities=[CAPABILITIES[capability_id] for capability_id in capability_ids],

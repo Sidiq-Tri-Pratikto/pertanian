@@ -4,6 +4,87 @@
  */
 
 export interface paths {
+    "/api/v1/auth/code": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Email a sign-in code
+         * @description Email a six-digit code. The answer is the same whether or not the email has an account.
+         *
+         *     Args:
+         *         body (CodeRequest): Email, purpose and, for sign-up, the profile.
+         *         request (Request): The request.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         CodeSentResponse: Always ``{"sent": true}``.
+         */
+        post: operations["request_code_api_v1_auth_code_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/sign-out": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Sign out
+         * @description Revoke this session and clear its cookie.
+         *
+         *     Args:
+         *         principal (PrincipalDep): Who is signed in.
+         *         response (Response): Clears the cookie.
+         *         session (SessionDep): Database session.
+         */
+        post: operations["sign_out_api_v1_auth_sign_out_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Verify a code and sign in
+         * @description Check the code, start a session cookie and return the account.
+         *
+         *     Args:
+         *         body (VerifyRequest): Email and code.
+         *         response (Response): Carries the session cookie.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         MeResponse: The signed-in account.
+         */
+        post: operations["verify_api_v1_auth_verify_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/capabilities": {
         parameters: {
             query?: never;
@@ -19,6 +100,1448 @@ export interface paths {
          *         CapabilityManifestResponse: The manifest.
          */
         get: operations["get_capabilities_api_v1_capabilities_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dev/mailbox": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read the development mailbox
+         * @description Return the newest messages sent to an email, so sign-in can be tested without real email.
+         *
+         *     Args:
+         *         email (Email): Recipient.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         list[MailboxMessageResponse]: Newest first.
+         */
+        get: operations["read_mailbox_api_v1_dev_mailbox_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/documents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List my documents
+         * @description List the acting party's documents.
+         *
+         *     Args:
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         list[DocumentResponse]: Documents with versions and grants.
+         */
+        get: operations["list_documents_api_v1_documents_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/documents/upload-intents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Declare an upload
+         * @description Refuse an unsupported type or a size over the limit before any byte is sent.
+         *
+         *     Args:
+         *         body (UploadIntentRequest): Title, kind, media type and size.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         UploadIntentResponse: Where to send the bytes.
+         */
+        post: operations["create_upload_intent_api_v1_documents_upload_intents_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/documents/upload-intents/{intent_id}/content": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Send the bytes
+         * @description Stream the file into quarantine; it becomes available only after the scan.
+         *
+         *     Args:
+         *         intent_id (UUID): The intent.
+         *         request (Request): The streamed body.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         UploadedResponse: The new version and its file state.
+         */
+        put: operations["upload_content_api_v1_documents_upload_intents__intent_id__content_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/documents/{document_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read a document as its owner
+         * @description Read versions, their three states, and grants.
+         *
+         *     Args:
+         *         document_id (UUID): The document.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         DocumentResponse: The document.
+         */
+        get: operations["read_document_api_v1_documents__document_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/documents/{document_id}/grants": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Share one version
+         * @description Share one version with one party for one purpose.
+         *
+         *     Args:
+         *         document_id (UUID): The document.
+         *         body (GrantRequest): Version, grantee and purpose.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         GrantResponse: The grant.
+         */
+        post: operations["grant_document_api_v1_documents__document_id__grants_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/documents/{document_id}/versions/{number}/content": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Download a version
+         * @description Stream a version after re-authorizing this exact request, ranges included. No storage URL is ever issued.
+         *
+         *     Args:
+         *         document_id (UUID): The document.
+         *         number (int): The version.
+         *         request (Request): Carries the optional ``Range`` header.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         StreamingResponse: The bytes, or the requested range with 206.
+         */
+        get: operations["download_api_v1_documents__document_id__versions__number__content_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/funding-requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List my funding requests
+         * @description List the acting party's funding requests, also when company funding is switched off (AC67).
+         *
+         *     Args:
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         list[FundingRequestResponse]: Requests.
+         */
+        get: operations["list_funding_requests_api_v1_funding_requests_get"];
+        put?: never;
+        /**
+         * Start a funding request
+         * @description Start a draft raise linked to published inventions.
+         *
+         *     Args:
+         *         body (FundingRequestInput): Content and links.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         FundingRequestResponse: The draft.
+         */
+        post: operations["create_funding_request_api_v1_funding_requests_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/funding-requests/{request_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read a funding request
+         * @description Read one request as its owner.
+         *
+         *     Args:
+         *         request_id (UUID): The request.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         FundingRequestResponse: The request.
+         */
+        get: operations["read_funding_request_api_v1_funding_requests__request_id__get"];
+        /**
+         * Change a funding request
+         * @description Replace the content as a new version against ``expected_version``.
+         *
+         *     Args:
+         *         request_id (UUID): The request.
+         *         body (UpdateFundingRequest): Content.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried save.
+         *
+         *     Returns:
+         *         FundingRequestResponse: The new version.
+         */
+        put: operations["update_funding_request_api_v1_funding_requests__request_id__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/funding-requests/{request_id}/activate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Activate a raise
+         * @description Move to ACTIVE from DRAFT or PAUSED; activation needs a target and at least one linked invention.
+         *
+         *     Args:
+         *         request_id (UUID): The request.
+         *         body (TransitionRequest): Acting party and ``expected_version``.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         FundingRequestResponse: The request in its new status.
+         */
+        post: operations["activate_funding_request_api_v1_funding_requests__request_id__activate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/funding-requests/{request_id}/close": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Close a raise
+         * @description Move to CLOSED from DRAFT, ACTIVE or PAUSED.
+         *
+         *     Args:
+         *         request_id (UUID): The request.
+         *         body (TransitionRequest): Acting party and ``expected_version``.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         FundingRequestResponse: The request in its new status.
+         */
+        post: operations["close_funding_request_api_v1_funding_requests__request_id__close_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/funding-requests/{request_id}/pause": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Pause a raise
+         * @description Move from ACTIVE to PAUSED.
+         *
+         *     Args:
+         *         request_id (UUID): The request.
+         *         body (TransitionRequest): Acting party and ``expected_version``.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         FundingRequestResponse: The request in its new status.
+         */
+        post: operations["pause_funding_request_api_v1_funding_requests__request_id__pause_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/funding-requests/{request_id}/versions/{number}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read an earlier funding request version
+         * @description Read a request as it stood at one version.
+         *
+         *     Args:
+         *         request_id (UUID): The request.
+         *         number (int): The version.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         dict: The snapshot.
+         */
+        get: operations["read_funding_request_version_api_v1_funding_requests__request_id__versions__number__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/grants/{grant_id}/revoke": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Revoke a grant
+         * @description Block new downloads. Copies already delivered cannot be recalled, and the answer says so.
+         *
+         *     Args:
+         *         grant_id (UUID): The grant.
+         *         body (RevokeRequest): Acting party.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         RevokedResponse: The outcome.
+         */
+        post: operations["revoke_grant_api_v1_grants__grant_id__revoke_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/inventions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List my inventions
+         * @description List the acting party's inventions, drafts and archived ones included.
+         *
+         *     Args:
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         list[InventionSummaryResponse]: Inventions.
+         */
+        get: operations["list_inventions_api_v1_inventions_get"];
+        put?: never;
+        /**
+         * Start an invention
+         * @description Start an invention with an empty draft for the acting party.
+         *
+         *     Args:
+         *         body (CreateInventionRequest): Acting party.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         InventionResponse: The invention.
+         */
+        post: operations["create_invention_api_v1_inventions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/inventions/{invention_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read an invention as its owner
+         * @description Read draft, published version and history.
+         *
+         *     Args:
+         *         invention_id (UUID): The invention.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         InventionResponse: The invention.
+         */
+        get: operations["read_invention_api_v1_inventions__invention_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/inventions/{invention_id}/archive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Archive an invention
+         * @description Archive: hidden from discovery and new submissions; history stays readable.
+         *
+         *     Args:
+         *         invention_id (UUID): The invention.
+         *         body (VersionedActionRequest): Acting party and ``expected_version``.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         InventionResponse: The archived invention.
+         */
+        post: operations["archive_invention_api_v1_inventions__invention_id__archive_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/inventions/{invention_id}/draft": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Save the draft
+         * @description Save the whole draft against ``expected_version``; publication rules do not apply here.
+         *
+         *     Args:
+         *         invention_id (UUID): The invention.
+         *         body (DraftRequest): Content.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried save.
+         *
+         *     Returns:
+         *         InventionResponse: The invention with its saved draft.
+         */
+        put: operations["save_draft_api_v1_inventions__invention_id__draft_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/inventions/{invention_id}/public": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read the published version
+         * @description Read what anyone signed in may see: the published version, nothing private.
+         *
+         *     Args:
+         *         invention_id (UUID): The invention.
+         *         _ (PrincipalDep): Any signed-in account.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         PublicInventionResponse: The projection.
+         */
+        get: operations["read_public_api_v1_inventions__invention_id__public_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/inventions/{invention_id}/publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Publish the draft
+         * @description Publish the draft as an immutable version.
+         *
+         *     Args:
+         *         invention_id (UUID): The invention.
+         *         body (VersionedActionRequest): Acting party and ``expected_version``.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         PublishResponse: The version number and status.
+         */
+        post: operations["publish_invention_api_v1_inventions__invention_id__publish_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/invitations/{invitation_id}/revoke": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Revoke an invitation
+         * @description Revoke a pending invitation, acting as the organization with ``manage_members``.
+         *
+         *     Args:
+         *         invitation_id (UUID): The invitation.
+         *         body (ActingPartyRequest): Acting party.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         InvitationResponse: The revoked invitation.
+         */
+        post: operations["revoke_invitation_api_v1_invitations__invitation_id__revoke_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/invitations/{token}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read an invitation
+         * @description Show the invited account what it would join.
+         *
+         *     Args:
+         *         token (str): The emailed token.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         InvitationDetailResponse: Organization, capabilities, expiry and status.
+         */
+        get: operations["read_invitation_api_v1_invitations__token__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/invitations/{token}/accept": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Accept an invitation
+         * @description Join the organization. Accepting twice is harmless; an expired or revoked invitation is refused.
+         *
+         *     Args:
+         *         token (str): The emailed token.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         OrganizationResponse: The organization joined.
+         */
+        post: operations["accept_invitation_api_v1_invitations__token__accept_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/legal-entities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List my legal entities
+         * @description List the acting party's legal entities.
+         *
+         *     Args:
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         list[LegalEntityResponse]: Entities.
+         */
+        get: operations["list_legal_entities_api_v1_legal_entities_get"];
+        put?: never;
+        /**
+         * Declare a legal entity
+         * @description Record a company as declared by the acting party.
+         *
+         *     Args:
+         *         body (LegalEntityInput): Name, jurisdiction and registration reference.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         LegalEntityResponse: The entity.
+         */
+        post: operations["declare_legal_entity_api_v1_legal_entities_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read the signed-in account
+         * @description Return the signed-in account and the party it acts as.
+         *
+         *     Args:
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         MeResponse: The account.
+         */
+        get: operations["get_me_api_v1_me_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Change account preferences
+         * @description Change display name, locale, time zone or persona against ``expected_version``.
+         *
+         *     Args:
+         *         body (UpdateMeRequest): Changes.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         MeResponse: The updated account.
+         */
+        patch: operations["update_me_api_v1_me_patch"];
+        trace?: never;
+    };
+    "/api/v1/me/context": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Change who you act as
+         * @description Act as the personal party or an organization the account belongs to.
+         *
+         *     Args:
+         *         body (ContextRequest): The party to act as.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         MeResponse: The account in its new context.
+         */
+        put: operations["set_context_api_v1_me_context_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/operations/{operation_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Report on an operation
+         * @description Tell the acting party whether its operation committed.
+         *
+         *     Args:
+         *         operation_id (UUID): From the response the client may have lost.
+         *         session (SessionDep): Database session.
+         *         actor_party_id (ActorDep): The acting party.
+         *
+         *     Returns:
+         *         OperationResponse: ``COMMITTED`` with a result reference, ``PENDING``, or ``UNKNOWN`` for an id the service
+         *             has no record of.
+         *
+         *     Raises:
+         *         NotFoundError: When the operation belongs to another party.
+         */
+        get: operations["get_operation_api_v1_operations__operation_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/opportunities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List opportunities
+         * @description List the acting party's opportunities, or what another partner has made visible.
+         *
+         *     Args:
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         partner_party_id (UUID | None, optional): Another partner. Defaults to None.
+         *         limit (Limit, optional): The most to return. Defaults to 100.
+         *
+         *     Returns:
+         *         list[OpportunityResponse]: Opportunities.
+         */
+        get: operations["list_opportunities_api_v1_opportunities_get"];
+        put?: never;
+        /**
+         * Start an opportunity
+         * @description Start a draft for the acting party.
+         *
+         *     Args:
+         *         body (CreateOpportunityRequest): Kind and content.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         OpportunityResponse: The draft.
+         */
+        post: operations["create_opportunity_api_v1_opportunities_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/opportunities/{opportunity_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read an opportunity
+         * @description Read an opportunity with its current version.
+         *
+         *     Args:
+         *         opportunity_id (UUID): The opportunity.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         OpportunityResponse: The opportunity.
+         */
+        get: operations["read_opportunity_api_v1_opportunities__opportunity_id__get"];
+        /**
+         * Change an opportunity
+         * @description Save the content: a draft in place, a live opportunity as the next version, current at once.
+         *
+         *     Args:
+         *         opportunity_id (UUID): The opportunity.
+         *         body (SaveOpportunityRequest): Content and ``expected_version``.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried save.
+         *
+         *     Returns:
+         *         OpportunityResponse: The opportunity with its new content.
+         */
+        put: operations["save_opportunity_api_v1_opportunities__opportunity_id__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/opportunities/{opportunity_id}/activate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Activate an opportunity
+         * @description Move to ACTIVE from DRAFT or PAUSED; going live needs a profile and everything a partner must state.
+         *
+         *     Args:
+         *         opportunity_id (UUID): The opportunity.
+         *         body (OpportunityTransitionRequest): Acting party and ``expected_version``.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         OpportunityResponse: The opportunity in its new status.
+         */
+        post: operations["activate_opportunity_api_v1_opportunities__opportunity_id__activate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/opportunities/{opportunity_id}/close": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Close an opportunity
+         * @description Move to CLOSED from DRAFT, ACTIVE or PAUSED. New pitches stop; nothing is invented for existing ones.
+         *
+         *     Args:
+         *         opportunity_id (UUID): The opportunity.
+         *         body (OpportunityTransitionRequest): Acting party and ``expected_version``.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         OpportunityResponse: The opportunity in its new status.
+         */
+        post: operations["close_opportunity_api_v1_opportunities__opportunity_id__close_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/opportunities/{opportunity_id}/pause": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Pause an opportunity
+         * @description Move from ACTIVE to PAUSED.
+         *
+         *     Args:
+         *         opportunity_id (UUID): The opportunity.
+         *         body (OpportunityTransitionRequest): Acting party and ``expected_version``.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         OpportunityResponse: The opportunity in its new status.
+         */
+        post: operations["pause_opportunity_api_v1_opportunities__opportunity_id__pause_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/opportunities/{opportunity_id}/versions/{number}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read one version of an opportunity
+         * @description Read one version as it stood.
+         *
+         *     Args:
+         *         opportunity_id (UUID): The opportunity.
+         *         number (int): The version number.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         OpportunityVersionResponse: The version.
+         */
+        get: operations["read_opportunity_version_api_v1_opportunities__opportunity_id__versions__number__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/organizations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create an organization
+         * @description Create an organization; the creator becomes a member with every capability.
+         *
+         *     Args:
+         *         body (CreateOrganizationRequest): Name and kind.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         OrganizationResponse: The organization and its party.
+         */
+        post: operations["create_organization_api_v1_organizations_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/organizations/{organization_id}/invitations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List invitations
+         * @description List invitations to the organization's member managers.
+         *
+         *     Args:
+         *         organization_id (UUID): The organization.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         list[InvitationResponse]: Invitations with status and expiry.
+         */
+        get: operations["list_invitations_api_v1_organizations__organization_id__invitations_get"];
+        put?: never;
+        /**
+         * Invite a member
+         * @description Email an invitation with explicit capabilities, valid for seven days.
+         *
+         *     Args:
+         *         organization_id (UUID): The organization.
+         *         body (InviteRequest): Acting party, email and capabilities.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         InvitationResponse: The invitation, without its token.
+         */
+        post: operations["invite_api_v1_organizations__organization_id__invitations_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/organizations/{organization_id}/members": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List members
+         * @description List an organization's members to its members.
+         *
+         *     Args:
+         *         organization_id (UUID): The organization.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         list[MemberResponse]: Members and capabilities.
+         */
+        get: operations["list_members_api_v1_organizations__organization_id__members_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/organizations/{organization_id}/members/{account_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Remove a member
+         * @description Remove a member, acting as the organization with ``manage_members``.
+         *
+         *     Args:
+         *         organization_id (UUID): The organization.
+         *         account_id (UUID): The member.
+         *         body (RemoveMemberRequest): Acting party and ``expected_version``.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         */
+        delete: operations["remove_member_api_v1_organizations__organization_id__members__account_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/partners/{party_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read a partner profile
+         * @description Read what a partner states about itself, as anyone signed in may see it.
+         *
+         *     Args:
+         *         party_id (UUID): The party.
+         *         _ (PrincipalDep): Any signed-in account.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         PartnerProfileResponse: The profile.
+         */
+        get: operations["read_partner_api_v1_partners__party_id__get"];
+        /**
+         * Save one's own partner profile
+         * @description Create or replace the profile. ``expected_version`` is null only for the first save.
+         *
+         *     Args:
+         *         party_id (UUID): The party.
+         *         body (SavePartnerProfileRequest): Content and ``expected_version``.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried save.
+         *
+         *     Returns:
+         *         PartnerProfileResponse: The saved profile.
+         */
+        put: operations["save_partner_api_v1_partners__party_id__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/partners/{party_id}/handoffs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Follow an external route
+         * @description Record that the acting party followed a partner's external route. This is never a submitted pitch.
+         *
+         *     Args:
+         *         party_id (UUID): The partner.
+         *         body (RecordHandoffRequest): The acting party.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried click.
+         *
+         *     Returns:
+         *         HandoffResponse: The handoff, with the address to open.
+         */
+        post: operations["record_handoff_api_v1_partners__party_id__handoffs_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/support-requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List my support requests
+         * @description List the acting party's requests, optionally for one invention.
+         *
+         *     Args:
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         invention_id (UUID | None, optional): Only this invention's. Defaults to None.
+         *
+         *     Returns:
+         *         list[SupportRequestResponse]: Requests.
+         */
+        get: operations["list_support_requests_api_v1_support_requests_get"];
+        put?: never;
+        /**
+         * Start a support request
+         * @description Start a draft request for a published invention, with an optional budget.
+         *
+         *     Args:
+         *         body (CreateSupportRequest): Invention and content.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         SupportRequestResponse: The draft.
+         */
+        post: operations["create_support_request_api_v1_support_requests_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/support-requests/{request_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read a support request
+         * @description Read one request as its owner.
+         *
+         *     Args:
+         *         request_id (UUID): The request.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         SupportRequestResponse: The request.
+         */
+        get: operations["read_support_request_api_v1_support_requests__request_id__get"];
+        /**
+         * Change a support request
+         * @description Replace the content as a new version against ``expected_version``.
+         *
+         *     Args:
+         *         request_id (UUID): The request.
+         *         body (UpdateSupportRequest): Content.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried save.
+         *
+         *     Returns:
+         *         SupportRequestResponse: The new version.
+         */
+        put: operations["update_support_request_api_v1_support_requests__request_id__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/support-requests/{request_id}/activate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Activate a support request
+         * @description Move to ACTIVE from DRAFT or PAUSED; activation needs an outcome and at least one support form.
+         *
+         *     Args:
+         *         request_id (UUID): The request.
+         *         body (TransitionRequest): Acting party and ``expected_version``.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         SupportRequestResponse: The request in its new status.
+         */
+        post: operations["activate_support_request_api_v1_support_requests__request_id__activate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/support-requests/{request_id}/close": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Close a support request
+         * @description Move to CLOSED from DRAFT, ACTIVE or PAUSED.
+         *
+         *     Args:
+         *         request_id (UUID): The request.
+         *         body (TransitionRequest): Acting party and ``expected_version``.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         SupportRequestResponse: The request in its new status.
+         */
+        post: operations["close_support_request_api_v1_support_requests__request_id__close_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/support-requests/{request_id}/pause": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Pause a support request
+         * @description Move from ACTIVE to PAUSED.
+         *
+         *     Args:
+         *         request_id (UUID): The request.
+         *         body (TransitionRequest): Acting party and ``expected_version``.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         SupportRequestResponse: The request in its new status.
+         */
+        post: operations["pause_support_request_api_v1_support_requests__request_id__pause_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/support-requests/{request_id}/versions/{number}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read an earlier version
+         * @description Read a request as it stood at one version.
+         *
+         *     Args:
+         *         request_id (UUID): The request.
+         *         number (int): The version.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         dict: The snapshot.
+         */
+        get: operations["read_support_request_version_api_v1_support_requests__request_id__versions__number__get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -81,6 +1604,44 @@ export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
         /**
+         * AccountResponse
+         * @description The signed-in account. A verified email proves control of the address, nothing more.
+         */
+        AccountResponse: {
+            /** Display Name */
+            display_name: string;
+            /** Email */
+            email: string;
+            /** Email Verified */
+            email_verified: boolean;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Kind */
+            kind: string;
+            /** Locale */
+            locale: string;
+            /** Persona */
+            persona: string;
+            /** Time Zone */
+            time_zone: string;
+            /** Version */
+            version: number;
+        };
+        /**
+         * ActingPartyRequest
+         * @description A consequential action names the party it acts as, so two tabs cannot cross contexts.
+         */
+        ActingPartyRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+        };
+        /**
          * AdapterResponse
          * @description One data source adapter.
          */
@@ -89,6 +1650,161 @@ export interface components {
             id: string;
             status: components["schemas"]["CapabilityStatus"];
         };
+        /**
+         * AvailabilityResponse
+         * @description Current availability, kept apart from the general thesis and labelled with where it comes from.
+         */
+        AvailabilityResponse: {
+            /**
+             * Current Intake Status
+             * @enum {string}
+             */
+            current_intake_status: "OPEN" | "CLOSED" | "UNCONFIRMED";
+            /** Intake From */
+            intake_from: string | null;
+            /**
+             * Intake Status
+             * @enum {string}
+             */
+            intake_status: "OPEN" | "CLOSED" | "UNCONFIRMED";
+            /** Intake Until */
+            intake_until: string | null;
+            /** Label */
+            label: string;
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "OWNER_CONFIRMED" | "SOURCE_REPORTED";
+            /** Source Label */
+            source_label: string;
+        };
+        /**
+         * BudgetInput
+         * @description The cost range of the request. Leave min and max empty with a reason when it is not known yet.
+         */
+        BudgetInput: {
+            /**
+             * Assumptions
+             * @default
+             */
+            assumptions?: string;
+            /**
+             * Basis
+             * @default total_period
+             * @enum {string}
+             */
+            basis?: "total_period" | "monthly" | "yearly";
+            /** Currency */
+            currency?: string | null;
+            /** Estimated On */
+            estimated_on?: string | null;
+            /**
+             * Financial
+             * @default true
+             */
+            financial?: boolean;
+            /**
+             * Lines
+             * @default []
+             */
+            lines?: components["schemas"]["BudgetLineInput"][];
+            /**
+             * Lines Explanation
+             * @default
+             */
+            lines_explanation?: string;
+            /** Max */
+            max?: string | null;
+            /** Min */
+            min?: string | null;
+            /**
+             * Period
+             * @default
+             */
+            period?: string;
+            /**
+             * Scope
+             * @default
+             */
+            scope?: string;
+            /** Unknown Reason */
+            unknown_reason?: ("not_determined" | "not_disclosed") | null;
+        };
+        /**
+         * BudgetLineInput
+         * @description One cost line.
+         */
+        BudgetLineInput: {
+            /**
+             * Explanation
+             * @default
+             */
+            explanation?: string;
+            /** Label */
+            label: string;
+            /** Quantity */
+            quantity: string;
+            /** Unit Cost */
+            unit_cost: string;
+        };
+        /**
+         * BudgetLineResponse
+         * @description A stored line and its exact total.
+         */
+        BudgetLineResponse: {
+            /** Explanation */
+            explanation: string;
+            /** Label */
+            label: string;
+            /** Quantity */
+            quantity: string;
+            /** Total */
+            total: string;
+            /** Unit Cost */
+            unit_cost: string;
+        };
+        /**
+         * BudgetResponse
+         * @description A stored budget. Unknown money is ``null`` with ``unknown_reason``, never zero.
+         */
+        BudgetResponse: {
+            /** Assumptions */
+            assumptions: string;
+            /**
+             * Basis
+             * @enum {string}
+             */
+            basis: "total_period" | "monthly" | "yearly";
+            /** Currency */
+            currency: string | null;
+            /** Estimated On */
+            estimated_on: string | null;
+            /** Financial */
+            financial: boolean;
+            /** Lines */
+            lines: components["schemas"]["BudgetLineResponse"][];
+            /** Lines Explanation */
+            lines_explanation: string;
+            /** Lines Total */
+            lines_total: string | null;
+            /** Max */
+            max: string | null;
+            /** Min */
+            min: string | null;
+            /** Period */
+            period: string;
+            /** Scope */
+            scope: string;
+            /** Unknown Reason */
+            unknown_reason: ("not_determined" | "not_disclosed") | null;
+        };
+        /**
+         * Capability
+         * @description What a member may do as an organization (FR02). A personal party holds every capability.
+         * @enum {string}
+         */
+        Capability: "edit_portfolio" | "submit_pitch" | "review_publication" | "decide_pitch" | "confirm_relationship" | "schedule" | "manage_members";
         /**
          * CapabilityManifestResponse
          * @description Non-secret explanation of this deployment. It grants nothing; the service still authorizes every request.
@@ -128,6 +1844,116 @@ export interface components {
          */
         CapabilityStatus: "planned" | "simulated" | "available";
         /**
+         * ClaimInput
+         * @description A people-and-rights claim as the owner states it.
+         */
+        ClaimInput: {
+            /** Asserted At */
+            asserted_at?: string | null;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "creator" | "contributor" | "manager" | "rights_holder" | "authority";
+            /** Party Id */
+            party_id?: string | null;
+            /**
+             * Scope
+             * @default
+             */
+            scope?: string;
+            /**
+             * Source
+             * @default
+             */
+            source?: string;
+            /**
+             * Status
+             * @default asserted
+             * @enum {string}
+             */
+            status?: "asserted" | "not_established" | "reviewed";
+            /** Subject Name */
+            subject_name: string;
+        };
+        /**
+         * ClaimResponse
+         * @description A stored claim.
+         */
+        ClaimResponse: {
+            /** Asserted At */
+            asserted_at?: string | null;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "creator" | "contributor" | "manager" | "rights_holder" | "authority";
+            /** Party Id */
+            party_id?: string | null;
+            /**
+             * Scope
+             * @default
+             */
+            scope?: string;
+            /**
+             * Source
+             * @default
+             */
+            source?: string;
+            /**
+             * Status
+             * @default asserted
+             * @enum {string}
+             */
+            status?: "asserted" | "not_established" | "reviewed";
+            /** Subject Name */
+            subject_name: string;
+        };
+        /**
+         * CodeRequest
+         * @description Ask for a sign-in code. Sign-up also carries the profile, applied only when the code is verified.
+         */
+        CodeRequest: {
+            /** Display Name */
+            display_name?: string | null;
+            /** Email */
+            email: string;
+            /**
+             * Locale
+             * @default id
+             * @enum {string}
+             */
+            locale?: "id" | "en";
+            /**
+             * Persona
+             * @default inovator
+             * @enum {string}
+             */
+            persona?: "inovator" | "mitra";
+            /**
+             * Purpose
+             * @enum {string}
+             */
+            purpose: "sign_up" | "sign_in";
+            /**
+             * Time Zone
+             * @default Asia/Jakarta
+             */
+            time_zone?: string;
+        };
+        /**
+         * CodeSentResponse
+         * @description Always the same answer, so it never reveals whether an account exists.
+         */
+        CodeSentResponse: {
+            /**
+             * Sent
+             * @default true
+             * @constant
+             */
+            sent?: true;
+        };
+        /**
          * CompositionResponse
          * @description The validated product composition of this deployment.
          */
@@ -138,12 +1964,301 @@ export interface components {
             version: number;
         };
         /**
+         * ContextRequest
+         * @description Act as another party: the personal party or an organization the account belongs to.
+         */
+        ContextRequest: {
+            /**
+             * Party Id
+             * Format: uuid
+             */
+            party_id: string;
+        };
+        /**
+         * CreateInventionRequest
+         * @description Start an invention for the acting party.
+         */
+        CreateInventionRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+        };
+        /**
+         * CreateOpportunityRequest
+         * @description Start a draft for the acting party.
+         */
+        CreateOpportunityRequest: {
+            /**
+             * Accepted Stages
+             * @default []
+             */
+            accepted_stages?: ("IDEA" | "PROTOTYPE" | "PILOT" | "WORKING" | "MARKET")[];
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /** Closes At */
+            closes_at?: string | null;
+            /**
+             * Excluded
+             * @default
+             */
+            excluded?: string;
+            financial?: components["schemas"]["FinancialInput"] | null;
+            /**
+             * Included
+             * @default
+             */
+            included?: string;
+            /**
+             * Keywords
+             * @default []
+             */
+            keywords?: string[];
+            /**
+             * Kind
+             * @default SPECIFIC
+             * @enum {string}
+             */
+            kind?: "SPECIFIC" | "GENERAL_INTAKE";
+            /**
+             * Outcome
+             * @default
+             */
+            outcome?: string;
+            /**
+             * Relationship Forms
+             * @default []
+             */
+            relationship_forms?: ("PROJECT" | "LICENSE" | "EQUITY")[];
+            /**
+             * Requirements
+             * @default []
+             */
+            requirements?: components["schemas"]["RequirementInput"][];
+            /**
+             * Sectors
+             * @default []
+             */
+            sectors?: string[];
+            /**
+             * Support
+             * @default
+             */
+            support?: string;
+            /**
+             * Timing
+             * @default
+             */
+            timing?: string;
+            /**
+             * Title
+             * @default
+             */
+            title?: string;
+        };
+        /**
+         * CreateOrganizationRequest
+         * @description Create an organization; the creator becomes a member with every capability.
+         */
+        CreateOrganizationRequest: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "company" | "nonprofit" | "community" | "research_group" | "other";
+            /** Name */
+            name: string;
+        };
+        /**
+         * CreateSupportRequest
+         * @description Start a request for a published invention.
+         */
+        CreateSupportRequest: {
+            /**
+             * Accepts Noncash
+             * @default false
+             */
+            accepts_noncash?: boolean;
+            /**
+             * Accepts Partial
+             * @default false
+             */
+            accepts_partial?: boolean;
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            budget?: components["schemas"]["BudgetInput"] | null;
+            /**
+             * Invention Id
+             * Format: uuid
+             */
+            invention_id: string;
+            /** Months */
+            months?: number | null;
+            /**
+             * Noncash Description
+             * @default
+             */
+            noncash_description?: string;
+            /**
+             * Outcome
+             * @default
+             */
+            outcome?: string;
+            /**
+             * Region
+             * @default
+             */
+            region?: string;
+            /**
+             * Relationship Form
+             * @default PROJECT
+             * @enum {string}
+             */
+            relationship_form?: "PROJECT" | "LICENSE";
+            /**
+             * Scope
+             * @default
+             */
+            scope?: string;
+            /**
+             * Support Forms
+             * @default []
+             */
+            support_forms?: ("project_funding" | "testing_support" | "mentoring" | "facilities" | "distribution" | "technical_partner" | "other")[];
+        };
+        /**
+         * DocumentResponse
+         * @description A document as its owner sees it.
+         */
+        DocumentResponse: {
+            /** Grants */
+            grants: components["schemas"]["GrantResponse"][];
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Kind */
+            kind: string;
+            /** Title */
+            title: string;
+            /** Versions */
+            versions: components["schemas"]["DocumentVersionResponse"][];
+        };
+        /**
+         * DocumentVersionResponse
+         * @description One version's three independent states.
+         */
+        DocumentVersionResponse: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Extraction State */
+            extraction_state: string;
+            /** File State */
+            file_state: string;
+            /** Media Type */
+            media_type: string;
+            /** Number */
+            number: number;
+            /** Review State */
+            review_state: string;
+            /** Sha256 */
+            sha256: string;
+            /** Size Bytes */
+            size_bytes: number;
+        };
+        /**
+         * DraftRequest
+         * @description The whole draft. Optional fields never block a save; publication rules apply only on publish.
+         */
+        DraftRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /**
+             * Claims
+             * @default []
+             */
+            claims?: components["schemas"]["ClaimInput"][];
+            /** Expected Version */
+            expected_version: number;
+            /**
+             * Facts
+             * @default []
+             */
+            facts?: components["schemas"]["FactInput"][];
+            /**
+             * Intended Users
+             * @default
+             */
+            intended_users?: string;
+            /**
+             * Keywords
+             * @default []
+             */
+            keywords?: string[];
+            /**
+             * Private Notes
+             * @default
+             */
+            private_notes?: string;
+            /**
+             * Problem
+             * @default
+             */
+            problem?: string;
+            /**
+             * Sector
+             * @default
+             */
+            sector?: string;
+            /**
+             * Solution
+             * @default
+             */
+            solution?: string;
+            /** Stage */
+            stage?: ("IDEA" | "PROTOTYPE" | "PILOT" | "WORKING" | "MARKET") | null;
+            /**
+             * Summary
+             * @default
+             */
+            summary?: string;
+            /**
+             * Title
+             * @default
+             */
+            title?: string;
+        };
+        /**
          * ErrorBody
          * @description Public failure content.
          */
         ErrorBody: {
+            /**
+             * Attempts Left
+             * @default null
+             */
+            attempts_left?: number | null;
             /** Code */
             code: string;
+            /**
+             * Current Version
+             * @default null
+             */
+            current_version?: number | null;
             /**
              * Details
              * @default null
@@ -193,6 +2308,826 @@ export interface components {
             retryable: boolean;
         };
         /**
+         * FactInput
+         * @description A fact as the owner states it.
+         */
+        FactInput: {
+            /** Document Version Id */
+            document_version_id?: string | null;
+            /** Key */
+            key?: string | null;
+            /** Label */
+            label: string;
+            /**
+             * Provenance
+             * @default SELF_DECLARED
+             * @enum {string}
+             */
+            provenance?: "SOURCE_REPORTED" | "SELF_DECLARED" | "PROVIDED" | "REVIEWED" | "UNKNOWN";
+            /**
+             * Timing
+             * @enum {string}
+             */
+            timing: "CURRENT" | "PLANNED" | "REQUESTED";
+            /**
+             * Unit
+             * @default
+             */
+            unit?: string;
+            /** Value */
+            value: string;
+        };
+        /**
+         * FactResponse
+         * @description A stored fact.
+         */
+        FactResponse: {
+            /** Document Version Id */
+            document_version_id?: string | null;
+            /** Key */
+            key?: string | null;
+            /** Label */
+            label: string;
+            /**
+             * Provenance
+             * @default SELF_DECLARED
+             * @enum {string}
+             */
+            provenance?: "SOURCE_REPORTED" | "SELF_DECLARED" | "PROVIDED" | "REVIEWED" | "UNKNOWN";
+            /**
+             * Timing
+             * @enum {string}
+             */
+            timing: "CURRENT" | "PLANNED" | "REQUESTED";
+            /**
+             * Unit
+             * @default
+             */
+            unit?: string;
+            /** Value */
+            value: string;
+        };
+        /**
+         * FinancialInput
+         * @description What an opportunity offers: a comparable range, non-cash support, license terms, or an explained unknown.
+         */
+        FinancialInput: {
+            /** Basis */
+            basis?: ("total_period" | "monthly" | "yearly") | "per_investment" | null;
+            /** Currency */
+            currency?: string | null;
+            /** Max */
+            max?: string | null;
+            /** Min */
+            min?: string | null;
+            /** Months */
+            months?: number | null;
+            /**
+             * Noncash
+             * @default
+             */
+            noncash?: string;
+            /**
+             * Period
+             * @default
+             */
+            period?: string;
+            /**
+             * Scope
+             * @default
+             */
+            scope?: string;
+            /**
+             * Subject
+             * @default partner
+             * @enum {string}
+             */
+            subject?: "partner" | "investorCheck" | "license";
+            /**
+             * Terms
+             * @default
+             */
+            terms?: string;
+            /** Unknown Reason */
+            unknown_reason?: ("not_determined" | "not_disclosed") | null;
+        };
+        /**
+         * FinancialResponse
+         * @description A stored financial basis, with amounts as decimal strings.
+         */
+        FinancialResponse: {
+            /** Basis */
+            basis?: ("total_period" | "monthly" | "yearly") | "per_investment" | null;
+            /** Currency */
+            currency?: string | null;
+            /** Max */
+            max?: string | null;
+            /** Min */
+            min?: string | null;
+            /** Months */
+            months?: number | null;
+            /**
+             * Noncash
+             * @default
+             */
+            noncash?: string;
+            /**
+             * Period
+             * @default
+             */
+            period?: string;
+            /**
+             * Scope
+             * @default
+             */
+            scope?: string;
+            /**
+             * Subject
+             * @enum {string}
+             */
+            subject: "partner" | "investorCheck" | "license";
+            /**
+             * Terms
+             * @default
+             */
+            terms?: string;
+            /** Unknown Reason */
+            unknown_reason?: ("not_determined" | "not_disclosed") | null;
+        };
+        /**
+         * FundingRequestInput
+         * @description A raise's content. A draft may be incomplete; activation needs a target, a currency and an invention.
+         */
+        FundingRequestInput: {
+            /**
+             * Accepts Partial
+             * @default false
+             */
+            accepts_partial?: boolean;
+            /**
+             * Accepts Syndicated
+             * @default false
+             */
+            accepts_syndicated?: boolean;
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /** Currency */
+            currency?: string | null;
+            /** Desired Max */
+            desired_max?: string | null;
+            /** Desired Min */
+            desired_min?: string | null;
+            /** Financing Form */
+            financing_form?: ("equity" | "convertible_note" | "safe" | "debt" | "revenue_based") | null;
+            /** Financing Stage */
+            financing_stage?: ("pre_seed" | "seed" | "series_a" | "series_b_plus" | "bridge") | null;
+            /**
+             * Intended Use
+             * @default
+             */
+            intended_use?: string;
+            /**
+             * Invention Ids
+             * @default []
+             */
+            invention_ids?: string[];
+            /** Legal Entity Id */
+            legal_entity_id?: string | null;
+            /**
+             * Proposed Name
+             * @default
+             */
+            proposed_name?: string;
+            /**
+             * Subject Type
+             * @enum {string}
+             */
+            subject_type: "EXISTING_ENTITY" | "PROPOSED_ENTITY";
+            /** Target Amount */
+            target_amount?: string | null;
+            /**
+             * Timing
+             * @default
+             */
+            timing?: string;
+        };
+        /**
+         * FundingRequestResponse
+         * @description One funding request as its owner sees it.
+         */
+        FundingRequestResponse: {
+            /** Accepts Partial */
+            accepts_partial: boolean;
+            /** Accepts Syndicated */
+            accepts_syndicated: boolean;
+            /** Currency */
+            currency: string | null;
+            /** Desired Max */
+            desired_max: string | null;
+            /** Desired Min */
+            desired_min: string | null;
+            /** Financing Form */
+            financing_form: ("equity" | "convertible_note" | "safe" | "debt" | "revenue_based") | null;
+            /** Financing Stage */
+            financing_stage: ("pre_seed" | "seed" | "series_a" | "series_b_plus" | "bridge") | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Intended Use */
+            intended_use: string;
+            /** Inventions */
+            inventions: components["schemas"]["LinkedInvention"][];
+            legal_entity: components["schemas"]["LegalEntityResponse"] | null;
+            /** Operation Id */
+            operation_id?: string | null;
+            /** Proposed Name */
+            proposed_name: string;
+            /** Status */
+            status: string;
+            /** Subject Label */
+            subject_label: string;
+            /**
+             * Subject Type
+             * @enum {string}
+             */
+            subject_type: "EXISTING_ENTITY" | "PROPOSED_ENTITY";
+            /** Target Amount */
+            target_amount: string | null;
+            /** Timing */
+            timing: string;
+            /** Version */
+            version: number;
+        };
+        /**
+         * GrantRequest
+         * @description Share one version with one party for one purpose.
+         */
+        GrantRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /**
+             * Grantee Party Id
+             * Format: uuid
+             */
+            grantee_party_id: string;
+            /** Pitch Id */
+            pitch_id?: string | null;
+            /**
+             * Purpose
+             * @enum {string}
+             */
+            purpose: "pitch" | "discussion";
+            /** Version */
+            version: number;
+        };
+        /**
+         * GrantResponse
+         * @description Who may download which version, and how many copies already left.
+         */
+        GrantResponse: {
+            /** Downloads */
+            downloads: number;
+            /** Grantee Name */
+            grantee_name: string;
+            /**
+             * Grantee Party Id
+             * Format: uuid
+             */
+            grantee_party_id: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Purpose */
+            purpose: string;
+            /** Revoked At */
+            revoked_at: string | null;
+            /** Version */
+            version: number;
+        };
+        /**
+         * HandoffResponse
+         * @description An external handoff. It is never a submitted or accepted pitch.
+         */
+        HandoffResponse: {
+            /** External Url */
+            external_url: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Operation Id */
+            operation_id?: string | null;
+            /**
+             * Partner Party Id
+             * Format: uuid
+             */
+            partner_party_id: string;
+            /**
+             * Submitted
+             * @default false
+             * @constant
+             */
+            submitted?: false;
+        };
+        /**
+         * InventionResponse
+         * @description The owner's view: draft, published version and history.
+         */
+        InventionResponse: {
+            draft: components["schemas"]["InventionVersionResponse"] | null;
+            /** History */
+            history: number[];
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Managing Party Id
+             * Format: uuid
+             */
+            managing_party_id: string;
+            /** Operation Id */
+            operation_id?: string | null;
+            published: components["schemas"]["InventionVersionResponse"] | null;
+            /** Status */
+            status: string;
+            /** Version */
+            version: number;
+        };
+        /**
+         * InventionSummaryResponse
+         * @description One row of Inovasi Saya.
+         */
+        InventionSummaryResponse: {
+            /** Has Draft */
+            has_draft: boolean;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Published Number */
+            published_number: number | null;
+            /** Status */
+            status: string;
+            /** Title */
+            title: string;
+            /** Version */
+            version: number;
+        };
+        /**
+         * InventionVersionResponse
+         * @description One version as its owner sees it.
+         */
+        InventionVersionResponse: {
+            /** Claims */
+            claims: components["schemas"]["ClaimResponse"][];
+            /** Facts */
+            facts: components["schemas"]["FactResponse"][];
+            /** Intended Users */
+            intended_users: string;
+            /** Keywords */
+            keywords: string[];
+            /** Number */
+            number: number;
+            /** Private Notes */
+            private_notes: string;
+            /** Problem */
+            problem: string;
+            /** Published At */
+            published_at: string | null;
+            /** Sector */
+            sector: string;
+            /** Solution */
+            solution: string;
+            /** Stage */
+            stage: ("IDEA" | "PROTOTYPE" | "PILOT" | "WORKING" | "MARKET") | null;
+            /** State */
+            state: string;
+            /** Summary */
+            summary: string;
+            /** Title */
+            title: string;
+        };
+        /**
+         * InvitationDetailResponse
+         * @description What the invited account sees before accepting.
+         */
+        InvitationDetailResponse: {
+            /** Capabilities */
+            capabilities: string[];
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            /** Organization Name */
+            organization_name: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "pending" | "accepted" | "revoked" | "expired";
+        };
+        /**
+         * InvitationResponse
+         * @description One invitation, as its organization sees it.
+         */
+        InvitationResponse: {
+            /** Capabilities */
+            capabilities: string[];
+            /** Email */
+            email: string;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Operation Id */
+            operation_id?: string | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "pending" | "accepted" | "revoked" | "expired";
+        };
+        /**
+         * InviteRequest
+         * @description Invite an email with explicit capabilities, acting as the organization.
+         */
+        InviteRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /** Capabilities */
+            capabilities: components["schemas"]["Capability"][];
+            /** Email */
+            email: string;
+        };
+        /**
+         * LegalEntityInput
+         * @description A company the acting party declares.
+         */
+        LegalEntityInput: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /**
+             * Jurisdiction
+             * @default
+             */
+            jurisdiction?: string;
+            /** Name */
+            name: string;
+            /**
+             * Registration Reference
+             * @default
+             */
+            registration_reference?: string;
+        };
+        /**
+         * LegalEntityResponse
+         * @description A legal entity. ``declared`` means the owner said so; nobody has checked it yet.
+         */
+        LegalEntityResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Jurisdiction */
+            jurisdiction: string;
+            /** Name */
+            name: string;
+            /** Registration Reference */
+            registration_reference: string;
+            /**
+             * Review Status
+             * @enum {string}
+             */
+            review_status: "declared" | "verified";
+        };
+        /**
+         * LinkedInvention
+         * @description An invention version the raise develops.
+         */
+        LinkedInvention: {
+            /**
+             * Invention Id
+             * Format: uuid
+             */
+            invention_id: string;
+            /** Title */
+            title: string;
+            /** Version */
+            version: number;
+        };
+        /**
+         * MailboxMessageResponse
+         * @description One development mailbox message.
+         */
+        MailboxMessageResponse: {
+            /** Body */
+            body: string;
+            /** Subject */
+            subject: string;
+            /** To Email */
+            to_email: string;
+        };
+        /**
+         * MeResponse
+         * @description Who is signed in and as whom they act.
+         */
+        MeResponse: {
+            account: components["schemas"]["AccountResponse"];
+            /**
+             * Active Party Id
+             * Format: uuid
+             */
+            active_party_id: string;
+            /** Capabilities */
+            capabilities?: string[];
+            /** Organizations */
+            organizations?: components["schemas"]["MembershipResponse"][];
+            /**
+             * Personal Party Id
+             * Format: uuid
+             */
+            personal_party_id: string;
+        };
+        /**
+         * MemberResponse
+         * @description One member and what they may do.
+         */
+        MemberResponse: {
+            /**
+             * Account Id
+             * Format: uuid
+             */
+            account_id: string;
+            /** Capabilities */
+            capabilities: string[];
+            /** Display Name */
+            display_name: string;
+            /** Version */
+            version: number;
+        };
+        /**
+         * MembershipResponse
+         * @description One organization the account belongs to, and what it may do there.
+         */
+        MembershipResponse: {
+            /** Capabilities */
+            capabilities: string[];
+            /** Name */
+            name: string;
+            /**
+             * Organization Id
+             * Format: uuid
+             */
+            organization_id: string;
+            /**
+             * Party Id
+             * Format: uuid
+             */
+            party_id: string;
+        };
+        /**
+         * OperationResponse
+         * @description Status of one operation, for a client that never received its response.
+         */
+        OperationResponse: {
+            /**
+             * Operation Id
+             * Format: uuid
+             */
+            operation_id: string;
+            result?: components["schemas"]["OperationResult"] | null;
+            status: components["schemas"]["OperationStatus"];
+        };
+        /**
+         * OperationResult
+         * @description What a committed operation produced.
+         */
+        OperationResult: {
+            /** Id */
+            id: string;
+            /** Type */
+            type: string;
+        };
+        /**
+         * OperationStatus
+         * @description What a client may know about an operation it started.
+         * @enum {string}
+         */
+        OperationStatus: "PENDING" | "COMMITTED" | "UNKNOWN";
+        /**
+         * OpportunityResponse
+         * @description An opportunity and its current version. ``version`` is for ``expected_version``; ``number`` names the content.
+         */
+        OpportunityResponse: {
+            /** Accepted Stages */
+            accepted_stages: ("IDEA" | "PROTOTYPE" | "PILOT" | "WORKING" | "MARKET")[];
+            /** Closes At */
+            closes_at: string | null;
+            /** Excluded */
+            excluded: string;
+            financial: components["schemas"]["FinancialResponse"] | null;
+            /** General Intake Label */
+            general_intake_label: string | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Included */
+            included: string;
+            /** Keywords */
+            keywords: string[];
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "SPECIFIC" | "GENERAL_INTAKE";
+            /** Number */
+            number: number;
+            /** Operation Id */
+            operation_id?: string | null;
+            /** Outcome */
+            outcome: string;
+            /**
+             * Partner Party Id
+             * Format: uuid
+             */
+            partner_party_id: string;
+            /** Relationship Forms */
+            relationship_forms: ("PROJECT" | "LICENSE" | "EQUITY")[];
+            /** Requirements */
+            requirements: components["schemas"]["RequirementResponse"][];
+            /** Sectors */
+            sectors: string[];
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "DRAFT" | "ACTIVE" | "PAUSED" | "CLOSED" | "EXPIRED";
+            /** Support */
+            support: string;
+            target_availability: components["schemas"]["TargetAvailabilityResponse"];
+            /** Timing */
+            timing: string;
+            /** Title */
+            title: string;
+            /** Version */
+            version: number;
+        };
+        /**
+         * OpportunityTransitionRequest
+         * @description Activate, pause or close against the version the client saw.
+         */
+        OpportunityTransitionRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /** Expected Version */
+            expected_version: number;
+        };
+        /**
+         * OpportunityVersionResponse
+         * @description One version as it stood. A pitch keeps pointing at the version it targeted.
+         */
+        OpportunityVersionResponse: {
+            /** Accepted Stages */
+            accepted_stages: ("IDEA" | "PROTOTYPE" | "PILOT" | "WORKING" | "MARKET")[];
+            /** Excluded */
+            excluded: string;
+            financial: components["schemas"]["FinancialResponse"] | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Included */
+            included: string;
+            /** Keywords */
+            keywords: string[];
+            /** Number */
+            number: number;
+            /**
+             * Opportunity Id
+             * Format: uuid
+             */
+            opportunity_id: string;
+            /** Outcome */
+            outcome: string;
+            /** Relationship Forms */
+            relationship_forms: ("PROJECT" | "LICENSE" | "EQUITY")[];
+            /** Requirements */
+            requirements: components["schemas"]["RequirementResponse"][];
+            /** Sectors */
+            sectors: string[];
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "DRAFT" | "ACTIVE" | "PAUSED" | "CLOSED" | "EXPIRED";
+            /** Support */
+            support: string;
+            /** Timing */
+            timing: string;
+            /** Title */
+            title: string;
+        };
+        /**
+         * OrganizationResponse
+         * @description One organization.
+         */
+        OrganizationResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Kind */
+            kind: string;
+            /** Name */
+            name: string;
+            /** Operation Id */
+            operation_id?: string | null;
+            /**
+             * Party Id
+             * Format: uuid
+             */
+            party_id: string;
+            /** Version */
+            version: number;
+        };
+        /**
+         * PartnerProfileResponse
+         * @description A partner profile as anyone signed in may read it.
+         */
+        PartnerProfileResponse: {
+            availability: components["schemas"]["AvailabilityResponse"];
+            check_range: components["schemas"]["RangeResponse"] | null;
+            /**
+             * Contact Route
+             * @enum {string}
+             */
+            contact_route: "IN_APP" | "EXTERNAL" | "NONE";
+            /** External Url */
+            external_url: string | null;
+            /** Operation Id */
+            operation_id?: string | null;
+            /**
+             * Party Id
+             * Format: uuid
+             */
+            party_id: string;
+            /** Party Name */
+            party_name: string;
+            /** Regions */
+            regions: string[];
+            /** Relationship Forms */
+            relationship_forms: ("PROJECT" | "LICENSE" | "EQUITY")[];
+            /** Review Expectations */
+            review_expectations: string;
+            /** Sectors */
+            sectors: string[];
+            /** Stages */
+            stages: ("IDEA" | "PROTOTYPE" | "PILOT" | "WORKING" | "MARKET")[];
+            /** Subtype */
+            subtype: string;
+            /** Support Forms */
+            support_forms: string[];
+            /** Thesis */
+            thesis: string;
+            /** Version */
+            version: number;
+        };
+        /**
          * PolicyResponse
          * @description One versioned product policy, such as matching weights or proposal expiry.
          */
@@ -201,6 +3136,718 @@ export interface components {
             id: string;
             /** Version */
             version: number;
+        };
+        /**
+         * PublicClaimResponse
+         * @description A claim as anyone may read it.
+         */
+        PublicClaimResponse: {
+            /** Asserted At */
+            asserted_at: string | null;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "creator" | "contributor" | "manager" | "rights_holder" | "authority";
+            /** Scope */
+            scope: string;
+            /** Source */
+            source: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "asserted" | "not_established" | "reviewed";
+            /** Subject Name */
+            subject_name: string;
+        };
+        /**
+         * PublicFactResponse
+         * @description A fact as anyone may read it.
+         */
+        PublicFactResponse: {
+            /** Label */
+            label: string;
+            /**
+             * Provenance
+             * @enum {string}
+             */
+            provenance: "SOURCE_REPORTED" | "SELF_DECLARED" | "PROVIDED" | "REVIEWED" | "UNKNOWN";
+            /**
+             * Timing
+             * @enum {string}
+             */
+            timing: "CURRENT" | "PLANNED" | "REQUESTED";
+            /** Unit */
+            unit: string;
+            /** Value */
+            value: string;
+        };
+        /**
+         * PublicInventionResponse
+         * @description The published version and nothing private.
+         */
+        PublicInventionResponse: {
+            /** Claims */
+            claims: components["schemas"]["PublicClaimResponse"][];
+            /** Facts */
+            facts: components["schemas"]["PublicFactResponse"][];
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Intended Users */
+            intended_users: string;
+            /** Keywords */
+            keywords: string[];
+            /** Managing Party Name */
+            managing_party_name: string;
+            /** Number */
+            number: number;
+            /** Problem */
+            problem: string;
+            /** Published At */
+            published_at: string | null;
+            /** Sector */
+            sector: string;
+            /** Solution */
+            solution: string;
+            /** Stage */
+            stage: ("IDEA" | "PROTOTYPE" | "PILOT" | "WORKING" | "MARKET") | null;
+            /** Summary */
+            summary: string;
+            /** Title */
+            title: string;
+        };
+        /**
+         * PublishResponse
+         * @description The outcome of a publication.
+         */
+        PublishResponse: {
+            /** Operation Id */
+            operation_id?: string | null;
+            /** Status */
+            status: string;
+            /** Version */
+            version: number;
+        };
+        /**
+         * RangeInput
+         * @description An amount range and what it means. Leave min and max empty with a reason when it is not known.
+         */
+        RangeInput: {
+            /** Basis */
+            basis?: ("total_period" | "monthly" | "yearly") | "per_investment" | null;
+            /** Currency */
+            currency?: string | null;
+            /** Max */
+            max?: string | null;
+            /** Min */
+            min?: string | null;
+            /** Months */
+            months?: number | null;
+            /**
+             * Period
+             * @default
+             */
+            period?: string;
+            /**
+             * Subject
+             * @default partner
+             * @enum {string}
+             */
+            subject?: "partner" | "investorCheck" | "license";
+            /** Unknown Reason */
+            unknown_reason?: ("not_determined" | "not_disclosed") | null;
+        };
+        /**
+         * RangeResponse
+         * @description A stored range. Unknown money is ``null`` with ``unknown_reason``, never zero.
+         */
+        RangeResponse: {
+            /** Basis */
+            basis: ("total_period" | "monthly" | "yearly") | "per_investment" | null;
+            /** Currency */
+            currency: string | null;
+            /** Max */
+            max: string | null;
+            /** Min */
+            min: string | null;
+            /** Months */
+            months: number | null;
+            /** Period */
+            period: string;
+            /**
+             * Subject
+             * @enum {string}
+             */
+            subject: "partner" | "investorCheck" | "license";
+            /** Unknown Reason */
+            unknown_reason: ("not_determined" | "not_disclosed") | null;
+        };
+        /**
+         * RecordHandoffRequest
+         * @description Record that the acting party followed a partner's external route.
+         */
+        RecordHandoffRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+        };
+        /**
+         * RemoveMemberRequest
+         * @description Remove a member, acting as the organization.
+         */
+        RemoveMemberRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /** Expected Version */
+            expected_version: number;
+        };
+        /**
+         * RequirementInput
+         * @description One requirement. With no operator it is a narrative review question and can never block a pitch.
+         */
+        RequirementInput: {
+            /**
+             * Applies At
+             * @default SUBMISSION
+             * @enum {string}
+             */
+            applies_at?: "SUBMISSION" | "DISCUSSION" | "PILOT" | "COMMERCIALIZATION";
+            /** Field */
+            field?: string | null;
+            /** Label */
+            label: string;
+            /**
+             * Mandatory
+             * @default true
+             */
+            mandatory?: boolean;
+            /** Operator */
+            operator?: ("equals" | "in_set" | "intersects" | "minimum" | "maximum" | "range_overlap" | "exists" | "manual_review") | null;
+            /**
+             * Reason
+             * @default
+             */
+            reason?: string;
+            /** Value */
+            value?: unknown;
+            /**
+             * Verification Mode
+             * @default DECLARATION
+             * @enum {string}
+             */
+            verification_mode?: "DECLARATION" | "DOCUMENT_PRESENT" | "REVIEWER_CONFIRMED";
+            /**
+             * Visibility
+             * @default PUBLIC
+             * @enum {string}
+             */
+            visibility?: "PUBLIC" | "PARTNER_ONLY";
+        };
+        /**
+         * RequirementResponse
+         * @description A stored requirement. ``version`` is the number of the opportunity version it belongs to.
+         */
+        RequirementResponse: {
+            /**
+             * Applies At
+             * @enum {string}
+             */
+            applies_at: "SUBMISSION" | "DISCUSSION" | "PILOT" | "COMMERCIALIZATION";
+            /** Field */
+            field: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Label */
+            label: string;
+            /** Mandatory */
+            mandatory: boolean;
+            /**
+             * Operator
+             * @enum {string}
+             */
+            operator: "equals" | "in_set" | "intersects" | "minimum" | "maximum" | "range_overlap" | "exists" | "manual_review";
+            /** Reason */
+            reason: string;
+            /** Value */
+            value: unknown;
+            /**
+             * Verification Mode
+             * @enum {string}
+             */
+            verification_mode: "DECLARATION" | "DOCUMENT_PRESENT" | "REVIEWER_CONFIRMED";
+            /** Version */
+            version: number;
+            /**
+             * Visibility
+             * @enum {string}
+             */
+            visibility: "PUBLIC" | "PARTNER_ONLY";
+        };
+        /**
+         * RevokeRequest
+         * @description Stop new downloads, acting as the owner.
+         */
+        RevokeRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+        };
+        /**
+         * RevokedResponse
+         * @description Revocation is honest about copies that already left.
+         */
+        RevokedResponse: {
+            /** Copies Already Delivered */
+            copies_already_delivered: number;
+            /** Message */
+            message: string;
+            /** Revoked */
+            revoked: boolean;
+        };
+        /**
+         * SaveOpportunityRequest
+         * @description Replace the content against the version the client saw.
+         */
+        SaveOpportunityRequest: {
+            /**
+             * Accepted Stages
+             * @default []
+             */
+            accepted_stages?: ("IDEA" | "PROTOTYPE" | "PILOT" | "WORKING" | "MARKET")[];
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /** Closes At */
+            closes_at?: string | null;
+            /**
+             * Excluded
+             * @default
+             */
+            excluded?: string;
+            /** Expected Version */
+            expected_version: number;
+            financial?: components["schemas"]["FinancialInput"] | null;
+            /**
+             * Included
+             * @default
+             */
+            included?: string;
+            /**
+             * Keywords
+             * @default []
+             */
+            keywords?: string[];
+            /**
+             * Outcome
+             * @default
+             */
+            outcome?: string;
+            /**
+             * Relationship Forms
+             * @default []
+             */
+            relationship_forms?: ("PROJECT" | "LICENSE" | "EQUITY")[];
+            /**
+             * Requirements
+             * @default []
+             */
+            requirements?: components["schemas"]["RequirementInput"][];
+            /**
+             * Sectors
+             * @default []
+             */
+            sectors?: string[];
+            /**
+             * Support
+             * @default
+             */
+            support?: string;
+            /**
+             * Timing
+             * @default
+             */
+            timing?: string;
+            /**
+             * Title
+             * @default
+             */
+            title?: string;
+        };
+        /**
+         * SavePartnerProfileRequest
+         * @description Save one's own profile. ``expected_version`` is null only for the first save.
+         */
+        SavePartnerProfileRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            check_range?: components["schemas"]["RangeInput"] | null;
+            /**
+             * Contact Route
+             * @default IN_APP
+             * @enum {string}
+             */
+            contact_route?: "IN_APP" | "EXTERNAL" | "NONE";
+            /** Expected Version */
+            expected_version?: number | null;
+            /** External Url */
+            external_url?: string | null;
+            /** Intake From */
+            intake_from?: string | null;
+            /**
+             * Intake Status
+             * @default OPEN
+             * @enum {string}
+             */
+            intake_status?: "OPEN" | "CLOSED";
+            /** Intake Until */
+            intake_until?: string | null;
+            /**
+             * Regions
+             * @default []
+             */
+            regions?: string[];
+            /**
+             * Relationship Forms
+             * @default []
+             */
+            relationship_forms?: ("PROJECT" | "LICENSE" | "EQUITY")[];
+            /**
+             * Review Expectations
+             * @default
+             */
+            review_expectations?: string;
+            /**
+             * Sectors
+             * @default []
+             */
+            sectors?: string[];
+            /**
+             * Stages
+             * @default []
+             */
+            stages?: ("IDEA" | "PROTOTYPE" | "PILOT" | "WORKING" | "MARKET")[];
+            /**
+             * Subtype
+             * @default
+             */
+            subtype?: string;
+            /**
+             * Support Forms
+             * @default []
+             */
+            support_forms?: string[];
+            /**
+             * Thesis
+             * @default
+             */
+            thesis?: string;
+        };
+        /**
+         * SupportRequestResponse
+         * @description One support request as its owner sees it.
+         */
+        SupportRequestResponse: {
+            /** Accepts Noncash */
+            accepts_noncash: boolean;
+            /** Accepts Partial */
+            accepts_partial: boolean;
+            budget: components["schemas"]["BudgetResponse"] | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Invention Id
+             * Format: uuid
+             */
+            invention_id: string;
+            /** Invention Title */
+            invention_title: string;
+            /** Invention Version */
+            invention_version: number;
+            /** Months */
+            months: number | null;
+            /** Noncash Description */
+            noncash_description: string;
+            /** Operation Id */
+            operation_id?: string | null;
+            /** Outcome */
+            outcome: string;
+            /** Region */
+            region: string;
+            /**
+             * Relationship Form
+             * @enum {string}
+             */
+            relationship_form: "PROJECT" | "LICENSE";
+            /** Scope */
+            scope: string;
+            /** Status */
+            status: string;
+            /** Support Forms */
+            support_forms: string[];
+            /** Version */
+            version: number;
+        };
+        /**
+         * TargetAvailabilityResponse
+         * @description Whether a pitch may target this now, and why not when it may not.
+         */
+        TargetAvailabilityResponse: {
+            /** Available */
+            available: boolean;
+            /** Reason */
+            reason: ("TARGET_NOT_ACTIVE" | "EXTERNAL_ROUTE" | "NO_NEW_APPROACHES" | "DIRECT_INTAKE_CLOSED" | "INTAKE_UNCONFIRMED") | null;
+        };
+        /**
+         * TransitionRequest
+         * @description Activate, pause or close against the version the client saw.
+         */
+        TransitionRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /** Expected Version */
+            expected_version: number;
+        };
+        /**
+         * UpdateFundingRequest
+         * @description Replace the content against the version the client saw.
+         */
+        UpdateFundingRequest: {
+            /**
+             * Accepts Partial
+             * @default false
+             */
+            accepts_partial?: boolean;
+            /**
+             * Accepts Syndicated
+             * @default false
+             */
+            accepts_syndicated?: boolean;
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /** Currency */
+            currency?: string | null;
+            /** Desired Max */
+            desired_max?: string | null;
+            /** Desired Min */
+            desired_min?: string | null;
+            /** Expected Version */
+            expected_version: number;
+            /** Financing Form */
+            financing_form?: ("equity" | "convertible_note" | "safe" | "debt" | "revenue_based") | null;
+            /** Financing Stage */
+            financing_stage?: ("pre_seed" | "seed" | "series_a" | "series_b_plus" | "bridge") | null;
+            /**
+             * Intended Use
+             * @default
+             */
+            intended_use?: string;
+            /**
+             * Invention Ids
+             * @default []
+             */
+            invention_ids?: string[];
+            /** Legal Entity Id */
+            legal_entity_id?: string | null;
+            /**
+             * Proposed Name
+             * @default
+             */
+            proposed_name?: string;
+            /**
+             * Subject Type
+             * @enum {string}
+             */
+            subject_type: "EXISTING_ENTITY" | "PROPOSED_ENTITY";
+            /** Target Amount */
+            target_amount?: string | null;
+            /**
+             * Timing
+             * @default
+             */
+            timing?: string;
+        };
+        /**
+         * UpdateMeRequest
+         * @description Change account preferences.
+         */
+        UpdateMeRequest: {
+            /** Display Name */
+            display_name?: string | null;
+            /** Expected Version */
+            expected_version: number;
+            /** Locale */
+            locale?: ("id" | "en") | null;
+            /** Persona */
+            persona?: ("inovator" | "mitra") | null;
+            /** Time Zone */
+            time_zone?: string | null;
+        };
+        /**
+         * UpdateSupportRequest
+         * @description Replace the content against the version the client saw.
+         */
+        UpdateSupportRequest: {
+            /**
+             * Accepts Noncash
+             * @default false
+             */
+            accepts_noncash?: boolean;
+            /**
+             * Accepts Partial
+             * @default false
+             */
+            accepts_partial?: boolean;
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            budget?: components["schemas"]["BudgetInput"] | null;
+            /** Expected Version */
+            expected_version: number;
+            /** Months */
+            months?: number | null;
+            /**
+             * Noncash Description
+             * @default
+             */
+            noncash_description?: string;
+            /**
+             * Outcome
+             * @default
+             */
+            outcome?: string;
+            /**
+             * Region
+             * @default
+             */
+            region?: string;
+            /**
+             * Relationship Form
+             * @default PROJECT
+             * @enum {string}
+             */
+            relationship_form?: "PROJECT" | "LICENSE";
+            /**
+             * Scope
+             * @default
+             */
+            scope?: string;
+            /**
+             * Support Forms
+             * @default []
+             */
+            support_forms?: ("project_funding" | "testing_support" | "mentoring" | "facilities" | "distribution" | "technical_partner" | "other")[];
+        };
+        /**
+         * UploadIntentRequest
+         * @description Declare a file before sending it, so size and type are refused before any byte moves.
+         */
+        UploadIntentRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /** Document Id */
+            document_id?: string | null;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "evidence" | "presentation" | "technical" | "other";
+            /** Media Type */
+            media_type: string;
+            /** Size Bytes */
+            size_bytes: number;
+            /** Title */
+            title: string;
+        };
+        /**
+         * UploadIntentResponse
+         * @description Where and until when to send the bytes.
+         */
+        UploadIntentResponse: {
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            /**
+             * Intent Id
+             * Format: uuid
+             */
+            intent_id: string;
+            /** Max Bytes */
+            max_bytes: number;
+            /** Upload Url */
+            upload_url: string;
+        };
+        /**
+         * UploadedResponse
+         * @description The stored version; available only after the scan.
+         */
+        UploadedResponse: {
+            /**
+             * Document Id
+             * Format: uuid
+             */
+            document_id: string;
+            /** File State */
+            file_state: string;
+            /** Number */
+            number: number;
+        };
+        /**
+         * VerifyRequest
+         * @description Prove control of the email.
+         */
+        VerifyRequest: {
+            /** Code */
+            code: string;
+            /** Email */
+            email: string;
+        };
+        /**
+         * VersionedActionRequest
+         * @description Publish or archive against the version the client saw.
+         */
+        VersionedActionRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /** Expected Version */
+            expected_version: number;
         };
     };
     responses: never;
@@ -211,6 +3858,117 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    request_code_api_v1_auth_code_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CodeRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CodeSentResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    sign_out_api_v1_auth_sign_out_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    verify_api_v1_auth_verify_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VerifyRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     get_capabilities_api_v1_capabilities_get: {
         parameters: {
             query?: never;
@@ -227,6 +3985,2305 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CapabilityManifestResponse"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    read_mailbox_api_v1_dev_mailbox_get: {
+        parameters: {
+            query: {
+                email: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MailboxMessageResponse"][];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    list_documents_api_v1_documents_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocumentResponse"][];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    create_upload_intent_api_v1_documents_upload_intents_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UploadIntentRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UploadIntentResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    upload_content_api_v1_documents_upload_intents__intent_id__content_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                intent_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UploadedResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    read_document_api_v1_documents__document_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                document_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocumentResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    grant_document_api_v1_documents__document_id__grants_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                document_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GrantRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GrantResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    download_api_v1_documents__document_id__versions__number__content_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                document_id: string;
+                number: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    list_funding_requests_api_v1_funding_requests_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FundingRequestResponse"][];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    create_funding_request_api_v1_funding_requests_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FundingRequestInput"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FundingRequestResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    read_funding_request_api_v1_funding_requests__request_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FundingRequestResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    update_funding_request_api_v1_funding_requests__request_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateFundingRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FundingRequestResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    activate_funding_request_api_v1_funding_requests__request_id__activate_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TransitionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FundingRequestResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    close_funding_request_api_v1_funding_requests__request_id__close_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TransitionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FundingRequestResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    pause_funding_request_api_v1_funding_requests__request_id__pause_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TransitionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FundingRequestResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    read_funding_request_version_api_v1_funding_requests__request_id__versions__number__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: string;
+                number: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    revoke_grant_api_v1_grants__grant_id__revoke_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                grant_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RevokeRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RevokedResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    list_inventions_api_v1_inventions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventionSummaryResponse"][];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    create_invention_api_v1_inventions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateInventionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventionResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    read_invention_api_v1_inventions__invention_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                invention_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventionResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    archive_invention_api_v1_inventions__invention_id__archive_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                invention_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VersionedActionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventionResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    save_draft_api_v1_inventions__invention_id__draft_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                invention_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DraftRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventionResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    read_public_api_v1_inventions__invention_id__public_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                invention_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicInventionResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    publish_invention_api_v1_inventions__invention_id__publish_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                invention_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VersionedActionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublishResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    revoke_invitation_api_v1_invitations__invitation_id__revoke_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                invitation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ActingPartyRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvitationResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    read_invitation_api_v1_invitations__token__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvitationDetailResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    accept_invitation_api_v1_invitations__token__accept_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrganizationResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    list_legal_entities_api_v1_legal_entities_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LegalEntityResponse"][];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    declare_legal_entity_api_v1_legal_entities_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LegalEntityInput"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LegalEntityResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    get_me_api_v1_me_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeResponse"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    update_me_api_v1_me_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateMeRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    set_context_api_v1_me_context_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ContextRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    get_operation_api_v1_operations__operation_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                operation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OperationResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    list_opportunities_api_v1_opportunities_get: {
+        parameters: {
+            query?: {
+                partner_party_id?: string | null;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpportunityResponse"][];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    create_opportunity_api_v1_opportunities_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateOpportunityRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpportunityResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    read_opportunity_api_v1_opportunities__opportunity_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                opportunity_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpportunityResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    save_opportunity_api_v1_opportunities__opportunity_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                opportunity_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SaveOpportunityRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpportunityResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    activate_opportunity_api_v1_opportunities__opportunity_id__activate_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                opportunity_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OpportunityTransitionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpportunityResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    close_opportunity_api_v1_opportunities__opportunity_id__close_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                opportunity_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OpportunityTransitionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpportunityResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    pause_opportunity_api_v1_opportunities__opportunity_id__pause_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                opportunity_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OpportunityTransitionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpportunityResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    read_opportunity_version_api_v1_opportunities__opportunity_id__versions__number__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                opportunity_id: string;
+                number: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpportunityVersionResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    create_organization_api_v1_organizations_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateOrganizationRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrganizationResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    list_invitations_api_v1_organizations__organization_id__invitations_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                organization_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvitationResponse"][];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    invite_api_v1_organizations__organization_id__invitations_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                organization_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InviteRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvitationResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    list_members_api_v1_organizations__organization_id__members_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                organization_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberResponse"][];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    remove_member_api_v1_organizations__organization_id__members__account_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                organization_id: string;
+                account_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RemoveMemberRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    read_partner_api_v1_partners__party_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                party_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PartnerProfileResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    save_partner_api_v1_partners__party_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                party_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SavePartnerProfileRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PartnerProfileResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    record_handoff_api_v1_partners__party_id__handoffs_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                party_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RecordHandoffRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HandoffResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    list_support_requests_api_v1_support_requests_get: {
+        parameters: {
+            query?: {
+                invention_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupportRequestResponse"][];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    create_support_request_api_v1_support_requests_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateSupportRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupportRequestResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    read_support_request_api_v1_support_requests__request_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupportRequestResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    update_support_request_api_v1_support_requests__request_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateSupportRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupportRequestResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    activate_support_request_api_v1_support_requests__request_id__activate_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TransitionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupportRequestResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    close_support_request_api_v1_support_requests__request_id__close_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TransitionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupportRequestResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    pause_support_request_api_v1_support_requests__request_id__pause_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TransitionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupportRequestResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    read_support_request_version_api_v1_support_requests__request_id__versions__number__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: string;
+                number: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
             /** @description Failure */

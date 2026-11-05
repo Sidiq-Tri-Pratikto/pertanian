@@ -2,7 +2,7 @@
 
 **Feature Branch**: `010-documents-api`
 **Created**: 2026-11-05
-**Status**: Seeded, not started
+**Status**: Built, awaiting review
 **Milestone**: M2 Portfolio and evidence
 **Depends on**: 009
 **Size**: L

@@ -39,6 +39,19 @@ export function Screen({ persona, current, title, subtitle, back, context, prove
     return () => window.removeEventListener('resize', fit);
   }, []);
 
+  // Browsers do not scroll a control that is already partly visible, so a tall field can take focus under the sticky
+  // tab bar. Scrolling it into view honours the design system's scroll-padding, which clears the bar (UX-21).
+  useEffect(() => {
+    function reveal(event: FocusEvent) {
+      const target = event.target as HTMLElement | null;
+      const tabbar = bar.current;
+      if (!target || !tabbar || tabbar.contains(target) || getComputedStyle(tabbar).display === 'none') return;
+      if (target.getBoundingClientRect().bottom > tabbar.getBoundingClientRect().top) target.scrollIntoView({ block: 'nearest' });
+    }
+    document.addEventListener('focusin', reveal);
+    return () => document.removeEventListener('focusin', reveal);
+  }, []);
+
   function item(entry: NavItem, className: string, short: boolean) {
     return (
       <Link

@@ -15,14 +15,16 @@ type ButtonProps = {
   /** Non-empty means disabled. The control stays focusable and the reason stays visible and linked. */
   disabledReason?: string | null;
   onClick?: (event: MouseEvent<HTMLButtonElement>) => void;
+  id?: string;
 };
 
 /** Port of TR.Button: one primary action per task region. */
-export function Button({ children, intent = 'secondary', type = 'button', icon, busy, busyLabel, disabledReason, onClick }: ButtonProps) {
+export function Button({ children, intent = 'secondary', type = 'button', icon, busy, busyLabel, disabledReason, onClick, id }: ButtonProps) {
   const reasonId = `${useId()}-reason`;
   const blocked = Boolean(disabledReason);
   const button = (
     <button
+      id={id}
       type={type}
       className={`tr-btn tr-btn--${intent}`}
       aria-disabled={blocked || undefined}

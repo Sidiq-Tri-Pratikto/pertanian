@@ -62,6 +62,7 @@ make test              # API unit tests and web tests, no Docker
 make test-api          # all API tests, including integration; needs Docker
 make test-web          # web tests only
 make check             # everything a pull request must pass; needs Docker
+make e2e               # browser checks in Chromium against a production build; needs Docker
 make stop              # stop the Postgres that make check leaves running
 make reset-db          # delete the local database volume
 ```
@@ -73,6 +74,7 @@ make install           # uv sync and pre-commit hooks
 make run-dependencies  # local Postgres on host port 5442
 make migrate           # Alembic migrations
 make run               # API on port 8020 with reload
+make worker            # outbox and job worker: python -m app.worker
 make test-unit         # unit tests, no services needed
 make test-integration  # integration tests, needs Postgres
 make openapi           # export the API contract to contracts/openapi.json
@@ -100,4 +102,6 @@ A second Python service: copy `applications/temuriset-api/` without `.venv`, ren
 - Run targeted tests before the full suite.
 - Treat a failing bootstrap (no Docker, no network) as an environment blocker, not a product regression.
 - Never claim a check passed without running it and reading its output.
+- Register every new API data route in `tests/integration/test_isolation.py`; the harness fails until you do.
+- Authorize through `app/access/service/policy.py` only: `NOT_FOUND` for what the active party cannot see, `FORBIDDEN` for a missing capability.
 - A browser check in jsdom never proves contrast, focus visibility or reflow; say which runtime was exercised.

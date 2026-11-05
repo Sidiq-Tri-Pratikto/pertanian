@@ -42,6 +42,16 @@ test-coverage:
 .PHONY: check
 check: lint typecheck test-coverage
 
+# Real-browser checks (spec 003): production build, then Chromium at 320, 360, 768 and 1280 px.
+# Needs the API answering at API_URL, or at E2E_API_URL when set; the root `make e2e` starts it for you.
+.PHONY: e2e
+e2e: .env
+	set -a && . ./.env && set +a && export API_URL=$${E2E_API_URL:-$$API_URL} && npx next build && npx playwright test
+
+.PHONY: e2e-install
+e2e-install:
+	npx playwright install --with-deps chromium
+
 # Copies the design system stylesheets verbatim. CI fails when the copy drifts from the source.
 .PHONY: design
 design:

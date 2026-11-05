@@ -2,7 +2,7 @@
 
 **Feature Branch**: `003-browser-checks`
 **Created**: 2026-11-05
-**Status**: Seeded, not started
+**Status**: Built, awaiting review
 **Milestone**: M0 Foundations
 **Depends on**: 002
 **Size**: M

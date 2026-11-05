@@ -31,7 +31,7 @@ migrations/versions/0001_platform.py
 
 `GET /api/v1/operations/{id}` → `{"operation_id": "...", "status": "COMMITTED", "result": {"type": "pitch", "id": "..."}}`; statuses `PENDING`, `COMMITTED`, `UNKNOWN`.
 
-Request digest: SHA-256 of actor party, operation name and the canonical JSON body (sorted keys). Stored response: status code and body.
+Request digest: SHA-256 of actor party, operation name, request path and the canonical JSON body (sorted keys). Stored response: status code and body.
 
 ## Prototype Reference
 

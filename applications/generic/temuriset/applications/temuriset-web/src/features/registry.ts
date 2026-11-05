@@ -13,6 +13,10 @@ export type Feature = {
   screens: string[];
   specs: string[];
   status: FeatureStatus;
+  /** Optional capability the feature needs; absent from deployments that do not run it. */
+  capability?: string;
+  /** Where a shipped feature lives. */
+  home?: string;
 };
 
 export const FEATURES: Feature[] = [
@@ -27,7 +31,8 @@ export const FEATURES: Feature[] = [
     ],
     screens: ['S01', 'S18'],
     specs: ['006', '007', '008'],
-    status: 'coming_soon',
+    status: 'available',
+    home: '/settings',
   },
   {
     id: 'inovasi',
@@ -40,7 +45,8 @@ export const FEATURES: Feature[] = [
     ],
     screens: ['S04', 'S05'],
     specs: ['009', '011'],
-    status: 'coming_soon',
+    status: 'available',
+    home: '/inventions',
   },
   {
     id: 'dokumen',
@@ -53,7 +59,8 @@ export const FEATURES: Feature[] = [
     ],
     screens: ['S05', 'S13'],
     specs: ['010', '012'],
-    status: 'coming_soon',
+    status: 'available',
+    home: '/inventions',
   },
   {
     id: 'dukungan-proyek',
@@ -66,10 +73,12 @@ export const FEATURES: Feature[] = [
     ],
     screens: ['S06'],
     specs: ['013', '015'],
-    status: 'coming_soon',
+    status: 'available',
+    home: '/support-requests',
   },
   {
     id: 'pendanaan-perusahaan',
+    capability: 'company_funding',
     title: 'Pendanaan Perusahaan',
     summary: 'Catat satu putaran pendanaan perusahaan yang dapat didukung beberapa inovasi.',
     points: [
@@ -79,7 +88,8 @@ export const FEATURES: Feature[] = [
     ],
     screens: ['S07'],
     specs: ['014', '015'],
-    status: 'coming_soon',
+    status: 'available',
+    home: '/support-requests#pendanaan',
   },
   {
     id: 'profil-mitra',
@@ -92,7 +102,8 @@ export const FEATURES: Feature[] = [
     ],
     screens: ['S08'],
     specs: ['016', '017'],
-    status: 'coming_soon',
+    status: 'available',
+    home: '/opportunities',
   },
   {
     id: 'mandat',
@@ -105,7 +116,8 @@ export const FEATURES: Feature[] = [
     ],
     screens: ['S09'],
     specs: ['016', '017'],
-    status: 'coming_soon',
+    status: 'available',
+    home: '/opportunities',
   },
   {
     id: 'jelajahi',
@@ -235,6 +247,7 @@ export const FEATURES: Feature[] = [
   },
   {
     id: 'tinjauan-organisasi',
+    capability: 'organization_review',
     title: 'Tinjauan organisasi',
     summary: 'Organisasi dapat meninjau versi yang tepat sebelum diterbitkan atau dikirim.',
     points: [
@@ -303,6 +316,14 @@ export const FEATURES: Feature[] = [
     status: 'coming_soon',
   },
 ];
+
+/** Capability ids this deployment runs, or `null` when the manifest could not be read. */
+export type Capabilities = string[] | null;
+
+/** A feature tied to an optional capability is offered only when the deployment runs it. */
+export function isOffered(feature: Feature, capabilities: Capabilities): boolean {
+  return feature.capability === undefined || (capabilities?.includes(feature.capability) ?? false);
+}
 
 export function findFeature(id: string | undefined): Feature | undefined {
   return FEATURES.find((feature) => feature.id === id);

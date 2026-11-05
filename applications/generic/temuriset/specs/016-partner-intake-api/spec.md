@@ -2,7 +2,7 @@
 
 **Feature Branch**: `016-partner-intake-api`
 **Created**: 2026-11-05
-**Status**: Seeded, not started
+**Status**: Built, awaiting review
 **Milestone**: M4 Partner intake
 **Depends on**: 007
 **Size**: L

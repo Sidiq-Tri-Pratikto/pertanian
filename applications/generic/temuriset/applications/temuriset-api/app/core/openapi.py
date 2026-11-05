@@ -34,6 +34,8 @@ class ErrorBody(BaseModel):
     request_id: str
     recovery: ErrorRecovery
     details: list[ErrorFieldDetail] | None = None
+    current_version: int | None = None
+    attempts_left: int | None = None
 
 
 class ErrorEnvelope(BaseModel):

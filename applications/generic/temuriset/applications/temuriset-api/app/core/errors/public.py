@@ -25,6 +25,8 @@ class PublicError:
     recovery: dict[str, Any] = field(default_factory=lambda: {"retryable": False})
 
 
+_FIXED_FIELDS = frozenset({"code", "message", "request_id", "recovery"})
+
 FALLBACK_PUBLIC_ERROR = PublicError("INTERNAL_ERROR", 500, _FALLBACK_MESSAGE)
 
 PUBLIC_ERROR_BY_CODE: dict[str, PublicError] = {
@@ -48,6 +50,76 @@ PUBLIC_ERROR_BY_CODE: dict[str, PublicError] = {
         503,
         "Layanan data sedang tidak tersedia. Coba lagi beberapa menit lagi.",
         {"retryable": True, "retry_after_seconds": 30, "max_attempts": 3},
+    ),
+    codes.APP_CAPABILITY_UNAVAILABLE: PublicError(
+        "CAPABILITY_UNAVAILABLE",
+        403,
+        "Fitur ini tidak tersedia pada layanan ini. Hubungi pengelola layanan bila Anda memerlukannya.",
+    ),
+    codes.APP_UNAUTHENTICATED: PublicError(
+        "UNAUTHENTICATED", 401, "Anda perlu masuk terlebih dahulu. Masuk lalu coba lagi."
+    ),
+    codes.APP_STALE_VERSION: PublicError(
+        "STALE_VERSION",
+        409,
+        "Data ini sudah diubah sejak Anda membukanya. Muat ulang versi terbaru lalu ulangi perubahan Anda.",
+    ),
+    codes.APP_IDEMPOTENCY_CONFLICT: PublicError(
+        "IDEMPOTENCY_CONFLICT",
+        409,
+        "Kunci permintaan ini sudah dipakai untuk isi berbeda. Gunakan kunci baru untuk permintaan baru.",
+    ),
+    codes.APP_FORBIDDEN: PublicError(
+        "FORBIDDEN", 403, "Anda tidak memiliki akses untuk permintaan ini. Hubungi pemilik data bila perlu akses."
+    ),
+    codes.APP_CODE_INVALID: PublicError(
+        "CODE_INVALID", 422, "Kode verifikasi tidak cocok. Periksa kode di email Anda lalu coba lagi."
+    ),
+    codes.APP_CODE_EXPIRED: PublicError(
+        "CODE_EXPIRED", 422, "Kode verifikasi sudah tidak berlaku. Minta kode baru lalu masukkan kode tersebut."
+    ),
+    codes.APP_RATE_LIMITED: PublicError(
+        "RATE_LIMITED",
+        429,
+        "Terlalu banyak permintaan kode. Tunggu sebentar lalu coba lagi.",
+        {"retryable": True, "retry_after_seconds": 60, "max_attempts": 3},
+    ),
+    codes.APP_STALE_CONTEXT: PublicError(
+        "STALE_CONTEXT",
+        409,
+        "Anda kini bertindak sebagai pihak lain di tab berbeda. Muat ulang halaman lalu ulangi tindakan Anda.",
+    ),
+    codes.APP_INVITATION_EXPIRED: PublicError(
+        "INVITATION_EXPIRED",
+        410,
+        "Undangan ini sudah tidak berlaku. Minta undangan baru kepada pengelola organisasi.",
+    ),
+    codes.APP_PUBLICATION_INVALID: PublicError(
+        "VALIDATION_FAILED", 422, "Draf belum siap diterbitkan. Lengkapi isian yang ditandai lalu terbitkan lagi."
+    ),
+    codes.APP_FILE_TOO_LARGE: PublicError(
+        "FILE_TOO_LARGE", 422, "Berkas melebihi batas ukuran. Kecilkan berkas lalu unggah lagi."
+    ),
+    codes.APP_FILE_TYPE_UNSUPPORTED: PublicError(
+        "FILE_TYPE_UNSUPPORTED", 422, "Jenis berkas ini tidak didukung. Unggah PDF, DOCX, PNG, JPEG atau WEBP."
+    ),
+    codes.APP_FILE_NOT_AVAILABLE: PublicError(
+        "FILE_NOT_AVAILABLE",
+        409,
+        "Berkas ini belum tersedia atau ditolak saat pemeriksaan. Tunggu pemeriksaan selesai.",
+    ),
+    codes.APP_GRANT_REVOKED: PublicError(
+        "GRANT_REVOKED",
+        403,
+        "Akses ke dokumen ini sudah dicabut. Salinan yang sudah diunduh sebelumnya tidak dapat ditarik kembali.",
+    ),
+    codes.APP_FIELDS_INVALID: PublicError(
+        "VALIDATION_FAILED", 422, "Ada isian yang belum valid. Perbaiki isian yang ditandai lalu simpan lagi."
+    ),
+    codes.APP_INVALID_TRANSITION: PublicError(
+        "INVALID_TRANSITION",
+        409,
+        "Status ini tidak dapat diubah dengan cara itu. Muat ulang untuk melihat status terbaru.",
     ),
 }
 
@@ -140,13 +212,21 @@ def public_error_for_status(status_code: int) -> PublicError:
     return PublicError(code, status_code, _FALLBACK_MESSAGE)
 
 
-def error_response(public: PublicError, request_id: str, *, details: list[dict[str, Any]] | None = None) -> dict:
+def error_response(
+    public: PublicError,
+    request_id: str,
+    *,
+    details: list[dict[str, Any]] | None = None,
+    extra: dict[str, Any] | None = None,
+) -> dict:
     """Build the public envelope.
 
     Args:
         public (PublicError): The public definition.
         request_id (str): The failure's reference ID.
         details (list[dict[str, Any]] | None, optional): Safe field errors for validation failures. Defaults to None.
+        extra (dict[str, Any] | None, optional): Safe typed fields such as ``current_version``; they never replace
+            the fixed fields. Defaults to None.
 
     Returns:
         dict: The response body.
@@ -157,6 +237,7 @@ def error_response(public: PublicError, request_id: str, *, details: list[dict[s
         "request_id": request_id,
         "recovery": dict(public.recovery),
     }
+    error.update({key: value for key, value in (extra or {}).items() if key not in _FIXED_FIELDS})
     if details is not None:
         error["details"] = details
     return {"error": error}
