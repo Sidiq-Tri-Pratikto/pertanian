@@ -2,7 +2,7 @@
 
 **Feature Branch**: `006-accounts-sessions`
 **Created**: 2026-11-05
-**Status**: Seeded, not started
+**Status**: Built, awaiting review
 **Milestone**: M1 Identity and access
 **Depends on**: 005
 **Size**: L

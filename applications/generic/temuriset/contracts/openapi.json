@@ -1,6 +1,61 @@
 {
   "components": {
     "schemas": {
+      "AccountResponse": {
+        "description": "The signed-in account. A verified email proves control of the address, nothing more.",
+        "properties": {
+          "display_name": {
+            "title": "Display Name",
+            "type": "string"
+          },
+          "email": {
+            "title": "Email",
+            "type": "string"
+          },
+          "email_verified": {
+            "title": "Email Verified",
+            "type": "boolean"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "locale": {
+            "title": "Locale",
+            "type": "string"
+          },
+          "persona": {
+            "title": "Persona",
+            "type": "string"
+          },
+          "time_zone": {
+            "title": "Time Zone",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "display_name",
+          "email",
+          "email_verified",
+          "locale",
+          "time_zone",
+          "persona",
+          "kind",
+          "version"
+        ],
+        "title": "AccountResponse",
+        "type": "object"
+      },
       "AdapterResponse": {
         "description": "One data source adapter.",
         "properties": {
@@ -111,6 +166,81 @@
         ],
         "title": "CapabilityStatus",
         "type": "string"
+      },
+      "CodeRequest": {
+        "description": "Ask for a sign-in code. Sign-up also carries the profile, applied only when the code is verified.",
+        "properties": {
+          "display_name": {
+            "anyOf": [
+              {
+                "maxLength": 80,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Name"
+          },
+          "email": {
+            "maxLength": 254,
+            "pattern": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$",
+            "title": "Email",
+            "type": "string"
+          },
+          "locale": {
+            "default": "id",
+            "enum": [
+              "id",
+              "en"
+            ],
+            "title": "Locale",
+            "type": "string"
+          },
+          "persona": {
+            "default": "inovator",
+            "enum": [
+              "inovator",
+              "mitra"
+            ],
+            "title": "Persona",
+            "type": "string"
+          },
+          "purpose": {
+            "enum": [
+              "sign_up",
+              "sign_in"
+            ],
+            "title": "Purpose",
+            "type": "string"
+          },
+          "time_zone": {
+            "default": "Asia/Jakarta",
+            "maxLength": 64,
+            "title": "Time Zone",
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "purpose"
+        ],
+        "title": "CodeRequest",
+        "type": "object"
+      },
+      "CodeSentResponse": {
+        "description": "Always the same answer, so it never reveals whether an account exists.",
+        "properties": {
+          "sent": {
+            "const": true,
+            "default": true,
+            "title": "Sent",
+            "type": "boolean"
+          }
+        },
+        "title": "CodeSentResponse",
+        "type": "object"
       },
       "CompositionResponse": {
         "description": "The validated product composition of this deployment.",
@@ -271,6 +401,103 @@
         "title": "ErrorRecovery",
         "type": "object"
       },
+      "MailboxMessageResponse": {
+        "description": "One development mailbox message.",
+        "properties": {
+          "body": {
+            "title": "Body",
+            "type": "string"
+          },
+          "subject": {
+            "title": "Subject",
+            "type": "string"
+          },
+          "to_email": {
+            "title": "To Email",
+            "type": "string"
+          }
+        },
+        "required": [
+          "to_email",
+          "subject",
+          "body"
+        ],
+        "title": "MailboxMessageResponse",
+        "type": "object"
+      },
+      "MeResponse": {
+        "description": "Who is signed in and as whom they act.",
+        "properties": {
+          "account": {
+            "$ref": "#/components/schemas/AccountResponse"
+          },
+          "active_party_id": {
+            "format": "uuid",
+            "title": "Active Party Id",
+            "type": "string"
+          },
+          "capabilities": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Capabilities",
+            "type": "array"
+          },
+          "organizations": {
+            "items": {
+              "$ref": "#/components/schemas/MembershipResponse"
+            },
+            "title": "Organizations",
+            "type": "array"
+          },
+          "personal_party_id": {
+            "format": "uuid",
+            "title": "Personal Party Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "account",
+          "personal_party_id",
+          "active_party_id"
+        ],
+        "title": "MeResponse",
+        "type": "object"
+      },
+      "MembershipResponse": {
+        "description": "One organization the account belongs to, and what it may do there.",
+        "properties": {
+          "capabilities": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Capabilities",
+            "type": "array"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "organization_id": {
+            "format": "uuid",
+            "title": "Organization Id",
+            "type": "string"
+          },
+          "party_id": {
+            "format": "uuid",
+            "title": "Party Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "organization_id",
+          "party_id",
+          "name",
+          "capabilities"
+        ],
+        "title": "MembershipResponse",
+        "type": "object"
+      },
       "OperationResponse": {
         "description": "Status of one operation, for a client that never received its response.",
         "properties": {
@@ -347,6 +574,97 @@
         ],
         "title": "PolicyResponse",
         "type": "object"
+      },
+      "UpdateMeRequest": {
+        "description": "Change account preferences.",
+        "properties": {
+          "display_name": {
+            "anyOf": [
+              {
+                "maxLength": 80,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Name"
+          },
+          "expected_version": {
+            "title": "Expected Version",
+            "type": "integer"
+          },
+          "locale": {
+            "anyOf": [
+              {
+                "enum": [
+                  "id",
+                  "en"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Locale"
+          },
+          "persona": {
+            "anyOf": [
+              {
+                "enum": [
+                  "inovator",
+                  "mitra"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Persona"
+          },
+          "time_zone": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Time Zone"
+          }
+        },
+        "required": [
+          "expected_version"
+        ],
+        "title": "UpdateMeRequest",
+        "type": "object"
+      },
+      "VerifyRequest": {
+        "description": "Prove control of the email.",
+        "properties": {
+          "code": {
+            "pattern": "^\\d{6}$",
+            "title": "Code",
+            "type": "string"
+          },
+          "email": {
+            "maxLength": 254,
+            "pattern": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$",
+            "title": "Email",
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "code"
+        ],
+        "title": "VerifyRequest",
+        "type": "object"
       }
     }
   },
@@ -356,6 +674,135 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/v1/auth/code": {
+      "post": {
+        "description": "Email a six-digit code. The answer is the same whether or not the email has an account.\n\nArgs:\n    body (CodeRequest): Email, purpose and, for sign-up, the profile.\n    request (Request): The request.\n    session (SessionDep): Database session.\n\nReturns:\n    CodeSentResponse: Always ``{\"sent\": true}``.",
+        "operationId": "request_code_api_v1_auth_code_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CodeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CodeSentResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Email a sign-in code",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/auth/sign-out": {
+      "post": {
+        "description": "Revoke this session and clear its cookie.\n\nArgs:\n    principal (PrincipalDep): Who is signed in.\n    response (Response): Clears the cookie.\n    session (SessionDep): Database session.",
+        "operationId": "sign_out_api_v1_auth_sign_out_post",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Sign out",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/auth/verify": {
+      "post": {
+        "description": "Check the code, start a session cookie and return the account.\n\nArgs:\n    body (VerifyRequest): Email and code.\n    response (Response): Carries the session cookie.\n    session (SessionDep): Database session.\n\nReturns:\n    MeResponse: The signed-in account.",
+        "operationId": "verify_api_v1_auth_verify_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Verify a code and sign in",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
     "/api/v1/capabilities": {
       "get": {
         "description": "Return the non-secret manifest clients use to explain what is available.\n\nReturns:\n    CapabilityManifestResponse: The manifest.",
@@ -385,6 +832,147 @@
         "summary": "Describe this deployment",
         "tags": [
           "capabilities"
+        ]
+      }
+    },
+    "/api/v1/dev/mailbox": {
+      "get": {
+        "description": "Return the newest messages sent to an email, so sign-in can be tested without real email.\n\nArgs:\n    email (Email): Recipient.\n    session (SessionDep): Database session.\n\nReturns:\n    list[MailboxMessageResponse]: Newest first.",
+        "operationId": "read_mailbox_api_v1_dev_mailbox_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "email",
+            "required": true,
+            "schema": {
+              "maxLength": 254,
+              "pattern": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$",
+              "title": "Email",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/MailboxMessageResponse"
+                  },
+                  "title": "Response Read Mailbox Api V1 Dev Mailbox Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Read the development mailbox",
+        "tags": [
+          "development"
+        ]
+      }
+    },
+    "/api/v1/me": {
+      "get": {
+        "description": "Return the signed-in account and the party it acts as.\n\nArgs:\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    MeResponse: The account.",
+        "operationId": "get_me_api_v1_me_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Read the signed-in account",
+        "tags": [
+          "account"
+        ]
+      },
+      "patch": {
+        "description": "Change display name, locale, time zone or persona against ``expected_version``.\n\nArgs:\n    body (UpdateMeRequest): Changes.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    MeResponse: The updated account.",
+        "operationId": "update_me_api_v1_me_patch",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Change account preferences",
+        "tags": [
+          "account"
         ]
       }
     },

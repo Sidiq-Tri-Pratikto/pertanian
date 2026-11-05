@@ -5,15 +5,8 @@ from uuid import UUID
 
 from fastapi import Depends, Header
 
-from app.core.errors import codes
-from app.core.errors.base import AppError
+from app.core.security import UnauthenticatedError
 from app.core.settings import get_settings
-
-
-class UnauthenticatedError(AppError):
-    """The request has no acting party the service can trust."""
-
-    code = codes.APP_UNAUTHENTICATED
 
 
 async def current_actor_party_id(x_party_id: Annotated[UUID | None, Header()] = None) -> UUID:

@@ -60,4 +60,9 @@ def validate_configuration(settings: Settings) -> tuple[str, ...]:
             f"FILE_SCANNER={settings.file_scanner} is allowed only in development. "
             f"Use clamav in {settings.environment}."
         )
+    if settings.environment != "development" and settings.mailbox_adapter == "development":
+        raise ConfigurationError(
+            f"MAILBOX_ADAPTER=development is allowed only in development. Configure email delivery for "
+            f"{settings.environment} (spec 042)."
+        )
     return capability_ids

@@ -64,7 +64,7 @@ make -C "$API_DIR" migrate >/dev/null
 
 say "[3/4] Starting API on port $API_PORT"
 set -m # Own process group, so cleanup also stops uvicorn's reloader.
-make -C "$API_DIR" run PORT="$API_PORT" &
+WEB_ORIGIN="http://localhost:$WEB_PORT" make -C "$API_DIR" run PORT="$API_PORT" &
 API_PID=$!
 set +m
 

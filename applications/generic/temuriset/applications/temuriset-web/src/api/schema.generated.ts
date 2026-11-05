@@ -4,6 +4,87 @@
  */
 
 export interface paths {
+    "/api/v1/auth/code": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Email a sign-in code
+         * @description Email a six-digit code. The answer is the same whether or not the email has an account.
+         *
+         *     Args:
+         *         body (CodeRequest): Email, purpose and, for sign-up, the profile.
+         *         request (Request): The request.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         CodeSentResponse: Always ``{"sent": true}``.
+         */
+        post: operations["request_code_api_v1_auth_code_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/sign-out": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Sign out
+         * @description Revoke this session and clear its cookie.
+         *
+         *     Args:
+         *         principal (PrincipalDep): Who is signed in.
+         *         response (Response): Clears the cookie.
+         *         session (SessionDep): Database session.
+         */
+        post: operations["sign_out_api_v1_auth_sign_out_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Verify a code and sign in
+         * @description Check the code, start a session cookie and return the account.
+         *
+         *     Args:
+         *         body (VerifyRequest): Email and code.
+         *         response (Response): Carries the session cookie.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         MeResponse: The signed-in account.
+         */
+        post: operations["verify_api_v1_auth_verify_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/capabilities": {
         parameters: {
             query?: never;
@@ -25,6 +106,72 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dev/mailbox": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read the development mailbox
+         * @description Return the newest messages sent to an email, so sign-in can be tested without real email.
+         *
+         *     Args:
+         *         email (Email): Recipient.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         list[MailboxMessageResponse]: Newest first.
+         */
+        get: operations["read_mailbox_api_v1_dev_mailbox_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read the signed-in account
+         * @description Return the signed-in account and the party it acts as.
+         *
+         *     Args:
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         MeResponse: The account.
+         */
+        get: operations["get_me_api_v1_me_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Change account preferences
+         * @description Change display name, locale, time zone or persona against ``expected_version``.
+         *
+         *     Args:
+         *         body (UpdateMeRequest): Changes.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         MeResponse: The updated account.
+         */
+        patch: operations["update_me_api_v1_me_patch"];
         trace?: never;
     };
     "/api/v1/operations/{operation_id}": {
@@ -113,6 +260,33 @@ export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
         /**
+         * AccountResponse
+         * @description The signed-in account. A verified email proves control of the address, nothing more.
+         */
+        AccountResponse: {
+            /** Display Name */
+            display_name: string;
+            /** Email */
+            email: string;
+            /** Email Verified */
+            email_verified: boolean;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Kind */
+            kind: string;
+            /** Locale */
+            locale: string;
+            /** Persona */
+            persona: string;
+            /** Time Zone */
+            time_zone: string;
+            /** Version */
+            version: number;
+        };
+        /**
          * AdapterResponse
          * @description One data source adapter.
          */
@@ -159,6 +333,50 @@ export interface components {
          * @enum {string}
          */
         CapabilityStatus: "planned" | "simulated" | "available";
+        /**
+         * CodeRequest
+         * @description Ask for a sign-in code. Sign-up also carries the profile, applied only when the code is verified.
+         */
+        CodeRequest: {
+            /** Display Name */
+            display_name?: string | null;
+            /** Email */
+            email: string;
+            /**
+             * Locale
+             * @default id
+             * @enum {string}
+             */
+            locale?: "id" | "en";
+            /**
+             * Persona
+             * @default inovator
+             * @enum {string}
+             */
+            persona?: "inovator" | "mitra";
+            /**
+             * Purpose
+             * @enum {string}
+             */
+            purpose: "sign_up" | "sign_in";
+            /**
+             * Time Zone
+             * @default Asia/Jakarta
+             */
+            time_zone?: string;
+        };
+        /**
+         * CodeSentResponse
+         * @description Always the same answer, so it never reveals whether an account exists.
+         */
+        CodeSentResponse: {
+            /**
+             * Sent
+             * @default true
+             * @constant
+             */
+            sent?: true;
+        };
         /**
          * CompositionResponse
          * @description The validated product composition of this deployment.
@@ -230,6 +448,59 @@ export interface components {
             retryable: boolean;
         };
         /**
+         * MailboxMessageResponse
+         * @description One development mailbox message.
+         */
+        MailboxMessageResponse: {
+            /** Body */
+            body: string;
+            /** Subject */
+            subject: string;
+            /** To Email */
+            to_email: string;
+        };
+        /**
+         * MeResponse
+         * @description Who is signed in and as whom they act.
+         */
+        MeResponse: {
+            account: components["schemas"]["AccountResponse"];
+            /**
+             * Active Party Id
+             * Format: uuid
+             */
+            active_party_id: string;
+            /** Capabilities */
+            capabilities?: string[];
+            /** Organizations */
+            organizations?: components["schemas"]["MembershipResponse"][];
+            /**
+             * Personal Party Id
+             * Format: uuid
+             */
+            personal_party_id: string;
+        };
+        /**
+         * MembershipResponse
+         * @description One organization the account belongs to, and what it may do there.
+         */
+        MembershipResponse: {
+            /** Capabilities */
+            capabilities: string[];
+            /** Name */
+            name: string;
+            /**
+             * Organization Id
+             * Format: uuid
+             */
+            organization_id: string;
+            /**
+             * Party Id
+             * Format: uuid
+             */
+            party_id: string;
+        };
+        /**
          * OperationResponse
          * @description Status of one operation, for a client that never received its response.
          */
@@ -268,6 +539,32 @@ export interface components {
             /** Version */
             version: number;
         };
+        /**
+         * UpdateMeRequest
+         * @description Change account preferences.
+         */
+        UpdateMeRequest: {
+            /** Display Name */
+            display_name?: string | null;
+            /** Expected Version */
+            expected_version: number;
+            /** Locale */
+            locale?: ("id" | "en") | null;
+            /** Persona */
+            persona?: ("inovator" | "mitra") | null;
+            /** Time Zone */
+            time_zone?: string | null;
+        };
+        /**
+         * VerifyRequest
+         * @description Prove control of the email.
+         */
+        VerifyRequest: {
+            /** Code */
+            code: string;
+            /** Email */
+            email: string;
+        };
     };
     responses: never;
     parameters: never;
@@ -277,6 +574,117 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    request_code_api_v1_auth_code_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CodeRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CodeSentResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    sign_out_api_v1_auth_sign_out_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    verify_api_v1_auth_verify_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VerifyRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     get_capabilities_api_v1_capabilities_get: {
         parameters: {
             query?: never;
@@ -293,6 +701,117 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CapabilityManifestResponse"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    read_mailbox_api_v1_dev_mailbox_get: {
+        parameters: {
+            query: {
+                email: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MailboxMessageResponse"][];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    get_me_api_v1_me_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeResponse"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    update_me_api_v1_me_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateMeRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
             /** @description Failure */

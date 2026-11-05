@@ -32,6 +32,7 @@ make check             # lint, format check, all tests, 80% coverage gate
 | `tests/unit/platform/` | Stale versions, request digest, acting-party placeholder, worker backoff and registry | Nothing |
 | `tests/unit/health/` | Liveness and readiness | Nothing |
 | `tests/integration/` | Real requests against Postgres after migrations | Postgres |
+| `tests/integration/identity/` | Sign-up for both personas without an organization, codes wrong, expired and used up, 1,000-guess brute force, rate limits, no account leak, sign-out, cross-origin refusal, `PATCH /me` | Postgres |
 | `tests/integration/platform/` | Idempotent replay and conflict, 20 parallel requests with one key, operations, append-only audit, outbox atomic with the request, worker retries, two workers, jobs | Postgres |
 
 Run one test with `uv run pytest tests/unit/health/test_health.py -v`, or match by name with `uv run pytest tests -k capabilities`. `make test-coverage` also writes an HTML report to `htmlcov/index.html`.
@@ -48,6 +49,11 @@ Run one test with `uv run pytest tests/unit/health/test_health.py -v`, or match 
 | `COMPOSITION` | no | `generic-base` | `generic-base`, `generic-with-review` or `project-support-only`; anything else stops startup |
 | `COMPOSITION_OVERRIDES` | no | `{}` | JSON object switching capabilities on or off on top of the composition, for example `{"organization_review": true}`. An unknown capability, a missing dependency or a secret-looking value stops startup |
 | `FILE_SCANNER` | no | `development-accept` | `clamav` or `development-accept`; the second stops startup outside development |
+| `WEB_ORIGIN` | no | `http://localhost:3020` | Origin of the web client; an unsafe request carrying the session cookie from any other origin gets `FORBIDDEN` |
+| `SESSION_COOKIE_SECURE` | no | unset | `Secure` flag on `tr_session`; unset means secure everywhere but development |
+| `MAILBOX_ADAPTER` | no | `development` | Writes email to `mailbox_messages`, readable at `GET /api/v1/dev/mailbox` in development; stops startup elsewhere until spec 042 |
+| `CODE_REQUESTS_PER_EMAIL_PER_HOUR` | no | `5` | Sign-in code requests per email per hour |
+| `CODE_REQUESTS_PER_ADDRESS_PER_HOUR` | no | `20` | Sign-in code requests per client address per hour |
 | `SKIP_MIGRATIONS` | no | `false` | Container start skips migrations when `true` |
 | `PORT` | no | `8000` | Container listen port (`make run` uses 8020 on the host) |
 
@@ -68,4 +74,9 @@ Run one test with `uv run pytest tests/unit/health/test_health.py -v`, or match 
 | `GET /health/live` | Liveness |
 | `GET /health/ready` | Readiness, checks the database |
 | `GET /api/v1/capabilities` | Non-secret deployment manifest; explains, never authorizes |
+| `POST /api/v1/auth/code` | Email a six-digit code for `sign_up` or `sign_in`; always 202, so it never reveals whether an account exists |
+| `POST /api/v1/auth/verify` | Check the code, set the `tr_session` cookie, return `/me`; sign-up creates the account and its personal party |
+| `POST /api/v1/auth/sign-out` | Revoke this session and clear the cookie |
+| `GET /api/v1/me`, `PATCH /api/v1/me` | The signed-in account; changes need `expected_version` |
+| `GET /api/v1/dev/mailbox?email=` | Development only: the codes and notes that would have been emailed |
 | `GET /api/v1/operations/{id}` | Whether the acting party's operation committed, for a client that lost the response. Until spec 007 the acting party is the `X-Party-Id` header, honoured only in development |

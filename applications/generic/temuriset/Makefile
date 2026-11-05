@@ -46,7 +46,7 @@ check: ## Everything a pull request must pass (needs Docker)
 e2e: ## Browser checks in Chromium against a production build (needs Docker)
 	$(if $(API_DEPENDENCIES),$(MAKE) -C $(API) $(API_DEPENDENCIES))
 	$(MAKE) -C $(API) migrate
-	@(cd $(API) && exec .venv/bin/python -m uvicorn app.main:app --port $(E2E_API_PORT) > /dev/null 2>&1) & api=$$!; \
+	@(cd $(API) && WEB_ORIGIN=http://localhost:3029 CODE_REQUESTS_PER_ADDRESS_PER_HOUR=1000 exec .venv/bin/python -m uvicorn app.main:app --port $(E2E_API_PORT) > /dev/null 2>&1) & api=$$!; \
 	trap 'kill $$api' EXIT; \
 	for i in $$(seq 1 60); do curl -sf http://localhost:$(E2E_API_PORT)/health/ready > /dev/null && break; sleep 0.5; done; \
 	E2E_API_URL=http://localhost:$(E2E_API_PORT) $(MAKE) -C $(WEB) e2e

@@ -9,20 +9,10 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core import clock
-from app.core.database import Base
+from app.core.database import Base, MutableRow, Row
 
 
-class _Row:
-    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
-    created_at: Mapped[datetime] = mapped_column(default=clock.now)
-
-
-class _MutableRow(_Row):
-    updated_at: Mapped[datetime] = mapped_column(default=clock.now, onupdate=clock.now)
-    version: Mapped[int] = mapped_column(default=1, server_default="1")
-
-
-class IdempotencyRecord(_MutableRow, Base):
+class IdempotencyRecord(MutableRow, Base):
     """One consequential request, keyed by actor, operation and client key."""
 
     __tablename__ = "idempotency_records"
@@ -44,7 +34,7 @@ class IdempotencyRecord(_MutableRow, Base):
     expires_at: Mapped[datetime]
 
 
-class AuditEventRecord(_Row, Base):
+class AuditEventRecord(Row, Base):
     """Who did what to which subject. Append-only: the database refuses updates and deletes."""
 
     __tablename__ = "audit_events"
@@ -58,7 +48,7 @@ class AuditEventRecord(_Row, Base):
     detail: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
 
 
-class OutboxEventRecord(_Row, Base):
+class OutboxEventRecord(Row, Base):
     """A side effect to run after its decision committed."""
 
     __tablename__ = "outbox_events"
@@ -72,7 +62,7 @@ class OutboxEventRecord(_Row, Base):
     last_error_code: Mapped[str | None] = mapped_column(String(64))
 
 
-class OutboxDeliveryRecord(_Row, Base):
+class OutboxDeliveryRecord(Row, Base):
     """One consumer handled one event. The unique pair makes consumers idempotent."""
 
     __tablename__ = "outbox_deliveries"
@@ -85,7 +75,7 @@ class OutboxDeliveryRecord(_Row, Base):
 JOB_STATUSES = ("PENDING", "RUNNING", "SUCCEEDED", "FAILED", "CANCELLED", "NEEDS_MANUAL_INPUT")
 
 
-class JobRecord(_MutableRow, Base):
+class JobRecord(MutableRow, Base):
     """Background work with a lifecycle the actor can follow."""
 
     __tablename__ = "jobs"

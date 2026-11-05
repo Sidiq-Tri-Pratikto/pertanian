@@ -14,6 +14,10 @@ One row per error. Keep in sync with `app/core/errors/codes.py` and `public.py`.
 | `APP-UNAUTHENTICATED` | `UNAUTHENTICATED` | 401 | Anda perlu masuk terlebih dahulu. Masuk lalu coba lagi. | No trusted acting party (until 007: the development-only `X-Party-Id` header is missing, or the service is not in development) | false | - | - |
 | `APP-STALE-VERSION` | `STALE_VERSION` | 409 | Data ini sudah diubah sejak Anda membukanya. Muat ulang versi terbaru lalu ulangi perubahan Anda. | `expected_version` differs from the stored version; the envelope adds `current_version` | false | - | - |
 | `APP-IDEMPOTENCY-CONFLICT` | `IDEMPOTENCY_CONFLICT` | 409 | Kunci permintaan ini sudah dipakai untuk isi berbeda. Gunakan kunci baru untuk permintaan baru. | `Idempotency-Key` reused by the same actor and operation with a different body | false | - | - |
+| `APP-FORBIDDEN` | `FORBIDDEN` | 403 | Anda tidak memiliki akses untuk permintaan ini. Hubungi pemilik data bila perlu akses. | A cookie-bearing unsafe request from another origin; from 007, a visible resource without the capability | false | - | - |
+| `APP-CODE-INVALID` | `CODE_INVALID` | 422 | Kode verifikasi tidak cocok. Periksa kode di email Anda lalu coba lagi. | Wrong sign-in code; the envelope adds `attempts_left` | false | - | - |
+| `APP-CODE-EXPIRED` | `CODE_EXPIRED` | 422 | Kode verifikasi sudah tidak berlaku. Minta kode baru lalu masukkan kode tersebut. | No open code, older than 10 minutes, or five wrong guesses | false | - | - |
+| `APP-RATE-LIMITED` | `RATE_LIMITED` | 429 | Terlalu banyak permintaan kode. Tunggu sebentar lalu coba lagi. | Over 5 code requests per email or 20 per address in an hour; `retry_after_seconds` says when the window frees up | true | per request | 3 |
 
 A missing `Idempotency-Key` on a consequential POST is `BAD_REQUEST` with `details` naming the header.
 

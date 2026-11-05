@@ -164,12 +164,28 @@ def test_development_scanner_is_refused_outside_development(environment: str) ->
         validate_configuration(_settings(environment=environment, file_scanner="development-accept"))
 
 
-def test_real_scanner_is_accepted_in_production() -> None:
+def test_production_also_needs_real_email() -> None:
     """
     Condition:
-    - Production with ``clamav``.
+    - Production with ``clamav`` but the development mailbox, the only adapter until spec 042.
 
     Expected:
-    - Validation passes.
+    - Startup fails naming the mailbox, so no deployment sends sign-in codes into a table.
     """
-    assert validate_configuration(_settings(environment="production", file_scanner="clamav"))
+    with pytest.raises(ConfigurationError, match="MAILBOX_ADAPTER=development"):
+        validate_configuration(_settings(environment="production", file_scanner="clamav"))
+
+
+@pytest.mark.parametrize(
+    ("environment", "explicit", "secure"),
+    [("development", None, False), ("production", None, True), ("development", True, True), ("staging", False, False)],
+)
+def test_session_cookie_is_secure_outside_development(environment: str, explicit: bool | None, secure: bool) -> None:
+    """
+    Condition:
+    - Each environment, with and without ``SESSION_COOKIE_SECURE``.
+
+    Expected:
+    - ``Secure`` unless development, and the explicit setting wins.
+    """
+    assert _settings(environment=environment, session_cookie_secure=explicit).cookie_secure is secure

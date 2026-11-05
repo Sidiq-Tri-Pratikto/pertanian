@@ -69,6 +69,21 @@ PUBLIC_ERROR_BY_CODE: dict[str, PublicError] = {
         409,
         "Kunci permintaan ini sudah dipakai untuk isi berbeda. Gunakan kunci baru untuk permintaan baru.",
     ),
+    codes.APP_FORBIDDEN: PublicError(
+        "FORBIDDEN", 403, "Anda tidak memiliki akses untuk permintaan ini. Hubungi pemilik data bila perlu akses."
+    ),
+    codes.APP_CODE_INVALID: PublicError(
+        "CODE_INVALID", 422, "Kode verifikasi tidak cocok. Periksa kode di email Anda lalu coba lagi."
+    ),
+    codes.APP_CODE_EXPIRED: PublicError(
+        "CODE_EXPIRED", 422, "Kode verifikasi sudah tidak berlaku. Minta kode baru lalu masukkan kode tersebut."
+    ),
+    codes.APP_RATE_LIMITED: PublicError(
+        "RATE_LIMITED",
+        429,
+        "Terlalu banyak permintaan kode. Tunggu sebentar lalu coba lagi.",
+        {"retryable": True, "retry_after_seconds": 60, "max_attempts": 3},
+    ),
 }
 
 PUBLIC_ERROR_BY_STATUS: dict[int, PublicError] = {

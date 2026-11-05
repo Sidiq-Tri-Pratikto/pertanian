@@ -15,8 +15,11 @@ from app.core.errors.database import handle_database_error
 from app.core.errors.handlers import ErrorBoundaryMiddleware, register_exception_handlers
 from app.core.logging import setup_logging
 from app.core.openapi import install_error_schema
+from app.core.security import OriginCheckMiddleware
 from app.core.settings import get_settings
+from app.dev.router import router as dev_router
 from app.health.router import router as health_router
+from app.identity.router import auth_router, me_router
 from app.platform.router import router as platform_router
 from app.platform.service.idempotency import IdempotentReplay, replay_response
 
@@ -40,6 +43,7 @@ def create_app() -> FastAPI:
     setup_logging(settings.log_level)
     validate_configuration(settings)  # Unsafe or unsupported configuration must never serve traffic.
     app = FastAPI(title="temuriset-api", version=SOURCE_RELEASE, lifespan=lifespan)
+    app.add_middleware(OriginCheckMiddleware)
     app.add_middleware(ErrorBoundaryMiddleware)
     if settings.cors_allowed_origins:
         # Added after the boundary so it wraps it: failure responses keep their CORS headers.
@@ -52,6 +56,10 @@ def create_app() -> FastAPI:
     app.include_router(health_router)
     app.include_router(capabilities_router, prefix=API_PREFIX)
     app.include_router(platform_router, prefix=API_PREFIX)
+    app.include_router(auth_router, prefix=API_PREFIX)
+    app.include_router(me_router, prefix=API_PREFIX)
+    if settings.environment == "development":
+        app.include_router(dev_router, prefix=API_PREFIX)
     install_error_schema(app)
     return app
 
