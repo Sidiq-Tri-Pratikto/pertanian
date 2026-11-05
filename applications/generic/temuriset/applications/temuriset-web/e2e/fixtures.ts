@@ -101,6 +101,63 @@ export async function makeFundingRequest(page: Page): Promise<string> {
   return ((await created.json()) as { id: string }).id;
 }
 
+export const MITRA_PROFILE = {
+  subtype: 'Mitra validasi prototipe',
+  thesis: 'Membantu prototipe menjadi siap uji lapangan.',
+  sectors: ['Air dan sanitasi'],
+  stages: ['PROTOTYPE', 'PILOT'],
+  regions: ['Indonesia'],
+  support_forms: ['Pendanaan proyek'],
+};
+
+export const A1_MANDATE = {
+  title: 'Validasi prototipe enam bulan',
+  outcome: 'Prototipe teruji di lapangan dalam enam bulan.',
+  included: 'Uji fungsi dan uji lapangan terbatas',
+  excluded: 'Sertifikasi dan produksi massal',
+  support: 'Pendanaan proyek dan pendampingan uji',
+  timing: 'Dibuka sampai 31 Desember 2026',
+  accepted_stages: ['PROTOTYPE', 'PILOT'],
+  relationship_forms: ['PROJECT'],
+  sectors: ['Air dan sanitasi'],
+  keywords: ['prototipe'],
+  financial: { subject: 'partner', basis: 'total_period', min: '15000', max: '40000', currency: 'USD', period: '6 bulan', months: 6, scope: 'biaya pilot enam bulan' },
+  requirements: [
+    { label: 'Tahap inovasi', field: 'stage', operator: 'in_set', value: ['PROTOTYPE', 'PILOT'], reason: 'Mitra ini hanya menguji inovasi yang sudah memiliki prototipe.' },
+  ],
+};
+
+/** Saves the signed-in party's first partner profile through the API. Returns the party's id. */
+export async function makePartnerProfile(page: Page, content: Record<string, unknown> = {}): Promise<string> {
+  const me = (await (await page.request.get('/api/v1/me')).json()) as { active_party_id: string };
+  const saved = await page.request.put(`/api/v1/partners/${me.active_party_id}`, {
+    data: { acting_party_id: me.active_party_id, expected_version: null, ...MITRA_PROFILE, ...content },
+    headers: { Origin: WEB_ORIGIN, 'Idempotency-Key': uniqueEmail('pp') },
+  });
+  expect(saved.status(), await saved.text()).toBe(200);
+  return me.active_party_id;
+}
+
+/** Starts mandate A1 through the API, as a draft or activated. The party must already have a profile to activate. Returns its id. */
+export async function makeMandate(page: Page, activate: boolean): Promise<string> {
+  const me = (await (await page.request.get('/api/v1/me')).json()) as { active_party_id: string };
+  const headers = { Origin: WEB_ORIGIN };
+  const created = await page.request.post('/api/v1/opportunities', {
+    data: { acting_party_id: me.active_party_id, ...A1_MANDATE },
+    headers: { ...headers, 'Idempotency-Key': uniqueEmail('op') },
+  });
+  expect(created.status(), await created.text()).toBe(201);
+  const mandate = (await created.json()) as { id: string; version: number };
+  if (activate) {
+    const moved = await page.request.post(`/api/v1/opportunities/${mandate.id}/activate`, {
+      data: { acting_party_id: me.active_party_id, expected_version: mandate.version },
+      headers: { ...headers, 'Idempotency-Key': uniqueEmail('oa') },
+    });
+    expect(moved.status(), await moved.text()).toBe(200);
+  }
+  return mandate.id;
+}
+
 type Fixtures = {
   /** Opens a route as its persona and fails on console errors, failed requests or an unexpected status. */
   visit: (route: Route) => Promise<Page>;
@@ -137,6 +194,13 @@ export const test = base.extend<Fixtures>({
       if (path.includes(':published')) path = path.replace(':published', await makeInvention(page, true));
       if (path.includes(':support')) path = path.replace(':support', await makeSupportRequest(page));
       if (path.includes(':funding')) path = path.replace(':funding', await makeFundingRequest(page));
+      if (path.includes(':no-profile')) path = path.replace(':no-profile', ((await (await page.request.get('/api/v1/me')).json()) as { active_party_id: string }).active_party_id);
+      if (path.includes(':partner')) {
+        const party = await makePartnerProfile(page);
+        await makeMandate(page, true);
+        path = path.replace(':partner', party);
+      }
+      if (path.includes(':mandate')) path = path.replace(':mandate', await makeMandate(page, false));
       const response = await page.goto(path);
       expect(response?.status(), `status of ${route.path}`).toBe(expected);
       await page.waitForLoadState('networkidle');

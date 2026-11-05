@@ -102,7 +102,8 @@ export const FEATURES: Feature[] = [
     ],
     screens: ['S08'],
     specs: ['016', '017'],
-    status: 'coming_soon',
+    status: 'available',
+    home: '/opportunities',
   },
   {
     id: 'mandat',
@@ -115,7 +116,8 @@ export const FEATURES: Feature[] = [
     ],
     screens: ['S09'],
     specs: ['016', '017'],
-    status: 'coming_soon',
+    status: 'available',
+    home: '/opportunities',
   },
   {
     id: 'jelajahi',

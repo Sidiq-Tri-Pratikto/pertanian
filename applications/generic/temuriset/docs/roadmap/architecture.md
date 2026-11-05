@@ -197,6 +197,8 @@ A mandatory requirement is always `PUBLIC`, so no secret criterion can reject a 
 | D3 | `Screen` takes real links instead of `onNavigate` | Next.js routing and prefetch | Never; documented port |
 | D4 | `Screen` scrolls a focused control clear of the sticky tab bar | Chrome does not scroll a partly visible control, so a tall textarea took focus under the bar at 360 px (found by the 003 keyboard check) | The design system handles focus scrolling |
 | D5 | `Checkbox.Group` is the named export `CheckboxGroup`, and `FundingRequestCard` takes linked inventions as nodes, not only titles | Static members do not survive a `'use client'` boundary; S07 links each invention so Back returns to the raise | Never; documented port |
+| D6 | `RequirementRow` takes an optional `headingLevel` | S09 places rows directly under a section heading, so a fixed `h4` would skip a level | The design system adds the prop |
+| D7 | `Link` runs `onClick` beside the navigation instead of preventing it | D3 chose real links; following an external route must both open the site and record the handoff | Never; documented port |
 
 ## API conventions
 

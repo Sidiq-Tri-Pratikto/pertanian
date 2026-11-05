@@ -2,7 +2,7 @@
 
 **Feature Branch**: `017-web-partner-mandate`
 **Created**: 2026-11-05
-**Status**: Seeded, not started
+**Status**: Built, awaiting review
 **Milestone**: M4 Partner intake
 **Depends on**: 008, 016
 **Size**: M

@@ -25,6 +25,7 @@ vi.mock('@/api/server', () => ({
     }
     if (path === '/api/v1/inventions') return [];
     if (path === '/api/v1/support-requests') return supportRequests;
+    if (path === '/api/v1/opportunities') return [];
     if (path === `/api/v1/organizations/${ORGANIZATION}/members`) {
       return [{ account_id: 'a', display_name: 'Bima', capabilities: ['manage_members'], version: 1 }];
     }

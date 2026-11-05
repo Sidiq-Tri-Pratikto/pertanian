@@ -69,6 +69,9 @@ Run one file with `npx vitest run tests/pages.test.tsx`, match by name with `npx
 | `/inventions/<id>` | S04 detail: owner view with facts, provenance and claims, or the public projection for others |
 | `/inventions/<id>/edit?step=1..4` | S05 editor: basics, evidence with private documents (upload, three states, grants, revoke), support (coming), public preview and **Terbitkan versi N** |
 | `/support-requests` | S06 list: support requests per invention, company raises, and starting either |
+| `/opportunities` | Kebutuhan/Mandat: the acting party's mandates with status and version, and starting one |
+| `/opportunities/<id>/edit` | S09: edit, review, then activate a mandate; requirements with stage and verification mode |
+| `/partners/<partyId>` | S08: a partner's profile, source and availability labels, contact route and mandates; the owner edits here |
 | `/support-requests/<id>` | S06 detail and form: labelled money, outcome, forms of support, budget; `?return=` goes back after saving |
 | `/funding-requests/<id>` | S07: one raise card, target and contribution apart, linked inventions |
 | `/funding-requests/<id>/edit` | S07 editor, or a notice when the deployment does not run company funding |
