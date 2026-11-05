@@ -2,7 +2,7 @@
 
 **Feature Branch**: `035-web-settings-privacy`
 **Created**: 2026-11-05
-**Status**: Seeded, not started
+**Status**: In progress
 **Milestone**: M10 Governance
 **Depends on**: 008, 034
 **Size**: S

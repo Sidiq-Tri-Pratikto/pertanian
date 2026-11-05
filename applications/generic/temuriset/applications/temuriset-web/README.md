@@ -81,7 +81,7 @@ Run one file with `npx vitest run tests/pages.test.tsx`, match by name with `npx
 | `/discover` | S03 Temukan Investor/Mitra, or Jelajahi for partners |
 | `/opportunities` | Kebutuhan/Mandat |
 | `/pitches`, `/pitches?box=masuk`, `/pitches?box=diskusi` | S12 lists |
-| `/settings` | S18: account, organizations, members and invitations of the acting organization, service check, planned features, **Keluar** |
+| `/settings` | S18: account, organizations, members and invitations of the acting organization, private reports and their case status, export and deletion requests, service check, planned features, **Keluar** |
 | `/segera-hadir/<feature>` | What a planned feature will do |
 
 The persona lives in an http-only cookie until accounts arrive in spec 008. It picks menus and language, never access.

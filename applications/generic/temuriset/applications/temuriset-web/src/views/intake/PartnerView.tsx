@@ -12,6 +12,7 @@ import { RELATIONSHIP_FORMS, scopeProps, type Mandate, type PartnerProfile } fro
 import { NewMandate } from '@/features/intake/NewMandate';
 import { ProfileForm } from '@/features/intake/ProfileForm';
 import { readPersona } from '@/features/persona';
+import { reportHref } from '@/features/privacy/model';
 import { labelOf, STAGES } from '@/features/portfolio/model';
 import { MandateCard } from '@/views/intake/MandateCard';
 import { PROVENANCE } from '@/views/parts';
@@ -82,6 +83,7 @@ export function PartnerView({ me, partyId, profile, mandates }: Props) {
         {profile.review_expectations ? <p>{`Ekspektasi peninjauan: ${profile.review_expectations}`}</p> : null}
         {profile.check_range ? <FinancialScope {...scopeProps(profile.check_range)} /> : null}
         {profile.contact_route === 'EXTERNAL' && profile.external_url ? <ExternalRoute partyId={partyId} actingPartyId={me.active_party_id} url={profile.external_url} record={!own} /> : null}
+        {!own ? <NextLink className="tr-link" href={reportHref('PARTNER_PROFILE', partyId)}>Laporkan</NextLink> : null}
         {profile.contact_route === 'NONE' ? <p className="tr-muted">Mitra ini sedang tidak menerima pendekatan baru.</p> : null}
       </section>
       {canEdit ? (
