@@ -43,7 +43,7 @@ On 6 November 2026 the integrated worktree based on `485028dbf28d9d755c2cf1462e9
 | API and web checks | API Ruff and 770 tests passed at 96.26% coverage. Web ESLint, TypeScript and 253 tests passed at 88.14% line coverage. OpenAPI and TypeScript regenerated. Traceability mapped 143 requirements across 45 specs. |
 | Local Chromium | The production Next build ran 800 entries across 320, 360, 768 and 1280 CSS px, with 400 passes and 398 intentional viewport skips. Two trace-file collisions between concurrent browser runs interrupted the other axe cases. Both passed in isolation with separate output directories. J01–J03 and privacy interaction tests passed. The [audit matrix](../../applications/generic/temuriset/docs/roadmap/accessibility-audit.md) records the narrower accessibility checks. |
 
-## Final integrated local evidence at Alembic 0015
+## Historical integrated local evidence at Alembic 0015
 
 On 6 November 2026, the assembled source at `eae3900618b9481dfd6222185ecac006b6acfb2a` passed the isolated release smoke on native ARM64 Docker Desktop. The smoke ran `deployment/temuriset/tests/smoke.sh` with both images built from that source and captured the inventory through the live HTTPS origin.
 
@@ -59,6 +59,12 @@ On 6 November 2026, the assembled source at `eae3900618b9481dfd6222185ecac006b6a
 
 These observations cover the local ARM64 build and synthetic topology. A protected publication and the Linux/amd64 workflow and rollout have separate evidence.
 
+## Local verification after syncing M11 with main
+
+The M11 candidate uses Alembic `0019` after the M10 squash on `main` at `0018`. The [PR-base comparison](backup/drill.md#migration-compatibility-evidence) passed on isolated PostgreSQL. The image builds, scans and Compose drills above cover their recorded `0014` and `0015` builds.
+
+Playwright discovery resolved the named J04 scheduling and J05 relationship cases at 1280 CSS px. Reporter tests accepted the complete named set and rejected missing, filtered or skipped required journeys. An HTTPS staging invocation without the private fixture file stopped before launching browsers.
+
 ## Design-system and prototype evidence
 
 The application binds TemuRiset Design System `1.0.0-draft`. The source CSS is copied byte-for-byte into the web app. `src/components/tr/` ports the TR names, semantics and class mappings. The [architecture record](../../applications/generic/temuriset/docs/roadmap/architecture.md) describes web deviations D1–D8. The [canvas binding](../../docs/generic/temuriset/app-prototype/binding.json) describes a separate component copy and its fingerprints and deviations. This draft remains subject to design owner approval.
@@ -72,6 +78,6 @@ The application binds TemuRiset Design System `1.0.0-draft`. The source CSS is c
 
 ## Actual staging and release gates
 
-Actual staging acceptance T022 and SC-001 remain open. The release record still needs the approved HTTPS origin, operator and window, exact deployed image digests, composition and live version inventory, approved fixture provenance, a successful 003 run, and J01–J05. The journeys and real staging authentication from 042 remain prerequisites. Local mail and canvas simulations cannot establish actual staging acceptance.
+Actual staging acceptance T022 and SC-001 remain open. The release record still needs the approved HTTPS origin, operator and window, exact deployed image digests, composition and live version inventory, approved fixture provenance, a successful 003 run, and J01–J05. Real staging authentication from 042 remains a prerequisite. Local mail and canvas simulations cannot establish actual staging acceptance.
 
 There is no trusted published previous-release tag for the production compatibility gate. The isolated 038 restore and baseline checks are recorded separately in the [recovery drill](backup/drill.md). Production promotion requires passed staging, restore and compatibility evidence tied to the published image digests and composition. This work has no tag, registry publication or environment rollout record.

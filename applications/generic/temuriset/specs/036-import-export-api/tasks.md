@@ -61,7 +61,7 @@
 
 - Setup precedes foundation. T004 follows T003. The API tests precede the corresponding implementations.
 - T010 → T011 → T012 → T014 for import. T013 follows the foundation and can proceed separately from T010–T012. Both flows need T014 before contract generation. Browser tests and implementation follow T015.
-- The portability revision number follows the actual integrated head. Specs 027–033 do not need to ship for the source-reported v1 import. Specs 034 privacy requests and 036 portability exports have separate contracts and authorization scopes.
+- Portability revision `0019` follows moderation revision `0018` on `main`. Specs 034 privacy requests and 036 portability exports have separate contracts and authorization scopes.
 
 ## Parallel example for US1
 
@@ -72,9 +72,9 @@ Run T006 for schema validation, T007 for import lifecycle, T008 for export permi
 Deliver the API-backed validate, preview and apply flow first. Add queued export and verify grant and membership revocation. Verify the minimal web workflow against the generated contract before changing the registry.
 
 
-## Standalone verification
+## Historical standalone verification
 
-- PostgreSQL migration 0015 upgraded from the M7 head, downgraded, re-upgraded, and passed `alembic check` both times. The integrated revision follows the moderation revision.
+- The previous PostgreSQL portability revision `0015` upgraded from the M7-based stack, downgraded, re-upgraded, and passed `alembic check` both times.
 - API `make check` passed 773 tests with 95.68% line coverage. Twelve focused schema cases passed after the final schema tests were added.
 - AC06 and AC63 passed for removal or expiry before generation and before delivery. The requester lost access permanently, a replacement grant could not revive the original result, and a different account could not invalidate it.
 - AC61 passed for scoped replay, preservation of omitted fields, source-only assertions, and two competing first applies. AC62 passed for reviewed rights in the draft and published version.

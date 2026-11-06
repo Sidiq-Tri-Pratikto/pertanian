@@ -5,6 +5,7 @@ import asyncio
 import json
 import math
 import os
+import re
 import stat
 from collections import Counter
 from collections.abc import Callable, Sequence
@@ -35,6 +36,7 @@ VISIBILITY = f"{DISCOVERY}&q={VISIBILITY_TERM}"
 TARGET_MS = {ME: 500, INVENTIONS: 500, DETAIL: 500, DISCOVERY: 2000}
 MATCH_BUDGET_MS = 2000
 LIST = TypeAdapter(list[InventionSummaryResponse])
+SESSION_TOKEN = re.compile(r"[A-Za-z0-9_-]{43}")  # Identity issues 32-byte unpadded base64url tokens.
 
 
 @dataclass
@@ -47,16 +49,17 @@ class Samples:
     transport: int = 0
     invalid_payloads: int = 0
 
-    def report(self, route: str) -> dict:
-        """Summarize successful latency at the nearest-rank p95 and count all failures."""
-        if not self.latency:
+    def report(self, route: str, *, enforce_target: bool = True) -> dict:
+        """Count failures and apply the latency target only to measured samples."""
+        if enforce_target and not self.latency:
             raise BenchmarkError(
                 f"No successful samples for {route}. HTTP failures: {dict(self.http)}, "
                 f"timeouts: {self.timeouts}, transport: {self.transport}, invalid payloads: {self.invalid_payloads}."
             )
         successes = len(self.latency)
         attempted = successes + sum(self.http.values()) + self.timeouts + self.transport + self.invalid_payloads
-        p95 = sorted(self.latency)[math.ceil(0.95 * successes) - 1]
+        p95 = sorted(self.latency)[math.ceil(0.95 * successes) - 1] if successes else None
+        target_ms = TARGET_MS[route] if enforce_target else None
         return {
             "attempted": attempted,
             "successful": successes,
@@ -64,9 +67,9 @@ class Samples:
             "timeouts": self.timeouts,
             "transport_failures": self.transport,
             "invalid_payloads": self.invalid_payloads,
-            "p95_ms": round(p95, 3),
-            "target_ms": TARGET_MS[route],
-            "passed": attempted == successes and p95 <= TARGET_MS[route],
+            "p95_ms": round(p95, 3) if p95 is not None else None,
+            "target_ms": target_ms,
+            "passed": attempted == successes and (target_ms is None or (p95 is not None and p95 <= target_ms)),
         }
 
 
@@ -95,13 +98,16 @@ def load_dataset(path: Path, origin: str, database: str) -> Dataset:
         except ValidationError:
             raise BenchmarkError("The private handoff is invalid.") from None
     actors = dataset.actors
+    tokens = [actor.token.get_secret_value() for actor in actors]
+    if any(not SESSION_TOKEN.fullmatch(token) for token in tokens):
+        raise BenchmarkError("The handoff contains an invalid synthetic session token.")
     if (
         dataset.origin != origin
         or dataset.database != database
         or not 2 <= len(actors) <= 100
-        or any(not actor.inventions or not actor.token.get_secret_value() for actor in actors)
+        or any(not actor.inventions for actor in actors)
         or len({actor.party_id for actor in actors}) != len(actors)
-        or len({actor.token.get_secret_value() for actor in actors}) != len(actors)
+        or len(set(tokens)) != len(actors)
         or not dataset.partner_ids
         or not dataset.opportunity_ids
         or actors[0].party_id in dataset.partner_ids
@@ -198,7 +204,11 @@ async def sample(client: httpx.AsyncClient, request: Request, samples: Samples) 
 
 
 async def phase(
-    clients: Sequence[httpx.AsyncClient], requests: Sequence[tuple[Request, ...]], seconds: float | None
+    clients: Sequence[httpx.AsyncClient],
+    requests: Sequence[tuple[Request, ...]],
+    seconds: float | None,
+    *,
+    enforce_target: bool = True,
 ) -> dict:
     """Start virtual users together and run one cycle or a fixed-duration closed loop."""
     samples = {request.route: Samples() for request in requests[0]}
@@ -218,7 +228,9 @@ async def phase(
     elapsed = perf_counter() - start
     return {
         "wall_seconds": round(elapsed, 3),
-        "endpoints": {route: outcome.report(route) for route, outcome in samples.items()},
+        "endpoints": {
+            route: outcome.report(route, enforce_target=enforce_target) for route, outcome in samples.items()
+        },
     }
 
 
@@ -306,7 +318,7 @@ async def visibility(clients: list[httpx.AsyncClient], anonymous: httpx.AsyncCli
 async def run(args: argparse.Namespace) -> dict:
     """Verify readiness, run timing phases, and perform the untimed visibility control."""
     database = target(args.origin, staging=args.staging)
-    dataset = load_dataset(args.handoff, args.origin, database)
+    dataset = await asyncio.to_thread(load_dataset, args.handoff, args.origin, database)
     start = perf_counter()
     while True:
         async with get_session_factory()() as session:
@@ -351,7 +363,7 @@ async def run(args: argparse.Namespace) -> dict:
             "discovery_first_pass": await phase(clients, discovery, None),
         }
         for label, workload in (("standard", standard), ("discovery", discovery)):
-            phases[f"{label}_warmup"] = await phase(clients, workload, args.warmup_seconds)
+            phases[f"{label}_warmup"] = await phase(clients, workload, args.warmup_seconds, enforce_target=False)
             phases[f"{label}_warmed"] = await phase(clients, workload, args.seconds)
         match = await measure_match(clients[0], dataset)
         control = await visibility(clients, anonymous, dataset.actors[0])
@@ -399,8 +411,12 @@ def main() -> None:
         parser.error("Timing windows must be finite positive numbers.")
     try:
         result = asyncio.run(run_with_cleanup(args))
-    except (BenchmarkError, httpx.HTTPError, OSError) as error:
+    except BenchmarkError as error:
         parser.exit(1, f"Benchmark failed: {error}\n")
+    except httpx.HTTPError:
+        parser.exit(1, "Benchmark failed: the selected API request failed.\n")
+    except OSError:
+        parser.exit(1, "Benchmark failed: could not access the private handoff or database.\n")
     except ValidationError:
         parser.exit(1, "Benchmark failed: the API returned an invalid response payload.\n")
     print(json.dumps(result, indent=2))

@@ -18,9 +18,14 @@ export const STAGING_JOURNEYS = [
     name: 'J03', file: 'j03-revision.spec.ts', project: 'chromium-1280',
     title: 'J03: revision with an honest answer, a new file version, resubmission, item review and approval (S12, S13)',
   },
-  // Bind these to their shipped journey tests when the prerequisite features land.
-  { name: 'J04', file: 'j04.spec.ts', project: 'chromium-1280', title: null },
-  { name: 'J05', file: 'j05.spec.ts', project: 'chromium-1280', title: null },
+  {
+    name: 'J04', file: 'j04-schedule.spec.ts', project: 'chromium-1280',
+    title: 'J04: propose, conflict, counter, conflict, confirm 10:00 UTC, then a replacement (S14, UX-13, UX-14)',
+  },
+  {
+    name: 'J05', file: 'j05-relationship.spec.ts', project: 'chromium-1280',
+    title: 'J05: both parties correct and confirm one version, then narrow its public projection',
+  },
 ] as const;
 
 export function stagingOrigin(): string | undefined {
