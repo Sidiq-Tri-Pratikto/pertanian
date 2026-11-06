@@ -38,6 +38,7 @@ Path(os.environ["S3_CONFIG_FILE"]).write_text(json.dumps({"identities": [
     }], "actions": [f"{action}:{bucket}" for bucket in buckets for action in ("Read", "Write", "List")]},
 ]}))
 PY
+  # The store reads as UID/GID 1000 inside Docker. The host scratch directory stays private.
   chmod 0444 "$S3_CONFIG_FILE"
   cat > "$scratch/compose.yml" <<'YAML'
 services:
