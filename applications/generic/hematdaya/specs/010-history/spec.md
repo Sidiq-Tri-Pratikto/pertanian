@@ -2,7 +2,7 @@
 
 **Feature Branch**: `010-history`
 **Created**: 2026-10-30
-**Status**: Seeded, not started
+**Status**: Implemented on `f/m1-energy-core`; Postgres integration tests pass, including reconciliation with the summary and both Europe/Berlin DST days
 **Milestone**: M1 Energy core
 **Depends on**: 009
 **Size**: M

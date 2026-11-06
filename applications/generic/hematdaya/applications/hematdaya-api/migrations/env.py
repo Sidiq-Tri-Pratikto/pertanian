@@ -7,8 +7,14 @@ from alembic import context
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import create_async_engine
 
+from app.assets.repository.sqlalchemy import models as assets_models  # noqa: F401
+from app.audit.repository.sqlalchemy import models as audit_models  # noqa: F401
 from app.core.database import Base
 from app.core.settings import get_settings
+from app.demo.repository.sqlalchemy import models as demo_models  # noqa: F401
+from app.identity.repository.sqlalchemy import models as identity_models  # noqa: F401
+from app.measurements.repository.sqlalchemy import models as measurements_models  # noqa: F401
+from app.sites.repository.sqlalchemy import models as sites_models  # noqa: F401
 
 if context.config.config_file_name is not None:
     fileConfig(context.config.config_file_name)

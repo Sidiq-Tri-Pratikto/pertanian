@@ -1,0 +1,92 @@
+{
+  "assets": [
+    {
+      "asset_id": "id-0",
+      "conflict_sources": null,
+      "coverage": "1.000",
+      "energy_kwh": "8.400",
+      "energy_unavailable_reason": null,
+      "gaps": [],
+      "name": "Kulkas",
+      "scope_kind": "device",
+      "share_percent": "57.14"
+    },
+    {
+      "asset_id": "id-1",
+      "conflict_sources": null,
+      "coverage": "1.000",
+      "energy_kwh": "2.520",
+      "energy_unavailable_reason": null,
+      "gaps": [],
+      "name": "TV",
+      "scope_kind": "device",
+      "share_percent": "17.14"
+    },
+    {
+      "asset_id": "id-2",
+      "conflict_sources": null,
+      "coverage": "1.000",
+      "energy_kwh": "2.100",
+      "energy_unavailable_reason": null,
+      "gaps": [],
+      "name": "Pompa Air",
+      "scope_kind": "device",
+      "share_percent": "14.29"
+    },
+    {
+      "asset_id": "id-3",
+      "conflict_sources": null,
+      "coverage": "1.000",
+      "energy_kwh": "1.680",
+      "energy_unavailable_reason": null,
+      "gaps": [],
+      "name": "Router",
+      "scope_kind": "device",
+      "share_percent": "11.43"
+    }
+  ],
+  "coverage": {
+    "allocated_estimate": false,
+    "concurrent": "1.000",
+    "minimum": "1.000"
+  },
+  "energy_kwh": "14.700",
+  "energy_unavailable_reason": null,
+  "latest_measurement_at": "2026-10-25T17:00:00Z",
+  "origins": [
+    "simulated"
+  ],
+  "revision": "revision",
+  "scope": {
+    "excluded": [],
+    "included": [
+      {
+        "asset_id": "id-0",
+        "name": "Kulkas"
+      },
+      {
+        "asset_id": "id-2",
+        "name": "Pompa Air"
+      },
+      {
+        "asset_id": "id-3",
+        "name": "Router"
+      },
+      {
+        "asset_id": "id-1",
+        "name": "TV"
+      }
+    ],
+    "issues": [],
+    "valid": true
+  },
+  "window": {
+    "effective_end": "2026-10-25T17:00:00Z",
+    "end": "2026-10-25T17:00:00Z",
+    "end_date": "2026-10-25",
+    "is_current": false,
+    "start": "2026-10-18T17:00:00Z",
+    "start_date": "2026-10-19",
+    "timezone": "Asia/Jakarta"
+  }
+}

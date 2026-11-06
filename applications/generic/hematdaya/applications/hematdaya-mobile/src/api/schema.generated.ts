@@ -4,6 +4,168 @@
  */
 
 export interface paths {
+    "/api/v1/assets/{asset_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read an asset with its sources
+         * @description Return an owned asset, its bindings and their sources.
+         *
+         *     Args:
+         *         asset_id (UUID): The asset.
+         *         principal (PrincipalModel): The acting principal.
+         *         service (AssetService): Asset rules.
+         *
+         *     Returns:
+         *         AssetDetailResponse: The asset.
+         */
+        get: operations["get_asset_api_v1_assets__asset_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Change an asset
+         * @description Change an owned asset's name, category, location, expected use or archive state.
+         *
+         *     Args:
+         *         asset_id (UUID): The asset.
+         *         request (UpdateAssetRequest): The changes.
+         *         principal (PrincipalModel): The acting principal.
+         *         service (AssetService): Asset rules.
+         *
+         *     Returns:
+         *         AssetResponse: The asset.
+         */
+        patch: operations["update_asset_api_v1_assets__asset_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/assets/{asset_id}/bindings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Bind a source
+         * @description Attribute a source of the same site to an owned asset.
+         *
+         *     Args:
+         *         asset_id (UUID): The asset.
+         *         request (CreateBindingRequest): The binding.
+         *         principal (PrincipalModel): The acting principal.
+         *         service (AssetService): Asset rules.
+         *
+         *     Returns:
+         *         BindingResponse: The binding.
+         */
+        post: operations["create_binding_api_v1_assets__asset_id__bindings_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assets/{asset_id}/bindings/{binding_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * End a binding
+         * @description End a binding at site time. History stays; repeating it changes nothing.
+         *
+         *     Args:
+         *         asset_id (UUID): The asset.
+         *         binding_id (UUID): The binding.
+         *         principal (PrincipalModel): The acting principal.
+         *         service (AssetService): Asset rules.
+         *
+         *     Returns:
+         *         BindingResponse: The binding with its end.
+         */
+        delete: operations["delete_binding_api_v1_assets__asset_id__bindings__binding_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assets/{asset_id}/measurements": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Bucketed history for one asset
+         * @description Return day or hour buckets in local time with UTC bounds, state and coverage; at most 1,000 buckets.
+         *
+         *     Args:
+         *         asset_id (UUID): The asset.
+         *         principal (PrincipalModel): The acting principal.
+         *         service (HistoryService): History reads.
+         *         bucket (Granularity, optional): ``day`` or ``hour``. Defaults to day.
+         *         preset (Preset | None, optional): A named period. Defaults to None.
+         *         start_date (date | None, optional): First local date. Defaults to None.
+         *         end_date (date | None, optional): Last local date. Defaults to None.
+         *
+         *     Returns:
+         *         HistoryResponse: The series.
+         */
+        get: operations["asset_history_api_v1_assets__asset_id__measurements_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assets/{asset_id}/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Recorded energy for one asset
+         * @description Return one asset's recorded energy in the summary shape; a parent meter alone is valid.
+         *
+         *     Args:
+         *         asset_id (UUID): The asset.
+         *         principal (PrincipalModel): The acting principal.
+         *         service (EnergyService): Energy reads.
+         *         preset (Preset | None, optional): A named period. Defaults to None.
+         *         start_date (date | None, optional): First local date. Defaults to None.
+         *         end_date (date | None, optional): Last local date. Defaults to None.
+         *
+         *     Returns:
+         *         SummaryResponse: The summary.
+         */
+        get: operations["asset_summary_api_v1_assets__asset_id__summary_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/capabilities": {
         parameters: {
             query?: never;
@@ -19,6 +181,234 @@ export interface paths {
          *         CapabilityManifestResponse: The manifest.
          */
         get: operations["get_capabilities_api_v1_capabilities_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/demo/scenarios": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List demo scenarios
+         * @description Return every scenario a client can start. Public.
+         *
+         *     Args:
+         *         service (DemoService): Demo rules.
+         *
+         *     Returns:
+         *         list[ScenarioResponse]: The catalog.
+         */
+        get: operations["list_scenarios_api_v1_demo_scenarios_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/demo/sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Start a demo session
+         * @description Seed an isolated demo workspace, or recover the same one after a lost response.
+         *
+         *     The key needs at least 128 random bits and the proof a separate 256. Send the same pair to recover within
+         *     the replay window; use a new pair for a new session.
+         *
+         *     Args:
+         *         request (CreateDemoSessionRequest): The scenario.
+         *         service (DemoService): Demo rules.
+         *         response (Response): Lets a replay answer 200.
+         *         idempotency_key (str): Operation ID.
+         *         replay_proof (str): Secret replay proof.
+         *
+         *     Returns:
+         *         DemoSessionResponse: Token and workspace.
+         */
+        post: operations["create_session_api_v1_demo_sessions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/demo/sessions/current": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * End the demo session
+         * @description End the session and delete its workspace.
+         *
+         *     Args:
+         *         principal (PrincipalModel): The acting principal.
+         *         service (DemoService): Demo rules.
+         */
+        delete: operations["end_session_api_v1_demo_sessions_current_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/demo/sessions/current/reset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reset the demo workspace
+         * @description Return the caller's workspace to its scenario start; the token stays valid.
+         *
+         *     Args:
+         *         principal (PrincipalModel): The acting principal.
+         *         service (DemoService): Demo rules.
+         *
+         *     Returns:
+         *         DemoWorkspaceResponse: The workspace.
+         */
+        post: operations["reset_session_api_v1_demo_sessions_current_reset_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sites/{site_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read a site
+         * @description Return an owned site.
+         *
+         *     Args:
+         *         site_id (UUID): The site.
+         *         principal (PrincipalModel): The acting principal.
+         *         service (SiteService): Site rules.
+         *
+         *     Returns:
+         *         SiteResponse: The site.
+         */
+        get: operations["get_site_api_v1_sites__site_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Change site settings
+         * @description Change an owned site's name, context or timezone.
+         *
+         *     Args:
+         *         site_id (UUID): The site.
+         *         request (UpdateSiteRequest): The changes.
+         *         principal (PrincipalModel): The acting principal.
+         *         service (SiteService): Site rules.
+         *
+         *     Returns:
+         *         SiteResponse: The updated site.
+         */
+        patch: operations["update_site_api_v1_sites__site_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/sites/{site_id}/assets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List a site's assets
+         * @description Return one page of assets, active ones unless archived are asked for.
+         *
+         *     Args:
+         *         site_id (UUID): The site.
+         *         principal (PrincipalModel): The acting principal.
+         *         service (AssetService): Asset rules.
+         *         include_archived (bool, optional): Add archived assets. Defaults to False.
+         *         limit (int, optional): Page size up to 100. Defaults to 50.
+         *         cursor (str | None, optional): ``next_cursor`` of the previous page. Defaults to None.
+         *
+         *     Returns:
+         *         AssetPageResponse: The page.
+         */
+        get: operations["list_assets_api_v1_sites__site_id__assets_get"];
+        put?: never;
+        /**
+         * Add an asset
+         * @description Create an asset in an owned site.
+         *
+         *     Args:
+         *         site_id (UUID): The site.
+         *         request (CreateAssetRequest): The asset.
+         *         principal (PrincipalModel): The acting principal.
+         *         service (AssetService): Asset rules.
+         *
+         *     Returns:
+         *         AssetResponse: The asset.
+         */
+        post: operations["create_asset_api_v1_sites__site_id__assets_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sites/{site_id}/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Recorded energy for a site
+         * @description Return recorded energy for every active asset, with coverage and any reason the total is withheld.
+         *
+         *     Pass ``preset`` or both ``start_date`` and ``end_date`` (inclusive local dates, at most 366 days).
+         *
+         *     Args:
+         *         site_id (UUID): The site.
+         *         principal (PrincipalModel): The acting principal.
+         *         service (EnergyService): Energy reads.
+         *         preset (Preset | None, optional): A named period. Defaults to None.
+         *         start_date (date | None, optional): First local date. Defaults to None.
+         *         end_date (date | None, optional): Last local date. Defaults to None.
+         *
+         *     Returns:
+         *         SummaryResponse: The summary.
+         */
+        get: operations["site_summary_api_v1_sites__site_id__summary_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -90,6 +480,117 @@ export interface components {
             status: components["schemas"]["CapabilityStatus"];
         };
         /**
+         * AssetDetailResponse
+         * @description An asset with its bindings, past and present, and their sources.
+         */
+        AssetDetailResponse: {
+            /** Archived */
+            archived: boolean;
+            /** Bindings */
+            bindings: components["schemas"]["BindingResponse"][];
+            /** Category */
+            category: string | null;
+            expected_use: components["schemas"]["ExpectedUse"];
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Location */
+            location: string | null;
+            /** Name */
+            name: string;
+            /** Parent Asset Id */
+            parent_asset_id: string | null;
+            scope_kind: components["schemas"]["ScopeKind"];
+            /** Sources */
+            sources: components["schemas"]["SourceResponse"][];
+        };
+        /**
+         * AssetEnergyResponse
+         * @description One asset's recorded energy in the window.
+         */
+        AssetEnergyResponse: {
+            /**
+             * Asset Id
+             * Format: uuid
+             */
+            asset_id: string;
+            /** Conflict Sources */
+            conflict_sources: components["schemas"]["ConflictSourceResponse"][] | null;
+            /** Coverage */
+            coverage: string | null;
+            /** Energy Kwh */
+            energy_kwh: string | null;
+            /** Energy Unavailable Reason */
+            energy_unavailable_reason: string | null;
+            /** Gaps */
+            gaps: components["schemas"]["GapResponse"][];
+            /** Name */
+            name: string;
+            scope_kind: components["schemas"]["ScopeKind"];
+            /** Share Percent */
+            share_percent: string | null;
+        };
+        /**
+         * AssetPageResponse
+         * @description One page of assets ordered by name, then ID.
+         */
+        AssetPageResponse: {
+            /** Items */
+            items: components["schemas"]["AssetResponse"][];
+            /** Next Cursor */
+            next_cursor: string | null;
+        };
+        /**
+         * AssetResponse
+         * @description An asset.
+         */
+        AssetResponse: {
+            /** Archived */
+            archived: boolean;
+            /** Category */
+            category: string | null;
+            expected_use: components["schemas"]["ExpectedUse"];
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Location */
+            location: string | null;
+            /** Name */
+            name: string;
+            /** Parent Asset Id */
+            parent_asset_id: string | null;
+            scope_kind: components["schemas"]["ScopeKind"];
+        };
+        /**
+         * BindingResponse
+         * @description A source's attribution to an asset over ``[effective_from, effective_to)``.
+         */
+        BindingResponse: {
+            /** Authoritative */
+            authoritative: boolean;
+            /**
+             * Effective From
+             * Format: date-time
+             */
+            effective_from: string;
+            /** Effective To */
+            effective_to: string | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+        };
+        /**
          * CapabilityManifestResponse
          * @description Non-secret explanation of this deployment. It grants nothing; the service still authorizes every request.
          */
@@ -132,6 +633,119 @@ export interface components {
             id: string;
             /** Version */
             version: number;
+        };
+        /**
+         * ConflictSourceResponse
+         * @description One unresolved candidate's value, shown beside the others and never summed.
+         */
+        ConflictSourceResponse: {
+            /** Energy Kwh */
+            energy_kwh: string;
+            /** Label */
+            label: string;
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+        };
+        /**
+         * CoverageResponse
+         * @description Completeness of the selection, never averaged away.
+         */
+        CoverageResponse: {
+            /** Allocated Estimate */
+            allocated_estimate: boolean;
+            /** Concurrent */
+            concurrent: string | null;
+            /** Minimum */
+            minimum: string | null;
+        };
+        /**
+         * CreateAssetRequest
+         * @description A new asset. Expected use stays unknown unless the user chooses it.
+         */
+        CreateAssetRequest: {
+            /** Category */
+            category?: string | null;
+            /** @default unknown */
+            expected_use?: components["schemas"]["ExpectedUse"];
+            /** Location */
+            location?: string | null;
+            /** Name */
+            name: string;
+            /** Parent Asset Id */
+            parent_asset_id?: string | null;
+            scope_kind: components["schemas"]["ScopeKind"];
+        };
+        /**
+         * CreateBindingRequest
+         * @description Attribute a source of the same site to an asset from a given instant.
+         */
+        CreateBindingRequest: {
+            /**
+             * Authoritative
+             * @default true
+             */
+            authoritative?: boolean;
+            /**
+             * Effective From
+             * Format: date-time
+             */
+            effective_from: string;
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+        };
+        /**
+         * CreateDemoSessionRequest
+         * @description The scenario to seed.
+         */
+        CreateDemoSessionRequest: {
+            /** Scenario Id */
+            scenario_id: string;
+        };
+        /**
+         * DemoSessionResponse
+         * @description A new session, or the same session recovered by a valid replay. Keep the token secret.
+         */
+        DemoSessionResponse: {
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            initial_period: components["schemas"]["InitialPeriodResponse"];
+            /** Scenario Id */
+            scenario_id: string;
+            /**
+             * Site Id
+             * Format: uuid
+             */
+            site_id: string;
+            /** Token */
+            token: string;
+        };
+        /**
+         * DemoWorkspaceResponse
+         * @description The demo workspace behind the current session.
+         */
+        DemoWorkspaceResponse: {
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            initial_period: components["schemas"]["InitialPeriodResponse"];
+            /** Scenario Id */
+            scenario_id: string;
+            /**
+             * Site Id
+             * Format: uuid
+             */
+            site_id: string;
         };
         /**
          * ErrorBody
@@ -189,6 +803,139 @@ export interface components {
             retryable: boolean;
         };
         /**
+         * ExcludedAssetResponse
+         * @description An asset left out, with the reason.
+         */
+        ExcludedAssetResponse: {
+            /**
+             * Asset Id
+             * Format: uuid
+             */
+            asset_id: string;
+            /** Name */
+            name: string;
+            /** Reason */
+            reason: string;
+        };
+        /**
+         * ExpectedUse
+         * @description How the user expects the asset to run. Never derived from its category.
+         * @enum {string}
+         */
+        ExpectedUse: "unknown" | "continuous" | "scheduled" | "intermittent";
+        /**
+         * GapResponse
+         * @description A stretch with no valid reading.
+         */
+        GapResponse: {
+            /**
+             * End
+             * Format: date-time
+             */
+            end: string;
+            /**
+             * Start
+             * Format: date-time
+             */
+            start: string;
+        };
+        /**
+         * Granularity
+         * @description Bucket size.
+         * @enum {string}
+         */
+        Granularity: "day" | "hour";
+        /**
+         * HighestBucketResponse
+         * @description The fully covered measured bucket with the greatest value; earliest start breaks a tie.
+         */
+        HighestBucketResponse: {
+            /**
+             * Start
+             * Format: date-time
+             */
+            start: string;
+        };
+        /**
+         * HistoryBucketResponse
+         * @description One bucket. A missing bucket is null with state ``missing``, never zero.
+         */
+        HistoryBucketResponse: {
+            /** Coverage */
+            coverage: string | null;
+            /**
+             * End
+             * Format: date-time
+             */
+            end: string;
+            /** Energy Kwh */
+            energy_kwh: string | null;
+            /**
+             * Local Date
+             * Format: date
+             */
+            local_date: string;
+            /** Local Time */
+            local_time: string | null;
+            /**
+             * Start
+             * Format: date-time
+             */
+            start: string;
+            /** State */
+            state: string;
+            /** Unavailable Reason */
+            unavailable_reason: string | null;
+            /** Utc Offset */
+            utc_offset: string;
+        };
+        /**
+         * HistoryResponse
+         * @description Bucketed history that reconciles with the summary.
+         */
+        HistoryResponse: {
+            /** Bucket */
+            bucket: string;
+            /** Buckets */
+            buckets: components["schemas"]["HistoryBucketResponse"][];
+            highest_bucket: components["schemas"]["HighestBucketResponse"] | null;
+            /** Origins */
+            origins: string[];
+            /** Resolution Mwh */
+            resolution_mwh: number | null;
+            window: components["schemas"]["WindowResponse"];
+        };
+        /**
+         * InitialPeriodResponse
+         * @description The period a scenario opens on.
+         */
+        InitialPeriodResponse: {
+            /**
+             * End Date
+             * Format: date
+             */
+            end_date: string;
+            /** Preset */
+            preset: string;
+            /**
+             * Start Date
+             * Format: date
+             */
+            start_date: string;
+        };
+        /**
+         * IssueType
+         * @description Why a combined total is refused.
+         * @enum {string}
+         */
+        IssueType: "parent_child" | "unknown_overlap" | "unconfirmed" | "source_conflict";
+        /**
+         * MeasurementKind
+         * @description What a source's raw values mean.
+         * @enum {string}
+         */
+        MeasurementKind: "interval_energy" | "average_power" | "instantaneous_power" | "counter";
+        /**
          * PolicyResponse
          * @description One versioned analysis policy.
          */
@@ -197,6 +944,220 @@ export interface components {
             id: string;
             /** Version */
             version: number;
+        };
+        /**
+         * Preset
+         * @description Named periods relative to site time.
+         * @enum {string}
+         */
+        Preset: "today" | "this_week" | "last_7_days";
+        /**
+         * ScenarioResponse
+         * @description A scenario clients can start.
+         */
+        ScenarioResponse: {
+            /** Description */
+            description: string;
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Segment */
+            segment: string;
+        };
+        /**
+         * ScopeAssetResponse
+         * @description An asset considered for the total.
+         */
+        ScopeAssetResponse: {
+            /**
+             * Asset Id
+             * Format: uuid
+             */
+            asset_id: string;
+            /** Name */
+            name: string;
+        };
+        /**
+         * ScopeIssueResponse
+         * @description Why a combined total is refused.
+         */
+        ScopeIssueResponse: {
+            /** Asset Ids */
+            asset_ids: string[];
+            /** Message */
+            message: string;
+            type: components["schemas"]["IssueType"];
+        };
+        /**
+         * ScopeKind
+         * @description What an asset's readings cover.
+         * @enum {string}
+         */
+        ScopeKind: "device" | "group" | "circuit" | "site_total";
+        /**
+         * ScopeResponse
+         * @description Which assets were considered and whether they may be added together.
+         */
+        ScopeResponse: {
+            /** Excluded */
+            excluded: components["schemas"]["ExcludedAssetResponse"][];
+            /** Included */
+            included: components["schemas"]["ScopeAssetResponse"][];
+            /** Issues */
+            issues: components["schemas"]["ScopeIssueResponse"][];
+            /** Valid */
+            valid: boolean;
+        };
+        /**
+         * SiteContext
+         * @description Neutral by default. Context changes examples only, never calculations.
+         * @enum {string}
+         */
+        SiteContext: "household" | "business" | "industry" | "unspecified";
+        /**
+         * SiteKind
+         * @description Demo sites run on a virtual clock; standard sites on the wall clock.
+         * @enum {string}
+         */
+        SiteKind: "demo" | "standard";
+        /**
+         * SiteResponse
+         * @description A site as clients see it, with the product time it runs on.
+         */
+        SiteResponse: {
+            context: components["schemas"]["SiteContext"];
+            /** Currency */
+            currency: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            kind: components["schemas"]["SiteKind"];
+            /** Name */
+            name: string;
+            /**
+             * Now
+             * Format: date-time
+             */
+            now: string;
+            /** Timezone */
+            timezone: string;
+        };
+        /**
+         * SourceOrigin
+         * @description Where a source's readings come from.
+         * @enum {string}
+         */
+        SourceOrigin: "live" | "import" | "dataset_replay" | "simulated";
+        /**
+         * SourceResponse
+         * @description A source and how its readings arrive.
+         */
+        SourceResponse: {
+            /** Cadence Seconds */
+            cadence_seconds: number | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Label */
+            label: string;
+            measurement_kind: components["schemas"]["MeasurementKind"];
+            origin: components["schemas"]["SourceOrigin"];
+            /** Resolution Mwh */
+            resolution_mwh: number | null;
+            transport_status: components["schemas"]["TransportStatus"];
+        };
+        /**
+         * SummaryResponse
+         * @description Recorded energy for a period and scope.
+         */
+        SummaryResponse: {
+            /** Assets */
+            assets: components["schemas"]["AssetEnergyResponse"][];
+            coverage: components["schemas"]["CoverageResponse"];
+            /** Energy Kwh */
+            energy_kwh: string | null;
+            /** Energy Unavailable Reason */
+            energy_unavailable_reason: string | null;
+            /** Latest Measurement At */
+            latest_measurement_at: string | null;
+            /** Origins */
+            origins: string[];
+            /** Revision */
+            revision: number;
+            scope: components["schemas"]["ScopeResponse"];
+            window: components["schemas"]["WindowResponse"];
+        };
+        /**
+         * TransportStatus
+         * @description How a source reaches the API. Nothing is ever a real live connection before 046.
+         * @enum {string}
+         */
+        TransportStatus: "none" | "simulated_live" | "historical";
+        /**
+         * UpdateAssetRequest
+         * @description Asset fields an owner may change. Archiving is reversible and keeps readings.
+         */
+        UpdateAssetRequest: {
+            /** Archived */
+            archived?: boolean | null;
+            /** Category */
+            category?: string | null;
+            expected_use?: components["schemas"]["ExpectedUse"] | null;
+            /** Location */
+            location?: string | null;
+            /** Name */
+            name?: string | null;
+        };
+        /**
+         * UpdateSiteRequest
+         * @description Fields an owner may change. Stored UTC instants keep their values when the timezone changes.
+         */
+        UpdateSiteRequest: {
+            context?: components["schemas"]["SiteContext"] | null;
+            /** Name */
+            name?: string | null;
+            /** Timezone */
+            timezone?: string | null;
+        };
+        /**
+         * WindowResponse
+         * @description The resolved period in local dates and UTC instants.
+         */
+        WindowResponse: {
+            /**
+             * Effective End
+             * Format: date-time
+             */
+            effective_end: string;
+            /**
+             * End
+             * Format: date-time
+             */
+            end: string;
+            /**
+             * End Date
+             * Format: date
+             */
+            end_date: string;
+            /** Is Current */
+            is_current: boolean;
+            /**
+             * Start
+             * Format: date-time
+             */
+            start: string;
+            /**
+             * Start Date
+             * Format: date
+             */
+            start_date: string;
+            /** Timezone */
+            timezone: string;
         };
     };
     responses: never;
@@ -207,6 +1168,264 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    get_asset_api_v1_assets__asset_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                asset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssetDetailResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    update_asset_api_v1_assets__asset_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                asset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateAssetRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssetResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    create_binding_api_v1_assets__asset_id__bindings_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                asset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateBindingRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BindingResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    delete_binding_api_v1_assets__asset_id__bindings__binding_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                asset_id: string;
+                binding_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BindingResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    asset_history_api_v1_assets__asset_id__measurements_get: {
+        parameters: {
+            query?: {
+                bucket?: components["schemas"]["Granularity"];
+                preset?: components["schemas"]["Preset"] | null;
+                start_date?: string | null;
+                end_date?: string | null;
+            };
+            header?: never;
+            path: {
+                asset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HistoryResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    asset_summary_api_v1_assets__asset_id__summary_get: {
+        parameters: {
+            query?: {
+                preset?: components["schemas"]["Preset"] | null;
+                start_date?: string | null;
+                end_date?: string | null;
+            };
+            header?: never;
+            path: {
+                asset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SummaryResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     get_capabilities_api_v1_capabilities_get: {
         parameters: {
             query?: never;
@@ -223,6 +1442,352 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CapabilityManifestResponse"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    list_scenarios_api_v1_demo_scenarios_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScenarioResponse"][];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    create_session_api_v1_demo_sessions_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                "X-Demo-Replay-Proof": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateDemoSessionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DemoSessionResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    end_session_api_v1_demo_sessions_current_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    reset_session_api_v1_demo_sessions_current_reset_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DemoWorkspaceResponse"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    get_site_api_v1_sites__site_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                site_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SiteResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    update_site_api_v1_sites__site_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                site_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateSiteRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SiteResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    list_assets_api_v1_sites__site_id__assets_get: {
+        parameters: {
+            query?: {
+                include_archived?: boolean;
+                limit?: number;
+                cursor?: string | null;
+            };
+            header?: never;
+            path: {
+                site_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssetPageResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    create_asset_api_v1_sites__site_id__assets_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                site_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateAssetRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssetResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    site_summary_api_v1_sites__site_id__summary_get: {
+        parameters: {
+            query?: {
+                preset?: components["schemas"]["Preset"] | null;
+                start_date?: string | null;
+                end_date?: string | null;
+            };
+            header?: never;
+            path: {
+                site_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SummaryResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
             /** @description Failure */

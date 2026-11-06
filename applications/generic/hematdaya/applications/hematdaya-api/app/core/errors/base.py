@@ -48,9 +48,11 @@ class AppError(Exception):
         reference_id (str): Failure occurrence ID, preserved through wrapping.
         debug_info (DebugInfo): Sanitized diagnostics.
         recovery (RecoveryInfo): Retry guidance.
+        headers (dict[str, str]): Protocol headers the response must carry.
     """
 
     code: ClassVar[str] = codes.APP_UNKNOWN
+    headers: ClassVar[dict[str, str]] = {}
 
     def __init__(self, message: str | None = None, *, error: BaseException | None = None) -> None:
         """Initialize a typed failure.
@@ -120,3 +122,10 @@ class ConflictError(AppError):
     """The request conflicts with current state."""
 
     code = codes.APP_CONFLICT
+
+
+class UnauthorizedError(AppError):
+    """The request carries no credential the API accepts."""
+
+    code = codes.APP_AUTH_REQUIRED
+    headers = {"WWW-Authenticate": "Bearer"}

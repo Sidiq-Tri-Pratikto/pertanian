@@ -2,7 +2,7 @@
 
 **Feature Branch**: `007-fixtures`
 **Created**: 2026-10-30
-**Status**: Seeded, not started
+**Status**: Implemented on `f/m1-energy-core`; fixture oracles pass as unit tests. Seeding through ingestion is verified in 008
 **Milestone**: M1 Energy core
 **Depends on**: 006
 **Size**: S

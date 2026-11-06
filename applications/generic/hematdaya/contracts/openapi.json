@@ -19,6 +19,331 @@
         "title": "AdapterResponse",
         "type": "object"
       },
+      "AssetDetailResponse": {
+        "description": "An asset with its bindings, past and present, and their sources.",
+        "properties": {
+          "archived": {
+            "title": "Archived",
+            "type": "boolean"
+          },
+          "bindings": {
+            "items": {
+              "$ref": "#/components/schemas/BindingResponse"
+            },
+            "title": "Bindings",
+            "type": "array"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category"
+          },
+          "expected_use": {
+            "$ref": "#/components/schemas/ExpectedUse"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "location": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Location"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "parent_asset_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Asset Id"
+          },
+          "scope_kind": {
+            "$ref": "#/components/schemas/ScopeKind"
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/SourceResponse"
+            },
+            "title": "Sources",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "category",
+          "location",
+          "scope_kind",
+          "parent_asset_id",
+          "expected_use",
+          "archived",
+          "bindings",
+          "sources"
+        ],
+        "title": "AssetDetailResponse",
+        "type": "object"
+      },
+      "AssetEnergyResponse": {
+        "description": "One asset's recorded energy in the window.",
+        "properties": {
+          "asset_id": {
+            "format": "uuid",
+            "title": "Asset Id",
+            "type": "string"
+          },
+          "conflict_sources": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ConflictSourceResponse"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conflict Sources"
+          },
+          "coverage": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Coverage"
+          },
+          "energy_kwh": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Energy Kwh"
+          },
+          "energy_unavailable_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Energy Unavailable Reason"
+          },
+          "gaps": {
+            "items": {
+              "$ref": "#/components/schemas/GapResponse"
+            },
+            "title": "Gaps",
+            "type": "array"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "scope_kind": {
+            "$ref": "#/components/schemas/ScopeKind"
+          },
+          "share_percent": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Share Percent"
+          }
+        },
+        "required": [
+          "asset_id",
+          "name",
+          "scope_kind",
+          "energy_kwh",
+          "energy_unavailable_reason",
+          "share_percent",
+          "coverage",
+          "gaps",
+          "conflict_sources"
+        ],
+        "title": "AssetEnergyResponse",
+        "type": "object"
+      },
+      "AssetPageResponse": {
+        "description": "One page of assets ordered by name, then ID.",
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/AssetResponse"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "title": "AssetPageResponse",
+        "type": "object"
+      },
+      "AssetResponse": {
+        "description": "An asset.",
+        "properties": {
+          "archived": {
+            "title": "Archived",
+            "type": "boolean"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category"
+          },
+          "expected_use": {
+            "$ref": "#/components/schemas/ExpectedUse"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "location": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Location"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "parent_asset_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Asset Id"
+          },
+          "scope_kind": {
+            "$ref": "#/components/schemas/ScopeKind"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "category",
+          "location",
+          "scope_kind",
+          "parent_asset_id",
+          "expected_use",
+          "archived"
+        ],
+        "title": "AssetResponse",
+        "type": "object"
+      },
+      "BindingResponse": {
+        "description": "A source's attribution to an asset over ``[effective_from, effective_to)``.",
+        "properties": {
+          "authoritative": {
+            "title": "Authoritative",
+            "type": "boolean"
+          },
+          "effective_from": {
+            "format": "date-time",
+            "title": "Effective From",
+            "type": "string"
+          },
+          "effective_to": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effective To"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "source_id": {
+            "format": "uuid",
+            "title": "Source Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "source_id",
+          "effective_from",
+          "effective_to",
+          "authoritative"
+        ],
+        "title": "BindingResponse",
+        "type": "object"
+      },
       "CapabilityManifestResponse": {
         "description": "Non-secret explanation of this deployment. It grants nothing; the service still authorizes every request.",
         "properties": {
@@ -116,6 +441,239 @@
           "version"
         ],
         "title": "CompositionResponse",
+        "type": "object"
+      },
+      "ConflictSourceResponse": {
+        "description": "One unresolved candidate's value, shown beside the others and never summed.",
+        "properties": {
+          "energy_kwh": {
+            "title": "Energy Kwh",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "source_id": {
+            "format": "uuid",
+            "title": "Source Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_id",
+          "label",
+          "energy_kwh"
+        ],
+        "title": "ConflictSourceResponse",
+        "type": "object"
+      },
+      "CoverageResponse": {
+        "description": "Completeness of the selection, never averaged away.",
+        "properties": {
+          "allocated_estimate": {
+            "title": "Allocated Estimate",
+            "type": "boolean"
+          },
+          "concurrent": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Concurrent"
+          },
+          "minimum": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Minimum"
+          }
+        },
+        "required": [
+          "minimum",
+          "concurrent",
+          "allocated_estimate"
+        ],
+        "title": "CoverageResponse",
+        "type": "object"
+      },
+      "CreateAssetRequest": {
+        "additionalProperties": false,
+        "description": "A new asset. Expected use stays unknown unless the user chooses it.",
+        "properties": {
+          "category": {
+            "anyOf": [
+              {
+                "maxLength": 60,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category"
+          },
+          "expected_use": {
+            "$ref": "#/components/schemas/ExpectedUse",
+            "default": "unknown"
+          },
+          "location": {
+            "anyOf": [
+              {
+                "maxLength": 60,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Location"
+          },
+          "name": {
+            "maxLength": 60,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "parent_asset_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Asset Id"
+          },
+          "scope_kind": {
+            "$ref": "#/components/schemas/ScopeKind"
+          }
+        },
+        "required": [
+          "name",
+          "scope_kind"
+        ],
+        "title": "CreateAssetRequest",
+        "type": "object"
+      },
+      "CreateBindingRequest": {
+        "additionalProperties": false,
+        "description": "Attribute a source of the same site to an asset from a given instant.",
+        "properties": {
+          "authoritative": {
+            "default": true,
+            "title": "Authoritative",
+            "type": "boolean"
+          },
+          "effective_from": {
+            "format": "date-time",
+            "title": "Effective From",
+            "type": "string"
+          },
+          "source_id": {
+            "format": "uuid",
+            "title": "Source Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_id",
+          "effective_from"
+        ],
+        "title": "CreateBindingRequest",
+        "type": "object"
+      },
+      "CreateDemoSessionRequest": {
+        "additionalProperties": false,
+        "description": "The scenario to seed.",
+        "properties": {
+          "scenario_id": {
+            "maxLength": 40,
+            "minLength": 1,
+            "title": "Scenario Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "scenario_id"
+        ],
+        "title": "CreateDemoSessionRequest",
+        "type": "object"
+      },
+      "DemoSessionResponse": {
+        "description": "A new session, or the same session recovered by a valid replay. Keep the token secret.",
+        "properties": {
+          "expires_at": {
+            "format": "date-time",
+            "title": "Expires At",
+            "type": "string"
+          },
+          "initial_period": {
+            "$ref": "#/components/schemas/InitialPeriodResponse"
+          },
+          "scenario_id": {
+            "title": "Scenario Id",
+            "type": "string"
+          },
+          "site_id": {
+            "format": "uuid",
+            "title": "Site Id",
+            "type": "string"
+          },
+          "token": {
+            "title": "Token",
+            "type": "string"
+          }
+        },
+        "required": [
+          "site_id",
+          "scenario_id",
+          "expires_at",
+          "initial_period",
+          "token"
+        ],
+        "title": "DemoSessionResponse",
+        "type": "object"
+      },
+      "DemoWorkspaceResponse": {
+        "description": "The demo workspace behind the current session.",
+        "properties": {
+          "expires_at": {
+            "format": "date-time",
+            "title": "Expires At",
+            "type": "string"
+          },
+          "initial_period": {
+            "$ref": "#/components/schemas/InitialPeriodResponse"
+          },
+          "scenario_id": {
+            "title": "Scenario Id",
+            "type": "string"
+          },
+          "site_id": {
+            "format": "uuid",
+            "title": "Site Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "site_id",
+          "scenario_id",
+          "expires_at",
+          "initial_period"
+        ],
+        "title": "DemoWorkspaceResponse",
         "type": "object"
       },
       "ErrorBody": {
@@ -246,6 +804,277 @@
         "title": "ErrorRecovery",
         "type": "object"
       },
+      "ExcludedAssetResponse": {
+        "description": "An asset left out, with the reason.",
+        "properties": {
+          "asset_id": {
+            "format": "uuid",
+            "title": "Asset Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "asset_id",
+          "name",
+          "reason"
+        ],
+        "title": "ExcludedAssetResponse",
+        "type": "object"
+      },
+      "ExpectedUse": {
+        "description": "How the user expects the asset to run. Never derived from its category.",
+        "enum": [
+          "unknown",
+          "continuous",
+          "scheduled",
+          "intermittent"
+        ],
+        "title": "ExpectedUse",
+        "type": "string"
+      },
+      "GapResponse": {
+        "description": "A stretch with no valid reading.",
+        "properties": {
+          "end": {
+            "format": "date-time",
+            "title": "End",
+            "type": "string"
+          },
+          "start": {
+            "format": "date-time",
+            "title": "Start",
+            "type": "string"
+          }
+        },
+        "required": [
+          "start",
+          "end"
+        ],
+        "title": "GapResponse",
+        "type": "object"
+      },
+      "Granularity": {
+        "description": "Bucket size.",
+        "enum": [
+          "day",
+          "hour"
+        ],
+        "title": "Granularity",
+        "type": "string"
+      },
+      "HighestBucketResponse": {
+        "description": "The fully covered measured bucket with the greatest value; earliest start breaks a tie.",
+        "properties": {
+          "start": {
+            "format": "date-time",
+            "title": "Start",
+            "type": "string"
+          }
+        },
+        "required": [
+          "start"
+        ],
+        "title": "HighestBucketResponse",
+        "type": "object"
+      },
+      "HistoryBucketResponse": {
+        "description": "One bucket. A missing bucket is null with state ``missing``, never zero.",
+        "properties": {
+          "coverage": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Coverage"
+          },
+          "end": {
+            "format": "date-time",
+            "title": "End",
+            "type": "string"
+          },
+          "energy_kwh": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Energy Kwh"
+          },
+          "local_date": {
+            "format": "date",
+            "title": "Local Date",
+            "type": "string"
+          },
+          "local_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Local Time"
+          },
+          "start": {
+            "format": "date-time",
+            "title": "Start",
+            "type": "string"
+          },
+          "state": {
+            "title": "State",
+            "type": "string"
+          },
+          "unavailable_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unavailable Reason"
+          },
+          "utc_offset": {
+            "title": "Utc Offset",
+            "type": "string"
+          }
+        },
+        "required": [
+          "start",
+          "end",
+          "local_date",
+          "local_time",
+          "utc_offset",
+          "energy_kwh",
+          "unavailable_reason",
+          "state",
+          "coverage"
+        ],
+        "title": "HistoryBucketResponse",
+        "type": "object"
+      },
+      "HistoryResponse": {
+        "description": "Bucketed history that reconciles with the summary.",
+        "properties": {
+          "bucket": {
+            "title": "Bucket",
+            "type": "string"
+          },
+          "buckets": {
+            "items": {
+              "$ref": "#/components/schemas/HistoryBucketResponse"
+            },
+            "title": "Buckets",
+            "type": "array"
+          },
+          "highest_bucket": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HighestBucketResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "origins": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Origins",
+            "type": "array"
+          },
+          "resolution_mwh": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolution Mwh"
+          },
+          "window": {
+            "$ref": "#/components/schemas/WindowResponse"
+          }
+        },
+        "required": [
+          "window",
+          "bucket",
+          "origins",
+          "resolution_mwh",
+          "highest_bucket",
+          "buckets"
+        ],
+        "title": "HistoryResponse",
+        "type": "object"
+      },
+      "InitialPeriodResponse": {
+        "description": "The period a scenario opens on.",
+        "properties": {
+          "end_date": {
+            "format": "date",
+            "title": "End Date",
+            "type": "string"
+          },
+          "preset": {
+            "title": "Preset",
+            "type": "string"
+          },
+          "start_date": {
+            "format": "date",
+            "title": "Start Date",
+            "type": "string"
+          }
+        },
+        "required": [
+          "preset",
+          "start_date",
+          "end_date"
+        ],
+        "title": "InitialPeriodResponse",
+        "type": "object"
+      },
+      "IssueType": {
+        "description": "Why a combined total is refused.",
+        "enum": [
+          "parent_child",
+          "unknown_overlap",
+          "unconfirmed",
+          "source_conflict"
+        ],
+        "title": "IssueType",
+        "type": "string"
+      },
+      "MeasurementKind": {
+        "description": "What a source's raw values mean.",
+        "enum": [
+          "interval_energy",
+          "average_power",
+          "instantaneous_power",
+          "counter"
+        ],
+        "title": "MeasurementKind",
+        "type": "string"
+      },
       "PolicyResponse": {
         "description": "One versioned analysis policy.",
         "properties": {
@@ -264,6 +1093,518 @@
         ],
         "title": "PolicyResponse",
         "type": "object"
+      },
+      "Preset": {
+        "description": "Named periods relative to site time.",
+        "enum": [
+          "today",
+          "this_week",
+          "last_7_days"
+        ],
+        "title": "Preset",
+        "type": "string"
+      },
+      "ScenarioResponse": {
+        "description": "A scenario clients can start.",
+        "properties": {
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "segment": {
+            "title": "Segment",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "segment",
+          "name",
+          "description"
+        ],
+        "title": "ScenarioResponse",
+        "type": "object"
+      },
+      "ScopeAssetResponse": {
+        "description": "An asset considered for the total.",
+        "properties": {
+          "asset_id": {
+            "format": "uuid",
+            "title": "Asset Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "asset_id",
+          "name"
+        ],
+        "title": "ScopeAssetResponse",
+        "type": "object"
+      },
+      "ScopeIssueResponse": {
+        "description": "Why a combined total is refused.",
+        "properties": {
+          "asset_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Asset Ids",
+            "type": "array"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "$ref": "#/components/schemas/IssueType"
+          }
+        },
+        "required": [
+          "type",
+          "asset_ids",
+          "message"
+        ],
+        "title": "ScopeIssueResponse",
+        "type": "object"
+      },
+      "ScopeKind": {
+        "description": "What an asset's readings cover.",
+        "enum": [
+          "device",
+          "group",
+          "circuit",
+          "site_total"
+        ],
+        "title": "ScopeKind",
+        "type": "string"
+      },
+      "ScopeResponse": {
+        "description": "Which assets were considered and whether they may be added together.",
+        "properties": {
+          "excluded": {
+            "items": {
+              "$ref": "#/components/schemas/ExcludedAssetResponse"
+            },
+            "title": "Excluded",
+            "type": "array"
+          },
+          "included": {
+            "items": {
+              "$ref": "#/components/schemas/ScopeAssetResponse"
+            },
+            "title": "Included",
+            "type": "array"
+          },
+          "issues": {
+            "items": {
+              "$ref": "#/components/schemas/ScopeIssueResponse"
+            },
+            "title": "Issues",
+            "type": "array"
+          },
+          "valid": {
+            "title": "Valid",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "valid",
+          "issues",
+          "included",
+          "excluded"
+        ],
+        "title": "ScopeResponse",
+        "type": "object"
+      },
+      "SiteContext": {
+        "description": "Neutral by default. Context changes examples only, never calculations.",
+        "enum": [
+          "household",
+          "business",
+          "industry",
+          "unspecified"
+        ],
+        "title": "SiteContext",
+        "type": "string"
+      },
+      "SiteKind": {
+        "description": "Demo sites run on a virtual clock; standard sites on the wall clock.",
+        "enum": [
+          "demo",
+          "standard"
+        ],
+        "title": "SiteKind",
+        "type": "string"
+      },
+      "SiteResponse": {
+        "description": "A site as clients see it, with the product time it runs on.",
+        "properties": {
+          "context": {
+            "$ref": "#/components/schemas/SiteContext"
+          },
+          "currency": {
+            "title": "Currency",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/SiteKind"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "now": {
+            "format": "date-time",
+            "title": "Now",
+            "type": "string"
+          },
+          "timezone": {
+            "title": "Timezone",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "kind",
+          "context",
+          "timezone",
+          "currency",
+          "now"
+        ],
+        "title": "SiteResponse",
+        "type": "object"
+      },
+      "SourceOrigin": {
+        "description": "Where a source's readings come from.",
+        "enum": [
+          "live",
+          "import",
+          "dataset_replay",
+          "simulated"
+        ],
+        "title": "SourceOrigin",
+        "type": "string"
+      },
+      "SourceResponse": {
+        "description": "A source and how its readings arrive.",
+        "properties": {
+          "cadence_seconds": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cadence Seconds"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "measurement_kind": {
+            "$ref": "#/components/schemas/MeasurementKind"
+          },
+          "origin": {
+            "$ref": "#/components/schemas/SourceOrigin"
+          },
+          "resolution_mwh": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolution Mwh"
+          },
+          "transport_status": {
+            "$ref": "#/components/schemas/TransportStatus"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "origin",
+          "measurement_kind",
+          "cadence_seconds",
+          "resolution_mwh",
+          "transport_status"
+        ],
+        "title": "SourceResponse",
+        "type": "object"
+      },
+      "SummaryResponse": {
+        "description": "Recorded energy for a period and scope.",
+        "properties": {
+          "assets": {
+            "items": {
+              "$ref": "#/components/schemas/AssetEnergyResponse"
+            },
+            "title": "Assets",
+            "type": "array"
+          },
+          "coverage": {
+            "$ref": "#/components/schemas/CoverageResponse"
+          },
+          "energy_kwh": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Energy Kwh"
+          },
+          "energy_unavailable_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Energy Unavailable Reason"
+          },
+          "latest_measurement_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latest Measurement At"
+          },
+          "origins": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Origins",
+            "type": "array"
+          },
+          "revision": {
+            "title": "Revision",
+            "type": "integer"
+          },
+          "scope": {
+            "$ref": "#/components/schemas/ScopeResponse"
+          },
+          "window": {
+            "$ref": "#/components/schemas/WindowResponse"
+          }
+        },
+        "required": [
+          "window",
+          "scope",
+          "energy_kwh",
+          "energy_unavailable_reason",
+          "coverage",
+          "assets",
+          "latest_measurement_at",
+          "origins",
+          "revision"
+        ],
+        "title": "SummaryResponse",
+        "type": "object"
+      },
+      "TransportStatus": {
+        "description": "How a source reaches the API. Nothing is ever a real live connection before 046.",
+        "enum": [
+          "none",
+          "simulated_live",
+          "historical"
+        ],
+        "title": "TransportStatus",
+        "type": "string"
+      },
+      "UpdateAssetRequest": {
+        "additionalProperties": false,
+        "description": "Asset fields an owner may change. Archiving is reversible and keeps readings.",
+        "properties": {
+          "archived": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Archived"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "maxLength": 60,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category"
+          },
+          "expected_use": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ExpectedUse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "location": {
+            "anyOf": [
+              {
+                "maxLength": 60,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Location"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "maxLength": 60,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          }
+        },
+        "title": "UpdateAssetRequest",
+        "type": "object"
+      },
+      "UpdateSiteRequest": {
+        "additionalProperties": false,
+        "description": "Fields an owner may change. Stored UTC instants keep their values when the timezone changes.",
+        "properties": {
+          "context": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SiteContext"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "name": {
+            "anyOf": [
+              {
+                "maxLength": 60,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "timezone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Timezone"
+          }
+        },
+        "title": "UpdateSiteRequest",
+        "type": "object"
+      },
+      "WindowResponse": {
+        "description": "The resolved period in local dates and UTC instants.",
+        "properties": {
+          "effective_end": {
+            "format": "date-time",
+            "title": "Effective End",
+            "type": "string"
+          },
+          "end": {
+            "format": "date-time",
+            "title": "End",
+            "type": "string"
+          },
+          "end_date": {
+            "format": "date",
+            "title": "End Date",
+            "type": "string"
+          },
+          "is_current": {
+            "title": "Is Current",
+            "type": "boolean"
+          },
+          "start": {
+            "format": "date-time",
+            "title": "Start",
+            "type": "string"
+          },
+          "start_date": {
+            "format": "date",
+            "title": "Start Date",
+            "type": "string"
+          },
+          "timezone": {
+            "title": "Timezone",
+            "type": "string"
+          }
+        },
+        "required": [
+          "start",
+          "end",
+          "effective_end",
+          "start_date",
+          "end_date",
+          "timezone",
+          "is_current"
+        ],
+        "title": "WindowResponse",
+        "type": "object"
       }
     }
   },
@@ -273,6 +1614,467 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/v1/assets/{asset_id}": {
+      "get": {
+        "description": "Return an owned asset, its bindings and their sources.\n\nArgs:\n    asset_id (UUID): The asset.\n    principal (PrincipalModel): The acting principal.\n    service (AssetService): Asset rules.\n\nReturns:\n    AssetDetailResponse: The asset.",
+        "operationId": "get_asset_api_v1_assets__asset_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "asset_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Asset Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetDetailResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Read an asset with its sources",
+        "tags": [
+          "assets"
+        ]
+      },
+      "patch": {
+        "description": "Change an owned asset's name, category, location, expected use or archive state.\n\nArgs:\n    asset_id (UUID): The asset.\n    request (UpdateAssetRequest): The changes.\n    principal (PrincipalModel): The acting principal.\n    service (AssetService): Asset rules.\n\nReturns:\n    AssetResponse: The asset.",
+        "operationId": "update_asset_api_v1_assets__asset_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "asset_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Asset Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAssetRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Change an asset",
+        "tags": [
+          "assets"
+        ]
+      }
+    },
+    "/api/v1/assets/{asset_id}/bindings": {
+      "post": {
+        "description": "Attribute a source of the same site to an owned asset.\n\nArgs:\n    asset_id (UUID): The asset.\n    request (CreateBindingRequest): The binding.\n    principal (PrincipalModel): The acting principal.\n    service (AssetService): Asset rules.\n\nReturns:\n    BindingResponse: The binding.",
+        "operationId": "create_binding_api_v1_assets__asset_id__bindings_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "asset_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Asset Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBindingRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BindingResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Bind a source",
+        "tags": [
+          "assets"
+        ]
+      }
+    },
+    "/api/v1/assets/{asset_id}/bindings/{binding_id}": {
+      "delete": {
+        "description": "End a binding at site time. History stays; repeating it changes nothing.\n\nArgs:\n    asset_id (UUID): The asset.\n    binding_id (UUID): The binding.\n    principal (PrincipalModel): The acting principal.\n    service (AssetService): Asset rules.\n\nReturns:\n    BindingResponse: The binding with its end.",
+        "operationId": "delete_binding_api_v1_assets__asset_id__bindings__binding_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "asset_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Asset Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "binding_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Binding Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BindingResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "End a binding",
+        "tags": [
+          "assets"
+        ]
+      }
+    },
+    "/api/v1/assets/{asset_id}/measurements": {
+      "get": {
+        "description": "Return day or hour buckets in local time with UTC bounds, state and coverage; at most 1,000 buckets.\n\nArgs:\n    asset_id (UUID): The asset.\n    principal (PrincipalModel): The acting principal.\n    service (HistoryService): History reads.\n    bucket (Granularity, optional): ``day`` or ``hour``. Defaults to day.\n    preset (Preset | None, optional): A named period. Defaults to None.\n    start_date (date | None, optional): First local date. Defaults to None.\n    end_date (date | None, optional): Last local date. Defaults to None.\n\nReturns:\n    HistoryResponse: The series.",
+        "operationId": "asset_history_api_v1_assets__asset_id__measurements_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "asset_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Asset Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "bucket",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/Granularity",
+              "default": "day"
+            }
+          },
+          {
+            "in": "query",
+            "name": "preset",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/Preset"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Preset"
+            }
+          },
+          {
+            "in": "query",
+            "name": "start_date",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Start Date"
+            }
+          },
+          {
+            "in": "query",
+            "name": "end_date",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "End Date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HistoryResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Bucketed history for one asset",
+        "tags": [
+          "energy"
+        ]
+      }
+    },
+    "/api/v1/assets/{asset_id}/summary": {
+      "get": {
+        "description": "Return one asset's recorded energy in the summary shape; a parent meter alone is valid.\n\nArgs:\n    asset_id (UUID): The asset.\n    principal (PrincipalModel): The acting principal.\n    service (EnergyService): Energy reads.\n    preset (Preset | None, optional): A named period. Defaults to None.\n    start_date (date | None, optional): First local date. Defaults to None.\n    end_date (date | None, optional): Last local date. Defaults to None.\n\nReturns:\n    SummaryResponse: The summary.",
+        "operationId": "asset_summary_api_v1_assets__asset_id__summary_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "asset_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Asset Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "preset",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/Preset"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Preset"
+            }
+          },
+          {
+            "in": "query",
+            "name": "start_date",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Start Date"
+            }
+          },
+          {
+            "in": "query",
+            "name": "end_date",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "End Date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SummaryResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Recorded energy for one asset",
+        "tags": [
+          "energy"
+        ]
+      }
+    },
     "/api/v1/capabilities": {
       "get": {
         "description": "Return the non-secret manifest clients use to explain what is available.\n\nReturns:\n    CapabilityManifestResponse: The manifest.",
@@ -302,6 +2104,548 @@
         "summary": "Describe this deployment",
         "tags": [
           "capabilities"
+        ]
+      }
+    },
+    "/api/v1/demo/scenarios": {
+      "get": {
+        "description": "Return every scenario a client can start. Public.\n\nArgs:\n    service (DemoService): Demo rules.\n\nReturns:\n    list[ScenarioResponse]: The catalog.",
+        "operationId": "list_scenarios_api_v1_demo_scenarios_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ScenarioResponse"
+                  },
+                  "title": "Response List Scenarios Api V1 Demo Scenarios Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "List demo scenarios",
+        "tags": [
+          "demo"
+        ]
+      }
+    },
+    "/api/v1/demo/sessions": {
+      "post": {
+        "description": "Seed an isolated demo workspace, or recover the same one after a lost response.\n\nThe key needs at least 128 random bits and the proof a separate 256. Send the same pair to recover within\nthe replay window; use a new pair for a new session.\n\nArgs:\n    request (CreateDemoSessionRequest): The scenario.\n    service (DemoService): Demo rules.\n    response (Response): Lets a replay answer 200.\n    idempotency_key (str): Operation ID.\n    replay_proof (str): Secret replay proof.\n\nReturns:\n    DemoSessionResponse: Token and workspace.",
+        "operationId": "create_session_api_v1_demo_sessions_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 128,
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Demo-Replay-Proof",
+            "required": true,
+            "schema": {
+              "maxLength": 256,
+              "title": "X-Demo-Replay-Proof",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDemoSessionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DemoSessionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Start a demo session",
+        "tags": [
+          "demo"
+        ]
+      }
+    },
+    "/api/v1/demo/sessions/current": {
+      "delete": {
+        "description": "End the session and delete its workspace.\n\nArgs:\n    principal (PrincipalModel): The acting principal.\n    service (DemoService): Demo rules.",
+        "operationId": "end_session_api_v1_demo_sessions_current_delete",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "End the demo session",
+        "tags": [
+          "demo"
+        ]
+      }
+    },
+    "/api/v1/demo/sessions/current/reset": {
+      "post": {
+        "description": "Return the caller's workspace to its scenario start; the token stays valid.\n\nArgs:\n    principal (PrincipalModel): The acting principal.\n    service (DemoService): Demo rules.\n\nReturns:\n    DemoWorkspaceResponse: The workspace.",
+        "operationId": "reset_session_api_v1_demo_sessions_current_reset_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DemoWorkspaceResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Reset the demo workspace",
+        "tags": [
+          "demo"
+        ]
+      }
+    },
+    "/api/v1/sites/{site_id}": {
+      "get": {
+        "description": "Return an owned site.\n\nArgs:\n    site_id (UUID): The site.\n    principal (PrincipalModel): The acting principal.\n    service (SiteService): Site rules.\n\nReturns:\n    SiteResponse: The site.",
+        "operationId": "get_site_api_v1_sites__site_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "site_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Site Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SiteResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Read a site",
+        "tags": [
+          "sites"
+        ]
+      },
+      "patch": {
+        "description": "Change an owned site's name, context or timezone.\n\nArgs:\n    site_id (UUID): The site.\n    request (UpdateSiteRequest): The changes.\n    principal (PrincipalModel): The acting principal.\n    service (SiteService): Site rules.\n\nReturns:\n    SiteResponse: The updated site.",
+        "operationId": "update_site_api_v1_sites__site_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "site_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Site Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSiteRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SiteResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Change site settings",
+        "tags": [
+          "sites"
+        ]
+      }
+    },
+    "/api/v1/sites/{site_id}/assets": {
+      "get": {
+        "description": "Return one page of assets, active ones unless archived are asked for.\n\nArgs:\n    site_id (UUID): The site.\n    principal (PrincipalModel): The acting principal.\n    service (AssetService): Asset rules.\n    include_archived (bool, optional): Add archived assets. Defaults to False.\n    limit (int, optional): Page size up to 100. Defaults to 50.\n    cursor (str | None, optional): ``next_cursor`` of the previous page. Defaults to None.\n\nReturns:\n    AssetPageResponse: The page.",
+        "operationId": "list_assets_api_v1_sites__site_id__assets_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "site_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Site Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "include_archived",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Include Archived",
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 400,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetPageResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "List a site's assets",
+        "tags": [
+          "assets"
+        ]
+      },
+      "post": {
+        "description": "Create an asset in an owned site.\n\nArgs:\n    site_id (UUID): The site.\n    request (CreateAssetRequest): The asset.\n    principal (PrincipalModel): The acting principal.\n    service (AssetService): Asset rules.\n\nReturns:\n    AssetResponse: The asset.",
+        "operationId": "create_asset_api_v1_sites__site_id__assets_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "site_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Site Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAssetRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Add an asset",
+        "tags": [
+          "assets"
+        ]
+      }
+    },
+    "/api/v1/sites/{site_id}/summary": {
+      "get": {
+        "description": "Return recorded energy for every active asset, with coverage and any reason the total is withheld.\n\nPass ``preset`` or both ``start_date`` and ``end_date`` (inclusive local dates, at most 366 days).\n\nArgs:\n    site_id (UUID): The site.\n    principal (PrincipalModel): The acting principal.\n    service (EnergyService): Energy reads.\n    preset (Preset | None, optional): A named period. Defaults to None.\n    start_date (date | None, optional): First local date. Defaults to None.\n    end_date (date | None, optional): Last local date. Defaults to None.\n\nReturns:\n    SummaryResponse: The summary.",
+        "operationId": "site_summary_api_v1_sites__site_id__summary_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "site_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Site Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "preset",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/Preset"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Preset"
+            }
+          },
+          {
+            "in": "query",
+            "name": "start_date",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Start Date"
+            }
+          },
+          {
+            "in": "query",
+            "name": "end_date",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "End Date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SummaryResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Recorded energy for a site",
+        "tags": [
+          "energy"
         ]
       }
     },

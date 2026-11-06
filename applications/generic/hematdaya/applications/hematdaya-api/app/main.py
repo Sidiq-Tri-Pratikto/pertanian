@@ -7,6 +7,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.exc import SQLAlchemyError
 
+from app.assets.router import router as assets_router
 from app.capabilities.router import router as capabilities_router
 from app.capabilities.service.service import SOURCE_RELEASE, build_manifest
 from app.core.database import get_engine
@@ -15,7 +16,12 @@ from app.core.errors.handlers import ErrorBoundaryMiddleware, register_exception
 from app.core.logging import setup_logging
 from app.core.openapi import install_error_schema
 from app.core.settings import get_settings
+from app.demo.dependencies import resolve_demo_principal
+from app.demo.router import router as demo_router
+from app.energy.router import router as energy_router
 from app.health.router import router as health_router
+from app.identity.dependencies import register_principal_resolver
+from app.sites.router import router as sites_router
 
 API_PREFIX = "/api/v1"
 
@@ -47,6 +53,11 @@ def create_app() -> FastAPI:
     app.add_exception_handler(SQLAlchemyError, handle_database_error)
     app.include_router(health_router)
     app.include_router(capabilities_router, prefix=API_PREFIX)
+    app.include_router(sites_router, prefix=API_PREFIX)
+    app.include_router(assets_router, prefix=API_PREFIX)
+    app.include_router(demo_router, prefix=API_PREFIX)
+    app.include_router(energy_router, prefix=API_PREFIX)
+    register_principal_resolver(resolve_demo_principal)
     install_error_schema(app)
     return app
 

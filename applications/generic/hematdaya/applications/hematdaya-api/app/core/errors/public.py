@@ -49,6 +49,47 @@ PUBLIC_ERROR_BY_CODE: dict[str, PublicError] = {
         "Layanan data sedang tidak tersedia. Coba lagi beberapa menit lagi.",
         {"retryable": True, "retry_after_seconds": 30, "max_attempts": 3},
     ),
+    codes.APP_ASSET_CYCLE: PublicError(
+        "INVALID_RELATION",
+        400,
+        "Hubungan aset ini membuat aset mencakup dirinya sendiri. Pilih aset induk yang lain.",
+    ),
+    codes.APP_BINDING_OVERLAP: PublicError(
+        "CONFLICT",
+        409,
+        "Aset ini sudah memiliki sumber acuan pada waktu tersebut. Akhiri sumber yang lama lalu coba lagi.",
+    ),
+    codes.APP_DEMO_CAPACITY: PublicError(
+        "RATE_LIMITED",
+        429,
+        "Demo sedang ramai digunakan. Tunggu sebentar lalu coba lagi.",
+        {"retryable": True, "retry_after_seconds": 60, "max_attempts": 3},
+    ),
+    codes.APP_SESSION_EXPIRED: PublicError(
+        "SESSION_EXPIRED", 401, "Sesi demo sudah berakhir. Mulai sesi demo baru untuk melanjutkan."
+    ),
+    codes.APP_SCENARIO_UNKNOWN: PublicError(
+        "NOT_FOUND", 404, "Skenario demo tidak ditemukan. Pilih skenario dari daftar yang tersedia."
+    ),
+    codes.APP_DEMO_REPLAY_PROOF_MISMATCH: PublicError(
+        "NOT_FOUND", 404, "Data yang diminta tidak ditemukan. Periksa alamatnya lalu coba lagi."
+    ),
+    codes.APP_DEMO_REPLAY_CONFLICT: PublicError(
+        "CONFLICT",
+        409,
+        "Permintaan demo ini sudah dipakai untuk sesi lain atau sudah kedaluwarsa. Mulai sesi demo baru.",
+    ),
+    codes.APP_RANGE_TOO_LARGE: PublicError(
+        "RANGE_TOO_LARGE", 400, "Rentang waktu terlalu panjang. Pilih rentang yang lebih pendek lalu coba lagi."
+    ),
+    codes.APP_CAPABILITY_DISABLED: PublicError(
+        "CAPABILITY_DISABLED",
+        403,
+        "Fitur ini tidak aktif pada layanan ini. Gunakan fitur inti atau hubungi pengelola layanan.",
+    ),
+    codes.APP_AUTH_REQUIRED: PublicError(
+        "UNAUTHORIZED", 401, "Anda perlu masuk terlebih dahulu. Masuk lalu coba lagi."
+    ),
 }
 
 PUBLIC_ERROR_BY_STATUS: dict[int, PublicError] = {
@@ -97,6 +138,8 @@ _FIELD_MESSAGES = {
     "enum": "Pilih salah satu nilai yang tersedia.",
     "literal_error": "Pilih salah satu nilai yang tersedia.",
     "json_invalid": "Isi permintaan bukan JSON yang valid.",
+    "decimal_string_type": 'Kirim angka sebagai teks, misalnya "12.5".',
+    "timezone_invalid": "Zona waktu tidak dikenal. Pilih zona waktu IANA, misalnya Asia/Jakarta.",
 }
 
 

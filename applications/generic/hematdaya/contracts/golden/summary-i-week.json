@@ -1,0 +1,92 @@
+{
+  "assets": [
+    {
+      "asset_id": "id-0",
+      "conflict_sources": null,
+      "coverage": "1.000",
+      "energy_kwh": "72.000",
+      "energy_unavailable_reason": null,
+      "gaps": [],
+      "name": "Oven",
+      "scope_kind": "device",
+      "share_percent": "50.00"
+    },
+    {
+      "asset_id": "id-1",
+      "conflict_sources": null,
+      "coverage": "1.000",
+      "energy_kwh": "36.000",
+      "energy_unavailable_reason": null,
+      "gaps": [],
+      "name": "Kompresor",
+      "scope_kind": "device",
+      "share_percent": "25.00"
+    },
+    {
+      "asset_id": "id-2",
+      "conflict_sources": null,
+      "coverage": "1.000",
+      "energy_kwh": "24.000",
+      "energy_unavailable_reason": null,
+      "gaps": [],
+      "name": "Mesin Press",
+      "scope_kind": "device",
+      "share_percent": "16.67"
+    },
+    {
+      "asset_id": "id-3",
+      "conflict_sources": null,
+      "coverage": "1.000",
+      "energy_kwh": "12.000",
+      "energy_unavailable_reason": null,
+      "gaps": [],
+      "name": "Lampu Area",
+      "scope_kind": "device",
+      "share_percent": "8.33"
+    }
+  ],
+  "coverage": {
+    "allocated_estimate": false,
+    "concurrent": "1.000",
+    "minimum": "1.000"
+  },
+  "energy_kwh": "144.000",
+  "energy_unavailable_reason": null,
+  "latest_measurement_at": "2026-10-25T17:00:00Z",
+  "origins": [
+    "simulated"
+  ],
+  "revision": "revision",
+  "scope": {
+    "excluded": [],
+    "included": [
+      {
+        "asset_id": "id-1",
+        "name": "Kompresor"
+      },
+      {
+        "asset_id": "id-3",
+        "name": "Lampu Area"
+      },
+      {
+        "asset_id": "id-2",
+        "name": "Mesin Press"
+      },
+      {
+        "asset_id": "id-0",
+        "name": "Oven"
+      }
+    ],
+    "issues": [],
+    "valid": true
+  },
+  "window": {
+    "effective_end": "2026-10-25T17:00:00Z",
+    "end": "2026-10-25T17:00:00Z",
+    "end_date": "2026-10-25",
+    "is_current": false,
+    "start": "2026-10-18T17:00:00Z",
+    "start_date": "2026-10-19",
+    "timezone": "Asia/Jakarta"
+  }
+}

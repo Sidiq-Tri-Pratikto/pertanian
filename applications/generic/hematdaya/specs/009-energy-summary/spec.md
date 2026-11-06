@@ -2,7 +2,7 @@
 
 **Feature Branch**: `009-energy-summary`
 **Created**: 2026-10-30
-**Status**: Seeded, not started
+**Status**: Implemented on `f/m1-energy-core`; Postgres integration tests and golden files `contracts/golden/summary-*.json` pass. A four-week summary over 2,688 rows took 0.25 s locally
 **Milestone**: M1 Energy core
 **Depends on**: 008
 **Size**: L
