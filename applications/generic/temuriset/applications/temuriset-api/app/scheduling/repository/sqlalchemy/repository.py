@@ -1,8 +1,9 @@
 """Scheduling storage."""
 
+from hashlib import blake2b
 from uuid import UUID
 
-from sqlalchemy import delete, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -137,6 +138,18 @@ class SqlAlchemySchedulingRepository:
                 MeetingOutcomeRecord.meeting_id == meeting_id, MeetingOutcomeRecord.party_id == party_id
             )
         )
+
+    async def lock_booking_parties(self, *party_ids: UUID) -> None:
+        """Serialize overlapping writers before they reach the booking exclusion index."""
+        keys = {
+            int.from_bytes(
+                blake2b(party_id.bytes, digest_size=8, person=b"temuriset.book").digest(), "big", signed=True
+            )
+            for party_id in party_ids
+        }
+        # Order the actual lock keys so competing participant sets cannot acquire them in opposite orders.
+        for key in sorted(keys):
+            await self.session.execute(select(func.pg_advisory_xact_lock(key)))
 
     async def release(self, meeting_id: UUID) -> None:
         """Delete a meeting's bookings, freeing its time for both parties.

@@ -10,6 +10,7 @@ from app.core.database import SessionDep
 from app.identity.model.schema import Email, MailboxMessageResponse
 from app.identity.repository.sqlalchemy.repository import SqlAlchemyIdentityRepository
 from app.scheduling.repository.sqlalchemy.models import BookingRecord
+from app.scheduling.repository.sqlalchemy.repository import SqlAlchemySchedulingRepository
 
 router = APIRouter(prefix="/dev", tags=["development"])
 
@@ -49,9 +50,9 @@ async def book_time(body: DevBookingRequest, session: SessionDep) -> dict[str, s
     Returns:
         dict[str, str]: The booking id.
     """
-    booking = BookingRecord(
-        party_id=body.party_id, title=body.title, during=Range(body.starts_at, body.ends_at, bounds="[)")
+    repository = SqlAlchemySchedulingRepository(session)
+    await repository.lock_booking_parties(body.party_id)
+    booking = await repository.add(
+        BookingRecord(party_id=body.party_id, title=body.title, during=Range(body.starts_at, body.ends_at, bounds="[)"))
     )
-    session.add(booking)
-    await session.flush()
     return {"id": str(booking.id)}

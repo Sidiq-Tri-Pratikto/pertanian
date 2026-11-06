@@ -7,6 +7,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
 from urllib.parse import parse_qsl, urlsplit
+from uuid import UUID
 
 import pytest
 from cryptography.fernet import Fernet
@@ -18,6 +19,7 @@ from app.capabilities.service.configuration import validate_configuration
 from app.core.database import get_session_factory
 from app.core.settings import get_settings
 from app.scheduling.repository.sqlalchemy.models import BookingRecord
+from app.scheduling.repository.sqlalchemy.repository import SqlAlchemySchedulingRepository
 from tests.integration.matching.conftest import World, make_world, world  # noqa: F401 - shared fixtures
 from tests.integration.pitches.conftest import act, reread, submitted
 
@@ -69,7 +71,10 @@ async def accept(client: AsyncClient, proposal: dict[str, Any], position: int, k
 async def busy(party_id: str, start: datetime, end: datetime) -> None:
     """Book a party's time, as another meeting would ("Agenda lain Peserta P")."""
     async with get_session_factory()() as session, session.begin():
-        session.add(BookingRecord(party_id=party_id, title="Agenda lain", during=Range(start, end, bounds="[)")))
+        repository = SqlAlchemySchedulingRepository(session)
+        party = UUID(party_id)
+        await repository.lock_booking_parties(party)
+        await repository.add(BookingRecord(party_id=party, title="Agenda lain", during=Range(start, end, bounds="[)")))
 
 
 @dataclass(frozen=True)

@@ -6,15 +6,13 @@ from typing import Any
 
 import pytest
 from sqlalchemy import func, select, text
-from sqlalchemy.dialects.postgresql import Range
-from sqlalchemy.exc import IntegrityError
 
 from app.core import clock
 from app.core.database import get_session_factory
-from app.scheduling.repository.sqlalchemy.models import BookingRecord, MeetingRecord
+from app.scheduling.repository.sqlalchemy.models import MeetingRecord
 from app.scheduling.service.service import SchedulingService
 from tests.integration.matching.conftest import World
-from tests.integration.pitches.conftest import client_of
+from tests.integration.pitches.conftest import act, client_of, preflight, reread, submit
 from tests.integration.scheduling.conftest import (
     TEST_ACCESS_TOKEN,
     CalendarRelay,
@@ -137,28 +135,45 @@ async def test_fifty_parallel_acceptances_book_once(world: World) -> None:
 async def test_two_overlapping_bookings_of_one_party_race_and_one_commits(world: World) -> None:
     """
     Condition:
-    - Two transactions book overlapping hours for one party at the same moment (AC50, FR-001).
+    - Two inventors concurrently accept overlapping proposals from the same partner (AC50, FR-001).
 
     Expected:
-    - The exclusion constraint lets exactly one commit; the other fails with an integrity error.
+    - One meeting and its two bookings commit. The other proposal stays open with a slot-specific conflict.
     """
-    party = world.recipients.parties["A"]
+    mitra = world.recipients.clients["A"]
+    rani, _ = client_of(world, "F01")
+    sinta, _ = client_of(world, "F06")
+    first_pitch = await approved(world)
+    submitted = await submit(world, "F06", await preflight(world, "F06", "A3"), key="submit-f06")
+    assert submitted.status_code == 201, submitted.text
+    second_pitch = await reread(mitra, {"id": submitted.json()["pitch_id"]})
+    approval = await act(mitra, second_pitch, "decisions", "approve-f06", submission=1, decision="APPROVE")
+    assert approval.status_code == 200, approval.text
 
-    async def book(start: str, end: str) -> str:
-        try:
-            async with get_session_factory()() as session, session.begin():
-                session.add(BookingRecord(party_id=party, title="x", during=Range(at(start), at(end), bounds="[)")))
-                await session.flush()
-                await asyncio.sleep(0.2)
-            return "committed"
-        except IntegrityError:
-            return "conflict"
+    with clock.frozen(MADE):
+        first = await propose(mitra, first_pitch, J04, "race-proposal-first")
+        second = await propose(
+            mitra, second_pitch, ["2026-11-04T09:30:00Z", "2026-11-04T12:00:00Z"], "race-proposal-second"
+        )
+        assert first.status_code == second.status_code == 201, (first.text, second.text)
+        first_proposal, second_proposal = first.json(), second.json()
+        results = await asyncio.gather(
+            accept(rani, first_proposal, 1, "race-accept-first"),
+            accept(sinta, second_proposal, 1, "race-accept-second"),
+        )
+        assert sorted(response.status_code for response in results) == [200, 409]
+        losing = next(index for index, response in enumerate(results) if response.status_code == 409)
+        rejected_proposal = (first_proposal, second_proposal)[losing]
+        error = results[losing].json()["error"]
+        assert (error["code"], error["slot_id"]) == ("BOOKING_CONFLICT", rejected_proposal["slots"][0]["id"])
+        loser_schedule = await schedule((rani, sinta)[losing], (first_pitch, second_pitch)[losing])
+        assert loser_schedule["proposals"][0]["state"] == "OPEN"
+        assert loser_schedule["meetings"] == []
 
-    results = await asyncio.gather(
-        book("2026-11-04T09:00:00Z", "2026-11-04T10:00:00Z"), book("2026-11-04T09:30:00Z", "2026-11-04T10:30:00Z")
-    )
-
-    assert sorted(results) == ["committed", "conflict"]
+    bookings = await _bookings()
+    assert await _meetings() == 1
+    assert len(bookings) == 2
+    assert world.recipients.parties["A"] in {party for party, _ in bookings}
 
 
 async def test_a_replacement_keeps_the_old_meeting_until_it_is_accepted(world: World) -> None:
