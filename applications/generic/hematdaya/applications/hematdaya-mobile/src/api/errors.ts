@@ -2,6 +2,7 @@ import type { components } from '@/api/schema.generated';
 
 type ErrorBody = components['schemas']['ErrorBody'];
 export type Recovery = components['schemas']['ErrorRecovery'];
+export const DEFAULT_MAX_ATTEMPTS = 3;
 
 const UNREACHABLE_MESSAGE = 'Layanan belum dapat dihubungi. Periksa koneksi Anda lalu coba lagi.';
 const UNEXPECTED_MESSAGE = 'Layanan mengirim jawaban yang tidak dikenali. Coba lagi nanti.';
@@ -21,7 +22,10 @@ export class ApiError extends Error {
   }
 
   static unreachable(): ApiError {
-    return new ApiError('NETWORK_UNREACHABLE', UNREACHABLE_MESSAGE, { retryable: true, max_attempts: 3 });
+    return new ApiError('NETWORK_UNREACHABLE', UNREACHABLE_MESSAGE, {
+      retryable: true,
+      max_attempts: DEFAULT_MAX_ATTEMPTS,
+    });
   }
 
   static unexpected(): ApiError {

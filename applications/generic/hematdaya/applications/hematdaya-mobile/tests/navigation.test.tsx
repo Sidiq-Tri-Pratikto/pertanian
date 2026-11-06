@@ -1,4 +1,4 @@
-import { fireEvent, renderRouter, screen } from 'expo-router/testing-library';
+import { act, fireEvent, renderRouter, screen } from 'expo-router/testing-library';
 
 const manifest = {
   schema_version: 1,
@@ -118,6 +118,7 @@ describe('navigation', () => {
 
 describe('service status', () => {
   afterEach(() => {
+    jest.useRealTimers();
     jest.restoreAllMocks();
   });
 
@@ -133,6 +134,50 @@ describe('service status', () => {
     await fireEvent.press(screen.getByRole('button', { name: 'Coba lagi' }));
 
     expect(await screen.findByText('Layanan tersedia')).toBeOnTheScreen();
+  });
+
+  it('counts the first network request toward the retry limit', async () => {
+    const fetchMock = jest.spyOn(globalThis, 'fetch').mockRejectedValue(new TypeError('Network request failed'));
+
+    await renderRouter('./src/app', { initialUrl: '/beranda' });
+
+    await fireEvent.press(await screen.findByRole('button', { name: 'Coba lagi' }));
+    await fireEvent.press(await screen.findByRole('button', { name: 'Coba lagi' }));
+
+    expect(await screen.findByText('Layanan belum tersedia')).toBeOnTheScreen();
+    expect(screen.queryByRole('button', { name: 'Coba lagi' })).toBeNull();
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+  });
+
+  it('honors the server wait and attempt limit while keeping the reference visible', async () => {
+    jest.useFakeTimers();
+    const fetchMock = jest.spyOn(globalThis, 'fetch').mockImplementation(async () =>
+      respond(503, {
+        error: {
+          code: 'DATABASE_UNAVAILABLE',
+          message: 'Layanan data sedang tidak tersedia. Coba lagi beberapa menit lagi.',
+          request_id: 'ref_retry',
+          recovery: { retryable: true, retry_after_seconds: 2, max_attempts: 2 },
+        },
+      }),
+    );
+
+    await renderRouter('./src/app', { initialUrl: '/beranda' });
+
+    const retry = await screen.findByRole('button', { name: 'Coba lagi' });
+    expect(retry).toBeDisabled();
+    await fireEvent.press(retry);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(2000);
+    });
+    expect(screen.getByRole('button', { name: 'Coba lagi' })).toBeEnabled();
+    await fireEvent.press(screen.getByRole('button', { name: 'Coba lagi' }));
+
+    expect(await screen.findByText('ID referensi: ref_retry')).toBeOnTheScreen();
+    expect(screen.queryByRole('button', { name: 'Coba lagi' })).toBeNull();
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
   it('shows the service message and reference, with no retry when not retryable', async () => {

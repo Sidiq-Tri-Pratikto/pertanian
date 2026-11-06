@@ -22,15 +22,19 @@ export function ServiceStatus() {
   }
 
   if (state.kind === 'failed') {
-    const { error } = state;
+    const { error, retryStatus } = state;
     return (
       <HDNotice
         tone="attention"
         title="Layanan belum tersedia"
         live
         action={
-          error.recovery.retryable ? (
-            <HDButton variant="text" icon="refresh" onPress={retry}>
+          retryStatus !== 'unavailable' ? (
+            <HDButton
+              variant="text"
+              icon="refresh"
+              onPress={retry}
+              disabledReason={retryStatus === 'waiting' ? 'Tunggu sebentar sebelum mencoba lagi.' : null}>
               Coba lagi
             </HDButton>
           ) : null
