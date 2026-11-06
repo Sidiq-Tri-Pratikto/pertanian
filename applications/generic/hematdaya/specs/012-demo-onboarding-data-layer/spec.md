@@ -2,7 +2,7 @@
 
 **Feature Branch**: `012-demo-onboarding-data-layer`
 **Created**: 2026-10-30
-**Status**: Seeded, not started
+**Status**: Implemented on `f/012-013-onboarding-beranda`; Jest journey tests pass and the web build was walked against a live API. Android journey evidence via 003 is not recorded yet
 **Milestone**: M2 Read journey on phone
 **Depends on**: 002, 003, 008
 **Size**: M
