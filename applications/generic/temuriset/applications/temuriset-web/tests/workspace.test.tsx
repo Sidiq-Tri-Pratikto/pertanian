@@ -104,6 +104,15 @@ function incoming(overrides: Partial<Pitch> = {}): Pitch {
 
 const MITRA_ME = makeMe({ persona: 'mitra' });
 
+const SCHEDULE = { proposals: [], meetings: [], can_schedule: false, external_calendar: 'unknown' as const };
+
+function room(who: 'you' | 'other' | null, title: string, text = '') {
+  return { next: { who, title, text, tab: 'ringkasan', action: null }, schedule: SCHEDULE, messages: [], tasks: [] };
+}
+
+const WAITING_MITRA = room('other', 'Menunggu Mitra A');
+const DECIDE = room('you', 'Tinjau pitching ini');
+
 async function violations(element: ReactElement): Promise<string[]> {
   const { container } = render(element);
   let result: axe.AxeResults | undefined;
@@ -161,7 +170,7 @@ describe('pitch lists (S12)', () => {
 
 describe('pitch workspace (S13)', () => {
   it('shows the frozen submission, whose turn it is and the tabs, keeping the tab in the address', async () => {
-    render(<WorkspaceView me={makeMe()} pitch={pitch()} tab="ringkasan" files={[]} justSent />);
+    render(<WorkspaceView me={makeMe()} pitch={pitch()} tab="ringkasan" files={[]} justSent room={WAITING_MITRA} />);
 
     expect(screen.getByText('Pitching terkirim kepada Mitra A')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Menunggu Mitra A' })).toBeInTheDocument();
@@ -180,7 +189,7 @@ describe('pitch workspace (S13)', () => {
 
   it('approves through a dialog that names the acting party and what approval means', async () => {
     replies = [{ status: 200, body: { pitch_id: 'pitch-1', status: 'APPROVED_FOR_DISCUSSION', version: 2 } }];
-    render(<WorkspaceView me={MITRA_ME} pitch={incoming()} tab="ringkasan" files={[]} justSent={false} />);
+    render(<WorkspaceView me={MITRA_ME} pitch={incoming()} tab="ringkasan" files={[]} justSent={false} room={DECIDE} />);
     expect(screen.getByRole('heading', { name: 'Tinjau pitching ini' })).toBeInTheDocument();
 
     await userEvent.click(screen.getByRole('button', { name: 'Setujui untuk diskusi' }));
@@ -196,7 +205,7 @@ describe('pitch workspace (S13)', () => {
 
   it('refuses a rejection without a reason, then sends it, and shows a stale version as a conflict', async () => {
     replies = [{ status: 409, body: failure('STALE_VERSION', 'Data ini sudah diubah.', { current_version: 2 }) }];
-    render(<WorkspaceView me={MITRA_ME} pitch={incoming()} tab="ringkasan" files={[]} justSent={false} />);
+    render(<WorkspaceView me={MITRA_ME} pitch={incoming()} tab="ringkasan" files={[]} justSent={false} room={DECIDE} />);
 
     await userEvent.click(screen.getByRole('button', { name: 'Tolak' }));
     const dialog = screen.getByRole('dialog', { name: 'Tolak pitching' });
@@ -212,7 +221,7 @@ describe('pitch workspace (S13)', () => {
   });
 
   it('replaces decisions with a view-only notice for a member without decide_pitch', () => {
-    render(<WorkspaceView me={MITRA_ME} pitch={incoming({ allowed_actions: [] })} tab="ringkasan" files={[]} justSent={false} />);
+    render(<WorkspaceView me={MITRA_ME} pitch={incoming({ allowed_actions: [] })} tab="ringkasan" files={[]} justSent={false} room={WAITING_MITRA} />);
     expect(screen.getByText('Akun Anda hanya dapat melihat pitching ini')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Setujui untuk diskusi' })).not.toBeInTheDocument();
   });
@@ -225,13 +234,13 @@ describe('pitch workspace (S13)', () => {
 
   it('shows the rejection reason to the sender and nothing left to do', () => {
     const rejected = pitch({ status: 'REJECTED', waiting_on_party_id: null, allowed_actions: [], decisions: [{ decision: 'REJECT', reason: 'Di luar fokus.', submission_number: 1, decided_at: '2026-11-06T11:00:00Z' }] });
-    render(<WorkspaceView me={makeMe()} pitch={rejected} tab="ringkasan" files={[]} justSent={false} />);
+    render(<WorkspaceView me={makeMe()} pitch={rejected} tab="ringkasan" files={[]} justSent={false} room={WAITING_MITRA} />);
     expect(screen.getByText('Di luar fokus.')).toBeInTheDocument();
     expect(screen.queryByText('Akun Anda hanya dapat melihat pitching ini')).not.toBeInTheDocument();
   });
 
   it('has no axe violations', async () => {
-    expect(await violations(<WorkspaceView me={MITRA_ME} pitch={incoming()} tab="ringkasan" files={[]} justSent={false} />)).toEqual([]);
+    expect(await violations(<WorkspaceView me={MITRA_ME} pitch={incoming()} tab="ringkasan" files={[]} justSent={false} room={DECIDE} />)).toEqual([]);
   });
 });
 
@@ -241,7 +250,7 @@ describe('revision tab (UX-11)', () => {
   const FILES = [{ document_id: 'd1', version: 2, title: 'Laporan uji fungsi ClearSpring' }];
 
   it('focuses the error summary when a required answer is not saved, and sends nothing', async () => {
-    render(<WorkspaceView me={makeMe()} pitch={inRevision()} tab="revisi" files={FILES} justSent={false} />);
+    render(<WorkspaceView me={makeMe()} pitch={inRevision()} tab="revisi" files={FILES} justSent={false} room={room('you', 'Jawab revisi putaran 1')} />);
     expect(screen.getByRole('heading', { name: 'Jawab revisi putaran 1' })).toBeInTheDocument();
 
     await userEvent.click(screen.getByRole('button', { name: 'Kirim ulang kepada Mitra A' }));
@@ -258,7 +267,7 @@ describe('revision tab (UX-11)', () => {
       { status: 200, body: { response: 'CANNOT', text: 'Belum.', files: [], version: 1, saved_at: '2026-11-06T10:05:00Z' } },
       { status: 200, body: { pitch_id: 'pitch-1', status: 'SUBMITTED', version: 3, submission: 2 } },
     ];
-    render(<WorkspaceView me={makeMe()} pitch={inRevision()} tab="revisi" files={FILES} justSent={false} />);
+    render(<WorkspaceView me={makeMe()} pitch={inRevision()} tab="revisi" files={FILES} justSent={false} room={room('you', 'Jawab revisi putaran 1')} />);
     await userEvent.click(screen.getAllByLabelText(/Belum dapat dipenuhi/)[0]);
     await userEvent.type(screen.getAllByLabelText('Penjelasan')[0], 'Belum.');
     await userEvent.click(screen.getByLabelText('Laporan uji fungsi ClearSpring, versi 2', { selector: `#item-${ITEM_1}-file-d1-v2` }));
@@ -279,7 +288,7 @@ describe('revision tab (UX-11)', () => {
 
   it('lets the recipient open a round only with complete items', async () => {
     replies = [{ status: 201, body: { pitch_id: 'pitch-1', status: 'REVISION_REQUESTED', version: 2, round: 1 } }];
-    render(<WorkspaceView me={MITRA_ME} pitch={incoming()} tab="revisi" files={[]} justSent={false} />);
+    render(<WorkspaceView me={MITRA_ME} pitch={incoming()} tab="revisi" files={[]} justSent={false} room={DECIDE} />);
 
     await userEvent.click(screen.getByRole('button', { name: 'Kirim permintaan revisi kepada Rani' }));
     expect(screen.getByRole('link', { name: 'Butir 1: tulis pertanyaan.' })).toBeInTheDocument();
@@ -296,7 +305,7 @@ describe('revision tab (UX-11)', () => {
   it('keeps earlier rounds visible and lets the recipient mark each answer', async () => {
     replies = [{ status: 200, body: { id: ITEM_1, review: 'ACCEPTED', review_note: null, version: 2 } }];
     const answered = { ...round, open: false, items: [item(ITEM_1, 1, true, { response: 'CANNOT', text: 'Belum.', files: [], version: 1, saved_at: '2026-11-06T10:05:00Z' })] };
-    render(<WorkspaceView me={MITRA_ME} pitch={incoming({ rounds: [answered], submissions: [SUBMISSION, { ...SUBMISSION, number: 2 }] })} tab="revisi" files={[]} justSent={false} />);
+    render(<WorkspaceView me={MITRA_ME} pitch={incoming({ rounds: [answered], submissions: [SUBMISSION, { ...SUBMISSION, number: 2 }] })} tab="revisi" files={[]} justSent={false} room={WAITING_MITRA} />);
 
     expect(screen.getByText('Belum dapat dipenuhi')).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Terima jawaban 1' }));
@@ -307,12 +316,12 @@ describe('revision tab (UX-11)', () => {
 
   it('hides draft answers of an open round from the recipient', () => {
     const drafted = { ...round, items: [item(ITEM_1, 1, true)] };
-    render(<WorkspaceView me={MITRA_ME} pitch={incoming({ status: 'REVISION_REQUESTED', waiting_on_party_id: 'r1', allowed_actions: [], rounds: [drafted] })} tab="revisi" files={[]} justSent={false} />);
+    render(<WorkspaceView me={MITRA_ME} pitch={incoming({ status: 'REVISION_REQUESTED', waiting_on_party_id: 'r1', allowed_actions: [], rounds: [drafted] })} tab="revisi" files={[]} justSent={false} room={room('other', 'Menunggu Rani')} />);
     expect(screen.getByText('Jawaban terlihat setelah pengirim mengirim ulang.')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Menunggu Rani' })).toBeInTheDocument();
   });
 
   it('has no axe violations while answering', async () => {
-    expect(await violations(<WorkspaceView me={makeMe()} pitch={inRevision()} tab="revisi" files={FILES} justSent={false} />)).toEqual([]);
+    expect(await violations(<WorkspaceView me={makeMe()} pitch={inRevision()} tab="revisi" files={FILES} justSent={false} room={room('you', 'Jawab revisi putaran 1')} />)).toEqual([]);
   });
 });

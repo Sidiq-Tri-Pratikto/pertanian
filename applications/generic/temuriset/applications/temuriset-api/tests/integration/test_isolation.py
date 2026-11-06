@@ -26,7 +26,13 @@ NOT_DATA_ROUTES = {
     ("POST", "/api/v1/auth/sign-out"),
     ("GET", "/api/v1/me"),
     ("PATCH", "/api/v1/me"),
+    # Settings are scoped to the session's active party; public profile redaction is tested in relationships.
+    ("GET", "/api/v1/profiles/me"),
+    ("PUT", "/api/v1/profiles/me"),
+    ("GET", "/api/v1/profiles/{party_id}"),
     ("GET", "/api/v1/dev/mailbox"),
+    # Development only: marks a party busy for browser tests, as another meeting would.
+    ("POST", "/api/v1/dev/bookings"),
     ("POST", "/api/v1/organizations"),
     ("POST", "/api/v1/inventions"),
     ("POST", "/api/v1/imports/validate"),  # The submitted file can only stage for the acting party.
@@ -71,6 +77,11 @@ class Owner:
     privacy_request_id: str = ""
     import_run_id: str = ""
     export_job_id: str = ""
+    task_id: str = ""
+    notification_id: str = ""
+    proposal_id: str = ""
+    meeting_id: str = ""
+    partnership_id: str = ""
 
 
 @dataclass
@@ -82,6 +93,8 @@ class Case:
     body: Callable[[Owner, str], dict[str, Any] | None] = lambda _owner, _actor: None
     headers: dict[str, str] | None = None
 
+
+RELATIONSHIP_VALUES = {"name": "Private summary", "scope": "Private scope", "start_date": "2026-12-01"}
 
 ROUTES: dict[tuple[str, str], Case] = {
     ("GET", "/api/v1/reports"): Case("GET", lambda _o: "/api/v1/reports"),
@@ -378,6 +391,74 @@ ROUTES: dict[tuple[str, str], Case] = {
             "close": {"reason": "x"},
         }.items()
     },
+    ("GET", "/api/v1/pitches/{pitch_id}/messages"): Case("GET", lambda o: f"/api/v1/pitches/{o.pitch_id}/messages"),
+    ("POST", "/api/v1/pitches/{pitch_id}/messages"): Case(
+        "POST",
+        lambda o: f"/api/v1/pitches/{o.pitch_id}/messages",
+        lambda _o, actor: {"acting_party_id": actor, "text": "x"},
+        {"Idempotency-Key": "isolation-message"},
+    ),
+    ("GET", "/api/v1/pitches/{pitch_id}/tasks"): Case("GET", lambda o: f"/api/v1/pitches/{o.pitch_id}/tasks"),
+    ("POST", "/api/v1/pitches/{pitch_id}/tasks"): Case(
+        "POST",
+        lambda o: f"/api/v1/pitches/{o.pitch_id}/tasks",
+        lambda o, actor: {"acting_party_id": actor, "title": "x", "owner_party_id": actor},
+        {"Idempotency-Key": "isolation-task"},
+    ),
+    ("POST", "/api/v1/tasks/{task_id}/complete"): Case(
+        "POST",
+        lambda o: f"/api/v1/tasks/{o.task_id}/complete",
+        lambda _o, actor: {"acting_party_id": actor, "expected_version": 1},
+        {"Idempotency-Key": "isolation-complete"},
+    ),
+    ("GET", "/api/v1/pitches/{pitch_id}/next-action"): Case(
+        "GET", lambda o: f"/api/v1/pitches/{o.pitch_id}/next-action"
+    ),
+    ("GET", "/api/v1/me/queue"): Case("GET", lambda _o: "/api/v1/me/queue"),
+    ("GET", "/api/v1/pitches/{pitch_id}/schedule"): Case("GET", lambda o: f"/api/v1/pitches/{o.pitch_id}/schedule"),
+    ("POST", "/api/v1/pitches/{pitch_id}/schedule-proposals"): Case(
+        "POST",
+        lambda o: f"/api/v1/pitches/{o.pitch_id}/schedule-proposals",
+        lambda _o, actor: {
+            "acting_party_id": actor,
+            "slots": ["2030-01-01T09:00:00Z", "2030-01-01T11:00:00Z"],
+            "minutes": 60,
+            "time_zone": "Asia/Jakarta",
+            "agenda": "x",
+        },
+        {"Idempotency-Key": "isolation-propose"},
+    ),
+    ("POST", "/api/v1/schedule-proposals/{proposal_id}/accept"): Case(
+        "POST",
+        lambda o: f"/api/v1/schedule-proposals/{o.proposal_id}/accept",
+        lambda o, actor: {"acting_party_id": actor, "slot_id": o.proposal_id, "expected_version": 1},
+        {"Idempotency-Key": "isolation-accept"},
+    ),
+    ("POST", "/api/v1/schedule-proposals/{proposal_id}/cancel"): Case(
+        "POST",
+        lambda o: f"/api/v1/schedule-proposals/{o.proposal_id}/cancel",
+        lambda _o, actor: {"acting_party_id": actor, "expected_version": 1},
+        {"Idempotency-Key": "isolation-cancel-proposal"},
+    ),
+    ("POST", "/api/v1/meetings/{meeting_id}/cancel"): Case(
+        "POST",
+        lambda o: f"/api/v1/meetings/{o.meeting_id}/cancel",
+        lambda _o, actor: {"acting_party_id": actor, "expected_version": 1},
+        {"Idempotency-Key": "isolation-cancel-meeting"},
+    ),
+    ("POST", "/api/v1/meetings/{meeting_id}/outcome"): Case(
+        "POST",
+        lambda o: f"/api/v1/meetings/{o.meeting_id}/outcome",
+        lambda _o, actor: {"acting_party_id": actor, "result": "COMPLETED"},
+        {"Idempotency-Key": "isolation-outcome"},
+    ),
+    ("GET", "/api/v1/meetings/{meeting_id}/calendar.ics"): Case(
+        "GET", lambda o: f"/api/v1/meetings/{o.meeting_id}/calendar.ics"
+    ),
+    ("GET", "/api/v1/notifications"): Case("GET", lambda _o: "/api/v1/notifications"),
+    ("PUT", "/api/v1/notifications/{notification_id}/read"): Case(
+        "PUT", lambda o: f"/api/v1/notifications/{o.notification_id}/read"
+    ),
     ("PUT", "/api/v1/pitches/{pitch_id}/revision-items/{item_id}/answer"): Case(
         "PUT",
         lambda o: f"/api/v1/pitches/{o.pitch_id}/revision-items/{o.revision_item_id}/answer",
@@ -388,11 +469,134 @@ ROUTES: dict[tuple[str, str], Case] = {
         lambda o: f"/api/v1/pitches/{o.pitch_id}/revision-items/{o.revision_item_id}/review",
         lambda _o, actor: {"acting_party_id": actor, "expected_version": 1, "result": "ACCEPTED"},
     ),
+    ("GET", "/api/v1/pitches/{pitch_id}/partnership-options"): Case(
+        "GET", lambda o: f"/api/v1/pitches/{o.pitch_id}/partnership-options"
+    ),
+    ("GET", "/api/v1/pitches/{pitch_id}/partnership"): Case(
+        "GET", lambda o: f"/api/v1/pitches/{o.pitch_id}/partnership"
+    ),
+    ("POST", "/api/v1/pitches/{pitch_id}/partnerships"): Case(
+        "POST",
+        lambda o: f"/api/v1/pitches/{o.pitch_id}/partnerships",
+        lambda _o, actor: {
+            "acting_party_id": actor,
+            "type": "PROJECT",
+            "values": RELATIONSHIP_VALUES,
+            "ceiling": ["name"],
+        },
+        {"Idempotency-Key": "isolation-partnership"},
+    ),
+    ("GET", "/api/v1/partnerships/{partnership_id}"): Case("GET", lambda o: f"/api/v1/partnerships/{o.partnership_id}"),
+    ("POST", "/api/v1/partnerships/{partnership_id}/corrections"): Case(
+        "POST",
+        lambda o: f"/api/v1/partnerships/{o.partnership_id}/corrections",
+        lambda _o, actor: {"acting_party_id": actor, "version": 1, "values": RELATIONSHIP_VALUES},
+        {"Idempotency-Key": "isolation-correction"},
+    ),
+    ("POST", "/api/v1/partnerships/{partnership_id}/confirmations"): Case(
+        "POST",
+        lambda o: f"/api/v1/partnerships/{o.partnership_id}/confirmations",
+        lambda _o, actor: {"acting_party_id": actor, "version": 1, "checksum": "0" * 64},
+        {"Idempotency-Key": "isolation-confirmation"},
+    ),
+    ("POST", "/api/v1/partnerships/{partnership_id}/decline"): Case(
+        "POST",
+        lambda o: f"/api/v1/partnerships/{o.partnership_id}/decline",
+        lambda _o, actor: {"acting_party_id": actor, "version": 1},
+        {"Idempotency-Key": "isolation-decline"},
+    ),
+    ("POST", "/api/v1/partnerships/{partnership_id}/restrictions"): Case(
+        "POST",
+        lambda o: f"/api/v1/partnerships/{o.partnership_id}/restrictions",
+        lambda _o, actor: {"acting_party_id": actor, "field": "name"},
+        {"Idempotency-Key": "isolation-restriction"},
+    ),
+    ("POST", "/api/v1/partnerships/{partnership_id}/request-review"): Case(
+        "POST",
+        lambda o: f"/api/v1/partnerships/{o.partnership_id}/request-review",
+        lambda _o, actor: {"acting_party_id": actor},
+        {"Idempotency-Key": "isolation-review"},
+    ),
     # Unpublished, so even the public view must not reveal that it exists.
     ("GET", "/api/v1/inventions/{invention_id}/public"): Case(
         "GET", lambda o: f"/api/v1/inventions/{o.invention_id}/public"
     ),
 }
+
+
+async def _approve_and_schedule(
+    client: AsyncClient, partner: AsyncClient, party: str, partner_party: str, pitch_id: str
+) -> dict[str, str]:
+    """Advance the fixture through revision, approval, scheduling and a relationship proposal."""
+    from datetime import timedelta  # noqa: PLC0415
+
+    from app.core import clock  # noqa: PLC0415
+
+    pitch = (await client.get(f"/api/v1/pitches/{pitch_id}")).json()
+    item = pitch["rounds"][0]["items"][0]["id"]
+    await client.put(
+        f"/api/v1/pitches/{pitch_id}/revision-items/{item}/answer", json={"acting_party_id": party, "response": "CAN"}
+    )
+    resubmitted = await client.post(
+        f"/api/v1/pitches/{pitch_id}/resubmit",
+        json={"acting_party_id": party, "expected_version": pitch["version"]},
+        headers={"Idempotency-Key": "resubmit"},
+    )
+    assert resubmitted.status_code == 200, resubmitted.text
+    approved = await partner.post(
+        f"/api/v1/pitches/{pitch_id}/decisions",
+        json={
+            "acting_party_id": partner_party,
+            "expected_version": resubmitted.json()["version"],
+            "submission": 2,
+            "decision": "APPROVE",
+        },
+        headers={"Idempotency-Key": "approve"},
+    )
+    assert approved.status_code == 200, approved.text
+    start = (clock.now() + timedelta(days=2)).replace(minute=0, second=0, microsecond=0)
+
+    async def offer(slots: list, key: str, **body: str) -> dict:
+        made = await partner.post(
+            f"/api/v1/pitches/{pitch_id}/schedule-proposals",
+            json={
+                "acting_party_id": partner_party,
+                "slots": [slot.isoformat() for slot in slots],
+                "minutes": 60,
+                "time_zone": "Asia/Jakarta",
+                "agenda": "Agenda",
+                **body,
+            },
+            headers={"Idempotency-Key": key},
+        )
+        assert made.status_code == 201, made.text
+        return made.json()
+
+    first = await offer([start, start + timedelta(hours=2)], "offer")
+    meeting = await client.post(
+        f"/api/v1/schedule-proposals/{first['id']}/accept",
+        json={"acting_party_id": party, "slot_id": first["slots"][0]["id"], "expected_version": first["version"]},
+        headers={"Idempotency-Key": "accept"},
+    )
+    assert meeting.status_code == 200, meeting.text
+    later = start + timedelta(days=1)
+    pending = await offer([later, later + timedelta(hours=2)], "replace", replaces_meeting_id=meeting.json()["id"])
+    meeting_id = meeting.json()["id"]
+    with clock.frozen(start + timedelta(hours=2)):
+        for actor, actor_party in ((client, party), (partner, partner_party)):
+            outcome = await actor.post(
+                f"/api/v1/meetings/{meeting_id}/outcome",
+                json={"acting_party_id": actor_party, "result": "COMPLETED"},
+                headers={"Idempotency-Key": "owner-outcome"},
+            )
+            assert outcome.status_code == 200, outcome.text
+    relationship = await client.post(
+        f"/api/v1/pitches/{pitch_id}/partnerships",
+        json={"acting_party_id": party, "type": "PROJECT", "values": RELATIONSHIP_VALUES, "ceiling": ["name"]},
+        headers={"Idempotency-Key": "owner-partnership"},
+    )
+    assert relationship.status_code == 201, relationship.text
+    return {"proposal_id": pending["id"], "meeting_id": meeting_id, "partnership_id": relationship.json()["id"]}
 
 
 async def _pitch_to_a_partner(
@@ -431,12 +635,30 @@ async def _pitch_to_a_partner(
             headers={"Idempotency-Key": "round"},
         )
         assert opened.status_code == 201, opened.text
+        task = await partner.post(
+            f"/api/v1/pitches/{pitch.json()['pitch_id']}/tasks",
+            json={"acting_party_id": me["active_party_id"], "title": "Rincian", "owner_party_id": party},
+            headers={"Idempotency-Key": "task"},
+        )
+        assert task.status_code == 201, task.text
+        scheduled = await _approve_and_schedule(client, partner, party, me["active_party_id"], pitch.json()["pitch_id"])
     read = (await client.get(f"/api/v1/pitches/{pitch.json()['pitch_id']}")).json()
+    import app.discussion.service.notifications  # noqa: F401, PLC0415 - registers the notification consumers
+    from app.core.database import get_session_factory  # noqa: PLC0415
+    from app.worker.loop import dispatch_events  # noqa: PLC0415
+    from app.worker.registry import registry  # noqa: PLC0415
+
+    while await dispatch_events(get_session_factory(), registry):
+        pass
+    notices = (await client.get("/api/v1/notifications")).json()
     return {
         "brief_id": checked["brief"]["id"],
         "preflight_token": checked["token"],
         "pitch_id": pitch.json()["pitch_id"],
         "revision_item_id": read["rounds"][0]["items"][0]["id"],
+        "task_id": task.json()["id"],
+        "notification_id": notices[0]["id"],
+        **scheduled,
     }
 
 
@@ -650,6 +872,7 @@ async def test_unrelated_party_sees_nothing(
         owner.privacy_request_id,
         owner.import_run_id,
         owner.export_job_id,
+        owner.partnership_id,
     ):
         assert secret not in response.text
 

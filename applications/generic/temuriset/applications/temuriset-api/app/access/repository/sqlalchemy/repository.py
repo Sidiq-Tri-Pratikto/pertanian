@@ -270,7 +270,7 @@ class SqlAlchemyAccessRepository:
         await self.session.execute(
             update(PartyRecord)
             .where(PartyRecord.account_id == account_id)
-            .values(display_name="Akun dihapus", version=PartyRecord.version + 1)
+            .values(display_name="Akun dihapus", bio="", profile_published=False, version=PartyRecord.version + 1)
         )
         await self.session.execute(
             update(MembershipRecord)

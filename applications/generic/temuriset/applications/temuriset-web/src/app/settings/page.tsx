@@ -5,6 +5,7 @@ import { serverGet } from '@/api/server';
 import { readCapabilities } from '@/features/capabilities';
 import type { Invitation, Member } from '@/features/organizations';
 import { readReportSubject, type PrivacyRequest, type Report, type SectionData } from '@/features/privacy/model';
+import type { ProfileSettings } from '@/features/relationships/model';
 import { requireMe } from '@/features/session';
 import { SettingsView } from '@/views/SettingsView';
 
@@ -30,15 +31,17 @@ export default async function SettingsPage({ searchParams }: Props) {
     acting && me.capabilities?.includes('manage_members')
       ? await serverGet<Invitation[]>(`/api/v1/organizations/${acting.organization_id}/invitations`)
       : null;
-  const [reports, privacy] = await Promise.all([
+  const [reports, privacy, profile] = await Promise.all([
     sectionData<Report>('/api/v1/reports'),
     sectionData<PrivacyRequest>('/api/v1/privacy-requests'),
+    me.capabilities?.includes('edit_portfolio') ? serverGet<ProfileSettings>('/api/v1/profiles/me') : null,
   ]);
   return (
     <SettingsView
       me={me}
       capabilities={await readCapabilities()}
       members={members}
+      profile={profile}
       invitations={invitations}
       joined={bergabung === '1'}
       reportSubject={readReportSubject(lapor, objek)}

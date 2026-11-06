@@ -76,6 +76,24 @@ class SqlAlchemyPortfolioRepository:
         )
         return list(rows)
 
+    async def published_titles(self, party_ids: set[UUID]) -> list[tuple[UUID, UUID, str]]:
+        """Read the current public titles, independent of the discovery worker.
+
+        Args:
+            party_ids (set[UUID]): Parties managing the inventions.
+
+        Returns:
+            list[tuple[UUID, UUID, str]]: Manager, invention and title, newest first.
+        """
+        query = (
+            select(InventionRecord.managing_party_id, InventionRecord.id, InventionVersionRecord.title)
+            .join(InventionVersionRecord, InventionRecord.published_version_id == InventionVersionRecord.id)
+            .where(InventionRecord.managing_party_id.in_(party_ids), InventionRecord.status != "ARCHIVED")
+            .order_by(InventionVersionRecord.published_at.desc(), InventionRecord.id)
+        )
+        rows = (await self.session.execute(query)).all()
+        return [(party_id, invention_id, title) for party_id, invention_id, title in rows]
+
     async def version(self, version_id: UUID | None) -> InventionVersionResponse | None:
         """Read one version with its facts and claims.
 

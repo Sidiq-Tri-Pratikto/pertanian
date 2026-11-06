@@ -210,7 +210,8 @@ export const FEATURES: Feature[] = [
     ],
     screens: ['S02', 'S13'],
     specs: ['027', '029'],
-    status: 'coming_soon',
+    status: 'available',
+    home: '/pitches',
   },
   {
     id: 'jadwal',
@@ -223,7 +224,8 @@ export const FEATURES: Feature[] = [
     ],
     screens: ['S14'],
     specs: ['028', '029'],
-    status: 'coming_soon',
+    status: 'available',
+    home: '/pitches',
   },
   {
     id: 'kerja-sama',
@@ -236,7 +238,8 @@ export const FEATURES: Feature[] = [
     ],
     screens: ['S15'],
     specs: ['030', '032'],
-    status: 'coming_soon',
+    status: 'available',
+    home: '/pitches',
   },
   {
     id: 'profil-publik',
@@ -249,7 +252,8 @@ export const FEATURES: Feature[] = [
     ],
     screens: ['S16'],
     specs: ['031', '032'],
-    status: 'coming_soon',
+    status: 'available',
+    home: '/settings#profil-publik',
   },
   {
     id: 'tinjauan-organisasi',

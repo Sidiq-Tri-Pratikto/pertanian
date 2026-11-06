@@ -78,14 +78,17 @@ Run one file with `npx vitest run tests/pages.test.tsx`, match by name with `npx
 | `/discover?type=&q=&sector=&stage=&saved=` | S03: inventions, company funding (one card per raise) or partners in labelled sections, filters in the address so Back restores them, save and "Kurang relevan"; empty filters explain themselves |
 | `/matches`, `/matches?source=SUPPORT_REQUEST:<id>` | S10: pick a need, then each mandate's label, reasons, gap and one action, with rows and the score note on request; "Mandat tidak direkomendasikan" and partners' own forms apart |
 | `/pitches/new?source=<TYPE>:<id>&target=<opportunity>` | S11: recipient and sender, pinned versions, requirement rows, files to share by checkbox, the editable "Brief pitching", what sending does, then **Kirim pitching**; stale, lost, duplicate and not-ready states |
-| `/pitches/<id>?tab=ringkasan\|revisi\|dokumen\|diskusi\|jadwal\|riwayat` | S13: whose turn, the decision dialogs (approve, reject with a reason, withdraw, close), itemized revision requests, honest answers with attachments and resubmission, item review, shared files and every submission; an unrelated account sees only "Anda belum memiliki akses" |
+| `/pitches/<id>?tab=ringkasan\|revisi\|dokumen\|diskusi\|jadwal\|riwayat` | S13: whose turn, the decision dialogs (approve, reject with a reason, withdraw, close), itemized revision requests, honest answers with attachments and resubmission, item review, shared files and every submission; Diskusi with messages polled every 30 seconds and tasks; Jadwal with proposals in the reader's zone, explicit confirmation, conflicts, expiry, replacement, outcomes and ICS; an unrelated account sees only "Anda belum memiliki akses" |
+| `/partnerships/new?pitch=<id>` | S15 proposal from a completed meeting, with the API's eligible types, a public ceiling and separate consent |
+| `/partnerships/<id>` | S15 current version, confirmations, correction history, public preview, restriction and claim review |
+| `/profiles/<partyId>` | S16 signed-out profile with published biography and inventions, and current consented relationship fields |
 | `/undangan/<token>` | What an invitation grants, then **Terima undangan** |
-| `/home` | S02 Beranda |
+| `/home` | S02 Beranda: what waits first as `TR.NextStep`, the rest by turn, and in-app notifications |
 | `/inventions` | Inovasi Saya |
 | `/discover` | S03 Temukan Investor/Mitra, or Jelajahi for partners |
 | `/opportunities` | Kebutuhan/Mandat |
 | `/pitches`, `/pitches?box=masuk`, `/pitches?box=diskusi` | S12 lists: sent pitches, Pitching Masuk, and the discussion box, with whose turn, update time and filters (`giliran`, `status`) kept in the address |
-| `/settings` | S18: account, organizations, members and invitations of the acting organization, private reports and their case status, export and deletion requests, service check, planned features, **Keluar** |
+| `/settings` | S18: account, organizations, members and invitations of the acting organization, biography publication, private reports and their case status, export and deletion requests, service check, planned features, **Keluar** |
 | `/segera-hadir/<feature>` | What a planned feature will do |
 
 The persona lives in an http-only cookie until accounts arrive in spec 008. It picks menus and language, never access.

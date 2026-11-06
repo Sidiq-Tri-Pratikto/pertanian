@@ -1,6 +1,33 @@
 {
   "components": {
     "schemas": {
+      "AcceptRequest": {
+        "additionalProperties": false,
+        "description": "Confirm one slot of the proposal version the client saw.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "expected_version": {
+            "title": "Expected Version",
+            "type": "integer"
+          },
+          "slot_id": {
+            "format": "uuid",
+            "title": "Slot Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "slot_id",
+          "expected_version"
+        ],
+        "title": "AcceptRequest",
+        "type": "object"
+      },
       "AccountResponse": {
         "description": "The signed-in account. A verified email proves control of the address, nothing more.",
         "properties": {
@@ -1078,6 +1105,27 @@
         "title": "CodeSentResponse",
         "type": "object"
       },
+      "CompleteTaskRequest": {
+        "additionalProperties": false,
+        "description": "Mark a task done against the version the client saw.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "expected_version": {
+            "title": "Expected Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "expected_version"
+        ],
+        "title": "CompleteTaskRequest",
+        "type": "object"
+      },
       "CompositionResponse": {
         "description": "The validated product composition of this deployment.",
         "properties": {
@@ -1097,6 +1145,80 @@
         "title": "CompositionResponse",
         "type": "object"
       },
+      "ConfirmRequest": {
+        "additionalProperties": false,
+        "description": "Confirm the exact version and checksum the client showed, with this party's public subset.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "checksum": {
+            "maxLength": 64,
+            "minLength": 64,
+            "title": "Checksum",
+            "type": "string"
+          },
+          "subset": {
+            "default": [],
+            "items": {
+              "enum": [
+                "name",
+                "type",
+                "scope",
+                "date",
+                "amount",
+                "percent"
+              ],
+              "type": "string"
+            },
+            "maxItems": 6,
+            "title": "Subset",
+            "type": "array"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "version",
+          "checksum"
+        ],
+        "title": "ConfirmRequest",
+        "type": "object"
+      },
+      "ConfirmationResponse": {
+        "description": "One party's confirmation of a version.",
+        "properties": {
+          "confirmed_at": {
+            "format": "date-time",
+            "title": "Confirmed At",
+            "type": "string"
+          },
+          "party_id": {
+            "format": "uuid",
+            "title": "Party Id",
+            "type": "string"
+          },
+          "subset": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Subset",
+            "type": "array"
+          }
+        },
+        "required": [
+          "party_id",
+          "subset",
+          "confirmed_at"
+        ],
+        "title": "ConfirmationResponse",
+        "type": "object"
+      },
       "ContextRequest": {
         "description": "Act as another party: the personal party or an organization the account belongs to.",
         "properties": {
@@ -1110,6 +1232,61 @@
           "party_id"
         ],
         "title": "ContextRequest",
+        "type": "object"
+      },
+      "CorrectionRequest": {
+        "additionalProperties": false,
+        "description": "Correct or expand the current version; the new version starts with no confirmations.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "ceiling": {
+            "anyOf": [
+              {
+                "items": {
+                  "enum": [
+                    "name",
+                    "type",
+                    "scope",
+                    "date",
+                    "amount",
+                    "percent"
+                  ],
+                  "type": "string"
+                },
+                "maxItems": 6,
+                "minItems": 1,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ceiling"
+          },
+          "note": {
+            "default": "",
+            "maxLength": 1000,
+            "title": "Note",
+            "type": "string"
+          },
+          "values": {
+            "$ref": "#/components/schemas/PartnershipValues"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "version",
+          "values"
+        ],
+        "title": "CorrectionRequest",
         "type": "object"
       },
       "CreateExportRequest": {
@@ -1552,6 +1729,53 @@
         "title": "CreateSupportRequest",
         "type": "object"
       },
+      "CreateTaskRequest": {
+        "additionalProperties": false,
+        "description": "A clarification task for one of the two parties.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "due_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Due Date"
+          },
+          "owner_party_id": {
+            "format": "uuid",
+            "title": "Owner Party Id",
+            "type": "string"
+          },
+          "reference": {
+            "default": "",
+            "maxLength": 300,
+            "title": "Reference",
+            "type": "string"
+          },
+          "title": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "title",
+          "owner_party_id"
+        ],
+        "title": "CreateTaskRequest",
+        "type": "object"
+      },
       "DecisionRequest": {
         "additionalProperties": false,
         "description": "Approve for discussion or reject, on the submission the recipient read.",
@@ -1734,6 +1958,38 @@
           "key"
         ],
         "title": "DemoSignInRequest",
+        "type": "object"
+      },
+      "DevBookingRequest": {
+        "description": "A busy interval for one party.",
+        "properties": {
+          "ends_at": {
+            "format": "date-time",
+            "title": "Ends At",
+            "type": "string"
+          },
+          "party_id": {
+            "format": "uuid",
+            "title": "Party Id",
+            "type": "string"
+          },
+          "starts_at": {
+            "format": "date-time",
+            "title": "Starts At",
+            "type": "string"
+          },
+          "title": {
+            "default": "Agenda lain",
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "party_id",
+          "starts_at",
+          "ends_at"
+        ],
+        "title": "DevBookingRequest",
         "type": "object"
       },
       "DiscoveryItem": {
@@ -2117,6 +2373,41 @@
           "expected_version"
         ],
         "title": "DraftRequest",
+        "type": "object"
+      },
+      "EffectiveResponse": {
+        "description": "What may be public now: the newest version both confirmed, cut by subsets and restrictions.",
+        "properties": {
+          "fields": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Fields",
+            "type": "array"
+          },
+          "values": {
+            "additionalProperties": true,
+            "title": "Values",
+            "type": "object"
+          },
+          "version": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Version"
+          }
+        },
+        "required": [
+          "version",
+          "fields",
+          "values"
+        ],
+        "title": "EffectiveResponse",
         "type": "object"
       },
       "ErrorBody": {
@@ -4312,6 +4603,108 @@
         "title": "MeResponse",
         "type": "object"
       },
+      "MeetingResponse": {
+        "description": "A meeting with each party's outcome.",
+        "properties": {
+          "agenda": {
+            "title": "Agenda",
+            "type": "string"
+          },
+          "disagreement": {
+            "description": "Both parties recorded outcomes that differ; it stays visible.",
+            "title": "Disagreement",
+            "type": "boolean"
+          },
+          "ends_at": {
+            "format": "date-time",
+            "title": "Ends At",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "link": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Link"
+          },
+          "operation_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operation Id"
+          },
+          "outcomes": {
+            "items": {
+              "$ref": "#/components/schemas/OutcomeResponse"
+            },
+            "title": "Outcomes",
+            "type": "array"
+          },
+          "proposal_id": {
+            "format": "uuid",
+            "title": "Proposal Id",
+            "type": "string"
+          },
+          "started": {
+            "title": "Started",
+            "type": "boolean"
+          },
+          "starts_at": {
+            "format": "date-time",
+            "title": "Starts At",
+            "type": "string"
+          },
+          "state": {
+            "enum": [
+              "CONFIRMED",
+              "COMPLETED",
+              "CANCELLED",
+              "NO_SHOW_REPORTED"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "time_zone": {
+            "title": "Time Zone",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "proposal_id",
+          "starts_at",
+          "ends_at",
+          "time_zone",
+          "agenda",
+          "link",
+          "state",
+          "version",
+          "started",
+          "outcomes",
+          "disagreement"
+        ],
+        "title": "MeetingResponse",
+        "type": "object"
+      },
       "MemberResponse": {
         "description": "One member and what they may do.",
         "properties": {
@@ -4377,6 +4770,160 @@
           "capabilities"
         ],
         "title": "MembershipResponse",
+        "type": "object"
+      },
+      "MessageResponse": {
+        "description": "One message, with who wrote it.",
+        "properties": {
+          "author_name": {
+            "title": "Author Name",
+            "type": "string"
+          },
+          "author_party_id": {
+            "format": "uuid",
+            "title": "Author Party Id",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "mine": {
+            "title": "Mine",
+            "type": "boolean"
+          },
+          "operation_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operation Id"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "author_party_id",
+          "author_name",
+          "mine",
+          "text",
+          "created_at"
+        ],
+        "title": "MessageResponse",
+        "type": "object"
+      },
+      "NextAction": {
+        "description": "Who acts next and what that is, for the reader's side.",
+        "properties": {
+          "action": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Action"
+          },
+          "tab": {
+            "title": "Tab",
+            "type": "string"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "who": {
+            "anyOf": [
+              {
+                "enum": [
+                  "you",
+                  "other"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Who"
+          }
+        },
+        "required": [
+          "who",
+          "title",
+          "text",
+          "tab"
+        ],
+        "title": "NextAction",
+        "type": "object"
+      },
+      "NotificationResponse": {
+        "description": "One in-app notification.",
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "pitch_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pitch Id"
+          },
+          "read": {
+            "title": "Read",
+            "type": "boolean"
+          },
+          "tab": {
+            "title": "Tab",
+            "type": "string"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "pitch_id",
+          "text",
+          "tab",
+          "created_at",
+          "read"
+        ],
+        "title": "NotificationResponse",
         "type": "object"
       },
       "OperationResponse": {
@@ -5030,6 +5577,71 @@
         "title": "OrganizationResponse",
         "type": "object"
       },
+      "OutcomeRequest": {
+        "additionalProperties": false,
+        "description": "What the acting party says happened.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "note": {
+            "default": "",
+            "maxLength": 1000,
+            "title": "Note",
+            "type": "string"
+          },
+          "result": {
+            "enum": [
+              "COMPLETED",
+              "NO_SHOW"
+            ],
+            "title": "Result",
+            "type": "string"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "result"
+        ],
+        "title": "OutcomeRequest",
+        "type": "object"
+      },
+      "OutcomeResponse": {
+        "description": "One party's outcome.",
+        "properties": {
+          "note": {
+            "title": "Note",
+            "type": "string"
+          },
+          "party_id": {
+            "format": "uuid",
+            "title": "Party Id",
+            "type": "string"
+          },
+          "party_name": {
+            "title": "Party Name",
+            "type": "string"
+          },
+          "result": {
+            "enum": [
+              "COMPLETED",
+              "NO_SHOW"
+            ],
+            "title": "Result",
+            "type": "string"
+          }
+        },
+        "required": [
+          "party_id",
+          "party_name",
+          "result",
+          "note"
+        ],
+        "title": "OutcomeResponse",
+        "type": "object"
+      },
       "PartnerProfileResponse": {
         "description": "A partner profile as anyone signed in may read it.",
         "properties": {
@@ -5171,24 +5783,255 @@
         "title": "PartnerProfileResponse",
         "type": "object"
       },
-      "PartyName": {
-        "description": "A party as a name.",
+      "PartnershipResponse": {
+        "description": "A relationship as its two parties see it.",
         "properties": {
+          "allowed_actions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Allowed Actions",
+            "type": "array"
+          },
+          "contested": {
+            "title": "Contested",
+            "type": "boolean"
+          },
+          "current": {
+            "$ref": "#/components/schemas/PartnershipVersionResponse"
+          },
+          "effective": {
+            "$ref": "#/components/schemas/EffectiveResponse"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "invention_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Invention Ids",
+            "type": "array"
+          },
+          "operation_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operation Id"
+          },
+          "parties": {
+            "items": {
+              "$ref": "#/components/schemas/app__relationships__model__schema__PartyName"
+            },
+            "title": "Parties",
+            "type": "array"
+          },
+          "pitch_id": {
+            "format": "uuid",
+            "title": "Pitch Id",
+            "type": "string"
+          },
+          "restrictions": {
+            "items": {
+              "$ref": "#/components/schemas/RestrictionResponse"
+            },
+            "title": "Restrictions",
+            "type": "array"
+          },
+          "type": {
+            "enum": [
+              "PROJECT",
+              "LICENSE",
+              "EQUITY"
+            ],
+            "title": "Type",
+            "type": "string"
+          },
+          "versions": {
+            "items": {
+              "$ref": "#/components/schemas/PartnershipVersionResponse"
+            },
+            "title": "Versions",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "pitch_id",
+          "type",
+          "parties",
+          "invention_ids",
+          "contested",
+          "current",
+          "versions",
+          "restrictions",
+          "effective",
+          "allowed_actions"
+        ],
+        "title": "PartnershipResponse",
+        "type": "object"
+      },
+      "PartnershipValues": {
+        "additionalProperties": false,
+        "description": "The summary both parties confirm. ``evidence`` is private and never public.",
+        "properties": {
+          "amount": {
+            "anyOf": [
+              {
+                "maxLength": 24,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount"
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "pattern": "^[A-Z]{3}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency"
+          },
+          "evidence": {
+            "default": "",
+            "maxLength": 500,
+            "title": "Evidence",
+            "type": "string"
+          },
           "name": {
+            "maxLength": 200,
+            "minLength": 1,
             "title": "Name",
             "type": "string"
           },
-          "party_id": {
-            "format": "uuid",
-            "title": "Party Id",
+          "percent": {
+            "anyOf": [
+              {
+                "pattern": "^(100(\\.0{1,2})?|\\d{1,2}(\\.\\d{1,2})?)$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Equity only, with ``percent_date``.",
+            "title": "Percent"
+          },
+          "percent_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Percent Date"
+          },
+          "scope": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Scope",
+            "type": "string"
+          },
+          "start_date": {
+            "format": "date",
+            "title": "Start Date",
             "type": "string"
           }
         },
         "required": [
-          "party_id",
-          "name"
+          "name",
+          "scope",
+          "start_date"
         ],
-        "title": "PartyName",
+        "title": "PartnershipValues",
+        "type": "object"
+      },
+      "PartnershipVersionResponse": {
+        "description": "One version with its confirmations.",
+        "properties": {
+          "ceiling": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Ceiling",
+            "type": "array"
+          },
+          "checksum": {
+            "title": "Checksum",
+            "type": "string"
+          },
+          "confirmations": {
+            "items": {
+              "$ref": "#/components/schemas/ConfirmationResponse"
+            },
+            "title": "Confirmations",
+            "type": "array"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "note": {
+            "title": "Note",
+            "type": "string"
+          },
+          "number": {
+            "title": "Number",
+            "type": "integer"
+          },
+          "proposed_by_party_id": {
+            "format": "uuid",
+            "title": "Proposed By Party Id",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "PENDING_COUNTERPARTY",
+              "CONFIRMED",
+              "CHANGES_REQUESTED",
+              "DECLINED"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "values": {
+            "additionalProperties": true,
+            "title": "Values",
+            "type": "object"
+          }
+        },
+        "required": [
+          "number",
+          "status",
+          "values",
+          "ceiling",
+          "checksum",
+          "proposed_by_party_id",
+          "note",
+          "created_at",
+          "confirmations"
+        ],
+        "title": "PartnershipVersionResponse",
         "type": "object"
       },
       "PersonalDocumentMetadata": {
@@ -5789,7 +6632,7 @@
             "type": "string"
           },
           "recipient": {
-            "$ref": "#/components/schemas/PartyName"
+            "$ref": "#/components/schemas/app__briefs__model__schema__PartyName"
           },
           "rows": {
             "items": {
@@ -5799,7 +6642,7 @@
             "type": "array"
           },
           "sender": {
-            "$ref": "#/components/schemas/PartyName"
+            "$ref": "#/components/schemas/app__briefs__model__schema__PartyName"
           },
           "shareable_files": {
             "items": {
@@ -6105,6 +6948,345 @@
         "title": "PrivacyRequestResponse",
         "type": "object"
       },
+      "ProfileResponse": {
+        "description": "The acting party's own profile settings.",
+        "properties": {
+          "bio": {
+            "title": "Bio",
+            "type": "string"
+          },
+          "party_id": {
+            "format": "uuid",
+            "title": "Party Id",
+            "type": "string"
+          },
+          "published": {
+            "title": "Published",
+            "type": "boolean"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "party_id",
+          "bio",
+          "published",
+          "version"
+        ],
+        "title": "ProfileResponse",
+        "type": "object"
+      },
+      "ProposalOptionsResponse": {
+        "description": "The relationship types available for a completed pitch.",
+        "properties": {
+          "types": {
+            "items": {
+              "enum": [
+                "PROJECT",
+                "LICENSE",
+                "EQUITY"
+              ],
+              "type": "string"
+            },
+            "title": "Types",
+            "type": "array"
+          }
+        },
+        "required": [
+          "types"
+        ],
+        "title": "ProposalOptionsResponse",
+        "type": "object"
+      },
+      "ProposalResponse": {
+        "description": "A proposal and its state, with expiry evaluated on read.",
+        "properties": {
+          "accepted_slot_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Accepted Slot Id"
+          },
+          "agenda": {
+            "title": "Agenda",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "expired_reason": {
+            "anyOf": [
+              {
+                "enum": [
+                  "AGE",
+                  "ALL_PAST"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expired Reason"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "title": "Expires At",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "link": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Link"
+          },
+          "mine": {
+            "title": "Mine",
+            "type": "boolean"
+          },
+          "minutes": {
+            "title": "Minutes",
+            "type": "integer"
+          },
+          "operation_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operation Id"
+          },
+          "proposed_by_name": {
+            "title": "Proposed By Name",
+            "type": "string"
+          },
+          "proposed_by_party_id": {
+            "format": "uuid",
+            "title": "Proposed By Party Id",
+            "type": "string"
+          },
+          "replaces_meeting_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Replaces Meeting Id"
+          },
+          "slots": {
+            "items": {
+              "$ref": "#/components/schemas/SlotResponse"
+            },
+            "title": "Slots",
+            "type": "array"
+          },
+          "state": {
+            "enum": [
+              "OPEN",
+              "ACCEPTED",
+              "SUPERSEDED",
+              "EXPIRED",
+              "CANCELLED"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "time_zone": {
+            "title": "Time Zone",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "proposed_by_party_id",
+          "proposed_by_name",
+          "mine",
+          "minutes",
+          "time_zone",
+          "agenda",
+          "link",
+          "state",
+          "expired_reason",
+          "replaces_meeting_id",
+          "accepted_slot_id",
+          "version",
+          "created_at",
+          "expires_at",
+          "slots"
+        ],
+        "title": "ProposalResponse",
+        "type": "object"
+      },
+      "ProposePartnershipRequest": {
+        "additionalProperties": false,
+        "description": "Version 1, its public ceiling, and the proposer's own consent subset.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "ceiling": {
+            "items": {
+              "enum": [
+                "name",
+                "type",
+                "scope",
+                "date",
+                "amount",
+                "percent"
+              ],
+              "type": "string"
+            },
+            "maxItems": 6,
+            "minItems": 1,
+            "title": "Ceiling",
+            "type": "array"
+          },
+          "subset": {
+            "default": [],
+            "items": {
+              "enum": [
+                "name",
+                "type",
+                "scope",
+                "date",
+                "amount",
+                "percent"
+              ],
+              "type": "string"
+            },
+            "maxItems": 6,
+            "title": "Subset",
+            "type": "array"
+          },
+          "type": {
+            "enum": [
+              "PROJECT",
+              "LICENSE",
+              "EQUITY"
+            ],
+            "title": "Type",
+            "type": "string"
+          },
+          "values": {
+            "$ref": "#/components/schemas/PartnershipValues"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "type",
+          "values",
+          "ceiling"
+        ],
+        "title": "ProposePartnershipRequest",
+        "type": "object"
+      },
+      "ProposeRequest": {
+        "additionalProperties": false,
+        "description": "Offer 2\u20135 times for one meeting, or for a replacement of a confirmed one.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "agenda": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Agenda",
+            "type": "string"
+          },
+          "link": {
+            "anyOf": [
+              {
+                "maxLength": 500,
+                "pattern": "^https://\\S+$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Link"
+          },
+          "minutes": {
+            "enum": [
+              30,
+              60
+            ],
+            "title": "Minutes",
+            "type": "integer"
+          },
+          "replaces_meeting_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Replaces Meeting Id"
+          },
+          "slots": {
+            "items": {
+              "format": "date-time",
+              "type": "string"
+            },
+            "maxItems": 5,
+            "minItems": 2,
+            "title": "Slots",
+            "type": "array"
+          },
+          "time_zone": {
+            "title": "Time Zone",
+            "type": "string"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "slots",
+          "minutes",
+          "time_zone",
+          "agenda"
+        ],
+        "title": "ProposeRequest",
+        "type": "object"
+      },
       "PublicClaimResponse": {
         "description": "A claim as anyone may read it.",
         "properties": {
@@ -6208,6 +7390,31 @@
           "provenance"
         ],
         "title": "PublicFactResponse",
+        "type": "object"
+      },
+      "PublicInvention": {
+        "description": "A published invention the party manages.",
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "role"
+        ],
+        "title": "PublicInvention",
         "type": "object"
       },
       "PublicInventionResponse": {
@@ -6327,6 +7534,118 @@
         "title": "PublicInventionResponse",
         "type": "object"
       },
+      "PublicProfileResponse": {
+        "description": "What anyone may see of a party, computed now from publication and consent (FR-001).",
+        "properties": {
+          "bio": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bio"
+          },
+          "inventions": {
+            "items": {
+              "$ref": "#/components/schemas/PublicInvention"
+            },
+            "title": "Inventions",
+            "type": "array"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "nothing_published": {
+            "title": "Nothing Published",
+            "type": "boolean"
+          },
+          "party_id": {
+            "format": "uuid",
+            "title": "Party Id",
+            "type": "string"
+          },
+          "relationships": {
+            "items": {
+              "$ref": "#/components/schemas/PublicRelationship"
+            },
+            "title": "Relationships",
+            "type": "array"
+          }
+        },
+        "required": [
+          "party_id",
+          "name",
+          "bio",
+          "inventions",
+          "relationships",
+          "nothing_published"
+        ],
+        "title": "PublicProfileResponse",
+        "type": "object"
+      },
+      "PublicRelationship": {
+        "description": "One confirmed relationship, only its fields both parties allowed (AC55).",
+        "properties": {
+          "counterpart_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Counterpart Name"
+          },
+          "counterpart_party_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Counterpart Party Id"
+          },
+          "fields": {
+            "additionalProperties": true,
+            "title": "Fields",
+            "type": "object"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "inventions": {
+            "items": {
+              "$ref": "#/components/schemas/PublicInvention"
+            },
+            "title": "Inventions",
+            "type": "array"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "role",
+          "counterpart_party_id",
+          "counterpart_name",
+          "fields",
+          "inventions"
+        ],
+        "title": "PublicRelationship",
+        "type": "object"
+      },
       "PublishResponse": {
         "description": "The outcome of a publication.",
         "properties": {
@@ -6356,6 +7675,79 @@
           "status"
         ],
         "title": "PublishResponse",
+        "type": "object"
+      },
+      "QueueItem": {
+        "description": "One pitch waiting on someone, for Beranda.",
+        "properties": {
+          "action": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Action"
+          },
+          "opportunity_title": {
+            "title": "Opportunity Title",
+            "type": "string"
+          },
+          "pitch_id": {
+            "format": "uuid",
+            "title": "Pitch Id",
+            "type": "string"
+          },
+          "subject_title": {
+            "title": "Subject Title",
+            "type": "string"
+          },
+          "tab": {
+            "title": "Tab",
+            "type": "string"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          },
+          "who": {
+            "anyOf": [
+              {
+                "enum": [
+                  "you",
+                  "other"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Who"
+          }
+        },
+        "required": [
+          "who",
+          "title",
+          "text",
+          "tab",
+          "pitch_id",
+          "subject_title",
+          "opportunity_title",
+          "updated_at"
+        ],
+        "title": "QueueItem",
         "type": "object"
       },
       "RangeInput": {
@@ -6928,6 +8320,61 @@
         "title": "RequirementRow",
         "type": "object"
       },
+      "RestrictRequest": {
+        "additionalProperties": false,
+        "description": "Hide one public field from now on.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "field": {
+            "enum": [
+              "name",
+              "type",
+              "scope",
+              "date",
+              "amount",
+              "percent"
+            ],
+            "title": "Field",
+            "type": "string"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "field"
+        ],
+        "title": "RestrictRequest",
+        "type": "object"
+      },
+      "RestrictionResponse": {
+        "description": "One restriction.",
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "field": {
+            "title": "Field",
+            "type": "string"
+          },
+          "party_id": {
+            "format": "uuid",
+            "title": "Party Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "field",
+          "party_id",
+          "created_at"
+        ],
+        "title": "RestrictionResponse",
+        "type": "object"
+      },
       "ResubmitRequest": {
         "additionalProperties": false,
         "description": "Send again after answering: the brief as edited and the file versions chosen on purpose.",
@@ -6969,6 +8416,28 @@
           "expected_version"
         ],
         "title": "ResubmitRequest",
+        "type": "object"
+      },
+      "ReviewRequest": {
+        "additionalProperties": false,
+        "description": "Contest the public claim; it is hidden while under review.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "reason": {
+            "default": "",
+            "maxLength": 500,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "acting_party_id"
+        ],
+        "title": "ReviewRequest",
         "type": "object"
       },
       "RevisionItemInput": {
@@ -7557,6 +9026,98 @@
         "title": "SavePartnerProfileRequest",
         "type": "object"
       },
+      "SaveProfileRequest": {
+        "additionalProperties": false,
+        "description": "Publish or change the acting party's public profile.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "bio": {
+            "default": "",
+            "maxLength": 2000,
+            "title": "Bio",
+            "type": "string"
+          },
+          "expected_version": {
+            "title": "Expected Version",
+            "type": "integer"
+          },
+          "published": {
+            "title": "Published",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "expected_version",
+          "published"
+        ],
+        "title": "SaveProfileRequest",
+        "type": "object"
+      },
+      "ScheduleResponse": {
+        "description": "Everything scheduled for one pitch.",
+        "properties": {
+          "can_schedule": {
+            "title": "Can Schedule",
+            "type": "boolean"
+          },
+          "external_calendar": {
+            "const": "unknown",
+            "default": "unknown",
+            "description": "No calendar is connected, so outside availability is unknown (AC68).",
+            "title": "External Calendar",
+            "type": "string"
+          },
+          "meetings": {
+            "items": {
+              "$ref": "#/components/schemas/MeetingResponse"
+            },
+            "title": "Meetings",
+            "type": "array"
+          },
+          "proposals": {
+            "items": {
+              "$ref": "#/components/schemas/ProposalResponse"
+            },
+            "title": "Proposals",
+            "type": "array"
+          }
+        },
+        "required": [
+          "proposals",
+          "meetings",
+          "can_schedule"
+        ],
+        "title": "ScheduleResponse",
+        "type": "object"
+      },
+      "SendMessageRequest": {
+        "additionalProperties": false,
+        "description": "One message to the room.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "text": {
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "text"
+        ],
+        "title": "SendMessageRequest",
+        "type": "object"
+      },
       "ShareableFile": {
         "description": "A file version the applicant may choose to share; nothing is shared until submission.",
         "properties": {
@@ -7604,6 +9165,38 @@
           "fact_keys"
         ],
         "title": "ShareableFile",
+        "type": "object"
+      },
+      "SlotResponse": {
+        "description": "One offered interval.",
+        "properties": {
+          "ends_at": {
+            "format": "date-time",
+            "title": "Ends At",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "position": {
+            "title": "Position",
+            "type": "integer"
+          },
+          "starts_at": {
+            "format": "date-time",
+            "title": "Starts At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "position",
+          "starts_at",
+          "ends_at"
+        ],
+        "title": "SlotResponse",
         "type": "object"
       },
       "StageProgress": {
@@ -7939,6 +9532,87 @@
           "reason"
         ],
         "title": "TargetAvailabilityResponse",
+        "type": "object"
+      },
+      "TaskResponse": {
+        "description": "One task.",
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "due_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Due Date"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "operation_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operation Id"
+          },
+          "owner_name": {
+            "title": "Owner Name",
+            "type": "string"
+          },
+          "owner_party_id": {
+            "format": "uuid",
+            "title": "Owner Party Id",
+            "type": "string"
+          },
+          "reference": {
+            "title": "Reference",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "OPEN",
+              "DONE"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "owner_party_id",
+          "owner_name",
+          "due_date",
+          "reference",
+          "status",
+          "version",
+          "created_at"
+        ],
+        "title": "TaskResponse",
         "type": "object"
       },
       "TransitionRequest": {
@@ -8462,6 +10136,48 @@
         "title": "VersionedActionRequest",
         "type": "object"
       },
+      "VersionedPartnershipRequest": {
+        "additionalProperties": false,
+        "description": "Decline the current version, against its number.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "version"
+        ],
+        "title": "VersionedPartnershipRequest",
+        "type": "object"
+      },
+      "VersionedRequest": {
+        "additionalProperties": false,
+        "description": "A change against the version the client saw.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "expected_version": {
+            "title": "Expected Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "expected_version"
+        ],
+        "title": "VersionedRequest",
+        "type": "object"
+      },
       "app__access__model__schema__ActingPartyRequest": {
         "description": "A consequential action names the party it acts as, so two tabs cannot cross contexts.",
         "properties": {
@@ -8477,6 +10193,26 @@
         "title": "ActingPartyRequest",
         "type": "object"
       },
+      "app__briefs__model__schema__PartyName": {
+        "description": "A party as a name.",
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "party_id": {
+            "format": "uuid",
+            "title": "Party Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "party_id",
+          "name"
+        ],
+        "title": "PartyName",
+        "type": "object"
+      },
       "app__discovery__router__ActingPartyRequest": {
         "description": "The party the client acts as.",
         "properties": {
@@ -8490,6 +10226,26 @@
           "acting_party_id"
         ],
         "title": "ActingPartyRequest",
+        "type": "object"
+      },
+      "app__relationships__model__schema__PartyName": {
+        "description": "A party of the relationship.",
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "party_id": {
+            "format": "uuid",
+            "title": "Party Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "party_id",
+          "name"
+        ],
+        "title": "PartyName",
         "type": "object"
       }
     }
@@ -8975,6 +10731,62 @@
         "summary": "Sign in as a demo account",
         "tags": [
           "demo"
+        ]
+      }
+    },
+    "/api/v1/dev/bookings": {
+      "post": {
+        "description": "Mark a party busy, as another meeting would, so conflicts can be shown without a second pitch.\n\nArgs:\n    body (DevBookingRequest): Party, interval and title.\n    session (SessionDep): Database session.\n\nReturns:\n    dict[str, str]: The booking id.",
+        "operationId": "book_time_api_v1_dev_bookings_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DevBookingRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Book Time Api V1 Dev Bookings Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Book a party's time, for tests",
+        "tags": [
+          "development"
         ]
       }
     },
@@ -11708,6 +13520,361 @@
         ]
       }
     },
+    "/api/v1/me/queue": {
+      "get": {
+        "description": "List pitches waiting on someone, those waiting on the active party first.\n\nArgs:\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    list[QueueItem]: Items.",
+        "operationId": "read_queue_api_v1_me_queue_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/QueueItem"
+                  },
+                  "title": "Response Read Queue Api V1 Me Queue Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "What waits, for Beranda",
+        "tags": [
+          "discussion"
+        ]
+      }
+    },
+    "/api/v1/meetings/{meeting_id}/calendar.ics": {
+      "get": {
+        "description": "Return the meeting as an iCalendar file built from its UTC instants.\n\nArgs:\n    meeting_id (UUID): The meeting.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    Response: ``text/calendar`` with an attachment name.",
+        "operationId": "calendar_file_api_v1_meetings__meeting_id__calendar_ics_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "meeting_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Meeting Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "text/calendar": {}
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Download a calendar file",
+        "tags": [
+          "scheduling"
+        ]
+      }
+    },
+    "/api/v1/meetings/{meeting_id}/cancel": {
+      "post": {
+        "description": "Cancel a confirmed meeting and free both bookings.\n\nArgs:\n    meeting_id (UUID): The meeting.\n    body (VersionedRequest): ``expected_version``.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    MeetingResponse: The meeting.",
+        "operationId": "cancel_meeting_api_v1_meetings__meeting_id__cancel_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "meeting_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Meeting Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VersionedRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeetingResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Cancel a meeting",
+        "tags": [
+          "scheduling"
+        ]
+      }
+    },
+    "/api/v1/meetings/{meeting_id}/outcome": {
+      "post": {
+        "description": "Record what the acting party says happened; only both agreeing settles it.\n\nArgs:\n    meeting_id (UUID): The meeting.\n    body (OutcomeRequest): Result and note.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    MeetingResponse: The meeting.",
+        "operationId": "record_outcome_api_v1_meetings__meeting_id__outcome_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "meeting_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Meeting Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OutcomeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeetingResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Record a meeting outcome",
+        "tags": [
+          "scheduling"
+        ]
+      }
+    },
+    "/api/v1/notifications": {
+      "get": {
+        "description": "Read the active party's in-app notifications, newest first.\n\nArgs:\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    since (datetime | None, optional): Only newer ones. Defaults to None.\n    unread (bool, optional): Only unread ones. Defaults to False.\n    limit (int, optional): The most to return. Defaults to 50.\n\nReturns:\n    list[NotificationResponse]: Notifications.",
+        "operationId": "list_notifications_api_v1_notifications_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "since",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Since"
+            }
+          },
+          {
+            "in": "query",
+            "name": "unread",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Unread",
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/NotificationResponse"
+                  },
+                  "title": "Response List Notifications Api V1 Notifications Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Read my notifications",
+        "tags": [
+          "discussion"
+        ]
+      }
+    },
+    "/api/v1/notifications/{notification_id}/read": {
+      "put": {
+        "description": "Mark one notification read; repeating it changes nothing.\n\nArgs:\n    notification_id (UUID): The notification.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    NotificationResponse: The notification.",
+        "operationId": "mark_read_api_v1_notifications__notification_id__read_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "notification_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Notification Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Mark a notification read",
+        "tags": [
+          "discussion"
+        ]
+      }
+    },
     "/api/v1/operations/{operation_id}": {
       "get": {
         "description": "Tell the acting party whether its operation committed.\n\nArgs:\n    operation_id (UUID): From the response the client may have lost.\n    session (SessionDep): Database session.\n    principal (PrincipalDep): The account scope for private operations.\n\nReturns:\n    OperationResponse: ``COMMITTED`` with a result reference, ``PENDING``, or ``UNKNOWN`` for an id the service\n        has no record of.\n\nRaises:\n    NotFoundError: When the operation belongs to another party.",
@@ -13078,6 +15245,380 @@
         ]
       }
     },
+    "/api/v1/partnerships/{partnership_id}": {
+      "get": {
+        "description": "Read a relationship as one of its two parties.\n\nArgs:\n    partnership_id (UUID): The relationship.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    PartnershipResponse: Versions, confirmations, restrictions and what may be public.",
+        "operationId": "read_partnership_api_v1_partnerships__partnership_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "partnership_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Partnership Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartnershipResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Read a relationship",
+        "tags": [
+          "relationships"
+        ]
+      }
+    },
+    "/api/v1/partnerships/{partnership_id}/confirmations": {
+      "post": {
+        "description": "Confirm a relationship summary.\n\nArgs:\n    partnership_id (UUID): The relationship.\n    body (ConfirmRequest): The request.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    PartnershipResponse: The relationship as its parties see it.",
+        "operationId": "confirm_api_v1_partnerships__partnership_id__confirmations_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "partnership_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Partnership Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartnershipResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Confirm a relationship summary",
+        "tags": [
+          "relationships"
+        ]
+      }
+    },
+    "/api/v1/partnerships/{partnership_id}/corrections": {
+      "post": {
+        "description": "Correct a relationship summary.\n\nArgs:\n    partnership_id (UUID): The relationship.\n    body (CorrectionRequest): The request.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    PartnershipResponse: The relationship as its parties see it.",
+        "operationId": "correct_api_v1_partnerships__partnership_id__corrections_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "partnership_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Partnership Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CorrectionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartnershipResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Correct a relationship summary",
+        "tags": [
+          "relationships"
+        ]
+      }
+    },
+    "/api/v1/partnerships/{partnership_id}/decline": {
+      "post": {
+        "description": "Decline a relationship summary.\n\nArgs:\n    partnership_id (UUID): The relationship.\n    body (VersionedPartnershipRequest): The request.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    PartnershipResponse: The relationship as its parties see it.",
+        "operationId": "decline_api_v1_partnerships__partnership_id__decline_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "partnership_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Partnership Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VersionedPartnershipRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartnershipResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Decline a relationship summary",
+        "tags": [
+          "relationships"
+        ]
+      }
+    },
+    "/api/v1/partnerships/{partnership_id}/request-review": {
+      "post": {
+        "description": "Contest the public claim.\n\nArgs:\n    partnership_id (UUID): The relationship.\n    body (ReviewRequest): The request.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    PartnershipResponse: The relationship as its parties see it.",
+        "operationId": "request_review_api_v1_partnerships__partnership_id__request_review_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "partnership_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Partnership Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartnershipResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Contest the public claim",
+        "tags": [
+          "relationships"
+        ]
+      }
+    },
+    "/api/v1/partnerships/{partnership_id}/restrictions": {
+      "post": {
+        "description": "Hide a public field.\n\nArgs:\n    partnership_id (UUID): The relationship.\n    body (RestrictRequest): The request.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    PartnershipResponse: The relationship as its parties see it.",
+        "operationId": "restrict_api_v1_partnerships__partnership_id__restrictions_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "partnership_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Partnership Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RestrictRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartnershipResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Hide a public field",
+        "tags": [
+          "relationships"
+        ]
+      }
+    },
     "/api/v1/pitches": {
       "get": {
         "description": "List the acting party's sent or received pitches.\n\nArgs:\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    box (Box, optional): ``outgoing`` or ``incoming``. Defaults to \"outgoing\".\n    limit (int, optional): The most to return. Defaults to 50.\n\nReturns:\n    list[PitchSummary]: Newest first.",
@@ -13500,6 +16041,389 @@
         ]
       }
     },
+    "/api/v1/pitches/{pitch_id}/messages": {
+      "get": {
+        "description": "Read messages oldest first; poll with ``since`` for newer ones.\n\nArgs:\n    pitch_id (UUID): The pitch.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    since (datetime | None, optional): Only messages after this instant. Defaults to None.\n    limit (int, optional): The most to return. Defaults to 100.\n\nReturns:\n    list[MessageResponse]: Messages.",
+        "operationId": "list_messages_api_v1_pitches__pitch_id__messages_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pitch_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Pitch Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "since",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Since"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/MessageResponse"
+                  },
+                  "title": "Response List Messages Api V1 Pitches  Pitch Id  Messages Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Read a room's messages",
+        "tags": [
+          "discussion"
+        ]
+      },
+      "post": {
+        "description": "Add a message to the room; a retry with the same key returns the same message.\n\nArgs:\n    pitch_id (UUID): The pitch.\n    body (SendMessageRequest): The text.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    MessageResponse: The message.",
+        "operationId": "send_message_api_v1_pitches__pitch_id__messages_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pitch_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Pitch Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendMessageRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Send a message",
+        "tags": [
+          "discussion"
+        ]
+      }
+    },
+    "/api/v1/pitches/{pitch_id}/next-action": {
+      "get": {
+        "description": "Return who acts next on a pitch, for the active party, computed on the server.\n\nArgs:\n    pitch_id (UUID): The pitch.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    NextAction: ``who`` is ``you``, ``other`` or null, with a title, text, tab and action.",
+        "operationId": "read_next_action_api_v1_pitches__pitch_id__next_action_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pitch_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Pitch Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NextAction"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Whose turn it is",
+        "tags": [
+          "discussion"
+        ]
+      }
+    },
+    "/api/v1/pitches/{pitch_id}/partnership": {
+      "get": {
+        "description": "Read the relationship that grew out of a pitch, or null before one is proposed.\n\nArgs:\n    pitch_id (UUID): The pitch.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    PartnershipResponse | None: The relationship.",
+        "operationId": "read_pitch_partnership_api_v1_pitches__pitch_id__partnership_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pitch_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Pitch Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/PartnershipResponse"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Response Read Pitch Partnership Api V1 Pitches  Pitch Id  Partnership Get"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Read a pitch's relationship",
+        "tags": [
+          "relationships"
+        ]
+      }
+    },
+    "/api/v1/pitches/{pitch_id}/partnership-options": {
+      "get": {
+        "description": "Read eligible types for the active party after a completed meeting.\n\nArgs:\n    pitch_id (UUID): The pitch.\n    principal (PrincipalDep): The active party.\n    session (SessionDep): Database session.\n\nReturns:\n    ProposalOptionsResponse: Types the active party may propose.",
+        "operationId": "proposal_options_api_v1_pitches__pitch_id__partnership_options_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pitch_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Pitch Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProposalOptionsResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Read eligible relationship types",
+        "tags": [
+          "relationships"
+        ]
+      }
+    },
+    "/api/v1/pitches/{pitch_id}/partnerships": {
+      "post": {
+        "description": "Propose a relationship summary.\n\nArgs:\n    pitch_id (UUID): The pitch.\n    body (ProposePartnershipRequest): The request.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    PartnershipResponse: The relationship as its parties see it.",
+        "operationId": "propose_api_v1_pitches__pitch_id__partnerships_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pitch_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Pitch Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProposePartnershipRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartnershipResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Propose a relationship summary",
+        "tags": [
+          "relationships"
+        ]
+      }
+    },
     "/api/v1/pitches/{pitch_id}/resubmit": {
       "post": {
         "description": "Send the next submission once every required item has an answer.\n\nArgs:\n    pitch_id (UUID): The pitch.\n    body (ResubmitRequest): ``expected_version``, brief and files.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    PitchActionResponse: The pitch and submission number.",
@@ -13776,6 +16700,244 @@
         ]
       }
     },
+    "/api/v1/pitches/{pitch_id}/schedule": {
+      "get": {
+        "description": "Read proposals and meetings, with expiry evaluated now.\n\nArgs:\n    pitch_id (UUID): The pitch.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    ScheduleResponse: Proposals and meetings.",
+        "operationId": "read_schedule_api_v1_pitches__pitch_id__schedule_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pitch_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Pitch Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScheduleResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Read a pitch's schedule",
+        "tags": [
+          "scheduling"
+        ]
+      }
+    },
+    "/api/v1/pitches/{pitch_id}/schedule-proposals": {
+      "post": {
+        "description": "Offer 2\u20135 times; an open proposal is superseded. With ``replaces_meeting_id`` it proposes a replacement.\n\nArgs:\n    pitch_id (UUID): The pitch.\n    body (ProposeRequest): Slots, length, zone, agenda, link and replaced meeting.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    ProposalResponse: The proposal.",
+        "operationId": "propose_api_v1_pitches__pitch_id__schedule_proposals_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pitch_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Pitch Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProposeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProposalResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Propose meeting times",
+        "tags": [
+          "scheduling"
+        ]
+      }
+    },
+    "/api/v1/pitches/{pitch_id}/tasks": {
+      "get": {
+        "description": "Read tasks oldest first.\n\nArgs:\n    pitch_id (UUID): The pitch.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    list[TaskResponse]: Tasks.",
+        "operationId": "list_tasks_api_v1_pitches__pitch_id__tasks_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pitch_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Pitch Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TaskResponse"
+                  },
+                  "title": "Response List Tasks Api V1 Pitches  Pitch Id  Tasks Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Read a room's tasks",
+        "tags": [
+          "discussion"
+        ]
+      },
+      "post": {
+        "description": "Add a task owned by one of the two parties.\n\nArgs:\n    pitch_id (UUID): The pitch.\n    body (CreateTaskRequest): Title, owner, due date and reference.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    TaskResponse: The task.",
+        "operationId": "add_task_api_v1_pitches__pitch_id__tasks_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pitch_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Pitch Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTaskRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Add a task",
+        "tags": [
+          "discussion"
+        ]
+      }
+    },
     "/api/v1/pitches/{pitch_id}/withdraw": {
       "post": {
         "description": "Withdraw before a final decision; later decisions are refused.\n\nArgs:\n    pitch_id (UUID): The pitch.\n    body (PitchActionRequest): Acting party and ``expected_version``.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    PitchActionResponse: The pitch.",
@@ -14031,6 +17193,142 @@
         "summary": "Download my authorized export",
         "tags": [
           "moderation"
+        ]
+      }
+    },
+    "/api/v1/profiles/me": {
+      "get": {
+        "description": "Read the acting party's bio and whether it is published.\n\nArgs:\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    ProfileResponse: The settings.",
+        "operationId": "read_my_profile_api_v1_profiles_me_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Read my profile settings",
+        "tags": [
+          "relationships"
+        ]
+      },
+      "put": {
+        "description": "Publish, change or withdraw the acting party's biography, against its version.\n\nArgs:\n    body (SaveProfileRequest): Bio, published flag and ``expected_version``.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    ProfileResponse: The settings.",
+        "operationId": "save_my_profile_api_v1_profiles_me_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveProfileRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Publish my profile",
+        "tags": [
+          "relationships"
+        ]
+      }
+    },
+    "/api/v1/profiles/{party_id}": {
+      "get": {
+        "description": "Read what anyone may see of a party, with no sign-in: published inventions and consented relationship fields.\n\nArgs:\n    party_id (UUID): The party.\n    session (SessionDep): Database session.\n    response (Response): The response whose cache policy applies.\n\nReturns:\n    PublicProfileResponse: The public profile.",
+        "operationId": "read_public_profile_api_v1_profiles__party_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "party_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Party Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicProfileResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Read a public profile",
+        "tags": [
+          "relationships"
         ]
       }
     },
@@ -14354,6 +17652,134 @@
         "summary": "Save an item",
         "tags": [
           "discovery"
+        ]
+      }
+    },
+    "/api/v1/schedule-proposals/{proposal_id}/accept": {
+      "post": {
+        "description": "Confirm one slot; a conflict changes nothing and is ``BOOKING_CONFLICT``.\n\nArgs:\n    proposal_id (UUID): The proposal.\n    body (AcceptRequest): The slot and ``expected_version``.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    MeetingResponse: The confirmed meeting.",
+        "operationId": "accept_api_v1_schedule_proposals__proposal_id__accept_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "proposal_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Proposal Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AcceptRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeetingResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Confirm a slot",
+        "tags": [
+          "scheduling"
+        ]
+      }
+    },
+    "/api/v1/schedule-proposals/{proposal_id}/cancel": {
+      "post": {
+        "description": "Cancel an open proposal; any meeting stays.\n\nArgs:\n    proposal_id (UUID): The proposal.\n    body (VersionedRequest): ``expected_version``.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    ProposalResponse: The proposal.",
+        "operationId": "cancel_proposal_api_v1_schedule_proposals__proposal_id__cancel_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "proposal_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Proposal Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VersionedRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProposalResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Cancel a proposal",
+        "tags": [
+          "scheduling"
         ]
       }
     },
@@ -14842,6 +18268,70 @@
         "summary": "Read an earlier version",
         "tags": [
           "support requests"
+        ]
+      }
+    },
+    "/api/v1/tasks/{task_id}/complete": {
+      "post": {
+        "description": "Mark a task done against its version.\n\nArgs:\n    task_id (UUID): The task.\n    body (CompleteTaskRequest): ``expected_version``.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    TaskResponse: The task.",
+        "operationId": "complete_task_api_v1_tasks__task_id__complete_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "task_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Task Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompleteTaskRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Complete a task",
+        "tags": [
+          "discussion"
         ]
       }
     },

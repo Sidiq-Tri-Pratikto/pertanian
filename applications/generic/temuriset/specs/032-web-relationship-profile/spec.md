@@ -2,7 +2,7 @@
 
 **Feature Branch**: `032-web-relationship-profile`
 **Created**: 2026-11-05
-**Status**: Seeded, not started
+**Status**: Built, awaiting review
 **Milestone**: M9 Relationships
 **Depends on**: 029, 031
 **Size**: L
@@ -49,3 +49,7 @@ S15 proposes and confirms with `TR.PartnershipConsent`: version, values, per-par
 ### Measurable Outcomes
 
 - **SC-001**: J05 Playwright passes; axe and overflow pass on both routes, including signed-out S16.
+
+## Validation
+
+The production Chromium suite passed 437 cases with 423 expected skips. J05 passed at 320, 360, 768 and 1280 CSS px with axe and overflow checks. The project quality gate passed 832 API tests and 261 web tests.

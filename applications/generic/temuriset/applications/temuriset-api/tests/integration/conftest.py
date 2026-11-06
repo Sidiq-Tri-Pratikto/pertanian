@@ -15,7 +15,9 @@ from app.main import app
 
 TABLES = (
     "portability_import_rows, portability_import_runs, portability_external_references, portability_export_jobs, "
-    "revision_answers, revision_items, revision_rounds, pitch_decisions, "
+    "partnership_restrictions, partnership_confirmations, partnership_versions, partnerships, "
+    "meeting_outcomes, bookings, meetings, schedule_slots, schedule_proposals, "
+    "notifications, tasks, messages, revision_answers, revision_items, revision_rounds, pitch_decisions, "
     "pitch_submission_files, pitch_submissions, pitches, briefs, preflights, "
     "match_results, match_runs, search_documents, saved_items, relevance_feedback, "
     "operator_file_grants, operator_actions, listing_suspensions, operator_grants, privacy_requests, "

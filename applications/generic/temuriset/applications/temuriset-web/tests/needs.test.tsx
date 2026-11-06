@@ -128,7 +128,8 @@ describe('support requests (S06)', () => {
         queue={[{ href: '/support-requests/sr2', label: 'Lengkapi kisaran biaya pilot untuk kebutuhan ini', context: 'Validasi' }]}
       />,
     );
-    expect(screen.getByRole('link', { name: 'Lengkapi kisaran biaya pilot untuk kebutuhan ini' })).toHaveAttribute('href', '/support-requests/sr2');
+    expect(screen.getByRole('heading', { name: 'Lengkapi kisaran biaya pilot untuk kebutuhan ini' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Kerjakan sekarang: Validasi' })).toHaveAttribute('href', '/support-requests/sr2');
   });
 
   it('keeps both values and focuses the error summary when the maximum is below the minimum', async () => {

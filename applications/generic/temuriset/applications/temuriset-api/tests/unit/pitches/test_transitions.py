@@ -6,7 +6,7 @@ import pytest
 
 from app.core.errors.base import InvalidTransitionError
 from app.pitches.repository.sqlalchemy.models import PITCH_STATUSES
-from app.pitches.service.transitions import TABLE, allowed, target, waiting_on
+from app.pitches.service.transitions import TABLE, allowed, target
 
 # PRD section 7, written out by hand so a change to the table has to change this too.
 EXPECTED = {
@@ -50,23 +50,9 @@ def test_an_approved_pitch_cannot_go_back_to_revision_and_ended_ones_never_reope
     - Approved, rejected, withdrawn and closed pitches.
 
     Expected:
-    - Approval offers only closing; ended pitches offer nothing to either side and wait on no one.
+    - Approval offers only closing; ended pitches offer nothing to either side.
     """
     assert allowed("APPROVED_FOR_DISCUSSION", "recipient") == ["close"]
     assert allowed("APPROVED_FOR_DISCUSSION", "requester") == ["close"]
     for status in ("REJECTED", "WITHDRAWN", "CLOSED"):
         assert allowed(status, "recipient") == allowed(status, "requester") == []
-        assert waiting_on(status) is None
-
-
-def test_whose_turn_follows_the_status() -> None:
-    """
-    Condition:
-    - A submitted pitch, one in revision, and one in discussion.
-
-    Expected:
-    - The recipient, the requester, then no one.
-    """
-    assert waiting_on("SUBMITTED") == waiting_on("UNDER_REVIEW") == "recipient"
-    assert waiting_on("REVISION_REQUESTED") == "requester"
-    assert waiting_on("APPROVED_FOR_DISCUSSION") is None

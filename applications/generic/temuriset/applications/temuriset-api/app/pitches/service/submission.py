@@ -17,6 +17,7 @@ from app.core import clock
 from app.core.errors import codes
 from app.core.errors.base import AppError, FieldsInvalidError, NotFoundError
 from app.core.settings import get_settings
+from app.discussion.service.next_action import waiting_parties
 from app.documents.model.schema import GrantRequest
 from app.documents.service.service import DocumentService
 from app.funding.service.service import FundingService
@@ -37,7 +38,7 @@ from app.pitches.model.schema import (
 )
 from app.pitches.repository.sqlalchemy.models import PitchRecord, PitchSubmissionFileRecord, PitchSubmissionRecord
 from app.pitches.repository.sqlalchemy.repository import SqlAlchemyPitchRepository
-from app.pitches.service.transitions import Side, allowed, waiting_on
+from app.pitches.service.transitions import Side, allowed
 from app.platform.service.audit import record_audit
 from app.platform.service.outbox import publish
 from app.portfolio.service.service import version_view
@@ -117,13 +118,6 @@ async def active_pitch_id(
     return found.id if found else None
 
 
-def _waiting_party(record: PitchRecord) -> UUID | None:
-    side = waiting_on(record.status)
-    if side is None:
-        return None
-    return record.requester_party_id if side == "requester" else record.recipient_party_id
-
-
 def _actions(principal: Principal, record: PitchRecord, side: Side) -> list[str]:
     """What the reader may do now, so screens never re-derive the state table."""
     capability = Capability.SUBMIT_PITCH if side == "requester" else Capability.DECIDE_PITCH
@@ -135,6 +129,34 @@ def _actions(principal: Principal, record: PitchRecord, side: Side) -> list[str]
     if side == "recipient" and record.status in ("SUBMITTED", "UNDER_REVIEW"):
         actions.append("review_items")
     return actions
+
+
+async def pitches_of_party(session: AsyncSession, party_id: UUID, limit: int) -> list[PitchRecord]:
+    """Return a party's sent and received pitches, most recently changed first, for Beranda (027).
+
+    Args:
+        session (AsyncSession): The request's session.
+        party_id (UUID): The party.
+        limit (int): The most to return.
+
+    Returns:
+        list[PitchRecord]: Pitches.
+    """
+    return await SqlAlchemyPitchRepository(session).involving(party_id, limit)
+
+
+async def latest_snapshot(session: AsyncSession, pitch_id: UUID) -> dict[str, Any]:
+    """Return the newest frozen submission's snapshot, for relationships (030).
+
+    Args:
+        session (AsyncSession): The request's session.
+        pitch_id (UUID): The pitch.
+
+    Returns:
+        dict[str, Any]: The snapshot; empty when there is none.
+    """
+    last = await SqlAlchemyPitchRepository(session).last_submission(pitch_id)
+    return last.snapshot if last else {}
 
 
 class PitchService:
@@ -340,7 +362,12 @@ class PitchService:
         await publish(
             self.session,
             "pitch.submitted",
-            {"pitch_id": str(pitch.id), "recipient_party_id": str(record.recipient_party_id)},
+            {
+                "pitch_id": str(pitch.id),
+                "requester_party_id": str(principal.active_party_id),
+                "recipient_party_id": str(record.recipient_party_id),
+                "version": 1,
+            },
         )
         await record_audit(
             self.session,
@@ -355,6 +382,7 @@ class PitchService:
     async def _summaries(self, records: list[PitchRecord]) -> list[PitchSummary]:
         parties = {party for record in records for party in (record.requester_party_id, record.recipient_party_id)}
         names = await party_names(self.session, list(parties))
+        waiting = await waiting_parties(self.session, records)
         return [
             PitchSummary(
                 id=record.id,
@@ -371,7 +399,7 @@ class PitchService:
                 purpose=record.purpose,
                 submitted_at=record.created_at,
                 updated_at=record.updated_at,
-                waiting_on_party_id=_waiting_party(record),
+                waiting_on_party_id=waiting[record.id],
             )
             for record in records
         ]

@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import create_async_engine
 import app.access.repository.sqlalchemy.models  # noqa: F401 - registers the tables for autogenerate
 import app.briefs.repository.sqlalchemy.models  # noqa: F401
 import app.discovery.repository.sqlalchemy.models  # noqa: F401
+import app.discussion.repository.sqlalchemy.models  # noqa: F401
 import app.documents.repository.sqlalchemy.models  # noqa: F401
 import app.funding.repository.sqlalchemy.models  # noqa: F401
 import app.identity.repository.sqlalchemy.models  # noqa: F401
@@ -21,6 +22,8 @@ import app.pitches.repository.sqlalchemy.models  # noqa: F401
 import app.platform.repository.sqlalchemy.models  # noqa: F401 - registers the tables for autogenerate
 import app.portability.repository.sqlalchemy.models  # noqa: F401
 import app.portfolio.repository.sqlalchemy.models  # noqa: F401
+import app.relationships.repository.sqlalchemy.models  # noqa: F401
+import app.scheduling.repository.sqlalchemy.models  # noqa: F401
 from app.core.database import Base
 from app.core.settings import get_settings
 

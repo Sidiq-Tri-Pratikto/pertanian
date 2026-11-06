@@ -14,10 +14,10 @@ applications/temuriset-api/
 ├── app/documents/service/{jobs,service,storage_service}.py
 ├── app/discovery/service/projection.py
 ├── app/{briefs,pitches}/service/
-└── migrations/versions/0014_moderation.py
+└── migrations/versions/0018_moderation.py
 ```
 
-The M7 main migration chain ends at 0013. Revision 0009 belongs to discovery. Renumber the unpublished moderation migration as 0014 after 0013. The earlier 0009 moderation schema was exercised on isolated local databases, which need rebuilding before testing this chain. Revision 0014 adds reports, scoped grants, listing suspensions, privacy requests, retention policies and holds. It adds document states for pending erasure and erased bytes.
+The M9 migration chain ends at 0017. Revision 0009 belongs to discovery, and revisions 0014–0017 belong to M8 and M9. The unpublished moderation migration follows them as 0018. The earlier 0009 moderation schema was exercised on isolated local databases, which need rebuilding before testing this chain. Revision 0018 adds reports, scoped grants, listing suspensions, privacy requests, retention policies and holds. It adds document states for pending erasure and erased bytes.
 
 The API exposes account-scoped reads and writes at `/reports` and `/privacy-requests`, including the fresh export download. Live operator scope gates `/operator/reports` and `/operator/privacy-requests`, including case actions, protected case-file downloads and fulfilment. The local administration command manages scoped grants.
 

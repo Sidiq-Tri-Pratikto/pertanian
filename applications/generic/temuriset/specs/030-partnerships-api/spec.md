@@ -2,7 +2,7 @@
 
 **Feature Branch**: `030-partnerships-api`
 **Created**: 2026-11-05
-**Status**: Seeded, not started
+**Status**: Built, awaiting review
 **Milestone**: M9 Relationships
 **Depends on**: 014, 028
 **Size**: L
@@ -54,3 +54,7 @@ After a completed meeting, either party proposes a PROJECT, LICENSE or EQUITY su
 ### Measurable Outcomes
 
 - **SC-001**: AC21 and AC52–AC54 pass; a property test shows effective fields never exceed either subset.
+
+## Validation
+
+The integrated API tests passed the same-version, race and route-isolation checks. Alembic reached `0017` from M8's `0015`, then passed downgrade, re-upgrade and schema drift checks.

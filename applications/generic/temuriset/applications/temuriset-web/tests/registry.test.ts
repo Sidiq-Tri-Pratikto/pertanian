@@ -18,7 +18,7 @@ describe('feature registry', () => {
   });
 
   it('marks available only what has shipped', () => {
-    expect(FEATURES.filter((feature) => feature.status !== 'coming_soon').map((feature) => feature.id)).toEqual(['akun', 'inovasi', 'dokumen', 'dukungan-proyek', 'pendanaan-perusahaan', 'profil-mitra', 'mandat', 'jelajahi', 'kecocokan', 'data-demo', 'pemeriksaan-pitching', 'pitching', 'keputusan-revisi', 'privasi-laporan', 'impor-ekspor']);
+    expect(FEATURES.filter((feature) => feature.status !== 'coming_soon').map((feature) => feature.id)).toEqual(['akun', 'inovasi', 'dokumen', 'dukungan-proyek', 'pendanaan-perusahaan', 'profil-mitra', 'mandat', 'jelajahi', 'kecocokan', 'data-demo', 'pemeriksaan-pitching', 'pitching', 'keputusan-revisi', 'diskusi', 'jadwal', 'kerja-sama', 'profil-publik', 'privasi-laporan', 'impor-ekspor']);
     expect(findFeature('privasi-laporan')?.home).toBe('/settings#laporkan');
     expect(findFeature('impor-ekspor')?.home).toBe('/inventions/import');
   });

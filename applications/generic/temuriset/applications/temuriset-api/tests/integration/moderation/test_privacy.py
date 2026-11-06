@@ -99,6 +99,19 @@ async def test_deletion_waits_for_the_worker_and_preserves_audit(
 
     me = await sign_up(client, "to-erase@example.test")
     client.headers["X-Acting-Party"] = me["active_party_id"]
+    profile_url = f"/api/v1/profiles/{me['active_party_id']}"
+    profile = (await client.get("/api/v1/profiles/me")).json()
+    saved = await client.put(
+        "/api/v1/profiles/me",
+        json={
+            "acting_party_id": me["active_party_id"],
+            "expected_version": profile["version"],
+            "bio": "Biografi yang kemudian dihapus",
+            "published": True,
+        },
+    )
+    assert saved.status_code == 200, saved.text
+    assert (await client.get(profile_url)).json()["bio"] == "Biografi yang kemudian dihapus"
     uploaded = await _upload(client, text_pdf())
     await _run_worker()
     version = await _version(uploaded["document_id"])
@@ -175,6 +188,7 @@ async def test_deletion_waits_for_the_worker_and_preserves_audit(
     monkeypatch.setattr(get_settings(), "mailbox_adapter", mail_mode)
     await _run_worker()
     assert not path.exists()
+    assert (await client.get(profile_url)).json()["bio"] is None
     async with get_session_factory()() as session:
         row = await session.get(PrivacyRequestRecord, UUID(request_id))
         assert row is not None and row.status == "FULFILLED"
