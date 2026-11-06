@@ -198,4 +198,4 @@ python3 docs/roadmap/check_traceability.py --write  # rewrites traceability.md
 
 ## What is proven today
 
-Base only: API and mobile checks, JavaScript bundles for Android, iOS and web, and the web build against a live API. No native build has run. No feature, service, field or participant result exists. Each spec starts **not run**, as PRD §20 requires.
+Base: API and mobile checks, JavaScript bundles for Android, iOS and web, and the web build against a live API. M1 (004–011, branch `f/m1-energy-core`): the API's ownership, asset model, ingestion, fixtures, demo sessions, summary, history and composition guard pass unit and Postgres integration tests, with golden summaries for the H, I and scope fixtures. No mobile screen uses them yet. No native build has run. No field or participant result exists. Each spec starts **not run**, as PRD §20 requires.

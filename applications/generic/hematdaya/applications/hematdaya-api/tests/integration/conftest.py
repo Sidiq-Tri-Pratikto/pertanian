@@ -1,16 +1,18 @@
 """Full-stack fixtures over real Postgres. Start it with ``make run-dependencies``."""
 
+import asyncio
 import secrets
 import subprocess
 import sys
 from collections.abc import AsyncIterator, Callable, Iterator
-from datetime import datetime
+from datetime import UTC, datetime
 from uuid import UUID
 
 import pytest
 from fastapi import Request
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy import text
+from sqlalchemy.ext.asyncio import create_async_engine
 
 from app.core.database import get_session_factory
 from app.core.settings import get_settings
@@ -23,9 +25,24 @@ TEST_PRINCIPAL_HEADER = "x-test-principal"
 
 @pytest.fixture(scope="session", autouse=True)
 def migrated_database() -> Iterator[None]:
-    """Apply migrations once; a failure here means Postgres is not running."""
+    """Apply migrations once; a failure here means Postgres is not running.
+
+    Tests share the development database, so demo sessions they create are expired afterwards. The next real
+    creation purges them, and test runs never use up the local demo capacity.
+    """
     subprocess.run([sys.executable, "-m", "alembic", "upgrade", "head"], check=True)
+    started = datetime.now(UTC)
     yield
+    asyncio.run(_expire_demo_sessions_since(started))
+
+
+async def _expire_demo_sessions_since(started: datetime) -> None:
+    engine = create_async_engine(get_settings().database_url.get_secret_value())
+    async with engine.begin() as connection:
+        await connection.execute(
+            text("UPDATE demo_sessions SET expires_at = now() WHERE created_at >= :started"), {"started": started}
+        )
+    await engine.dispose()
 
 
 @pytest.fixture(autouse=True)
