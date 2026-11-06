@@ -5,8 +5,9 @@ from typing import Annotated
 from fastapi import Depends
 
 from app.assets.dependencies import AssetServiceDep
+from app.baseline.service.service import BaselineService
 from app.core.database import SessionDep
-from app.energy.repository.sqlalchemy.repository import SqlAlchemyEnergyRepository
+from app.energy.repository.sqlalchemy.repository import SqlAlchemyEnergyRepository, SqlAlchemySlotRepository
 from app.energy.service.history import HistoryService
 from app.energy.service.summary import EnergyService
 from app.sites.dependencies import SiteServiceDep
@@ -40,7 +41,8 @@ def get_history_service(session: SessionDep, energy: EnergyServiceDep, assets: A
     Returns:
         HistoryService: The service.
     """
-    return HistoryService(SqlAlchemyEnergyRepository(session), energy, assets)
+    baseline = BaselineService(SqlAlchemySlotRepository(session), energy, assets)
+    return HistoryService(SqlAlchemyEnergyRepository(session), energy, assets, baseline)
 
 
 HistoryServiceDep = Annotated[HistoryService, Depends(get_history_service)]

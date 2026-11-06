@@ -1,40 +1,45 @@
 """Wire formatting: decimal strings, rounded once at the response."""
 
 from decimal import ROUND_DOWN, ROUND_HALF_EVEN, ROUND_HALF_UP, Decimal
+from fractions import Fraction
 
 
-def kwh(mwh: int) -> str:
-    """Format integer mWh as kWh with three decimals.
+def kwh(mwh: int | Fraction) -> str:
+    """Format exact mWh as kWh with three decimals, rounding once, ties to even.
 
     Args:
-        mwh (int): Energy.
+        mwh (int | Fraction): Energy; a Fraction keeps exact medians until here.
 
     Returns:
-        str: For example ``"14.700"``.
+        str: For example ``"14.700"`` or ``"-1.400"``.
     """
-    return str((Decimal(mwh) / Decimal(1_000_000)).quantize(Decimal("0.001"), rounding=ROUND_HALF_EVEN))
+    wh = round(Fraction(mwh) / 1000)  # Fraction rounds half to even.
+    return str((Decimal(wh) / Decimal(1000)).quantize(Decimal("0.001"), rounding=ROUND_HALF_EVEN))
 
 
-def ratio(value: float) -> str:
+def ratio(value: float | Fraction) -> str:
     """Format a coverage ratio, rounded down so partial coverage never reads as complete.
 
     Args:
-        value (float): Ratio between 0 and 1.
+        value (float | Fraction): Ratio between 0 and 1.
 
     Returns:
         str: For example ``"0.999"``.
     """
-    return str(Decimal(repr(value)).quantize(Decimal("0.001"), rounding=ROUND_DOWN))
+    exact = Fraction(value) if isinstance(value, Fraction) else Fraction(repr(value))
+    return str((Decimal(exact.numerator) / Decimal(exact.denominator)).quantize(Decimal("0.001"), rounding=ROUND_DOWN))
 
 
-def percent(part: int, whole: int) -> str:
-    """Format a share of a positive total with two decimals.
+def percent(part: int | Fraction, whole: int | Fraction) -> str:
+    """Format part as a percent of a positive whole with two decimals.
 
     Args:
-        part (int): The asset's mWh.
-        whole (int): The total mWh, greater than zero.
+        part (int | Fraction): The part, possibly negative.
+        whole (int | Fraction): The whole, greater than zero.
 
     Returns:
-        str: For example ``"57.14"``.
+        str: For example ``"57.14"`` or ``"55.56"``.
     """
-    return str((Decimal(part) * 100 / Decimal(whole)).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
+    exact = Fraction(part) * 100 / Fraction(whole)
+    value = Decimal(exact.numerator) / Decimal(exact.denominator)
+    return str(value.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))

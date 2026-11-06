@@ -103,6 +103,37 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/assets/{asset_id}/comparison": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Compare a period with its matched baseline
+         * @description Compare up to seven days with the same local weekdays and times in the previous three weeks.
+         *
+         *     Args:
+         *         asset_id (UUID): The asset.
+         *         principal (PrincipalModel): The acting principal.
+         *         service (BaselineService): Comparison.
+         *         preset (Preset | None, optional): A named period. Defaults to None.
+         *         start_date (date | None, optional): First local date. Defaults to None.
+         *         end_date (date | None, optional): Last local date. Defaults to None.
+         *
+         *     Returns:
+         *         ComparisonResponse: State, reason and, when valid, every number on the common mask.
+         */
+        get: operations["asset_comparison_api_v1_assets__asset_id__comparison_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/assets/{asset_id}/measurements": {
         parameters: {
             query?: never;
@@ -299,6 +330,35 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/insights/{insight_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read an insight
+         * @description Return the current revision after re-evaluation, or a frozen revision with its supersession status.
+         *
+         *     Args:
+         *         insight_id (UUID): The insight.
+         *         principal (PrincipalModel): The acting principal.
+         *         service (InsightService): Insight rules.
+         *         revision (int | None, optional): A specific revision. Defaults to None.
+         *
+         *     Returns:
+         *         InsightResponse: The revision.
+         */
+        get: operations["get_insight_api_v1_insights__insight_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/sites/{site_id}": {
         parameters: {
             query?: never;
@@ -378,6 +438,37 @@ export interface paths {
          *         AssetResponse: The asset.
          */
         post: operations["create_asset_api_v1_sites__site_id__assets_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sites/{site_id}/insights": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Observations and notices for a period
+         * @description Evaluate the period and return active observations ranked by additional kWh, plus data-quality notices.
+         *
+         *     Args:
+         *         site_id (UUID): The site.
+         *         principal (PrincipalModel): The acting principal.
+         *         service (InsightService): Insight rules.
+         *         preset (Preset | None, optional): A named period. Defaults to None.
+         *         start_date (date | None, optional): First local date. Defaults to None.
+         *         end_date (date | None, optional): Last local date. Defaults to None.
+         *
+         *     Returns:
+         *         InsightListResponse: Observations, notices and counts.
+         */
+        get: operations["site_insights_api_v1_sites__site_id__insights_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -601,7 +692,7 @@ export interface components {
             capabilities: components["schemas"]["CapabilityResponse"][];
             composition: components["schemas"]["CompositionResponse"];
             /** Policies */
-            policies: components["schemas"]["PolicyResponse"][];
+            policies: components["schemas"]["app__capabilities__model__schema__PolicyResponse"][];
             /** Schema Version */
             schema_version: number;
             /** Source Release */
@@ -624,6 +715,75 @@ export interface components {
          * @enum {string}
          */
         CapabilityStatus: "planned" | "simulated" | "available";
+        /**
+         * ComparisonResponse
+         * @description A matched-baseline comparison. Full recorded totals stay separate from common-mask totals.
+         */
+        ComparisonResponse: {
+            /** Baseline Kwh */
+            baseline_kwh: string | null;
+            /** Common Mask */
+            common_mask: components["schemas"]["GapResponse"][];
+            current: components["schemas"]["ComparisonWindowResponse"] | null;
+            /** Delta Kwh */
+            delta_kwh: string | null;
+            /** Historical */
+            historical: components["schemas"]["ComparisonWindowResponse"][];
+            /** Mad Kwh */
+            mad_kwh: string | null;
+            /** Mask Coverage */
+            mask_coverage: string | null;
+            /** Percent */
+            percent: string | null;
+            /** Reason */
+            reason: string | null;
+            /** Resolution Kwh */
+            resolution_kwh: string | null;
+            state: components["schemas"]["ComparisonState"];
+            window: components["schemas"]["WindowResponse"];
+        };
+        /**
+         * ComparisonState
+         * @description What the comparison can honestly say.
+         * @enum {string}
+         */
+        ComparisonState: "comparable" | "learning" | "not_comparable" | "descriptive" | "unavailable";
+        /**
+         * ComparisonWindowResponse
+         * @description One aligned window: the current one (0 weeks before) or a prior one.
+         */
+        ComparisonWindowResponse: {
+            /** Coverage */
+            coverage: string;
+            /** Eligible */
+            eligible: boolean;
+            /**
+             * End
+             * Format: date-time
+             */
+            end: string;
+            /**
+             * End Date
+             * Format: date
+             */
+            end_date: string;
+            /** Mask Kwh */
+            mask_kwh: string | null;
+            /** Measured Kwh */
+            measured_kwh: string;
+            /**
+             * Start
+             * Format: date-time
+             */
+            start: string;
+            /**
+             * Start Date
+             * Format: date
+             */
+            start_date: string;
+            /** Weeks Before */
+            weeks_before: number;
+        };
         /**
          * CompositionResponse
          * @description The validated product composition of this deployment.
@@ -861,6 +1021,8 @@ export interface components {
          * @description One bucket. A missing bucket is null with state ``missing``, never zero.
          */
         HistoryBucketResponse: {
+            /** Comparison Kwh */
+            comparison_kwh?: string | null;
             /** Coverage */
             coverage: string | null;
             /**
@@ -877,6 +1039,8 @@ export interface components {
             local_date: string;
             /** Local Time */
             local_time: string | null;
+            /** Reference Kwh */
+            reference_kwh?: string | null;
             /**
              * Start
              * Format: date-time
@@ -898,6 +1062,8 @@ export interface components {
             bucket: string;
             /** Buckets */
             buckets: components["schemas"]["HistoryBucketResponse"][];
+            /** Comparison State */
+            comparison_state: string | null;
             highest_bucket: components["schemas"]["HighestBucketResponse"] | null;
             /** Origins */
             origins: string[];
@@ -924,6 +1090,78 @@ export interface components {
             start_date: string;
         };
         /**
+         * InsightCopyResponse
+         * @description Text built from the snapshot.
+         */
+        InsightCopyResponse: {
+            /** Comparison */
+            comparison: string;
+            /** Observed */
+            observed: string;
+            /** Pct Note */
+            pct_note: string | null;
+            /** Step */
+            step: string;
+            /** Title */
+            title: string;
+            /** Unknown */
+            unknown: string;
+        };
+        /**
+         * InsightListResponse
+         * @description Active observations for a period, with notices and how many assets could be compared.
+         */
+        InsightListResponse: {
+            /** Comparable Count */
+            comparable_count: number;
+            /** Learning Count */
+            learning_count: number;
+            /** Notices */
+            notices: components["schemas"]["NoticeResponse"][];
+            /** Observations */
+            observations: components["schemas"]["InsightResponse"][];
+            window: components["schemas"]["WindowResponse"];
+        };
+        /**
+         * InsightResponse
+         * @description One observation at one revision. A superseded revision stays readable.
+         */
+        InsightResponse: {
+            /** Active */
+            active: boolean;
+            /**
+             * Asset Id
+             * Format: uuid
+             */
+            asset_id: string;
+            /** Current Revision */
+            current_revision: number;
+            /** Direction */
+            direction: string;
+            /** Evidence */
+            evidence: {
+                [key: string]: unknown;
+            };
+            /**
+             * Generated At
+             * Format: date-time
+             */
+            generated_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Kind */
+            kind: string;
+            policy: components["schemas"]["app__insights__model__schema__PolicyResponse"];
+            /** Revision */
+            revision: number;
+            /** Superseded */
+            superseded: boolean;
+            text: components["schemas"]["InsightCopyResponse"];
+        };
+        /**
          * IssueType
          * @description Why a combined total is refused.
          * @enum {string}
@@ -936,14 +1174,20 @@ export interface components {
          */
         MeasurementKind: "interval_energy" | "average_power" | "instantaneous_power" | "counter";
         /**
-         * PolicyResponse
-         * @description One versioned analysis policy.
+         * NoticeResponse
+         * @description A data-quality notice, ranked apart from observations.
          */
-        PolicyResponse: {
+        NoticeResponse: {
+            /** Asset Id */
+            asset_id: string | null;
+            /** Body */
+            body: string;
             /** Id */
             id: string;
-            /** Version */
-            version: number;
+            /** Kind */
+            kind: string;
+            /** Title */
+            title: string;
         };
         /**
          * Preset
@@ -1159,6 +1403,26 @@ export interface components {
             /** Timezone */
             timezone: string;
         };
+        /**
+         * PolicyResponse
+         * @description One versioned analysis policy.
+         */
+        app__capabilities__model__schema__PolicyResponse: {
+            /** Id */
+            id: string;
+            /** Version */
+            version: number;
+        };
+        /**
+         * PolicyResponse
+         * @description The versioned rule that produced the evidence.
+         */
+        app__insights__model__schema__PolicyResponse: {
+            /** Id */
+            id: string;
+            /** Version */
+            version: number;
+        };
     };
     responses: never;
     parameters: never;
@@ -1315,6 +1579,50 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BindingResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    asset_comparison_api_v1_assets__asset_id__comparison_get: {
+        parameters: {
+            query?: {
+                preset?: components["schemas"]["Preset"] | null;
+                start_date?: string | null;
+                end_date?: string | null;
+            };
+            header?: never;
+            path: {
+                asset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ComparisonResponse"];
                 };
             };
             /** @description Validation failed */
@@ -1585,6 +1893,48 @@ export interface operations {
             };
         };
     };
+    get_insight_api_v1_insights__insight_id__get: {
+        parameters: {
+            query?: {
+                revision?: number | null;
+            };
+            header?: never;
+            path: {
+                insight_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InsightResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     get_site_api_v1_sites__site_id__get: {
         parameters: {
             query?: never;
@@ -1735,6 +2085,50 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AssetResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    site_insights_api_v1_sites__site_id__insights_get: {
+        parameters: {
+            query?: {
+                preset?: components["schemas"]["Preset"] | null;
+                start_date?: string | null;
+                end_date?: string | null;
+            };
+            header?: never;
+            path: {
+                site_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InsightListResponse"];
                 };
             };
             /** @description Validation failed */

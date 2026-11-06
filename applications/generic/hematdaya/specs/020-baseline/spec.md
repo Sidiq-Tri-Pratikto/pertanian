@@ -2,7 +2,7 @@
 
 **Feature Branch**: `020-baseline`
 **Created**: 2026-10-30
-**Status**: Seeded, not started
+**Status**: Implemented on `f/m4-evidence`; pure comparison unit tests and Postgres integration tests pass, including AT-16, AT-17 numbers, AT-19, AT-20, AT-21 and Europe/Berlin slot alignment
 **Milestone**: M4 Evidence
 **Depends on**: 010
 **Size**: M

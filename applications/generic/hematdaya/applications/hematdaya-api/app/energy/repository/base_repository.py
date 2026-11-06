@@ -39,3 +39,25 @@ class EnergyRepository(ABC):
         self, parts: list[tuple[UUID, Span]], buckets: list[Span], now: datetime
     ) -> tuple[list[WholeAggregate], list[Straddler]]:
         """Aggregate completed readings of each (source, span) part into each bucket."""
+
+
+@dataclass(frozen=True)
+class WholeReading:
+    """A completed reading wholly inside one part and one window."""
+
+    part: int
+    window: int
+    start: datetime
+    end: datetime
+    energy_mwh: int
+    kind: str
+
+
+class SlotRepository(ABC):
+    """Lists whole readings for slot alignment."""
+
+    @abstractmethod
+    async def whole_readings(
+        self, parts: list[tuple[UUID, Span]], windows: list[Span], now: datetime
+    ) -> list[WholeReading]:
+        """Return completed readings that fall wholly inside a part and a window."""
