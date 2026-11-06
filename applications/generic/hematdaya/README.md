@@ -40,7 +40,7 @@ Install Expo Go, connect the phone to the same Wi-Fi as your computer, then scan
 ./local-start.sh phone
 ```
 
-Expo Go must support Expo SDK 58. If yours does not, use the web app until native builds arrive in specs 003 and 042.
+Expo Go must support Expo SDK 58. If yours does not, use the web app until native builds arrive in spec 042.
 
 ### Run each part yourself
 

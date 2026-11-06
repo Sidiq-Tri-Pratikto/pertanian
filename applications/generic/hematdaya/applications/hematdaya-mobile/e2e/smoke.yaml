@@ -1,0 +1,30 @@
+appId: id.hematdaya.app
+---
+- launchApp:
+    clearState: true
+# The debug APK fetches its JavaScript from Metro, so the first screen can take minutes on a hosted emulator.
+- extendedWaitUntil:
+    visible: "Selamat datang"
+    timeout: 180000
+- scrollUntilVisible:
+    element: "Mulai"
+    direction: DOWN
+- tapOn: "Mulai"
+- extendedWaitUntil:
+    visible: "Beranda"
+    timeout: 60000
+- assertVisible: "Beranda"
+- assertVisible: "Perangkat"
+- assertVisible: "Saran"
+# The API is absent, so "Memeriksa layanan…" gives way to this notice once the request fails.
+- scrollUntilVisible:
+    element: "Layanan belum tersedia"
+    direction: DOWN
+    timeout: 60000
+- takeScreenshot: beranda-service-unavailable
+- tapOn: "Perangkat"
+- extendedWaitUntil:
+    visible: "Belum ada perangkat"
+    timeout: 60000
+- assertVisible: "Belum ada perangkat"
+- takeScreenshot: perangkat-empty

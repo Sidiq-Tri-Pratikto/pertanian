@@ -2,7 +2,7 @@
 
 **Feature Branch**: `003-android-smoke-ci`
 **Created**: 2026-10-30
-**Status**: Seeded, not started
+**Status**: Built, awaiting review
 **Milestone**: M0 Foundations
 **Depends on**: 002
 **Size**: S

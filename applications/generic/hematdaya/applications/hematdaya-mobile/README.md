@@ -36,6 +36,14 @@ make check          # lint, typecheck, tests, 80% coverage gate
 
 Run one file with `npx jest tests/navigation.test.tsx`, or keep tests running with `npx jest --watch`. Jest mocks the network, so a test run never proves the app reaches the service: check that in the running app.
 
+## Android smoke CI
+
+The `hematdaya-android-smoke` job (`.github/workflows/hematdaya-android-smoke.yml` at the pertanian repository root) runs on pushes to `main` and on pull requests that touch this app or that workflow. It generates the Android project with `expo prebuild`, builds a debug APK with no EAS account, starts Metro, boots an API 34 `pixel_6` emulator and runs `e2e/smoke.yaml`: welcome, Mulai, the three tabs, "Layanan belum tersedia" on Beranda with the API absent, then Perangkat. The APK exists for this check and nothing distributes it. A failed emulator boot retries once with a warning; a failed flow never retries.
+
+Find the evidence on the run: the job summary states the API level, device profile, display, APK, attempts and result. The `android-smoke-evidence` artifact, kept for 14 days, holds the same values with the flow report, screenshots, logcat and Metro log. iOS stays not run until spec 042.
+
+Maestro is a CI tool outside `package.json`: the workflow downloads one pinned release and checks its SHA-256. `e2e/android-smoke.sh` expects the booted emulator and environment that the workflow provides.
+
 ## Configuration
 
 | Variable | Required | Default | Purpose |
@@ -61,6 +69,7 @@ Where the app needs to reach the service:
 | `src/features/registry.ts` | Every planned feature. A feature's pull request flips its `status` |
 | `design/tokens.json` | Copy of the design system tokens; `src/design/tokens.generated.ts` is built from it |
 | `src/api/` | API client, failure parsing, generated contract |
+| `e2e/` | Android smoke flow and the script the CI job runs on the emulator |
 
 ## Commands
 
