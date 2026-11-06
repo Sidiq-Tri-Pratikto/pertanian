@@ -35,6 +35,8 @@ One row per error. Keep in sync with `app/core/errors/codes.py` and `public.py`.
 | `APP-NOT-READY` | `NOT_READY` | 422 | Masih ada syarat pengajuan yang belum selesai. Lengkapi syarat yang disebutkan lalu periksa ulang. | Readiness is not `READY_TO_SUBMIT`, or a required file was not chosen; the envelope adds `requirement` | false | - | - |
 | `APP-REQUIRED-ANSWERS-MISSING` | `REQUIRED_ANSWERS_MISSING` | 422 | Masih ada pertanyaan wajib yang belum dijawab. Jawab pertanyaan yang ditandai lalu kirim ulang. | Resubmitting a revision round while a required item has no answer; the envelope adds `items`, the unanswered item ids | false | - | - |
 | `APP-LISTING-SUSPENDED` | `LISTING_SUSPENDED` | 409 | Daftar ini sedang ditangguhkan. Hubungi pengelola layanan bila Anda merasa ini keliru. | Saving, publishing, activating or referencing a listing an operator suspended | false | - | - |
+| `APP-SUMMARY-REFUSED` | `SUMMARY_REFUSED` | 200 | Ringkasan otomatis ditolak. Lanjutkan dengan menyunting brief. | The summary was refused because the selection or its live authorization failed. The fallback carries `summarizer_error`. | false | - | - |
+| `APP-SUMMARY-UNAVAILABLE` | `SUMMARY_UNAVAILABLE` | 200 | Ringkasan otomatis tidak tersedia. Lanjutkan dengan menyunting brief. | The adapter failed. The fallback carries `summarizer_error` after at most one transient retry. | false | - | - |
 
 A missing `Idempotency-Key` on a consequential POST is `BAD_REQUEST` with `details` naming the header.
 

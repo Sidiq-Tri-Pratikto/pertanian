@@ -255,7 +255,7 @@
         "type": "object"
       },
       "BriefResponse": {
-        "description": "The editable brief. ``summarizer_status`` says whether a summary was used, off, or refused as untraceable.",
+        "description": "The editable template or an authorized extractive suggestion.",
         "properties": {
           "id": {
             "format": "uuid",
@@ -278,12 +278,33 @@
             "title": "Summarizer",
             "type": "string"
           },
+          "summarizer_error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ErrorBody"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "summarizer_provenance": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SummaryProvenance"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "summarizer_status": {
             "default": "off",
             "enum": [
               "off",
               "used",
-              "refused"
+              "refused",
+              "unavailable"
             ],
             "title": "Summarizer Status",
             "type": "string"
@@ -7393,6 +7414,30 @@
         "title": "SubmittedFile",
         "type": "object"
       },
+      "SummaryProvenance": {
+        "description": "Trusted versions of the model and prompt that produced a selection.",
+        "properties": {
+          "model_id": {
+            "title": "Model Id",
+            "type": "string"
+          },
+          "model_version": {
+            "title": "Model Version",
+            "type": "string"
+          },
+          "prompt_version": {
+            "title": "Prompt Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "model_id",
+          "model_version",
+          "prompt_version"
+        ],
+        "title": "SummaryProvenance",
+        "type": "object"
+      },
       "SupportRequestResponse": {
         "description": "One support request as its owner sees it.",
         "properties": {
@@ -8363,7 +8408,7 @@
     },
     "/api/v1/briefs/{brief_id}/summary": {
       "post": {
-        "description": "Ask the summarizer. When it is off, fails or adds anything untraceable, the template brief comes back.\n\nArgs:\n    brief_id (UUID): The brief.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    BriefResponse: The brief, with ``summarizer_status``.",
+        "description": "Ask for an extractive suggestion. A failed or disabled adapter returns the editable template.\n\nArgs:\n    brief_id (UUID): The brief.\n    request (Request): The request carrying the live session cookie.\n    session (SessionDep): Database session.\n    summarizer (SummarizerDep): The configured adapter.\n\nReturns:\n    BriefResponse: The brief with its summary status.",
         "operationId": "summarize_brief_api_v1_briefs__brief_id__summary_post",
         "parameters": [
           {

@@ -161,6 +161,12 @@ PUBLIC_ERROR_BY_CODE: dict[str, PublicError] = {
         409,
         "Daftar ini sedang ditangguhkan. Hubungi pengelola layanan bila Anda merasa ini keliru.",
     ),
+    codes.APP_SUMMARY_REFUSED: PublicError(
+        "SUMMARY_REFUSED", 200, "Ringkasan otomatis ditolak. Lanjutkan dengan menyunting brief."
+    ),
+    codes.APP_SUMMARY_UNAVAILABLE: PublicError(
+        "SUMMARY_UNAVAILABLE", 200, "Ringkasan otomatis tidak tersedia. Lanjutkan dengan menyunting brief."
+    ),
 }
 
 PUBLIC_ERROR_BY_STATUS: dict[int, PublicError] = {

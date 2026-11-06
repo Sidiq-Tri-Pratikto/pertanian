@@ -153,15 +153,16 @@ export interface paths {
         put?: never;
         /**
          * Ask for a shorter brief
-         * @description Ask the summarizer. When it is off, fails or adds anything untraceable, the template brief comes back.
+         * @description Ask for an extractive suggestion. A failed or disabled adapter returns the editable template.
          *
          *     Args:
          *         brief_id (UUID): The brief.
-         *         principal (PrincipalDep): Who is signed in.
+         *         request (Request): The request carrying the live session cookie.
          *         session (SessionDep): Database session.
+         *         summarizer (SummarizerDep): The configured adapter.
          *
          *     Returns:
-         *         BriefResponse: The brief, with ``summarizer_status``.
+         *         BriefResponse: The brief with its summary status.
          */
         post: operations["summarize_brief_api_v1_briefs__brief_id__summary_post"];
         delete?: never;
@@ -2669,7 +2670,7 @@ export interface components {
         };
         /**
          * BriefResponse
-         * @description The editable brief. ``summarizer_status`` says whether a summary was used, off, or refused as untraceable.
+         * @description The editable template or an authorized extractive suggestion.
          */
         BriefResponse: {
             /**
@@ -2686,12 +2687,14 @@ export interface components {
             sentences: components["schemas"]["BriefSentence"][];
             /** Summarizer */
             summarizer: string;
+            summarizer_error?: components["schemas"]["ErrorBody"] | null;
+            summarizer_provenance?: components["schemas"]["SummaryProvenance"] | null;
             /**
              * Summarizer Status
              * @default off
              * @enum {string}
              */
-            summarizer_status?: "off" | "used" | "refused";
+            summarizer_status?: "off" | "used" | "refused" | "unavailable";
             /** Text */
             text: string;
         };
@@ -5867,6 +5870,18 @@ export interface components {
             title: string;
             /** Version */
             version: number;
+        };
+        /**
+         * SummaryProvenance
+         * @description Trusted versions of the model and prompt that produced a selection.
+         */
+        SummaryProvenance: {
+            /** Model Id */
+            model_id: string;
+            /** Model Version */
+            model_version: string;
+            /** Prompt Version */
+            prompt_version: string;
         };
         /**
          * SupportRequestResponse

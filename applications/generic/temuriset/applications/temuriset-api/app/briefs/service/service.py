@@ -1,10 +1,11 @@
-"""Preflight, the template brief, the summarizer port and export (spec 022)."""
+"""Preflight, the template brief, extractive summary suggestions and export."""
 
 import hashlib
 import secrets
+from collections.abc import Awaitable, Callable
 from datetime import timedelta
 from typing import Any
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -20,13 +21,26 @@ from app.briefs.model.schema import (
     PreflightRequest,
     PreflightResponse,
     ShareableFile,
+    SummaryStatus,
 )
 from app.briefs.repository.sqlalchemy.models import BriefRecord, PreflightRecord
 from app.briefs.repository.sqlalchemy.repository import SqlAlchemyBriefRepository
-from app.briefs.service.summarizer_service import OffSummarizer, SummarizerPort, traceable
+from app.briefs.service.summarizer_service import (
+    OffSummarizer,
+    SummarizerPort,
+    SummaryCandidate,
+    SummaryRefusedError,
+    SummaryUnavailableError,
+    request_selection,
+    select_sentences,
+)
 from app.briefs.service.template import brief_text, template_brief
+from app.capabilities.service.guard import CapabilityUnavailableError
 from app.core import clock
 from app.core.errors.base import NotFoundError
+from app.core.errors.public import error_response, public_error_for_code
+from app.core.errors.recorder import record_failure
+from app.core.openapi import ErrorBody
 from app.core.settings import get_settings
 from app.documents.service.service import evidence_results, owned_version_details
 from app.funding.service.service import FundingService
@@ -34,11 +48,13 @@ from app.identity.model.models import Principal
 from app.intake.service.service import IntakeService
 from app.matching.engine.evaluate import ENGINE, POLICY_VERSIONS, evaluate
 from app.matching.service.service import MatchingService, target_of
+from app.moderation.service.suspension import ListingSuspendedError
 from app.needs.service.service import NeedsService
 from app.portfolio.service.service import invention_reference, version_view
 
 PREFLIGHT_LIFETIME = timedelta(minutes=30)
 REDACTED = "[Bagian ini disembunyikan karena berkas pendukungnya tidak lagi dapat diakses.]"
+_REDACTED_SOURCE = "[Bagian ini disembunyikan karena sumber brief telah berubah.]"
 
 
 def hash_token(token: str) -> str:
@@ -77,15 +93,23 @@ def configuration_ref() -> str:
     return f"{settings.composition}:{ENGINE}:{policies}"
 
 
-def _brief_response(record: BriefRecord, status: str = "off", text: str | None = None) -> BriefResponse:
+def _brief_response(record: BriefRecord) -> BriefResponse:
     return BriefResponse(
         id=record.id,
         preflight_id=record.preflight_id,
-        text=record.text if text is None else text,
+        text=record.text,
         sentences=[BriefSentence.model_validate(sentence) for sentence in record.sentences],
         summarizer=record.summarizer,
-        summarizer_status=status,  # type: ignore[arg-type]
     )
+
+
+def _summary_fallback(template: BriefResponse, error: SummaryRefusedError | SummaryUnavailableError) -> BriefResponse:
+    public = public_error_for_code(error.code)
+    record_failure(error, operation="/api/v1/briefs/{brief_id}/summary", http_status=public.http_status)
+    status: SummaryStatus = "refused" if isinstance(error, SummaryRefusedError) else "unavailable"
+    template.summarizer_status = status
+    template.summarizer_error = ErrorBody.model_validate(error_response(public, error.reference_id)["error"])
+    return template
 
 
 class BriefService:
@@ -269,26 +293,112 @@ class BriefService:
         """
         return _brief_response(await self._own_brief(principal, brief_id))
 
-    async def summarize(self, principal: Principal, brief_id: UUID) -> BriefResponse:
-        """Ask the summarizer; when it is off, fails, or adds anything untraceable, the template stays (AC35, AC68).
+    async def _visible_sentences(self, owner: UUID, sentences: list[BriefSentence]) -> list[BriefSentence]:
+        files_by_sentence = [
+            {UUID(ref["document_version_id"]) for ref in sentence.refs if ref.get("document_version_id")}
+            for sentence in sentences
+        ]
+        linked = list({file for files in files_by_sentence for file in files})
+        evidence = await evidence_results(self.session, owner, linked)
+        available = {file for file, checks in evidence.items() if checks["DOCUMENT_PRESENT"] == "PASS"}
+        return [
+            sentence if files <= available else BriefSentence(text=REDACTED, refs=[])
+            for sentence, files in zip(sentences, files_by_sentence, strict=True)
+        ]
+
+    async def _summary_template(
+        self, brief_id: UUID, resolve_principal: Callable[[], Awaitable[Principal]]
+    ) -> tuple[BriefResponse, bool]:
+        principal = await resolve_principal()
+        record = await self._own_brief(principal, brief_id)
+        preflight = await self.repository.preflight(record.preflight_id)
+        assert preflight is not None  # noqa: S101 - briefs cascade with their preflight
+        template = _brief_response(record)
+        pinned = False
+        fresh = False
+        try:
+            source, _, versions = await MatchingService(self.session).source_of(
+                principal, preflight.source_type, preflight.source_id
+            )
+            opportunity = await IntakeService(self.session).read(principal, preflight.opportunity_id)
+        except (NotFoundError, CapabilityUnavailableError, ListingSuspendedError):
+            pass  # The stored pins no longer have a live view; mask their template below.
+        else:
+            pinned = (
+                preflight.actor_party_id == principal.active_party_id
+                and opportunity.partner_party_id == preflight.recipient_party_id
+                and opportunity.current_version_id == preflight.opportunity_version_id
+                and source.version == preflight.source_version
+                and [str(version) for version in versions] == preflight.invention_version_ids
+            )
+            fresh = (
+                pinned
+                and stale_preflight_reason(
+                    preflight, principal, {"source": source, "version_ids": versions, "opportunity": opportunity}
+                )
+                is None
+            )
+
+        template.sentences = (
+            await self._visible_sentences(record.owner_party_id, template.sentences)
+            if pinned
+            else [BriefSentence(text=_REDACTED_SOURCE, refs=[]) for _ in template.sentences]
+        )
+        template.text = "\n".join(sentence.text for sentence in template.sentences)
+        # Release the transaction (including any auth refresh) before calling the provider.
+        # Expunge the read snapshot so the next check cannot reuse older ORM objects.
+        await self.session.commit()
+        self.session.expunge_all()
+        return template, fresh
+
+    async def summarize(self, brief_id: UUID, resolve_principal: Callable[[], Awaitable[Principal]]) -> BriefResponse:
+        """Return a verified extractive suggestion or the editable template under current access.
 
         Args:
-            principal (Principal): Who is signed in.
             brief_id (UUID): The brief.
+            resolve_principal (Callable[[], Awaitable[Principal]]): Reauthenticate each attempt and delivery.
 
         Returns:
-            BriefResponse: The summary when it is traceable, otherwise the template with the reason.
+            BriefResponse: Selected originals and provenance, or a template with live redaction.
         """
-        record = await self._own_brief(principal, brief_id)
-        try:
-            summary = await self.summarizer.summarize(record.sentences)
-        except Exception:  # noqa: BLE001 - any adapter failure falls back to the template, which is always valid
-            summary = None
-        if summary is None:
-            return _brief_response(record, "off")
-        if not traceable(summary, record.sentences):
-            return _brief_response(record, "refused")
-        return _brief_response(record, "used", summary)
+        retried = False
+        provenance = self.summarizer.provenance
+        while True:
+            template, fresh = await self._summary_template(brief_id, resolve_principal)
+            if self.summarizer.name == "off":
+                return template
+            originals = {uuid4().hex: sentence for sentence in template.sentences if sentence.refs}
+            if not fresh or len(originals) < 2 or provenance is None:
+                return _summary_fallback(template, SummaryRefusedError())
+
+            candidates = tuple(
+                SummaryCandidate(identifier, sentence.text) for identifier, sentence in originals.items()
+            )
+            selected: list[BriefSentence] = []
+            error: SummaryUnavailableError | SummaryRefusedError | None = None
+            try:
+                output = await request_selection(self.summarizer, candidates)
+                selected = select_sentences(output, originals)
+            except (TimeoutError, ConnectionError) as cause:
+                if not retried:
+                    retried = True
+                    continue
+                error = SummaryUnavailableError()
+                error.__cause__ = cause
+            except (SummaryUnavailableError, SummaryRefusedError) as failure:
+                error = failure
+
+            latest, fresh = await self._summary_template(brief_id, resolve_principal)
+            if error is not None:
+                return _summary_fallback(latest, error)
+            if not fresh or any(sentence not in latest.sentences for sentence in selected):
+                return _summary_fallback(latest, SummaryRefusedError())
+            latest.text = "\n".join(sentence.text for sentence in selected)
+            latest.sentences = selected
+            latest.summarizer = self.summarizer.name
+            latest.summarizer_status = "used"
+            latest.summarizer_provenance = provenance
+            return latest
 
     async def export(self, principal: Principal, brief_id: UUID, text_format: str) -> str:
         """Export a brief under today's permissions: a sentence whose file is no longer accessible is redacted (AC36).
@@ -304,18 +414,8 @@ class BriefService:
         record = await self._own_brief(principal, brief_id)
         preflight = await self.repository.preflight(record.preflight_id)
         assert preflight is not None  # noqa: S101 - briefs cascade with their preflight
-        linked = [
-            UUID(ref["document_version_id"])
-            for sentence in record.sentences
-            for ref in sentence["refs"]
-            if ref.get("document_version_id")
-        ]
-        evidence = await evidence_results(self.session, principal.active_party_id, linked)
-        lines = []
-        for sentence in record.sentences:
-            files = [ref["document_version_id"] for ref in sentence["refs"] if ref.get("document_version_id")]
-            visible = all(evidence.get(UUID(file), {}).get("DOCUMENT_PRESENT") == "PASS" for file in files)
-            lines.append(sentence["text"] if visible else REDACTED)
+        sentences = await self._visible_sentences(record.owner_party_id, _brief_response(record).sentences)
+        lines = [sentence.text for sentence in sentences]
         heading = (
             f"Sumber: {preflight.source_type} versi {preflight.source_version}; "
             f"mandat {preflight.result['title']} versi {preflight.result['opportunity_version']}"

@@ -6,6 +6,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
 
+from app.core.openapi import ErrorBody
 from app.intake.model.schema import TargetAvailabilityResponse
 from app.matching.model.schema import FitResponse, RequirementRow, SourceType
 
@@ -74,15 +75,30 @@ class BriefSentence(BaseModel):
     refs: list[dict[str, Any]]
 
 
+class SummaryProvenance(BaseModel):
+    """Trusted versions of the model and prompt that produced a selection."""
+
+    model_config = ConfigDict(frozen=True)
+
+    model_id: str
+    model_version: str
+    prompt_version: str
+
+
+SummaryStatus = Literal["off", "used", "refused", "unavailable"]
+
+
 class BriefResponse(BaseModel):
-    """The editable brief. ``summarizer_status`` says whether a summary was used, off, or refused as untraceable."""
+    """The editable template or an authorized extractive suggestion."""
 
     id: UUID
     preflight_id: UUID
     text: str
     sentences: list[BriefSentence]
     summarizer: str
-    summarizer_status: Literal["off", "used", "refused"] = "off"
+    summarizer_status: SummaryStatus = "off"
+    summarizer_provenance: SummaryProvenance | None = None
+    summarizer_error: ErrorBody | None = None
 
 
 class PreflightResponse(BaseModel):
