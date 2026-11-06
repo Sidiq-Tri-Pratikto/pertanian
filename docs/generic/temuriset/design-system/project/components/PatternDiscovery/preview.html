@@ -1,0 +1,83 @@
+<!-- @dsCard group="Patterns" height=1100 page -->
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>PatternDiscovery — preview</title></head>
+<body>
+<div id="root"></div>
+<script>
+var TR = window.TR, h = React.createElement, F = TR.format, X = TR.demo.fixtures, useState = React.useState;
+function S(label, child) { return h('div', { className: 'tr-stack' }, h('p', { className: 'tr-sys-type-support tr-muted' }, label), child); }
+function Demo() {
+  var view = useState('list'), stale = useState(false), sent = useState(false), busy = useState(false), conflict = useState(false);
+  var brief = useState('ClearSpring adalah prototipe filter air yang sudah berfungsi. Kami mencari mitra untuk validasi selama 6 bulan.');
+  var ctx = useState('pribadi'), nav = useState('temukan');
+  function send() {
+    busy[1](true);
+    setTimeout(function () {
+      busy[1](false);
+      if (stale[0]) conflict[1](true); else sent[1](true);
+    }, 700);
+  }
+  function reset() { view[1]('list'); stale[1](false); sent[1](false); conflict[1](false); }
+  var controls = h(TR.demo.Controls, { state: { reset: reset } },
+    h(TR.Checkbox, { label: 'Persyaratan berubah sebelum kirim', hint: 'Mensimulasikan pemeriksaan yang sudah basi.', checked: stale[0], onChange: stale[1] }));
+  var shell = { current: nav[0], onNavigate: nav[1], provenance: X.provenance, context: h(TR.ContextSwitcher, { value: ctx[0], onChange: ctx[1], options: X.contexts }) };
+  if (view[0] === 'preflight') {
+    var checks = h('ul', { className: 'tr-reqs' },
+      h(TR.RequirementRow, { label: 'Tahap prototipe diterima', result: 'PASS', stage: 'SUBMISSION', mode: 'DECLARATION', reason: 'ClearSpring berada pada tahap prototipe.' }),
+      h(TR.RequirementRow, { label: 'Laporan uji fungsi tersedia', result: 'PASS', stage: 'SUBMISSION', mode: 'DOCUMENT_PRESENT', reason: 'Berkas tersedia. Isinya belum diperiksa.' }),
+      h(TR.RequirementRow, { label: 'Biaya dalam cakupan yang sama', result: 'PASS', stage: 'SUBMISSION', mode: 'DECLARATION', reason: 'USD 20.000\u201330.000 berada dalam kisaran mitra USD 15.000\u201340.000 selama 6 bulan.' }));
+    var sum = h(TR.SummaryList, { rows: [
+      { id: 'penerima', label: 'Penerima', value: 'Mitra Demo A \u00b7 Validasi prototipe', onChange: function () { view[1]('list'); } },
+      { id: 'inovasi', label: 'Inovasi', value: 'ClearSpring versi 1' },
+      { id: 'tujuan', label: 'Tujuan', value: 'Dukungan Proyek: validasi prototipe' },
+      { id: 'biaya', label: 'Biaya', value: h(TR.FinancialScope, X.F01.financial) },
+      { id: 'berkas', label: 'Berkas dibagikan', value: 'Laporan uji fungsi versi 2, hanya untuk Mitra Demo A' }] });
+    return h(TR.Screen, Object.assign({ title: 'Periksa sebelum mengirim', subtitle: 'ClearSpring ke Mitra Demo A',
+      back: h(TR.Link, { href: '#hasil', onClick: function () { view[1]('list'); } }, 'Kembali ke hasil'),
+      next: sent[0]
+        ? h(TR.NextStep, { who: 'other', title: 'Mitra Demo A menerima pitching Anda' }, 'Mereka akan menyetujui diskusi, meminta revisi atau menolak. Terkirim belum berarti pendanaan.')
+        : h(TR.NextStep, { title: 'Siap dikirim', action: h(TR.Button, { intent: 'primary', busy: busy[0], busyLabel: 'Mengirim\u2026', onClick: send }, 'Kirim pitching') }, 'Semua syarat pengajuan terpenuhi. Periksa ringkasan lalu kirim.'),
+      aside: h('div', { className: 'tr-panel' }, h('h2', { className: 'tr-sys-type-heading-sm' }, 'Syarat berikutnya'),
+        h('ul', { className: 'tr-reqs' },
+          h(TR.RequirementRow, { label: 'Hasil uji diperiksa peninjau', result: 'UNKNOWN', stage: 'DISCUSSION', mode: 'REVIEWER_CONFIRMED' }),
+          h(TR.RequirementRow, { label: 'Sertifikasi produk', result: 'UNKNOWN', stage: 'COMMERCIALIZATION', mode: 'DOCUMENT_PRESENT' }))) }, shell),
+      conflict[0] ? h(TR.VersionConflict, { what: 'Persyaratan Mitra Demo A berubah sejak Anda memeriksanya. Pitching belum terkirim.', currentVersion: 'Versi 2', draft: brief[0], refreshLabel: 'Periksa ulang', onRefresh: function () { stale[1](false); conflict[1](false); } }) : null,
+      h(TR.ContextSwitcher, { readOnly: true, value: ctx[0], options: X.contexts, actionLabel: 'Akan dikirim sebagai' }),
+      h('section', { className: 'tr-panel' }, h('h2', { className: 'tr-sys-type-heading-sm' }, 'Ringkasan'), sum),
+      h('section', { className: 'tr-panel' }, h('h2', { className: 'tr-sys-type-heading-sm' }, 'Syarat pengajuan'), checks),
+      h(TR.TextArea, { label: 'Ringkasan untuk mitra', hint: 'Anda dapat mengubahnya. Ringkasan hanya memuat fakta yang Anda sediakan.', value: brief[0], onChange: brief[1], limit: 350 }),
+      controls);
+  }
+  var f1 = X.F01, f2 = X.F02, f3 = X.F03;
+  var project = h('div', { className: 'tr-grid' },
+    h(TR.InventionCard, Object.assign({}, f1, {
+      facts: h('div', { className: 'tr-stack' }, h(TR.FactSource, { value: '10 L/jam', timing: 'CURRENT', provenance: 'PROVIDED' }), h(TR.FactSource, { value: '20 L/jam', timing: 'PLANNED', provenance: 'SELF_DECLARED' })),
+      reasons: ['Mitra Demo A menerima tahap prototipe.', 'Kisaran mitra USD 15.000\u201340.000 untuk cakupan dan masa yang sama.'],
+      gap: h(TR.Status, { tone: 'success', label: 'Siap dikirim' }),
+      action: h(TR.Button, { intent: 'primary', onClick: function () { view[1]('preflight'); } }, 'Siapkan pitching') })),
+    h(TR.InventionCard, Object.assign({}, f2, {
+      gap: h(TR.Status, { tone: 'warning', label: 'Perlu konfirmasi' }, 'Kewenangan hak belum diperiksa, sedangkan Mitra Demo B memintanya sebelum pengajuan. Ini bukan penolakan.'),
+      action: h(TR.Button, {}, 'Lengkapi informasi') })),
+    h(TR.InventionCard, Object.assign({}, f3, {
+      facts: h('div', { className: 'tr-stack' }, h(TR.FactSource, { value: 'Ekspor luring', timing: 'CURRENT', provenance: 'SELF_DECLARED' }), h(TR.FactSource, { value: 'SSO', timing: 'PLANNED', provenance: 'SELF_DECLARED' })),
+      gap: h(TR.Status, { tone: 'danger', label: 'Tidak cocok untuk mitra ini' }, 'Mitra Demo D meminta SSO yang sudah ada saat pengajuan. SSO QueueNest masih direncanakan.'),
+      action: h(TR.Button, {}, 'Cari mitra lain') })));
+  var funding = h('div', { className: 'tr-stack', style: { maxWidth: '30rem' } },
+    h(TR.FundingRequestCard, Object.assign({}, X.FRaise01, {
+      reasons: ['Kontribusi yang diinginkan cocok dengan kisaran investor USD 50.000\u2013150.000.'],
+      gap: h(TR.Status, { tone: 'success', label: 'Siap dikirim' }),
+      action: h(TR.Button, { intent: 'primary' }, 'Siapkan pitching') })),
+    h(TR.Disclosure, { label: 'Detail teknis peringkat' },
+      h('p', null, 'Indeks prioritas peninjauan 71,72\u201380,00.'),
+      h('p', { className: 'tr-muted tr-sys-type-support' }, 'Rentang ini hanya untuk mengurutkan peninjauan. Ini bukan peluang pendanaan.')));
+  return h(TR.Screen, Object.assign({ title: 'Temukan Investor/Mitra', subtitle: 'Hasil dikelompokkan menurut jenis permintaan.',
+    next: h(TR.NextStep, { title: 'ClearSpring siap untuk Mitra Demo A', action: h(TR.Button, { intent: 'primary', onClick: function () { view[1]('preflight'); } }, 'Siapkan pitching') }, 'Periksa syarat dan ringkasan sebelum mengirim. Tidak ada yang terkirim sampai Anda menekan Kirim pitching.') }, shell),
+    h(TR.Tabs, { label: 'Jenis permintaan', tabs: [
+      { id: 'proyek', label: 'Dukungan Proyek', content: project },
+      { id: 'perusahaan', label: 'Pendanaan Perusahaan', content: funding }] }));
+}
+ReactDOM.createRoot(document.getElementById('root')).render(h(Demo));
+</script>
+</body>
+</html>

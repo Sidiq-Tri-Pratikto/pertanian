@@ -1,0 +1,177 @@
+name: TemuRiset Release
+
+on:
+  pull_request:
+    paths:
+      - applications/generic/temuriset/**
+      - deployment/temuriset/**
+      - .github/workflows/temuriset-release.yml
+  push:
+    tags: ['temuriset-v*']
+
+permissions:
+  contents: read
+
+env:
+  PROJECT: applications/generic/temuriset
+  API_IMAGE: temuriset-m11-api:local
+  WEB_IMAGE: temuriset-m11-web:local
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    services:
+      postgres:
+        image: postgres:16-alpine@sha256:0cefaabd882e42bcb2a2f3dc56d3ce4770560ba62fd7f197f1a2e008fd5731ab
+        env:
+          POSTGRES_USER: app
+          POSTGRES_PASSWORD: synthetic-ci
+          POSTGRES_DB: app
+        ports: ['5442:5432']
+        options: >-
+          --health-cmd "pg_isready -U app"
+          --health-interval 2s
+          --health-timeout 2s
+          --health-retries 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - if: github.event_name == 'push'
+        name: Require a version tag on main
+        run: |
+          test "$GITHUB_REF_TYPE" = tag
+          [[ "$GITHUB_REF_NAME" =~ ^temuriset-v[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          git merge-base --is-ancestor "$GITHUB_SHA" origin/main
+      - uses: astral-sh/setup-uv@v5
+        with:
+          version: 0.11.3
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: applications/generic/temuriset/.nvmrc
+          cache: npm
+          cache-dependency-path: applications/generic/temuriset/applications/temuriset-web/package-lock.json
+      - name: Validate application and contracts
+        env:
+          DATABASE_URL: postgresql+asyncpg://app:synthetic-ci@localhost:5442/app
+        run: |
+          uv sync --directory "$PROJECT/applications/temuriset-api" --frozen
+          npm --prefix "$PROJECT/applications/temuriset-web" ci
+          make -C "$PROJECT/applications/temuriset-api" check
+          make -C "$PROJECT/applications/temuriset-web" check
+          python3 "$PROJECT/docs/roadmap/check_traceability.py"
+          make -C "$PROJECT/applications/temuriset-api" openapi
+          make -C "$PROJECT/applications/temuriset-web" generate-api
+          git diff --exit-code -- "$PROJECT/contracts/openapi.json" "$PROJECT/applications/temuriset-web/src/api/schema.generated.ts"
+      - name: Build immutable source revisions
+        run: |
+          docker build --provenance=false --label "org.opencontainers.image.revision=$GITHUB_SHA" -t "$API_IMAGE" "$PROJECT/applications/temuriset-api"
+          docker build --provenance=false --build-arg API_URL=http://api:8000 --label "org.opencontainers.image.revision=$GITHUB_SHA" -t "$WEB_IMAGE" "$PROJECT/applications/temuriset-web"
+      - name: Validate local topology, compositions and manifest contract
+        env:
+          TEMURISET_SMOKE_INVENTORY: ${{ runner.temp }}/temuriset-release/runtime.jsonl
+          TEMURISET_API_IMAGE: ${{ env.API_IMAGE }}
+          TEMURISET_WEB_IMAGE: ${{ env.WEB_IMAGE }}
+          RELEASE_SHA: ${{ github.sha }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/temuriset-release"
+          deployment/temuriset/tests/smoke.sh
+          uv run --no-project --with jsonschema==4.26.0 python -m unittest deployment.temuriset.tests.test_release_manifest
+          docker run --rm --entrypoint alembic "$API_IMAGE" heads | awk 'NR == 1 {print $1}' > "$RUNNER_TEMP/temuriset-release/alembic-head"
+      - name: Scan both application images
+        run: |
+          mkdir -p "$RUNNER_TEMP/temuriset-scan"
+          docker save "$API_IMAGE" -o "$RUNNER_TEMP/temuriset-scan/api.tar"
+          docker save "$WEB_IMAGE" -o "$RUNNER_TEMP/temuriset-scan/web.tar"
+          blocked=0
+          for role in api web; do
+            docker run --rm -v "$RUNNER_TEMP/temuriset-scan:/images:ro" \
+              aquasec/trivy:0.69.3@sha256:bcc376de8d77cfe086a917230e818dc9f8528e3c852f7b1aff648949b6258d1c \
+              image --scanners vuln --timeout 10m --severity HIGH,CRITICAL --exit-code 1 --input "/images/$role.tar" || blocked=1
+          done
+          exit "$blocked"
+      - if: github.event_name == 'push'
+        name: Preserve the images that passed checks
+        run: |
+          cp "$RUNNER_TEMP/temuriset-scan/"*.tar "$RUNNER_TEMP/temuriset-release/"
+          (
+            cd "$RUNNER_TEMP/temuriset-release"
+            sha256sum api.tar web.tar runtime.jsonl alembic-head > checksums.txt
+          )
+      - if: github.event_name == 'push'
+        uses: actions/upload-artifact@v4
+        with:
+          name: tested-release
+          path: ${{ runner.temp }}/temuriset-release
+          retention-days: 7
+
+  publish:
+    concurrency:
+      group: temuriset-release-${{ github.sha }}
+      cancel-in-progress: false
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/temuriset-v')
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          name: tested-release
+          path: ${{ runner.temp }}/temuriset-release
+      - uses: astral-sh/setup-uv@v5
+        with:
+          version: 0.11.3
+      - name: Publish checked images and record their digests
+        env:
+          REGISTRY_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          files="$RUNNER_TEMP/temuriset-release"
+          (cd "$files" && sha256sum -c checksums.txt)
+          docker load --input "$files/api.tar"
+          docker load --input "$files/web.tar"
+          printf '%s' "$REGISTRY_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          registry="ghcr.io/${GITHUB_REPOSITORY,,}"
+          # A SHA is assigned once. An ambiguous registry response or partial prior publication
+          # requires operator review. Keep GHCR write permissions exclusive to this workflow.
+          for role in api web; do
+            package="${GITHUB_REPOSITORY,,}/temuriset-$role"
+            token=$(curl --fail --silent --show-error --retry 2 --user "$GITHUB_ACTOR:$REGISTRY_TOKEN" \
+              --get --data-urlencode "scope=repository:$package:pull,push" https://ghcr.io/token | jq -er '.token')
+            printf '::add-mask::%s\n' "$token"
+            status=$(curl --silent --show-error --retry 2 --output /dev/null --write-out '%{http_code}' \
+              --header "Authorization: Bearer $token" --header 'Accept: application/vnd.oci.image.manifest.v1+json, application/vnd.docker.distribution.manifest.v2+json, application/vnd.oci.image.index.v1+json, application/vnd.docker.distribution.manifest.list.v2+json' \
+              "https://ghcr.io/v2/$package/manifests/$GITHUB_SHA")
+            if [[ "$status" != 404 ]]; then
+              printf 'Publication requires a new commit SHA for %s (registry HTTP %s).\n' "$role" "$status" >&2
+              exit 1
+            fi
+          done
+          for role in api web; do
+            remote="$registry/temuriset-$role"
+            source="temuriset-m11-$role:local"
+            docker tag "$source" "$remote:$GITHUB_SHA"
+            docker push "$remote:$GITHUB_SHA"
+            digest=$(docker buildx imagetools inspect "$remote:$GITHUB_SHA" --format '{{json .Manifest}}' | jq -er '.digest')
+            published="$remote@$digest"
+            local_config=$(docker image inspect "$source" --format '{{.Id}}')
+            remote_config=$(docker buildx imagetools inspect "$published" --raw | jq -er '.config.digest')
+            test "$local_config" = "$remote_config"
+            printf '%s\n' "$published" > "$files/$role-ref"
+          done
+          uv run --no-project --with jsonschema==4.26.0 python deployment/temuriset/release_manifest.py build \
+            --commit "$GITHUB_SHA" --tag "$GITHUB_REF_NAME" --published \
+            --alembic-head "$(cat "$files/alembic-head")" --api "$(cat "$files/api-ref")" --web "$(cat "$files/web-ref")" \
+            --inventory "$files/runtime.jsonl" --output "$files/release-manifest.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-manifest
+          path: ${{ runner.temp }}/temuriset-release/release-manifest.json

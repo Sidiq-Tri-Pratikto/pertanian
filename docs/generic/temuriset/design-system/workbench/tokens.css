@@ -1,0 +1,109 @@
+/* TemuRiset Design System — generated from tokens.json */
+:root, [data-theme="light"] {
+  --tr-ref-color-white: #ffffff;
+  --tr-ref-color-slate-50: #f8fafc;
+  --tr-ref-color-slate-100: #f1f5f9;
+  --tr-ref-color-slate-300: #cbd5e1;
+  --tr-ref-color-slate-500: #64748b;
+  --tr-ref-color-slate-600: #475569;
+  --tr-ref-color-slate-900: #0f172a;
+  --tr-ref-color-teal-50: #f0fdfa;
+  --tr-ref-color-teal-700: #0f766e;
+  --tr-ref-color-teal-800: #115e59;
+  --tr-ref-color-teal-900: #134e4a;
+  --tr-ref-color-blue-700: #005fcc;
+  --tr-ref-color-red-50: #fef2f2;
+  --tr-ref-color-red-700: #b91c1c;
+  --tr-ref-color-red-800: #991b1b;
+  --tr-ref-color-green-50: #f0fdf4;
+  --tr-ref-color-green-800: #166534;
+  --tr-ref-color-amber-50: #fffbeb;
+  --tr-ref-color-amber-800: #92400e;
+  --tr-ref-color-overlay: rgba(15, 23, 42, 0.5);
+  --tr-sys-color-canvas: var(--tr-ref-color-slate-50);
+  --tr-sys-color-surface: var(--tr-ref-color-white);
+  --tr-sys-color-surface-subtle: var(--tr-ref-color-slate-100);
+  --tr-sys-color-text-primary: var(--tr-ref-color-slate-900);
+  --tr-sys-color-text-secondary: var(--tr-ref-color-slate-600);
+  --tr-sys-color-link: var(--tr-ref-color-teal-800);
+  --tr-sys-color-action-primary-background: var(--tr-ref-color-teal-700);
+  --tr-sys-color-action-primary-hover: var(--tr-ref-color-teal-800);
+  --tr-sys-color-action-primary-pressed: var(--tr-ref-color-teal-900);
+  --tr-sys-color-action-primary-foreground: var(--tr-ref-color-white);
+  --tr-sys-color-action-secondary-foreground: var(--tr-ref-color-teal-800);
+  --tr-sys-color-action-secondary-hover: var(--tr-ref-color-teal-50);
+  --tr-sys-color-action-danger-background: var(--tr-ref-color-red-700);
+  --tr-sys-color-action-danger-hover: var(--tr-ref-color-red-800);
+  --tr-sys-color-action-danger-foreground: var(--tr-ref-color-white);
+  --tr-sys-color-selected-surface: var(--tr-ref-color-teal-50);
+  --tr-sys-color-selected-border: var(--tr-ref-color-teal-700);
+  --tr-sys-color-selected-foreground: var(--tr-ref-color-teal-800);
+  --tr-sys-color-disabled-surface: var(--tr-ref-color-slate-100);
+  --tr-sys-color-disabled-foreground: var(--tr-ref-color-slate-600);
+  --tr-sys-color-border-decorative: var(--tr-ref-color-slate-300);
+  --tr-sys-color-border-control: var(--tr-ref-color-slate-500);
+  --tr-sys-color-focus: var(--tr-ref-color-blue-700);
+  --tr-sys-color-focus-gap: var(--tr-ref-color-white);
+  --tr-sys-color-danger-text: var(--tr-ref-color-red-700);
+  --tr-sys-color-danger-surface: var(--tr-ref-color-red-50);
+  --tr-sys-color-success-text: var(--tr-ref-color-green-800);
+  --tr-sys-color-success-surface: var(--tr-ref-color-green-50);
+  --tr-sys-color-warning-text: var(--tr-ref-color-amber-800);
+  --tr-sys-color-warning-surface: var(--tr-ref-color-amber-50);
+  --tr-sys-color-overlay: var(--tr-ref-color-overlay);
+  --tr-comp-button-primary-background: var(--tr-sys-color-action-primary-background);
+  --tr-comp-button-primary-hover: var(--tr-sys-color-action-primary-hover);
+  --tr-comp-button-primary-foreground: var(--tr-sys-color-action-primary-foreground);
+  --tr-comp-field-border: var(--tr-sys-color-border-control);
+  --tr-comp-field-borderError: var(--tr-sys-color-danger-text);
+  --tr-comp-field-focus: var(--tr-sys-color-focus);
+  --tr-sys-shadow-dialog: 0 8px 32px rgba(15, 23, 42, 0.24);
+}
+:root {
+  --tr-ref-space-4: 0.25rem;
+  --tr-ref-space-8: 0.5rem;
+  --tr-ref-space-12: 0.75rem;
+  --tr-ref-space-16: 1rem;
+  --tr-ref-space-24: 1.5rem;
+  --tr-ref-space-32: 2rem;
+  --tr-ref-space-48: 3rem;
+  --tr-ref-space-64: 4rem;
+  --tr-sys-space-controlGap: 0.5rem;
+  --tr-sys-space-stack: 1rem;
+  --tr-sys-space-section: 1.5rem;
+  --tr-sys-space-sectionWide: 2rem;
+  --tr-sys-layout-gutter: 1rem;
+  --tr-sys-layout-gutterWide: 1.5rem;
+  --tr-ref-radius-6: 6px;
+  --tr-ref-radius-8: 8px;
+  --tr-ref-radius-12: 12px;
+  --tr-sys-radius-control: 6px;
+  --tr-sys-radius-surface: 8px;
+  --tr-sys-radius-dialog: 12px;
+  --tr-sys-size-controlComfort: 2.75rem;
+  --tr-sys-size-icon: 1.25rem;
+  --tr-sys-size-iconSmall: 1.125rem;
+  --tr-sys-size-border: 1px;
+  --tr-sys-size-borderSelected: 2px;
+  --tr-sys-size-focusGap: 2px;
+  --tr-sys-size-focusRing: 2px;
+  --tr-sys-layout-contentMax: 75rem;
+  --tr-sys-layout-readingMeasure: 65ch;
+  --tr-sys-layout-asideWidth: 20rem;
+  --tr-sys-layout-breakpointWide: 48rem;
+  --tr-ref-weight-regular: 400;
+  --tr-ref-weight-medium: 500;
+  --tr-ref-weight-semibold: 600;
+  --tr-sys-motion-feedback: 150ms;
+  --tr-sys-motion-easing: cubic-bezier(0.2, 0, 0, 1);
+  --font-sans: system-ui, -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+}
+.tr-sys-type-body { font-family: var(--font-sans); font-size: 1rem; line-height: 1.5; font-weight: 400; }
+.tr-sys-type-body-strong { font-family: var(--font-sans); font-size: 1rem; line-height: 1.5; font-weight: 600; }
+.tr-sys-type-label { font-family: var(--font-sans); font-size: 1rem; line-height: 1.4; font-weight: 500; }
+.tr-sys-type-support { font-family: var(--font-sans); font-size: 0.875rem; line-height: 1.5; font-weight: 400; }
+.tr-sys-type-support-strong { font-family: var(--font-sans); font-size: 0.875rem; line-height: 1.5; font-weight: 600; }
+.tr-sys-type-heading-sm { font-family: var(--font-sans); font-size: 1.25rem; line-height: 1.4; font-weight: 600; }
+.tr-sys-type-heading-md { font-family: var(--font-sans); font-size: 1.5rem; line-height: 1.3; font-weight: 600; }
+.tr-sys-type-heading-lg { font-family: var(--font-sans); font-size: 2rem; line-height: 1.2; font-weight: 600; }
+.tr-sys-type-amount { font-family: var(--font-sans); font-size: 1.25rem; line-height: 1.4; font-weight: 600; }

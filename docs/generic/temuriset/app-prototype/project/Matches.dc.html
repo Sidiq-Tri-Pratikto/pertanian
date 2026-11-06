@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kecocokan</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/temuriset/tokens.css">
+<link rel="stylesheet" href="ds/temuriset/components/bundle.css">
+<script src="ds/temuriset/components/bundle.js"></script>
+<script src="./domain.js"></script>
+<script src="./views.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+</style>
+</helmet>
+<x-import component-from-global-scope="TemuRisetApp.Slotted" of="TR.Screen" dc-props="{{shell}}">
+<div data-slot="context" style="display:contents"><x-import component-from-global-scope="TR.ContextSwitcher" dc-props="{{ctx}}"></x-import></div>
+<sc-if value="{{hasNotice}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.Status" dc-props="{{notice}}"></x-import></sc-if>
+<sc-if value="{{empty}}" hint-placeholder-val="{{false}}">
+<x-import component-from-global-scope="TemuRisetApp.Slotted" of="TR.EmptyState" icon="search" title="Belum ada kebutuhan aktif" body="Kecocokan dinilai dari satu kebutuhan. Tambahkan kebutuhan pada inovasi Anda terlebih dahulu.">
+<div data-slot="action" style="display:contents"><x-import component-from-global-scope="TR.Button" intent="primary" on-click="{{addNeed}}">Buka Inovasi Saya</x-import></div>
+</x-import>
+</sc-if>
+<sc-if value="{{loading}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.Status" tone="neutral" icon="clock" live="{{true}}" label="Memeriksa setiap mandat…"></x-import></sc-if>
+<sc-if value="{{hasResults}}" hint-placeholder-val="{{true}}">
+<div class="tr-section">
+<section class="tr-panel" aria-label="Kebutuhan yang dipakai"><x-import component-from-global-scope="TR.Select" dc-props="{{source}}"></x-import></section>
+<sc-if value="{{noReady}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.EmptyState" kind="noMatches"></x-import></sc-if>
+<section class="tr-stack" aria-label="Hasil kecocokan">
+<sc-for list="{{ready}}" as="m" hint-placeholder-count="2">
+<article class="tr-panel tr-stack">
+<div class="tr-req__head"><h2 class="tr-sys-type-heading-sm">{{m.title}}</h2><x-import component-from-global-scope="TR.Status" dc-props="{{m.label}}"></x-import></div>
+<p class="tr-muted tr-sys-type-support">{{m.partner}}</p>
+<x-import component-from-global-scope="TR.FinancialScope" dc-props="{{m.fin}}"></x-import>
+<sc-if value="{{m.hasReasons}}" hint-placeholder-val="{{true}}">
+<div class="tr-stack">
+<h3 class="tr-sys-type-label">Mengapa cocok</h3>
+<ul class="tr-reasons"><sc-for list="{{m.reasons}}" as="r" hint-placeholder-count="3"><li>{{r}}</li></sc-for></ul>
+</div>
+</sc-if>
+<sc-if value="{{m.hasGap}}" hint-placeholder-val="{{false}}">
+<x-import component-from-global-scope="TR.Status" tone="warning" icon="alert" label="{{m.gapTitle}}">{{m.gapText}}</x-import>
+</sc-if>
+<div class="tr-row">
+<sc-if value="{{m.canPitch}}" hint-placeholder-val="{{true}}"><x-import component-from-global-scope="TR.Button" intent="primary" icon="arrow" on-click="{{m.pitch}}">Siapkan pitching</x-import></sc-if>
+<sc-if value="{{m.canComplete}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.Button" intent="primary" on-click="{{m.complete}}">Lengkapi kisaran biaya</x-import></sc-if>
+<sc-if value="{{m.hasDup}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.Button" intent="primary" on-click="{{m.openDup}}">Buka pitching yang ada</x-import></sc-if>
+<x-import component-from-global-scope="TR.Button" on-click="{{m.profile}}">Profil mitra</x-import>
+</div>
+<x-import component-from-global-scope="TR.Disclosure" label="{{m.detailLabel}}">
+<div class="tr-stack">
+<ul class="tr-stack"><sc-for list="{{m.rows}}" as="x" hint-placeholder-count="2"><x-import component-from-global-scope="TR.RequirementRow" dc-props="{{x}}"></x-import></sc-for></ul>
+<p class="tr-sys-type-support">{{m.evidence}}</p>
+<p class="tr-sys-type-support">{{m.scoreNote}}</p>
+</div>
+</x-import>
+</article>
+</sc-for>
+</section>
+<sc-if value="{{hasExcluded}}" hint-placeholder-val="{{false}}">
+<x-import component-from-global-scope="TR.Disclosure" label="{{excludedLabel}}">
+<div class="tr-stack">
+<sc-for list="{{excluded}}" as="m" hint-placeholder-count="1">
+<article class="tr-panel tr-stack">
+<div class="tr-req__head"><h3 class="tr-sys-type-label">{{m.title}}</h3><x-import component-from-global-scope="TR.Status" dc-props="{{m.label}}"></x-import></div>
+<p class="tr-muted tr-sys-type-support">{{m.partner}}</p>
+<x-import component-from-global-scope="TR.Status" dc-props="{{m.gapStatus}}">{{m.gapTitle}}: {{m.gapText}}</x-import>
+</article>
+</sc-for>
+</div>
+</x-import>
+</sc-if>
+<sc-if value="{{hasExternal}}" hint-placeholder-val="{{false}}">
+<section class="tr-stack" aria-label="Rute di luar TemuRiset">
+<h2 class="tr-sys-type-heading-sm">Rute di luar TemuRiset</h2>
+<sc-for list="{{external}}" as="e" hint-placeholder-count="1">
+<div class="tr-panel tr-stack">
+<h3 class="tr-sys-type-label">{{e.name}}</h3>
+<p class="tr-muted">{{e.source}}</p>
+<div class="tr-row"><x-import component-from-global-scope="TR.Link" href="{{e.url}}" external="{{true}}">Buka formulir mitra</x-import></div>
+</div>
+</sc-for>
+</section>
+</sc-if>
+</div>
+</sc-if>
+</x-import>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1100}}'>
+class Component extends DCLogic {
+  off = TemuRisetApp.attach(this, 'Matches');
+  componentWillUnmount() { this.off(); }
+  renderVals() { return TemuRisetApp.vm.matches(); }
+}
+</script>
+</body>
+</html>

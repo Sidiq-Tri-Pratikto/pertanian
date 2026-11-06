@@ -1,0 +1,38 @@
+{
+  "v": 3,
+  "createdOnFiles": { "v": 1, "at": "2026-10-31T13:40:00Z" },
+  "title": "TemuRiset Prototype",
+  "launch": { "view": "focused", "file": "Main.dc.html" },
+  "pages": [],
+  "boards": {
+    "Main.dc.html": { "x": 0, "y": 0, "w": 1280, "h": 1100, "title": "Prototipe bermain · semua journey", "expand": "fill", "is_interactive": true },
+    "DemoControls.dc.html": { "x": 1360, "y": 0, "w": 1280, "h": 1100, "title": "Kontrol demo", "expand": "fill", "is_interactive": true },
+    "Start.dc.html": { "x": 0, "y": 1500, "w": 1280, "h": 1100, "title": "S01 Identitas dan konteks", "expand": "fill", "is_interactive": true },
+    "Home.dc.html": { "x": 1360, "y": 1500, "w": 1280, "h": 1100, "title": "S02 Beranda", "expand": "fill", "is_interactive": true },
+    "Discover.dc.html": { "x": 2720, "y": 1500, "w": 1280, "h": 1100, "title": "S03 Jelajahi dan Temukan", "expand": "fill", "is_interactive": true },
+    "Inventions.dc.html": { "x": 4080, "y": 1500, "w": 1280, "h": 1100, "title": "Inovasi Saya", "expand": "fill", "is_interactive": true },
+    "Invention.dc.html": { "x": 0, "y": 2720, "w": 1280, "h": 1100, "title": "S04 Detail inovasi", "expand": "fill", "is_interactive": true },
+    "Editor.dc.html": { "x": 1360, "y": 2720, "w": 1280, "h": 1100, "title": "S05 Editor empat langkah", "expand": "fill", "is_interactive": true },
+    "Support.dc.html": { "x": 2720, "y": 2720, "w": 1280, "h": 1100, "title": "S06 Dukungan Proyek", "expand": "fill", "is_interactive": true },
+    "Funding.dc.html": { "x": 4080, "y": 2720, "w": 1280, "h": 1100, "title": "S07 Pendanaan Perusahaan", "expand": "fill", "is_interactive": true },
+    "Partner.dc.html": { "x": 0, "y": 3940, "w": 1280, "h": 1100, "title": "S08 Profil mitra", "expand": "fill", "is_interactive": true },
+    "Opportunity.dc.html": { "x": 1360, "y": 3940, "w": 1280, "h": 1100, "title": "S09 Editor mandat", "expand": "fill", "is_interactive": true },
+    "Matches.dc.html": { "x": 2720, "y": 3940, "w": 1280, "h": 1100, "title": "S10 Kecocokan", "expand": "fill", "is_interactive": true },
+    "Preflight.dc.html": { "x": 4080, "y": 3940, "w": 1280, "h": 1100, "title": "S11 Pemeriksaan sebelum kirim", "expand": "fill", "is_interactive": true },
+    "Pitches.dc.html": { "x": 0, "y": 5160, "w": 1280, "h": 1100, "title": "S12 Daftar pitching", "expand": "fill", "is_interactive": true },
+    "Workspace.dc.html": { "x": 1360, "y": 5160, "w": 1280, "h": 1100, "title": "S13 Ruang pitching", "expand": "fill", "is_interactive": true },
+    "Revisions.dc.html": { "x": 2720, "y": 5160, "w": 1280, "h": 1100, "title": "S13 Panel revisi", "expand": "fill", "is_interactive": true },
+    "Schedule.dc.html": { "x": 4080, "y": 5160, "w": 1280, "h": 1100, "title": "S14 Panel jadwal", "expand": "fill", "is_interactive": true },
+    "Partnership.dc.html": { "x": 0, "y": 6380, "w": 1280, "h": 1100, "title": "S15 Kerja Sama", "expand": "fill", "is_interactive": true },
+    "Profile.dc.html": { "x": 1360, "y": 6380, "w": 1280, "h": 1100, "title": "S16 Profil publik", "expand": "fill", "is_interactive": true },
+    "ReviewQueue.dc.html": { "x": 2720, "y": 6380, "w": 1280, "h": 1100, "title": "S17 Antrean tinjauan", "expand": "fill", "is_interactive": true },
+    "Settings.dc.html": { "x": 4080, "y": 6380, "w": 1280, "h": 1100, "title": "S18 Profil dan privasi", "expand": "fill", "is_interactive": true }
+  },
+  "order": ["Main.dc.html", "DemoControls.dc.html", "Start.dc.html", "Home.dc.html", "Discover.dc.html", "Inventions.dc.html", "Invention.dc.html", "Editor.dc.html", "Support.dc.html", "Funding.dc.html", "Partner.dc.html", "Opportunity.dc.html", "Matches.dc.html", "Preflight.dc.html", "Pitches.dc.html", "Workspace.dc.html", "Revisions.dc.html", "Schedule.dc.html", "Partnership.dc.html", "Profile.dc.html", "ReviewQueue.dc.html", "Settings.dc.html"],
+  "notes": {
+    "screens": { "x": 0, "y": 1240, "text": "Layar S01–S18, pratinjau terpisah", "kind": "title1", "maxW": 5360 }
+  },
+  "designSystems": [
+    { "title": "TemuRiset Design System", "namespace": "temuriset", "artifact": "https://claude.ai/code/artifact/958bdd78-2af2-4d49-ad29-b68c659c40ae", "version": "1793451133-f8ad", "copiedAt": "2026-10-31T13:40:00Z" }
+  ]
+}

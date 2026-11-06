@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Periksa sebelum mengirim</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/temuriset/tokens.css">
+<link rel="stylesheet" href="ds/temuriset/components/bundle.css">
+<script src="ds/temuriset/components/bundle.js"></script>
+<script src="./domain.js"></script>
+<script src="./views.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+</style>
+</helmet>
+<x-import component-from-global-scope="TemuRisetApp.Slotted" of="TR.Screen" dc-props="{{shell}}">
+<div data-slot="context" style="display:contents"><x-import component-from-global-scope="TR.ContextSwitcher" dc-props="{{ctx}}"></x-import></div>
+<div data-slot="back" style="display:contents"><sc-if value="{{allowed}}" hint-placeholder-val="{{true}}"><x-import component-from-global-scope="TR.Link" on-click="{{back}}">Kembali ke kecocokan</x-import></sc-if></div>
+<sc-if value="{{denied}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.EmptyState" kind="denied"></x-import></sc-if>
+<sc-if value="{{allowed}}" hint-placeholder-val="{{true}}">
+<div class="tr-section">
+<sc-if value="{{hasNotice}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.Status" dc-props="{{notice}}"></x-import></sc-if>
+<sc-if value="{{showSummary}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.ErrorSummary" dc-props="{{summaryProps}}"></x-import></sc-if>
+<sc-if value="{{lost}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.ErrorSummary" dc-props="{{lostProps}}"></x-import></sc-if>
+<sc-if value="{{stale}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.VersionConflict" dc-props="{{staleProps}}"></x-import></sc-if>
+<sc-if value="{{closed}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.EmptyState" kind="closedIntake"></x-import></sc-if>
+<sc-if value="{{hasDup}}" hint-placeholder-val="{{false}}">
+<x-import component-from-global-scope="TemuRisetApp.Slotted" of="TR.NextStep" who="you" title="Pitching untuk permintaan dan mandat ini sudah ada" body="Satu permintaan hanya memiliki satu pitching aktif ke mandat yang sama.">
+<div data-slot="action" style="display:contents"><x-import component-from-global-scope="TR.Button" intent="primary" on-click="{{openDup}}">Buka pitching yang ada</x-import></div>
+</x-import>
+</sc-if>
+<section class="tr-panel tr-stack" aria-label="Yang akan dikirim">
+<div class="tr-req__head"><h2 class="tr-sys-type-heading-sm">Yang akan dikirim</h2><x-import component-from-global-scope="TR.Status" dc-props="{{ready}}"></x-import></div>
+<x-import component-from-global-scope="TR.SummaryList" rows="{{rows}}"></x-import>
+<sc-if value="{{isProject}}" hint-placeholder-val="{{true}}"><x-import component-from-global-scope="TR.FinancialScope" dc-props="{{fin}}"></x-import></sc-if>
+<sc-if value="{{isFunding}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.FundingRequestCard" dc-props="{{fundingCard}}"></x-import></sc-if>
+<x-import component-from-global-scope="TR.FinancialScope" dc-props="{{oppFin}}"></x-import>
+</section>
+<section class="tr-stack" aria-label="Syarat mandat">
+<h2 class="tr-sys-type-heading-sm">Syarat mandat ini</h2>
+<ul class="tr-stack"><sc-for list="{{reqRows}}" as="x" hint-placeholder-count="3"><x-import component-from-global-scope="TR.RequirementRow" dc-props="{{x}}"></x-import></sc-for></ul>
+</section>
+<section class="tr-panel tr-stack" aria-label="Berkas yang dibagikan" id="{{fileAnchor}}" tabindex="-1">
+<h2 class="tr-sys-type-heading-sm">Berkas yang dibagikan</h2>
+<p class="tr-muted">Tidak ada berkas yang terbagi otomatis. Pilih satu per satu.</p>
+<sc-if value="{{noFiles}}" hint-placeholder-val="{{false}}"><p class="tr-muted">Belum ada berkas.</p></sc-if>
+<sc-if value="{{hasFileError}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.FieldError">{{fileError}}</x-import></sc-if>
+<sc-for list="{{files}}" as="f" hint-placeholder-count="1">
+<div class="tr-stack">
+<x-import component-from-global-scope="TR.Checkbox" dc-props="{{f.check}}"></x-import>
+<x-import component-from-global-scope="TR.DocumentItem" dc-props="{{f.doc}}"></x-import>
+</div>
+</sc-for>
+</section>
+<section class="tr-panel tr-stack" aria-label="Brief">
+<x-import component-from-global-scope="TR.TextArea" dc-props="{{brief}}"></x-import>
+<sc-if value="{{aiOn}}" hint-placeholder-val="{{false}}"><div class="tr-row"><x-import component-from-global-scope="TR.Button" busy="{{aiBusy}}" busy-label="Meringkas…" on-click="{{summarize}}">Ringkas brief dari fakta yang ada</x-import></div></sc-if>
+<sc-if value="{{aiDown}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.Status" tone="warning" icon="alert" label="Ringkasan otomatis tidak tersedia">Brief di atas dibuat dari templat dan tetap dapat dipakai.</x-import></sc-if>
+<div class="tr-row"><x-import component-from-global-scope="TR.Button" icon="file" on-click="{{print}}">Cetak brief</x-import></div>
+</section>
+<x-import component-from-global-scope="TR.ContextSwitcher" dc-props="{{ctxFinal}}"></x-import>
+<x-import component-from-global-scope="TemuRisetApp.Slotted" of="TR.NextStep" who="you" title="Yang terjadi saat Anda mengirim" body="{{effect}}">
+<div data-slot="action" style="display:contents">
+<sc-if value="{{canSend}}" hint-placeholder-val="{{true}}"><x-import component-from-global-scope="TR.Button" intent="primary" icon="arrow" busy="{{sending}}" busy-label="Mengirim…" on-click="{{send}}">Kirim pitching</x-import></sc-if>
+<sc-if value="{{notReady}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.Button" intent="primary" disabled-reason="Selesaikan syarat pengajuan terlebih dahulu.">Kirim pitching</x-import></sc-if>
+</div>
+</x-import>
+</div>
+</sc-if>
+</x-import>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1100}}'>
+class Component extends DCLogic {
+  off = TemuRisetApp.attach(this, 'Preflight');
+  componentWillUnmount() { this.off(); }
+  renderVals() { return TemuRisetApp.vm.preflight(); }
+}
+</script>
+</body>
+</html>

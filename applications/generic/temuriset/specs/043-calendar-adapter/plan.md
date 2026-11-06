@@ -1,0 +1,20 @@
+# Implementation Plan for the gated external calendar adapter
+
+**Branch** `043-calendar-adapter` | **Date** 2026-11-05 | **Spec** [spec.md](spec.md)
+
+## Baseline and local profile
+
+Extend 028's existing scheduling read and UI. Preserve internal proposal writes, exclusion-constraint booking and ICS authorization. One account owns one connection. Expose advisory statuses to that account only, including when it acts for an organization and can see the pitch. There is no write to the calendar.
+
+## Design
+
+1. Define a small async `CalendarAdapter` with an off implementation and one local OAuth profile. Accept only configured literal loopback authorization, token, free/busy and revocation endpoints in development. Server-side transport uses finite timeouts, bounded JSON and redirects and environment proxies disabled. Require explicit supported free/busy scope and a fixed application callback. Leave production configuration off.
+2. Add a new Alembic revision after 042, with an account-scoped versioned connection and expiring pending OAuth state. Hash state and encrypt the PKCE verifier and access token using 042's authenticated envelope with a different key and purpose. Verify the signed-in account, session, state and generation, atomically consume and commit state before token exchange, and check the generation again before persisting a result. Use the OAuth token response's finite expiry, and let an expired local connection reconnect. The local profile has no offline refresh.
+3. Implement owner-scoped status, connect, callback and disconnect under `/api/v1/me/calendar` with the existing account policy, capability configuration and unsafe-method origin check. The connection UI shows local read-only consent before navigating. The fixed callback accepts the provider's state/code and returns only a safe settings redirect. Use no-store and no-referrer, and prevent callback query strings from reaching access logs or traces. Version account-scoped mutations and protect consequential POSTs with the existing idempotency pattern. Disconnect commits local invalidation of pending flows and credential deletion before provider revocation. Attempt bounded provider revocation with safe diagnostics and distinguish confirmed provider revocation from local disconnect.
+4. Query only future slots of the viewer's visible open proposal in `GET /api/v1/pitches/{pitch_id}/schedule`. The local relay free/busy POST sends `{"windows":[{"start":"…","end":"…"}]}` for at most five bounded RFC 3339 UTC windows with the access token in the header and accepts only `{"busy":[{"start":"…","end":"…"}]}`. A valid response reports overlap using half-open intervals. Failed or malformed responses preserve unknown. Avoid holding write locks across provider I/O. Recheck current permission and connection generation before returning after I/O. Keep the existing off-state marker and add slot-level advisory data only when determined. Persist no provider event data or advisory status. Never send app titles, account identifiers or pitch references to the provider.
+5. Add `calendar` to the manifest. It stays planned by default and is available locally only in the validated development profile. Render S18 connect/disconnect and S14 status from the API using Indonesian copy and accessible status text. Explain the viewer's own availability and leave selection and booking controls independent of it.
+6. Translate failures at the calendar boundary using the centralized error recorder and sanitizer. For activation, validate the selected provider's contract, approved consent copy, minimum scopes, callback and egress configuration, and the staging journey before promoting the registry entry.
+
+## Evidence
+
+Use a local protocol double through the normal account and schedule routes. Verify callback misuse, cross-account isolation, stale writes and replay, privacy of token and state, failure/revocation during a lookup and overlap boundaries. Run local route, S18, S14, booking-conflict and ICS checks. Keep provider and staging evidence separate.

@@ -1,0 +1,57 @@
+{
+  "system": {
+    "name": "TemuRiset Design System",
+    "version": "1.0.0-draft",
+    "reviewStatus": "draft, not owner-approved",
+    "namespace": "window.TR",
+    "reportedByBundle": "1.0.0-draft",
+    "tokenFormat": "temuriset-tokens/1"
+  },
+  "supply": {
+    "method": "Copied into the canvas as files. This is a per-canvas copy, not automatic inheritance. Changes need an explicit re-copy.",
+    "artifactUsed": "https://claude.ai/code/artifact/958bdd78-2af2-4d49-ad29-b68c659c40ae",
+    "artifactVersion": "1793451133-f8ad",
+    "alsoListedUnderSameTitle": "https://claude.ai/artifact/KU4iHKHaVL7QgL8bhSgfWV",
+    "sameRecordVerified": false,
+    "canvasFolder": "project/ds/temuriset",
+    "designSystemsRecord": "project/canvas.json",
+    "filesCopiedFromArtifact": ["tokens.json", "components/bundle.js", "components/bundle.css"],
+    "filesSentFromRepository": [
+      {
+        "file": "tokens.css",
+        "source": "docs/generic/temuriset/design-system/workbench/tokens.css",
+        "reason": "The README names compiled tokens CSS but gives no served path, and tokens.css is generated output of the same release."
+      }
+    ],
+    "reactSource": "Supplied by the canvas runtime. The system's components/lib copies are not loaded."
+  },
+  "fingerprints": {
+    "components/bundle.js": { "bytes": 52024, "sha256": "41dd7f2f5f3084d84301bee55a7208d279a217cda6aef6e9fee6caa49bb8bc43" },
+    "components/bundle.css": { "bytes": 27663, "sha256": "7189831e86b576f5f55465b1f9422f47086854ce89499af316cd754236b568f1" },
+    "tokens.css": { "bytes": 5597, "sha256": "cade67723a729cb13c32140ba899e453229bc38316933d79baf858943ac93804" },
+    "tokens.json": { "bytes": 15711, "sha256": "311fe8545a4561c32580f108774b7aba0df7d251f3c5b3553e1e8145c0b55d2c" },
+    "note": "Hashes are of the repository copies. Hosted byte counts match; hosted hashes were not computed."
+  },
+  "consumer": {
+    "name": "TemuRiset Prototype",
+    "canvas": "https://claude.ai/artifact/HMXtf8NFdYuhEjeKoq9ekJ",
+    "canvasType": "Design",
+    "source": "docs/generic/temuriset/app-prototype/project"
+  },
+  "componentsUsed": ["Button", "Link", "TextField", "TextArea", "Select", "ChoiceGroup", "Checkbox", "FieldError", "ErrorSummary", "Dialog", "Disclosure", "Tabs", "Status", "EmptyState", "SaveState", "ContextSwitcher", "InventionCard", "FundingRequestCard", "FinancialScope", "RequirementRow", "FactSource", "DocumentItem", "RevisionItem", "ScheduleSlotList", "PartnershipConsent", "VersionConflict", "NextStep", "Steps", "SummaryList", "Screen"],
+  "componentsNotMountedDirectly": ["Icon: used only through other components"],
+  "deviations": [
+    { "id": "D1", "what": "TemuRisetApp.Slotted adapter", "why": "TR components take node props such as action, gap, aside and tab content. Canvas markup only passes children.", "effect": "Own window global that draws nothing. Direct children marked data-slot become that prop." },
+    { "id": "D2", "what": "Local CSS override of .tr-tabbar__item in Main", "why": "At 320 px the DS overflow-wrap rule split the word Temukan.", "effect": "overflow-wrap normal and no side padding. Should move into the system." },
+    { "id": "D3", "what": "Internal class names used in markup: tr-req__head, tr-tag", "why": "Row layout parity with RequirementRow and FactSource.", "effect": "Depends on bundle.css names that are not a public contract." },
+    { "id": "D4", "what": "Screen slot aside unused", "why": "Screens read as one column, so the supporting column was not needed.", "effect": "Single-column reading order on desktop." },
+    { "id": "D5", "what": "Component contracts read from the repository copy", "why": "The served README has no generated card index.", "effect": "Props came from design-system/project/components/index.d.ts and bundle.js of the same release." }
+  ],
+  "fixtureAdditions": [
+    { "id": "A2", "why": "F02 needs a target that requires reviewed authority at submission." },
+    { "id": "A3", "why": "F06 needs a mentoring target." },
+    { "id": "B2", "why": "A proposed entity needs a mandate that accepts pre-incorporation discussion." },
+    { "id": "Recipient E", "why": "AC22 and AC24 need a source-reported partner with an external route." },
+    { "id": "Named actors", "why": "Bima, Dewi, Galih and Sinta are fictional demo accounts. Rani comes from TR.demo.fixtures." }
+  ]
+}

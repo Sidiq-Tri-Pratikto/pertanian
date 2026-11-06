@@ -1,0 +1,22 @@
+<!-- @dsCard group="Domain" height=620 -->
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>InventionCard — preview</title></head>
+<body>
+<div id="root" class="tr-root tr-pad tr-stack"></div>
+<script>
+var TR = window.TR, h = React.createElement, F = TR.format, X = TR.demo.fixtures, useState = React.useState;
+function S(label, child) { return h('div', { className: 'tr-stack' }, h('p', { className: 'tr-sys-type-support tr-muted' }, label), child); }
+function Demo() {
+  var f = X.F01;
+  return h('div', { style: { maxWidth: '26rem' } }, h(TR.InventionCard, Object.assign({}, f, {
+    facts: h('div', { className: 'tr-stack' },
+      h(TR.FactSource, { value: '10 L/jam', timing: 'CURRENT', provenance: 'PROVIDED' }),
+      h(TR.FactSource, { value: '20 L/jam', timing: 'PLANNED', provenance: 'SELF_DECLARED' })),
+    reasons: ['Mitra menerima tahap prototipe.'],
+    action: h(TR.Button, { intent: 'primary' }, 'Siapkan pitching') })));
+}
+ReactDOM.createRoot(document.getElementById('root')).render(h(Demo));
+</script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+../../.claude/rules/006-architecture.md

@@ -1,0 +1,61 @@
+"""Alembic environment: runs migrations through the application's async engine settings."""
+
+import asyncio
+from logging.config import fileConfig
+
+from alembic import context
+from sqlalchemy.engine import Connection
+from sqlalchemy.ext.asyncio import create_async_engine
+
+import app.access.repository.sqlalchemy.models  # noqa: F401 - registers the tables for autogenerate
+import app.briefs.repository.sqlalchemy.models  # noqa: F401
+import app.discovery.repository.sqlalchemy.models  # noqa: F401
+import app.discussion.repository.sqlalchemy.models  # noqa: F401
+import app.documents.repository.sqlalchemy.models  # noqa: F401
+import app.funding.repository.sqlalchemy.models  # noqa: F401
+import app.identity.repository.sqlalchemy.models  # noqa: F401
+import app.intake.repository.sqlalchemy.models  # noqa: F401
+import app.matching.repository.sqlalchemy.models  # noqa: F401
+import app.moderation.repository.sqlalchemy.models  # noqa: F401
+import app.needs.repository.sqlalchemy.models  # noqa: F401
+import app.pitches.repository.sqlalchemy.models  # noqa: F401
+import app.platform.repository.sqlalchemy.models  # noqa: F401 - registers the tables for autogenerate
+import app.portability.repository.sqlalchemy.models  # noqa: F401
+import app.portfolio.repository.sqlalchemy.models  # noqa: F401
+import app.relationships.repository.sqlalchemy.models  # noqa: F401
+import app.scheduling.repository.sqlalchemy.models  # noqa: F401
+from app.core.database import Base
+from app.core.settings import get_settings
+
+if context.config.config_file_name is not None:
+    fileConfig(context.config.config_file_name)
+
+target_metadata = Base.metadata
+
+
+def run_migrations_offline() -> None:
+    """Emit SQL without a database connection."""
+    url = get_settings().database_url.get_secret_value()
+    context.configure(url=url, target_metadata=target_metadata, literal_binds=True)
+    with context.begin_transaction():
+        context.run_migrations()
+
+
+def _run_migrations(connection: Connection) -> None:
+    context.configure(connection=connection, target_metadata=target_metadata)
+    with context.begin_transaction():
+        context.run_migrations()
+
+
+async def run_migrations_online() -> None:
+    """Apply migrations over an async connection."""
+    engine = create_async_engine(get_settings().database_url.get_secret_value())
+    async with engine.connect() as connection:
+        await connection.run_sync(_run_migrations)
+    await engine.dispose()
+
+
+if context.is_offline_mode():
+    run_migrations_offline()
+else:
+    asyncio.run(run_migrations_online())

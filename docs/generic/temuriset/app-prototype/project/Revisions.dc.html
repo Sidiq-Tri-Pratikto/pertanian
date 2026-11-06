@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Panel revisi</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/temuriset/tokens.css">
+<link rel="stylesheet" href="ds/temuriset/components/bundle.css">
+<script src="ds/temuriset/components/bundle.js"></script>
+<script src="./domain.js"></script>
+<script src="./views.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div class="tr-root tr-section">
+<sc-if value="{{none}}" hint-placeholder-val="{{false}}"><p class="tr-muted">Belum ada permintaan revisi.</p></sc-if>
+
+<sc-if value="{{canAsk}}" hint-placeholder-val="{{false}}">
+<section class="tr-stack" aria-label="Permintaan revisi baru">
+<h2 class="tr-sys-type-heading-sm">{{roundLabel}}</h2>
+<sc-if value="{{composeShow}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.ErrorSummary" dc-props="{{composeSummary}}"></x-import></sc-if>
+<sc-for list="{{composeItems}}" as="i" hint-placeholder-count="2">
+<article class="tr-panel tr-stack">
+<x-import component-from-global-scope="TR.TextArea" dc-props="{{i.question}}"></x-import>
+<x-import component-from-global-scope="TR.TextField" dc-props="{{i.reason}}"></x-import>
+<x-import component-from-global-scope="TR.TextField" dc-props="{{i.expect}}"></x-import>
+<x-import component-from-global-scope="TR.Checkbox" dc-props="{{i.required}}"></x-import>
+<div class="tr-row"><x-import component-from-global-scope="TR.Button" on-click="{{i.remove}}">Hapus pertanyaan</x-import></div>
+</article>
+</sc-for>
+<div class="tr-row">
+<x-import component-from-global-scope="TR.Button" intent="primary" busy="{{sendBusy}}" busy-label="Mengirim…" on-click="{{send}}">Kirim permintaan revisi</x-import>
+<x-import component-from-global-scope="TR.Button" on-click="{{addItem}}">Tambah pertanyaan</x-import>
+</div>
+</section>
+</sc-if>
+
+<sc-if value="{{answering}}" hint-placeholder-val="{{false}}">
+<section class="tr-stack" aria-label="Jawaban revisi">
+<x-import component-from-global-scope="TR.SaveState" dc-props="{{save}}"></x-import>
+<sc-if value="{{answerShow}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.ErrorSummary" dc-props="{{answerSummary}}"></x-import></sc-if>
+<sc-if value="{{hasStale}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.VersionConflict" dc-props="{{staleProps}}"></x-import></sc-if>
+<sc-for list="{{answerItems}}" as="i" hint-placeholder-count="2">
+<div class="tr-stack">
+<x-import component-from-global-scope="TR.RevisionItem" dc-props="{{i.props}}"></x-import>
+<p class="tr-muted tr-sys-type-support">{{i.expect}}</p>
+</div>
+</sc-for>
+<section class="tr-panel tr-stack" aria-label="Berkas untuk submisi baru">
+<h3 class="tr-sys-type-label">Berkas untuk submisi baru</h3>
+<sc-for list="{{files}}" as="f" hint-placeholder-count="1"><x-import component-from-global-scope="TR.Checkbox" dc-props="{{f.check}}"></x-import></sc-for>
+<sc-if value="{{hasUploadErr}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.FieldError">{{uploadErr}}</x-import></sc-if>
+<sc-if value="{{hasDoc}}" hint-placeholder-val="{{true}}"><div class="tr-row"><x-import component-from-global-scope="TR.Button" icon="upload" on-click="{{newVersion}}">Unggah versi baru</x-import></div></sc-if>
+<x-import component-from-global-scope="TR.Checkbox" dc-props="{{failUpload}}"></x-import>
+</section>
+<p class="tr-muted">{{effect}}</p>
+<x-import component-from-global-scope="TR.ContextSwitcher" dc-props="{{ctxFinal}}"></x-import>
+<div class="tr-row">
+<x-import component-from-global-scope="TR.Button" intent="primary" busy="{{resubmitBusy}}" busy-label="Mengirim ulang…" on-click="{{resubmit}}">Kirim ulang pitching</x-import>
+<x-import component-from-global-scope="TR.Button" on-click="{{saveDraft}}">Simpan jawaban</x-import>
+</div>
+</section>
+</sc-if>
+
+<sc-if value="{{hasPast}}" hint-placeholder-val="{{false}}">
+<section class="tr-stack" aria-label="Putaran revisi">
+<sc-for list="{{history}}" as="r" hint-placeholder-count="1">
+<div class="tr-stack">
+<h2 class="tr-sys-type-heading-sm">{{r.label}}</h2>
+<sc-for list="{{r.items}}" as="i" hint-placeholder-count="2">
+<article class="tr-panel tr-stack">
+<div class="tr-req__head"><h3 class="tr-sys-type-label">Pertanyaan {{i.index}}</h3><x-import component-from-global-scope="TR.Status" dc-props="{{i.required}}"></x-import></div>
+<p class="tr-sys-type-body-strong">{{i.question}}</p>
+<p class="tr-muted">{{i.reason}}</p>
+<p class="tr-muted tr-sys-type-support">{{i.expect}}</p>
+<p><strong>Tanggapan.</strong> {{i.answerLabel}}</p>
+<sc-if value="{{i.answered}}" hint-placeholder-val="{{false}}"><p>{{i.answerText}}</p></sc-if>
+<sc-if value="{{i.hasReview}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.Status" tone="neutral" icon="minus" label="{{i.review}}"></x-import></sc-if>
+<sc-if value="{{i.canReview}}" hint-placeholder-val="{{false}}">
+<div class="tr-row">
+<x-import component-from-global-scope="TR.Button" on-click="{{i.accept}}">Terima jawaban</x-import>
+<x-import component-from-global-scope="TR.Button" on-click="{{i.askDetail}}">Minta detail</x-import>
+</div>
+</sc-if>
+</article>
+</sc-for>
+</div>
+</sc-for>
+</section>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1100}}'>
+class Component extends DCLogic {
+  off = TemuRisetApp.attach(this, 'Revisions');
+  componentWillUnmount() { this.off(); }
+  renderVals() { return TemuRisetApp.vm.revisions(); }
+}
+</script>
+</body>
+</html>

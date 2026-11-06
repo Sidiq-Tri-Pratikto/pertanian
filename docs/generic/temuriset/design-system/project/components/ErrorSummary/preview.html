@@ -1,0 +1,22 @@
+<!-- @dsCard group="Inputs" height=330 -->
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>ErrorSummary — preview</title></head>
+<body>
+<div id="root" class="tr-root tr-pad tr-stack"></div>
+<script>
+var TR = window.TR, h = React.createElement, F = TR.format, X = TR.demo.fixtures, useState = React.useState;
+function S(label, child) { return h('div', { className: 'tr-stack' }, h('p', { className: 'tr-sys-type-support tr-muted' }, label), child); }
+function Demo() {
+  var k = useState(0), v = useState('');
+  var errors = v[0] ? [] : [{ fieldId: 'demo-budget', message: 'Isi anggaran pilot' }];
+  return h(React.Fragment, null,
+    k[0] > 0 && errors.length ? h(TR.ErrorSummary, { errors: errors, focusKey: k[0] }) : null,
+    h(TR.TextField, { id: 'demo-budget', label: 'Anggaran pilot', type: 'decimal', prefix: 'USD', value: v[0], onChange: v[1], error: k[0] > 0 && !v[0] ? 'Isi anggaran pilot' : null }),
+    h('div', { className: 'tr-row' }, h(TR.Button, { intent: 'primary', onClick: function () { k[1](k[0] + 1); } }, 'Kirim jawaban')),
+    S('Global retry, no field target', h(TR.ErrorSummary, { title: 'Pitching belum terkirim', retry: { label: 'Coba kirim lagi', onClick: function () {} } }, 'Koneksi terputus. Isian Anda masih ada.')));
+}
+ReactDOM.createRoot(document.getElementById('root')).render(h(Demo));
+</script>
+</body>
+</html>

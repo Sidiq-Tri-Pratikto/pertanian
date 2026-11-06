@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ruang pitching</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/temuriset/tokens.css">
+<link rel="stylesheet" href="ds/temuriset/components/bundle.css">
+<script src="ds/temuriset/components/bundle.js"></script>
+<script src="./domain.js"></script>
+<script src="./views.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+</style>
+</helmet>
+<x-import component-from-global-scope="TemuRisetApp.Slotted" of="TR.Screen" dc-props="{{shell}}">
+<div data-slot="context" style="display:contents"><x-import component-from-global-scope="TR.ContextSwitcher" dc-props="{{ctx}}"></x-import></div>
+<div data-slot="back" style="display:contents"><sc-if value="{{allowed}}" hint-placeholder-val="{{true}}"><x-import component-from-global-scope="TR.Link" on-click="{{back}}">{{backLabel}}</x-import></sc-if></div>
+<sc-if value="{{denied}}" hint-placeholder-val="{{false}}">
+<x-import component-from-global-scope="TemuRisetApp.Slotted" of="TR.EmptyState" kind="denied">
+<div data-slot="action" style="display:contents"><x-import component-from-global-scope="TR.Button" on-click="{{leave}}">Kembali ke Beranda</x-import></div>
+</x-import>
+</sc-if>
+<sc-if value="{{allowed}}" hint-placeholder-val="{{true}}">
+<div class="tr-section">
+<div class="tr-row"><x-import component-from-global-scope="TR.Status" dc-props="{{status}}"></x-import></div>
+<sc-if value="{{hasNotice}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.Status" dc-props="{{notice}}"></x-import></sc-if>
+<sc-if value="{{showSummary}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.ErrorSummary" dc-props="{{summaryProps}}"></x-import></sc-if>
+<sc-if value="{{hasTurn}}" hint-placeholder-val="{{true}}">
+<x-import component-from-global-scope="TemuRisetApp.Slotted" of="TR.NextStep" dc-props="{{next}}">
+<div data-slot="action" style="display:contents"><sc-if value="{{hasNextAction}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.Button" intent="primary" icon="arrow" on-click="{{nextAct}}">{{nextLabel}}</x-import></sc-if></div>
+</x-import>
+</sc-if>
+<sc-if value="{{noTurn}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.Status" dc-props="{{noTurnNote}}">{{noTurnText}}</x-import></sc-if>
+<x-import component-from-global-scope="TemuRisetApp.Slotted" of="TR.Tabs" dc-props="{{tabsProps}}">
+
+<div data-slot="tab:ringkasan" style="display:contents">
+<div class="tr-section">
+<sc-if value="{{decidable}}" hint-placeholder-val="{{false}}">
+<section class="tr-panel tr-stack" aria-label="Keputusan">
+<h2 class="tr-sys-type-heading-sm">Keputusan Anda</h2>
+<x-import component-from-global-scope="TR.ContextSwitcher" dc-props="{{ctxFinal}}"></x-import>
+<sc-if value="{{showBegin}}" hint-placeholder-val="{{false}}"><p class="tr-muted">Tandai mulai ditinjau agar pengirim tahu pitching sudah Anda buka. Ini bukan keputusan.</p></sc-if>
+<div class="tr-row">
+<sc-if value="{{showBegin}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.Button" busy="{{beginBusy}}" on-click="{{begin}}">Mulai tinjau</x-import></sc-if>
+<x-import component-from-global-scope="TR.Button" intent="primary" on-click="{{openApprove}}">Setujui untuk diskusi</x-import>
+<x-import component-from-global-scope="TR.Button" on-click="{{openRevision}}">Minta revisi</x-import>
+<x-import component-from-global-scope="TR.Button" intent="danger" on-click="{{openReject}}">Tolak</x-import>
+</div>
+</section>
+</sc-if>
+<sc-if value="{{viewOnly}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.Status" tone="neutral" icon="lock" label="Akun Anda hanya dapat melihat">Keputusan dibuat oleh anggota yang berwenang.</x-import></sc-if>
+<sc-if value="{{wasRejected}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.Status" tone="danger" label="Ditolak">{{rejectText}}</x-import></sc-if>
+<section class="tr-panel tr-stack" aria-label="Isi submisi">
+<h2 class="tr-sys-type-heading-sm">Isi pitching</h2>
+<p class="tr-muted tr-sys-type-support">{{submissionLabel}}</p>
+<p style="white-space: pre-line;">{{brief}}</p>
+<sc-if value="{{isProject}}" hint-placeholder-val="{{true}}"><x-import component-from-global-scope="TR.FinancialScope" dc-props="{{fin}}"></x-import></sc-if>
+<sc-if value="{{isFunding}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.FundingRequestCard" dc-props="{{fundingSnap}}"></x-import></sc-if>
+<sc-if value="{{hasFacts}}" hint-placeholder-val="{{true}}">
+<div class="tr-stack"><sc-for list="{{facts}}" as="f" hint-placeholder-count="2"><div class="tr-row"><span>{{f.label}}</span><x-import component-from-global-scope="TR.FactSource" dc-props="{{f.source}}"></x-import></div></sc-for></div>
+</sc-if>
+<div class="tr-stack">
+<h3 class="tr-sys-type-label">Inovasi terkait</h3>
+<sc-for list="{{invList}}" as="i" hint-placeholder-count="1"><div><x-import component-from-global-scope="TR.Link" on-click="{{i.open}}">{{i.text}}</x-import></div></sc-for>
+</div>
+</section>
+<x-import component-from-global-scope="TR.Disclosure" label="Syarat saat submisi dikirim">
+<ul class="tr-stack"><sc-for list="{{reqRows}}" as="x" hint-placeholder-count="2"><x-import component-from-global-scope="TR.RequirementRow" dc-props="{{x}}"></x-import></sc-for></ul>
+</x-import>
+<div class="tr-row">
+<sc-if value="{{hasRel}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.Button" on-click="{{openRel}}">Buka ringkasan Kerja Sama</x-import></sc-if>
+<sc-if value="{{canWithdraw}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.Button" on-click="{{openWithdraw}}">Tarik pitching</x-import></sc-if>
+<sc-if value="{{closable}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.Button" on-click="{{openClose}}">Tutup diskusi</x-import></sc-if>
+<x-import component-from-global-scope="TR.Button" on-click="{{report}}">Laporkan</x-import>
+</div>
+</div>
+</div>
+
+<div data-slot="tab:revisi" style="display:contents"><dc-import name="Revisions" hint-size="100%,400px"></dc-import></div>
+
+<div data-slot="tab:dokumen" style="display:contents">
+<section class="tr-stack" aria-label="Dokumen pitching">
+<sc-if value="{{noDocs}}" hint-placeholder-val="{{false}}"><p class="tr-muted">Tidak ada berkas pada submisi ini.</p></sc-if>
+<sc-for list="{{docs}}" as="d" hint-placeholder-count="1">
+<x-import component-from-global-scope="TemuRisetApp.Slotted" of="TR.DocumentItem" dc-props="{{d.props}}">
+<div data-slot="action" style="display:contents">
+<sc-if value="{{d.canDownload}}" hint-placeholder-val="{{true}}"><x-import component-from-global-scope="TR.Button" on-click="{{d.download}}">Unduh versi ini</x-import></sc-if>
+<sc-if value="{{d.mine}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.Button" intent="danger" on-click="{{d.revoke}}">Cabut akses</x-import></sc-if>
+</div>
+</x-import>
+</sc-for>
+</section>
+</div>
+
+<div data-slot="tab:diskusi" style="display:contents">
+<div class="tr-section">
+<section class="tr-stack" aria-label="Pesan">
+<sc-if value="{{noMessages}}" hint-placeholder-val="{{true}}"><p class="tr-muted">Belum ada pesan.</p></sc-if>
+<sc-for list="{{messages}}" as="m" hint-placeholder-count="0">
+<article class="tr-panel tr-stack"><p class="tr-sys-type-support-strong">{{m.who}} <span class="tr-muted">{{m.at}}</span></p><p>{{m.text}}</p></article>
+</sc-for>
+<x-import component-from-global-scope="TR.TextArea" dc-props="{{msg}}"></x-import>
+<div class="tr-row"><x-import component-from-global-scope="TR.Button" intent="primary" busy="{{msgBusy}}" busy-label="Mengirim…" on-click="{{send}}">Kirim pesan</x-import></div>
+</section>
+<section class="tr-stack" aria-label="Tugas">
+<h2 class="tr-sys-type-heading-sm">Tugas</h2>
+<sc-for list="{{tasks}}" as="t" hint-placeholder-count="0">
+<div class="tr-panel tr-row" style="justify-content: space-between;">
+<div><p class="tr-sys-type-label">{{t.title}}</p><p class="tr-muted tr-sys-type-support">{{t.owner}}</p></div>
+<x-import component-from-global-scope="TR.Status" dc-props="{{t.status}}"></x-import>
+<sc-if value="{{t.open}}" hint-placeholder-val="{{true}}"><x-import component-from-global-scope="TR.Button" on-click="{{t.finish}}">Tandai selesai</x-import></sc-if>
+</div>
+</sc-for>
+<div class="tr-grid">
+<x-import component-from-global-scope="TR.TextField" dc-props="{{task}}"></x-import>
+<x-import component-from-global-scope="TR.Select" dc-props="{{taskOwner}}"></x-import>
+</div>
+<div class="tr-row"><x-import component-from-global-scope="TR.Button" on-click="{{addTask}}">Tambah tugas</x-import></div>
+</section>
+</div>
+</div>
+
+<div data-slot="tab:jadwal" style="display:contents"><dc-import name="Schedule" hint-size="100%,400px"></dc-import></div>
+
+<div data-slot="tab:riwayat" style="display:contents">
+<div class="tr-section">
+<section class="tr-stack" aria-label="Linimasa">
+<sc-for list="{{timeline}}" as="t" hint-placeholder-count="2"><p>{{t.text}} <span class="tr-muted tr-sys-type-support">{{t.who}} · {{t.at}}</span></p></sc-for>
+</section>
+<section class="tr-stack" aria-label="Submisi">
+<h2 class="tr-sys-type-heading-sm">Submisi tersimpan</h2>
+<sc-for list="{{submissions}}" as="s" hint-placeholder-count="1">
+<x-import component-from-global-scope="TR.Disclosure" label="{{s.label}}"><p style="white-space: pre-line;">{{s.brief}}</p></x-import>
+</sc-for>
+</section>
+</div>
+</div>
+
+</x-import>
+<x-import component-from-global-scope="TR.Dialog" dc-props="{{approveDlg}}">
+<p>Persetujuan ini membuka diskusi; belum merupakan pendanaan atau kerja sama.</p>
+<x-import component-from-global-scope="TR.ContextSwitcher" dc-props="{{ctxFinal}}"></x-import>
+</x-import>
+<x-import component-from-global-scope="TR.Dialog" dc-props="{{rejectDlg}}">
+<x-import component-from-global-scope="TR.TextArea" dc-props="{{reason}}"></x-import>
+</x-import>
+<x-import component-from-global-scope="TR.Dialog" dc-props="{{withdrawDlg}}">
+<p>Penerima tidak dapat lagi memutuskan kiriman ini. Pitching yang ditarik tidak dibuka kembali.</p>
+</x-import>
+<x-import component-from-global-scope="TR.Dialog" dc-props="{{closeDlg}}">
+<x-import component-from-global-scope="TR.TextArea" dc-props="{{reason}}"></x-import>
+</x-import>
+<x-import component-from-global-scope="TR.Dialog" dc-props="{{revokeDlg}}">
+<p>Pengambilan baru akan diblokir. Salinan yang sudah diunduh dan unduhan yang sedang berjalan tidak dapat ditarik.</p>
+</x-import>
+</div>
+</sc-if>
+</x-import>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1100}}'>
+class Component extends DCLogic {
+  off = TemuRisetApp.attach(this, 'Workspace');
+  componentWillUnmount() { this.off(); }
+  renderVals() { return TemuRisetApp.vm.workspace(); }
+}
+</script>
+</body>
+</html>

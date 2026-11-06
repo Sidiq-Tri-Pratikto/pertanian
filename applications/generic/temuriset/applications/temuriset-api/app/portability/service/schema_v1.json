@@ -1,0 +1,722 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "InventionRow": {
+      "additionalProperties": false,
+      "description": "A partial draft and claims retained independently as source metadata.",
+      "properties": {
+        "external_id": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$",
+          "title": "External Id",
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/SourceProvenance"
+        },
+        "fields": {
+          "$ref": "#/$defs/PortableDraft"
+        },
+        "rights_claims": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/SourceClaim"
+          },
+          "maxItems": 50,
+          "title": "Rights Claims",
+          "type": "array"
+        },
+        "relationship_assertions": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/RelationshipAssertion"
+          },
+          "maxItems": 50,
+          "title": "Relationship Assertions",
+          "type": "array"
+        }
+      },
+      "required": [
+        "external_id",
+        "provenance",
+        "fields"
+      ],
+      "title": "InventionRow",
+      "type": "object"
+    },
+    "PartnerProfileContent": {
+      "additionalProperties": false,
+      "description": "What a partner states about itself. Thesis is general; ``intake_status`` is about now.",
+      "properties": {
+        "subtype": {
+          "default": "",
+          "maxLength": 120,
+          "title": "Subtype",
+          "type": "string"
+        },
+        "thesis": {
+          "default": "",
+          "maxLength": 2000,
+          "title": "Thesis",
+          "type": "string"
+        },
+        "sectors": {
+          "default": [],
+          "items": {
+            "maxLength": 120,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 30,
+          "title": "Sectors",
+          "type": "array"
+        },
+        "stages": {
+          "default": [],
+          "items": {
+            "enum": [
+              "IDEA",
+              "PROTOTYPE",
+              "PILOT",
+              "WORKING",
+              "MARKET"
+            ],
+            "type": "string"
+          },
+          "maxItems": 5,
+          "title": "Stages",
+          "type": "array"
+        },
+        "regions": {
+          "default": [],
+          "items": {
+            "maxLength": 120,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 30,
+          "title": "Regions",
+          "type": "array"
+        },
+        "support_forms": {
+          "default": [],
+          "items": {
+            "maxLength": 120,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 30,
+          "title": "Support Forms",
+          "type": "array"
+        },
+        "relationship_forms": {
+          "default": [],
+          "items": {
+            "enum": [
+              "PROJECT",
+              "LICENSE",
+              "EQUITY"
+            ],
+            "type": "string"
+          },
+          "maxItems": 3,
+          "title": "Relationship Forms",
+          "type": "array"
+        },
+        "review_expectations": {
+          "default": "",
+          "maxLength": 2000,
+          "title": "Review Expectations",
+          "type": "string"
+        },
+        "check_range": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RangeInput"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "intake_from": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Intake From"
+        },
+        "intake_until": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Intake Until"
+        },
+        "contact_route": {
+          "default": "IN_APP",
+          "enum": [
+            "IN_APP",
+            "EXTERNAL",
+            "NONE"
+          ],
+          "title": "Contact Route",
+          "type": "string"
+        },
+        "external_url": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "maxLength": 2000,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "External Url"
+        }
+      },
+      "title": "PartnerProfileContent",
+      "type": "object"
+    },
+    "PartnerRow": {
+      "additionalProperties": false,
+      "description": "An optional profile for the already-authorized acting party.",
+      "properties": {
+        "external_id": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$",
+          "title": "External Id",
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/SourceProvenance"
+        },
+        "organization_name": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Organization Name"
+        },
+        "fields": {
+          "$ref": "#/$defs/PartnerProfileContent"
+        }
+      },
+      "required": [
+        "external_id",
+        "provenance",
+        "fields"
+      ],
+      "title": "PartnerRow",
+      "type": "object"
+    },
+    "PortableDraft": {
+      "description": "Reuse portfolio constraints while treating unknown properties as unmapped.",
+      "properties": {
+        "acting_party_id": {
+          "default": null,
+          "title": "Acting Party Id",
+          "type": "null"
+        },
+        "expected_version": {
+          "default": null,
+          "title": "Expected Version",
+          "type": "null"
+        },
+        "title": {
+          "default": "",
+          "maxLength": 200,
+          "minLength": 0,
+          "title": "Title",
+          "type": "string"
+        },
+        "summary": {
+          "default": "",
+          "maxLength": 2000,
+          "minLength": 0,
+          "title": "Summary",
+          "type": "string"
+        },
+        "problem": {
+          "default": "",
+          "maxLength": 5000,
+          "minLength": 0,
+          "title": "Problem",
+          "type": "string"
+        },
+        "solution": {
+          "default": "",
+          "maxLength": 5000,
+          "minLength": 0,
+          "title": "Solution",
+          "type": "string"
+        },
+        "intended_users": {
+          "default": "",
+          "maxLength": 2000,
+          "minLength": 0,
+          "title": "Intended Users",
+          "type": "string"
+        },
+        "sector": {
+          "default": "",
+          "maxLength": 80,
+          "minLength": 0,
+          "title": "Sector",
+          "type": "string"
+        },
+        "stage": {
+          "anyOf": [
+            {
+              "enum": [
+                "IDEA",
+                "PROTOTYPE",
+                "PILOT",
+                "WORKING",
+                "MARKET"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stage"
+        },
+        "keywords": {
+          "default": [],
+          "items": {
+            "maxLength": 40,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Keywords",
+          "type": "array"
+        },
+        "facts": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/SourceFact"
+          },
+          "maxItems": 50,
+          "title": "Facts",
+          "type": "array"
+        },
+        "claims": {
+          "default": null,
+          "title": "Claims",
+          "type": "null"
+        },
+        "private_notes": {
+          "default": "",
+          "maxLength": 5000,
+          "minLength": 0,
+          "title": "Private Notes",
+          "type": "string"
+        }
+      },
+      "title": "PortableDraft",
+      "type": "object"
+    },
+    "RangeInput": {
+      "additionalProperties": false,
+      "description": "An amount range and what it means. Leave min and max empty with a reason when it is not known.",
+      "properties": {
+        "subject": {
+          "default": "partner",
+          "enum": [
+            "partner",
+            "investorCheck",
+            "license"
+          ],
+          "title": "Subject",
+          "type": "string"
+        },
+        "basis": {
+          "anyOf": [
+            {
+              "enum": [
+                "total_period",
+                "monthly",
+                "yearly"
+              ],
+              "type": "string"
+            },
+            {
+              "const": "per_investment",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Basis"
+        },
+        "min": {
+          "anyOf": [
+            {
+              "maxLength": 24,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Min"
+        },
+        "max": {
+          "anyOf": [
+            {
+              "maxLength": 24,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max"
+        },
+        "currency": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Z]{3}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Currency"
+        },
+        "period": {
+          "default": "",
+          "maxLength": 80,
+          "title": "Period",
+          "type": "string"
+        },
+        "months": {
+          "anyOf": [
+            {
+              "maximum": 120,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Months"
+        },
+        "unknown_reason": {
+          "anyOf": [
+            {
+              "enum": [
+                "not_determined",
+                "not_disclosed"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unknown Reason"
+        }
+      },
+      "title": "RangeInput",
+      "type": "object"
+    },
+    "RelationshipAssertion": {
+      "additionalProperties": false,
+      "description": "An assertion from a source, including when it claims confirmation.",
+      "properties": {
+        "organization_name": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Organization Name",
+          "type": "string"
+        },
+        "kind": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Kind",
+          "type": "string"
+        },
+        "reported_status": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Reported Status",
+          "type": "string"
+        },
+        "provenance": {
+          "const": "SOURCE_REPORTED",
+          "default": "SOURCE_REPORTED",
+          "title": "Provenance",
+          "type": "string"
+        }
+      },
+      "required": [
+        "organization_name",
+        "kind",
+        "reported_status"
+      ],
+      "title": "RelationshipAssertion",
+      "type": "object"
+    },
+    "SourceClaim": {
+      "description": "A source rights assertion is kept separate from the owner's claims.",
+      "properties": {
+        "kind": {
+          "enum": [
+            "creator",
+            "contributor",
+            "manager",
+            "rights_holder",
+            "authority"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "subject_name": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Subject Name",
+          "type": "string"
+        },
+        "party_id": {
+          "default": null,
+          "title": "Party Id",
+          "type": "null"
+        },
+        "scope": {
+          "default": "",
+          "maxLength": 200,
+          "minLength": 0,
+          "title": "Scope",
+          "type": "string"
+        },
+        "status": {
+          "default": "asserted",
+          "enum": [
+            "asserted",
+            "not_established",
+            "reviewed"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "source": {
+          "default": "",
+          "maxLength": 200,
+          "minLength": 0,
+          "title": "Source",
+          "type": "string"
+        },
+        "asserted_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Asserted At"
+        }
+      },
+      "required": [
+        "kind",
+        "subject_name"
+      ],
+      "title": "SourceClaim",
+      "type": "object"
+    },
+    "SourceFact": {
+      "description": "A source can report a fact, but cannot assign its verification or link a private document.",
+      "properties": {
+        "label": {
+          "maxLength": 120,
+          "minLength": 1,
+          "title": "Label",
+          "type": "string"
+        },
+        "value": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Value",
+          "type": "string"
+        },
+        "unit": {
+          "default": "",
+          "maxLength": 40,
+          "minLength": 0,
+          "title": "Unit",
+          "type": "string"
+        },
+        "timing": {
+          "enum": [
+            "CURRENT",
+            "PLANNED",
+            "REQUESTED"
+          ],
+          "title": "Timing",
+          "type": "string"
+        },
+        "provenance": {
+          "const": "SOURCE_REPORTED",
+          "default": "SOURCE_REPORTED",
+          "title": "Provenance",
+          "type": "string"
+        },
+        "key": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "minLength": 0,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Key"
+        },
+        "document_version_id": {
+          "default": null,
+          "title": "Document Version Id",
+          "type": "null"
+        }
+      },
+      "required": [
+        "label",
+        "value",
+        "timing"
+      ],
+      "title": "SourceFact",
+      "type": "object"
+    },
+    "SourceProvenance": {
+      "additionalProperties": false,
+      "description": "Where the source says it obtained the record.",
+      "properties": {
+        "source": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Source",
+          "type": "string"
+        },
+        "observed_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Observed At"
+        }
+      },
+      "required": [
+        "source"
+      ],
+      "title": "SourceProvenance",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "The complete v1 upload envelope.",
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "external_system": {
+      "maxLength": 160,
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$",
+      "title": "External System",
+      "type": "string"
+    },
+    "provenance": {
+      "$ref": "#/$defs/SourceProvenance"
+    },
+    "inventions": {
+      "items": {
+        "$ref": "#/$defs/InventionRow"
+      },
+      "maxItems": 2000,
+      "title": "Inventions",
+      "type": "array"
+    },
+    "partner_profile": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PartnerRow"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "documents": {
+      "default": [],
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "maxItems": 100,
+      "title": "Documents",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version",
+    "external_system",
+    "provenance",
+    "inventions"
+  ],
+  "title": "ImportFile",
+  "type": "object"
+}

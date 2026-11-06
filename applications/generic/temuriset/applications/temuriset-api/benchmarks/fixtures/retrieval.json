@@ -1,0 +1,1280 @@
+{
+  "version": "synthetic-retrieval-v1",
+  "label_provenance": "Author-assigned synthetic topical judgments and independently specified rule expectations.",
+  "sources": {
+    "d-main": {
+      "text": "irigasi surya pompa panel sawah",
+      "selector": null,
+      "targets": [
+        "d-access",
+        "d-conflict",
+        "d-exact",
+        "d-new",
+        "d-noise",
+        "d-verify"
+      ],
+      "split": "development",
+      "group": "d-related-request",
+      "links": [
+        "d-related"
+      ],
+      "projection": {
+        "type": "SUPPORT_REQUEST",
+        "id": "d-main",
+        "version": 2,
+        "stage": "PROTOTYPE",
+        "sector": "Pertanian",
+        "keywords": [
+          "surya",
+          "irigasi"
+        ],
+        "relationship": "PROJECT"
+      },
+      "judgments": {
+        "d-access": {
+          "grade": 1,
+          "eligibility": "ELIGIBLE",
+          "readiness": "READY_TO_SUBMIT",
+          "requirements": {}
+        },
+        "d-conflict": {
+          "grade": 2,
+          "eligibility": "INCOMPATIBLE",
+          "readiness": "BLOCKED_FOR_THIS_TARGET",
+          "requirements": {
+            "d-conflict-r1": {
+              "result": "FAIL",
+              "reason": "Tahap inovasi harus sudah mencapai pilot.",
+              "action": null,
+              "verification_mode": "DECLARATION"
+            }
+          }
+        },
+        "d-exact": {
+          "grade": 3,
+          "eligibility": "ELIGIBLE",
+          "readiness": "READY_TO_SUBMIT",
+          "requirements": {
+            "d-exact-r1": {
+              "result": "PASS",
+              "reason": "Tahap inovasi diterima mandat ini.",
+              "action": null,
+              "verification_mode": "DECLARATION",
+              "source_fact": "stage"
+            }
+          }
+        },
+        "d-new": {
+          "grade": 3,
+          "eligibility": "ELIGIBLE",
+          "readiness": "READY_TO_SUBMIT",
+          "requirements": {}
+        },
+        "d-noise": {
+          "grade": 0,
+          "eligibility": "ELIGIBLE",
+          "readiness": "READY_TO_SUBMIT",
+          "requirements": {}
+        },
+        "d-verify": {
+          "grade": 2,
+          "eligibility": "NEEDS_VERIFICATION",
+          "readiness": "NEEDS_INFORMATION",
+          "requirements": {
+            "d-verify-r1": {
+              "result": "UNKNOWN",
+              "reason": "Wewenang atas inovasi belum dikonfirmasi. Ini bukan berarti wewenang tidak ada.",
+              "action": "clarify-authority",
+              "verification_mode": "REVIEWER_CONFIRMED"
+            }
+          }
+        }
+      }
+    },
+    "d-related": {
+      "text": "irigasi surya pompa lahan fotovoltaik",
+      "selector": null,
+      "targets": [
+        "d-access",
+        "d-conflict",
+        "d-exact",
+        "d-new",
+        "d-noise",
+        "d-verify"
+      ],
+      "split": "development",
+      "group": "d-related-request",
+      "links": [],
+      "projection": {
+        "type": "SUPPORT_REQUEST",
+        "id": "d-related",
+        "version": 2,
+        "stage": "PROTOTYPE",
+        "sector": "Pertanian",
+        "keywords": [
+          "surya",
+          "irigasi"
+        ],
+        "relationship": "PROJECT"
+      },
+      "judgments": {
+        "d-access": {
+          "grade": 2,
+          "eligibility": "ELIGIBLE",
+          "readiness": "READY_TO_SUBMIT",
+          "requirements": {}
+        },
+        "d-conflict": {
+          "grade": 2,
+          "eligibility": "INCOMPATIBLE",
+          "readiness": "BLOCKED_FOR_THIS_TARGET",
+          "requirements": {
+            "d-conflict-r1": {
+              "result": "FAIL",
+              "reason": "Tahap inovasi harus sudah mencapai pilot.",
+              "action": null,
+              "verification_mode": "DECLARATION"
+            }
+          }
+        },
+        "d-exact": {
+          "grade": 3,
+          "eligibility": "ELIGIBLE",
+          "readiness": "READY_TO_SUBMIT",
+          "requirements": {
+            "d-exact-r1": {
+              "result": "PASS",
+              "reason": "Tahap inovasi diterima mandat ini.",
+              "action": null,
+              "verification_mode": "DECLARATION",
+              "source_fact": "stage"
+            }
+          }
+        },
+        "d-new": {
+          "grade": 2,
+          "eligibility": "ELIGIBLE",
+          "readiness": "READY_TO_SUBMIT",
+          "requirements": {}
+        },
+        "d-noise": {
+          "grade": 0,
+          "eligibility": "ELIGIBLE",
+          "readiness": "READY_TO_SUBMIT",
+          "requirements": {}
+        },
+        "d-verify": {
+          "grade": 1,
+          "eligibility": "NEEDS_VERIFICATION",
+          "readiness": "NEEDS_INFORMATION",
+          "requirements": {
+            "d-verify-r1": {
+              "result": "UNKNOWN",
+              "reason": "Wewenang atas inovasi belum dikonfirmasi. Ini bukan berarti wewenang tidak ada.",
+              "action": "clarify-authority",
+              "verification_mode": "REVIEWER_CONFIRMED"
+            }
+          }
+        }
+      }
+    },
+    "d-low": {
+      "text": "matahari klinik pembelajaran mobilitas limbah",
+      "selector": null,
+      "targets": [
+        "d-access",
+        "d-conflict",
+        "d-exact",
+        "d-new",
+        "d-noise",
+        "d-verify"
+      ],
+      "split": "development",
+      "group": "d-low-request",
+      "links": [],
+      "projection": {
+        "type": "SUPPORT_REQUEST",
+        "id": "d-low",
+        "version": 2,
+        "stage": "PROTOTYPE",
+        "sector": "Pertanian",
+        "keywords": [
+          "lintas program"
+        ],
+        "relationship": "PROJECT"
+      },
+      "judgments": {
+        "d-access": {
+          "grade": 0,
+          "eligibility": "ELIGIBLE",
+          "readiness": "READY_TO_SUBMIT",
+          "requirements": {}
+        },
+        "d-conflict": {
+          "grade": 0,
+          "eligibility": "INCOMPATIBLE",
+          "readiness": "BLOCKED_FOR_THIS_TARGET",
+          "requirements": {
+            "d-conflict-r1": {
+              "result": "FAIL",
+              "reason": "Tahap inovasi harus sudah mencapai pilot.",
+              "action": null,
+              "verification_mode": "DECLARATION"
+            }
+          }
+        },
+        "d-exact": {
+          "grade": 0,
+          "eligibility": "ELIGIBLE",
+          "readiness": "READY_TO_SUBMIT",
+          "requirements": {
+            "d-exact-r1": {
+              "result": "PASS",
+              "reason": "Tahap inovasi diterima mandat ini.",
+              "action": null,
+              "verification_mode": "DECLARATION",
+              "source_fact": "stage"
+            }
+          }
+        },
+        "d-new": {
+          "grade": 2,
+          "eligibility": "ELIGIBLE",
+          "readiness": "READY_TO_SUBMIT",
+          "requirements": {}
+        },
+        "d-noise": {
+          "grade": 0,
+          "eligibility": "ELIGIBLE",
+          "readiness": "READY_TO_SUBMIT",
+          "requirements": {}
+        },
+        "d-verify": {
+          "grade": 0,
+          "eligibility": "NEEDS_VERIFICATION",
+          "readiness": "NEEDS_INFORMATION",
+          "requirements": {
+            "d-verify-r1": {
+              "result": "UNKNOWN",
+              "reason": "Wewenang atas inovasi belum dikonfirmasi. Ini bukan berarti wewenang tidak ada.",
+              "action": "clarify-authority",
+              "verification_mode": "REVIEWER_CONFIRMED"
+            }
+          }
+        }
+      }
+    },
+    "d-none": {
+      "text": "literasi pembelajaran modul kelas baca",
+      "selector": null,
+      "targets": [
+        "d-access",
+        "d-conflict",
+        "d-exact",
+        "d-new",
+        "d-noise",
+        "d-verify"
+      ],
+      "split": "development",
+      "group": "d-none-request",
+      "links": [],
+      "projection": {
+        "type": "SUPPORT_REQUEST",
+        "id": "d-none",
+        "version": 2,
+        "stage": "PROTOTYPE",
+        "sector": "Pertanian",
+        "keywords": [
+          "literasi",
+          "pelatihan"
+        ],
+        "relationship": "PROJECT"
+      },
+      "judgments": {
+        "d-access": {
+          "grade": 0,
+          "eligibility": "ELIGIBLE",
+          "readiness": "READY_TO_SUBMIT",
+          "requirements": {}
+        },
+        "d-conflict": {
+          "grade": 0,
+          "eligibility": "INCOMPATIBLE",
+          "readiness": "BLOCKED_FOR_THIS_TARGET",
+          "requirements": {
+            "d-conflict-r1": {
+              "result": "FAIL",
+              "reason": "Tahap inovasi harus sudah mencapai pilot.",
+              "action": null,
+              "verification_mode": "DECLARATION"
+            }
+          }
+        },
+        "d-exact": {
+          "grade": 0,
+          "eligibility": "ELIGIBLE",
+          "readiness": "READY_TO_SUBMIT",
+          "requirements": {
+            "d-exact-r1": {
+              "result": "PASS",
+              "reason": "Tahap inovasi diterima mandat ini.",
+              "action": null,
+              "verification_mode": "DECLARATION",
+              "source_fact": "stage"
+            }
+          }
+        },
+        "d-new": {
+          "grade": 0,
+          "eligibility": "ELIGIBLE",
+          "readiness": "READY_TO_SUBMIT",
+          "requirements": {}
+        },
+        "d-noise": {
+          "grade": 0,
+          "eligibility": "ELIGIBLE",
+          "readiness": "READY_TO_SUBMIT",
+          "requirements": {}
+        },
+        "d-verify": {
+          "grade": 0,
+          "eligibility": "NEEDS_VERIFICATION",
+          "readiness": "NEEDS_INFORMATION",
+          "requirements": {
+            "d-verify-r1": {
+              "result": "UNKNOWN",
+              "reason": "Wewenang atas inovasi belum dikonfirmasi. Ini bukan berarti wewenang tidak ada.",
+              "action": "clarify-authority",
+              "verification_mode": "REVIEWER_CONFIRMED"
+            }
+          }
+        }
+      }
+    },
+    "h-main": {
+      "text": "pompa air pesisir saringan payau",
+      "selector": {
+        "type": "SUPPORT_REQUEST",
+        "version": 2,
+        "title": "Pompa Pesisir Sintetis",
+        "stage": "PROTOTYPE",
+        "sector": "Air dan sanitasi",
+        "keywords": [
+          "pompa",
+          "air pesisir"
+        ],
+        "relationship": "PROJECT"
+      },
+      "targets": [
+        "h-access",
+        "h-conflict",
+        "h-exact",
+        "h-new",
+        "h-noise",
+        "h-verify"
+      ],
+      "split": "held_out",
+      "group": "h-related-request",
+      "links": [
+        "h-related"
+      ],
+      "projection": {
+        "type": "SUPPORT_REQUEST",
+        "id": "h-main",
+        "version": 2,
+        "stage": "PROTOTYPE",
+        "sector": "Air dan sanitasi",
+        "keywords": [
+          "pompa",
+          "air pesisir"
+        ],
+        "relationship": "PROJECT"
+      },
+      "judgments": {
+        "h-access": {
+          "grade": 2,
+          "eligibility": "ELIGIBLE",
+          "readiness": "READY_TO_SUBMIT",
+          "requirements": {}
+        },
+        "h-conflict": {
+          "grade": 2,
+          "eligibility": "INCOMPATIBLE",
+          "readiness": "BLOCKED_FOR_THIS_TARGET",
+          "requirements": {
+            "h-conflict-r1": {
+              "result": "FAIL",
+              "reason": "Tahap inovasi harus sudah mencapai pilot.",
+              "action": null,
+              "verification_mode": "DECLARATION"
+            }
+          }
+        },
+        "h-exact": {
+          "grade": 3,
+          "eligibility": "ELIGIBLE",
+          "readiness": "READY_TO_SUBMIT",
+          "requirements": {
+            "h-exact-r1": {
+              "result": "PASS",
+              "reason": "Tahap inovasi diterima mandat ini.",
+              "action": null,
+              "verification_mode": "DECLARATION",
+              "source_fact": "stage"
+            }
+          }
+        },
+        "h-new": {
+          "grade": 3,
+          "eligibility": "ELIGIBLE",
+          "readiness": "READY_TO_SUBMIT",
+          "requirements": {}
+        },
+        "h-noise": {
+          "grade": 0,
+          "eligibility": "ELIGIBLE",
+          "readiness": "READY_TO_SUBMIT",
+          "requirements": {}
+        },
+        "h-verify": {
+          "grade": 2,
+          "eligibility": "NEEDS_VERIFICATION",
+          "readiness": "NEEDS_INFORMATION",
+          "requirements": {
+            "h-verify-r1": {
+              "result": "UNKNOWN",
+              "reason": "Wewenang atas inovasi belum dikonfirmasi. Ini bukan berarti wewenang tidak ada.",
+              "action": "clarify-authority",
+              "verification_mode": "REVIEWER_CONFIRMED"
+            }
+          }
+        }
+      }
+    },
+    "h-related": {
+      "text": "pompa pesisir membran laut desalinasi",
+      "selector": null,
+      "targets": [
+        "h-access",
+        "h-conflict",
+        "h-exact",
+        "h-new",
+        "h-noise",
+        "h-verify"
+      ],
+      "split": "held_out",
+      "group": "h-related-request",
+      "links": [],
+      "projection": {
+        "type": "SUPPORT_REQUEST",
+        "id": "h-related",
+        "version": 2,
+        "stage": "PROTOTYPE",
+        "sector": "Air dan sanitasi",
+        "keywords": [
+          "pompa",
+          "air pesisir"
+        ],
+        "relationship": "PROJECT"
+      },
+      "judgments": {
+        "h-access": {
+          "grade": 3,
+          "eligibility": "ELIGIBLE",
+          "readiness": "READY_TO_SUBMIT",
+          "requirements": {}
+        },
+        "h-conflict": {
+          "grade": 2,
+          "eligibility": "INCOMPATIBLE",
+          "readiness": "BLOCKED_FOR_THIS_TARGET",
+          "requirements": {
+            "h-conflict-r1": {
+              "result": "FAIL",
+              "reason": "Tahap inovasi harus sudah mencapai pilot.",
+              "action": null,
+              "verification_mode": "DECLARATION"
+            }
+          }
+        },
+        "h-exact": {
+          "grade": 2,
+          "eligibility": "ELIGIBLE",
+          "readiness": "READY_TO_SUBMIT",
+          "requirements": {
+            "h-exact-r1": {
+              "result": "PASS",
+              "reason": "Tahap inovasi diterima mandat ini.",
+              "action": null,
+              "verification_mode": "DECLARATION",
+              "source_fact": "stage"
+            }
+          }
+        },
+        "h-new": {
+          "grade": 3,
+          "eligibility": "ELIGIBLE",
+          "readiness": "READY_TO_SUBMIT",
+          "requirements": {}
+        },
+        "h-noise": {
+          "grade": 0,
+          "eligibility": "ELIGIBLE",
+          "readiness": "READY_TO_SUBMIT",
+          "requirements": {}
+        },
+        "h-verify": {
+          "grade": 1,
+          "eligibility": "NEEDS_VERIFICATION",
+          "readiness": "NEEDS_INFORMATION",
+          "requirements": {
+            "h-verify-r1": {
+              "result": "UNKNOWN",
+              "reason": "Wewenang atas inovasi belum dikonfirmasi. Ini bukan berarti wewenang tidak ada.",
+              "action": "clarify-authority",
+              "verification_mode": "REVIEWER_CONFIRMED"
+            }
+          }
+        }
+      }
+    },
+    "h-low": {
+      "text": "membran klinik pembelajaran gudang kompos",
+      "selector": null,
+      "targets": [
+        "h-access",
+        "h-conflict",
+        "h-exact",
+        "h-new",
+        "h-noise",
+        "h-verify"
+      ],
+      "split": "held_out",
+      "group": "h-low-request",
+      "links": [],
+      "projection": {
+        "type": "SUPPORT_REQUEST",
+        "id": "h-low",
+        "version": 2,
+        "stage": "PROTOTYPE",
+        "sector": "Air dan sanitasi",
+        "keywords": [
+          "kajian lintas bidang"
+        ],
+        "relationship": "PROJECT"
+      },
+      "judgments": {
+        "h-access": {
+          "grade": 0,
+          "eligibility": "ELIGIBLE",
+          "readiness": "READY_TO_SUBMIT",
+          "requirements": {}
+        },
+        "h-conflict": {
+          "grade": 0,
+          "eligibility": "INCOMPATIBLE",
+          "readiness": "BLOCKED_FOR_THIS_TARGET",
+          "requirements": {
+            "h-conflict-r1": {
+              "result": "FAIL",
+              "reason": "Tahap inovasi harus sudah mencapai pilot.",
+              "action": null,
+              "verification_mode": "DECLARATION"
+            }
+          }
+        },
+        "h-exact": {
+          "grade": 0,
+          "eligibility": "ELIGIBLE",
+          "readiness": "READY_TO_SUBMIT",
+          "requirements": {
+            "h-exact-r1": {
+              "result": "PASS",
+              "reason": "Tahap inovasi diterima mandat ini.",
+              "action": null,
+              "verification_mode": "DECLARATION",
+              "source_fact": "stage"
+            }
+          }
+        },
+        "h-new": {
+          "grade": 2,
+          "eligibility": "ELIGIBLE",
+          "readiness": "READY_TO_SUBMIT",
+          "requirements": {}
+        },
+        "h-noise": {
+          "grade": 0,
+          "eligibility": "ELIGIBLE",
+          "readiness": "READY_TO_SUBMIT",
+          "requirements": {}
+        },
+        "h-verify": {
+          "grade": 0,
+          "eligibility": "NEEDS_VERIFICATION",
+          "readiness": "NEEDS_INFORMATION",
+          "requirements": {
+            "h-verify-r1": {
+              "result": "UNKNOWN",
+              "reason": "Wewenang atas inovasi belum dikonfirmasi. Ini bukan berarti wewenang tidak ada.",
+              "action": "clarify-authority",
+              "verification_mode": "REVIEWER_CONFIRMED"
+            }
+          }
+        }
+      }
+    },
+    "h-none": {
+      "text": "klinik kesehatan pasien diagnosis",
+      "selector": null,
+      "targets": [
+        "h-access",
+        "h-conflict",
+        "h-exact",
+        "h-new",
+        "h-noise",
+        "h-verify"
+      ],
+      "split": "held_out",
+      "group": "h-none-request",
+      "links": [],
+      "projection": {
+        "type": "SUPPORT_REQUEST",
+        "id": "h-none",
+        "version": 2,
+        "stage": "PROTOTYPE",
+        "sector": "Air dan sanitasi",
+        "keywords": [
+          "layanan klinik"
+        ],
+        "relationship": "PROJECT"
+      },
+      "judgments": {
+        "h-access": {
+          "grade": 0,
+          "eligibility": "ELIGIBLE",
+          "readiness": "READY_TO_SUBMIT",
+          "requirements": {}
+        },
+        "h-conflict": {
+          "grade": 0,
+          "eligibility": "INCOMPATIBLE",
+          "readiness": "BLOCKED_FOR_THIS_TARGET",
+          "requirements": {
+            "h-conflict-r1": {
+              "result": "FAIL",
+              "reason": "Tahap inovasi harus sudah mencapai pilot.",
+              "action": null,
+              "verification_mode": "DECLARATION"
+            }
+          }
+        },
+        "h-exact": {
+          "grade": 0,
+          "eligibility": "ELIGIBLE",
+          "readiness": "READY_TO_SUBMIT",
+          "requirements": {
+            "h-exact-r1": {
+              "result": "PASS",
+              "reason": "Tahap inovasi diterima mandat ini.",
+              "action": null,
+              "verification_mode": "DECLARATION",
+              "source_fact": "stage"
+            }
+          }
+        },
+        "h-new": {
+          "grade": 0,
+          "eligibility": "ELIGIBLE",
+          "readiness": "READY_TO_SUBMIT",
+          "requirements": {}
+        },
+        "h-noise": {
+          "grade": 0,
+          "eligibility": "ELIGIBLE",
+          "readiness": "READY_TO_SUBMIT",
+          "requirements": {}
+        },
+        "h-verify": {
+          "grade": 0,
+          "eligibility": "NEEDS_VERIFICATION",
+          "readiness": "NEEDS_INFORMATION",
+          "requirements": {
+            "h-verify-r1": {
+              "result": "UNKNOWN",
+              "reason": "Wewenang atas inovasi belum dikonfirmasi. Ini bukan berarti wewenang tidak ada.",
+              "action": "clarify-authority",
+              "verification_mode": "REVIEWER_CONFIRMED"
+            }
+          }
+        }
+      }
+    }
+  },
+  "targets": {
+    "d-access": {
+      "text": "pompa irigasi surya sumur pertanian",
+      "selector": null,
+      "split": "development",
+      "group": "d-opportunity-access",
+      "links": [
+        "d-new"
+      ],
+      "cohort": "established",
+      "projection": {
+        "opportunity_id": "d-access",
+        "version_id": "d-access-v1",
+        "number": 1,
+        "partner_party_id": "d-access-manager",
+        "partner_name": "Koperasi Irigasi Sintetis",
+        "title": "Akses panel pompa lahan",
+        "active": true,
+        "accepted_stages": [
+          "PROTOTYPE"
+        ],
+        "sectors": [
+          "Pertanian"
+        ],
+        "keywords": [
+          "panel",
+          "sumur"
+        ],
+        "relationship_forms": [
+          "PROJECT"
+        ],
+        "financial": null,
+        "requirements": [],
+        "availability": {
+          "available": true,
+          "reason": null
+        }
+      }
+    },
+    "d-conflict": {
+      "text": "surya irigasi pompa fotovoltaik",
+      "selector": null,
+      "split": "development",
+      "group": "d-opportunity-conflict",
+      "links": [],
+      "cohort": "established",
+      "projection": {
+        "opportunity_id": "d-conflict",
+        "version_id": "d-conflict-v1",
+        "number": 1,
+        "partner_party_id": "d-conflict-manager",
+        "partner_name": "Manajer Tahap Sintetis",
+        "title": "Pembiayaan surya tahap lanjut",
+        "active": true,
+        "accepted_stages": [
+          "PILOT"
+        ],
+        "sectors": [
+          "Pertanian"
+        ],
+        "keywords": [
+          "surya",
+          "irigasi"
+        ],
+        "relationship_forms": [
+          "PROJECT"
+        ],
+        "financial": null,
+        "requirements": [
+          {
+            "id": "d-conflict-r1",
+            "label": "Tahap inovasi",
+            "field": "stage",
+            "operator": "in_set",
+            "value": [
+              "PILOT"
+            ],
+            "mandatory": true,
+            "applies_at": "SUBMISSION",
+            "verification_mode": "DECLARATION",
+            "reason": "Tahap inovasi harus sudah mencapai pilot."
+          }
+        ],
+        "availability": {
+          "available": true,
+          "reason": null
+        }
+      }
+    },
+    "d-exact": {
+      "text": "irigasi surya pompa panel fotovoltaik",
+      "selector": null,
+      "split": "development",
+      "group": "d-opportunity-exact",
+      "links": [],
+      "cohort": "established",
+      "projection": {
+        "opportunity_id": "d-exact",
+        "version_id": "d-exact-v1",
+        "number": 1,
+        "partner_party_id": "d-exact-manager",
+        "partner_name": "Lab Irigasi Sintetis",
+        "title": "Uji pompa irigasi surya",
+        "active": true,
+        "accepted_stages": [
+          "PROTOTYPE"
+        ],
+        "sectors": [
+          "Pertanian"
+        ],
+        "keywords": [
+          "surya",
+          "irigasi"
+        ],
+        "relationship_forms": [
+          "PROJECT"
+        ],
+        "financial": null,
+        "requirements": [
+          {
+            "id": "d-exact-r1",
+            "label": "Tahap inovasi",
+            "field": "stage",
+            "operator": "in_set",
+            "value": [
+              "PROTOTYPE"
+            ],
+            "mandatory": true,
+            "applies_at": "SUBMISSION",
+            "verification_mode": "DECLARATION",
+            "reason": ""
+          }
+        ],
+        "availability": {
+          "available": true,
+          "reason": null
+        }
+      }
+    },
+    "d-new": {
+      "text": "fotovoltaik panel energi matahari sawah",
+      "selector": null,
+      "split": "development",
+      "group": "d-opportunity-access",
+      "links": [],
+      "cohort": "new",
+      "projection": {
+        "opportunity_id": "d-new",
+        "version_id": "d-new-v1",
+        "number": 1,
+        "partner_party_id": "d-new-manager",
+        "partner_name": "Manajer Sawah Sintetis",
+        "title": "Catu fotovoltaik untuk sawah",
+        "active": true,
+        "accepted_stages": [
+          "PROTOTYPE"
+        ],
+        "sectors": [
+          "Pertanian"
+        ],
+        "keywords": [
+          "fotovoltaik",
+          "sawah"
+        ],
+        "relationship_forms": [
+          "PROJECT"
+        ],
+        "financial": null,
+        "requirements": [],
+        "availability": {
+          "available": true,
+          "reason": null
+        }
+      }
+    },
+    "d-noise": {
+      "text": "daur ulang sampah kemasan kompos",
+      "selector": null,
+      "split": "development",
+      "group": "d-opportunity-noise",
+      "links": [],
+      "cohort": "established",
+      "projection": {
+        "opportunity_id": "d-noise",
+        "version_id": "d-noise-v1",
+        "number": 1,
+        "partner_party_id": "d-noise-manager",
+        "partner_name": "Manajer Sirkular Sintetis",
+        "title": "Pengolahan sisa kemasan",
+        "active": true,
+        "accepted_stages": [
+          "PROTOTYPE"
+        ],
+        "sectors": [
+          "Pertanian"
+        ],
+        "keywords": [
+          "sampah",
+          "kompos"
+        ],
+        "relationship_forms": [
+          "PROJECT"
+        ],
+        "financial": null,
+        "requirements": [],
+        "availability": {
+          "available": true,
+          "reason": null
+        }
+      }
+    },
+    "d-verify": {
+      "text": "irigasi surya panel sawah",
+      "selector": null,
+      "split": "development",
+      "group": "d-opportunity-verify",
+      "links": [],
+      "cohort": "new",
+      "projection": {
+        "opportunity_id": "d-verify",
+        "version_id": "d-verify-v1",
+        "number": 1,
+        "partner_party_id": "d-verify-manager",
+        "partner_name": "Lab Uji Lahan Sintetis",
+        "title": "Verifikasi irigasi surya",
+        "active": true,
+        "accepted_stages": [
+          "PROTOTYPE"
+        ],
+        "sectors": [
+          "Pertanian"
+        ],
+        "keywords": [
+          "irigasi",
+          "lahan"
+        ],
+        "relationship_forms": [
+          "PROJECT"
+        ],
+        "financial": null,
+        "requirements": [
+          {
+            "id": "d-verify-r1",
+            "label": "Wewenang diperiksa",
+            "field": "authority",
+            "operator": "equals",
+            "value": "REVIEWED",
+            "mandatory": true,
+            "applies_at": "SUBMISSION",
+            "verification_mode": "REVIEWER_CONFIRMED",
+            "reason": ""
+          }
+        ],
+        "availability": {
+          "available": true,
+          "reason": null
+        }
+      }
+    },
+    "h-access": {
+      "text": "akses desalinasi air laut sumur payau",
+      "selector": {
+        "version": 1,
+        "title": "Akses mata air pesisir",
+        "partner": "Koperasi Akses Sintetis",
+        "keywords": [
+          "desalinasi",
+          "sumur"
+        ]
+      },
+      "split": "held_out",
+      "group": "h-opportunity-access",
+      "links": [
+        "h-new"
+      ],
+      "cohort": "established",
+      "projection": {
+        "opportunity_id": "h-access",
+        "version_id": "h-access-v1",
+        "number": 1,
+        "partner_party_id": "h-access-manager",
+        "partner_name": "Koperasi Akses Sintetis",
+        "title": "Akses mata air pesisir",
+        "active": true,
+        "accepted_stages": [
+          "PROTOTYPE"
+        ],
+        "sectors": [
+          "Air dan sanitasi"
+        ],
+        "keywords": [
+          "desalinasi",
+          "sumur"
+        ],
+        "relationship_forms": [
+          "PROJECT"
+        ],
+        "financial": null,
+        "requirements": [],
+        "availability": {
+          "available": true,
+          "reason": null
+        }
+      }
+    },
+    "h-conflict": {
+      "text": "pompa air pesisir saringan payau",
+      "selector": {
+        "version": 1,
+        "title": "Pompa tahap komersial",
+        "partner": "Manajer Konflik Sintetis",
+        "keywords": [
+          "pompa",
+          "air pesisir"
+        ]
+      },
+      "split": "held_out",
+      "group": "h-opportunity-conflict",
+      "links": [],
+      "cohort": "established",
+      "projection": {
+        "opportunity_id": "h-conflict",
+        "version_id": "h-conflict-v1",
+        "number": 1,
+        "partner_party_id": "h-conflict-manager",
+        "partner_name": "Manajer Konflik Sintetis",
+        "title": "Pompa tahap komersial",
+        "active": true,
+        "accepted_stages": [
+          "PILOT"
+        ],
+        "sectors": [
+          "Air dan sanitasi"
+        ],
+        "keywords": [
+          "pompa",
+          "air pesisir"
+        ],
+        "relationship_forms": [
+          "PROJECT"
+        ],
+        "financial": null,
+        "requirements": [
+          {
+            "id": "h-conflict-r1",
+            "label": "Tahap inovasi",
+            "field": "stage",
+            "operator": "in_set",
+            "value": [
+              "PILOT"
+            ],
+            "mandatory": true,
+            "applies_at": "SUBMISSION",
+            "verification_mode": "DECLARATION",
+            "reason": "Tahap inovasi harus sudah mencapai pilot."
+          }
+        ],
+        "availability": {
+          "available": true,
+          "reason": null
+        }
+      }
+    },
+    "h-exact": {
+      "text": "uji pompa air pesisir penyaring payau",
+      "selector": {
+        "version": 1,
+        "title": "Uji pompa air pesisir",
+        "partner": "Lab Pesisir Sintetis",
+        "keywords": [
+          "pompa",
+          "air pesisir"
+        ]
+      },
+      "split": "held_out",
+      "group": "h-opportunity-exact",
+      "links": [],
+      "cohort": "established",
+      "projection": {
+        "opportunity_id": "h-exact",
+        "version_id": "h-exact-v1",
+        "number": 1,
+        "partner_party_id": "h-exact-manager",
+        "partner_name": "Lab Pesisir Sintetis",
+        "title": "Uji pompa air pesisir",
+        "active": true,
+        "accepted_stages": [
+          "PROTOTYPE"
+        ],
+        "sectors": [
+          "Air dan sanitasi"
+        ],
+        "keywords": [
+          "pompa",
+          "air pesisir"
+        ],
+        "relationship_forms": [
+          "PROJECT"
+        ],
+        "financial": null,
+        "requirements": [
+          {
+            "id": "h-exact-r1",
+            "label": "Tahap inovasi",
+            "field": "stage",
+            "operator": "in_set",
+            "value": [
+              "PROTOTYPE"
+            ],
+            "mandatory": true,
+            "applies_at": "SUBMISSION",
+            "verification_mode": "DECLARATION",
+            "reason": ""
+          }
+        ],
+        "availability": {
+          "available": true,
+          "reason": null
+        }
+      }
+    },
+    "h-new": {
+      "text": "desalinasi pemurnian payau membran laut",
+      "selector": {
+        "version": 1,
+        "title": "Pemurnian air payau",
+        "partner": "Manajer Baru Sintetis",
+        "keywords": [
+          "air payau",
+          "pemurnian"
+        ]
+      },
+      "split": "held_out",
+      "group": "h-opportunity-access",
+      "links": [],
+      "cohort": "new",
+      "projection": {
+        "opportunity_id": "h-new",
+        "version_id": "h-new-v1",
+        "number": 1,
+        "partner_party_id": "h-new-manager",
+        "partner_name": "Manajer Baru Sintetis",
+        "title": "Pemurnian air payau",
+        "active": true,
+        "accepted_stages": [
+          "PROTOTYPE"
+        ],
+        "sectors": [
+          "Air dan sanitasi"
+        ],
+        "keywords": [
+          "air payau",
+          "pemurnian"
+        ],
+        "relationship_forms": [
+          "PROJECT"
+        ],
+        "financial": null,
+        "requirements": [],
+        "availability": {
+          "available": true,
+          "reason": null
+        }
+      }
+    },
+    "h-noise": {
+      "text": "mobilitas angkutan perjalanan lalu lintas",
+      "selector": {
+        "version": 1,
+        "title": "Audit lalu lintas",
+        "partner": "Manajer Mobilitas Sintetis",
+        "keywords": [
+          "angkutan",
+          "perjalanan"
+        ]
+      },
+      "split": "held_out",
+      "group": "h-opportunity-noise",
+      "links": [],
+      "cohort": "established",
+      "projection": {
+        "opportunity_id": "h-noise",
+        "version_id": "h-noise-v1",
+        "number": 1,
+        "partner_party_id": "h-noise-manager",
+        "partner_name": "Manajer Mobilitas Sintetis",
+        "title": "Audit lalu lintas",
+        "active": true,
+        "accepted_stages": [
+          "PROTOTYPE"
+        ],
+        "sectors": [
+          "Air dan sanitasi"
+        ],
+        "keywords": [
+          "angkutan",
+          "perjalanan"
+        ],
+        "relationship_forms": [
+          "PROJECT"
+        ],
+        "financial": null,
+        "requirements": [],
+        "availability": {
+          "available": true,
+          "reason": null
+        }
+      }
+    },
+    "h-verify": {
+      "text": "uji pompa pesisir air payau verifikasi",
+      "selector": {
+        "version": 1,
+        "title": "Verifikasi pompa pesisir",
+        "partner": "Lab Verifikasi Sintetis",
+        "keywords": [
+          "pompa",
+          "pesisir"
+        ]
+      },
+      "split": "held_out",
+      "group": "h-opportunity-verify",
+      "links": [],
+      "cohort": "new",
+      "projection": {
+        "opportunity_id": "h-verify",
+        "version_id": "h-verify-v1",
+        "number": 1,
+        "partner_party_id": "h-verify-manager",
+        "partner_name": "Lab Verifikasi Sintetis",
+        "title": "Verifikasi pompa pesisir",
+        "active": true,
+        "accepted_stages": [
+          "PROTOTYPE"
+        ],
+        "sectors": [
+          "Air dan sanitasi"
+        ],
+        "keywords": [
+          "pompa",
+          "pesisir"
+        ],
+        "relationship_forms": [
+          "PROJECT"
+        ],
+        "financial": null,
+        "requirements": [
+          {
+            "id": "h-verify-r1",
+            "label": "Wewenang diperiksa",
+            "field": "authority",
+            "operator": "equals",
+            "value": "REVIEWED",
+            "mandatory": true,
+            "applies_at": "SUBMISSION",
+            "verification_mode": "REVIEWER_CONFIRMED",
+            "reason": ""
+          }
+        ],
+        "availability": {
+          "available": true,
+          "reason": null
+        }
+      }
+    }
+  }
+}

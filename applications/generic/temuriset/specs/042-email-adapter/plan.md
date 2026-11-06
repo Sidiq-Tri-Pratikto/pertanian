@@ -1,0 +1,20 @@
+# Implementation Plan for the gated email delivery adapter
+
+**Branch** `042-email-adapter` | **Date** 2026-11-05 | **Spec** [spec.md](spec.md)
+
+## Baseline and local profile
+
+Identity and access already call `MailboxAdapter` for codes and invitations. Spec 027 dispatches in-app notifications through a durable worker consumer. Reuse the account version and existing `PATCH /api/v1/me` preferences path. The development mailbox and deployed disabled mode retain their current semantics. A distinct loopback relay profile is opt-in, development-only and validated in API and worker startup.
+
+## Design
+
+1. Use async HTTP with a finite request timeout, bounded payload and response handling, no redirects or environment proxies, and a configured literal loopback endpoint. Post a single plain text message with `from`, `to`, `subject` and `body`, plus an opaque `Idempotency-Key` header. A 2xx acknowledges receipt. Classify a timeout, connection error, 429 or 5xx for bounded retry, and treat other refusals as terminal. The relay contract deduplicates accepted requests by key throughout the retry window. The local double simulates a lost acknowledgement. For production the approved provider must establish the same guarantee.
+2. Use the existing worker job path for queued codes and invitation links in relay mode. The caller transaction writes the challenge or invitation and its job together. The worker uses a stable opaque job key and an expiry no later than the originating secret's expiry. Keep raw mail addresses, codes and links out of ordinary job input, the outbox, logs and responses. Use an authenticated encryption envelope, and remove queued encrypted message material at delivery terminal state or expiry. Preserve invitation replay and sign-in throttling. The privacy fulfilment caller keeps its development or disabled implementation so its transaction never depends on the relay.
+3. Use `cryptography` Fernet through a small shared `app/core/secret_envelope.py` helper with `seal(key, purpose, value)` and `open_sealed(key, purpose, envelope)` for purpose-bound bytes. Add the runtime dependency and lock entry once. Spec 043 reuses that primitive with its own setting, purpose and key. Startup validates keys and refuses reuse across adapter purposes when both profiles are enabled. Reuse the existing `httpx` dependency as a runtime dependency.
+4. Add an off-by-default preference through a new Alembic revision and the existing account API. Return the saved preference and preserve stale-version checks. S18 offers the control only when the live manifest advertises the relay, with accessible pending, success and failure states.
+5. Keep 027's in-app consumer and the original state transaction. Register a separate email consumer to enqueue per-recipient delivery jobs transactionally with the consumer checkpoint. Reuse its event targeting rules and the platform worker's bounded retries. Resolve eligible account IDs through the access and identity service boundaries. On each delivery attempt recheck live party authorization, verified active non-demo account and opt-in; obtain the address just before sending. Use a stable opaque key derived from the 027 logical event key, recipient and channel. Never re-run a domain mutation during delivery.
+6. Resolve provider failures at one boundary through typed errors, existing sanitizer and recorder. Keep `email` planned when disabled or using the development mailbox and available in the local manifest only for validated relay mode. Document the safe settings and deployment handoff. Static registry promotion and a non-loopback configuration require the external gate.
+
+## Evidence
+
+Run the existing identity, invitation, discussion, worker and isolation suites with a fake or loopback relay. Test the real mutation boundaries for delivery timing, replay and stale versions, failure diagnostics and injected secrets, and test S18 with adapter status from the manifest. Separately record approved provider terms, sender authentication, sandbox results and rollout evidence before activation.

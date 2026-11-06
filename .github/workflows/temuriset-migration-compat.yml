@@ -1,0 +1,100 @@
+name: TemuRiset migration compatibility
+
+on:
+  pull_request:
+    paths:
+      - applications/generic/temuriset/applications/temuriset-api/**
+      - deployment/temuriset/tests/migration_compat.sh
+      - .github/workflows/temuriset-migration-compat.yml
+  workflow_dispatch:
+    inputs:
+      previous_tag:
+        description: Protected previous TemuRiset release tag
+        required: true
+        type: string
+      previous_sha:
+        description: Exact previous release commit from the trusted release inventory
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  compatibility:
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine@sha256:0cefaabd882e42bcb2a2f3dc56d3ce4770560ba62fd7f197f1a2e008fd5731ab
+        env:
+          POSTGRES_USER: compat
+          POSTGRES_PASSWORD: synthetic-compat
+          POSTGRES_DB: temuriset_compat_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U compat -d temuriset_compat_ci"
+          --health-interval 2s --health-timeout 3s --health-retries 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: false
+      - name: Resolve immutable comparison inputs
+        env:
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          REQUESTED_TAG: ${{ inputs.previous_tag }}
+          REQUESTED_SHA: ${{ inputs.previous_sha }}
+        run: |
+          set -euo pipefail
+          if [[ "$GITHUB_EVENT_NAME" == pull_request ]]; then
+            mode=pr-base
+            previous="$PR_BASE_SHA"
+            candidate="$PR_HEAD_SHA"
+          else
+            mode=previous-release
+            previous="$REQUESTED_SHA"
+            candidate="$GITHUB_SHA"
+            [[ "$REQUESTED_TAG" =~ ^temuriset-v[0-9]+\.[0-9]+\.[0-9]+$ ]]
+            [[ "$previous" =~ ^[0-9a-f]{40}$ ]]
+            [[ "$(git rev-parse "refs/tags/$REQUESTED_TAG^{commit}")" == "$previous" ]]
+            [[ "$previous" != "$candidate" ]]
+            git merge-base --is-ancestor "$previous" "$candidate"
+          fi
+          [[ "$previous" =~ ^[0-9a-f]{40}$ && "$candidate" =~ ^[0-9a-f]{40}$ ]]
+          git cat-file -e "$previous^{commit}"
+          git cat-file -e "$candidate^{commit}"
+          printf 'PREVIOUS_SHA=%s\nCANDIDATE_SHA=%s\nCOMPAT_MODE=%s\n' "$previous" "$candidate" "$mode" >> "$GITHUB_ENV"
+      - name: Install previous and candidate from their own lockfiles
+        run: |
+          set -euo pipefail
+          api=applications/generic/temuriset/applications/temuriset-api
+          for version in previous candidate; do
+            mkdir -p "$RUNNER_TEMP/$version"
+            sha="$PREVIOUS_SHA"
+            if [[ "$version" == candidate ]]; then sha="$CANDIDATE_SHA"; fi
+            git archive "$sha" "$api" | tar -x -C "$RUNNER_TEMP/$version"
+            uv sync --frozen --project "$RUNNER_TEMP/$version/$api"
+          done
+      - name: Check old and new code against the upgraded database
+        env:
+          COMPAT_DATABASE_URL: postgresql+asyncpg://compat:synthetic-compat@127.0.0.1:5432/temuriset_compat_ci
+        run: |
+          set -euo pipefail
+          api=applications/generic/temuriset/applications/temuriset-api
+          previous="$RUNNER_TEMP/previous/$api"
+          candidate="$RUNNER_TEMP/candidate/$api"
+          PYTHON_BIN="$candidate/.venv/bin/python" deployment/temuriset/tests/migration_compat.sh \
+            "$previous" "$candidate" --previous-sha "$PREVIOUS_SHA" --candidate-sha "$CANDIDATE_SHA" \
+            --comparison "$COMPAT_MODE" | tee "$RUNNER_TEMP/migration-compat.json"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: migration-compatibility
+          path: ${{ runner.temp }}/migration-compat.json
+          if-no-files-found: error
+          retention-days: 30

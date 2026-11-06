@@ -1,0 +1,20 @@
+<!-- @dsCard group="Inputs" height=380 -->
+<!doctype html>
+<html lang="id">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>ChoiceGroup — preview</title></head>
+<body>
+<div id="root" class="tr-root tr-pad tr-stack"></div>
+<script>
+var TR = window.TR, h = React.createElement, F = TR.format, X = TR.demo.fixtures, useState = React.useState;
+function S(label, child) { return h('div', { className: 'tr-stack' }, h('p', { className: 'tr-sys-type-support tr-muted' }, label), child); }
+function Demo() {
+  var a = useState('project');
+  return h(TR.ChoiceGroup, { legend: 'Apa yang Anda cari?', required: true, value: a[0], onChange: a[1], options: [
+    { value: 'project', label: 'Dukungan Proyek', hint: 'Untuk satu inovasi dan cakupan kerja tertentu.' },
+    { value: 'company', label: 'Pendanaan Perusahaan', hint: 'Untuk perusahaan; dapat terkait beberapa inovasi.' },
+    { value: 'license', label: 'Diskusi lisensi', disabledReason: 'Tidak diaktifkan di marketplace demo ini.' }] });
+}
+ReactDOM.createRoot(document.getElementById('root')).render(h(Demo));
+</script>
+</body>
+</html>

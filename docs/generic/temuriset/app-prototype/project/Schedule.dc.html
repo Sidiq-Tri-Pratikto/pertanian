@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Panel jadwal</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/temuriset/tokens.css">
+<link rel="stylesheet" href="ds/temuriset/components/bundle.css">
+<script src="ds/temuriset/components/bundle.js"></script>
+<script src="./domain.js"></script>
+<script src="./views.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div class="tr-root tr-section">
+<sc-if value="{{notOpen}}" hint-placeholder-val="{{false}}"><p class="tr-muted">Jadwal terbuka setelah pitching disetujui untuk diskusi.</p></sc-if>
+<sc-if value="{{allowed}}" hint-placeholder-val="{{true}}">
+<div class="tr-section">
+<p class="tr-muted tr-sys-type-support">{{calendarNote}}</p>
+<sc-if value="{{hasClosedNote}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.Status" tone="neutral" icon="clock" label="Usulan tidak berlaku lagi">{{closedNote}}</x-import></sc-if>
+
+<sc-if value="{{isDone}}" hint-placeholder-val="{{false}}">
+<section class="tr-panel tr-stack" aria-label="Pertemuan selesai">
+<x-import component-from-global-scope="TR.Status" tone="{{doneTone}}" label="{{doneLabel}}">{{doneText}}</x-import>
+<div class="tr-row"><x-import component-from-global-scope="TR.Button" on-click="{{composeAnother}}">Usulkan pertemuan lanjutan</x-import></div>
+</section>
+</sc-if>
+
+<sc-if value="{{showMeeting}}" hint-placeholder-val="{{false}}">
+<section class="tr-panel tr-stack" aria-label="Pertemuan">
+<div class="tr-req__head"><h2 class="tr-sys-type-heading-sm">Pertemuan</h2><x-import component-from-global-scope="TR.Status" dc-props="{{meetingStatus}}"></x-import></div>
+<sc-if value="{{replacementOpen}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.Status" tone="neutral" label="Ada usulan pengganti">{{replacementNote}}</x-import></sc-if>
+<p class="tr-sys-type-body-strong">{{meeting.day}}</p>
+<p class="tr-num">{{meeting.time}}</p>
+<p class="tr-muted tr-sys-type-support tr-num">Pihak lain: {{meeting.other}} · {{meeting.utc}}</p>
+<p><span class="tr-muted">Agenda:</span> {{meeting.agenda}}</p>
+<sc-if value="{{meeting.hasLink}}" hint-placeholder-val="{{false}}"><p><x-import component-from-global-scope="TR.Link" href="{{meeting.link}}" external="{{true}}">Tautan pertemuan</x-import></p></sc-if>
+<div class="tr-row">
+<x-import component-from-global-scope="TR.Button" icon="calendar" on-click="{{icsDownload}}">Unduh ICS</x-import>
+<x-import component-from-global-scope="TR.Button" on-click="{{reschedule}}">Usulkan jadwal pengganti</x-import>
+<x-import component-from-global-scope="TR.Button" intent="danger" on-click="{{cancelMeeting}}">Batalkan pertemuan</x-import>
+</div>
+<x-import component-from-global-scope="TR.Disclosure" label="Isi ICS">
+<pre class="tr-sys-type-support" style="white-space: pre-wrap; margin: 0;">{{ics}}</pre>
+</x-import>
+<sc-if value="{{outcomeWait}}" hint-placeholder-val="{{false}}"><p class="tr-muted">Hasil pertemuan dicatat setelah pertemuan dimulai.</p></sc-if>
+<sc-if value="{{outcomeRecorded}}" hint-placeholder-val="{{false}}"><p class="tr-muted">{{recordedText}}</p></sc-if>
+<sc-if value="{{disputed}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.Status" tone="warning" icon="alert" label="Catatan kedua pihak berbeda">Bahas perbedaannya lewat pesan sebelum melanjutkan.</x-import></sc-if>
+<sc-if value="{{canOutcome}}" hint-placeholder-val="{{false}}">
+<div class="tr-stack">
+<x-import component-from-global-scope="TR.ChoiceGroup" dc-props="{{outcome}}"></x-import>
+<x-import component-from-global-scope="TR.TextArea" dc-props="{{note}}"></x-import>
+<div class="tr-row"><x-import component-from-global-scope="TR.Button" intent="primary" on-click="{{record}}">Catat hasil pertemuan</x-import></div>
+</div>
+</sc-if>
+</section>
+</sc-if>
+
+<sc-if value="{{choosing}}" hint-placeholder-val="{{false}}">
+<section class="tr-panel tr-stack" aria-label="Pilih waktu">
+<x-import component-from-global-scope="TR.ContextSwitcher" dc-props="{{ctxFinal}}"></x-import>
+<sc-if value="{{hasSelection}}" hint-placeholder-val="{{false}}"><p class="tr-muted" role="status">{{selectionNote}}</p></sc-if>
+<x-import component-from-global-scope="TemuRisetApp.Slotted" of="TR.ScheduleSlotList" dc-props="{{list}}">
+<div data-slot="error" style="display:contents"><sc-if value="{{hasConflict}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.Status" tone="warning" icon="alert" label="Belum dikonfirmasi" live="alert">{{conflictText}} Agenda dan pilihan lain tetap ada.</x-import></sc-if></div>
+</x-import>
+</section>
+</sc-if>
+
+<sc-if value="{{waiting}}" hint-placeholder-val="{{false}}">
+<section class="tr-panel tr-stack" aria-label="Usulan Anda">
+<h2 class="tr-sys-type-heading-sm">Usulan Anda</h2>
+<p class="tr-muted tr-sys-type-support">{{proposalAt}}</p>
+<p><span class="tr-muted">Agenda:</span> {{waitAgenda}}</p>
+<ul class="tr-stack"><sc-for list="{{waitList}}" as="s" hint-placeholder-count="3"><li><span class="tr-sys-type-label">{{s.day}}</span> <span class="tr-num">{{s.time}}</span></li></sc-for></ul>
+<p class="tr-muted">Usulan bukan pemesanan. Waktu dipesan setelah pihak lain mengonfirmasi.</p>
+<div class="tr-row"><x-import component-from-global-scope="TR.Button" on-click="{{cancelProposal}}">Batalkan usulan</x-import></div>
+</section>
+</sc-if>
+
+<sc-if value="{{composing}}" hint-placeholder-val="{{true}}">
+<section class="tr-panel tr-stack" aria-label="Usulan waktu">
+<h2 class="tr-sys-type-heading-sm">{{composeTitle}}</h2>
+<sc-if value="{{isReschedule}}" hint-placeholder-val="{{false}}"><p class="tr-muted">{{keepNote}}</p></sc-if>
+<sc-if value="{{showSummary}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.ErrorSummary" dc-props="{{summaryProps}}"></x-import></sc-if>
+<sc-for list="{{slotRows}}" as="s" hint-placeholder-count="3">
+<div class="tr-stack">
+<x-import component-from-global-scope="TR.Select" dc-props="{{s.field}}"></x-import>
+<sc-if value="{{s.canRemove}}" hint-placeholder-val="{{false}}"><div class="tr-row"><x-import component-from-global-scope="TR.Button" on-click="{{s.remove}}">Hapus waktu ini</x-import></div></sc-if>
+</div>
+</sc-for>
+<sc-if value="{{hasSlotsError}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.FieldError">{{slotsError}}</x-import></sc-if>
+<sc-if value="{{canAddSlot}}" hint-placeholder-val="{{true}}"><div class="tr-row"><x-import component-from-global-scope="TR.Button" on-click="{{addSlot}}">Tambah waktu</x-import></div></sc-if>
+<x-import component-from-global-scope="TR.ChoiceGroup" dc-props="{{minutes}}"></x-import>
+<x-import component-from-global-scope="TR.Select" dc-props="{{zoneField}}"></x-import>
+<x-import component-from-global-scope="TR.TextArea" dc-props="{{agenda}}"></x-import>
+<x-import component-from-global-scope="TR.TextField" dc-props="{{link}}"></x-import>
+<div class="tr-row">
+<x-import component-from-global-scope="TR.Button" intent="primary" busy="{{proposeBusy}}" busy-label="Mengirim…" on-click="{{propose}}">Kirim usulan waktu</x-import>
+<sc-if value="{{canCancelCompose}}" hint-placeholder-val="{{false}}"><x-import component-from-global-scope="TR.Button" on-click="{{cancelCompose}}">Batal</x-import></sc-if>
+</div>
+</section>
+</sc-if>
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1100}}'>
+class Component extends DCLogic {
+  off = TemuRisetApp.attach(this, 'Schedule');
+  componentWillUnmount() { this.off(); }
+  renderVals() { return TemuRisetApp.vm.schedule(); }
+}
+</script>
+</body>
+</html>

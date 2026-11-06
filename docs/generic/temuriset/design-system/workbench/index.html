@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TemuRiset workbench</title>
+<link rel="stylesheet" href="tokens.css">
+<style>
+  /* Workbench chrome only (test surface, not product UI). Reads the same tokens. */
+  body { margin: 0; font-family: var(--font-sans); background: var(--tr-sys-color-surface-subtle); color: var(--tr-sys-color-text-primary); }
+  .wb { display: grid; grid-template-columns: 15rem minmax(0, 1fr); min-height: 100vh; }
+  .wb nav { background: var(--tr-sys-color-surface); border-right: 1px solid var(--tr-sys-color-border-decorative); padding: var(--tr-ref-space-16); overflow: auto; max-height: 100vh; position: sticky; top: 0; box-sizing: border-box; }
+  .wb nav h1, .wb nav h2, .wb nav p { margin: 0 0 var(--tr-ref-space-4); }
+  .wb nav h2 { margin-top: var(--tr-ref-space-16); color: var(--tr-sys-color-text-secondary); }
+  .wb nav a { display: flex; align-items: center; min-height: var(--tr-sys-size-controlComfort); padding: 0 var(--tr-ref-space-8); color: var(--tr-sys-color-text-primary); border-radius: var(--tr-sys-radius-control); text-decoration: none; }
+  .wb nav a[aria-current="page"] { background: var(--tr-sys-color-selected-surface); color: var(--tr-sys-color-selected-foreground); font-weight: var(--tr-ref-weight-semibold); }
+  .wb :focus-visible { outline: none; box-shadow: 0 0 0 2px var(--tr-sys-color-focus-gap), 0 0 0 4px var(--tr-sys-color-focus); }
+  .wb main { padding: var(--tr-ref-space-16); min-width: 0; }
+  .controls { display: flex; flex-wrap: wrap; gap: var(--tr-ref-space-12) var(--tr-ref-space-24); align-items: center; padding: var(--tr-ref-space-12) var(--tr-ref-space-16); background: var(--tr-sys-color-surface); border: 1px dashed var(--tr-sys-color-border-control); border-radius: var(--tr-sys-radius-surface); margin-bottom: var(--tr-ref-space-16); }
+  .controls label, .controls button { min-height: var(--tr-sys-size-controlComfort); display: inline-flex; align-items: center; gap: var(--tr-ref-space-8); }
+  .controls select, .controls button { font: inherit; min-height: var(--tr-sys-size-controlComfort); padding: 0 var(--tr-ref-space-12); border: 1px solid var(--tr-sys-color-border-control); border-radius: var(--tr-sys-radius-control); background: var(--tr-sys-color-surface); color: var(--tr-sys-color-text-primary); }
+  .stage { overflow: auto; }
+  iframe { display: block; border: 1px solid var(--tr-sys-color-border-control); background: var(--tr-sys-color-canvas); margin: 0 auto; max-width: none; }
+  .meta { color: var(--tr-sys-color-text-secondary); margin: var(--tr-ref-space-8) 0; }
+  #results { white-space: pre-wrap; background: var(--tr-sys-color-surface); border: 1px solid var(--tr-sys-color-border-decorative); border-radius: var(--tr-sys-radius-control); padding: var(--tr-ref-space-12); margin-top: var(--tr-ref-space-16); max-height: 20rem; overflow: auto; }
+  #usage { background: var(--tr-sys-color-surface); border: 1px solid var(--tr-sys-color-border-decorative); border-radius: var(--tr-sys-radius-surface); padding: var(--tr-ref-space-16); margin-top: var(--tr-ref-space-16); max-width: 46rem; }
+  #usage:empty { display: none; }
+  #usage h2 { margin: 0 0 var(--tr-ref-space-8); }
+  #usage p { margin: 0 0 var(--tr-ref-space-8); }
+  #usage code { background: var(--tr-sys-color-surface-subtle); padding: 0 var(--tr-ref-space-4); border-radius: var(--tr-ref-radius-6); overflow-wrap: anywhere; }
+  @media (max-width: 48rem) { .wb { grid-template-columns: minmax(0, 1fr); } .wb nav { position: static; max-height: 16rem; border-right: 0; } }
+</style>
+</head>
+<body>
+<div class="wb">
+  <nav aria-label="Previews">
+    <h1 class="tr-sys-type-body-strong">TemuRiset workbench</h1>
+    <p class="tr-sys-type-support">1.0.0-draft · local test surface</p>
+    <div id="list"></div>
+  </nav>
+  <main>
+    <div class="controls tr-sys-type-support" role="group" aria-label="Test controls (not product UI)">
+      <strong>Test controls</strong>
+      <label>Frame width <select id="width">
+        <option value="320">320 (reflow)</option><option value="360">360</option><option value="768">768</option><option value="1280" selected>1280</option></select></label>
+      <label><input type="checkbox" id="text200"> Text 200% (root font-size)</label>
+      <label><input type="checkbox" id="motion"> Reduced motion (class)</label>
+      <label>Primary colour <select id="brand"><option value="">Seed</option><option value="#7c2d12">Adjusted: #7c2d12</option></select></label>
+      <button type="button" id="reset">Reset preview</button>
+      <button type="button" id="audit">Run audit</button>
+    </div>
+    <p class="meta tr-sys-type-support" id="meta"></p>
+    <div class="stage"><iframe id="frame" title="Component preview"></iframe></div>
+    <div id="usage"></div>
+    <div id="results" class="tr-sys-type-support" role="status" aria-live="polite">Audit results appear here.</div>
+  </main>
+</div>
+<script>
+// The frame reproduces the design-system preview frame: tokens.css, bundle.css, React 18.3.1, bundle.js, then the
+// component's own preview.html, loaded from the same files that are published under project/.
+var BASE = '../project/components/';
+var HEAD = '<link rel="stylesheet" href="' + location.href.replace(/[#?].*$/, '').replace(/[^/]*$/, '') + 'tokens.css">' +
+  '<link rel="stylesheet" href="' + new URL(BASE + 'bundle.css', location.href) + '">' +
+  ['lib/react.production.min.js', 'lib/react-dom.production.min.js', 'bundle.js'].map(function (f) { return '<script src="' + new URL(BASE + f, location.href) + '"><\/script>'; }).join('');
+var frame = document.getElementById('frame');
+var $ = function (id) { return document.getElementById(id); };
+var previews = [];
+function current() { return decodeURIComponent(location.hash.slice(1)) || 'PatternDiscovery'; }
+function md(text) {
+  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').split(/\n\n+/).map(function (b) {
+    var line = b.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').replace(/`([^`]+)`/g, '<code>$1</code>');
+    return /^# /.test(line) ? '<h2 class="tr-sys-type-heading-sm">TR.' + line.slice(2) + '</h2>' : '<p class="tr-sys-type-support">' + line + '</p>';
+  }).join('');
+}
+function render() {
+  var name = current(), w = $('width').value, big = $('text200').checked, entry = previews.filter(function (p) { return p.name === name; })[0];
+  document.querySelectorAll('#list a').forEach(function (a) { if (a.dataset.name === name) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+  fetch(BASE + name + '/preview.html').then(function (r) { return r.text(); }).then(function (html) {
+    var extra = (big ? '<style>html{font-size:200%}<\/style>' : '') + ($('brand').value ? '<style>:root{--tr-sys-color-action-primary-background:' + $('brand').value + '}<\/style>' : '');
+    html = html.replace('<html lang="id">', '<html lang="id" data-theme="light"' + ($('motion').checked ? ' class="tr-reduce-motion"' : '') + '>').replace('<head>', '<head>' + HEAD + extra);
+    frame.style.width = w + 'px';
+    frame.srcdoc = html;
+    $('meta').textContent = name + ' · width ' + w + ' CSS px' + (big ? ' · text 200%' : '');
+  });
+  if (entry && entry.page) { $('usage').innerHTML = ''; return; }
+  fetch(BASE + name + '/README.md').then(function (r) { return r.ok ? r.text() : ''; }).then(function (t) { $('usage').innerHTML = md(t); });
+}
+function fit() { try { var d = frame.contentDocument; if (d && d.documentElement) frame.style.height = Math.max(240, d.documentElement.scrollHeight) + 'px'; } catch (e) {} }
+setInterval(fit, 400);
+fetch('previews.json').then(function (r) { return r.json(); }).then(function (list) {
+  previews = list;
+  var groups = {};
+  list.forEach(function (p) { (groups[p.group] = groups[p.group] || []).push(p); });
+  $('list').innerHTML = ['Patterns', 'Foundations', 'Actions', 'Inputs', 'Overlays', 'Feedback', 'Navigation', 'Domain', 'Layout'].filter(function (g) { return groups[g]; }).map(function (g) {
+    return '<h2 class="tr-sys-type-support-strong">' + g + '</h2>' + groups[g].map(function (p) { return '<a class="tr-sys-type-support" href="#' + p.name + '" data-name="' + p.name + '">' + p.name + '</a>'; }).join('');
+  }).join('');
+  render();
+});
+window.addEventListener('hashchange', render);
+['width', 'text200', 'motion', 'brand'].forEach(function (id) { $(id).addEventListener('change', render); });
+$('reset').addEventListener('click', render);
+
+// ---- audit: rendered contrast of text, target size, horizontal overflow, names
+function parse(c) { var m = c.match(/[\d.]+/g); return m ? m.map(Number) : [0, 0, 0, 0]; }
+function lum(rgb) { return rgb.slice(0, 3).map(function (v) { v /= 255; return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }).reduce(function (s, v, i) { return s + v * [0.2126, 0.7152, 0.0722][i]; }, 0); }
+function ratio(a, b) { var x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); }
+function bgOf(el, win) {
+  for (var e = el; e; e = e.parentElement) {
+    var c = parse(win.getComputedStyle(e).backgroundColor);
+    if (c.length < 4 || c[3] === 1) return c;
+  }
+  return [255, 255, 255];
+}
+window.trAudit = function () {
+  var d = frame.contentDocument, w = frame.contentWindow, out = { preview: current(), width: d.documentElement.clientWidth, text200: $('text200').checked, contrastFails: [], textChecked: 0, under44: [], under24: [], unnamed: [], overflowX: d.documentElement.scrollWidth > d.documentElement.clientWidth };
+  var walker = d.createTreeWalker(d.body, NodeFilter.SHOW_TEXT), seen = new Set();
+  while (walker.nextNode()) {
+    var t = walker.currentNode; if (!t.textContent.trim()) continue;
+    var el = t.parentElement; if (seen.has(el) || el.tagName === 'SCRIPT' || el.tagName === 'STYLE' || el.tagName === 'OPTION') continue; seen.add(el);
+    var r = el.getBoundingClientRect(); if (!r.width || !r.height) continue;
+    var cs = w.getComputedStyle(el); if (cs.visibility === 'hidden' || el.closest('.tr-sr')) continue;
+    var bg = bgOf(el, w), rr = ratio(parse(cs.color), bg), size = parseFloat(cs.fontSize), bold = Number(cs.fontWeight) >= 700, min = size >= 24 || (bold && size >= 18.66) ? 3 : 4.5;
+    out.textChecked++;
+    if (rr < min) out.contrastFails.push({ text: t.textContent.trim().slice(0, 40), ratio: rr.toFixed(2), min: min, color: cs.color, bg: 'rgb(' + bg.slice(0, 3).join(',') + ')' });
+  }
+  d.querySelectorAll('button, a[href], input, select, textarea, summary').forEach(function (el) {
+    var target = el.matches('input[type="radio"], input[type="checkbox"]') ? el.closest('label') || el : el;
+    var r = target.getBoundingClientRect(); if (!r.width) return;
+    var inline = el.matches('a') && w.getComputedStyle(el).display === 'inline', label = (el.textContent || el.getAttribute('aria-label') || el.tagName).trim().slice(0, 30) + ' ' + Math.round(r.width) + 'x' + Math.round(r.height);
+    if (!inline && (r.width < 24 || r.height < 24)) out.under24.push(label);
+    else if (!inline && (r.width < 43.5 || r.height < 43.5)) out.under44.push(label);
+    var name = (el.getAttribute('aria-label') || el.textContent || (el.labels && el.labels[0] && el.labels[0].textContent) || '').trim();
+    if (!name) out.unnamed.push(el.outerHTML.slice(0, 60));
+  });
+  $('results').textContent = JSON.stringify(out, null, 2);
+  return out;
+};
+$('audit').addEventListener('click', function () { window.trAudit(); });
+</script>
+</body>
+</html>

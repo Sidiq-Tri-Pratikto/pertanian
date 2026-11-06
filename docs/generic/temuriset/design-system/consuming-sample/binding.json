@@ -1,0 +1,16 @@
+{
+  "system": {
+    "name": "TemuRiset Design System",
+    "version": "1.0.0-draft",
+    "reviewStatus": "draft, not owner-approved",
+    "artifact": "https://claude.ai/artifact/KU4iHKHaVL7QgL8bhSgfWV"
+  },
+  "supply": {
+    "method": "portable local reference",
+    "detail": "Files read from ../project (the same files published to the private artifact) and ../workbench/tokens.css (generated from project/tokens.json by tools/build.mjs). Not a registered-system selection; no automatic inheritance.",
+    "tokenExport": "../exports/temuriset-design-system.tokens.json (temuriset-tokens/1, custom)"
+  },
+  "componentsUsed": ["TR.Screen", "TR.TextField", "TR.Button", "TR.Checkbox", "TR.InventionCard", "TR.FinancialScope"],
+  "localDeviations": ["None: this sample adds no CSS of its own."],
+  "checks": "See project/guide/05-validation-report.md, gate DS-11."
+}

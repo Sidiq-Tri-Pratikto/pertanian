@@ -1,0 +1,66 @@
+{
+  "availability": {
+    "available": true,
+    "reason": null
+  },
+  "eligibility": "INCOMPATIBLE",
+  "evidence": {
+    "applicable": 2,
+    "note": null,
+    "provided": 1,
+    "reviewed": 0
+  },
+  "fit": {
+    "coverage": "0.88",
+    "lower": "85.71",
+    "upper": "100.00"
+  },
+  "gap": {
+    "action": null,
+    "applies_at": "SUBMISSION",
+    "field": "feature:sso",
+    "label": "SSO yang sudah berjalan",
+    "mandatory": true,
+    "reason": "Fitur baru direncanakan, sedangkan mandat ini memerlukan fitur yang sudah berjalan.",
+    "requirement_id": "<id>",
+    "result": "FAIL",
+    "verification_mode": "DECLARATION"
+  },
+  "label": "Tidak cocok untuk target ini",
+  "later": [],
+  "opportunity_id": "<id>",
+  "opportunity_version": 1,
+  "opportunity_version_id": "<id>",
+  "partner": "Mitra Lisensi D",
+  "partner_party_id": "<id>",
+  "readiness": "BLOCKED_FOR_THIS_TARGET",
+  "reasons": [
+    "Bentuk kerja sama sesuai."
+  ],
+  "relevant": true,
+  "rows": [
+    {
+      "action": null,
+      "applies_at": "SUBMISSION",
+      "field": "feature:sso",
+      "label": "SSO yang sudah berjalan",
+      "mandatory": true,
+      "reason": "Fitur baru direncanakan, sedangkan mandat ini memerlukan fitur yang sudah berjalan.",
+      "requirement_id": "<id>",
+      "result": "FAIL",
+      "verification_mode": "DECLARATION"
+    },
+    {
+      "action": null,
+      "applies_at": "SUBMISSION",
+      "field": "relationship",
+      "label": "Bentuk kerja sama",
+      "mandatory": true,
+      "reason": "Bentuk kerja sama sesuai.",
+      "requirement_id": "<id>",
+      "result": "PASS",
+      "verification_mode": "DECLARATION"
+    }
+  ],
+  "title": "Lisensi perangkat lunak korporasi"
+}

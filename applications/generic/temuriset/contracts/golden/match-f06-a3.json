@@ -1,0 +1,45 @@
+{
+  "availability": {
+    "available": true,
+    "reason": null
+  },
+  "eligibility": "ELIGIBLE",
+  "evidence": {
+    "applicable": 1,
+    "note": null,
+    "provided": 1,
+    "reviewed": 0
+  },
+  "fit": {
+    "coverage": "0.88",
+    "lower": "85.71",
+    "upper": "100.00"
+  },
+  "gap": null,
+  "label": "Kecocokan kuat",
+  "later": [],
+  "opportunity_id": "<id>",
+  "opportunity_version": 1,
+  "opportunity_version_id": "<id>",
+  "partner": "Mitra A",
+  "partner_party_id": "<id>",
+  "readiness": "READY_TO_SUBMIT",
+  "reasons": [
+    "Tahap inovasi diterima mandat ini."
+  ],
+  "relevant": true,
+  "rows": [
+    {
+      "action": null,
+      "applies_at": "SUBMISSION",
+      "field": "stage",
+      "label": "Tahap inovasi",
+      "mandatory": true,
+      "reason": "Tahap inovasi diterima mandat ini.",
+      "requirement_id": "<id>",
+      "result": "PASS",
+      "verification_mode": "DECLARATION"
+    }
+  ],
+  "title": "Pendampingan ide tahap awal"
+}

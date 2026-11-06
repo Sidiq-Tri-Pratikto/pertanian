@@ -1,0 +1,28 @@
+name: temuriset-api
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+      POSTGRES_DB: app
+    ports:
+      - "5442:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app"]
+      interval: 2s
+      timeout: 2s
+      retries: 15
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  # Optional real malware scanner: `docker compose -f dev-compose.yml --profile scanner up -d`, then FILE_SCANNER=clamav.
+  clamav:
+    image: clamav/clamav:1.4
+    profiles: ["scanner"]
+    ports:
+      - "3310:3310"
+
+volumes:
+  postgres-data:
