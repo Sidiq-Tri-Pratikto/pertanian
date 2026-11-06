@@ -1,0 +1,57 @@
+name: HematDaya API
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - applications/generic/hematdaya/**
+      - .github/workflows/hematdaya-api.yml
+  pull_request:
+    paths:
+      - applications/generic/hematdaya/**
+      - .github/workflows/hematdaya-api.yml
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [hematdaya-api]
+    defaults:
+      run:
+        working-directory: applications/generic/hematdaya/applications/${{ matrix.app }}
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: app
+          POSTGRES_PASSWORD: app
+          POSTGRES_DB: app
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U app"
+          --health-interval 2s
+          --health-timeout 2s
+          --health-retries 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync --frozen
+      - run: uv run pre-commit run -c ../../.pre-commit-config.yaml --all-files
+        env:
+          SKIP: no-commit-to-branch
+      - run: make check
+        env:
+          DATABASE_URL: postgresql+asyncpg://app:app@localhost:5432/app
+      - run: make openapi && git diff --exit-code ../../contracts/openapi.json
+        env:
+          DATABASE_URL: postgresql+asyncpg://app:app@localhost:5432/app
+      - run: docker build -t ${{ matrix.app }}:ci .
+      - uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: ${{ matrix.app }}:ci
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: "1"

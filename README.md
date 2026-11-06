@@ -10,6 +10,7 @@ Kumpulan proyek hackathon (private): dokumen, aplikasi atau prototipe, dan konfi
 │   └── <proyek>/
 ├── applications/     # kode aplikasi dan prototipe; satu folder per proyek
 │   └── <proyek>/
+├── .github/          # CI untuk aplikasi yang memiliki test
 ├── deployment/       # konfigurasi deployment (belum ada isi)
 └── skills/           # skill Claude Code yang dipakai lintas proyek
     └── <skill>/SKILL.md
@@ -20,6 +21,8 @@ Nama folder proyek sama di `docs/` dan `applications/`, dengan pola `<hackathon>
 ## PRD generik
 
 [docs/generic](docs/generic/) memuat spesifikasi lintas sektor, terpisah dari dokumen hackathon. Produk pertama: [HematDaya generik](docs/generic/hematdaya/), untuk pemantauan listrik rumah tangga, usaha, dan industri. Ini spesifikasi pengembangan baru; prototipe proyek yang sudah ada tetap memiliki cakupannya masing-masing.
+
+Kodenya ada di [applications/generic/hematdaya](applications/generic/hematdaya/): aplikasi mobile Expo dan API FastAPI, dengan cara menjalankan dan menguji di README-nya.
 
 [TemuRiset generik](docs/generic/temuriset/README.md) menetapkan aplikasi penemu untuk menemukan investor dan mitra lintas sektor, dengan kebutuhan dukungan, pendanaan perusahaan, matching, pitching dan konfirmasi kerja sama. Paket v1.1 memuat [PRD ID](docs/generic/temuriset/01_PRD_TemuRiset_Generic_ID.md), [PRD EN](docs/generic/temuriset/01_PRD_TemuRiset_Generic_EN.md), template ekstensi klien dan kajian arsitektur modular monolith/reuse yang disepakati. Handoff dan prompt Claude Design berbahasa Inggris mengikuti urutan design system dahulu, lalu aplikasi dengan konteks PRD lengkap; [urutan dan berkasnya](docs/generic/temuriset/README.md) tercatat dalam paket. Design system 1.0.0-draft dan prototipe Claude Design sudah ada di paket tersebut.
 

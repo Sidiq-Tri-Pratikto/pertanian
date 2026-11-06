@@ -1,0 +1,15 @@
+import { useRouter, useSegments, type Href } from 'expo-router';
+
+/** Link helpers that keep a detail screen inside the current tab, so back returns to where the user was. */
+export function useTabNavigation() {
+  const router = useRouter();
+  const segments = useSegments() as string[];
+  const group = segments.find((segment) => /^\((beranda|perangkat|saran)\)$/.test(segment)) ?? '(beranda)';
+  const inTab = (path: string) => `/(tabs)/${group}/${path}` as Href;
+
+  return {
+    openFeature: (id: string) => router.push(inTab(`segera-hadir/${id}`)),
+    openSettings: () => router.push(inTab('pengaturan')),
+    back: () => (router.canGoBack() ? router.back() : router.replace('/beranda')),
+  };
+}

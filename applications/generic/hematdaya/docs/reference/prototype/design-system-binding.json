@@ -1,0 +1,39 @@
+{
+  "designSystem": {
+    "name": "HematDaya Design System",
+    "version": "1.0.0-draft",
+    "artifact": "https://claude.ai/code/artifact/dd476000-0e94-47f0-981b-2a2460926404",
+    "resolvedArtifact": "https://claude.ai/artifact/UKpTDTYqPNVwfCuHLjY3ns",
+    "artifactVersionId": "1792845682-1490",
+    "reviewStatus": "draft, not owner-approved (per the system's own release record)",
+    "namespace": "window.HD"
+  },
+  "supply": "selected Claude artifact (session design-system selection) -> files copied server-side into the Design canvas under project/ds/hematdaya/ with a designSystems record in project/canvas.json",
+  "filesCopied": {
+    "project/ds/hematdaya/tokens.json": "server-side copy of the system's project/tokens.json (feeds the canvas colour/text-style pickers)",
+    "project/ds/hematdaya/components/bundle.js": "server-side copy, sha256 745dee2976abc9bc68a5a386b4517b627bf57ea61761c288bf84abeacaa175ee",
+    "project/ds/hematdaya/components/bundle.css": "server-side copy, sha256 c4cb3381cce5be41e2c63f7364c66e77000578fb7c75900feac7bd038f3f5911"
+  },
+  "tokenExport": "tokens.json (Design System type list grammar); the system's export name is hematdaya-tokens/1",
+  "componentsUsed": [
+    "HD.Screen", "HD.TabNavigation (via Screen)", "HD.Button", "HD.IconButton (via Screen back)", "HD.TextField", "HD.NumericField", "HD.ChoiceGroup",
+    "HD.PeriodSelector", "HD.SheetDialog", "HD.Disclosure", "HD.Notice", "HD.ErrorSummary", "HD.ProgressStatus",
+    "HD.EnergyMetric", "HD.CostEstimate", "HD.ScopeSummary", "HD.DataQuality", "HD.AssetRow", "HD.ContributionRanking",
+    "HD.HistoryChart", "HD.ChartDataAlternative", "HD.InsightSummary", "HD.EvidencePanel", "HD.ImportPreview", "HD.OutputMetricPreview", "HD.format.parseDecimal"
+  ],
+  "componentsNotUsed": [{ "name": "HD.ScheduleWindows", "why": "Its mode chooser has no editable windows; schedule editing composes ChoiceGroup + TextField(time) instead, with the same mode wording." }],
+  "localDeviations": [
+    { "what": "project/ds/hematdaya/tokens.css written by hand in this project", "why": "The system ships no compiled tokens.css; its consuming guide says to regenerate from tokens.json. Values and names are copied 1:1 (aliases resolved to var() references) plus the .type-* classes.", "reviewImpact": "Must be regenerated if tokens.json changes; not a system file." },
+    { "what": "project/app/app.css (scroll container, data <pre>, error list, key/value grid, 200% text class)", "why": "App-level layout not covered by a component; reads tokens only.", "reviewImpact": "Low; candidate for an HD layout helper." },
+    { "what": "Own markup for: scope-conflict energy block, split/partial-tariff cost, CSV row-error list, source catalog rows, schedule window editor", "why": "Component gaps: EnergyMetric/CostEstimate render 'Belum ada data energi' when a total is withheld for a scope conflict; CostEstimate cannot show effective-dated tariff splits; ImportPreview assumes file line = data row + 1 (wrong with blank lines or multi-line quoted fields).", "reviewImpact": "Recommend system changes: EnergyMetric/CostEstimate 'scopeConflict' state, CostEstimate split/partial tariff, ImportPreview fileLine field." },
+    { "what": "Copy differences accepted from the system", "why": "ImportPreview's primary button reads 'Impor N baris' (brief: 'Konfirmasi impor'); EvidencePanel headings are 'Yang teramati / Pembanding / Kualitas dan cakupan data / Yang belum diketahui / Saran umum' (brief: 'Yang tercatat / Dibandingkan dengan / … / Langkah pemeriksaan'); Disclosure label 'Detail perhitungan' (brief: 'Lihat dasar perhitungan').", "reviewImpact": "Product-owner decision: change the system copy or accept." },
+    { "what": "The whole app is one React component (window.HematDayaApp.App) mounted by x-import in each artboard", "why": "A stateful S01-S12 app with shared state and a shared calculation authority; the canvas format's markup-only screens would split state across artboards.", "reviewImpact": "Canvas elements inside the app are not individually editable in the Design editor." }
+  ],
+  "checksRunInConsumer": ["contrast (computed, rendered text)", "48 px targets", "320/360/390/430/768/1280/1440 reflow", "200% text", "keyboard sheet focus/Escape/return", "state matrix"],
+  "checksNotRun": ["screen readers (NVDA/JAWS/VoiceOver/TalkBack)", "400% browser zoom at 1280", "reduced-motion runtime behaviour (CSS rule inspected only)", "non-text contrast of focus ring/borders measured in this project"],
+  "missingBindingOrUnsupportedImport": [
+    "No compiled tokens.css in the system (regenerated locally, see deviations).",
+    "React/ReactDOM from the system's components/lib are used only by the local standalone page; the canvas supplies its own React 18."
+  ],
+  "recordedAt": "2026-10-24T21:00:00+07:00"
+}

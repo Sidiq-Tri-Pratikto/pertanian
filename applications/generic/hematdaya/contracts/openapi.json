@@ -1,0 +1,381 @@
+{
+  "components": {
+    "schemas": {
+      "AdapterResponse": {
+        "description": "One data source adapter.",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CapabilityStatus"
+          }
+        },
+        "required": [
+          "id",
+          "status"
+        ],
+        "title": "AdapterResponse",
+        "type": "object"
+      },
+      "CapabilityManifestResponse": {
+        "description": "Non-secret explanation of this deployment. It grants nothing; the service still authorizes every request.",
+        "properties": {
+          "adapters": {
+            "items": {
+              "$ref": "#/components/schemas/AdapterResponse"
+            },
+            "title": "Adapters",
+            "type": "array"
+          },
+          "capabilities": {
+            "items": {
+              "$ref": "#/components/schemas/CapabilityResponse"
+            },
+            "title": "Capabilities",
+            "type": "array"
+          },
+          "composition": {
+            "$ref": "#/components/schemas/CompositionResponse"
+          },
+          "policies": {
+            "items": {
+              "$ref": "#/components/schemas/PolicyResponse"
+            },
+            "title": "Policies",
+            "type": "array"
+          },
+          "schema_version": {
+            "title": "Schema Version",
+            "type": "integer"
+          },
+          "source_release": {
+            "title": "Source Release",
+            "type": "string"
+          }
+        },
+        "required": [
+          "schema_version",
+          "source_release",
+          "composition",
+          "capabilities",
+          "adapters",
+          "policies"
+        ],
+        "title": "CapabilityManifestResponse",
+        "type": "object"
+      },
+      "CapabilityResponse": {
+        "description": "One product capability.",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "optional": {
+            "title": "Optional",
+            "type": "boolean"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CapabilityStatus"
+          }
+        },
+        "required": [
+          "id",
+          "optional",
+          "status"
+        ],
+        "title": "CapabilityResponse",
+        "type": "object"
+      },
+      "CapabilityStatus": {
+        "description": "What a capability or adapter can honestly claim today.",
+        "enum": [
+          "planned",
+          "simulated",
+          "available"
+        ],
+        "title": "CapabilityStatus",
+        "type": "string"
+      },
+      "CompositionResponse": {
+        "description": "The validated product composition of this deployment.",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "version"
+        ],
+        "title": "CompositionResponse",
+        "type": "object"
+      },
+      "ErrorBody": {
+        "description": "Public failure content.",
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "details": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ErrorFieldDetail"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Details"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "recovery": {
+            "$ref": "#/components/schemas/ErrorRecovery"
+          },
+          "request_id": {
+            "title": "Request Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "request_id",
+          "recovery"
+        ],
+        "title": "ErrorBody",
+        "type": "object"
+      },
+      "ErrorEnvelope": {
+        "description": "The one failure body on every endpoint.",
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/ErrorBody"
+          }
+        },
+        "required": [
+          "error"
+        ],
+        "title": "ErrorEnvelope",
+        "type": "object"
+      },
+      "ErrorFieldDetail": {
+        "description": "One invalid field in a validation failure.",
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Loc",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Msg",
+            "type": "string"
+          },
+          "type": {
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ErrorFieldDetail",
+        "type": "object"
+      },
+      "ErrorRecovery": {
+        "description": "Retry guidance for one failure.",
+        "properties": {
+          "max_attempts": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Max Attempts"
+          },
+          "retry_after_seconds": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Retry After Seconds"
+          },
+          "retryable": {
+            "title": "Retryable",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "retryable"
+        ],
+        "title": "ErrorRecovery",
+        "type": "object"
+      },
+      "PolicyResponse": {
+        "description": "One versioned analysis policy.",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "version"
+        ],
+        "title": "PolicyResponse",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "title": "hematdaya-api",
+    "version": "0.1.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/v1/capabilities": {
+      "get": {
+        "description": "Return the non-secret manifest clients use to explain what is available.\n\nReturns:\n    CapabilityManifestResponse: The manifest.",
+        "operationId": "get_capabilities_api_v1_capabilities_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CapabilityManifestResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Describe this deployment",
+        "tags": [
+          "capabilities"
+        ]
+      }
+    },
+    "/health/live": {
+      "get": {
+        "description": "Report that the process is serving.\n\nReturns:\n    dict[str, str]: The status.",
+        "operationId": "health_health_live_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Health Health Live Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Liveness check",
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/health/ready": {
+      "get": {
+        "description": "Report that dependencies are reachable.\n\nArgs:\n    session (SessionDep): Database session.\n\nReturns:\n    dict[str, str]: The status.",
+        "operationId": "ready_health_ready_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Ready Health Ready Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Readiness check",
+        "tags": [
+          "health"
+        ]
+      }
+    }
+  }
+}
