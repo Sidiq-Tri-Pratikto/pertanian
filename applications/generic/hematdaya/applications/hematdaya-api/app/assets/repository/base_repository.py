@@ -74,3 +74,7 @@ class AssetRepository(ABC):
     @abstractmethod
     async def list_relations(self, site_id: UUID) -> list[RelationModel]:
         """Return a site's relations."""
+
+    @abstractmethod
+    async def clear(self, site_id: UUID) -> None:
+        """Delete a site's assets and sources; bindings, relations and readings cascade."""

@@ -40,3 +40,7 @@ class SiteRepository(ABC):
     @abstractmethod
     async def advance_revision(self, site_id: UUID, column: str) -> None:
         """Advance a revision counter on a locked site."""
+
+    @abstractmethod
+    async def delete(self, site_ids: list[UUID]) -> None:
+        """Lock sites in ID order, then delete them with everything they own."""

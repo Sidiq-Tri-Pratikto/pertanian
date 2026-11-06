@@ -32,14 +32,16 @@ def test_manifest_describes_the_deployment() -> None:
 def test_nothing_claims_more_than_exists() -> None:
     """
     Condition:
-    - Base release: no feature, adapter or meter integration has shipped.
+    - Only the demo adapter has shipped, with simulated data.
 
     Expected:
-    - Every capability and adapter reports planned, never available or connected.
+    - Demo reports simulated; every capability and other adapter reports planned, never available or connected.
     """
     manifest = build_manifest("core-plus-optional")
+    adapters = {adapter.id: adapter.status for adapter in manifest.adapters}
 
-    assert {item.status for item in [*manifest.capabilities, *manifest.adapters]} == {"planned"}
+    assert adapters.pop("demo") == "simulated"
+    assert {item.status for item in manifest.capabilities} | set(adapters.values()) == {"planned"}
 
 
 def test_core_only_composition_drops_optional_modules() -> None:

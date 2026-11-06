@@ -59,6 +59,26 @@ PUBLIC_ERROR_BY_CODE: dict[str, PublicError] = {
         409,
         "Aset ini sudah memiliki sumber acuan pada waktu tersebut. Akhiri sumber yang lama lalu coba lagi.",
     ),
+    codes.APP_DEMO_CAPACITY: PublicError(
+        "RATE_LIMITED",
+        429,
+        "Demo sedang ramai digunakan. Tunggu sebentar lalu coba lagi.",
+        {"retryable": True, "retry_after_seconds": 60, "max_attempts": 3},
+    ),
+    codes.APP_SESSION_EXPIRED: PublicError(
+        "SESSION_EXPIRED", 401, "Sesi demo sudah berakhir. Mulai sesi demo baru untuk melanjutkan."
+    ),
+    codes.APP_SCENARIO_UNKNOWN: PublicError(
+        "NOT_FOUND", 404, "Skenario demo tidak ditemukan. Pilih skenario dari daftar yang tersedia."
+    ),
+    codes.APP_DEMO_REPLAY_PROOF_MISMATCH: PublicError(
+        "NOT_FOUND", 404, "Data yang diminta tidak ditemukan. Periksa alamatnya lalu coba lagi."
+    ),
+    codes.APP_DEMO_REPLAY_CONFLICT: PublicError(
+        "CONFLICT",
+        409,
+        "Permintaan demo ini sudah dipakai untuk sesi lain atau sudah kedaluwarsa. Mulai sesi demo baru.",
+    ),
     codes.APP_AUTH_REQUIRED: PublicError(
         "UNAUTHORIZED", 401, "Anda perlu masuk terlebih dahulu. Masuk lalu coba lagi."
     ),

@@ -26,6 +26,10 @@ class FakeSiteRepository(SiteRepository):
         site = self.sites.get(site_id)
         return site if site is not None and site.owner_principal_id == owner_id else None
 
+    async def delete(self, site_ids: list[UUID]) -> None:
+        for site_id in site_ids:
+            self.sites.pop(site_id, None)
+
     async def lock(self, site_id: UUID) -> SiteModel | None:
         return self.sites.get(site_id)
 

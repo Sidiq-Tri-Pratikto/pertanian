@@ -162,3 +162,23 @@ class SiteService:
             site (SiteModel): The locked site.
         """
         await self.repository.advance_revision(site.id, "measurement_revision")
+
+    async def restore(self, site: SiteModel, **values: object) -> SiteModel:
+        """Set a locked site's fields back to given values. Demo reset uses this.
+
+        Args:
+            site (SiteModel): The locked site.
+            **values (object): Column values.
+
+        Returns:
+            SiteModel: The site.
+        """
+        return await self.repository.update(site.id, values)
+
+    async def delete(self, site_ids: list[UUID]) -> None:
+        """Delete sites with everything they own, taking their locks in ID order.
+
+        Args:
+            site_ids (list[UUID]): Sites already resolved by the caller.
+        """
+        await self.repository.delete(sorted(site_ids))

@@ -1,5 +1,6 @@
 """Full-stack fixtures over real Postgres. Start it with ``make run-dependencies``."""
 
+import secrets
 import subprocess
 import sys
 from collections.abc import AsyncIterator, Callable, Iterator
@@ -12,6 +13,7 @@ from httpx import ASGITransport, AsyncClient
 from sqlalchemy import text
 
 from app.core.database import get_session_factory
+from app.core.settings import get_settings
 from app.identity.dependencies import get_current_principal
 from app.identity.model.models import PrincipalKind, PrincipalModel
 from app.main import app
@@ -24,6 +26,13 @@ def migrated_database() -> Iterator[None]:
     """Apply migrations once; a failure here means Postgres is not running."""
     subprocess.run([sys.executable, "-m", "alembic", "upgrade", "head"], check=True)
     yield
+
+
+@pytest.fixture(autouse=True)
+def roomy_demo_limits(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Sessions persist between runs, so tests lift the demo limits; capacity tests set their own."""
+    monkeypatch.setattr(get_settings(), "demo_max_active_sessions", 10**9)
+    monkeypatch.setattr(get_settings(), "demo_create_max_per_minute", 10**9)
 
 
 @pytest.fixture
@@ -164,3 +173,34 @@ async def make_binding(site: UUID, asset: UUID, source: UUID, effective_from: st
         start=datetime.fromisoformat(effective_from),
     )
     return rows[0][0]
+
+
+def demo_headers(**overrides: str) -> dict[str, str]:
+    """Fresh random creation headers.
+
+    Args:
+        **overrides (str): Replace ``key`` or ``proof``.
+
+    Returns:
+        dict[str, str]: ``Idempotency-Key`` and ``X-Demo-Replay-Proof``.
+    """
+    return {
+        "Idempotency-Key": overrides.get("key", secrets.token_urlsafe(16)),
+        "X-Demo-Replay-Proof": overrides.get("proof", secrets.token_urlsafe(32)),
+    }
+
+
+async def start_demo(client: AsyncClient, scenario_id: str = "h-base") -> dict:
+    """Create a demo session.
+
+    Args:
+        client (AsyncClient): The client.
+        scenario_id (str, optional): The scenario. Defaults to h-base.
+
+    Returns:
+        dict: The session response, with ``auth`` headers added.
+    """
+    response = await client.post("/api/v1/demo/sessions", json={"scenario_id": scenario_id}, headers=demo_headers())
+    assert response.status_code == 201, response.text
+    body = response.json()
+    return body | {"auth": {"Authorization": f"Bearer {body['token']}"}}

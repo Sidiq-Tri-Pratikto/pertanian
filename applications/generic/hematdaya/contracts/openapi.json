@@ -436,6 +436,88 @@
         "title": "CreateBindingRequest",
         "type": "object"
       },
+      "CreateDemoSessionRequest": {
+        "additionalProperties": false,
+        "description": "The scenario to seed.",
+        "properties": {
+          "scenario_id": {
+            "maxLength": 40,
+            "minLength": 1,
+            "title": "Scenario Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "scenario_id"
+        ],
+        "title": "CreateDemoSessionRequest",
+        "type": "object"
+      },
+      "DemoSessionResponse": {
+        "description": "A new session, or the same session recovered by a valid replay. Keep the token secret.",
+        "properties": {
+          "expires_at": {
+            "format": "date-time",
+            "title": "Expires At",
+            "type": "string"
+          },
+          "initial_period": {
+            "$ref": "#/components/schemas/InitialPeriodResponse"
+          },
+          "scenario_id": {
+            "title": "Scenario Id",
+            "type": "string"
+          },
+          "site_id": {
+            "format": "uuid",
+            "title": "Site Id",
+            "type": "string"
+          },
+          "token": {
+            "title": "Token",
+            "type": "string"
+          }
+        },
+        "required": [
+          "site_id",
+          "scenario_id",
+          "expires_at",
+          "initial_period",
+          "token"
+        ],
+        "title": "DemoSessionResponse",
+        "type": "object"
+      },
+      "DemoWorkspaceResponse": {
+        "description": "The demo workspace behind the current session.",
+        "properties": {
+          "expires_at": {
+            "format": "date-time",
+            "title": "Expires At",
+            "type": "string"
+          },
+          "initial_period": {
+            "$ref": "#/components/schemas/InitialPeriodResponse"
+          },
+          "scenario_id": {
+            "title": "Scenario Id",
+            "type": "string"
+          },
+          "site_id": {
+            "format": "uuid",
+            "title": "Site Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "site_id",
+          "scenario_id",
+          "expires_at",
+          "initial_period"
+        ],
+        "title": "DemoWorkspaceResponse",
+        "type": "object"
+      },
       "ErrorBody": {
         "description": "Public failure content.",
         "properties": {
@@ -575,6 +657,32 @@
         "title": "ExpectedUse",
         "type": "string"
       },
+      "InitialPeriodResponse": {
+        "description": "The period a scenario opens on.",
+        "properties": {
+          "end_date": {
+            "format": "date",
+            "title": "End Date",
+            "type": "string"
+          },
+          "preset": {
+            "title": "Preset",
+            "type": "string"
+          },
+          "start_date": {
+            "format": "date",
+            "title": "Start Date",
+            "type": "string"
+          }
+        },
+        "required": [
+          "preset",
+          "start_date",
+          "end_date"
+        ],
+        "title": "InitialPeriodResponse",
+        "type": "object"
+      },
       "MeasurementKind": {
         "description": "What a source's raw values mean.",
         "enum": [
@@ -603,6 +711,35 @@
           "version"
         ],
         "title": "PolicyResponse",
+        "type": "object"
+      },
+      "ScenarioResponse": {
+        "description": "A scenario clients can start.",
+        "properties": {
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "segment": {
+            "title": "Segment",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "segment",
+          "name",
+          "description"
+        ],
+        "title": "ScenarioResponse",
         "type": "object"
       },
       "ScopeKind": {
@@ -1146,6 +1283,173 @@
         "summary": "Describe this deployment",
         "tags": [
           "capabilities"
+        ]
+      }
+    },
+    "/api/v1/demo/scenarios": {
+      "get": {
+        "description": "Return every scenario a client can start. Public.\n\nArgs:\n    service (DemoService): Demo rules.\n\nReturns:\n    list[ScenarioResponse]: The catalog.",
+        "operationId": "list_scenarios_api_v1_demo_scenarios_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ScenarioResponse"
+                  },
+                  "title": "Response List Scenarios Api V1 Demo Scenarios Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "List demo scenarios",
+        "tags": [
+          "demo"
+        ]
+      }
+    },
+    "/api/v1/demo/sessions": {
+      "post": {
+        "description": "Seed an isolated demo workspace, or recover the same one after a lost response.\n\nThe key needs at least 128 random bits and the proof a separate 256. Send the same pair to recover within\nthe replay window; use a new pair for a new session.\n\nArgs:\n    request (CreateDemoSessionRequest): The scenario.\n    service (DemoService): Demo rules.\n    response (Response): Lets a replay answer 200.\n    idempotency_key (str): Operation ID.\n    replay_proof (str): Secret replay proof.\n\nReturns:\n    DemoSessionResponse: Token and workspace.",
+        "operationId": "create_session_api_v1_demo_sessions_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 128,
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Demo-Replay-Proof",
+            "required": true,
+            "schema": {
+              "maxLength": 256,
+              "title": "X-Demo-Replay-Proof",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDemoSessionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DemoSessionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Start a demo session",
+        "tags": [
+          "demo"
+        ]
+      }
+    },
+    "/api/v1/demo/sessions/current": {
+      "delete": {
+        "description": "End the session and delete its workspace.\n\nArgs:\n    principal (PrincipalModel): The acting principal.\n    service (DemoService): Demo rules.",
+        "operationId": "end_session_api_v1_demo_sessions_current_delete",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "End the demo session",
+        "tags": [
+          "demo"
+        ]
+      }
+    },
+    "/api/v1/demo/sessions/current/reset": {
+      "post": {
+        "description": "Return the caller's workspace to its scenario start; the token stays valid.\n\nArgs:\n    principal (PrincipalModel): The acting principal.\n    service (DemoService): Demo rules.\n\nReturns:\n    DemoWorkspaceResponse: The workspace.",
+        "operationId": "reset_session_api_v1_demo_sessions_current_reset_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DemoWorkspaceResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Reset the demo workspace",
+        "tags": [
+          "demo"
         ]
       }
     },

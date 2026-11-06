@@ -5,7 +5,7 @@ from typing import Any
 from uuid import UUID
 
 from asyncpg.exceptions import ExclusionViolationError
-from sqlalchemy import and_, select, tuple_, update
+from sqlalchemy import and_, delete, select, tuple_, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -339,3 +339,12 @@ class SqlAlchemyAssetRepository(AssetRepository):
             )
             for record in await self.session.scalars(query)
         ]
+
+    async def clear(self, site_id: UUID) -> None:
+        """Delete a site's assets and sources.
+
+        Args:
+            site_id (UUID): The locked site.
+        """
+        await self.session.execute(delete(AssetRecord).where(AssetRecord.site_id == site_id))
+        await self.session.execute(delete(SourceRecord).where(SourceRecord.site_id == site_id))

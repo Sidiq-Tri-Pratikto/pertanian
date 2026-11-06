@@ -21,6 +21,7 @@ _SENSITIVE_KEY_MARKERS = (
     "input",
     "messages",
     "password",
+    "proof",
     "prompt",
     "secret",
     "token",
@@ -28,10 +29,10 @@ _SENSITIVE_KEY_MARKERS = (
 _BEARER = re.compile(r"(?i)\bBearer\s+[^\s,;]+")
 _URL_USERINFO = re.compile(r"(?i)(\b[a-z][a-z0-9+.-]*://)[^/\s]*@")
 _PRIVATE_FIELD = re.compile(
-    r"(?i)[\"']?(?:api[_-]?key|password|passwd|token|access[_-]?token|refresh[_-]?token|secret|"
+    r"(?i)[\"']?(?:api[_-]?key|password|passwd|token|access[_-]?token|refresh[_-]?token|secret|proof|"
     r"authorization|cookie|prompt|input|body|content|messages)(?:[_-][A-Za-z0-9]+)*[\"']?\s*[:=]"
 )
-_API_TOKEN = re.compile(r"(?i)\bsk-[A-Za-z0-9_-]{4,}\b")
+_API_TOKEN = re.compile(r"(?i)\b(?:sk-|hdd_)[A-Za-z0-9_-]{4,}")
 _EMAIL = re.compile(r"\b[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b")
 
 

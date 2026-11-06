@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import select, update
+from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.sites.model.models import SiteContext, SiteKind, SiteModel
@@ -140,3 +140,16 @@ class SqlAlchemySiteRepository(SiteRepository):
         await self.session.execute(
             update(SiteRecord).where(SiteRecord.id == site_id).values({column: getattr(SiteRecord, column) + 1})
         )
+
+    async def delete(self, site_ids: list[UUID]) -> None:
+        """Delete sites; their assets, sources, readings, audit and sessions cascade.
+
+        Args:
+            site_ids (list[UUID]): Sites to delete.
+        """
+        if not site_ids:
+            return
+        await self.session.execute(
+            select(SiteRecord.id).where(SiteRecord.id.in_(site_ids)).order_by(SiteRecord.id).with_for_update()
+        )
+        await self.session.execute(delete(SiteRecord).where(SiteRecord.id.in_(site_ids)))

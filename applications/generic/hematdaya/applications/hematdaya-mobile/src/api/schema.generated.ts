@@ -126,6 +126,116 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/demo/scenarios": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List demo scenarios
+         * @description Return every scenario a client can start. Public.
+         *
+         *     Args:
+         *         service (DemoService): Demo rules.
+         *
+         *     Returns:
+         *         list[ScenarioResponse]: The catalog.
+         */
+        get: operations["list_scenarios_api_v1_demo_scenarios_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/demo/sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Start a demo session
+         * @description Seed an isolated demo workspace, or recover the same one after a lost response.
+         *
+         *     The key needs at least 128 random bits and the proof a separate 256. Send the same pair to recover within
+         *     the replay window; use a new pair for a new session.
+         *
+         *     Args:
+         *         request (CreateDemoSessionRequest): The scenario.
+         *         service (DemoService): Demo rules.
+         *         response (Response): Lets a replay answer 200.
+         *         idempotency_key (str): Operation ID.
+         *         replay_proof (str): Secret replay proof.
+         *
+         *     Returns:
+         *         DemoSessionResponse: Token and workspace.
+         */
+        post: operations["create_session_api_v1_demo_sessions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/demo/sessions/current": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * End the demo session
+         * @description End the session and delete its workspace.
+         *
+         *     Args:
+         *         principal (PrincipalModel): The acting principal.
+         *         service (DemoService): Demo rules.
+         */
+        delete: operations["end_session_api_v1_demo_sessions_current_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/demo/sessions/current/reset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reset the demo workspace
+         * @description Return the caller's workspace to its scenario start; the token stays valid.
+         *
+         *     Args:
+         *         principal (PrincipalModel): The acting principal.
+         *         service (DemoService): Demo rules.
+         *
+         *     Returns:
+         *         DemoWorkspaceResponse: The workspace.
+         */
+        post: operations["reset_session_api_v1_demo_sessions_current_reset_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/sites/{site_id}": {
         parameters: {
             query?: never;
@@ -441,6 +551,54 @@ export interface components {
             source_id: string;
         };
         /**
+         * CreateDemoSessionRequest
+         * @description The scenario to seed.
+         */
+        CreateDemoSessionRequest: {
+            /** Scenario Id */
+            scenario_id: string;
+        };
+        /**
+         * DemoSessionResponse
+         * @description A new session, or the same session recovered by a valid replay. Keep the token secret.
+         */
+        DemoSessionResponse: {
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            initial_period: components["schemas"]["InitialPeriodResponse"];
+            /** Scenario Id */
+            scenario_id: string;
+            /**
+             * Site Id
+             * Format: uuid
+             */
+            site_id: string;
+            /** Token */
+            token: string;
+        };
+        /**
+         * DemoWorkspaceResponse
+         * @description The demo workspace behind the current session.
+         */
+        DemoWorkspaceResponse: {
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            initial_period: components["schemas"]["InitialPeriodResponse"];
+            /** Scenario Id */
+            scenario_id: string;
+            /**
+             * Site Id
+             * Format: uuid
+             */
+            site_id: string;
+        };
+        /**
          * ErrorBody
          * @description Public failure content.
          */
@@ -502,6 +660,24 @@ export interface components {
          */
         ExpectedUse: "unknown" | "continuous" | "scheduled" | "intermittent";
         /**
+         * InitialPeriodResponse
+         * @description The period a scenario opens on.
+         */
+        InitialPeriodResponse: {
+            /**
+             * End Date
+             * Format: date
+             */
+            end_date: string;
+            /** Preset */
+            preset: string;
+            /**
+             * Start Date
+             * Format: date
+             */
+            start_date: string;
+        };
+        /**
          * MeasurementKind
          * @description What a source's raw values mean.
          * @enum {string}
@@ -516,6 +692,20 @@ export interface components {
             id: string;
             /** Version */
             version: number;
+        };
+        /**
+         * ScenarioResponse
+         * @description A scenario clients can start.
+         */
+        ScenarioResponse: {
+            /** Description */
+            description: string;
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Segment */
+            segment: string;
         };
         /**
          * ScopeKind
@@ -811,6 +1001,136 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CapabilityManifestResponse"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    list_scenarios_api_v1_demo_scenarios_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScenarioResponse"][];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    create_session_api_v1_demo_sessions_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                "X-Demo-Replay-Proof": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateDemoSessionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DemoSessionResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    end_session_api_v1_demo_sessions_current_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    reset_session_api_v1_demo_sessions_current_reset_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DemoWorkspaceResponse"];
                 };
             };
             /** @description Failure */

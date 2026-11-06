@@ -2,7 +2,7 @@
 
 **Feature Branch**: `008-demo-sessions`
 **Created**: 2026-10-30
-**Status**: Seeded, not started
+**Status**: Implemented on `f/m1-energy-core`; Postgres integration tests pass. SC-001: an `h-base` session took 0.69 s on the dev machine (2026-11-06)
 **Milestone**: M1 Energy core
 **Depends on**: 007
 **Size**: M

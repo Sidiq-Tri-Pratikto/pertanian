@@ -375,6 +375,14 @@ class AssetService:
             raise AssetCycleError()
         await self.repository.add_relation(site.id, from_asset_id, to_asset_id, kind)
 
+    async def clear(self, site: SiteModel) -> None:
+        """Remove a locked site's assets, sources, bindings, relations and readings. Demo reset uses this.
+
+        Args:
+            site (SiteModel): The locked site.
+        """
+        await self.repository.clear(site.id)
+
     async def _asset_in_site(self, site: SiteModel, asset_id: UUID) -> AssetModel:
         asset = await self.repository.get_asset_in_site(site.id, asset_id)
         if asset is None:
