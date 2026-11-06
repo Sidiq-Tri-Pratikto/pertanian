@@ -2,7 +2,7 @@
 
 **Feature Branch**: `038-backup-restore`
 **Created**: 2026-11-05
-**Status**: Implemented and rehearsed on local synthetic Compose. Staging and previous-release evidence remain open.
+**Status**: Integrated local Compose recovery verified at Alembic 0014. M7-to-0014 coexistence is blocked by the old erasure worker. Actual staging and previous-release evidence remain open.
 **Milestone**: M11 Portability and operations
 **Depends on**: 037
 **Size**: M

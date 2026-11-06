@@ -6,11 +6,20 @@ here=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 repo=$(git -C "$here" rev-parse --show-toplevel)
 deploy=$repo/deployment/temuriset
 tmp=$(mktemp -d)
+chmod 0700 "$tmp"
 project="temuriset-m11-smoke-$(openssl rand -hex 6)"
 compose() { docker compose --env-file /dev/null -p "$project" -f "$deploy/compose.staging.yml" "$@"; }
 cleanup() {
     status=$?
-    if [ "$status" -ne 0 ]; then compose ps -a >&2 || true; fi
+    if [ "$status" -ne 0 ]; then
+        compose ps -a >&2 || true
+        for service in object-store bucket-ready postgres migrate clamav api worker web edge; do
+            id=$(compose ps -aq "$service") || continue
+            [ -n "$id" ] || continue
+            printf '%s: ' "$service" >&2
+            docker inspect --format 'status={{.State.Status}} exit={{.State.ExitCode}} oom={{.State.OOMKilled}}{{if .State.Health}} health={{.State.Health.Status}}{{end}}' "$id" >&2 || true
+        done
+    fi
     compose down --volumes --remove-orphans >&2 || true
     rm -rf "$tmp"
 }
@@ -44,6 +53,9 @@ Path(os.environ["S3_CONFIG_FILE"]).write_text(json.dumps({"identities": [{
     "actions": [f"Read:{bucket}", f"Write:{bucket}", f"List:{bucket}"],
 }]}))
 PY
+# The pinned image drops to seaweed (UID/GID 1000). Only the Docker bind mount bypasses
+# the private scratch directory, so other host users cannot traverse it to the test identity.
+chmod 0444 "$S3_CONFIG_FILE"
 
 inventory="$tmp/inventory.jsonl"
 : > "$inventory"

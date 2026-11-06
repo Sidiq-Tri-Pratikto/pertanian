@@ -4,7 +4,24 @@ import type { Persona } from '@/features/persona';
 /** The widths every route must hold without horizontal scroll (PRD section 13). */
 export const VIEWPORTS = [320, 360, 768, 1280] as const;
 
-export const STAGING_SUITES = ['axe', 'keyboard', 'overflow', 'j01', 'j02', 'j03', 'j04', 'j05'] as const;
+export const STAGING_SUITES = ['axe', 'keyboard', 'overflow'] as const;
+export const STAGING_JOURNEYS = [
+  {
+    name: 'J01', file: 'matching.spec.ts', project: 'chromium-1280',
+    title: 'J01: from Beranda through the range repair and the match to a submitted pitch Mitra J01 receives (S03, S10, S11)',
+  },
+  {
+    name: 'J02', file: 'j02-company-raise.spec.ts', project: 'chromium-1280',
+    title: 'J02: Bima pitches one company raise to an equity mandate, and the second link opens the same pitch (S10, S11)',
+  },
+  {
+    name: 'J03', file: 'j03-revision.spec.ts', project: 'chromium-1280',
+    title: 'J03: revision with an honest answer, a new file version, resubmission, item review and approval (S12, S13)',
+  },
+  // Bind these to their shipped journey tests when the prerequisite features land.
+  { name: 'J04', file: 'j04.spec.ts', project: 'chromium-1280', title: null },
+  { name: 'J05', file: 'j05.spec.ts', project: 'chromium-1280', title: null },
+] as const;
 
 export function stagingOrigin(): string | undefined {
   const value = process.env.E2E_STAGING_URL;

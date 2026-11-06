@@ -1,6 +1,6 @@
 # Tasks: Backup, restore and migration safety
 
-**Input:** `specs/038-backup-restore/spec.md`, `plan.md`, and spec 037 deployment artifacts. The combined M11 Part 1 branch starts from M10 `eeab59e`; 038 follows 037 on this branch. Paths are relative to the pertanian repository root unless defined as an alias.
+**Input:** `specs/038-backup-restore/spec.md`, `plan.md`, and spec 037 deployment artifacts. Checked items describe the earlier M10-based work at `eeab59e`. T015–T019 verify the integration on the latest M7 base and the full 034–044 candidate, and retain separate external gates. 038 follows 037 on this branch. Paths are relative to the pertanian repository root unless defined as an alias.
 
 | Alias | Path |
 |---|---|
@@ -42,21 +42,28 @@
 - [x] T013 [US1] Run the AC72 forward-repair or restore path once with a simulated irreversible migration on disposable synthetic data. Verify pre-change state is restored or repaired and document the measured loss window and limitations in `BACKUP/drill.md`. Keep existing migrations immutable.
 - [x] T014 [US1] Run the migration compatibility smoke with available branch refs and document measured results and known limitations in `BACKUP/drill.md`. Record the exact previous release for staging acceptance or keep that evidence blocked where no trusted release exists. Use separate rows for PR-base smoke and actual release evidence.
 
+- [X] T015 [US1] Re-run paired restore and the simulated irreversible-change scenario against the integrated 037 images using `BACKUP/tests/drill.sh`. Record actual Alembic head, image IDs, checksum/access checks, snapshot, recovery duration and observed loss in new local rows in `BACKUP/drill.md`. Preserve historical M10 rows with their original scope.
+- [X] T016 [US1] Run `DEPLOY/tests/migration_compat.sh` from the M7 base to the integrated candidate against disposable PostgreSQL, with both source identities and heads recorded in `BACKUP/drill.md`. Address the replacement of `document_versions.file_state` explicitly. Keep unreviewed schema changes fail-closed. Check the exact old/new values and the old API serializer, authorization and worker behavior against records the candidate can persist. An explicitly validated monotonic widening is eligible for a narrowly scoped exception only if coexistence is proven. Otherwise retain the CI failure or introduce a separately classified non-passing development finding with the retirement or staged rollout prerequisite and the forward-repair/restore decision. Keep production promotion and the actual-release job fail-closed in `.github/workflows/temuriset-migration-compat.yml`.
+- [ ] T017 [US1] Repeat T015 on approved staging with the named release manager, host operator and data steward. Record the staging release, fixture provenance and measured recovery details separately in `BACKUP/drill.md` before pilot data. Staging access and an approved isolated restore target are prerequisites.
+- [ ] T018 [US1] Dispatch `.github/workflows/temuriset-migration-compat.yml` against the trusted previous release tag/SHA and an immutable candidate with a changed head. Preserve the artifact and retirement decision in `BACKUP/drill.md`. Keep release AC71 open without a trusted release or a compatible changed head.
+
 ## Phase 4: Polish
 
-- [x] T015 Validate shell syntax, backup/restore safety, and workflow configuration; run the available checks and `PROJECT/docs/roadmap/check_traceability.py`. Update `PROJECT/specs/038-backup-restore/spec.md` to match the evidence and record remaining real-staging or previous-release gates in `BACKUP/drill.md`. Do not schedule jobs, touch existing environments, or claim a production backup was performed by this implementation.
+- [x] T019 Validate shell syntax, backup/restore safety, and workflow configuration; run the available checks and `PROJECT/docs/roadmap/check_traceability.py`. Update `PROJECT/specs/038-backup-restore/spec.md` to match the evidence and record remaining real-staging or previous-release gates in `BACKUP/drill.md`. Do not schedule jobs, touch existing environments, or claim a production backup was performed by this implementation.
+
+- [X] T020 Run integrated shell/workflow validation and `PROJECT/docs/roadmap/check_traceability.py`. Update `PROJECT/specs/038-backup-restore/spec.md` and `DEPLOY/RUNBOOK.md` from the evidence in `BACKUP/drill.md` and keep separate the historical, integrated and external gate results.
 
 ## Dependencies & Execution Order
 
 - T001/T002 depend on 037's usable deployment settings and runbook. T003–T005 can be written in parallel after the operational contract is defined.
 - T006–T008 implement the paired backup/restore path. T009–T010 implement the independent compatibility workflow. T011 binds both to one operator procedure.
-- T012–T014 collect distinct restore, irreversible-recovery, and compatibility evidence. T015 follows them. The local MVP is a measured synthetic drill and a runnable compatibility gate; actual staging acceptance remains separate.
+- T012–T014 and T019 describe the historical run. T015 depends on integrated 037 images and T016 on the candidate migration chain. T017 and T018 are separately gated. T020 can document the integrated results while those external tasks remain open. The local MVP is a measured synthetic drill and a compatibility result tied to the new heads.
 
 ## Requirements Coverage
 
 | Requirement | Tasks | Evidence |
 |---|---|---|
-| FR-001 | T002–T004, T006–T008, T012 | Paired encrypted archive, retention, safe restore |
-| FR-002 and AC71 | T005, T009–T011, T014 | Previous code against candidate schema; retirement gate |
-| AC72 | T004, T007, T011, T013 | Tested forward-repair/restore and measured data-loss window |
-| SC-001 and acceptance 1 | T004, T012–T015 | Measured drill using synthetic data, local vs staging distinguished |
+| FR-001 | T002–T004, T006–T008, T012, T015, T017 | Paired encrypted archive, retention, safe restore |
+| FR-002 and AC71 | T005, T009–T011, T014, T016, T018 | Previous code against candidate schema; retirement gate |
+| AC72 | T004, T007, T011, T013, T015, T017 | Tested forward-repair/restore and measured data-loss window |
+| SC-001 and acceptance 1 | T004, T012–T015, T017, T020 | Measured drill using synthetic data, local vs staging distinguished |
