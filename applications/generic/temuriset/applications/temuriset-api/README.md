@@ -170,3 +170,51 @@ Run one test with `uv run pytest tests/unit/health/test_health.py -v`, or match 
 | `GET /api/v1/operator/privacy-requests`, `POST /api/v1/operator/privacy-requests/{request_id}/fulfill` | List pending deletions and start versioned fulfilment |
 
 Use `python -m app.moderation --help` from the service for local grant administration. Operator actions require an explicit account grant. A case-file grant names one report, operator, document version, purpose and expiry. Run the worker to finish deletion requests. The development mailbox provides outcome delivery during development. Production delivery depends on spec 042.
+
+## Staging and production runtime
+
+Use the [deployment runbook](../../../../../deployment/temuriset/RUNBOOK.md) for the pinned Compose topology and secret-store setup. Configure `STORAGE_ADAPTER=s3` with the private origin, bucket, region and scoped access keys in `.env.example`. Configure `FILE_SCANNER=clamav` and `MAILBOX_ADAPTER=disabled` outside development. The public capability manifest reports storage and scanner implementations. Download and range authorization remain in the API, and storage errors omit provider details.
+
+The same non-root image accepts the `api`, `worker` and `migrate` commands. The deployment runs `migrate` before API or worker startup. Running the image without a command retains the existing development startup behavior. With disabled mail, sign-in code requests and invitations return `MAIL_UNAVAILABLE`. A deletion outcome can be ready even when its email could not be sent.
+
+## Workspace portability
+
+`POST /api/v1/imports/validate` accepts a raw UTF-8 JSON file with media type `application/json`.
+Send `acting_party_id` as a query parameter and an `Idempotency-Key` header.
+The upload supports schema version 1, up to 20 MiB and 2,000 records. The file and each row state source
+provenance. Each row supplies an external ID, scoped by the acting party and the file's external system.
+
+```json
+{
+  "schema_version": 1,
+  "external_system": "research-registry",
+  "provenance": {"source": "Registry"},
+  "inventions": [
+    {
+      "external_id": "experiment-01",
+      "provenance": {"source": "Registry"},
+      "fields": {"title": "Saringan air", "stage": "PROTOTYPE"}
+    }
+  ]
+}
+```
+
+See [the v1 JSON schema](app/portability/service/schema_v1.json) for fields and bounds. The default mapping
+covers the title, summary, problem, solution, intended users, sector, stage, keywords and source-reported
+facts. Facts preserve reviewed values and links to private evidence. To map `private_notes`, an authorized
+portfolio editor sends `map_private_notes=true` when uploading. Omitted fields retain their existing values.
+The optional `partner_profile` describes the current acting party. An organization name stays source text.
+Rights and relationship assertions remain on the source reference with their provenance.
+
+`GET /api/v1/imports/{run_id}` shows validation, preview and apply independently, with progress and a
+page of up to 100 preview rows. Inspect the preview before posting to `/imports/{run_id}/apply` with the
+displayed run version. `/imports/{run_id}/cancel` stops the next checkpoint and reports the records
+already committed. Resolve a conflict in the owned invention or profile, then upload again and review
+the new preview. Each apply checkpoint covers up to 50 records, and changes save as drafts.
+
+`POST /api/v1/exports` accepts explicit invention and document selections, up to 100 per job and 20 MiB
+per JSON result. It checks the exact version and any applicable document grant. Check job status at
+`GET /api/v1/exports/{export_id}` and fetch the authorized attachment at
+`GET /api/v1/exports/{export_id}/download`. A grant or membership change can expire access permanently.
+Exports and import staging expire after 24 hours. Exported document attachments are encoded as Base64
+and are skipped on import. This workspace export is separate from requests to export account data.

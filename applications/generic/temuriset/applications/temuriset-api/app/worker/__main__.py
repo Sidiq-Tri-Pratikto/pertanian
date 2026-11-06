@@ -7,6 +7,7 @@ import app.discovery.service.projection  # noqa: F401 - registers the search pro
 import app.discussion.service.notifications  # noqa: F401 - registers the in-app notification consumers
 import app.documents.service.jobs  # noqa: F401 - registers the document jobs
 import app.intake.service.jobs  # noqa: F401 - registers the expiry job
+import app.portability.service.jobs  # noqa: F401 - registers the portability jobs
 import app.scheduling.service.jobs  # noqa: F401 - registers the proposal expiry job
 from app.capabilities.service.configuration import validate_configuration
 from app.core.database import get_engine, get_session_factory

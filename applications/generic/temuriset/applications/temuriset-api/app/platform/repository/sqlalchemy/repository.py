@@ -21,6 +21,7 @@ from app.platform.repository.sqlalchemy.models import (
 def _idempotency(record: IdempotencyRecord) -> IdempotencyModel:
     return IdempotencyModel(
         actor_party_id=record.actor_party_id,
+        owner_account_id=record.owner_account_id,
         operation=record.operation,
         key=record.key,
         request_sha256=record.request_sha256,
@@ -45,7 +46,14 @@ class SqlAlchemyPlatformRepository:
         self.session = session
 
     async def claim_idempotency_key(
-        self, *, actor_party_id: UUID, operation: str, key: str, request_sha256: str, expires_at: datetime
+        self,
+        *,
+        actor_party_id: UUID,
+        operation: str,
+        key: str,
+        request_sha256: str,
+        expires_at: datetime,
+        owner_account_id: UUID | None = None,
     ) -> IdempotencyModel:
         """Insert a pending record, or wait for and lock the one holding the key.
 
@@ -66,6 +74,7 @@ class SqlAlchemyPlatformRepository:
             insert(IdempotencyRecord)
             .values(
                 actor_party_id=actor_party_id,
+                owner_account_id=owner_account_id,
                 operation=operation,
                 key=key,
                 request_sha256=request_sha256,

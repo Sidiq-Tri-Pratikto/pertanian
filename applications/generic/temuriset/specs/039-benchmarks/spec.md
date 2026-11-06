@@ -2,7 +2,7 @@
 
 **Feature Branch**: `039-benchmarks`
 **Created**: 2026-11-05
-**Status**: Seeded, not started
+**Status**: Synchronized local smoke and full workloads met the measured targets. [Benchmark report](../../docs/roadmap/benchmarks.md). Initial standard-read misses remain in the [performance follow-up](standard-read-follow-up.md). Synthetic staging remains blocked pending an approved target.
 **Milestone**: M11 Portability and operations
 **Depends on**: 021, 037
 **Size**: M

@@ -35,6 +35,7 @@ NOT_DATA_ROUTES = {
     ("POST", "/api/v1/dev/bookings"),
     ("POST", "/api/v1/organizations"),
     ("POST", "/api/v1/inventions"),
+    ("POST", "/api/v1/imports/validate"),  # The submitted file can only stage for the acting party.
     ("POST", "/api/v1/legal-entities"),
     ("POST", "/api/v1/opportunities"),
     # Public by design: it reads only the projection, which never holds a draft or private text. The private-text
@@ -74,6 +75,8 @@ class Owner:
     revision_item_id: str = ""
     report_id: str = ""
     privacy_request_id: str = ""
+    import_run_id: str = ""
+    export_job_id: str = ""
     task_id: str = ""
     notification_id: str = ""
     proposal_id: str = ""
@@ -147,6 +150,36 @@ ROUTES: dict[tuple[str, str], Case] = {
         "POST", lambda o: f"/api/v1/invitations/{o.invitation_id}/revoke", lambda _o, actor: {"acting_party_id": actor}
     ),
     ("PUT", "/api/v1/me/context"): Case("PUT", lambda _o: "/api/v1/me/context", lambda o, _a: {"party_id": o.party_id}),
+    ("GET", "/api/v1/imports/{run_id}"): Case("GET", lambda o: f"/api/v1/imports/{o.import_run_id}"),
+    ("POST", "/api/v1/imports/{run_id}/apply"): Case(
+        "POST",
+        lambda o: f"/api/v1/imports/{o.import_run_id}/apply",
+        lambda _o, actor: {"acting_party_id": actor, "expected_version": 1},
+        {"Idempotency-Key": "isolation-import-apply"},
+    ),
+    ("POST", "/api/v1/imports/{run_id}/cancel"): Case(
+        "POST",
+        lambda o: f"/api/v1/imports/{o.import_run_id}/cancel",
+        lambda _o, actor: {"acting_party_id": actor, "expected_version": 1},
+        {"Idempotency-Key": "isolation-import-cancel"},
+    ),
+    ("POST", "/api/v1/exports"): Case(
+        "POST",
+        lambda _o: "/api/v1/exports",
+        lambda o, actor: {
+            "acting_party_id": actor,
+            "expected_version": None,
+            "selections": [
+                {"kind": "INVENTION", "invention_id": o.invention_id, "version": "DRAFT"},
+            ],
+        },
+        {"Idempotency-Key": "isolation-export"},
+    ),
+    ("GET", "/api/v1/exports/{export_id}"): Case("GET", lambda o: f"/api/v1/exports/{o.export_job_id}"),
+    ("GET", "/api/v1/exports/{export_id}/download"): Case(
+        "GET",
+        lambda o: f"/api/v1/exports/{o.export_job_id}/download",
+    ),
     ("GET", "/api/v1/inventions"): Case("GET", lambda _o: "/api/v1/inventions"),
     ("GET", "/api/v1/inventions/{invention_id}"): Case("GET", lambda o: f"/api/v1/inventions/{o.invention_id}"),
     ("PUT", "/api/v1/inventions/{invention_id}/draft"): Case(
@@ -738,13 +771,33 @@ async def owner(
         headers={"Idempotency-Key": "owner-report"},
     )
     assert report.status_code == 201, report.text
-    export = await client.post(
+    privacy_request = await client.post(
         "/api/v1/privacy-requests",
         json={"acting_party_id": party, "expected_version": None, "kind": "EXPORT"},
         headers={"Idempotency-Key": "owner-export"},
     )
-    assert export.status_code == 201, export.text
+    assert privacy_request.status_code == 201, privacy_request.text
+    staged = await client.post(
+        "/api/v1/imports/validate",
+        params={"acting_party_id": party},
+        json={"schema_version": 1, "external_system": "owner", "provenance": {"source": "Owner Co"}, "inventions": []},
+        headers={"Idempotency-Key": "isolation-owner-import"},
+    )
+    export = await client.post(
+        "/api/v1/exports",
+        json={
+            "acting_party_id": party,
+            "expected_version": None,
+            "selections": [
+                {"kind": "INVENTION", "invention_id": invention["id"], "version": "DRAFT"},
+            ],
+        },
+        headers={"Idempotency-Key": "isolation-owner-export"},
+    )
+    assert staged.status_code == 202 and export.status_code == 202, (staged.text, export.text)
     yield Owner(
+        import_run_id=staged.json()["id"],
+        export_job_id=export.json()["id"],
         organization_id=organization["id"],
         party_id=organization["party_id"],
         account_id=me["account"]["id"],
@@ -761,7 +814,7 @@ async def owner(
         opportunity_id=opportunity["id"],
         match_run_id=match_run["run_id"],
         report_id=report.json()["id"],
-        privacy_request_id=export.json()["id"],
+        privacy_request_id=privacy_request.json()["id"],
         **pitch,
     )
 
@@ -817,6 +870,8 @@ async def test_unrelated_party_sees_nothing(
         owner.pitch_id,
         owner.report_id,
         owner.privacy_request_id,
+        owner.import_run_id,
+        owner.export_job_id,
         owner.partnership_id,
     ):
         assert secret not in response.text

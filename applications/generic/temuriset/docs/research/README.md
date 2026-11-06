@@ -1,0 +1,23 @@
+# TemuRiset formative usability study
+
+This kit supports five to eight individual sessions. Recruit at least one independent inventor, one startup or company manager and one investor or partner. Aim for two per group when recruiting six or more. Include keyboard-only and mobile use, and recruit people who use assistive technology in their regular workflow. A participant may cover more than one condition. Use the participant's familiar setup where possible and record the actual device, browser, input method and assistive technology. This is a formative sample for finding issues and testing wording.
+
+| Persona | Synthetic setup | Tasks |
+|---|---|---|
+| Independent inventor | Rani, a published water-filter invention, a draft project need with an unknown range, and a matching mandate from another party | I1 repair the range, I2 pitch from a prepared profile |
+| Company manager | Bima, one active raise for Demo Circular Materials Ltd, two linked inventions and an active equity mandate | C1 establish the subject of the raise, C2 submit or locate the single pitch |
+| Investor or partner | Mitra, a received pitch with a synthetic budget and two submission versions, ready for review | P1 request clarification, P2 decide whether to open discussion |
+| Relevant parties, future release | A shared room with conflicting slot choices and a relationship with a proposed public subset | F1 select a slot, F2 review what could be public |
+
+Use [J01–J03 and settings/privacy evidence](../roadmap/accessibility-audit.md) to pick the supported build and review open findings before each session. I1/I2 use J01, C1/C2 use J02, and P1/P2 use J03. F1 needs J04 discussion and scheduling (027–029). F2 needs J05 relationship and public profile (030–032). Keep F1 and F2 blocked until the corresponding routes and synthetic fixtures work in the selected build. For a build without company funding, mark C1/C2 blocked or use an approved generic-base environment.
+
+## Facilitator checklist
+
+1. Confirm the study owner, approved synthetic URL or isolated local build, build SHA, composition, date and supported fixtures. Use a separate clean account and context per participant and persona. Prepare the same starting state and data across conditions. Verify role permissions, the mail or approved session setup, any required document scan and the current route before the participant arrives.
+2. Confirm the approvals and data settings in [Consent and data handling](consent.md). Explain the task setup and ask about accommodations. Offer larger text, device orientation, preferred keyboard or screen reader and breaks. If the setup itself creates an access barrier, record it and offer an equivalent setup with consent. Record any change of condition.
+3. Deliver only the participant-facing prompts in [Task scripts](task-scripts.md). Record the initial interpretation and actions on the [observation sheet](observations.md). Use the same scenario facts in keyboard-only, mobile and assistive-technology runs. Capture layout width and zoom where relevant. Record help as assistance rather than resetting the attempt.
+4. Close the session, remind the participant how to withdraw, secure the notes, and remove the disposable fixture context according to the study plan. Reload the next case from its starting state. Complete the [results template](results-template.md) only after reviewing the eligibility and timing rules.
+
+## Internal walkthrough
+
+Follow the participant prompt, fixture setup and moderator rubric in that order. For I1, record the range repair and match recheck. For C1, open both linked inventions and locate the same company raise. For P1, use a received synthetic pitch and record a revision request tied to a specific item. For F1, record a blank observation with the disposition BLOCKED while J04 is unavailable. Transfer only eligible attempts to the completion denominator and time only the defined steps. Keep the published templates empty. The internal walkthrough on 6 November 2026 used the 0014 production Next build and the [audited synthetic J01–J03 runs](../roadmap/accessibility-audit.md). The browser run completed the I1 range repair, C1's company and linked inventions check, and P1's itemized revision. The facilitator then walked each prompt and rubric against those fixture states. A scratch transfer of a blank observation row preserved the task ID, timing and disposition columns. A separate worksheet check classified F1 as blocked and excluded it from eligible attempts and timed samples. The pilot results template remains blank. Participant sessions require a separately approved study.

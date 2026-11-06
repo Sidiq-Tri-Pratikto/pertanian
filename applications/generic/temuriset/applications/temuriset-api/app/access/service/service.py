@@ -26,7 +26,7 @@ from app.identity.model.models import Principal
 from app.identity.model.schema import MembershipResponse
 from app.identity.service.accounts import account_email, display_names
 from app.identity.service.codes import hash_token, new_token
-from app.identity.service.mailbox_service import DevelopmentMailbox
+from app.identity.service.mailbox_service import DisabledMailbox, MailUnavailableError, mailbox_for
 from app.platform.service.audit import record_audit
 from app.platform.service.versions import StaleVersionError
 
@@ -83,14 +83,22 @@ async def capabilities_for(session: AsyncSession, account_id: UUID, party_id: UU
         frozenset[str] | None: Every capability for its personal party, the membership's capabilities for an
             organization it belongs to, or None when it may not act as that party.
     """
+    access = await party_access_for(session, account_id, party_id)
+    return access[0] if access is not None else None
+
+
+async def party_access_for(
+    session: AsyncSession, account_id: UUID, party_id: UUID
+) -> tuple[frozenset[str], UUID | None] | None:
+    """Return live capabilities and the membership identity, or None if the account lost access."""
     repository = SqlAlchemyAccessRepository(session)
     if party_id == await repository.personal_party_id(account_id):
-        return ALL_CAPABILITIES
+        return ALL_CAPABILITIES, None
     organization_id = await repository.organization_of_party(party_id)
     if organization_id is None:
         return None
     membership = await repository.active_membership(organization_id, account_id)
-    return frozenset(membership.capabilities) if membership is not None else None
+    return (frozenset(membership.capabilities), membership.id) if membership is not None else None
 
 
 async def memberships_for(session: AsyncSession, account_id: UUID) -> list[MembershipResponse]:
@@ -281,6 +289,9 @@ class AccessService:
         check_context(principal, request.acting_party_id)
         organization = await self._visible_organization(principal, organization_id)
         require(principal, Capability.MANAGE_MEMBERS, organization.party_id)
+        mailbox = mailbox_for(self.settings)
+        if isinstance(mailbox, DisabledMailbox):
+            raise MailUnavailableError()
         token = new_token()
         invitation = await self.repository.add_invitation(
             organization_id=organization_id,
@@ -290,7 +301,7 @@ class AccessService:
             invited_by_account_id=principal.account_id,
             expires_at=clock.now() + INVITATION_LIFETIME,
         )
-        await DevelopmentMailbox().send(
+        await mailbox.send(
             self.session,
             to_email=request.email,
             subject=f"Undangan bergabung dengan {organization.name} di TemuRiset",

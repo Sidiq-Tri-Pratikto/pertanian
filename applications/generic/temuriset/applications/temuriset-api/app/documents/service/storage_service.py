@@ -3,10 +3,15 @@
 import hashlib
 import os
 from collections.abc import AsyncIterator
+from contextlib import AbstractAsyncContextManager, asynccontextmanager
 from pathlib import Path
 from typing import Protocol
 
 import anyio
+
+from app.core.errors import codes
+from app.core.errors.base import AppError
+from app.core.settings import Settings
 
 CHUNK_BYTES = 64 * 1024
 
@@ -29,6 +34,12 @@ class TooLargeError(Exception):
     """The stream went past the allowed size; nothing was kept."""
 
 
+class StorageUnavailableError(AppError):
+    """A private object provider failed without exposing provider internals."""
+
+    code = codes.APP_STORAGE_UNAVAILABLE
+
+
 class StorageAdapter(Protocol):
     """Stores and streams file bytes by generated key."""
 
@@ -44,8 +55,8 @@ class StorageAdapter(Protocol):
         """Erase the bytes for a generated key, allowing an already completed erase to retry."""
         ...
 
-    def local_path(self, key: str) -> Path:
-        """A path the worker may open for scanning and extraction."""
+    def materialize(self, key: str, max_bytes: int) -> AbstractAsyncContextManager[Path]:
+        """A bounded local path for scanning and extraction, valid within the context."""
         ...
 
 
@@ -103,6 +114,14 @@ class LocalStorage:
         await handle.aclose()
         return StoredFile(size, digest.hexdigest())
 
+    @asynccontextmanager
+    async def materialize(self, key: str, max_bytes: int) -> AsyncIterator[Path]:
+        """Use the private original after checking its expected byte bound."""
+        path = self.local_path(key)
+        if (await anyio.Path(path).stat()).st_size > max_bytes:
+            raise TooLargeError()
+        yield path
+
     async def delete(self, key: str) -> None:
         """Erase the bytes asynchronously. An absent file is already erased."""
         await anyio.Path(self.local_path(key)).unlink(missing_ok=True)
@@ -128,3 +147,12 @@ class LocalStorage:
                     break
                 remaining -= len(chunk)
                 yield chunk
+
+
+def storage_for(settings: Settings) -> StorageAdapter:
+    """Use the same configured backend in the API and every document worker."""
+    if settings.storage_adapter == "s3":
+        from app.documents.service.s3_storage_service import s3_storage
+
+        return s3_storage(settings)
+    return LocalStorage(settings.storage_path)

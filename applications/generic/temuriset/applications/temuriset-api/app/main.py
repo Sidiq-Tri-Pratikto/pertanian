@@ -34,6 +34,7 @@ from app.needs.router import router as needs_router
 from app.pitches.router import router as pitches_router
 from app.platform.router import router as platform_router
 from app.platform.service.idempotency import IdempotentReplay, replay_response
+from app.portability.router import router as portability_router
 from app.portfolio.router import router as portfolio_router
 from app.relationships.router import router as relationships_router
 from app.scheduling.router import router as scheduling_router
@@ -74,6 +75,7 @@ def create_app() -> FastAPI:
     app.include_router(auth_router, prefix=API_PREFIX)
     app.include_router(me_router, prefix=API_PREFIX)
     app.include_router(access_router, prefix=API_PREFIX)
+    app.include_router(portability_router, prefix=API_PREFIX)
     app.include_router(portfolio_router, prefix=API_PREFIX)
     app.include_router(documents_router, prefix=API_PREFIX)
     app.include_router(needs_router, prefix=API_PREFIX)

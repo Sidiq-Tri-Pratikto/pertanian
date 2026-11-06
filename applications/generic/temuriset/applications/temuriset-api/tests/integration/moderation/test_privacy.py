@@ -70,8 +70,13 @@ async def test_privacy_exports_and_deletion_answers_are_private(
         assert (await stranger.get(f"/api/v1/privacy-requests/{deletion['id']}")).status_code == 404
 
 
+@pytest.mark.parametrize("mail_mode", ["development", "disabled"])
 async def test_deletion_waits_for_the_worker_and_preserves_audit(
-    client: AsyncClient, sign_up: SignUp, new_client: Callable[[], AsyncClient], monkeypatch: pytest.MonkeyPatch
+    client: AsyncClient,
+    sign_up: SignUp,
+    new_client: Callable[[], AsyncClient],
+    monkeypatch: pytest.MonkeyPatch,
+    mail_mode: str,
 ) -> None:
     """
     Condition:
@@ -180,6 +185,7 @@ async def test_deletion_waits_for_the_worker_and_preserves_audit(
             update(JobRecord).where(JobRecord.kind == "documents.erase").values(run_after=clock.now())
         )
 
+    monkeypatch.setattr(get_settings(), "mailbox_adapter", mail_mode)
     await _run_worker()
     assert not path.exists()
     assert (await client.get(profile_url)).json()["bio"] is None
@@ -188,16 +194,21 @@ async def test_deletion_waits_for_the_worker_and_preserves_audit(
         assert row is not None and row.status == "FULFILLED"
         assert "private_documents" in {item["key"] for item in row.answer["removed"]}
         events = await session.scalars(select(AuditEventRecord).where(AuditEventRecord.subject_id == request_id))
-        assert [event.action for event in events].count("privacy.fulfilled") == 1
+        actions = [event.action for event in events]
+        assert actions.count("privacy.fulfilled") == 1
+        assert ("privacy.notification_unavailable" in actions) == (mail_mode == "disabled")
         outcomes = list(
             await session.scalars(
                 select(MailboxMessageRecord).where(MailboxMessageRecord.to_email == "to-erase@example.test")
             )
         )
-        assert len(outcomes) == 1
-        assert outcomes[0].subject == "Hasil permintaan penghapusan"
-        assert "Catatan masih diperlukan untuk audit." in outcomes[0].body
-        assert "Isi berkas pribadi" in outcomes[0].body
+        if mail_mode == "disabled":
+            assert outcomes == []
+        else:
+            assert len(outcomes) == 1
+            assert outcomes[0].subject == "Hasil permintaan penghapusan"
+            assert "Catatan masih diperlukan untuk audit." in outcomes[0].body
+            assert "Isi berkas pribadi" in outcomes[0].body
 
 
 async def test_export_rechecks_membership_and_never_includes_organization_documents(

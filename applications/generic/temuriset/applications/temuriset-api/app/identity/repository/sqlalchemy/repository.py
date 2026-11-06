@@ -56,6 +56,11 @@ class SqlAlchemyIdentityRepository:
         record = await self.session.get(AccountRecord, account_id, with_for_update=lock)
         return _account(record) if record is not None else None
 
+    async def is_account_active(self, account_id: UUID) -> bool:
+        """Read the current account status for work authorized outside the session."""
+        status = await self.session.scalar(select(AccountRecord.status).where(AccountRecord.id == account_id))
+        return status == "active"
+
     async def create_account(self, **values: Any) -> AccountModel:
         """Insert an account.
 

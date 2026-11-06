@@ -193,12 +193,12 @@ describe('a signed-in inventor', () => {
   });
 
   it('describes a planned feature without creating anything', async () => {
-    render((await ComingSoon.default({ params: Promise.resolve({ feature: 'impor-ekspor' }) })) as ReactElement);
+    render((await ComingSoon.default({ params: Promise.resolve({ feature: 'pemberitahuan-email' }) })) as ReactElement);
 
-    expect(screen.getByRole('heading', { level: 1, name: 'Impor dan ekspor data' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: 'Pemberitahuan email' })).toBeInTheDocument();
     expect(screen.getByText(/Tidak ada data yang dibuat atau disimpan/)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Kembali' })).toHaveAttribute('href', '/home');
-    expect(await ComingSoon.generateMetadata({ params: Promise.resolve({ feature: 'impor-ekspor' }) })).toEqual({ title: 'Impor dan ekspor data' });
+    expect(await ComingSoon.generateMetadata({ params: Promise.resolve({ feature: 'pemberitahuan-email' }) })).toEqual({ title: 'Pemberitahuan email' });
   });
 
   it('sends a shipped feature to its screen and says so for an unknown one', async () => {

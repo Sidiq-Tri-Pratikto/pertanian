@@ -17,6 +17,11 @@ async def get_capabilities() -> CapabilityManifestResponse:
         CapabilityManifestResponse: The manifest.
     """
     settings = get_settings()
-    manifest = build_manifest(settings.composition, settings.composition_overrides)
+    manifest = build_manifest(
+        settings.composition,
+        settings.composition_overrides,
+        storage_adapter=settings.storage_adapter,
+        scanner_adapter=settings.file_scanner,
+    )
     manifest.demo = settings.demo_mode
     return manifest

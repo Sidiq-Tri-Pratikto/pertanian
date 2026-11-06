@@ -366,3 +366,25 @@ async def test_invalid_requests_are_field_errors(client: AsyncClient, body: dict
     assert response.status_code == 422
     assert response.json()["error"]["code"] == "VALIDATION_FAILED"
     assert await _code_rows() == []
+
+
+async def test_disabled_mail_rejects_code_without_persisting_it(
+    client: AsyncClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from sqlalchemy import func, select
+
+    from app.core.database import get_session_factory
+    from app.core.settings import get_settings
+    from app.identity.repository.sqlalchemy.models import EmailCodeRecord, MailboxMessageRecord
+
+    monkeypatch.setattr(get_settings(), "mailbox_adapter", "disabled")
+    response = await client.post(
+        "/api/v1/auth/code",
+        json={"email": "undelivered@example.com", "purpose": "sign_up", "display_name": "Fixture"},
+    )
+
+    assert response.status_code == 503
+    assert response.json()["error"]["code"] == "MAIL_UNAVAILABLE"
+    async with get_session_factory()() as session:
+        assert await session.scalar(select(func.count()).select_from(EmailCodeRecord)) == 0
+        assert await session.scalar(select(func.count()).select_from(MailboxMessageRecord)) == 0

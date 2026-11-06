@@ -14,6 +14,7 @@ from app.core.settings import get_settings
 from app.main import app
 
 TABLES = (
+    "portability_import_rows, portability_import_runs, portability_external_references, portability_export_jobs, "
     "partnership_restrictions, partnership_confirmations, partnership_versions, partnerships, "
     "meeting_outcomes, bookings, meetings, schedule_slots, schedule_proposals, "
     "notifications, tasks, messages, revision_answers, revision_items, revision_rounds, pitch_decisions, "

@@ -3,11 +3,14 @@ import { test as base, expect, type APIRequestContext, type Page } from '@playwr
 import type { Persona } from '@/features/persona';
 
 import type { Route } from './routes';
+import { loadStagingFixtures, stagingOrigin } from './staging';
 
 let counter = 0;
 
 /** The web origin under test; the service refuses cookie-bearing writes from any other. */
-export const WEB_ORIGIN = `http://localhost:${process.env.E2E_PORT ?? 3029}`;
+const staging = stagingOrigin();
+export const WEB_ORIGIN = staging ?? `http://localhost:${process.env.E2E_PORT ?? 3029}`;
+const stagingFixtures = staging ? loadStagingFixtures(staging) : undefined;
 
 /** A unique address per sign-up, so tests never share an account or a rate-limit window. */
 export function uniqueEmail(prefix: string): string {
@@ -17,6 +20,7 @@ export function uniqueEmail(prefix: string): string {
 
 /** The newest code mailed to an address, read from the development mailbox through the web origin. */
 export async function latestCode(request: APIRequestContext, email: string): Promise<string> {
+  if (staging) throw new Error('The development mailbox is unavailable in staging.');
   const messages = (await (await request.get('/api/v1/dev/mailbox', { params: { email } })).json()) as { body: string }[];
   const code = messages[0]?.body.match(/\b\d{6}\b/)?.[0];
   expect(code, `code mailed to ${email}`).toBeTruthy();
@@ -25,6 +29,20 @@ export async function latestCode(request: APIRequestContext, email: string): Pro
 
 /** Signs a browser context up through the API, the same requests the S01 screens send; its cookie jar keeps the session. */
 export async function signUp(page: Page, persona: Persona, name = 'Rani'): Promise<string> {
+  if (stagingFixtures) {
+    const info = test.info();
+    const key = [info.project.name, ...info.titlePath].join(' > ');
+    const account = stagingFixtures[key]?.[persona]?.shift();
+    if (!account) throw new Error(`Missing authorized synthetic ${persona} fixture for ${key}.`);
+    await page.context().addCookies([{
+      name: 'tr_session', value: account.session, url: WEB_ORIGIN, httpOnly: true, secure: true, sameSite: 'Lax',
+    }]);
+    const me = await page.request.get('/api/v1/me');
+    expect(me.status(), 'Authorized staging session').toBe(200);
+    const { account: identity } = await me.json();
+    expect(identity.persona === persona && identity.email === account.email, 'Authorized staging account').toBe(true);
+    return account.email;
+  }
   const email = uniqueEmail(persona);
   const headers = { Origin: WEB_ORIGIN };
   const request = page.request;

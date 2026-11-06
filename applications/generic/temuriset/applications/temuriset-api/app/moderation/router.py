@@ -103,7 +103,7 @@ async def download_case_file(
     file = await DocumentService(session, get_settings()).case_download(
         principal, report_id, document_id, number, grant
     )
-    return stream_download(file, request.headers.get("range"))
+    return await stream_download(file, request.headers.get("range"))
 
 
 @router.post("/privacy-requests", status_code=status.HTTP_201_CREATED, summary="Open a privacy request")

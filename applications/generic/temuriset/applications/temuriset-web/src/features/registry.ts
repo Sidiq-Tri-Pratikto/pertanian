@@ -294,7 +294,8 @@ export const FEATURES: Feature[] = [
     ],
     screens: [],
     specs: ['036'],
-    status: 'coming_soon',
+    status: 'available',
+    home: '/inventions/import',
   },
   {
     id: 'pemberitahuan-email',

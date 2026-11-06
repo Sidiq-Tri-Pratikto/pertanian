@@ -11,6 +11,7 @@ class IdempotencyModel(BaseModel):
     """One consequential request and, once committed, its stored response."""
 
     actor_party_id: UUID
+    owner_account_id: UUID | None = None
     operation: str
     key: str | None
     request_sha256: str
