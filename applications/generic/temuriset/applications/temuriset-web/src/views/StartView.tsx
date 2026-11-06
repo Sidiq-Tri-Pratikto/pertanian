@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useRef, useState, type FormEvent } from 'react';
+import { useRef, useState, type FormEvent, type ReactNode } from 'react';
 
 import { send } from '@/api/client';
 import { ApiError } from '@/api/errors';
@@ -25,6 +25,8 @@ type StartViewProps = {
   persona: Persona | null;
   mode: 'sign_up' | 'sign_in';
   returnTo: string | null;
+  /** The demo picker, when this deployment runs the labelled demo. */
+  demo?: ReactNode;
 };
 
 type Errors = Partial<Record<'persona' | 'nama' | 'email', string>>;
@@ -35,7 +37,7 @@ const FIELD_ID = { persona: 'persona-inovator', nama: 'nama', email: 'email' } a
  * S01: choose how to use TemuRiset, say who you are and where to send the code. No organization or affiliation is
  * asked (UX-01). Every typed value stays after a failure (UX-09).
  */
-export function StartView({ persona, mode, returnTo }: StartViewProps) {
+export function StartView({ persona, mode, returnTo, demo }: StartViewProps) {
   const router = useRouter();
   const form = useRef<HTMLFormElement>(null);
   const signUp = mode === 'sign_up';
@@ -143,6 +145,7 @@ export function StartView({ persona, mode, returnTo }: StartViewProps) {
           {signUp ? 'Masuk' : 'Daftar'}
         </Link>
       </p>
+      {demo}
     </AuthShell>
   );
 }

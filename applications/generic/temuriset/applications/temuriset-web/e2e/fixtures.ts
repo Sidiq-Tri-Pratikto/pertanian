@@ -78,11 +78,11 @@ export async function makeInvention(page: Page, publish: boolean, title = COMPLE
 }
 
 /** Starts a support request for a new published invention through the API, optionally with a budget. Returns its id. */
-export async function makeSupportRequest(page: Page, budget?: Record<string, unknown>): Promise<string> {
+export async function makeSupportRequest(page: Page, budget?: Record<string, unknown>, extra: Record<string, unknown> = {}): Promise<string> {
   const invention = await makeInvention(page, true);
   const me = (await (await page.request.get('/api/v1/me')).json()) as { active_party_id: string };
   const created = await page.request.post('/api/v1/support-requests', {
-    data: { acting_party_id: me.active_party_id, invention_id: invention, outcome: 'Validasi prototipe enam bulan', support_forms: ['project_funding'], budget },
+    data: { acting_party_id: me.active_party_id, invention_id: invention, outcome: 'Validasi prototipe enam bulan', support_forms: ['project_funding'], budget, ...extra },
     headers: { Origin: WEB_ORIGIN, 'Idempotency-Key': uniqueEmail('sr') },
   });
   expect(created.status(), await created.text()).toBe(201);

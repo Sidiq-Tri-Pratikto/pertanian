@@ -1,0 +1,92 @@
+{
+  "availability": {
+    "available": true,
+    "reason": null
+  },
+  "eligibility": "ELIGIBLE",
+  "evidence": {
+    "applicable": 4,
+    "note": null,
+    "provided": 3,
+    "reviewed": 0
+  },
+  "fit": {
+    "coverage": "0.95",
+    "lower": "88.11",
+    "upper": "94.04"
+  },
+  "gap": null,
+  "label": "Kecocokan kuat",
+  "later": [
+    {
+      "action": null,
+      "applies_at": "COMMERCIALIZATION",
+      "field": "document:certificate",
+      "label": "Sertifikat komersialisasi",
+      "mandatory": true,
+      "reason": "Belum ada dokumen yang diperiksa untuk kriteria ini.",
+      "requirement_id": "<id>",
+      "result": "UNKNOWN",
+      "verification_mode": "REVIEWER_CONFIRMED"
+    }
+  ],
+  "opportunity_id": "<id>",
+  "opportunity_version": 1,
+  "opportunity_version_id": "<id>",
+  "partner": "Mitra A",
+  "partner_party_id": "<id>",
+  "readiness": "READY_TO_SUBMIT",
+  "reasons": [
+    "Tahap inovasi diterima mandat ini.",
+    "Berkas tersedia. Isinya belum diperiksa.",
+    "Kisaran biaya beririsan pada cakupan dan periode yang sama."
+  ],
+  "relevant": true,
+  "rows": [
+    {
+      "action": null,
+      "applies_at": "SUBMISSION",
+      "field": "stage",
+      "label": "Tahap inovasi",
+      "mandatory": true,
+      "reason": "Tahap inovasi diterima mandat ini.",
+      "requirement_id": "<id>",
+      "result": "PASS",
+      "verification_mode": "DECLARATION"
+    },
+    {
+      "action": null,
+      "applies_at": "SUBMISSION",
+      "field": "document:function",
+      "label": "Berkas uji fungsi",
+      "mandatory": true,
+      "reason": "Berkas tersedia. Isinya belum diperiksa.",
+      "requirement_id": "<id>",
+      "result": "PASS",
+      "verification_mode": "DOCUMENT_PRESENT"
+    },
+    {
+      "action": null,
+      "applies_at": "SUBMISSION",
+      "field": "budget",
+      "label": "Kisaran biaya pilot",
+      "mandatory": true,
+      "reason": "Kisaran biaya beririsan pada cakupan dan periode yang sama.",
+      "requirement_id": "<id>",
+      "result": "PASS",
+      "verification_mode": "DECLARATION"
+    },
+    {
+      "action": null,
+      "applies_at": "COMMERCIALIZATION",
+      "field": "document:certificate",
+      "label": "Sertifikat komersialisasi",
+      "mandatory": true,
+      "reason": "Belum ada dokumen yang diperiksa untuk kriteria ini.",
+      "requirement_id": "<id>",
+      "result": "UNKNOWN",
+      "verification_mode": "REVIEWER_CONFIRMED"
+    }
+  ],
+  "title": "Validasi prototipe enam bulan"
+}

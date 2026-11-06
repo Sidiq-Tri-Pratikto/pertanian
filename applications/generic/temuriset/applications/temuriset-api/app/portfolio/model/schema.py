@@ -156,6 +156,7 @@ class PublicInventionResponse(BaseModel):
     """The published version and nothing private."""
 
     id: UUID
+    managing_party_id: UUID
     managing_party_name: str
     number: int
     title: str

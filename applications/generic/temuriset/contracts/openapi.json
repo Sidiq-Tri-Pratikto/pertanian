@@ -56,21 +56,6 @@
         "title": "AccountResponse",
         "type": "object"
       },
-      "ActingPartyRequest": {
-        "description": "A consequential action names the party it acts as, so two tabs cannot cross contexts.",
-        "properties": {
-          "acting_party_id": {
-            "format": "uuid",
-            "title": "Acting Party Id",
-            "type": "string"
-          }
-        },
-        "required": [
-          "acting_party_id"
-        ],
-        "title": "ActingPartyRequest",
-        "type": "object"
-      },
       "AdapterResponse": {
         "description": "One data source adapter.",
         "properties": {
@@ -87,6 +72,101 @@
           "status"
         ],
         "title": "AdapterResponse",
+        "type": "object"
+      },
+      "AnswerRequest": {
+        "additionalProperties": false,
+        "description": "Save a draft answer; the first save sends no version.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "expected_version": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Version"
+          },
+          "files": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ChosenFile"
+            },
+            "maxItems": 10,
+            "title": "Files",
+            "type": "array"
+          },
+          "response": {
+            "enum": [
+              "CAN",
+              "DISCUSS",
+              "CANNOT"
+            ],
+            "title": "Response",
+            "type": "string"
+          },
+          "text": {
+            "default": "",
+            "maxLength": 5000,
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "response"
+        ],
+        "title": "AnswerRequest",
+        "type": "object"
+      },
+      "AnswerResponse": {
+        "description": "The requester's answer to one item.",
+        "properties": {
+          "files": {
+            "items": {
+              "$ref": "#/components/schemas/SubmittedFile"
+            },
+            "title": "Files",
+            "type": "array"
+          },
+          "response": {
+            "enum": [
+              "CAN",
+              "DISCUSS",
+              "CANNOT"
+            ],
+            "title": "Response",
+            "type": "string"
+          },
+          "saved_at": {
+            "format": "date-time",
+            "title": "Saved At",
+            "type": "string"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "response",
+          "text",
+          "files",
+          "version",
+          "saved_at"
+        ],
+        "title": "AnswerResponse",
         "type": "object"
       },
       "AvailabilityResponse": {
@@ -161,6 +241,78 @@
           "intake_until"
         ],
         "title": "AvailabilityResponse",
+        "type": "object"
+      },
+      "BriefResponse": {
+        "description": "The editable brief. ``summarizer_status`` says whether a summary was used, off, or refused as untraceable.",
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "preflight_id": {
+            "format": "uuid",
+            "title": "Preflight Id",
+            "type": "string"
+          },
+          "sentences": {
+            "items": {
+              "$ref": "#/components/schemas/BriefSentence"
+            },
+            "title": "Sentences",
+            "type": "array"
+          },
+          "summarizer": {
+            "title": "Summarizer",
+            "type": "string"
+          },
+          "summarizer_status": {
+            "default": "off",
+            "enum": [
+              "off",
+              "used",
+              "refused"
+            ],
+            "title": "Summarizer Status",
+            "type": "string"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "preflight_id",
+          "text",
+          "sentences",
+          "summarizer"
+        ],
+        "title": "BriefResponse",
+        "type": "object"
+      },
+      "BriefSentence": {
+        "description": "One sentence and the supplied facts it rests on.",
+        "properties": {
+          "refs": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Refs",
+            "type": "array"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "text",
+          "refs"
+        ],
+        "title": "BriefSentence",
         "type": "object"
       },
       "BudgetInput": {
@@ -516,6 +668,11 @@
             "title": "Default Locale",
             "type": "string"
           },
+          "demo": {
+            "default": false,
+            "title": "Demo",
+            "type": "boolean"
+          },
           "policies": {
             "items": {
               "$ref": "#/components/schemas/PolicyResponse"
@@ -584,6 +741,28 @@
         ],
         "title": "CapabilityStatus",
         "type": "string"
+      },
+      "ChosenFile": {
+        "additionalProperties": false,
+        "description": "One file version to share with the recipient.",
+        "properties": {
+          "document_id": {
+            "format": "uuid",
+            "title": "Document Id",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 1.0,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "document_id",
+          "version"
+        ],
+        "title": "ChosenFile",
+        "type": "object"
       },
       "ClaimInput": {
         "description": "A people-and-rights claim as the owner states it.",
@@ -735,6 +914,34 @@
           "subject_name"
         ],
         "title": "ClaimResponse",
+        "type": "object"
+      },
+      "CloseRequest": {
+        "additionalProperties": false,
+        "description": "Close a discussion, with the reason both parties will read.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "expected_version": {
+            "title": "Expected Version",
+            "type": "integer"
+          },
+          "reason": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "expected_version",
+          "reason"
+        ],
+        "title": "CloseRequest",
         "type": "object"
       },
       "CodeRequest": {
@@ -1138,6 +1345,337 @@
         "title": "CreateSupportRequest",
         "type": "object"
       },
+      "DecisionRequest": {
+        "additionalProperties": false,
+        "description": "Approve for discussion or reject, on the submission the recipient read.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "decision": {
+            "enum": [
+              "APPROVE",
+              "REJECT"
+            ],
+            "title": "Decision",
+            "type": "string"
+          },
+          "expected_version": {
+            "title": "Expected Version",
+            "type": "integer"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "maxLength": 500,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "submission": {
+            "minimum": 1.0,
+            "title": "Submission",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "expected_version",
+          "submission",
+          "decision"
+        ],
+        "title": "DecisionRequest",
+        "type": "object"
+      },
+      "DecisionResponse": {
+        "description": "A recipient decision. Its reason is seen by the two parties only.",
+        "properties": {
+          "decided_at": {
+            "format": "date-time",
+            "title": "Decided At",
+            "type": "string"
+          },
+          "decision": {
+            "enum": [
+              "APPROVE",
+              "REJECT"
+            ],
+            "title": "Decision",
+            "type": "string"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "submission_number": {
+            "title": "Submission Number",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "decision",
+          "reason",
+          "submission_number",
+          "decided_at"
+        ],
+        "title": "DecisionResponse",
+        "type": "object"
+      },
+      "DemoAccount": {
+        "description": "One account in the demo picker.",
+        "properties": {
+          "fixture": {
+            "title": "Fixture",
+            "type": "string"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "persona": {
+            "enum": [
+              "inovator",
+              "mitra"
+            ],
+            "title": "Persona",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "name",
+          "persona",
+          "fixture",
+          "label"
+        ],
+        "title": "DemoAccount",
+        "type": "object"
+      },
+      "DemoResetRequest": {
+        "additionalProperties": false,
+        "description": "Recreate the demo, optionally in a fixture state such as F01-GAP.",
+        "properties": {
+          "gap": {
+            "default": false,
+            "title": "Gap",
+            "type": "boolean"
+          },
+          "proposed_entity": {
+            "default": false,
+            "title": "Proposed Entity",
+            "type": "boolean"
+          },
+          "scan": {
+            "default": false,
+            "title": "Scan",
+            "type": "boolean"
+          }
+        },
+        "title": "DemoResetRequest",
+        "type": "object"
+      },
+      "DemoResetResponse": {
+        "description": "What the reset recreated.",
+        "properties": {
+          "accounts": {
+            "title": "Accounts",
+            "type": "integer"
+          },
+          "inventions": {
+            "title": "Inventions",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "accounts",
+          "inventions"
+        ],
+        "title": "DemoResetResponse",
+        "type": "object"
+      },
+      "DemoSignInRequest": {
+        "additionalProperties": false,
+        "description": "Sign in as one demo account.",
+        "properties": {
+          "key": {
+            "title": "Key",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key"
+        ],
+        "title": "DemoSignInRequest",
+        "type": "object"
+      },
+      "DiscoveryItem": {
+        "description": "One result card. ``card`` holds what the owner published, by subject type.",
+        "properties": {
+          "card": {
+            "additionalProperties": true,
+            "title": "Card",
+            "type": "object"
+          },
+          "curated": {
+            "title": "Curated",
+            "type": "boolean"
+          },
+          "reasons": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Reasons",
+            "type": "array"
+          },
+          "saved": {
+            "title": "Saved",
+            "type": "boolean"
+          },
+          "subject_id": {
+            "format": "uuid",
+            "title": "Subject Id",
+            "type": "string"
+          },
+          "subject_type": {
+            "enum": [
+              "INVENTION",
+              "FUNDING_REQUEST",
+              "PARTNER"
+            ],
+            "title": "Subject Type",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "subject_type",
+          "subject_id",
+          "title",
+          "card",
+          "curated",
+          "saved",
+          "reasons"
+        ],
+        "title": "DiscoveryItem",
+        "type": "object"
+      },
+      "DiscoveryResponse": {
+        "description": "One page of discovery results, with the filters that produced it.",
+        "properties": {
+          "filters": {
+            "additionalProperties": true,
+            "title": "Filters",
+            "type": "object"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          },
+          "relaxation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Relaxation"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sections": {
+            "items": {
+              "$ref": "#/components/schemas/DiscoverySection"
+            },
+            "title": "Sections",
+            "type": "array"
+          },
+          "total_estimate": {
+            "title": "Total Estimate",
+            "type": "integer"
+          },
+          "type": {
+            "enum": [
+              "inventions",
+              "funding",
+              "partners"
+            ],
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "sections",
+          "filters",
+          "next_cursor",
+          "total_estimate",
+          "relaxation"
+        ],
+        "title": "DiscoveryResponse",
+        "type": "object"
+      },
+      "DiscoverySection": {
+        "description": "A labelled group of results. No section is ever ordered by activity.",
+        "properties": {
+          "id": {
+            "enum": [
+              "relevant",
+              "new",
+              "curated"
+            ],
+            "title": "Id",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/DiscoveryItem"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "items"
+        ],
+        "title": "DiscoverySection",
+        "type": "object"
+      },
       "DocumentResponse": {
         "description": "A document as its owner sees it.",
         "properties": {
@@ -1495,6 +2033,42 @@
           "retryable"
         ],
         "title": "ErrorRecovery",
+        "type": "object"
+      },
+      "EvidenceResponse": {
+        "description": "How much of the checklist rests on provided or reviewed evidence.",
+        "properties": {
+          "applicable": {
+            "title": "Applicable",
+            "type": "integer"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "provided": {
+            "title": "Provided",
+            "type": "integer"
+          },
+          "reviewed": {
+            "title": "Reviewed",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "provided",
+          "reviewed",
+          "applicable",
+          "note"
+        ],
+        "title": "EvidenceResponse",
         "type": "object"
       },
       "FactInput": {
@@ -1893,6 +2467,30 @@
           "subject"
         ],
         "title": "FinancialResponse",
+        "type": "object"
+      },
+      "FitResponse": {
+        "description": "Conservative fit on 0\u2013100 and the share of information it rests on; not a chance of funding.",
+        "properties": {
+          "coverage": {
+            "title": "Coverage",
+            "type": "string"
+          },
+          "lower": {
+            "title": "Lower",
+            "type": "string"
+          },
+          "upper": {
+            "title": "Upper",
+            "type": "string"
+          }
+        },
+        "required": [
+          "lower",
+          "upper",
+          "coverage"
+        ],
+        "title": "FitResponse",
         "type": "object"
       },
       "FundingRequestInput": {
@@ -2740,6 +3338,89 @@
         "title": "InviteRequest",
         "type": "object"
       },
+      "ItemReviewRequest": {
+        "additionalProperties": false,
+        "description": "Accept an answer or ask for more detail.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "expected_version": {
+            "title": "Expected Version",
+            "type": "integer"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "maxLength": 1000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "result": {
+            "enum": [
+              "ACCEPTED",
+              "NEEDS_DETAIL"
+            ],
+            "title": "Result",
+            "type": "string"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "expected_version",
+          "result"
+        ],
+        "title": "ItemReviewRequest",
+        "type": "object"
+      },
+      "ItemReviewResponse": {
+        "description": "An item's review after it was marked.",
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "review": {
+            "enum": [
+              "ACCEPTED",
+              "NEEDS_DETAIL"
+            ],
+            "title": "Review",
+            "type": "string"
+          },
+          "review_note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Review Note"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "review",
+          "review_note",
+          "version"
+        ],
+        "title": "ItemReviewResponse",
+        "type": "object"
+      },
       "LegalEntityInput": {
         "additionalProperties": false,
         "description": "A company the acting party declares.",
@@ -2863,6 +3544,280 @@
           "body"
         ],
         "title": "MailboxMessageResponse",
+        "type": "object"
+      },
+      "MarkedItem": {
+        "description": "A saved or hidden subject.",
+        "properties": {
+          "subject_id": {
+            "format": "uuid",
+            "title": "Subject Id",
+            "type": "string"
+          },
+          "subject_type": {
+            "enum": [
+              "INVENTION",
+              "FUNDING_REQUEST",
+              "PARTNER"
+            ],
+            "title": "Subject Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "subject_type",
+          "subject_id"
+        ],
+        "title": "MarkedItem",
+        "type": "object"
+      },
+      "MatchRequest": {
+        "description": "Evaluate one owned source against every active opportunity.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "source_id": {
+            "format": "uuid",
+            "title": "Source Id",
+            "type": "string"
+          },
+          "source_type": {
+            "enum": [
+              "SUPPORT_REQUEST",
+              "FUNDING_REQUEST"
+            ],
+            "title": "Source Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "source_type",
+          "source_id"
+        ],
+        "title": "MatchRequest",
+        "type": "object"
+      },
+      "MatchResultResponse": {
+        "description": "One opportunity version's result. Eligibility, readiness and fit are separate on purpose.",
+        "properties": {
+          "availability": {
+            "$ref": "#/components/schemas/TargetAvailabilityResponse"
+          },
+          "eligibility": {
+            "enum": [
+              "ELIGIBLE",
+              "NEEDS_VERIFICATION",
+              "INCOMPATIBLE"
+            ],
+            "title": "Eligibility",
+            "type": "string"
+          },
+          "evidence": {
+            "$ref": "#/components/schemas/EvidenceResponse"
+          },
+          "fit": {
+            "$ref": "#/components/schemas/FitResponse"
+          },
+          "gap": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RequirementRow"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "later": {
+            "items": {
+              "$ref": "#/components/schemas/RequirementRow"
+            },
+            "title": "Later",
+            "type": "array"
+          },
+          "opportunity_id": {
+            "format": "uuid",
+            "title": "Opportunity Id",
+            "type": "string"
+          },
+          "opportunity_version": {
+            "title": "Opportunity Version",
+            "type": "integer"
+          },
+          "opportunity_version_id": {
+            "format": "uuid",
+            "title": "Opportunity Version Id",
+            "type": "string"
+          },
+          "partner": {
+            "title": "Partner",
+            "type": "string"
+          },
+          "partner_party_id": {
+            "format": "uuid",
+            "title": "Partner Party Id",
+            "type": "string"
+          },
+          "readiness": {
+            "enum": [
+              "READY_TO_SUBMIT",
+              "NEEDS_INFORMATION",
+              "BLOCKED_FOR_THIS_TARGET"
+            ],
+            "title": "Readiness",
+            "type": "string"
+          },
+          "reasons": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Reasons",
+            "type": "array"
+          },
+          "relevant": {
+            "title": "Relevant",
+            "type": "boolean"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/RequirementRow"
+            },
+            "title": "Rows",
+            "type": "array"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "opportunity_id",
+          "opportunity_version_id",
+          "opportunity_version",
+          "partner_party_id",
+          "partner",
+          "title",
+          "availability",
+          "eligibility",
+          "readiness",
+          "relevant",
+          "label",
+          "fit",
+          "reasons",
+          "gap",
+          "later",
+          "rows",
+          "evidence"
+        ],
+        "title": "MatchResultResponse",
+        "type": "object"
+      },
+      "MatchRunResponse": {
+        "description": "A stored run: recommended results first, then those not to be shown as a positive match.",
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "engine": {
+            "title": "Engine",
+            "type": "string"
+          },
+          "excluded": {
+            "items": {
+              "$ref": "#/components/schemas/MatchResultResponse"
+            },
+            "title": "Excluded",
+            "type": "array"
+          },
+          "operation_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operation Id"
+          },
+          "policy_versions": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Policy Versions",
+            "type": "object"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/MatchResultResponse"
+            },
+            "title": "Results",
+            "type": "array"
+          },
+          "run_id": {
+            "format": "uuid",
+            "title": "Run Id",
+            "type": "string"
+          },
+          "source": {
+            "$ref": "#/components/schemas/MatchSource"
+          }
+        },
+        "required": [
+          "run_id",
+          "created_at",
+          "engine",
+          "policy_versions",
+          "source",
+          "results",
+          "excluded"
+        ],
+        "title": "MatchRunResponse",
+        "type": "object"
+      },
+      "MatchSource": {
+        "description": "The source version a run evaluated.",
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "SUPPORT_REQUEST",
+              "FUNDING_REQUEST"
+            ],
+            "title": "Type",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "type",
+          "id",
+          "version",
+          "title"
+        ],
+        "title": "MatchSource",
         "type": "object"
       },
       "MeResponse": {
@@ -3058,6 +4013,11 @@
             ],
             "title": "Closes At"
           },
+          "current_version_id": {
+            "format": "uuid",
+            "title": "Current Version Id",
+            "type": "string"
+          },
           "excluded": {
             "title": "Excluded",
             "type": "string"
@@ -3206,6 +4166,7 @@
           "id",
           "partner_party_id",
           "version",
+          "current_version_id",
           "kind",
           "status",
           "closes_at",
@@ -3556,6 +4517,448 @@
         "title": "PartnerProfileResponse",
         "type": "object"
       },
+      "PartyName": {
+        "description": "A party as a name.",
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "party_id": {
+            "format": "uuid",
+            "title": "Party Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "party_id",
+          "name"
+        ],
+        "title": "PartyName",
+        "type": "object"
+      },
+      "PinnedInvention": {
+        "description": "One invention version the source reads.",
+        "properties": {
+          "invention_id": {
+            "format": "uuid",
+            "title": "Invention Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          },
+          "version_id": {
+            "format": "uuid",
+            "title": "Version Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "invention_id",
+          "version_id",
+          "version",
+          "title"
+        ],
+        "title": "PinnedInvention",
+        "type": "object"
+      },
+      "PinnedOpportunity": {
+        "description": "The opportunity version a preflight pinned.",
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          },
+          "version_id": {
+            "format": "uuid",
+            "title": "Version Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "version_id",
+          "version",
+          "title"
+        ],
+        "title": "PinnedOpportunity",
+        "type": "object"
+      },
+      "PinnedSource": {
+        "description": "The source version a preflight pinned.",
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "SUPPORT_REQUEST",
+              "FUNDING_REQUEST"
+            ],
+            "title": "Type",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "type",
+          "id",
+          "version",
+          "title"
+        ],
+        "title": "PinnedSource",
+        "type": "object"
+      },
+      "PitchActionRequest": {
+        "additionalProperties": false,
+        "description": "A status change against the pitch version the client saw.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "expected_version": {
+            "title": "Expected Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "expected_version"
+        ],
+        "title": "PitchActionRequest",
+        "type": "object"
+      },
+      "PitchActionResponse": {
+        "description": "The pitch after a status change.",
+        "properties": {
+          "operation_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operation Id"
+          },
+          "pitch_id": {
+            "format": "uuid",
+            "title": "Pitch Id",
+            "type": "string"
+          },
+          "round": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Round"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "submission": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Submission"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "pitch_id",
+          "status",
+          "version"
+        ],
+        "title": "PitchActionResponse",
+        "type": "object"
+      },
+      "PitchResponse": {
+        "description": "A pitch with its frozen submissions, decisions and rounds, for its requester or recipient.",
+        "properties": {
+          "allowed_actions": {
+            "description": "What the reader may do now: table actions plus ``answer`` and ``review_items``.",
+            "items": {
+              "type": "string"
+            },
+            "title": "Allowed Actions",
+            "type": "array"
+          },
+          "decisions": {
+            "items": {
+              "$ref": "#/components/schemas/DecisionResponse"
+            },
+            "title": "Decisions",
+            "type": "array"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "opportunity_id": {
+            "format": "uuid",
+            "title": "Opportunity Id",
+            "type": "string"
+          },
+          "opportunity_title": {
+            "title": "Opportunity Title",
+            "type": "string"
+          },
+          "purpose": {
+            "title": "Purpose",
+            "type": "string"
+          },
+          "recipient_name": {
+            "title": "Recipient Name",
+            "type": "string"
+          },
+          "recipient_party_id": {
+            "format": "uuid",
+            "title": "Recipient Party Id",
+            "type": "string"
+          },
+          "requester_name": {
+            "title": "Requester Name",
+            "type": "string"
+          },
+          "requester_party_id": {
+            "format": "uuid",
+            "title": "Requester Party Id",
+            "type": "string"
+          },
+          "rounds": {
+            "items": {
+              "$ref": "#/components/schemas/RevisionRoundResponse"
+            },
+            "title": "Rounds",
+            "type": "array"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "subject_id": {
+            "format": "uuid",
+            "title": "Subject Id",
+            "type": "string"
+          },
+          "subject_title": {
+            "title": "Subject Title",
+            "type": "string"
+          },
+          "subject_type": {
+            "enum": [
+              "SUPPORT_REQUEST",
+              "FUNDING_REQUEST"
+            ],
+            "title": "Subject Type",
+            "type": "string"
+          },
+          "submissions": {
+            "items": {
+              "$ref": "#/components/schemas/SubmissionResponse"
+            },
+            "title": "Submissions",
+            "type": "array"
+          },
+          "submitted_at": {
+            "format": "date-time",
+            "title": "Submitted At",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          },
+          "waiting_on_party_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Whose move it is: the requester or the recipient, or none during discussion and after the end.",
+            "title": "Waiting On Party Id"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "subject_type",
+          "subject_id",
+          "subject_title",
+          "opportunity_id",
+          "opportunity_title",
+          "requester_party_id",
+          "requester_name",
+          "recipient_party_id",
+          "recipient_name",
+          "purpose",
+          "submitted_at",
+          "updated_at",
+          "waiting_on_party_id",
+          "version",
+          "submissions",
+          "decisions",
+          "rounds",
+          "allowed_actions"
+        ],
+        "title": "PitchResponse",
+        "type": "object"
+      },
+      "PitchSummary": {
+        "description": "One row of a pitch list.",
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "opportunity_id": {
+            "format": "uuid",
+            "title": "Opportunity Id",
+            "type": "string"
+          },
+          "opportunity_title": {
+            "title": "Opportunity Title",
+            "type": "string"
+          },
+          "purpose": {
+            "title": "Purpose",
+            "type": "string"
+          },
+          "recipient_name": {
+            "title": "Recipient Name",
+            "type": "string"
+          },
+          "recipient_party_id": {
+            "format": "uuid",
+            "title": "Recipient Party Id",
+            "type": "string"
+          },
+          "requester_name": {
+            "title": "Requester Name",
+            "type": "string"
+          },
+          "requester_party_id": {
+            "format": "uuid",
+            "title": "Requester Party Id",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "subject_id": {
+            "format": "uuid",
+            "title": "Subject Id",
+            "type": "string"
+          },
+          "subject_title": {
+            "title": "Subject Title",
+            "type": "string"
+          },
+          "subject_type": {
+            "enum": [
+              "SUPPORT_REQUEST",
+              "FUNDING_REQUEST"
+            ],
+            "title": "Subject Type",
+            "type": "string"
+          },
+          "submitted_at": {
+            "format": "date-time",
+            "title": "Submitted At",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          },
+          "waiting_on_party_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Whose move it is: the requester or the recipient, or none during discussion and after the end.",
+            "title": "Waiting On Party Id"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "subject_type",
+          "subject_id",
+          "subject_title",
+          "opportunity_id",
+          "opportunity_title",
+          "requester_party_id",
+          "requester_name",
+          "recipient_party_id",
+          "recipient_name",
+          "purpose",
+          "submitted_at",
+          "updated_at",
+          "waiting_on_party_id"
+        ],
+        "title": "PitchSummary",
+        "type": "object"
+      },
       "PolicyResponse": {
         "description": "One versioned product policy, such as matching weights or proposal expiry.",
         "properties": {
@@ -3573,6 +4976,190 @@
           "version"
         ],
         "title": "PolicyResponse",
+        "type": "object"
+      },
+      "PreflightRequest": {
+        "additionalProperties": false,
+        "description": "Check one owned source against one opportunity before anything is sent.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "opportunity_id": {
+            "format": "uuid",
+            "title": "Opportunity Id",
+            "type": "string"
+          },
+          "source_id": {
+            "format": "uuid",
+            "title": "Source Id",
+            "type": "string"
+          },
+          "source_type": {
+            "enum": [
+              "SUPPORT_REQUEST",
+              "FUNDING_REQUEST"
+            ],
+            "title": "Source Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "source_type",
+          "source_id",
+          "opportunity_id"
+        ],
+        "title": "PreflightRequest",
+        "type": "object"
+      },
+      "PreflightResponse": {
+        "description": "Exactly what would be sent, under a token that pins every version and the permission generation.",
+        "properties": {
+          "availability": {
+            "$ref": "#/components/schemas/TargetAvailabilityResponse"
+          },
+          "brief": {
+            "$ref": "#/components/schemas/BriefResponse"
+          },
+          "duplicate_pitch_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duplicate Pitch Id"
+          },
+          "eligibility": {
+            "enum": [
+              "ELIGIBLE",
+              "NEEDS_VERIFICATION",
+              "INCOMPATIBLE"
+            ],
+            "title": "Eligibility",
+            "type": "string"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "title": "Expires At",
+            "type": "string"
+          },
+          "fit": {
+            "$ref": "#/components/schemas/FitResponse"
+          },
+          "gap": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RequirementRow"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "inventions": {
+            "items": {
+              "$ref": "#/components/schemas/PinnedInvention"
+            },
+            "title": "Inventions",
+            "type": "array"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "later": {
+            "items": {
+              "$ref": "#/components/schemas/RequirementRow"
+            },
+            "title": "Later",
+            "type": "array"
+          },
+          "opportunity": {
+            "$ref": "#/components/schemas/PinnedOpportunity"
+          },
+          "preflight_id": {
+            "format": "uuid",
+            "title": "Preflight Id",
+            "type": "string"
+          },
+          "purpose": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Purpose"
+          },
+          "readiness": {
+            "enum": [
+              "READY_TO_SUBMIT",
+              "NEEDS_INFORMATION",
+              "BLOCKED_FOR_THIS_TARGET"
+            ],
+            "title": "Readiness",
+            "type": "string"
+          },
+          "recipient": {
+            "$ref": "#/components/schemas/PartyName"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/RequirementRow"
+            },
+            "title": "Rows",
+            "type": "array"
+          },
+          "sender": {
+            "$ref": "#/components/schemas/PartyName"
+          },
+          "shareable_files": {
+            "items": {
+              "$ref": "#/components/schemas/ShareableFile"
+            },
+            "title": "Shareable Files",
+            "type": "array"
+          },
+          "source": {
+            "$ref": "#/components/schemas/PinnedSource"
+          },
+          "token": {
+            "title": "Token",
+            "type": "string"
+          }
+        },
+        "required": [
+          "preflight_id",
+          "token",
+          "expires_at",
+          "readiness",
+          "eligibility",
+          "label",
+          "fit",
+          "sender",
+          "recipient",
+          "opportunity",
+          "source",
+          "inventions",
+          "purpose",
+          "availability",
+          "rows",
+          "gap",
+          "later",
+          "shareable_files",
+          "brief",
+          "duplicate_pitch_id"
+        ],
+        "title": "PreflightResponse",
         "type": "object"
       },
       "PublicClaimResponse": {
@@ -3713,6 +5300,11 @@
             "title": "Keywords",
             "type": "array"
           },
+          "managing_party_id": {
+            "format": "uuid",
+            "title": "Managing Party Id",
+            "type": "string"
+          },
           "managing_party_name": {
             "title": "Managing Party Name",
             "type": "string"
@@ -3774,6 +5366,7 @@
         },
         "required": [
           "id",
+          "managing_party_id",
           "managing_party_name",
           "number",
           "title",
@@ -4055,6 +5648,30 @@
         "title": "RecordHandoffRequest",
         "type": "object"
       },
+      "Relaxation": {
+        "description": "A filter to remove deliberately when nothing matched; the search is never broadened by itself.",
+        "properties": {
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "remove": {
+            "title": "Remove",
+            "type": "string"
+          },
+          "total_estimate": {
+            "title": "Total Estimate",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "remove",
+          "label",
+          "total_estimate"
+        ],
+        "title": "Relaxation",
+        "type": "object"
+      },
       "RemoveMemberRequest": {
         "description": "Remove a member, acting as the organization.",
         "properties": {
@@ -4256,6 +5873,348 @@
           "version"
         ],
         "title": "RequirementResponse",
+        "type": "object"
+      },
+      "RequirementRow": {
+        "description": "One requirement's result. ``action`` names what the applicant can do, such as ``complete-budget``.",
+        "properties": {
+          "action": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Action"
+          },
+          "applies_at": {
+            "title": "Applies At",
+            "type": "string"
+          },
+          "field": {
+            "title": "Field",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "mandatory": {
+            "title": "Mandatory",
+            "type": "boolean"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "requirement_id": {
+            "format": "uuid",
+            "title": "Requirement Id",
+            "type": "string"
+          },
+          "result": {
+            "enum": [
+              "PASS",
+              "FAIL",
+              "UNKNOWN"
+            ],
+            "title": "Result",
+            "type": "string"
+          },
+          "verification_mode": {
+            "title": "Verification Mode",
+            "type": "string"
+          }
+        },
+        "required": [
+          "requirement_id",
+          "label",
+          "field",
+          "mandatory",
+          "applies_at",
+          "verification_mode",
+          "result",
+          "reason",
+          "action"
+        ],
+        "title": "RequirementRow",
+        "type": "object"
+      },
+      "ResubmitRequest": {
+        "additionalProperties": false,
+        "description": "Send again after answering: the brief as edited and the file versions chosen on purpose.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "brief": {
+            "anyOf": [
+              {
+                "maxLength": 10000,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brief"
+          },
+          "expected_version": {
+            "title": "Expected Version",
+            "type": "integer"
+          },
+          "files": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ChosenFile"
+            },
+            "maxItems": 20,
+            "title": "Files",
+            "type": "array"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "expected_version"
+        ],
+        "title": "ResubmitRequest",
+        "type": "object"
+      },
+      "RevisionItemInput": {
+        "additionalProperties": false,
+        "description": "One itemized question.",
+        "properties": {
+          "category": {
+            "maxLength": 60,
+            "minLength": 1,
+            "title": "Category",
+            "type": "string"
+          },
+          "due_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Due Date"
+          },
+          "expected_evidence": {
+            "default": "",
+            "maxLength": 500,
+            "title": "Expected Evidence",
+            "type": "string"
+          },
+          "question": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Question",
+            "type": "string"
+          },
+          "reason": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          },
+          "required": {
+            "title": "Required",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "category",
+          "question",
+          "reason",
+          "required"
+        ],
+        "title": "RevisionItemInput",
+        "type": "object"
+      },
+      "RevisionItemResponse": {
+        "description": "One requested item, its answer once visible, and the recipient's review.",
+        "properties": {
+          "answer": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AnswerResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "category": {
+            "title": "Category",
+            "type": "string"
+          },
+          "due_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Due Date"
+          },
+          "expected_evidence": {
+            "title": "Expected Evidence",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "position": {
+            "title": "Position",
+            "type": "integer"
+          },
+          "question": {
+            "title": "Question",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "required": {
+            "title": "Required",
+            "type": "boolean"
+          },
+          "review": {
+            "anyOf": [
+              {
+                "enum": [
+                  "ACCEPTED",
+                  "NEEDS_DETAIL"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Review"
+          },
+          "review_note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Review Note"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "position",
+          "category",
+          "question",
+          "reason",
+          "required",
+          "due_date",
+          "expected_evidence",
+          "review",
+          "review_note",
+          "version",
+          "answer"
+        ],
+        "title": "RevisionItemResponse",
+        "type": "object"
+      },
+      "RevisionRequest": {
+        "additionalProperties": false,
+        "description": "Open a numbered round on the submission the recipient read.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "expected_version": {
+            "title": "Expected Version",
+            "type": "integer"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/RevisionItemInput"
+            },
+            "maxItems": 20,
+            "minItems": 1,
+            "title": "Items",
+            "type": "array"
+          },
+          "submission": {
+            "minimum": 1.0,
+            "title": "Submission",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "expected_version",
+          "submission",
+          "items"
+        ],
+        "title": "RevisionRequest",
+        "type": "object"
+      },
+      "RevisionRoundResponse": {
+        "description": "One numbered round.",
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/RevisionItemResponse"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "number": {
+            "title": "Number",
+            "type": "integer"
+          },
+          "open": {
+            "description": "Still waiting for the requester to resubmit; its answers are drafts.",
+            "title": "Open",
+            "type": "boolean"
+          },
+          "requested_at": {
+            "format": "date-time",
+            "title": "Requested At",
+            "type": "string"
+          },
+          "submission_number": {
+            "title": "Submission Number",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "number",
+          "submission_number",
+          "requested_at",
+          "open",
+          "items"
+        ],
+        "title": "RevisionRoundResponse",
         "type": "object"
       },
       "RevokeRequest": {
@@ -4610,6 +6569,195 @@
           "acting_party_id"
         ],
         "title": "SavePartnerProfileRequest",
+        "type": "object"
+      },
+      "ShareableFile": {
+        "description": "A file version the applicant may choose to share; nothing is shared until submission.",
+        "properties": {
+          "document_id": {
+            "format": "uuid",
+            "title": "Document Id",
+            "type": "string"
+          },
+          "fact_keys": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Fact Keys",
+            "type": "array"
+          },
+          "file_state": {
+            "title": "File State",
+            "type": "string"
+          },
+          "review_state": {
+            "title": "Review State",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          },
+          "version_id": {
+            "format": "uuid",
+            "title": "Version Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "document_id",
+          "version_id",
+          "version",
+          "title",
+          "file_state",
+          "review_state",
+          "fact_keys"
+        ],
+        "title": "ShareableFile",
+        "type": "object"
+      },
+      "SubmissionResponse": {
+        "description": "One frozen submission.",
+        "properties": {
+          "brief": {
+            "title": "Brief",
+            "type": "string"
+          },
+          "files": {
+            "items": {
+              "$ref": "#/components/schemas/SubmittedFile"
+            },
+            "title": "Files",
+            "type": "array"
+          },
+          "number": {
+            "title": "Number",
+            "type": "integer"
+          },
+          "snapshot": {
+            "additionalProperties": true,
+            "title": "Snapshot",
+            "type": "object"
+          },
+          "submitted_at": {
+            "format": "date-time",
+            "title": "Submitted At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "number",
+          "brief",
+          "snapshot",
+          "files",
+          "submitted_at"
+        ],
+        "title": "SubmissionResponse",
+        "type": "object"
+      },
+      "SubmitPitchRequest": {
+        "additionalProperties": false,
+        "description": "Send on purpose: the fresh preflight, the brief as edited, and the files chosen.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "brief": {
+            "maxLength": 10000,
+            "minLength": 1,
+            "title": "Brief",
+            "type": "string"
+          },
+          "files": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ChosenFile"
+            },
+            "maxItems": 20,
+            "title": "Files",
+            "type": "array"
+          },
+          "preflight_token": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Preflight Token",
+            "type": "string"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "preflight_token",
+          "brief"
+        ],
+        "title": "SubmitPitchRequest",
+        "type": "object"
+      },
+      "SubmitPitchResponse": {
+        "description": "The submitted pitch.",
+        "properties": {
+          "operation_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operation Id"
+          },
+          "pitch_id": {
+            "format": "uuid",
+            "title": "Pitch Id",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "submission": {
+            "title": "Submission",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "pitch_id",
+          "status",
+          "submission"
+        ],
+        "title": "SubmitPitchResponse",
+        "type": "object"
+      },
+      "SubmittedFile": {
+        "description": "A file version a submission shared.",
+        "properties": {
+          "document_id": {
+            "format": "uuid",
+            "title": "Document Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "document_id",
+          "version",
+          "title"
+        ],
+        "title": "SubmittedFile",
         "type": "object"
       },
       "SupportRequestResponse": {
@@ -5231,10 +7379,16 @@
           "number": {
             "title": "Number",
             "type": "integer"
+          },
+          "version_id": {
+            "format": "uuid",
+            "title": "Version Id",
+            "type": "string"
           }
         },
         "required": [
           "document_id",
+          "version_id",
           "number",
           "file_state"
         ],
@@ -5281,6 +7435,36 @@
           "expected_version"
         ],
         "title": "VersionedActionRequest",
+        "type": "object"
+      },
+      "app__access__model__schema__ActingPartyRequest": {
+        "description": "A consequential action names the party it acts as, so two tabs cannot cross contexts.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "acting_party_id"
+        ],
+        "title": "ActingPartyRequest",
+        "type": "object"
+      },
+      "app__discovery__router__ActingPartyRequest": {
+        "description": "The party the client acts as.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "acting_party_id"
+        ],
+        "title": "ActingPartyRequest",
         "type": "object"
       }
     }
@@ -5420,6 +7604,183 @@
         ]
       }
     },
+    "/api/v1/briefs/{brief_id}": {
+      "get": {
+        "description": "Read one's own brief with its references.\n\nArgs:\n    brief_id (UUID): The brief.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    BriefResponse: The brief.",
+        "operationId": "read_brief_api_v1_briefs__brief_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "brief_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Brief Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BriefResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Read a brief",
+        "tags": [
+          "briefs"
+        ]
+      }
+    },
+    "/api/v1/briefs/{brief_id}/export": {
+      "get": {
+        "description": "Export under today's permissions; a sentence resting on a file no longer accessible is redacted.\n\nArgs:\n    brief_id (UUID): The brief.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    format (str, optional): ``md`` or ``txt``. Defaults to \"md\".\n\nReturns:\n    PlainTextResponse: The export.",
+        "operationId": "export_brief_api_v1_briefs__brief_id__export_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "brief_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Brief Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "format",
+            "required": false,
+            "schema": {
+              "default": "md",
+              "enum": [
+                "md",
+                "txt"
+              ],
+              "title": "Format",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "text/markdown": {},
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Export a brief",
+        "tags": [
+          "briefs"
+        ]
+      }
+    },
+    "/api/v1/briefs/{brief_id}/summary": {
+      "post": {
+        "description": "Ask the summarizer. When it is off, fails or adds anything untraceable, the template brief comes back.\n\nArgs:\n    brief_id (UUID): The brief.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    BriefResponse: The brief, with ``summarizer_status``.",
+        "operationId": "summarize_brief_api_v1_briefs__brief_id__summary_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "brief_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Brief Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BriefResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Ask for a shorter brief",
+        "tags": [
+          "briefs"
+        ]
+      }
+    },
     "/api/v1/capabilities": {
       "get": {
         "description": "Return the non-secret manifest clients use to explain what is available.\n\nReturns:\n    CapabilityManifestResponse: The manifest.",
@@ -5449,6 +7810,146 @@
         "summary": "Describe this deployment",
         "tags": [
           "capabilities"
+        ]
+      }
+    },
+    "/api/v1/demo/accounts": {
+      "get": {
+        "description": "List the labelled demo accounts.\n\nReturns:\n    list[DemoAccount]: Accounts, each labelled \"Akun demo \u00b7 data fiktif\".",
+        "operationId": "list_demo_accounts_api_v1_demo_accounts_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/DemoAccount"
+                  },
+                  "title": "Response List Demo Accounts Api V1 Demo Accounts Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "List demo accounts",
+        "tags": [
+          "demo"
+        ]
+      }
+    },
+    "/api/v1/demo/reset": {
+      "post": {
+        "description": "Delete only demo rows and recreate them with the same ids; real accounts are untouched.\n\nArgs:\n    body (DemoResetRequest): Fixture states.\n    session (SessionDep): Database session.\n\nReturns:\n    DemoResetResponse: What was recreated.",
+        "operationId": "reset_demo_api_v1_demo_reset_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DemoResetRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DemoResetResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Reset the demo",
+        "tags": [
+          "demo"
+        ]
+      }
+    },
+    "/api/v1/demo/sign-in": {
+      "post": {
+        "description": "Start a session for a demo account. Demo accounts have no code by email; this picker is their only way in.\n\nArgs:\n    body (DemoSignInRequest): The account key.\n    response (Response): Carries the session cookie.\n    session (SessionDep): Database session.\n\nReturns:\n    MeResponse: The signed-in demo account.",
+        "operationId": "demo_sign_in_api_v1_demo_sign_in_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DemoSignInRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Sign in as a demo account",
+        "tags": [
+          "demo"
         ]
       }
     },
@@ -5508,6 +8009,457 @@
         "summary": "Read the development mailbox",
         "tags": [
           "development"
+        ]
+      }
+    },
+    "/api/v1/discovery": {
+      "get": {
+        "description": "Search one result type from the public projection, in sections, with the filters echoed back.\n\nArgs:\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    type (ResultType, optional): Result type. Defaults to \"inventions\".\n    q (str, optional): Words in Indonesian or English. Defaults to \"\".\n    sector (str | None, optional): Sector. Defaults to None.\n    stage (str | None, optional): Stage. Defaults to None.\n    support_form (str | None, optional): Form of support. Defaults to None.\n    region (str | None, optional): Region. Defaults to None.\n    purpose (str | None, optional): Relationship form. Defaults to None.\n    intake (str | None, optional): Partner intake state. Defaults to None.\n    currency (str | None, optional): Currency of the amount range. Defaults to None.\n    basis (str | None, optional): Basis of the amount range. Defaults to None.\n    amount_min (str | None, optional): Lowest amount, as a decimal string. Defaults to None.\n    amount_max (str | None, optional): Highest amount, as a decimal string. Defaults to None.\n    saved (bool, optional): Only saved items. Defaults to False.\n    cursor (str | None, optional): From the previous page. Defaults to None.\n    limit (int, optional): Page size, at most 100. Defaults to 20.\n\nReturns:\n    DiscoveryResponse: One page.",
+        "operationId": "discover_api_v1_discovery_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "type",
+            "required": false,
+            "schema": {
+              "default": "inventions",
+              "enum": [
+                "inventions",
+                "funding",
+                "partners"
+              ],
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "default": "",
+              "maxLength": 200,
+              "title": "Q",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sector",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Sector"
+            }
+          },
+          {
+            "in": "query",
+            "name": "stage",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Stage"
+            }
+          },
+          {
+            "in": "query",
+            "name": "support_form",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Support Form"
+            }
+          },
+          {
+            "in": "query",
+            "name": "region",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Region"
+            }
+          },
+          {
+            "in": "query",
+            "name": "purpose",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Purpose"
+            }
+          },
+          {
+            "in": "query",
+            "name": "intake",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Intake"
+            }
+          },
+          {
+            "in": "query",
+            "name": "currency",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Currency"
+            }
+          },
+          {
+            "in": "query",
+            "name": "basis",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Basis"
+            }
+          },
+          {
+            "in": "query",
+            "name": "amount_min",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Amount Min"
+            }
+          },
+          {
+            "in": "query",
+            "name": "amount_max",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Amount Max"
+            }
+          },
+          {
+            "in": "query",
+            "name": "saved",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Saved",
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiscoveryResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Search inventions, funding requests or partners",
+        "tags": [
+          "discovery"
+        ]
+      }
+    },
+    "/api/v1/discovery-feedback": {
+      "get": {
+        "description": "List what the acting party marked \"Kurang relevan\".\n\nArgs:\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    list[MarkedItem]: Hidden subjects.",
+        "operationId": "list_feedback_api_v1_discovery_feedback_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/MarkedItem"
+                  },
+                  "title": "Response List Feedback Api V1 Discovery Feedback Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "List items I marked less relevant",
+        "tags": [
+          "discovery"
+        ]
+      }
+    },
+    "/api/v1/discovery-feedback/{subject_type}/{subject_id}": {
+      "delete": {
+        "description": "Undo \"Kurang relevan\".\n\nArgs:\n    subject_type (SubjectType): Subject type.\n    subject_id (UUID): Subject.\n    body (ActingPartyRequest): Acting party.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.",
+        "operationId": "unhide_item_api_v1_discovery_feedback__subject_type___subject_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "subject_type",
+            "required": true,
+            "schema": {
+              "enum": [
+                "INVENTION",
+                "FUNDING_REQUEST",
+                "PARTNER"
+              ],
+              "title": "Subject Type",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "subject_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Subject Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/app__discovery__router__ActingPartyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Show an item again",
+        "tags": [
+          "discovery"
+        ]
+      },
+      "put": {
+        "description": "Hide a subject from the acting party's results only; nothing public changes.\n\nArgs:\n    subject_type (SubjectType): Subject type.\n    subject_id (UUID): Subject.\n    body (ActingPartyRequest): Acting party.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    MarkedItem: The hidden subject.",
+        "operationId": "hide_item_api_v1_discovery_feedback__subject_type___subject_id__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "subject_type",
+            "required": true,
+            "schema": {
+              "enum": [
+                "INVENTION",
+                "FUNDING_REQUEST",
+                "PARTNER"
+              ],
+              "title": "Subject Type",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "subject_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Subject Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/app__discovery__router__ActingPartyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MarkedItem"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Mark an item less relevant",
+        "tags": [
+          "discovery"
         ]
       }
     },
@@ -6761,7 +9713,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ActingPartyRequest"
+                "$ref": "#/components/schemas/app__access__model__schema__ActingPartyRequest"
               }
             }
           },
@@ -6994,6 +9946,112 @@
         "summary": "Declare a legal entity",
         "tags": [
           "company funding"
+        ]
+      }
+    },
+    "/api/v1/match-runs/{run_id}": {
+      "get": {
+        "description": "Read a stored run as it was computed.\n\nArgs:\n    run_id (UUID): The run.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    MatchRunResponse: The run.",
+        "operationId": "read_match_run_api_v1_match_runs__run_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MatchRunResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Read a match run",
+        "tags": [
+          "matching"
+        ]
+      }
+    },
+    "/api/v1/matches": {
+      "post": {
+        "description": "Evaluate an owned source against every other partner's active opportunity, with reasons and gaps.\n\nArgs:\n    body (MatchRequest): The source.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    MatchRunResponse: The stored run.",
+        "operationId": "run_match_api_v1_matches_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MatchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MatchRunResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Match a need or raise",
+        "tags": [
+          "matching"
         ]
       }
     },
@@ -8157,6 +11215,951 @@
         "summary": "Follow an external route",
         "tags": [
           "partner intake"
+        ]
+      }
+    },
+    "/api/v1/pitches": {
+      "get": {
+        "description": "List the acting party's sent or received pitches.\n\nArgs:\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    box (Box, optional): ``outgoing`` or ``incoming``. Defaults to \"outgoing\".\n    limit (int, optional): The most to return. Defaults to 50.\n\nReturns:\n    list[PitchSummary]: Newest first.",
+        "operationId": "list_pitches_api_v1_pitches_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "box",
+            "required": false,
+            "schema": {
+              "default": "outgoing",
+              "enum": [
+                "outgoing",
+                "incoming"
+              ],
+              "title": "Box",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PitchSummary"
+                  },
+                  "title": "Response List Pitches Api V1 Pitches Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "List my pitches",
+        "tags": [
+          "pitches"
+        ]
+      },
+      "post": {
+        "description": "Recheck a fresh preflight, freeze what is sent, share the chosen file versions and notify the recipient.\n\nArgs:\n    body (SubmitPitchRequest): Token, brief and files.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request; the same key with another body is a conflict.\n\nReturns:\n    SubmitPitchResponse: The pitch.",
+        "operationId": "submit_pitch_api_v1_pitches_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitPitchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmitPitchResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Send a pitch",
+        "tags": [
+          "pitches"
+        ]
+      }
+    },
+    "/api/v1/pitches/preflight": {
+      "post": {
+        "description": "Evaluate one owned source against one opportunity and pin every version under a 30-minute token.\n\nNothing is sent. Repeating it is safe and gives a new token.\n\nArgs:\n    body (PreflightRequest): Source and target.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    PreflightResponse: Recipient, versions, rows, shareable files and the template brief.",
+        "operationId": "preflight_api_v1_pitches_preflight_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreflightRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreflightResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Check a pitch before sending",
+        "tags": [
+          "briefs"
+        ]
+      }
+    },
+    "/api/v1/pitches/{pitch_id}": {
+      "get": {
+        "description": "Read a pitch as its requester or recipient.\n\nArgs:\n    pitch_id (UUID): The pitch.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    PitchResponse: The pitch and its frozen submissions.",
+        "operationId": "read_pitch_api_v1_pitches__pitch_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pitch_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Pitch Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PitchResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Read a pitch",
+        "tags": [
+          "pitches"
+        ]
+      }
+    },
+    "/api/v1/pitches/{pitch_id}/begin-review": {
+      "post": {
+        "description": "Mark a submitted pitch as under review. This decides nothing.\n\nArgs:\n    pitch_id (UUID): The pitch.\n    body (PitchActionRequest): Acting party and ``expected_version``.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    PitchActionResponse: The pitch.",
+        "operationId": "begin_review_api_v1_pitches__pitch_id__begin_review_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pitch_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Pitch Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PitchActionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PitchActionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Begin reviewing a pitch",
+        "tags": [
+          "pitches"
+        ]
+      }
+    },
+    "/api/v1/pitches/{pitch_id}/close": {
+      "post": {
+        "description": "Close an approved discussion with a reason.\n\nArgs:\n    pitch_id (UUID): The pitch.\n    body (CloseRequest): Acting party, ``expected_version`` and reason.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    PitchActionResponse: The pitch.",
+        "operationId": "close_api_v1_pitches__pitch_id__close_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pitch_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Pitch Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CloseRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PitchActionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Close a discussion",
+        "tags": [
+          "pitches"
+        ]
+      }
+    },
+    "/api/v1/pitches/{pitch_id}/decisions": {
+      "post": {
+        "description": "Decide on the exact submission and version. Approval opens discussion only; rejection needs a reason.\n\nArgs:\n    pitch_id (UUID): The pitch.\n    body (DecisionRequest): Submission, ``expected_version``, decision and reason.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    PitchActionResponse: The pitch.",
+        "operationId": "decide_api_v1_pitches__pitch_id__decisions_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pitch_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Pitch Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DecisionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PitchActionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Approve for discussion or reject",
+        "tags": [
+          "pitches"
+        ]
+      }
+    },
+    "/api/v1/pitches/{pitch_id}/resubmit": {
+      "post": {
+        "description": "Send the next submission once every required item has an answer.\n\nArgs:\n    pitch_id (UUID): The pitch.\n    body (ResubmitRequest): ``expected_version``, brief and files.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    PitchActionResponse: The pitch and submission number.",
+        "operationId": "resubmit_api_v1_pitches__pitch_id__resubmit_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pitch_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Pitch Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResubmitRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PitchActionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Resubmit after answering",
+        "tags": [
+          "pitches"
+        ]
+      }
+    },
+    "/api/v1/pitches/{pitch_id}/revision-items/{item_id}/answer": {
+      "put": {
+        "description": "Save the requester's draft answer to one item of the open round, against its version.\n\nArgs:\n    pitch_id (UUID): The pitch.\n    item_id (UUID): The item.\n    body (AnswerRequest): Response, text, files and ``expected_version``.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    AnswerResponse: The saved answer.",
+        "operationId": "save_answer_api_v1_pitches__pitch_id__revision_items__item_id__answer_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pitch_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Pitch Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "item_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Item Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnswerRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnswerResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Save a draft answer",
+        "tags": [
+          "pitches"
+        ]
+      }
+    },
+    "/api/v1/pitches/{pitch_id}/revision-items/{item_id}/review": {
+      "put": {
+        "description": "Accept an answer or ask for more detail, against the item's version.\n\nArgs:\n    pitch_id (UUID): The pitch.\n    item_id (UUID): The item.\n    body (ItemReviewRequest): Result, note and ``expected_version``.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    ItemReviewResponse: The item's review.",
+        "operationId": "review_item_api_v1_pitches__pitch_id__revision_items__item_id__review_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pitch_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Pitch Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "item_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Item Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ItemReviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemReviewResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Review an answer",
+        "tags": [
+          "pitches"
+        ]
+      }
+    },
+    "/api/v1/pitches/{pitch_id}/revision-rounds": {
+      "post": {
+        "description": "Open the next numbered round of itemized questions.\n\nArgs:\n    pitch_id (UUID): The pitch.\n    body (RevisionRequest): Submission, ``expected_version`` and items.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    PitchActionResponse: The pitch and round number.",
+        "operationId": "request_revision_api_v1_pitches__pitch_id__revision_rounds_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pitch_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Pitch Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RevisionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PitchActionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Request a revision",
+        "tags": [
+          "pitches"
+        ]
+      }
+    },
+    "/api/v1/pitches/{pitch_id}/withdraw": {
+      "post": {
+        "description": "Withdraw before a final decision; later decisions are refused.\n\nArgs:\n    pitch_id (UUID): The pitch.\n    body (PitchActionRequest): Acting party and ``expected_version``.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    PitchActionResponse: The pitch.",
+        "operationId": "withdraw_api_v1_pitches__pitch_id__withdraw_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pitch_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Pitch Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PitchActionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PitchActionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Withdraw a pitch",
+        "tags": [
+          "pitches"
+        ]
+      }
+    },
+    "/api/v1/saved-items": {
+      "get": {
+        "description": "List what the acting party saved.\n\nArgs:\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    list[MarkedItem]: Saved subjects.",
+        "operationId": "list_saved_api_v1_saved_items_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/MarkedItem"
+                  },
+                  "title": "Response List Saved Api V1 Saved Items Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "List my saved items",
+        "tags": [
+          "discovery"
+        ]
+      }
+    },
+    "/api/v1/saved-items/{subject_type}/{subject_id}": {
+      "delete": {
+        "description": "Remove a saved item.\n\nArgs:\n    subject_type (SubjectType): Subject type.\n    subject_id (UUID): Subject.\n    body (ActingPartyRequest): Acting party.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.",
+        "operationId": "unsave_item_api_v1_saved_items__subject_type___subject_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "subject_type",
+            "required": true,
+            "schema": {
+              "enum": [
+                "INVENTION",
+                "FUNDING_REQUEST",
+                "PARTNER"
+              ],
+              "title": "Subject Type",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "subject_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Subject Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/app__discovery__router__ActingPartyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Unsave an item",
+        "tags": [
+          "discovery"
+        ]
+      },
+      "put": {
+        "description": "Save a published subject for the acting party. Saving twice changes nothing.\n\nArgs:\n    subject_type (SubjectType): Subject type.\n    subject_id (UUID): Subject.\n    body (ActingPartyRequest): Acting party.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    MarkedItem: The saved subject.",
+        "operationId": "save_item_api_v1_saved_items__subject_type___subject_id__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "subject_type",
+            "required": true,
+            "schema": {
+              "enum": [
+                "INVENTION",
+                "FUNDING_REQUEST",
+                "PARTNER"
+              ],
+              "title": "Subject Type",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "subject_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Subject Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/app__discovery__router__ActingPartyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MarkedItem"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Save an item",
+        "tags": [
+          "discovery"
         ]
       }
     },

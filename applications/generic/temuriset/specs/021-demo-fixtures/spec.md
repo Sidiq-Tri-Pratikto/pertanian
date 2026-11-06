@@ -2,7 +2,7 @@
 
 **Feature Branch**: `021-demo-fixtures`
 **Created**: 2026-11-05
-**Status**: Seeded, not started
+**Status**: Built, awaiting review
 **Milestone**: M5 Discovery and matching
 **Depends on**: 010, 019
 **Size**: M

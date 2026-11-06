@@ -2,7 +2,7 @@ import type { Persona } from '@/features/persona';
 
 export type Route = {
   path: string;
-  /** Persona of the account signed up first; `null` means a visitor who is not signed in. `:draft` and `:published` become a new invention, `:support` a support request and `:funding` a company raise. */
+  /** Persona of the account signed up first; `null` means a visitor who is not signed in. `:draft` and `:published` become a new invention, `:support` a support request (also inside `?source=SUPPORT_REQUEST::support`) and `:funding` a company raise. */
   persona: Persona | null;
   /** Expected document status. */
   status?: number;
@@ -21,9 +21,13 @@ export const ROUTES: Route[] = [
   { path: '/inventions', persona: 'inovator' },
   { path: '/discover', persona: 'inovator' },
   { path: '/pitches', persona: 'inovator' },
+  { path: '/pitches/00000000-0000-4000-8000-000000000000', persona: 'inovator' },
   { path: '/settings', persona: 'inovator', primary: 'Keluar' },
   { path: '/undangan/tidak-ada', persona: 'inovator' },
-  { path: '/segera-hadir/kecocokan', persona: 'inovator' },
+  { path: '/segera-hadir/diskusi', persona: 'inovator' },
+  { path: '/discover?type=inventions&q=air', persona: 'inovator' },
+  { path: '/matches', persona: 'inovator' },
+  { path: '/matches?source=SUPPORT_REQUEST::support', persona: 'inovator' },
   { path: '/inventions/:draft/edit?step=1', persona: 'inovator', primary: 'Simpan dan lanjutkan' },
   { path: '/inventions/:draft/edit?step=2', persona: 'inovator', primary: 'Simpan dan lanjutkan' },
   { path: '/inventions/:draft/edit?step=3', persona: 'inovator', primary: 'Simpan dan lanjutkan' },
@@ -34,6 +38,8 @@ export const ROUTES: Route[] = [
   { path: '/funding-requests/:funding', persona: 'inovator' },
   { path: '/funding-requests/:funding/edit', persona: 'inovator', primary: 'Simpan pendanaan' },
   { path: '/discover', persona: 'mitra' },
+  { path: '/discover?type=funding', persona: 'mitra' },
+  { path: '/discover?type=partners&sector=Energi&stage=IDEA', persona: 'mitra' },
   { path: '/opportunities', persona: 'mitra', primary: 'Buat mandat' },
   { path: '/partners/:no-profile', persona: 'mitra', primary: 'Simpan profil' },
   { path: '/partners/:partner', persona: 'mitra', primary: 'Buat mandat' },

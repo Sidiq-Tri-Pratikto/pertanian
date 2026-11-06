@@ -3,6 +3,7 @@
 from collections.abc import AsyncIterator
 from dataclasses import dataclass
 from datetime import timedelta
+from typing import Any
 from uuid import UUID, uuid4
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -101,6 +102,85 @@ def evidence_status(version: DocumentVersionRecord | None, mode: str) -> str:
     if mode == "REVIEWER_CONFIRMED":
         return "PASS" if version.review_state == "REVIEWED_SUPPORTED" else "UNKNOWN"
     return "PASS"
+
+
+async def evidence_results(
+    session: AsyncSession, owner_party_id: UUID, version_ids: list[UUID]
+) -> dict[UUID, dict[str, str]]:
+    """Evaluate linked document versions for both verification modes, for matching (019).
+
+    A version whose document another party owns counts as absent, so linking someone else's file proves nothing.
+
+    Args:
+        session (AsyncSession): The request's session.
+        owner_party_id (UUID): The party whose evidence this is.
+        version_ids (list[UUID]): Linked versions.
+
+    Returns:
+        dict[UUID, dict[str, str]]: ``PASS`` or ``UNKNOWN`` per mode, for each owned version.
+    """
+    versions = await SqlAlchemyDocumentRepository(session).owned_versions(owner_party_id, version_ids)
+    return {
+        version.id: {mode: evidence_status(version, mode) for mode in ("DOCUMENT_PRESENT", "REVIEWER_CONFIRMED")}
+        for version in versions
+    }
+
+
+async def owned_version_details(
+    session: AsyncSession, owner_party_id: UUID, version_ids: list[UUID]
+) -> list[dict[str, Any]]:
+    """Describe the party's own document versions among ``version_ids``, for preflight's file list (022).
+
+    Args:
+        session (AsyncSession): The request's session.
+        owner_party_id (UUID): The owner.
+        version_ids (list[UUID]): Candidate versions, such as those linked from invention facts.
+
+    Returns:
+        list[dict[str, Any]]: Document id, version id and number, title, file and review states; another party's
+            versions are left out.
+    """
+    repository = SqlAlchemyDocumentRepository(session)
+    details = []
+    for version in await repository.owned_versions(owner_party_id, version_ids):
+        document = await repository.document(version.document_id)
+        assert document is not None  # noqa: S101 - versions cascade with their document
+        details.append(
+            {
+                "document_id": str(document.id),
+                "version_id": str(version.id),
+                "version": version.number,
+                "title": document.title,
+                "file_state": version.file_state,
+                "review_state": version.review_state,
+            }
+        )
+    return sorted(details, key=lambda item: (item["title"], item["version"]))
+
+
+async def owned_file(
+    session: AsyncSession, owner_party_id: UUID, document_id: UUID, number: int
+) -> dict[str, Any] | None:
+    """Describe one available version of the party's own document, for revision answers and resubmission (025).
+
+    Args:
+        session (AsyncSession): The request's session.
+        owner_party_id (UUID): The owner.
+        document_id (UUID): The document.
+        number (int): The version number.
+
+    Returns:
+        dict[str, Any] | None: Document id, version id and number, and title; None for another party's document,
+            an unknown version, or one whose file is not available.
+    """
+    repository = SqlAlchemyDocumentRepository(session)
+    document = await repository.document(document_id)
+    if document is None or document.owner_party_id != owner_party_id:
+        return None
+    version = await repository.version(document_id=document_id, number=number)
+    if version is None or version.file_state != "AVAILABLE":
+        return None
+    return {"document_id": str(document.id), "version_id": str(version.id), "version": number, "title": document.title}
 
 
 class DocumentService:
@@ -231,7 +311,9 @@ class DocumentService:
             actor_party_id=principal.active_party_id,
             detail={"number": number, "file_state": version.file_state},
         )
-        return UploadedResponse(document_id=document.id, number=number, file_state=version.file_state)
+        return UploadedResponse(
+            document_id=document.id, version_id=version.id, number=number, file_state=version.file_state
+        )
 
     async def list_mine(self, principal: Principal) -> list[DocumentResponse]:
         """List the acting party's documents with every version and grant.
@@ -286,13 +368,21 @@ class DocumentService:
             ],
         )
 
-    async def grant(self, principal: Principal, document_id: UUID, request: GrantRequest) -> GrantResponse:
+    async def grant(
+        self,
+        principal: Principal,
+        document_id: UUID,
+        request: GrantRequest,
+        capability: Capability = Capability.EDIT_PORTFOLIO,
+    ) -> GrantResponse:
         """Share one version with one party for one purpose; repeating it returns the same grant.
 
         Args:
             principal (Principal): Who is signed in.
             document_id (UUID): The document.
             request (GrantRequest): Version, grantee and purpose.
+            capability (Capability, optional): What the member needs; a submission shares with ``submit_pitch``.
+                Defaults to ``edit_portfolio``.
 
         Returns:
             GrantResponse: The grant.
@@ -302,7 +392,7 @@ class DocumentService:
         """
         check_context(principal, request.acting_party_id)
         document = await self._owned(principal, document_id)
-        require(principal, Capability.EDIT_PORTFOLIO, document.owner_party_id)
+        require(principal, capability, document.owner_party_id)
         version = await self.repository.version(document_id=document.id, number=request.version)
         names = await party_names(self.session, [request.grantee_party_id])
         if version is None or request.grantee_party_id not in names:

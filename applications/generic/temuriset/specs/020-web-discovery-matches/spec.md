@@ -2,7 +2,7 @@
 
 **Feature Branch**: `020-web-discovery-matches`
 **Created**: 2026-11-05
-**Status**: Seeded, not started
+**Status**: Built, awaiting review
 **Milestone**: M5 Discovery and matching
 **Depends on**: 017, 018, 019
 **Size**: L

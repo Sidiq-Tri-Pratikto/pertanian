@@ -17,13 +17,20 @@ export class ApiError extends Error {
   readonly currentVersion: number | null;
   /** Field errors after `VALIDATION_FAILED`. */
   readonly details: { loc: (string | number)[]; msg: string }[];
+  /** Other safe fields of the envelope, such as `pitch_id` after `DUPLICATE_PITCH` or `reason` after `PREFLIGHT_STALE`. */
+  readonly fields: Record<string, unknown>;
 
   constructor(
     code: string,
     message: string,
     recovery: Recovery,
     requestId: string | null = null,
-    extra: { attemptsLeft?: number | null; currentVersion?: number | null; details?: { loc: (string | number)[]; msg: string }[] } = {},
+    extra: {
+      attemptsLeft?: number | null;
+      currentVersion?: number | null;
+      details?: { loc: (string | number)[]; msg: string }[];
+      fields?: Record<string, unknown>;
+    } = {},
   ) {
     super(message);
     this.name = 'ApiError';
@@ -33,6 +40,13 @@ export class ApiError extends Error {
     this.attemptsLeft = extra.attemptsLeft ?? null;
     this.currentVersion = extra.currentVersion ?? null;
     this.details = extra.details ?? [];
+    this.fields = extra.fields ?? {};
+  }
+
+  /** A text field of the envelope, or null. */
+  field(name: string): string | null {
+    const value = this.fields[name];
+    return typeof value === 'string' ? value : null;
   }
 
   static unreachable(): ApiError {
@@ -65,5 +79,6 @@ export async function readFailure(response: Response): Promise<ApiError> {
     attemptsLeft: body.attempts_left ?? null,
     currentVersion: body.current_version ?? null,
     details: (body.details ?? []).map((detail) => ({ loc: detail.loc, msg: detail.msg })),
+    fields: body as unknown as Record<string, unknown>,
   });
 }

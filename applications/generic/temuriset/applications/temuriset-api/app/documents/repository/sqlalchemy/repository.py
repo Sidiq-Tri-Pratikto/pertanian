@@ -116,6 +116,25 @@ class SqlAlchemyDocumentRepository:
             )
         )
 
+    async def owned_versions(self, owner_party_id: UUID, version_ids: list[UUID]) -> list[DocumentVersionRecord]:
+        """Return the versions among ``version_ids`` whose document the party owns.
+
+        Args:
+            owner_party_id (UUID): The owner.
+            version_ids (list[UUID]): Candidate versions.
+
+        Returns:
+            list[DocumentVersionRecord]: The owned ones.
+        """
+        if not version_ids:
+            return []
+        query = (
+            select(DocumentVersionRecord)
+            .join(DocumentRecord, DocumentRecord.id == DocumentVersionRecord.document_id)
+            .where(DocumentVersionRecord.id.in_(version_ids), DocumentRecord.owner_party_id == owner_party_id)
+        )
+        return list(await self.session.scalars(query))
+
     async def next_number(self, document_id: UUID) -> int:
         """Return the next version number.
 

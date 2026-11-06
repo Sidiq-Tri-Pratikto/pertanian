@@ -1,0 +1,66 @@
+{
+  "availability": {
+    "available": true,
+    "reason": null
+  },
+  "eligibility": "NEEDS_VERIFICATION",
+  "evidence": {
+    "applicable": 2,
+    "note": null,
+    "provided": 1,
+    "reviewed": 0
+  },
+  "fit": {
+    "coverage": "0.88",
+    "lower": "85.71",
+    "upper": "100.00"
+  },
+  "gap": {
+    "action": "clarify-authority",
+    "applies_at": "SUBMISSION",
+    "field": "authority",
+    "label": "Wewenang atas inovasi",
+    "mandatory": true,
+    "reason": "Wewenang atas inovasi belum dikonfirmasi. Ini bukan berarti wewenang tidak ada.",
+    "requirement_id": "<id>",
+    "result": "UNKNOWN",
+    "verification_mode": "REVIEWER_CONFIRMED"
+  },
+  "label": "Perlu konfirmasi",
+  "later": [],
+  "opportunity_id": "<id>",
+  "opportunity_version": 1,
+  "opportunity_version_id": "<id>",
+  "partner": "Mitra A",
+  "partner_party_id": "<id>",
+  "readiness": "NEEDS_INFORMATION",
+  "reasons": [
+    "Tahap inovasi diterima mandat ini."
+  ],
+  "relevant": true,
+  "rows": [
+    {
+      "action": null,
+      "applies_at": "SUBMISSION",
+      "field": "stage",
+      "label": "Tahap inovasi",
+      "mandatory": true,
+      "reason": "Tahap inovasi diterima mandat ini.",
+      "requirement_id": "<id>",
+      "result": "PASS",
+      "verification_mode": "DECLARATION"
+    },
+    {
+      "action": "clarify-authority",
+      "applies_at": "SUBMISSION",
+      "field": "authority",
+      "label": "Wewenang atas inovasi",
+      "mandatory": true,
+      "reason": "Wewenang atas inovasi belum dikonfirmasi. Ini bukan berarti wewenang tidak ada.",
+      "requirement_id": "<id>",
+      "result": "UNKNOWN",
+      "verification_mode": "REVIEWER_CONFIRMED"
+    }
+  ],
+  "title": "Fasilitas uji pascapanen"
+}

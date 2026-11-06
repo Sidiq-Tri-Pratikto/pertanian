@@ -130,7 +130,8 @@ export const FEATURES: Feature[] = [
     ],
     screens: ['S03'],
     specs: ['018', '020'],
-    status: 'coming_soon',
+    status: 'available',
+    home: '/discover',
   },
   {
     id: 'kecocokan',
@@ -143,7 +144,8 @@ export const FEATURES: Feature[] = [
     ],
     screens: ['S10'],
     specs: ['019', '020'],
-    status: 'coming_soon',
+    status: 'available',
+    home: '/matches',
   },
   {
     id: 'data-demo',
@@ -152,7 +154,8 @@ export const FEATURES: Feature[] = [
     points: ['Data demo tidak masuk statistik nyata', 'Dapat diatur ulang kapan saja', 'Contoh dari beberapa sektor'],
     screens: [],
     specs: ['021'],
-    status: 'coming_soon',
+    status: 'available',
+    home: '/start',
   },
   {
     id: 'pemeriksaan-pitching',
@@ -165,7 +168,8 @@ export const FEATURES: Feature[] = [
     ],
     screens: ['S11'],
     specs: ['022', '024'],
-    status: 'coming_soon',
+    status: 'available',
+    home: '/matches',
   },
   {
     id: 'pitching',
@@ -178,7 +182,8 @@ export const FEATURES: Feature[] = [
     ],
     screens: ['S11', 'S12'],
     specs: ['023', '024'],
-    status: 'coming_soon',
+    status: 'available',
+    home: '/pitches',
   },
   {
     id: 'keputusan-revisi',
@@ -191,7 +196,8 @@ export const FEATURES: Feature[] = [
     ],
     screens: ['S12', 'S13'],
     specs: ['025', '026'],
-    status: 'coming_soon',
+    status: 'available',
+    home: '/pitches',
   },
   {
     id: 'diskusi',

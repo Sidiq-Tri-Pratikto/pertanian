@@ -2,7 +2,7 @@
 
 **Feature Branch**: `025-decisions-revisions-api`
 **Created**: 2026-11-05
-**Status**: Seeded, not started
+**Status**: Built, awaiting review
 **Milestone**: M7 Review and revisions
 **Depends on**: 023
 **Size**: L

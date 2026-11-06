@@ -55,6 +55,11 @@ def validate_configuration(settings: Settings) -> tuple[str, ...]:
         capability_ids = select_capabilities(settings.composition, settings.composition_overrides)
     except ValueError as error:
         raise ConfigurationError(str(error)) from error
+    if settings.environment != "development" and settings.demo_mode and not settings.demo_deployment:
+        raise ConfigurationError(
+            f"DEMO_MODE=true is allowed in {settings.environment} only on a deployment marked as a demonstration. "
+            "Set DEMO_DEPLOYMENT=true there, or turn demo mode off."
+        )
     if settings.environment != "development" and settings.file_scanner in _DEVELOPMENT_ONLY_SCANNERS:
         raise ConfigurationError(
             f"FILE_SCANNER={settings.file_scanner} is allowed only in development. "

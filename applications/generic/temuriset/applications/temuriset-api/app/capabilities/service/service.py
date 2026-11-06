@@ -18,7 +18,7 @@ CORE = "core"
 
 # Status moves here feature by feature, in the pull request that ships it. Nothing may claim more than exists.
 CAPABILITIES = {
-    CORE: CapabilityResponse(id=CORE, optional=False, status=CapabilityStatus.PLANNED),
+    CORE: CapabilityResponse(id=CORE, optional=False, status=CapabilityStatus.AVAILABLE),
     "company_funding": CapabilityResponse(id="company_funding", optional=True, status=CapabilityStatus.AVAILABLE),
     "organization_review": CapabilityResponse(id="organization_review", optional=True, status=CapabilityStatus.PLANNED),
     # Gated retrieval (spec 045); no composition selects them, but an override may.
@@ -30,7 +30,7 @@ DEPENDENCIES: dict[str, tuple[str, ...]] = {"reranking": ("dense_retrieval",)}
 ADAPTERS = (
     AdapterResponse(id="object-storage", status=CapabilityStatus.AVAILABLE),
     AdapterResponse(id="file-scanner", status=CapabilityStatus.AVAILABLE),
-    AdapterResponse(id="lexical-rules", status=CapabilityStatus.PLANNED),
+    AdapterResponse(id="lexical-rules", status=CapabilityStatus.AVAILABLE),
     AdapterResponse(id="ics-export", status=CapabilityStatus.PLANNED),
 )
 POLICIES = (
