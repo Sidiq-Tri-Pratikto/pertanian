@@ -37,6 +37,7 @@ from app.platform.service.idempotency import IdempotentReplay, replay_response
 from app.portability.router import router as portability_router
 from app.portfolio.router import router as portfolio_router
 from app.relationships.router import router as relationships_router
+from app.scheduling.router import CalendarPrivacyMiddleware
 from app.scheduling.router import router as scheduling_router
 
 API_PREFIX = "/api/v1"
@@ -61,6 +62,7 @@ def create_app() -> FastAPI:
     app = FastAPI(title="temuriset-api", version=SOURCE_RELEASE, lifespan=lifespan)
     app.add_middleware(OriginCheckMiddleware)
     app.add_middleware(ErrorBoundaryMiddleware)
+    app.add_middleware(CalendarPrivacyMiddleware)
     if settings.cors_allowed_origins:
         # Added after the boundary so it wraps it: failure responses keep their CORS headers.
         app.add_middleware(

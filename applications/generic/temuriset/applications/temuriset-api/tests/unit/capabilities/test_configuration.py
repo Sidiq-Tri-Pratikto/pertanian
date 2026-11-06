@@ -4,7 +4,8 @@ import logging
 from unittest.mock import patch
 
 import pytest
-from pydantic import ValidationError
+from cryptography.fernet import Fernet
+from pydantic import SecretStr, ValidationError
 
 from app.capabilities.service.configuration import ConfigurationError, looks_secret, validate_configuration
 from app.capabilities.service.service import build_manifest
@@ -229,3 +230,100 @@ def test_manifest_reports_storage_implementation() -> None:
     manifest = build_manifest("generic-base", storage_adapter="s3")
     adapter = next(adapter for adapter in manifest.adapters if adapter.id == "object-storage")
     assert adapter.implementation == "s3"
+
+
+def _calendar_settings(**overrides: object) -> Settings:
+    values = {
+        "calendar_adapter": "loopback-oauth",
+        "calendar_client_id": "calendar-local",
+        "calendar_envelope_key": Fernet.generate_key().decode(),
+        "calendar_authorize_url": "http://127.0.0.1:8029/authorize",
+        "calendar_token_url": "http://[::1]:8029/token",
+        "calendar_freebusy_url": "http://127.0.0.1:8029/freebusy",
+        "calendar_revoke_url": "http://127.0.0.1:8029/revoke",
+    }
+    return _settings(**(values | overrides))
+
+
+def test_local_calendar_accepts_only_the_validated_development_profile() -> None:
+    """
+    Condition:
+    - The adapter is off by default and the opt-in settings point only to the local relay.
+
+    Expected:
+    - The default reports off. Startup accepts the synthetic scope and fixed separate API callback.
+    """
+    assert not _settings().calendar_enabled
+    settings = _calendar_settings()
+    assert settings.calendar_enabled
+    assert validate_configuration(settings) == ("core", "company_funding")
+
+
+@pytest.mark.parametrize(
+    ("values", "setting"),
+    [
+        ({"calendar_token_url": "http://localhost:8029/token"}, "CALENDAR_TOKEN_URL"),
+        ({"calendar_token_url": "http://2130706433:8029/token"}, "CALENDAR_TOKEN_URL"),
+        ({"calendar_token_url": "http://[::1]foreign:8029/token"}, "CALENDAR_TOKEN_URL"),
+        ({"calendar_token_url": "http://127.0.0.1:0/token"}, "CALENDAR_TOKEN_URL"),
+        ({"calendar_token_url": f"http://127.0.0.1:8029/token?key={FAKE_KEY}"}, "CALENDAR_TOKEN_URL"),
+        ({"calendar_token_url": f"http://{FAKE_KEY}@127.0.0.1:8029/token"}, "CALENDAR_TOKEN_URL"),
+        ({"calendar_revoke_url": "http://localhost.evil.example/revoke"}, "CALENDAR_REVOKE_URL"),
+        ({"calendar_callback_origin": "http://localhost:3020"}, "CALENDAR_CALLBACK_ORIGIN"),
+        ({"calendar_callback_origin": "http://127.0.0.1:8020"}, "CALENDAR_CALLBACK_ORIGIN"),
+        ({"web_origin": "http://example.test"}, "WEB_ORIGIN"),
+        ({"calendar_envelope_key": FAKE_KEY}, "CALENDAR_ENVELOPE_KEY"),
+    ],
+)
+def test_calendar_invalid_endpoint_origin_or_key_stops_startup_safely(values: dict[str, object], setting: str) -> None:
+    """
+    Condition:
+    - A relay URL or callback could use an unsafe destination, or the encryption key is invalid.
+
+    Expected:
+    - Startup fails naming the setting while hiding the rejected values.
+    """
+    with pytest.raises(ConfigurationError, match=setting) as failure:
+        validate_configuration(_calendar_settings(**values))
+    assert FAKE_KEY not in str(failure.value)
+
+
+def test_calendar_profile_cannot_start_in_production_or_with_a_wider_scope() -> None:
+    """
+    Condition:
+    - The loopback adapter is selected in production, or configured with wider calendar permissions.
+
+    Expected:
+    - Both settings fail before the service can serve the adapter.
+    """
+    with pytest.raises(ValidationError, match="calendar_scope"):
+        _calendar_settings(calendar_scope="full-calendar")
+    production = _calendar_settings(
+        environment="production",
+        file_scanner="clamav",
+        mailbox_adapter="disabled",
+        storage_adapter="s3",
+        s3_endpoint_url="https://storage.example.test",
+        s3_bucket="test",
+        s3_access_key="synthetic",
+        s3_secret_key="synthetic",
+    )
+    with pytest.raises(ConfigurationError, match="CALENDAR_ADAPTER"):
+        validate_configuration(production)
+
+
+def test_calendar_and_enabled_email_adapter_require_independent_keys() -> None:
+    """
+    Condition:
+    - The two local adapters would reuse one key.
+
+    Expected:
+    - The deployment refuses the shared key without disclosing it.
+    """
+    key = SecretStr(Fernet.generate_key().decode())
+    settings = _calendar_settings(calendar_envelope_key=key).model_copy(
+        update={"mailbox_adapter": "loopback-relay", "email_envelope_key": key},
+    )
+    with pytest.raises(ConfigurationError, match="independent envelope keys") as failure:
+        validate_configuration(settings)
+    assert key.get_secret_value() not in str(failure.value)

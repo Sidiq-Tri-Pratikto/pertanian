@@ -22,6 +22,7 @@ async def get_capabilities() -> CapabilityManifestResponse:
         settings.composition_overrides,
         storage_adapter=settings.storage_adapter,
         scanner_adapter=settings.file_scanner,
+        calendar_enabled=settings.calendar_enabled,
     )
     manifest.demo = settings.demo_mode
     return manifest

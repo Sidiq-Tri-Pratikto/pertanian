@@ -84,6 +84,45 @@ Run one test with `uv run pytest tests/unit/health/test_health.py -v`, or match 
 | `SKIP_MIGRATIONS` | no | `false` | Container start skips migrations when `true` |
 | `PORT` | no | `8000` | Container listen port (`make run` uses 8020 on the host) |
 
+## Synthetic local calendar
+
+The default profile uses `CALENDAR_ADAPTER=off`. To run a synthetic OAuth double, set `ENVIRONMENT=development`,
+`CALENDAR_ADAPTER=loopback-oauth` and the following values in the API environment. Use test accounts and synthetic
+availability.
+
+| Variable | Value |
+|---|---|
+| `CALENDAR_AUTHORIZE_URL` | The synthetic authorization endpoint on literal `127.0.0.1` or `[::1]` |
+| `CALENDAR_TOKEN_URL` | The synthetic code and S256 verifier exchange endpoint on literal loopback |
+| `CALENDAR_FREEBUSY_URL` | The synthetic free/busy endpoint on literal loopback |
+| `CALENDAR_REVOKE_URL` | The synthetic token revocation endpoint on literal loopback |
+| `CALENDAR_CLIENT_ID` | The double's synthetic public client identifier |
+| `CALENDAR_SCOPE` | `freebusy.read` |
+| `CALENDAR_ENVELOPE_KEY` | A dedicated Fernet key generated locally, independent of the mail key |
+| `CALENDAR_CALLBACK_ORIGIN` | The direct API loopback origin, default `http://localhost:8020` |
+
+The callback origin uses the same hostname and scheme as `WEB_ORIGIN`, with its own API port. Register only
+`CALENDAR_CALLBACK_ORIGIN/api/v1/me/calendar/callback`. The browser returns directly to the API with its host-scoped
+session cookie, so the Next proxy never handles the callback query. Uvicorn omits that query from access records.
+The callback strips its query from application routing metadata and returns a no-store, no-referrer redirect to
+web settings. A safe reference accompanies a failed callback.
+
+After signing in, select **Siapkan sambungan kalender** in settings after accepting the read-only consent, then
+follow **Lanjut ke kalender uji**. The double returns an authorization code tied to the S256 challenge and the
+fixed callback. Its token response has `access_token`, bearer `token_type`, integer `expires_in` from 1 to
+3600 seconds, and the exact `freebusy.read` scope. There is no offline refresh. Its free/busy POST accepts at most
+five UTC windows and returns only busy UTC intervals. A lookup may add advisory labels for the viewer's own
+calendar. Internal scheduling and ICS continue when the relay is unavailable.
+
+Disconnect removes the local credential and invalidates in-flight attempts before a single bounded remote
+revocation attempt. The mutation receipt is stable across retries. Account status reports whether the relay
+confirmed revocation for that version. While the adapter is off, the owner can still erase the local connection
+without contacting the relay. Account-profile erasure removes the entire local record.
+
+The synthetic OAuth and free/busy suite starts an ephemeral literal-loopback double with
+`uv run pytest tests/integration/scheduling` after Postgres starts. External-provider approval, consent review and
+staging evidence are separate release gates.
+
 ## Commands
 
 | Command | Does |

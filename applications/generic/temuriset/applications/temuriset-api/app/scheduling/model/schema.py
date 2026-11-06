@@ -5,7 +5,7 @@ from typing import Annotated, Literal
 from uuid import UUID
 from zoneinfo import available_timezones
 
-from pydantic import AfterValidator, AwareDatetime, BaseModel, ConfigDict, Field, StringConstraints
+from pydantic import AfterValidator, AwareDatetime, BaseModel, BeforeValidator, ConfigDict, Field, StringConstraints
 
 _ZONES = frozenset(available_timezones())
 
@@ -70,6 +70,11 @@ class SlotResponse(BaseModel):
     position: int
     starts_at: datetime
     ends_at: datetime
+    external_availability: Literal["busy", "free"] | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+        description="Advisory availability for the signed-in account.",
+    )
 
 
 class ProposalResponse(BaseModel):
@@ -127,6 +132,53 @@ class ScheduleResponse(BaseModel):
     proposals: list[ProposalResponse]
     meetings: list[MeetingResponse]
     can_schedule: bool
-    external_calendar: Literal["unknown"] = Field(
-        default="unknown", description="No calendar is connected, so outside availability is unknown (AC68)."
+    external_calendar: Literal["unknown", "advisory"] = Field(
+        default="unknown",
+        description="Unknown unless the viewer’s own calendar returned advisory slot availability (AC68).",
     )
+
+
+class CalendarVersionRequest(BaseModel):
+    """An account calendar mutation against a previously observed version."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    expected_version: Annotated[int, Field(ge=0)]
+
+
+def _explicit_consent(value: object) -> object:
+    if value is not True:
+        raise ValueError("Berikan persetujuan sebelum menyambungkan kalender.")
+    return value
+
+
+class CalendarConnectRequest(CalendarVersionRequest):
+    """The account accepts the local read-only free/busy consent."""
+
+    consent: Annotated[Literal[True], BeforeValidator(_explicit_consent)]
+
+
+class CalendarStatusResponse(BaseModel):
+    """Account-owned connection state, without any provider identity or credentials."""
+
+    state: Literal["off", "off_with_connection", "disconnected", "pending", "connected", "expired"]
+    version: int
+    revocation: Literal["confirmed", "unconfirmed", "not_required"] | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+        description="Provider revocation outcome for the latest local disconnect, when known.",
+    )
+
+
+class CalendarConnectResponse(CalendarStatusResponse):
+    """The committed local consent and the same-origin navigation step."""
+
+    authorization_path: Literal["/api/v1/me/calendar/connect"] = "/api/v1/me/calendar/connect"
+    operation_id: UUID
+
+
+class CalendarDisconnectResponse(CalendarStatusResponse):
+    """The local disconnect and whether the provider confirmed token revocation."""
+
+    revocation: Literal["unconfirmed", "not_required"]
+    operation_id: UUID

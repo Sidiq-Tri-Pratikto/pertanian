@@ -1385,6 +1385,90 @@ export interface paths {
         patch: operations["update_me_api_v1_me_patch"];
         trace?: never;
     };
+    "/api/v1/me/calendar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read my calendar connection
+         * @description Report only the signed-in account's connection state.
+         */
+        get: operations["calendar_status_api_v1_me_calendar_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/calendar/callback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Finish local calendar consent
+         * @description Consume state before the exchange and always redirect without reflecting callback parameters.
+         */
+        get: operations["calendar_callback_api_v1_me_calendar_callback_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/calendar/connect": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Open the local calendar consent screen
+         * @description Redirect the initiating browser session to the fixed loopback provider.
+         */
+        get: operations["authorize_calendar_api_v1_me_calendar_connect_get"];
+        put?: never;
+        /**
+         * Consent to the local free/busy calendar
+         * @description Commit explicit consent and return a same-origin navigation path without credentials.
+         */
+        post: operations["connect_calendar_api_v1_me_calendar_connect_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/calendar/disconnect": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Disconnect my external calendar
+         * @description Commit local invalidation before attempting bounded provider revocation.
+         */
+        post: operations["disconnect_calendar_api_v1_me_calendar_disconnect_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/me/context": {
         parameters: {
             query?: never;
@@ -2774,15 +2858,7 @@ export interface paths {
         };
         /**
          * Read a pitch's schedule
-         * @description Read proposals and meetings, with expiry evaluated now.
-         *
-         *     Args:
-         *         pitch_id (UUID): The pitch.
-         *         principal (PrincipalDep): Who is signed in.
-         *         session (SessionDep): Database session.
-         *
-         *     Returns:
-         *         ScheduleResponse: Proposals and meetings.
+         * @description Read authorized scheduling data and optionally annotate the viewer's own calendar.
          */
         get: operations["read_schedule_api_v1_pitches__pitch_id__schedule_get"];
         put?: never;
@@ -3779,6 +3855,97 @@ export interface components {
             scope: string;
             /** Unknown Reason */
             unknown_reason: ("not_determined" | "not_disclosed") | null;
+        };
+        /**
+         * CalendarConnectRequest
+         * @description The account accepts the local read-only free/busy consent.
+         */
+        CalendarConnectRequest: {
+            /**
+             * Consent
+             * @constant
+             */
+            consent: true;
+            /** Expected Version */
+            expected_version: number;
+        };
+        /**
+         * CalendarConnectResponse
+         * @description The committed local consent and the same-origin navigation step.
+         */
+        CalendarConnectResponse: {
+            /**
+             * Authorization Path
+             * @default /api/v1/me/calendar/connect
+             * @constant
+             */
+            authorization_path?: "/api/v1/me/calendar/connect";
+            /**
+             * Operation Id
+             * Format: uuid
+             */
+            operation_id: string;
+            /**
+             * Revocation
+             * @description Provider revocation outcome for the latest local disconnect, when known.
+             */
+            revocation?: ("confirmed" | "unconfirmed" | "not_required") | null;
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "off" | "off_with_connection" | "disconnected" | "pending" | "connected" | "expired";
+            /** Version */
+            version: number;
+        };
+        /**
+         * CalendarDisconnectResponse
+         * @description The local disconnect and whether the provider confirmed token revocation.
+         */
+        CalendarDisconnectResponse: {
+            /**
+             * Operation Id
+             * Format: uuid
+             */
+            operation_id: string;
+            /**
+             * Revocation
+             * @enum {string}
+             */
+            revocation: "unconfirmed" | "not_required";
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "off" | "off_with_connection" | "disconnected" | "pending" | "connected" | "expired";
+            /** Version */
+            version: number;
+        };
+        /**
+         * CalendarStatusResponse
+         * @description Account-owned connection state, without any provider identity or credentials.
+         */
+        CalendarStatusResponse: {
+            /**
+             * Revocation
+             * @description Provider revocation outcome for the latest local disconnect, when known.
+             */
+            revocation?: ("confirmed" | "unconfirmed" | "not_required") | null;
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "off" | "off_with_connection" | "disconnected" | "pending" | "connected" | "expired";
+            /** Version */
+            version: number;
+        };
+        /**
+         * CalendarVersionRequest
+         * @description An account calendar mutation against a previously observed version.
+         */
+        CalendarVersionRequest: {
+            /** Expected Version */
+            expected_version: number;
         };
         /**
          * Capability
@@ -7563,11 +7730,11 @@ export interface components {
             can_schedule: boolean;
             /**
              * External Calendar
-             * @description No calendar is connected, so outside availability is unknown (AC68).
+             * @description Unknown unless the viewer’s own calendar returned advisory slot availability (AC68).
              * @default unknown
-             * @constant
+             * @enum {string}
              */
-            external_calendar?: "unknown";
+            external_calendar?: "unknown" | "advisory";
             /** Meetings */
             meetings: components["schemas"]["MeetingResponse"][];
             /** Proposals */
@@ -7622,6 +7789,11 @@ export interface components {
              * Format: date-time
              */
             ends_at: string;
+            /**
+             * External Availability
+             * @description Advisory availability for the signed-in account.
+             */
+            external_availability?: ("busy" | "free") | null;
             /**
              * Id
              * Format: uuid
@@ -10307,6 +10479,184 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MeResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    calendar_status_api_v1_me_calendar_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CalendarStatusResponse"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    calendar_callback_api_v1_me_calendar_callback_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            307: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    authorize_calendar_api_v1_me_calendar_connect_get: {
+        parameters: {
+            query: {
+                version: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            307: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    connect_calendar_api_v1_me_calendar_connect_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CalendarConnectRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CalendarConnectResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    disconnect_calendar_api_v1_me_calendar_disconnect_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CalendarVersionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CalendarDisconnectResponse"];
                 };
             };
             /** @description Validation failed */

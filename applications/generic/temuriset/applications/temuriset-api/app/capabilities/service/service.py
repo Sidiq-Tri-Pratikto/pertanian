@@ -102,12 +102,14 @@ def build_manifest(
     *,
     storage_adapter: str = "local",
     scanner_adapter: str = "development-accept",
+    calendar_enabled: bool = False,
 ) -> CapabilityManifestResponse:
     """Build the manifest for one composition.
 
     Args:
         composition_id (str): A supported composition.
         overrides (dict[str, bool] | None, optional): Capability overrides. Defaults to None.
+        calendar_enabled (bool): Whether the validated development calendar profile is active.
 
     Returns:
         CapabilityManifestResponse: The manifest. A capability that is not selected is absent, not ``planned``.
@@ -128,6 +130,13 @@ def build_manifest(
             if (implementation := {"object-storage": storage_adapter, "file-scanner": scanner_adapter}.get(adapter.id))
             else adapter
             for adapter in ADAPTERS
+        ]
+        + [
+            AdapterResponse(
+                id="calendar",
+                status=CapabilityStatus.AVAILABLE if calendar_enabled else CapabilityStatus.PLANNED,
+                implementation="loopback-oauth" if calendar_enabled else None,
+            )
         ],
         policies=list(POLICIES),
     )

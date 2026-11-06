@@ -6,7 +6,7 @@ import { Button } from '@/components/tr/Button';
 import { Status } from '@/components/tr/Status';
 import { longDate, slotTime, zoneLabel } from '@/features/scheduling/time';
 
-export type Slot = { id: string; start: string; end: string; minutes: number; conflict?: boolean };
+export type Slot = { id: string; start: string; end: string; minutes: number; conflict?: boolean; externalAvailability?: 'busy' | 'free' };
 
 type ScheduleSlotListProps = {
   slots: Slot[];
@@ -64,6 +64,11 @@ export function ScheduleSlotList(props: ScheduleSlotListProps) {
                   <span className="tr-choice__hint tr-sys-type-support">
                     {`${slot.minutes} menit${otherZone && otherZone !== zone ? ` · Pihak lain: ${slotTime(slot.start, slot.end, otherZone)}` : ''}`}
                   </span>
+                  {slot.externalAvailability ? (
+                    <span className="tr-choice__hint tr-sys-type-support">
+                      {slot.externalAvailability === 'busy' ? 'Kalender Anda: sibuk' : 'Kalender Anda: kosong'}
+                    </span>
+                  ) : null}
                   {slot.conflict ? <Status tone="warning" icon="alert" label="Waktu sudah bentrok" /> : null}
                   {selected && !confirmed ? <Status tone="action" icon="clock" label="Dipilih, belum dikonfirmasi" /> : null}
                   {confirmed ? <Status tone="success" label="Waktu dikonfirmasi" /> : null}
