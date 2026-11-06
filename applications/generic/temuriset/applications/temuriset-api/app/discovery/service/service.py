@@ -5,6 +5,7 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.access.service.policy import check_context
@@ -79,6 +80,24 @@ def _money_filters(filters: dict[str, Any]) -> dict[str, Any]:
     if errors:
         raise FieldsInvalidError(errors)
     return parsed
+
+
+async def published_inventions(session: AsyncSession, party_ids: list[UUID]) -> list[dict[str, Any]]:
+    """Return the published inventions parties manage, from the public projection only, for profiles (031).
+
+    Args:
+        session (AsyncSession): The request's session.
+        party_ids (list[UUID]): Parties.
+
+    Returns:
+        list[dict[str, Any]]: ``id``, ``title`` and ``owner_party_id`` per invention, newest first.
+    """
+    rows = await session.scalars(
+        select(SearchDocumentRecord)
+        .where(SearchDocumentRecord.subject_type == "INVENTION", SearchDocumentRecord.owner_party_id.in_(party_ids))
+        .order_by(SearchDocumentRecord.published_at.desc())
+    )
+    return [{"id": row.subject_id, "title": row.title, "owner_party_id": row.owner_party_id} for row in rows]
 
 
 class DiscoveryService:

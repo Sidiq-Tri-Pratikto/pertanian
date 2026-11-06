@@ -156,6 +156,16 @@ PUBLIC_ERROR_BY_CODE: dict[str, PublicError] = {
         409,
         "Usulan waktu ini sudah tidak terbuka. Muat ulang untuk melihat usulan terbaru.",
     ),
+    codes.APP_ENTITY_REQUIRED: PublicError(
+        "ENTITY_REQUIRED",
+        422,
+        "Kerja Sama ekuitas memerlukan badan usaha yang sudah berdiri. Pilih jenis lain atau dirikan badan usaha dulu.",
+    ),
+    codes.APP_MEETING_NOT_COMPLETED: PublicError(
+        "MEETING_NOT_COMPLETED",
+        409,
+        "Ringkasan Kerja Sama diusulkan setelah pertemuan selesai. Catat hasil pertemuan bersama pihak lain dulu.",
+    ),
 }
 
 PUBLIC_ERROR_BY_STATUS: dict[int, PublicError] = {

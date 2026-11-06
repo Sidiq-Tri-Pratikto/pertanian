@@ -27,6 +27,9 @@ RULES: dict[str, tuple[Target, str, str]] = {
     "meeting.confirmed": ("other", "Waktu pertemuan dikonfirmasi", "jadwal"),
     "meeting.replaced": ("other", "Jadwal pengganti dikonfirmasi", "jadwal"),
     "meeting.cancelled": ("other", "Pertemuan dibatalkan", "jadwal"),
+    "partnership.proposed": ("other", "Ringkasan Kerja Sama perlu konfirmasi", "ringkasan"),
+    "partnership.corrected": ("other", "Ringkasan Kerja Sama dikoreksi", "ringkasan"),
+    "partnership.confirmed": ("other", "Kerja Sama dikonfirmasi kedua pihak", "ringkasan"),
 }
 
 

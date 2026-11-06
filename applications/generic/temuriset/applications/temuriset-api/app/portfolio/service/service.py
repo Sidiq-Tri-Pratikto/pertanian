@@ -25,7 +25,7 @@ from app.portfolio.model.schema import (
     PublishResponse,
     VersionedActionRequest,
 )
-from app.portfolio.repository.sqlalchemy.models import InventionRecord
+from app.portfolio.repository.sqlalchemy.models import InventionRecord, InventionVersionRecord
 from app.portfolio.repository.sqlalchemy.repository import SqlAlchemyPortfolioRepository
 from app.portfolio.service.review_hook import PassThroughGate, PublicationGate
 from app.portfolio.service.validation import PublicationInvalidError, publication_errors
@@ -382,3 +382,21 @@ async def owned_submittable_version(session: AsyncSession, invention_id: UUID, p
     if invention is None or invention.managing_party_id != party_id:
         raise NotFoundError()
     return await submittable_version(session, invention_id)
+
+
+async def invention_ids_of(session: AsyncSession, version_ids: list[UUID]) -> list[UUID]:
+    """Return the inventions that versions belong to, once each and in order, for relationships (030).
+
+    Args:
+        session (AsyncSession): The request's session.
+        version_ids (list[UUID]): Versions.
+
+    Returns:
+        list[UUID]: Invention ids.
+    """
+    found: list[UUID] = []
+    for version_id in version_ids:
+        record = await session.get(InventionVersionRecord, version_id)
+        if record is not None and record.invention_id not in found:
+            found.append(record.invention_id)
+    return found

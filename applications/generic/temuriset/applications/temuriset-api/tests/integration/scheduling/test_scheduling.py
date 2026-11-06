@@ -275,7 +275,7 @@ async def test_time_passing_never_completes_a_meeting(world: World) -> None:
     assert (split["state"], split["disagreement"]) == ("CONFIRMED", True)
     assert {o["party_id"]: o["result"] for o in split["outcomes"]}[rani_party] == "COMPLETED"
     assert (settled["state"], settled["disagreement"]) == ("COMPLETED", False)
-    assert done["title"] == "Pertemuan selesai"
+    assert (done["who"], done["title"]) == ("you", "Usulkan ringkasan Kerja Sama")
 
 
 @pytest.mark.parametrize(

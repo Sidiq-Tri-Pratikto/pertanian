@@ -57,3 +57,17 @@ async def schedule_states(session: AsyncSession, pitch_ids: list[UUID]) -> dict[
             )
     await session.flush()
     return states
+
+
+async def meeting_completed(session: AsyncSession, pitch_id: UUID) -> bool:
+    """Whether both parties recorded a meeting of the pitch as completed, for relationships (030).
+
+    Args:
+        session (AsyncSession): The request's session.
+        pitch_id (UUID): The pitch.
+
+    Returns:
+        bool: True after a completed meeting.
+    """
+    meetings = await SqlAlchemySchedulingRepository(session).meetings([pitch_id])
+    return any(meeting.state == "COMPLETED" for meeting in meetings)

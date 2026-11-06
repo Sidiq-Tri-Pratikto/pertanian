@@ -3,6 +3,7 @@
 from datetime import timedelta
 from uuid import UUID
 
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.access.model.models import ALL_CAPABILITIES, Capability, InvitationModel, OrganizationModel
@@ -14,6 +15,7 @@ from app.access.model.schema import (
     MemberResponse,
     RemoveMemberRequest,
 )
+from app.access.repository.sqlalchemy.models import PartyRecord
 from app.access.repository.sqlalchemy.repository import SqlAlchemyAccessRepository
 from app.access.service.policy import check_context, require
 from app.core import clock
@@ -440,3 +442,20 @@ async def party_names(session: AsyncSession, party_ids: list[UUID]) -> dict[UUID
         dict[UUID, str]: Display name per party that exists.
     """
     return await SqlAlchemyAccessRepository(session).party_names(party_ids)
+
+
+async def find_party(session: AsyncSession, party_id: UUID, *, lock: bool = False) -> PartyRecord | None:
+    """Find a party with its public profile fields, for the profile module (031).
+
+    Args:
+        session (AsyncSession): The request's session.
+        party_id (UUID): The party.
+        lock (bool, optional): Lock it for a change. Defaults to False.
+
+    Returns:
+        PartyRecord | None: The party.
+    """
+    query = select(PartyRecord).where(PartyRecord.id == party_id)
+    if lock:
+        query = query.with_for_update().execution_options(populate_existing=True)
+    return await session.scalar(query)

@@ -1,6 +1,6 @@
 """Whose turn it is on one pitch, for one side: the prototype's ``pitchTurn`` on the server (spec 027 FR-001)."""
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Literal
 from uuid import UUID
 
@@ -27,12 +27,18 @@ class ScheduleState:
         meeting_starts_passed (bool | None): For the confirmed meeting, whether it has started; None without one.
         outcomes_by (frozenset[UUID]): Parties that recorded an outcome of the confirmed meeting.
         completed (bool): A meeting was completed by both parties.
+        partnership_number (int | None): The relationship's current version, once one is proposed (030).
+        partnership_status (str | None): That version's status.
+        partnership_confirmed_by (frozenset[UUID]): Parties that confirmed that version.
     """
 
     open_proposal_by: UUID | None = None
     meeting_starts_passed: bool | None = None
     outcomes_by: frozenset[UUID] = field(default_factory=frozenset)
     completed: bool = False
+    partnership_number: int | None = None
+    partnership_status: str | None = None
+    partnership_confirmed_by: frozenset[UUID] = field(default_factory=frozenset)
 
 
 NO_SCHEDULE = ScheduleState()
@@ -99,13 +105,35 @@ def next_action(status: str, side: Side, party_id: UUID, other_name: str, schedu
     if status != "APPROVED_FOR_DISCUSSION":
         return NextAction(who=None, title=_ENDED.get(status, status), text="", tab="ringkasan")
     passing = "Waktu yang berlalu tidak otomatis berarti pertemuan selesai."
+    if schedule.partnership_number is not None:
+        number = schedule.partnership_number
+        if schedule.partnership_status == "CONFIRMED":
+            return NextAction(
+                who=None,
+                title="Kerja Sama dikonfirmasi kedua pihak",
+                text="Hanya data yang diizinkan kedua pihak yang tampil di publik.",
+                tab="ringkasan",
+            )
+        if schedule.partnership_status == "DECLINED":
+            return NextAction(who=None, title="Ringkasan Kerja Sama ditolak", text="", tab="ringkasan")
+        if party_id in schedule.partnership_confirmed_by:
+            return _other(
+                "Menunggu konfirmasi pihak lain",
+                f"{other_name} perlu mengonfirmasi ringkasan versi {number}.",
+                "ringkasan",
+            )
+        return _you(
+            f"Konfirmasi ringkasan Kerja Sama versi {number}",
+            "Periksa isi ringkasan dan data yang boleh tampil di publik.",
+            "ringkasan",
+            "confirm_partnership",
+        )
     if schedule.completed:
-        # ponytail: the relationship summary (030) is not built, so a completed meeting waits on no one yet.
-        return NextAction(
-            who=None,
-            title="Pertemuan selesai",
-            text="Kedua pihak mencatat pertemuan selesai. Kerja Sama hanya tercatat setelah keduanya mengonfirmasi.",
-            tab="jadwal",
+        return _you(
+            "Usulkan ringkasan Kerja Sama",
+            "Diskusi selesai. Kerja Sama hanya tercatat setelah kedua pihak mengonfirmasi versi yang sama.",
+            "jadwal",
+            "propose_partnership",
         )
     if schedule.meeting_starts_passed is not None:
         if not schedule.meeting_starts_passed:
@@ -144,9 +172,14 @@ async def schedule_states(session: AsyncSession, pitch_ids: list[UUID]) -> dict[
     Returns:
         dict[UUID, ScheduleState]: States; a missing pitch has no proposal or meeting.
     """
-    from app.scheduling.service.state import schedule_states as read  # noqa: PLC0415 - scheduling imports this module
+    # Both import this module for ScheduleState, so they load here.
+    from app.relationships.service.state import partnership_states  # noqa: PLC0415
+    from app.scheduling.service.state import schedule_states as read  # noqa: PLC0415
 
-    return await read(session, pitch_ids)
+    states = await read(session, pitch_ids)
+    for pitch_id, partnership in (await partnership_states(session, pitch_ids)).items():
+        states[pitch_id] = replace(states.get(pitch_id, NO_SCHEDULE), **partnership)
+    return states
 
 
 async def waiting_parties(session: AsyncSession, records: list[PitchRecord]) -> dict[UUID, UUID | None]:
