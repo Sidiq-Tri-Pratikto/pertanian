@@ -8,7 +8,8 @@
 applications/temuriset-web/src/
 ├── app/partnerships/new/page.tsx, app/partnerships/[id]/page.tsx, app/profiles/[partyId]/page.tsx
 ├── components/tr/PartnershipConsent.tsx
-└── views/relationships/{ProposeView, PartnershipView, PublicProfileView}.tsx
+├── features/relationships/     # Typed requests, fields and biography form
+└── views/relationships/{ProposeView,PartnershipView,PublicProfileView}.tsx
 e2e/j05-relationship.spec.ts
 ```
 
@@ -18,7 +19,7 @@ e2e/j05-relationship.spec.ts
 
 ## Test Plan
 
-Consent component states; correction dialog; restriction; signed-out profile; J05 Playwright; axe.
+Consent component states, correction dialog, restriction and signed-out profile. J05 exercises the production web build and the API in Chromium at 320, 360, 768 and 1280 CSS px, including axe and overflow checks.
 
 ## Out of Scope
 

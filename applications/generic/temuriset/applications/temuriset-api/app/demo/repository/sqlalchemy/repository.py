@@ -22,6 +22,7 @@ _DELETES = (
     "DELETE FROM privacy_requests WHERE account_id = ANY(:accounts)",
     "UPDATE privacy_requests SET fulfilled_by_account_id = NULL WHERE fulfilled_by_account_id = ANY(:accounts)",
     "DELETE FROM retention_holds WHERE account_id = ANY(:accounts)",
+    "DELETE FROM bookings WHERE party_id = ANY(:parties)",
     "DELETE FROM pitches WHERE requester_party_id = ANY(:parties) OR recipient_party_id = ANY(:parties)",
     "DELETE FROM preflights WHERE actor_party_id = ANY(:parties)",
     "DELETE FROM match_runs WHERE actor_party_id = ANY(:parties)",

@@ -26,14 +26,6 @@ TABLE: dict[str, tuple[frozenset[str], str, frozenset[str]]] = {
 
 TERMINAL = frozenset({"REJECTED", "WITHDRAWN", "CLOSED"})
 
-# Whose move it is, until discussion tasks (027) give a finer projection. Discussion and terminal states wait on no one.
-_WAITING_ON: dict[str, Side] = {
-    "PENDING_WORKSPACE_REVIEW": "requester",
-    "SUBMITTED": "recipient",
-    "UNDER_REVIEW": "recipient",
-    "REVISION_REQUESTED": "requester",
-}
-
 
 def target(status: str, action: str) -> str:
     """Return the status an action leads to.
@@ -65,15 +57,3 @@ def allowed(status: str, side: Side) -> list[str]:
         list[str]: Actions.
     """
     return [action for action, (starts, _, sides) in TABLE.items() if status in starts and side in sides]
-
-
-def waiting_on(status: str) -> Side | None:
-    """Return whose move it is.
-
-    Args:
-        status (str): The current status.
-
-    Returns:
-        Side | None: The side, or None while both discuss or once it ended.
-    """
-    return _WAITING_ON.get(status)

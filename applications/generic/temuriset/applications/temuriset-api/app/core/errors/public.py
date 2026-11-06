@@ -156,6 +156,26 @@ PUBLIC_ERROR_BY_CODE: dict[str, PublicError] = {
         422,
         "Masih ada pertanyaan wajib yang belum dijawab. Jawab pertanyaan yang ditandai lalu kirim ulang.",
     ),
+    codes.APP_BOOKING_CONFLICT: PublicError(
+        "BOOKING_CONFLICT",
+        409,
+        "Waktu ini bentrok dengan jadwal peserta. Pilih waktu lain atau usulkan waktu baru.",
+    ),
+    codes.APP_PROPOSAL_CLOSED: PublicError(
+        "PROPOSAL_CLOSED",
+        409,
+        "Usulan waktu ini sudah tidak terbuka. Muat ulang untuk melihat usulan terbaru.",
+    ),
+    codes.APP_ENTITY_REQUIRED: PublicError(
+        "ENTITY_REQUIRED",
+        422,
+        "Kerja Sama ekuitas memerlukan badan usaha yang sudah berdiri. Pilih jenis lain atau dirikan badan usaha dulu.",
+    ),
+    codes.APP_MEETING_NOT_COMPLETED: PublicError(
+        "MEETING_NOT_COMPLETED",
+        409,
+        "Ringkasan Kerja Sama diusulkan setelah pertemuan selesai. Catat hasil pertemuan bersama pihak lain dulu.",
+    ),
     codes.APP_LISTING_SUSPENDED: PublicError(
         "LISTING_SUSPENDED",
         409,

@@ -10,7 +10,7 @@ from app.access.service.service import party_names
 from app.core import clock
 from app.core.errors.base import ConflictError, NotFoundError
 from app.identity.model.models import Principal
-from app.moderation.service.suspension import is_suspended, require_unsuspended
+from app.moderation.service.suspension import is_suspended, require_unsuspended, suspended_listings
 from app.platform.service.audit import record_audit
 from app.platform.service.outbox import publish
 from app.platform.service.versions import check_expected
@@ -26,7 +26,7 @@ from app.portfolio.model.schema import (
     PublishResponse,
     VersionedActionRequest,
 )
-from app.portfolio.repository.sqlalchemy.models import InventionRecord
+from app.portfolio.repository.sqlalchemy.models import InventionRecord, InventionVersionRecord
 from app.portfolio.repository.sqlalchemy.repository import SqlAlchemyPortfolioRepository
 from app.portfolio.service.review_hook import PassThroughGate, PublicationGate
 from app.portfolio.service.validation import PublicationInvalidError, publication_errors
@@ -403,3 +403,36 @@ async def lock_moderation_target(session: AsyncSession, invention_id: UUID) -> N
     """Serialize a suspension decision with a change to the same invention."""
     if await SqlAlchemyPortfolioRepository(session).find(invention_id, lock=True) is None:
         raise NotFoundError()
+
+
+async def published_titles(session: AsyncSession, party_ids: set[UUID]) -> list[tuple[UUID, UUID, str]]:
+    """Read live publication summaries for the public profile.
+
+    Args:
+        session (AsyncSession): The request's database session.
+        party_ids (set[UUID]): Invention managers visible in the profile.
+
+    Returns:
+        list[tuple[UUID, UUID, str]]: Manager, invention and current public title.
+    """
+    titles = await SqlAlchemyPortfolioRepository(session).published_titles(party_ids)
+    suspended = await suspended_listings(session, "INVENTION", [invention_id for _, invention_id, _ in titles])
+    return [(owner, invention_id, title) for owner, invention_id, title in titles if invention_id not in suspended]
+
+
+async def invention_ids_of(session: AsyncSession, version_ids: list[UUID]) -> list[UUID]:
+    """Return the inventions that versions belong to, once each and in order, for relationships (030).
+
+    Args:
+        session (AsyncSession): The request's session.
+        version_ids (list[UUID]): Versions.
+
+    Returns:
+        list[UUID]: Invention ids.
+    """
+    found: list[UUID] = []
+    for version_id in version_ids:
+        record = await session.get(InventionVersionRecord, version_id)
+        if record is not None and record.invention_id not in found:
+            found.append(record.invention_id)
+    return found

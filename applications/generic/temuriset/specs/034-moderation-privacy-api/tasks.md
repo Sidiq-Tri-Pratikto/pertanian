@@ -12,7 +12,7 @@ The decisions below combine the carried implementation and the M7 integration wo
 
 | ID | Decision | Why |
 |---|---|---|
-| D1 | Renumber the unpublished moderation revision to `0014_moderation.py` after `0013`. | Main already uses revision `0009` for discovery. Local databases built from the old branch require rebuilding. |
+| D1 | Renumber the unpublished moderation revision to `0018_moderation.py` after `0017`. | Main already uses revision `0009` for discovery. Local databases built from the old branch require rebuilding. |
 | D2 | Operators are rows in `operator_grants` (account, scope `moderation`), granted by a command, not a route. Everyone else gets `NOT_FOUND` on `/operator/*`. | FR-001: a scoped capability, not a persona. 007 FR-002's list is per organization, and an operator acts for no organization. The isolation harness also expects `NOT_FOUND`. |
 | D3 | A case-specific file grant is a row in `operator_file_grants` (report, document version, operator, written purpose, expiry), created by a command. The central access policy checks case visibility and the exact grant on every download, including range requests. Return `NOT_FOUND` for hidden resources and `FORBIDDEN` for a visible case whose file action is denied. Record a sanitized refusal that survives the failed request. | US1 scenario 3, SC-001, and the PRD authorization table: "documented case-specific grant". |
 | D4 | A suspendable listing is `INVENTION`, `OPPORTUNITY` or `PARTNER_PROFILE`. Apply suspension to public API reads and the existing 018 discovery projection. Consume `listing.suspended` and `listing.restored`. Recheck live state and remove affected derived details in partner or funding cards. | US1 scenario 2 applies to both source reads and projections, including the interval before the worker runs. |
@@ -78,7 +78,7 @@ The decisions below combine the carried implementation and the M7 integration wo
 
 ## Phase 6: M7 integration foundation
 
-- [X] T030 Move the carried revision to `migrations/versions/0014_moderation.py` with down revision `0013`. Verify one head, upgrade from 0013, downgrade and re-upgrade in a disposable database, then run `alembic check`.
+- [X] T030 Move the carried revision to `migrations/versions/0018_moderation.py` with down revision `0017`. Verify one head, upgrade from 0017, downgrade and re-upgrade in a disposable database, then run `alembic check`.
 ## Phase 7: User Story 1 on M7
 
 - [X] T031 [P] [US1] Extend `tests/integration/moderation/test_suspension.py` and `tests/integration/discovery/test_discovery.py` for immediate and worker-settled suspension, saved results, counts, restoration and late events. Cover suspended inventions, partner profiles and opportunities, including derived invention details in funding cards and mandate details in partner cards. Restoration must respect current publication and availability.
@@ -89,7 +89,7 @@ The decisions below combine the carried implementation and the M7 integration wo
 ## Phase 8: User Story 2 on M7
 
 - [X] T035 [US2] Extend `tests/integration/moderation/test_privacy.py` for the policy-backed retention of submitted pitch snapshots, authorized historical access after withdrawal, and separate denial of erased or revoked file bytes.
-- [X] T036 [US2] Add the retained pitch snapshot policy data in `migrations/versions/0014_moderation.py`. Preserve frozen history and apply document erasure and grant checks independently in `app/moderation/service/retention.py` and the existing document service where needed.
+- [X] T036 [US2] Add the retained pitch snapshot policy data in `migrations/versions/0018_moderation.py`. Preserve frozen history and apply document erasure and grant checks independently in `app/moderation/service/retention.py` and the existing document service where needed.
 ## Phase 9: Integrated validation
 
 - [X] T037 Run the integration cases in `tests/integration/moderation/`, `tests/integration/discovery/` and `tests/integration/pitches/`. Refresh `../../contracts/openapi.json` and the generated web client from the integrated router. Run `make check` and traceability, record current results here, and update `../../specs/034-moderation-privacy-api/spec.md` only after the required cases pass.
@@ -124,7 +124,7 @@ Complete the integration tasks for both stories. Verify the merged contracts and
 
 ## Integrated validation on M7
 
-- The isolated PostgreSQL migration has one head, `0014`. Upgrade from `0013`, downgrade to `0013`, re-upgrade, and `alembic check` passed.
+- The isolated PostgreSQL migration has one head, `0018`. Upgrade from `0017`, downgrade to `0017`, re-upgrade, and `alembic check` passed.
 - The new regressions first reproduced a visible suspended invention in discovery and successful preflight from a suspended source. The privacy receipt also lacked a retention category for frozen pitch snapshots.
 - Regenerated OpenAPI and TypeScript matched the tracked contracts byte for byte. Traceability mapped 143 requirements across 45 specs.
 - The project quality gate passed on the integrated code. PostgreSQL API coverage was 97% with 772 tests. The gate also passed 250 web tests, lint, TypeScript, and traceability.

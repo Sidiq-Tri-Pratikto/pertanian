@@ -43,6 +43,7 @@ async def test_suspension_hides_public_listing_and_lift_restores_it(
     assert request.status_code == 201, request.text
     draft = request.json()
     public_url = f"/api/v1/inventions/{invention_id}/public"
+    profile_url = f"/api/v1/profiles/{owner['active_party_id']}"
     await project()
 
     async with new_client() as operator:
@@ -51,6 +52,7 @@ async def test_suspension_hides_public_listing_and_lift_restores_it(
             session.add(OperatorGrantRecord(account_id=UUID(actor["account"]["id"]), scope="moderation"))
             await session.commit()
         assert (await operator.get(public_url)).status_code == 200
+        assert [item["id"] for item in (await operator.get(profile_url)).json()["inventions"]] == [invention_id]
         assert (await discover(operator))["total_estimate"] == 1
         case = await operator.post(
             "/api/v1/reports",
@@ -72,6 +74,7 @@ async def test_suspension_hides_public_listing_and_lift_restores_it(
         assert suspended.status_code == 200, suspended.text
         assert suspended.json()["suspended"]
         assert (await operator.get(public_url)).status_code == 404
+        assert (await operator.get(profile_url)).json()["inventions"] == []
         assert (await discover(operator))["total_estimate"] == 0
         assert (await client.get(f"/api/v1/inventions/{invention_id}")).status_code == 200
         blocked = await client.post(
@@ -95,6 +98,7 @@ async def test_suspension_hides_public_listing_and_lift_restores_it(
         assert lifted.status_code == 200, lifted.text
         assert not lifted.json()["suspended"]
         assert (await operator.get(public_url)).status_code == 200
+        assert [item["id"] for item in (await operator.get(profile_url)).json()["inventions"]] == [invention_id]
         assert (await discover(operator))["total_estimate"] == 1
 
 

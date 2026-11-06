@@ -2,7 +2,7 @@
 
 **Feature Branch**: `029-web-discussion-schedule`
 **Created**: 2026-11-05
-**Status**: Seeded, not started
+**Status**: Built, awaiting review
 **Milestone**: M8 Discussion and scheduling
 **Depends on**: 026, 027, 028
 **Size**: L
