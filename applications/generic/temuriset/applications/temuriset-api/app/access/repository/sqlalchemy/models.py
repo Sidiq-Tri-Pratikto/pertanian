@@ -3,7 +3,7 @@
 from datetime import datetime
 from uuid import UUID
 
-from sqlalchemy import CheckConstraint, ForeignKey, Index, String
+from sqlalchemy import CheckConstraint, ForeignKey, Index, String, Text
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -40,6 +40,9 @@ class PartyRecord(MutableRow, Base):
     organization_id: Mapped[UUID | None] = mapped_column(
         ForeignKey("organizations.id", ondelete="RESTRICT"), unique=True
     )
+    # The public profile (031): nothing shows until the party publishes it deliberately.
+    bio: Mapped[str] = mapped_column(Text, default="", server_default="")
+    profile_published: Mapped[bool] = mapped_column(default=False, server_default="false")
 
 
 class MembershipRecord(MutableRow, Base):

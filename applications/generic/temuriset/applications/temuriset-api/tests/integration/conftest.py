@@ -14,6 +14,7 @@ from app.core.settings import get_settings
 from app.main import app
 
 TABLES = (
+    "partnership_restrictions, partnership_confirmations, partnership_versions, partnerships, "
     "meeting_outcomes, bookings, meetings, schedule_slots, schedule_proposals, "
     "notifications, tasks, messages, revision_answers, revision_items, revision_rounds, pitch_decisions, "
     "pitch_submission_files, pitch_submissions, pitches, briefs, preflights, "

@@ -36,7 +36,9 @@ async def _meetings(state: str = "CONFIRMED") -> int:
 
 async def _bookings() -> list[tuple[str, str]]:
     async with get_session_factory()() as session:
-        rows = await session.execute(text("SELECT party_id::text, lower(during)::text FROM bookings ORDER BY 2"))
+        rows = await session.execute(
+            text("SELECT party_id::text, (lower(during) AT TIME ZONE 'UTC')::text FROM bookings ORDER BY 2")
+        )
         return [(row[0], row[1]) for row in rows]
 
 
@@ -275,7 +277,7 @@ async def test_time_passing_never_completes_a_meeting(world: World) -> None:
     assert (split["state"], split["disagreement"]) == ("CONFIRMED", True)
     assert {o["party_id"]: o["result"] for o in split["outcomes"]}[rani_party] == "COMPLETED"
     assert (settled["state"], settled["disagreement"]) == ("COMPLETED", False)
-    assert done["title"] == "Pertemuan selesai"
+    assert (done["who"], done["title"]) == ("you", "Usulkan ringkasan Kerja Sama")
 
 
 @pytest.mark.parametrize(

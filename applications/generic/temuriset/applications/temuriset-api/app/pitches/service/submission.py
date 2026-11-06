@@ -145,6 +145,20 @@ async def pitches_of_party(session: AsyncSession, party_id: UUID, limit: int) ->
     return await SqlAlchemyPitchRepository(session).involving(party_id, limit)
 
 
+async def latest_snapshot(session: AsyncSession, pitch_id: UUID) -> dict[str, Any]:
+    """Return the newest frozen submission's snapshot, for relationships (030).
+
+    Args:
+        session (AsyncSession): The request's session.
+        pitch_id (UUID): The pitch.
+
+    Returns:
+        dict[str, Any]: The snapshot; empty when there is none.
+    """
+    last = await SqlAlchemyPitchRepository(session).last_submission(pitch_id)
+    return last.snapshot if last else {}
+
+
 class PitchService:
     """Submits pitches and reads them for their requester or recipient."""
 

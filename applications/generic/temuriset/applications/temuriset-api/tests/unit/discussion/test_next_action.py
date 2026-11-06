@@ -53,8 +53,31 @@ CASES = [
     (
         "APPROVED_FOR_DISCUSSION",
         ScheduleState(completed=True),
-        (None, "Pertemuan selesai"),
-        (None, "Pertemuan selesai"),
+        ("you", "Usulkan ringkasan Kerja Sama"),
+        ("you", "Usulkan ringkasan Kerja Sama"),
+    ),
+    (
+        "APPROVED_FOR_DISCUSSION",
+        ScheduleState(
+            completed=True,
+            partnership_number=1,
+            partnership_status="PENDING_COUNTERPARTY",
+            partnership_confirmed_by=frozenset({RANI}),
+        ),
+        ("other", "Menunggu konfirmasi pihak lain"),
+        ("you", "Konfirmasi ringkasan Kerja Sama versi 1"),
+    ),
+    (
+        "APPROVED_FOR_DISCUSSION",
+        ScheduleState(completed=True, partnership_number=2, partnership_status="CONFIRMED"),
+        (None, "Kerja Sama dikonfirmasi kedua pihak"),
+        (None, "Kerja Sama dikonfirmasi kedua pihak"),
+    ),
+    (
+        "APPROVED_FOR_DISCUSSION",
+        ScheduleState(completed=True, partnership_number=1, partnership_status="DECLINED"),
+        (None, "Ringkasan Kerja Sama ditolak"),
+        (None, "Ringkasan Kerja Sama ditolak"),
     ),
     ("REJECTED", NO_SCHEDULE, (None, "Pitching ditolak"), (None, "Pitching ditolak")),
     ("WITHDRAWN", NO_SCHEDULE, (None, "Pitching ditarik"), (None, "Pitching ditarik")),

@@ -187,7 +187,7 @@ Demo accounts are `accounts.kind = 'demo'` with `.invalid` addresses; they recei
 
 ### Discussion and whose turn (M8)
 
-`app/discussion/service/next_action.py` is the prototype's `pitchTurn` on the server: from the pitch status and, once approved, the scheduling state (open proposal and who made it, a confirmed meeting and whether it started, who recorded an outcome, a completed meeting), it returns `who` (`you`, `other` or null), a title, a sentence, the room tab and an action key for each side. `GET /pitches/{id}/next-action`, `GET /me/queue` (Beranda, "Menunggu Anda" first) and `PitchSummary.waiting_on_party_id` all read it, so no screen derives turns. A completed meeting waits on no one until partnerships (030) exist. Messages and tasks need the side's capability (`submit_pitch` or `decide_pitch`) and an unended pitch; lists poll with `since`. In-app notifications are outbox consumers (`notifications.in_app`) on the pitch and scheduling topics; each inserts with `ON CONFLICT DO NOTHING` on (`event_key`, `party_id`, `channel`), where the key is the topic, the pitch and its version or the proposal or meeting, so a redelivery or a failing sibling consumer never adds a second one (AC46). Marking read is a naturally idempotent `PUT`.
+`app/discussion/service/next_action.py` is the prototype's `pitchTurn` on the server: from the pitch status and, once approved, the scheduling state (open proposal and who made it, a confirmed meeting and whether it started, who recorded an outcome, a completed meeting), it returns `who` (`you`, `other` or null), a title, a sentence, the room tab and an action key for each side. `GET /pitches/{id}/next-action`, `GET /me/queue` (Beranda, "Menunggu Anda" first) and `PitchSummary.waiting_on_party_id` all read it, so no screen derives turns. A completed meeting opens relationship proposals. The relationship version and confirmations then determine whose turn it is. Messages and tasks need the side's capability (`submit_pitch` or `decide_pitch`) and an unended pitch; lists poll with `since`. In-app notifications are outbox consumers (`notifications.in_app`) on the pitch and scheduling topics; each inserts with `ON CONFLICT DO NOTHING` on (`event_key`, `party_id`, `channel`), where the key is the topic, the pitch and its version or the proposal or meeting, so a redelivery or a failing sibling consumer never adds a second one (AC46). Marking read is a naturally idempotent `PUT`.
 
 ### Scheduling
 
@@ -197,7 +197,9 @@ Accepting a slot inserts a booking for every required party inside the request's
 
 ### Relationships
 
-A partnership version is identified by a checksum of its values and ceiling. Confirmations bind to that version, so a correction starts a new version with no confirmations. Public fields are computed on read: the intersection of both parties' subsets within the ceiling, minus restrictions. Narrowing appends a restriction and takes effect on the next read. EQUITY needs an identified legal entity and dated optional percentage permission.
+A partnership version is identified by a checksum of its values and ceiling. Confirmations bind to that version, so a correction starts a new version with no confirmations. Public fields are computed on read from the intersection of both parties' subsets within the ceiling, minus restrictions. Narrowing appends a restriction and takes effect on the next read. The same eligibility rules serve the proposal form and the write endpoint. Proposal creation locks the pitch before checking for an existing relationship. EQUITY needs an identified legal entity and dated optional percentage permission.
+
+Public profiles read current portfolio publications and computed relationship fields directly. The biography has its own publication flag. Counterpart identifiers and their invention links follow name consent, and contested relationships disappear from public reads. The published invention detail retains the separate claim labels for creators and claimed rights holders. Profile reads are sent with `Cache-Control: no-store`.
 
 ### Partner intake
 
@@ -236,6 +238,7 @@ A mandatory requirement is always `PUBLIC`, so no secret criterion can reject a 
 | D7 | `Link` runs `onClick` beside the navigation instead of preventing it | D3 chose real links; following an external route must both open the site and record the handoff | Never; documented port |
 | D8 | `Tabs` is controlled (`value` and `onChange` required), and `ChoiceGroup` takes an optional `value` and `onChange` | S13 keeps the tab in the address (`?tab=`), and `RevisionItem` holds each answer in state so a failed save keeps it | Never; documented port |
 | D9 | `ScheduleSlotList` takes `canConfirm`, an `accepted` state, and slots with an `end` | The proposer sees its own slots read-only, and slot ends come from the API rather than from the client's arithmetic | The design system adds the props |
+| D10 | `PartnershipConsent` takes the status and effective public fields from the API | The prototype computes them in browser state. The production component renders the server's decision and retains the design-system classes. | Never, since the service owns consent |
 
 ## API conventions
 

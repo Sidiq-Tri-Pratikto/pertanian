@@ -34,6 +34,7 @@ from app.pitches.router import router as pitches_router
 from app.platform.router import router as platform_router
 from app.platform.service.idempotency import IdempotentReplay, replay_response
 from app.portfolio.router import router as portfolio_router
+from app.relationships.router import router as relationships_router
 from app.scheduling.router import router as scheduling_router
 
 API_PREFIX = "/api/v1"
@@ -83,6 +84,7 @@ def create_app() -> FastAPI:
     app.include_router(pitches_router, prefix=API_PREFIX)
     app.include_router(discussion_router, prefix=API_PREFIX)
     app.include_router(scheduling_router, prefix=API_PREFIX)
+    app.include_router(relationships_router, prefix=API_PREFIX)
     app.include_router(demo_router, prefix=API_PREFIX)
     if settings.environment == "development":
         app.include_router(dev_router, prefix=API_PREFIX)

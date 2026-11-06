@@ -1878,6 +1878,184 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/partnerships/{partnership_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read a relationship
+         * @description Read a relationship as one of its two parties.
+         *
+         *     Args:
+         *         partnership_id (UUID): The relationship.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         PartnershipResponse: Versions, confirmations, restrictions and what may be public.
+         */
+        get: operations["read_partnership_api_v1_partnerships__partnership_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/partnerships/{partnership_id}/confirmations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Confirm a relationship summary
+         * @description Confirm a relationship summary.
+         *
+         *     Args:
+         *         partnership_id (UUID): The relationship.
+         *         body (ConfirmRequest): The request.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         PartnershipResponse: The relationship as its parties see it.
+         */
+        post: operations["confirm_api_v1_partnerships__partnership_id__confirmations_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/partnerships/{partnership_id}/corrections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Correct a relationship summary
+         * @description Correct a relationship summary.
+         *
+         *     Args:
+         *         partnership_id (UUID): The relationship.
+         *         body (CorrectionRequest): The request.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         PartnershipResponse: The relationship as its parties see it.
+         */
+        post: operations["correct_api_v1_partnerships__partnership_id__corrections_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/partnerships/{partnership_id}/decline": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Decline a relationship summary
+         * @description Decline a relationship summary.
+         *
+         *     Args:
+         *         partnership_id (UUID): The relationship.
+         *         body (VersionedPartnershipRequest): The request.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         PartnershipResponse: The relationship as its parties see it.
+         */
+        post: operations["decline_api_v1_partnerships__partnership_id__decline_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/partnerships/{partnership_id}/request-review": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Contest the public claim
+         * @description Contest the public claim.
+         *
+         *     Args:
+         *         partnership_id (UUID): The relationship.
+         *         body (ReviewRequest): The request.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         PartnershipResponse: The relationship as its parties see it.
+         */
+        post: operations["request_review_api_v1_partnerships__partnership_id__request_review_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/partnerships/{partnership_id}/restrictions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Hide a public field
+         * @description Hide a public field.
+         *
+         *     Args:
+         *         partnership_id (UUID): The relationship.
+         *         body (RestrictRequest): The request.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         PartnershipResponse: The relationship as its parties see it.
+         */
+        post: operations["restrict_api_v1_partnerships__partnership_id__restrictions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/pitches": {
         parameters: {
             query?: never;
@@ -2140,6 +2318,92 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/pitches/{pitch_id}/partnership": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read a pitch's relationship
+         * @description Read the relationship that grew out of a pitch, or null before one is proposed.
+         *
+         *     Args:
+         *         pitch_id (UUID): The pitch.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         PartnershipResponse | None: The relationship.
+         */
+        get: operations["read_pitch_partnership_api_v1_pitches__pitch_id__partnership_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/pitches/{pitch_id}/partnership-options": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read eligible relationship types
+         * @description Read eligible types for the active party after a completed meeting.
+         *
+         *     Args:
+         *         pitch_id (UUID): The pitch.
+         *         principal (PrincipalDep): The active party.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         ProposalOptionsResponse: Types the active party may propose.
+         */
+        get: operations["proposal_options_api_v1_pitches__pitch_id__partnership_options_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/pitches/{pitch_id}/partnerships": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Propose a relationship summary
+         * @description Propose a relationship summary.
+         *
+         *     Args:
+         *         pitch_id (UUID): The pitch.
+         *         body (ProposePartnershipRequest): The request.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         PartnershipResponse: The relationship as its parties see it.
+         */
+        post: operations["propose_api_v1_pitches__pitch_id__partnerships_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/pitches/{pitch_id}/resubmit": {
         parameters: {
             query?: never;
@@ -2384,6 +2648,73 @@ export interface paths {
          *         PitchActionResponse: The pitch.
          */
         post: operations["withdraw_api_v1_pitches__pitch_id__withdraw_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/profiles/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read my profile settings
+         * @description Read the acting party's bio and whether it is published.
+         *
+         *     Args:
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         ProfileResponse: The settings.
+         */
+        get: operations["read_my_profile_api_v1_profiles_me_get"];
+        /**
+         * Publish my profile
+         * @description Publish, change or withdraw the acting party's biography, against its version.
+         *
+         *     Args:
+         *         body (SaveProfileRequest): Bio, published flag and ``expected_version``.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         ProfileResponse: The settings.
+         */
+        put: operations["save_my_profile_api_v1_profiles_me_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/profiles/{party_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read a public profile
+         * @description Read what anyone may see of a party, with no sign-in: published inventions and consented relationship fields.
+         *
+         *     Args:
+         *         party_id (UUID): The party.
+         *         session (SessionDep): Database session.
+         *         response (Response): The response whose cache policy applies.
+         *
+         *     Returns:
+         *         PublicProfileResponse: The public profile.
+         */
+        get: operations["read_public_profile_api_v1_profiles__party_id__get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -3307,6 +3638,44 @@ export interface components {
             version: number;
         };
         /**
+         * ConfirmRequest
+         * @description Confirm the exact version and checksum the client showed, with this party's public subset.
+         */
+        ConfirmRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /** Checksum */
+            checksum: string;
+            /**
+             * Subset
+             * @default []
+             */
+            subset?: ("name" | "type" | "scope" | "date" | "amount" | "percent")[];
+            /** Version */
+            version: number;
+        };
+        /**
+         * ConfirmationResponse
+         * @description One party's confirmation of a version.
+         */
+        ConfirmationResponse: {
+            /**
+             * Confirmed At
+             * Format: date-time
+             */
+            confirmed_at: string;
+            /**
+             * Party Id
+             * Format: uuid
+             */
+            party_id: string;
+            /** Subset */
+            subset: string[];
+        };
+        /**
          * ContextRequest
          * @description Act as another party: the personal party or an organization the account belongs to.
          */
@@ -3316,6 +3685,27 @@ export interface components {
              * Format: uuid
              */
             party_id: string;
+        };
+        /**
+         * CorrectionRequest
+         * @description Correct or expand the current version; the new version starts with no confirmations.
+         */
+        CorrectionRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /** Ceiling */
+            ceiling?: ("name" | "type" | "scope" | "date" | "amount" | "percent")[] | null;
+            /**
+             * Note
+             * @default
+             */
+            note?: string;
+            values: components["schemas"]["PartnershipValues"];
+            /** Version */
+            version: number;
         };
         /**
          * CreateInventionRequest
@@ -3800,6 +4190,20 @@ export interface components {
              * @default
              */
             title?: string;
+        };
+        /**
+         * EffectiveResponse
+         * @description What may be public now: the newest version both confirmed, cut by subsets and restrictions.
+         */
+        EffectiveResponse: {
+            /** Fields */
+            fields: string[];
+            /** Values */
+            values: {
+                [key: string]: unknown;
+            };
+            /** Version */
+            version: number | null;
         };
         /**
          * ErrorBody
@@ -5055,17 +5459,107 @@ export interface components {
             version: number;
         };
         /**
-         * PartyName
-         * @description A party as a name.
+         * PartnershipResponse
+         * @description A relationship as its two parties see it.
          */
-        PartyName: {
+        PartnershipResponse: {
+            /** Allowed Actions */
+            allowed_actions: string[];
+            /** Contested */
+            contested: boolean;
+            current: components["schemas"]["PartnershipVersionResponse"];
+            effective: components["schemas"]["EffectiveResponse"];
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Invention Ids */
+            invention_ids: string[];
+            /** Operation Id */
+            operation_id?: string | null;
+            /** Parties */
+            parties: components["schemas"]["app__relationships__model__schema__PartyName"][];
+            /**
+             * Pitch Id
+             * Format: uuid
+             */
+            pitch_id: string;
+            /** Restrictions */
+            restrictions: components["schemas"]["RestrictionResponse"][];
+            /**
+             * Type
+             * @enum {string}
+             */
+            type: "PROJECT" | "LICENSE" | "EQUITY";
+            /** Versions */
+            versions: components["schemas"]["PartnershipVersionResponse"][];
+        };
+        /**
+         * PartnershipValues
+         * @description The summary both parties confirm. ``evidence`` is private and never public.
+         */
+        PartnershipValues: {
+            /** Amount */
+            amount?: string | null;
+            /** Currency */
+            currency?: string | null;
+            /**
+             * Evidence
+             * @default
+             */
+            evidence?: string;
             /** Name */
             name: string;
             /**
-             * Party Id
+             * Percent
+             * @description Equity only, with ``percent_date``.
+             */
+            percent?: string | null;
+            /** Percent Date */
+            percent_date?: string | null;
+            /** Scope */
+            scope: string;
+            /**
+             * Start Date
+             * Format: date
+             */
+            start_date: string;
+        };
+        /**
+         * PartnershipVersionResponse
+         * @description One version with its confirmations.
+         */
+        PartnershipVersionResponse: {
+            /** Ceiling */
+            ceiling: string[];
+            /** Checksum */
+            checksum: string;
+            /** Confirmations */
+            confirmations: components["schemas"]["ConfirmationResponse"][];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Note */
+            note: string;
+            /** Number */
+            number: number;
+            /**
+             * Proposed By Party Id
              * Format: uuid
              */
-            party_id: string;
+            proposed_by_party_id: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "PENDING_COUNTERPARTY" | "CONFIRMED" | "CHANGES_REQUESTED" | "DECLINED";
+            /** Values */
+            values: {
+                [key: string]: unknown;
+            };
         };
         /**
          * PinnedInvention
@@ -5376,15 +5870,40 @@ export interface components {
              * @enum {string}
              */
             readiness: "READY_TO_SUBMIT" | "NEEDS_INFORMATION" | "BLOCKED_FOR_THIS_TARGET";
-            recipient: components["schemas"]["PartyName"];
+            recipient: components["schemas"]["app__briefs__model__schema__PartyName"];
             /** Rows */
             rows: components["schemas"]["RequirementRow"][];
-            sender: components["schemas"]["PartyName"];
+            sender: components["schemas"]["app__briefs__model__schema__PartyName"];
             /** Shareable Files */
             shareable_files: components["schemas"]["ShareableFile"][];
             source: components["schemas"]["PinnedSource"];
             /** Token */
             token: string;
+        };
+        /**
+         * ProfileResponse
+         * @description The acting party's own profile settings.
+         */
+        ProfileResponse: {
+            /** Bio */
+            bio: string;
+            /**
+             * Party Id
+             * Format: uuid
+             */
+            party_id: string;
+            /** Published */
+            published: boolean;
+            /** Version */
+            version: number;
+        };
+        /**
+         * ProposalOptionsResponse
+         * @description The relationship types available for a completed pitch.
+         */
+        ProposalOptionsResponse: {
+            /** Types */
+            types: ("PROJECT" | "LICENSE" | "EQUITY")[];
         };
         /**
          * ProposalResponse
@@ -5440,6 +5959,30 @@ export interface components {
             time_zone: string;
             /** Version */
             version: number;
+        };
+        /**
+         * ProposePartnershipRequest
+         * @description Version 1, its public ceiling, and the proposer's own consent subset.
+         */
+        ProposePartnershipRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /** Ceiling */
+            ceiling: ("name" | "type" | "scope" | "date" | "amount" | "percent")[];
+            /**
+             * Subset
+             * @default []
+             */
+            subset?: ("name" | "type" | "scope" | "date" | "amount" | "percent")[];
+            /**
+             * Type
+             * @enum {string}
+             */
+            type: "PROJECT" | "LICENSE" | "EQUITY";
+            values: components["schemas"]["PartnershipValues"];
         };
         /**
          * ProposeRequest
@@ -5514,6 +6057,21 @@ export interface components {
             value: string;
         };
         /**
+         * PublicInvention
+         * @description A published invention the party manages.
+         */
+        PublicInvention: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Role */
+            role: string;
+            /** Title */
+            title: string;
+        };
+        /**
          * PublicInventionResponse
          * @description The published version and nothing private.
          */
@@ -5554,6 +6112,50 @@ export interface components {
             summary: string;
             /** Title */
             title: string;
+        };
+        /**
+         * PublicProfileResponse
+         * @description What anyone may see of a party, computed now from publication and consent (FR-001).
+         */
+        PublicProfileResponse: {
+            /** Bio */
+            bio: string | null;
+            /** Inventions */
+            inventions: components["schemas"]["PublicInvention"][];
+            /** Name */
+            name: string;
+            /** Nothing Published */
+            nothing_published: boolean;
+            /**
+             * Party Id
+             * Format: uuid
+             */
+            party_id: string;
+            /** Relationships */
+            relationships: components["schemas"]["PublicRelationship"][];
+        };
+        /**
+         * PublicRelationship
+         * @description One confirmed relationship, only its fields both parties allowed (AC55).
+         */
+        PublicRelationship: {
+            /** Counterpart Name */
+            counterpart_name: string | null;
+            /** Counterpart Party Id */
+            counterpart_party_id: string | null;
+            /** Fields */
+            fields: {
+                [key: string]: unknown;
+            };
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Inventions */
+            inventions: components["schemas"]["PublicInvention"][];
+            /** Role */
+            role: string;
         };
         /**
          * PublishResponse
@@ -5803,6 +6405,40 @@ export interface components {
             verification_mode: string;
         };
         /**
+         * RestrictRequest
+         * @description Hide one public field from now on.
+         */
+        RestrictRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /**
+             * Field
+             * @enum {string}
+             */
+            field: "name" | "type" | "scope" | "date" | "amount" | "percent";
+        };
+        /**
+         * RestrictionResponse
+         * @description One restriction.
+         */
+        RestrictionResponse: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Field */
+            field: string;
+            /**
+             * Party Id
+             * Format: uuid
+             */
+            party_id: string;
+        };
+        /**
          * ResubmitRequest
          * @description Send again after answering: the brief as edited and the file versions chosen on purpose.
          */
@@ -5821,6 +6457,22 @@ export interface components {
              * @default []
              */
             files?: components["schemas"]["ChosenFile"][];
+        };
+        /**
+         * ReviewRequest
+         * @description Contest the public claim; it is hidden while under review.
+         */
+        ReviewRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /**
+             * Reason
+             * @default
+             */
+            reason?: string;
         };
         /**
          * RevisionItemInput
@@ -6079,6 +6731,26 @@ export interface components {
              * @default
              */
             thesis?: string;
+        };
+        /**
+         * SaveProfileRequest
+         * @description Publish or change the acting party's public profile.
+         */
+        SaveProfileRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /**
+             * Bio
+             * @default
+             */
+            bio?: string;
+            /** Expected Version */
+            expected_version: number;
+            /** Published */
+            published: boolean;
         };
         /**
          * ScheduleResponse
@@ -6566,6 +7238,19 @@ export interface components {
             expected_version: number;
         };
         /**
+         * VersionedPartnershipRequest
+         * @description Decline the current version, against its number.
+         */
+        VersionedPartnershipRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /** Version */
+            version: number;
+        };
+        /**
          * VersionedRequest
          * @description A change against the version the client saw.
          */
@@ -6590,6 +7275,19 @@ export interface components {
             acting_party_id: string;
         };
         /**
+         * PartyName
+         * @description A party as a name.
+         */
+        app__briefs__model__schema__PartyName: {
+            /** Name */
+            name: string;
+            /**
+             * Party Id
+             * Format: uuid
+             */
+            party_id: string;
+        };
+        /**
          * ActingPartyRequest
          * @description The party the client acts as.
          */
@@ -6599,6 +7297,19 @@ export interface components {
              * Format: uuid
              */
             acting_party_id: string;
+        };
+        /**
+         * PartyName
+         * @description A party of the relationship.
+         */
+        app__relationships__model__schema__PartyName: {
+            /** Name */
+            name: string;
+            /**
+             * Party Id
+             * Format: uuid
+             */
+            party_id: string;
         };
     };
     responses: never;
@@ -9479,6 +10190,266 @@ export interface operations {
             };
         };
     };
+    read_partnership_api_v1_partnerships__partnership_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                partnership_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PartnershipResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    confirm_api_v1_partnerships__partnership_id__confirmations_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                partnership_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConfirmRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PartnershipResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    correct_api_v1_partnerships__partnership_id__corrections_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                partnership_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CorrectionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PartnershipResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    decline_api_v1_partnerships__partnership_id__decline_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                partnership_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VersionedPartnershipRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PartnershipResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    request_review_api_v1_partnerships__partnership_id__request_review_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                partnership_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReviewRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PartnershipResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    restrict_api_v1_partnerships__partnership_id__restrictions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                partnership_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RestrictRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PartnershipResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     list_pitches_api_v1_pitches_get: {
         parameters: {
             query?: {
@@ -9903,6 +10874,130 @@ export interface operations {
             };
         };
     };
+    read_pitch_partnership_api_v1_pitches__pitch_id__partnership_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pitch_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PartnershipResponse"] | null;
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    proposal_options_api_v1_pitches__pitch_id__partnership_options_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pitch_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProposalOptionsResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    propose_api_v1_pitches__pitch_id__partnerships_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pitch_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProposePartnershipRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PartnershipResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     resubmit_api_v1_pitches__pitch_id__resubmit_post: {
         parameters: {
             query?: never;
@@ -10271,6 +11366,117 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PitchActionResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    read_my_profile_api_v1_profiles_me_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProfileResponse"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    save_my_profile_api_v1_profiles_me_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SaveProfileRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProfileResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    read_public_profile_api_v1_profiles__party_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                party_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicProfileResponse"];
                 };
             };
             /** @description Validation failed */

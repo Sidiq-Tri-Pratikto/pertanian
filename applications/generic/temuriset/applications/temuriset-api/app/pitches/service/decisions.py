@@ -49,13 +49,16 @@ async def pitch_by_id(session: AsyncSession, pitch_id: UUID) -> PitchRecord | No
     return await SqlAlchemyPitchRepository(session).find(pitch_id)
 
 
-async def visible_pitch(session: AsyncSession, principal: Principal, pitch_id: UUID) -> tuple[PitchRecord, Side]:
+async def visible_pitch(
+    session: AsyncSession, principal: Principal, pitch_id: UUID, *, lock: bool = False
+) -> tuple[PitchRecord, Side]:
     """Find a pitch the active party is a side of, for other modules' rooms (027, 028).
 
     Args:
         session (AsyncSession): The request's session.
         principal (Principal): Who is signed in.
         pitch_id (UUID): The pitch.
+        lock (bool): Serialize mutations against the pitch when requested.
 
     Returns:
         tuple[PitchRecord, Side]: The pitch and the reader's side.
@@ -63,7 +66,7 @@ async def visible_pitch(session: AsyncSession, principal: Principal, pitch_id: U
     Raises:
         NotFoundError: For anyone but its two parties (AC48).
     """
-    record = await SqlAlchemyPitchRepository(session).find(pitch_id)
+    record = await SqlAlchemyPitchRepository(session).find(pitch_id, lock=lock)
     side = side_of(principal, record) if record else None
     if record is None or side is None:
         raise NotFoundError()
