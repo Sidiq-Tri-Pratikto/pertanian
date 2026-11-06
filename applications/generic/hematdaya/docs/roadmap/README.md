@@ -6,7 +6,7 @@ Authority: `docs/product/PRD-EN.md` for behaviour, `docs/roadmap/architecture.md
 
 ## Pick up the next PR
 
-1. Choose a spec in your lane whose task prerequisites are merged. Prioritize the MVP rows, then use the lowest ready number as a tie-breaker. Read its `spec.md` and `plan.md`, then `architecture.md`.
+1. Choose the next piece of work in your milestone lane. Prioritize the MVP rounds and check the spec header for prerequisites before opening a branch. Read its `spec.md` and `plan.md`, then `architecture.md`.
 2. Create the branch with the folder's exact name: `git checkout -b 009-energy-summary`. Spec Kit commands depend on that shape.
 3. Run `speckit-tasks` to generate `tasks.md` against the code as it stands now. The plan's task outline is the input, not a substitute.
 4. Run `speckit-implement`, test first.
@@ -15,26 +15,55 @@ Authority: `docs/product/PRD-EN.md` for behaviour, `docs/roadmap/architecture.md
 
 Never run `speckit-specify` on a seeded spec. `setup-plan.sh` keeps an existing `plan.md`, so `speckit-plan` is safe, but it is rarely needed.
 
-## Milestones and gates
+## Two-person delivery plan
 
-| Milestone | Specs | Outcome | PRD gate |
-|---|---|---|---|
-| M0 Foundations | 001–003 | Base app, contract, first native smoke run | G0 → G1 |
-| M1 Energy core | 004–011 | Exact fixture totals through the API, scope refusal, composition | G1 |
-| M2 Read journey on phone | 012–016 | Demo opens real data on the phone: Beranda, Perangkat, history | G2 |
-| M3 Settings and cost | 017–019 | Site settings, optional tariff, qualified cost | G2 follow-up for the internal MVP |
-| M4 Evidence | 020–023 | Matched comparison, evidence-backed Saran, feedback | G2 |
-| M5 CSV | 024–027 | Complete import with recovery | G2 |
-| M6 Scope | 028–029 | Parent/child and alternative-source resolution | G2 |
-| M7 Optional analysis | 030–033 | Schedules, outside-window, energy per output | G1, G2 optional-module evidence |
-| M8 Recovery | 034–035 | Offline and combined states, then source catalog and simulated enrollment | G2 |
-| M9 Saved service | 036–041 | Accounts, data rights, deployment, restore, benchmarks | G3 |
-| M10 Platforms and usability | 042–044 | Native builds, accessibility audit, study kit | G4 |
-| M11 Gated | 045–046 | Push and a verified live adapter, each behind its entry condition | G5 |
+**P1 owns backend, data integrity and operations.** P1 leads the data model, energy calculation, API contracts, import commit and screen, and deployment.
 
-Household and industrial journeys are separate release gates (PRD §1). Both must work with schedule and output absent.
+**P2 owns client journeys and platform evidence.** P2 leads Android smoke, onboarding, the three tabs, evidence and recovery. P2 also owns CSV parsing and preview while P1 builds the measurement core.
 
-## Dependency graph
+Each person reviews the other's shared contracts and acceptance evidence. Before parallel migration PRs merge, reconcile their revisions with the target branch and verify a single Alembic head.
+
+### Internal MVP
+
+**Finish M0, M1, M2, M4, M5, M6 and the recovery portion of M8.** The MVP stops at offline and combined-state recovery in M8. Site settings and tariffs (M3), schedules and output metrics (M7), the M8 source catalog and simulated enrollment, and M9–M11 are follow-up work.
+
+The MVP is an internal, expiring workspace on web and the Android smoke environment. Verify the household and industrial journeys separately using synthetic/demo data or approved non-sensitive CSV. Each walkthrough must cover recorded energy, scope-safe history, evidence and feedback, and recovery from an offline read or failed save. Record exact totals, refusal of overlapping scopes, and import replay without double counting before calling the MVP complete. Production saved data requires G3, including owner isolation, retention and a successful restore rehearsal.
+
+### Parallel work
+
+Rounds show handoffs. Start each lane when its inputs are ready.
+
+| Round | P1 | P2 | Prerequisites |
+| --- | --- | --- | --- |
+| 1 | **M1** Data foundation for sites, assets, bindings and measurements | **M0** Android smoke | P1 uses the base API. P2 uses the base mobile shell. Both are in PR #3. |
+| 2 | **M1** Demo fixtures and isolated sessions | **M5** CSV parser and preview | Both use M1's measurement foundation from round 1. |
+| 3 | **M1** Summary, history and composition guard | **M2** Demo onboarding and workspace data layer | P1 needs M1 demo sessions from round 2. P2 needs those sessions and M0 Android smoke from round 1. |
+| 4 | **M4** Matched baseline and insight evidence, then **M6** scope API | **M2** Populated Beranda, Perangkat, history chart and asset editing | P1 needs M1 summary and history from round 3. P2 also needs M2 onboarding from round 3. |
+| 5 | **M5** Atomic import commit and import screens | **M4** Saran, evidence detail and feedback | P1 needs M5 preview from round 2, M4 insight evidence and M2 Beranda from round 4. P2 needs M4 insight evidence and the M2 chart from round 4. |
+| 6 | Verify backend H/I totals, scope refusal and import replay | **M6** Scope screen and **M8** offline and combined-state recovery | Scope screen needs the M6 API and M2 screens from round 4. Recovery needs M4 Saran and the M5 import flow from round 5. |
+| MVP sign-off | Review the numbers and failure evidence with P2 | Record both walkthroughs with P1 | M0, M1, M2, M4, M5 and M6 are complete, and M8 recovery has passed. |
+
+### Milestones and dependencies
+
+The prerequisite column lists direct cross-milestone inputs from the spec headers. A milestone can start with a completed input from another milestone while the rest of that milestone is still in progress. PRD gates require their own acceptance evidence.
+
+| Milestone | P1 | P2 | Direct prerequisites | MVP and release gate |
+| --- | --- | --- | --- | --- |
+| **M0 Foundations** | Base API and contract | Mobile shell and Android smoke | None | Required. Base is in PR #3 and Android smoke is pending. G0 → G1 evidence. |
+| **M1 Energy core** | Ownership, ingest, fixtures, demo sessions, exact totals and history | Review fixture oracles and the client contract | M0 base API | Required. Core calculation evidence for G1. |
+| **M2 Read journey** | Review the client integration against API contracts | Onboarding, Beranda, Perangkat, history chart and asset editing | M0 Android smoke and mobile shell, M1 demo, summaries and history | Required for the G2 journey. |
+| **M3 Settings and cost** | Tariff and cost API | Site settings, tariff editor and qualified cost UI | M1 composition guard, M2 Beranda and asset detail | Follow-up for the G2 journey. |
+| **M4 Evidence** | Matched baseline, insight rules and revisioned evidence | Saran, evidence detail and feedback | M1 history, M2 Beranda and chart | Required for the G2 journey. |
+| **M5 CSV** | Atomic commit, replay and import screens | Parser and preview | M1 measurements, M2 onboarding and Beranda, M4 insight revision contract | Required for the G2 journey. Parser and preview can start from M1 measurements. |
+| **M6 Scope** | Scope validation, preview and atomic save API | Scope screen and explicit resolution | M1 summary, M2 Beranda and Perangkat | Required for the G2 journey. The API can start from M1 summaries. |
+| **M7 Optional analysis** | Schedule and output APIs | Schedule and output screens | M1 composition guard, M2 asset detail, M3 settings, M4 insights | Follow-up. Optional-module evidence for G1 and G2. |
+| **M8 Recovery** | Review state and calculation evidence | Offline recovery and combined states, then source catalog and simulated enrollment | Recovery needs M4 Saran and M5 import. Catalog needs M1 assets, M2 Beranda and M5 import. | **MVP cutoff is recovery.** Catalog and simulated enrollment follow later. |
+| **M9 Saved service** | Account API, data rights, deployment, backup/restore and benchmarks | Account UI and session recovery | M1, M2, M3, M5, M6, M7 and M8 recovery | Follow-up. G3 gates production saved data. |
+| **M10 Platforms and usability** | Support HTTPS and contract verification on devices | Native builds, accessibility and usability evidence | M2, M4, M5, M6, M8 recovery and M9 account/deployment inputs | Follow-up. G4 requires platform and participant evidence. |
+| **M11 Gated features** | Verified live meter adapter | Opt-in push | Push needs M4 and M10 native builds. Live meter needs M1 measurements, M8 catalog and M9 deployment and restore. | Follow-up. Push needs owner demand and consent. G5 requires reference comparison and quality evidence from a verified installation. |
+
+<details>
+<summary>Technical spec dependency graph</summary>
 
 ```mermaid
 flowchart TD
@@ -133,85 +162,7 @@ flowchart TD
     S040 --> S046
 ```
 
-## Two-person delivery plan
-
-**Person A owns backend, data integrity and operations.** Deliver site ownership, ingestion and calculations, the import commit and its end-to-end screen, scope contracts and deployment. Own database migrations in those tasks and review API usage in Person B's PRs.
-
-**Person B owns client journeys and platform evidence.** Deliver native smoke tests, onboarding, the three tabs, evidence and recovery. Own CSV parsing and preview while Person A builds the measurement core. Review copy, accessibility and the import screen with Person A.
-
-Each task has one lead. The other person reviews the shared contract and the relevant acceptance evidence. Generate each task's implementation checklist from its plan after its prerequisites are merged. Before two migration PRs merge, reconcile their revisions against the target branch and check that Alembic has one head.
-
-### Internal MVP
-
-The minimum is an internal, expiring workspace running the G2 core journey on web and Android smoke infrastructure. It supports two distinct household and industrial demos, CSV preview and atomic import, recorded energy and scope-safe history, evidence-backed Saran and feedback, and recovery from failed saves or offline reads. Use synthetic/demo data or approved non-sensitive CSV. Verify both journeys separately with exact totals, overlap refusal and replay without double counting.
-
-The MVP includes 001–016, 020–029 and 034. 001 and 002 already exist. The workspace uses its configured timezone and the app confirms assumptions for CSV timestamps. Site settings and tariff editing (017–019), schedules and output metrics (030–033), the simulated meter catalog (035), saved accounts and deployment operations (036–041), release builds and research (042–044), push (045) and live integration (046) are follow-up work. An MVP walkthrough does not close the saved-data, platform-study or live-pilot gates. Keep production saved data gated on G3, including owner isolation, retention and a successful restore rehearsal.
-
-### Parallel work
-
-| When | Person A | Person B |
-| --- | --- | --- |
-| Start from the base | 004 → 005 → 006 | 003 Android smoke |
-| After 006 | 007 → 008 | 024 → 025 |
-| After 008 and 003 | 009 → 010 and the 011 composition guard | 012, then 013 once 009 merges |
-| After 010 and 013 | 020 → 021, with 028 ready once 009 merges | 014 → 015 and 016 while evidence computation is in progress |
-| After 021 and 025 | 026 → 027 | 022 → 023 after 015, and 029 after 028 |
-| Close the MVP | Verify H/I totals, import replay and scope consistency | 034 after 022 and 027, then record separate H/I walkthroughs |
-
-### Task owners and prerequisites
-
-Each row is one spec-sized task. **Depends on** lists the task/spec IDs that must merge first. An em dash means the task has no predecessor. The corresponding spec header and the graph above use the same direct dependencies.
-
-<!-- task-map:start -->
-| Task/spec | Lead | Depends on | Delivery |
-| --- | --- | --- | --- |
-| [001 API base](../../specs/001-api-base/spec.md) | A | — | MVP · implemented in PR #3 |
-| [002 Mobile shell](../../specs/002-mobile-shell/spec.md) | B | `001` | MVP · implemented in PR #3 |
-| [003 Android smoke CI](../../specs/003-android-smoke-ci/spec.md) | B | `002` | MVP |
-| [004 Identity and sites](../../specs/004-identity-sites/spec.md) | A | `001` | MVP |
-| [005 Assets, bindings and audit](../../specs/005-assets-bindings-audit/spec.md) | A | `004` | MVP |
-| [006 Measurements](../../specs/006-measurements/spec.md) | A | `005` | MVP |
-| [007 Demo fixtures](../../specs/007-fixtures/spec.md) | A | `006` | MVP |
-| [008 Demo sessions](../../specs/008-demo-sessions/spec.md) | A | `007` | MVP |
-| [009 Energy summary](../../specs/009-energy-summary/spec.md) | A | `008` | MVP |
-| [010 History buckets](../../specs/010-history/spec.md) | A | `009` | MVP |
-| [011 Composition enforcement](../../specs/011-composition/spec.md) | A | `009` | MVP |
-| [012 Demo onboarding and data layer](../../specs/012-demo-onboarding-data-layer/spec.md) | B | `002`, `003`, `008` | MVP |
-| [013 Populated Beranda](../../specs/013-beranda-s03/spec.md) | B | `009`, `012` | MVP |
-| [014 Perangkat and asset detail](../../specs/014-perangkat-s04-s06/spec.md) | B | `010`, `013` | MVP |
-| [015 History chart](../../specs/015-history-chart/spec.md) | B | `014` | MVP |
-| [016 Asset edit and archive](../../specs/016-asset-edit/spec.md) | B | `014` | MVP |
-| [017 Site settings](../../specs/017-settings-s09/spec.md) | B | `013` | Follow-up |
-| [018 Tariff and cost API](../../specs/018-tariff-api/spec.md) | A | `011` | Follow-up |
-| [019 Tariff and cost on mobile](../../specs/019-tariff-mobile/spec.md) | B | `014`, `017`, `018` | Follow-up |
-| [020 Matched baseline](../../specs/020-baseline/spec.md) | A | `010` | MVP |
-| [021 Insights and evidence](../../specs/021-insights/spec.md) | A | `020` | MVP |
-| [022 Saran and evidence screens](../../specs/022-saran-s07-s08/spec.md) | B | `013`, `015`, `021` | MVP |
-| [023 Insight feedback](../../specs/023-feedback/spec.md) | B | `022` | MVP |
-| [024 CSV parser](../../specs/024-csv-parser/spec.md) | B | `006` | MVP |
-| [025 Import preview](../../specs/025-import-preview/spec.md) | B | `024` | MVP |
-| [026 Import commit](../../specs/026-import-commit/spec.md) | A | `021`, `025` | MVP |
-| [027 Import screens](../../specs/027-import-s10/spec.md) | A | `012`, `013`, `026` | MVP |
-| [028 Scope API](../../specs/028-scope-api/spec.md) | A | `009` | MVP |
-| [029 Scope screen](../../specs/029-scope-s11/spec.md) | B | `013`, `014`, `028` | MVP |
-| [030 Schedule API](../../specs/030-schedule-api/spec.md) | A | `011`, `021` | Follow-up |
-| [031 Schedule on mobile](../../specs/031-schedule-mobile/spec.md) | B | `014`, `017`, `030` | Follow-up |
-| [032 Output metric API](../../specs/032-output-api/spec.md) | A | `011`, `021` | Follow-up |
-| [033 Metric screen](../../specs/033-metric-s12/spec.md) | B | `014`, `017`, `032` | Follow-up |
-| [034 Offline and combined states](../../specs/034-offline-states/spec.md) | B | `022`, `027` | MVP |
-| [035 Source catalog and simulated setup](../../specs/035-source-catalog-s05/spec.md) | B | `005`, `013`, `027` | Follow-up |
-| [036 Accounts API](../../specs/036-auth-api/spec.md) | A | `004`, `008`, `025` | Follow-up |
-| [037 Accounts on mobile](../../specs/037-auth-mobile/spec.md) | B | `012`, `019`, `027`, `029`, `031`, `034`, `036` | Follow-up |
-| [038 Data rights](../../specs/038-data-rights/spec.md) | A | `026`, `036`, `037` | Follow-up |
-| [039 Deployment and release](../../specs/039-deploy-release/spec.md) | A | `011`, `036` | Follow-up |
-| [040 Backup and restore](../../specs/040-backup-restore/spec.md) | A | `026`, `038`, `039` | Follow-up |
-| [041 Benchmarks](../../specs/041-benchmarks/spec.md) | A | `026`, `039` | Follow-up |
-| [042 Native builds](../../specs/042-eas-builds/spec.md) | B | `016`, `023`, `027`, `029`, `034`, `037`, `039` | Follow-up |
-| [043 Accessibility and platform audit](../../specs/043-accessibility-audit/spec.md) | B | `042` | Follow-up |
-| [044 Usability study kit](../../specs/044-usability-kit/spec.md) | B | `043` | Follow-up |
-| [045 Push notifications](../../specs/045-push/spec.md) | B | `021`, `023`, `042` | Follow-up |
-| [046 Live meter adapter](../../specs/046-live-adapter/spec.md) | A | `006`, `035`, `039`, `040` | Follow-up |
-<!-- task-map:end -->
+</details>
 
 ## Spec format
 
