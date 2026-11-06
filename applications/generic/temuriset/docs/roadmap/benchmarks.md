@@ -165,3 +165,88 @@ standard-read latency misses and emitted the result before exiting.
 `make lint` passed. `uv run pytest tests/unit/test_benchmarks.py -q` passed all
 five checks for target rejection, missing sessions, incomplete seed, empty
 successful samples and a duplicated matching candidate.
+
+## Spec 045 local retrieval comparison
+
+Measured on 2026-11-06 on assembled source
+`d3c15cda6c957acb8beb2d58e04b6b8d2c7497bc` with CPython 3.13.16 on an arm64
+Mac15,3 with eight CPUs and macOS 27.2 (26B123). Two runs used the
+[offline benchmark commands](../../applications/temuriset-api/benchmarks/README.md)
+with the synthetic double on `127.0.0.1:58046`. The comparison ran in process
+with the artifact already loaded. Each timing covers retrieval, rule evaluation
+and display ranking for one query. Provider transport occurred only during
+offline artifact production.
+
+- Fixture `synthetic-retrieval-v1` SHA-256
+  `e7eaa073ac887789a9d2dbb761739831da29efddd31e33cb103f86ef53dfc10e`.
+  Each split has four queries, six judged targets per query, two new managers
+  and four established managers. The grades and expected rule outcomes are
+  author-assigned synthetic judgments.
+- Model `synthetic-retrieval-double@1`, tokenizer `unicode-word-v1`, truncation
+  `512-chars-v1`, template `fixture-text-v1` and calibration `admission-v1`.
+  Frozen admission uses cosine 0.65 for dense, cosine 0.55 or positive BM25
+  for hybrid, and 0.60 on the reranked head. Fusion uses one-based RRF with
+  `k = 60`, at most 50 per retrieval channel and 30 per provider rerank head.
+- Artifact SHA-256
+  `175cd93cf3409253e22321c21c9f15fb639d5efd9164d6c5ef50670d1d5815d8`.
+  Both artifacts were byte-identical with mode `0600`, and both reports were
+  identical after removing elapsed time. Both rerank requests used candidate
+  counts `[5, 5, 0, 5, 5, 5, 0, 5]` in sorted query order.
+
+The comparison used the shipped `lexical-rules@1` as its baseline. Grades 2
+and 3 count as binary relevance. The nDCG@5 column is the mean over three
+queries per split with nonzero ideal gain, using the entire judged pool for
+each ideal. Candidate recall and nDCG@5 each had one undefined query per
+split. Returned precision was undefined on one query for hybrid and two for
+each other mode, per split. P@5 uses five positions per judged query.
+
+| Split | Mode | Candidate recall | Returned precision | P@5 | nDCG@5 | Coverage / abstention |
+|---|---|---:|---:|---:|---:|---:|
+| Development | Lexical | 5/9 | 3/4 | 3/20 | 0.4138 | 2/4, 2/4 |
+| Development | Dense | 9/9 | 6/8 | 6/20 | 0.6005 | 2/4, 2/4 |
+| Development | Hybrid | 9/9 | 7/9 | 7/20 | 0.9339 | 3/4, 1/4 |
+| Development | Hybrid + rerank | 9/9 | 5/6 | 5/20 | 0.5544 | 2/4, 2/4 |
+| Held-out | Lexical | 5/10 | 3/4 | 3/20 | 0.2758 | 2/4, 2/4 |
+| Held-out | Dense | 10/10 | 7/8 | 7/20 | 0.5560 | 2/4, 2/4 |
+| Held-out | Hybrid | 10/10 | 8/9 | 8/20 | 0.8893 | 3/4, 1/4 |
+| Held-out | Hybrid + rerank | 10/10 | 7/8 | 7/20 | 0.5560 | 2/4, 2/4 |
+
+Each mode evaluated 24 judged pairs per split, including four with a known
+mandatory submission failure. Each had zero mandatory failures among its
+returned results, 24/24 correct rule outcomes, 4/4 correct UNKNOWN rows,
+and 2/2 returned factual reasons with source support. Each had two queries
+with no returned factual reasons to assess. The held-out grade-3 target
+`h-new` had no keyword overlap with query `h-main`. All experimental modes
+returned it and the lexical mode omitted it.
+
+Exposure is recorded as returned positions and distinct managers exposed
+over available managers for each cohort. The elapsed times are the first
+run's median and nearest-rank p95 in milliseconds over four queries.
+
+| Split | Mode | Candidates / returned / excluded / undisplayed | New positions (managers) | Established positions (managers) | Median / p95 ms |
+|---|---|---:|---:|---:|---:|
+| Development | Lexical | 6 / 4 / 20 / 0 | 2 (1/2) | 2 (1/4) | 0.0645 / 0.1301 |
+| Development | Dense | 15 / 8 / 16 / 0 | 4 (2/2) | 4 (2/4) | 0.0731 / 0.0832 |
+| Development | Hybrid | 15 / 9 / 15 / 0 | 5 (2/2) | 4 (2/4) | 0.0951 / 0.1017 |
+| Development | Hybrid + rerank | 15 / 6 / 18 / 0 | 4 (2/2) | 2 (1/4) | 0.1012 / 0.1283 |
+| Held-out | Lexical | 6 / 4 / 20 / 0 | 2 (1/2) | 2 (1/4) | 0.0603 / 0.0689 |
+| Held-out | Dense | 15 / 8 / 16 / 0 | 4 (2/2) | 4 (2/4) | 0.0784 / 0.5063 |
+| Held-out | Hybrid | 15 / 9 / 15 / 0 | 5 (2/2) | 4 (2/4) | 0.1005 / 0.1686 |
+| Held-out | Hybrid + rerank | 15 / 8 / 16 / 0 | 4 (2/2) | 4 (2/4) | 0.0958 / 0.0995 |
+
+The focused benchmark, engine and adapter suite passed 36 tests. The
+producer returned a safe failure for an unrecognized relay path and for
+the stopped relay. Neither probe created an output file. The relay and
+its temporary artifacts were removed.
+
+### Production qualification
+
+These timings cover only the local fixture, and real-provider cost is
+unmeasured. Promotion of each mode requires permissioned real cases,
+grouped splits, two independent reviews with preserved disagreements and
+adjudication, frozen calibration, and reviewed quality and safety against
+the real labelled lexical baseline. Separate evidence covers approved
+multilingual models and transport, consent, persistent pgvector
+authorization and performance, provider outage behavior, cost and
+staging. The synthetic quality differences and manager exposure counts
+describe this corpus and model double.

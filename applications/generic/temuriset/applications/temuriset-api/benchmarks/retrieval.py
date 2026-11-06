@@ -414,6 +414,7 @@ def summarize(fixture: Fixture, split: Split, observations: list[Observation]) -
 
 def evaluate_modes(artifact_path: Path, fixture: Fixture) -> dict[str, Any]:
     """Load the runtime artifact and reuse the actual rules and rankers for every compared mode."""
+    from app.matching.engine.evaluate import ENGINE, rank_experiment  # noqa: PLC0415
     from app.matching.engine.retrieval import (  # noqa: PLC0415
         CHANNEL_LIMIT,
         DENSE_MIN,
@@ -424,8 +425,6 @@ def evaluate_modes(artifact_path: Path, fixture: Fixture) -> dict[str, Any]:
         retrieve,
     )
     from app.matching.service.retrieval_adapter import PINS, load_artifact, load_corpus  # noqa: PLC0415
-
-    from app.matching.engine.evaluate import ENGINE, rank_experiment  # noqa: PLC0415
 
     corpus = load_corpus(FIXTURE)
     if corpus.digest != fixture.digest:
