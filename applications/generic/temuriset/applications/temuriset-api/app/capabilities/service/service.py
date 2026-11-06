@@ -31,7 +31,7 @@ ADAPTERS = (
     AdapterResponse(id="object-storage", status=CapabilityStatus.AVAILABLE),
     AdapterResponse(id="file-scanner", status=CapabilityStatus.AVAILABLE),
     AdapterResponse(id="lexical-rules", status=CapabilityStatus.AVAILABLE),
-    AdapterResponse(id="ics-export", status=CapabilityStatus.PLANNED),
+    AdapterResponse(id="ics-export", status=CapabilityStatus.AVAILABLE),
 )
 POLICIES = (
     PolicyResponse(id="matching-weights", version=1),

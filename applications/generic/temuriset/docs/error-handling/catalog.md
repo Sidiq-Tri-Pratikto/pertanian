@@ -32,6 +32,8 @@ One row per error. Keep in sync with `app/core/errors/codes.py` and `public.py`.
 | `APP-PREFLIGHT-STALE` | `PREFLIGHT_STALE` | 409 | Ada yang berubah sejak pemeriksaan. Periksa ulang sebelum mengirim; brief Anda tetap tersimpan. | Unknown or expired preflight token, or a pinned version, permission or configuration changed; the envelope adds `reason` | false | - | - |
 | `APP-NOT-READY` | `NOT_READY` | 422 | Masih ada syarat pengajuan yang belum selesai. Lengkapi syarat yang disebutkan lalu periksa ulang. | Readiness is not `READY_TO_SUBMIT`, or a required file was not chosen; the envelope adds `requirement` | false | - | - |
 | `APP-REQUIRED-ANSWERS-MISSING` | `REQUIRED_ANSWERS_MISSING` | 422 | Masih ada pertanyaan wajib yang belum dijawab. Jawab pertanyaan yang ditandai lalu kirim ulang. | Resubmitting a revision round while a required item has no answer; the envelope adds `items`, the unanswered item ids | false | - | - |
+| `APP-BOOKING-CONFLICT` | `BOOKING_CONFLICT` | 409 | Waktu ini bentrok dengan jadwal peserta. Pilih waktu lain atau usulkan waktu baru. | Accepting a slot that overlaps a booking of either party (half-open intervals); the proposal, agenda and other slots stay; the envelope adds `slot_id` | false | - | - |
+| `APP-PROPOSAL-CLOSED` | `PROPOSAL_CLOSED` | 409 | Usulan waktu ini sudah tidak terbuka. Muat ulang untuk melihat usulan terbaru. | Accepting or cancelling a proposal that expired, was superseded, accepted or cancelled; the envelope adds `reason` | false | - | - |
 
 A missing `Idempotency-Key` on a consequential POST is `BAD_REQUEST` with `details` naming the header.
 
