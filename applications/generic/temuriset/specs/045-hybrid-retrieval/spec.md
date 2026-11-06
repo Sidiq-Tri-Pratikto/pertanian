@@ -2,7 +2,7 @@
 
 **Feature Branch**: `045-hybrid-retrieval`
 **Created**: 2026-11-05
-**Status**: Local synthetic implementation planned, deployment gated
+**Status**: Local synthetic implementation verified, deployment gated
 **Milestone**: M12 Gated adapters
 **Depends on**: 019, 039
 **Size**: L
