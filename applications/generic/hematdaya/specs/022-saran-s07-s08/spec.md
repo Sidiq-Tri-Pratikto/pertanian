@@ -4,7 +4,7 @@
 **Created**: 2026-10-30
 **Status**: Seeded, not started
 **Milestone**: M4 Evidence
-**Depends on**: 013, 015, 021
+**Depends on**: 013, 021
 **Size**: M
 **Covers**: FR-13, UX-04, AT-01, AT-02, S07, S08, P04
 **Flips**: registry `saran` → `available`

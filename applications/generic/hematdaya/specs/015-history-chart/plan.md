@@ -9,7 +9,7 @@ Port `HD.HistoryChart` to `react-native-svg`, with the existing data alternative
 ## Project Structure
 
 ```text
-src/components/hd/HDHistoryChart.tsx
+src/components/hd/HDHistoryChart.tsx   # introduced by 022, merged a round earlier; extend it for buckets, states and reference
 src/features/assets/useHistory.ts
 src/app/(tabs)/(beranda,perangkat,saran)/asset/[id].tsx
 ```

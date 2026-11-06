@@ -4,7 +4,7 @@
 **Created**: 2026-10-30
 **Status**: Seeded, not started
 **Milestone**: M5 CSV
-**Depends on**: 012, 013, 026
+**Depends on**: 012, 026
 **Size**: L
 **Covers**: UX-20, AT-03, AT-44, AT-58, S10, P02
 **Flips**: registry `impor-data` → `available`

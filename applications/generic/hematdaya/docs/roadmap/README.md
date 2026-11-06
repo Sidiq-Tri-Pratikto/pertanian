@@ -17,11 +17,11 @@ Never run `speckit-specify` on a seeded spec. `setup-plan.sh` keeps an existing 
 
 ## Two-person delivery plan
 
-**P1 owns backend, data integrity and operations.** P1 leads the data model, energy calculation, API contracts, import commit and screen, and deployment.
+**P1 owns backend, data integrity and operations, plus the evidence, read and scope journeys end to end.** P1 leads the data model, energy calculation, API contracts and deployment, and builds the mobile data layer, Beranda, Saran with feedback, scope, tariff and schedule from API to screen.
 
-**P2 owns client journeys and platform evidence.** P2 leads Android smoke, onboarding, the three tabs, evidence and recovery. P2 also owns CSV parsing and preview while P1 builds the measurement core.
+**P2 owns client journeys and platform evidence, plus the import and history journeys end to end.** P2 leads Android smoke, CSV parsing, preview, commit and import screens, Perangkat, history and asset editing, recovery, settings, the output metric, the source catalog and native platform work.
 
-Each person reviews the other's shared contracts and acceptance evidence. Before parallel migration PRs merge, reconcile their revisions with the target branch and verify a single Alembic head.
+Each person reviews the other's shared contracts and acceptance evidence. Whoever builds a feature's API also builds its screen, so no module changes hands mid-milestone. Start a spec only when every spec it depends on is merged on `main`, never on the partner's unmerged branch, and end each round by merging both PRs. Before parallel migration PRs merge, reconcile their revisions with the target branch and verify a single Alembic head; the API test `test_single_migration_head` enforces it.
 
 ### Internal MVP
 
@@ -35,25 +35,27 @@ Rounds show handoffs. Start each lane when its inputs are ready.
 
 | Round | P1 | P2 | Prerequisites |
 | --- | --- | --- | --- |
-| 1 | **M1** (004–006) Data foundation for sites, assets, bindings and measurements | **M0** (003) Android smoke | P1 uses the base API. P2 uses the base mobile shell. Both are in PR #3. |
-| 2 | **M1** (007–008) Demo fixtures and isolated sessions | **M5** (024–025) CSV parser and preview | Both use M1's measurement foundation from round 1. |
-| 3 | **M1** (009–011) Summary, history and composition guard | **M2** (012) Demo onboarding and workspace data layer | P1 needs M1 demo sessions from round 2. P2 needs those sessions and M0 Android smoke from round 1. |
-| 4 | **M4** (020–021) Matched baseline and insight evidence, then **M6** (028) scope API | **M2** (013–016) Populated Beranda, Perangkat, history chart and asset editing | P1 needs M1 summary and history from round 3. P2 also needs M2 onboarding from round 3. |
-| 5 | **M5** (026–027) Atomic import commit and import screens | **M4** (022–023) Saran, evidence detail and feedback | P1 needs M5 preview from round 2, M4 insight evidence and M2 Beranda from round 4. P2 needs M4 insight evidence and the M2 chart from round 4. |
-| 6 | Verify backend H/I totals, scope refusal and import replay | **M6** (029) Scope screen and **M8** (034) offline and combined-state recovery | Scope screen needs the M6 API and M2 screens from round 4. Recovery needs M4 Saran and the M5 import flow from round 5. |
+| 1 | **M1** (004–006) Data foundation for sites, assets, bindings and measurements | **M0** (003) Android smoke | Done and merged: M1 in PR #25, M0 in PR #24. P1 used the base API and P2 the base mobile shell from PR #3. |
+| 2 | **M1** (007–011) Demo fixtures, sessions, summary, history and composition guard, then **M4** (020–021) matched baseline and insight evidence | **M5** (024–025) CSV parser and preview | P1's work is merged in PR #25 and PR #26. P2's M5 work is done but not yet in a PR: push it, then merge it before round 3 starts. |
+| 3 | **M2** (012) Demo onboarding and workspace data layer | **M5** (026) Atomic import commit | P1 needs M1 demo sessions and M0 Android smoke from rounds 1–2. P2 needs M5 preview and M4 insight evidence from round 2. |
+| 4 | **M2** (013) Populated Beranda | **M5** (027) Import screens | P1 needs M2 onboarding from round 3. P2 needs the M2 data layer and M5 commit from round 3, and enters from the existing S02 import action. |
+| 5 | **M4** (022) Saran and evidence detail, introducing the shared history chart | **M2** (014) Perangkat list and asset detail | P1 needs M2 Beranda from round 4 and M4 insight evidence from round 2. P2 needs M1 history and M2 Beranda from round 4. |
+| 6 | **M4** (023) Feedback, then **M6** (028) scope API | **M2** (015) History chart | P1 needs M4 Saran from round 5; the scope API needs only M1 summary. P2 needs M2 Perangkat and the shared chart from round 5. |
+| 7 | **M6** (029) Scope screen | **M2** (016) Asset editing, then **M8** (034) offline and combined-state recovery | P1 needs M2 Beranda and Perangkat from rounds 4–5 and the M6 API from round 6. P2 needs M2 Perangkat and M4 Saran from round 5 and the M5 import flow from round 4. |
+| 8 | Verify backend H/I totals, scope refusal and import replay | Finish **M8** (034) recovery | Every MVP input is merged by round 7. |
 | MVP sign-off | Review the numbers and failure evidence with P2 | Record both walkthroughs with P1 | M0, M1, M2, M4, M5 and M6 are complete, and M8 recovery has passed. |
 
 #### After MVP
 
 | Round | P1 | P2 | Prerequisites |
 | --- | --- | --- | --- |
-| 7 | **M3** (018) Tariff and cost API | **M3** (017) Site settings and **M8** (035) source catalog and simulated enrollment | MVP signed off. P1 uses the M1 composition guard. P2 uses M2 Beranda, plus M1 assets and M5 import for the catalog. |
-| 8 | **M7** (030, 032) Schedule and output metric APIs | **M3** (019) Tariff editor and qualified cost display | P1 needs the M1 guard and M4 insights. P2 needs the M3 API and settings from round 7 plus M2 asset detail. |
-| 9 | **M9** (036) Account and session API | **M7** (031, 033) Schedule and output metric screens | P1 needs M1 ownership and demo sessions plus M5 import preview. P2 needs the M7 APIs from round 8, M3 site settings and M2 asset detail. |
-| 10 | **M9** (039, 041) HTTPS rehearsal deployment, then benchmarks | **M9** (037) Account UI and session recovery | Both need the account API from round 9. P1 also uses M1 composition and M5 import commit. P2 needs the M3 tariff and M7 schedule screens plus the MVP save and recovery flows. |
-| 11 | **M9** (038, 040) Export and deletion, then backup and restore rehearsal | **M10** (042–043) Native builds, then accessibility audit | P1 needs M5 import commit, the M9 account flow and rehearsal deployment. P2 needs the MVP journeys and the M9 account flow and HTTPS rehearsal from round 10. Use synthetic data for device checks while saved-data evidence is pending. |
-| 12 | **M11** (046) Live adapter implementation and reference-meter checks on the approved installation | **M10** (044) Usability kit and separate household and industrial study evidence | P1 needs M1 ingestion, the M8 catalog, M9 deployment and restore evidence, and a model with measurement-only credentials. P2 prepares the kit after the accessibility audit and records evidence from the owner's participant studies when available. |
-| 13 | **M11** (046 release gate) Live-pilot sign-off | **M11** (045) Opt-in push | P1 needs the preceding PRD gates and verified reference and quality evidence from round 12. P2 needs M4 insight and feedback, M10 native builds and owner confirmation that users want push. |
+| 9 | **M3** (018) Tariff and cost API, then **M7** (030) schedule API | **M3** (017) Site settings and **M7** (032) output metric API | MVP signed off. Both use the M1 composition guard and M4 insights. P2 also uses M2 Beranda. |
+| 10 | **M3** (019) Tariff editor and qualified cost display | **M7** (033) Output metric screen | P1 needs the M3 API and site settings from round 9 plus M2 asset detail. P2 needs the output API and site settings from round 9 plus M2 asset detail. |
+| 11 | **M7** (031) Schedule screens, then **M9** (036) account and session API | **M8** (035) Source catalog and simulated enrollment | P1 needs the schedule API and site settings from round 9; the account API needs M1 ownership and demo sessions plus M5 import preview. P2 needs M1 assets, M2 Beranda and the M5 import flow. |
+| 12 | **M9** (039, 041) HTTPS rehearsal deployment, then benchmarks | **M9** (037) Account UI and session recovery | Both need the account API from round 11. P1 also uses M1 composition and M5 import commit. P2 needs the M3 tariff, M6 scope and M7 schedule screens plus the MVP save and recovery flows. |
+| 13 | **M9** (038, 040) Export and deletion, then backup and restore rehearsal | **M10** (042–043) Native builds, then accessibility audit | P1 needs M5 import commit, the M9 account flow and rehearsal deployment. P2 needs the MVP journeys and the M9 account flow and HTTPS rehearsal from round 12. Use synthetic data for device checks while saved-data evidence is pending. |
+| 14 | **M11** (046) Live adapter implementation and reference-meter checks on the approved installation | **M10** (044) Usability kit and separate household and industrial study evidence | P1 needs M1 ingestion, the M8 catalog, M9 deployment and restore evidence, and a model with measurement-only credentials. P2 prepares the kit after the accessibility audit and records evidence from the owner's participant studies when available. |
+| 15 | **M11** (046 release gate) Live-pilot sign-off | **M11** (045) Opt-in push | P1 needs the preceding PRD gates and verified reference and quality evidence from round 14. P2 needs M4 insight and feedback, M10 native builds and owner confirmation that users want push. |
 
 The owner approves the HTTPS host and domain, retention settings, app identity and build accounts required for the chosen distribution. Open production saved data after G3 passes, including export, deletion and restore evidence. Close G4 after the platform checks and both participant studies have evidence and task blockers have passed retests. The live pilot also requires G5 evidence from the actual installation and a qualified installer for fixed wiring. If a device or study is pending, the push lane can proceed once its own prerequisites are ready. Push remains off until the user opts in.
 
@@ -63,14 +65,14 @@ The prerequisite column lists direct cross-milestone inputs from the spec header
 
 | Milestone | Specs | P1 | P2 | Direct prerequisites | MVP and release gate |
 | --- | --- | --- | --- | --- | --- |
-| **M0 Foundations** | 001–003 | Base API and contract | Mobile shell and Android smoke | None | Required. Base is in PR #3 and Android smoke is pending. G0 → G1 evidence. |
+| **M0 Foundations** | 001–003 | Base API and contract | Mobile shell and Android smoke | None | Required. Base is in PR #3 and Android smoke in PR #24. G0 → G1 evidence. |
 | **M1 Energy core** | 004–011 | Ownership, ingest, fixtures, demo sessions, exact totals and history | Review fixture oracles and the client contract | M0 base API | Required. Core calculation evidence for G1. |
-| **M2 Read journey** | 012–016 | Review the client integration against API contracts | Onboarding, Beranda, Perangkat, history chart and asset editing | M0 Android smoke and mobile shell, M1 demo, summaries and history | Required for the G2 journey. |
-| **M3 Settings and cost** | 017–019 | Tariff and cost API | Site settings, tariff editor and qualified cost UI | M1 composition guard, M2 Beranda and asset detail | Follow-up for the G2 journey. |
-| **M4 Evidence** | 020–023 | Matched baseline, insight rules and revisioned evidence | Saran, evidence detail and feedback | M1 history, M2 Beranda and chart | Required for the G2 journey. |
-| **M5 CSV** | 024–027 | Atomic commit, replay and import screens | Parser and preview | M1 measurements, M2 onboarding and Beranda, M4 insight revision contract | Required for the G2 journey. Parser and preview can start from M1 measurements. |
-| **M6 Scope** | 028–029 | Scope validation, preview and atomic save API | Scope screen and explicit resolution | M1 summary, M2 Beranda and Perangkat | Required for the G2 journey. The API can start from M1 summaries. |
-| **M7 Optional analysis** | 030–033 | Schedule and output APIs | Schedule and output screens | M1 composition guard, M2 asset detail, M3 settings, M4 insights | Follow-up. Optional-module evidence for G1 and G2. |
+| **M2 Read journey** | 012–016 | Data layer, Beranda | Perangkat, history chart, asset editing | M0 Android smoke and mobile shell, M1 demo, summaries and history | Required for the G2 journey. |
+| **M3 Settings and cost** | 017–019 | Tariff and cost API, tariff editor and cost display | Site settings | M1 composition guard, M2 Beranda and asset detail | Follow-up for the G2 journey. |
+| **M4 Evidence** | 020–023 | Baseline, insights, Saran, evidence detail, feedback | Review the evidence contract | M1 history, M2 Beranda and chart | Required for the G2 journey. |
+| **M5 CSV** | 024–027 | Review the commit contract and replay evidence | Parser, preview, atomic commit, import screens | M1 measurements, M2 onboarding and Beranda, M4 insight revision contract | Required for the G2 journey. Parser and preview can start from M1 measurements. |
+| **M6 Scope** | 028–029 | Scope API and scope screen | Review scope refusal on Beranda and Perangkat | M1 summary, M2 Beranda and Perangkat | Required for the G2 journey. The API can start from M1 summaries. |
+| **M7 Optional analysis** | 030–033 | Schedule API and screens | Output metric API and screen | M1 composition guard, M2 asset detail, M3 settings, M4 insights | Follow-up. Optional-module evidence for G1 and G2. |
 | **M8 Recovery** | 034–035 | Review state and calculation evidence | Offline recovery and combined states, then source catalog and simulated enrollment | Recovery needs M4 Saran and M5 import. Catalog needs M1 assets, M2 Beranda and M5 import. | **MVP cutoff is recovery.** Catalog and simulated enrollment follow later. |
 | **M9 Saved service** | 036–041 | Account API, data rights, deployment, backup/restore and benchmarks | Account UI and session recovery | M1, M2, M3, M5, M6, M7 and M8 recovery | Follow-up. G3 gates production saved data. |
 | **M10 Platforms and usability** | 042–044 | Support HTTPS and contract verification on devices | Native builds, accessibility and usability evidence | M2, M4, M5, M6, M8 recovery and M9 account/deployment inputs | Follow-up. G4 requires platform and participant evidence. |
@@ -109,7 +111,6 @@ flowchart TD
     S010 --> S020[020 baseline]
     S020 --> S021[021 insights]
     S013 --> S022[022 saran-s07-s08]
-    S015 --> S022
     S021 --> S022
     S022 --> S023[023 feedback]
     S006 --> S024[024 csv-parser]
@@ -117,7 +118,6 @@ flowchart TD
     S021 --> S026[026 import-commit]
     S025 --> S026
     S012 --> S027[027 import-s10]
-    S013 --> S027
     S026 --> S027
     S009 --> S028[028 scope-api]
     S013 --> S029[029 scope-s11]
