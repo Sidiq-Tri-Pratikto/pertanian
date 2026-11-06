@@ -25,9 +25,19 @@
 
 ## Phase 4 · Verification and activation
 
-- [ ] T011 Refresh `contracts/openapi.json` and `applications/temuriset-web/src/api/schema.generated.ts`. Run the migration, targeted checks and full gates in `Makefile`. Document safe settings in `applications/temuriset-api/README.md` and record local runtime evidence here (SC-001).
+- [X] T011 Refresh `contracts/openapi.json` and `applications/temuriset-web/src/api/schema.generated.ts`. Run the migration, targeted checks and full gates in `Makefile`. Document safe settings in `applications/temuriset-api/README.md` and record local runtime evidence here (SC-001).
 - [ ] T012 Record approved processing terms, sender-domain checks and sandbox delivery and deduplication evidence in `specs/042-email-adapter/spec.md` (FR-005, SC-002).
 - [ ] T013 After T012, enable the approved provider configuration in `applications/temuriset-api/app/capabilities/service/configuration.py` and promote only the email registry entry in `applications/temuriset-web/src/features/registry.ts` after deployment verification (FR-005).
+
+
+### Local verification evidence
+
+- The API `make check` passed 964 tests with 96.17% line coverage on the implementation commit `d1f2b6b`. After the compatibility and locking changes in `7e254a2`, 46 targeted identity, discussion and worker tests passed. Together these runs exercised a real synthetic loopback relay, a lost acknowledgement, concurrent workers, event replay, replaced codes, revoked invitations, live consent and membership checks, and verification during an outstanding relay acknowledgement.
+- PostgreSQL 16 applied revision `0020` from an empty database and through downgrade and reapply. The repository's PR-base harness verified old and new API reads and writes and both workers across `a7b60e0` (revision `0019`) and `7e254a2` (revision `0020`).
+- The web `make check` passed 279 tests with 81.74% line coverage. The API contract and generated web types were refreshed, and a fresh OpenAPI export matched the tracked file.
+- A Chromium smoke check against the Next.js production build at 320 px signed up through the API and worker using the synthetic relay. It verified keyboard opt-in, the saved S18 preference, zero axe violations in the account section, no horizontal overflow, and a hidden control after switching the API to disabled mail.
+
+The provider terms, sender-domain checks and provider sandbox evidence remain open in T012. Provider activation and registry promotion remain gated in T013.
 
 ## Dependencies and parallel work
 
