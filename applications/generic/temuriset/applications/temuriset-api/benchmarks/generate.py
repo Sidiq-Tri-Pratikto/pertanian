@@ -281,15 +281,18 @@ def write_handoff(file: TextIO, dataset: Dataset) -> None:
     json.dump(content, file)
 
 
-async def seed_ready_target(args: argparse.Namespace, database: str) -> Dataset:
-    """Check API readiness and seed the selected database in one transaction."""
+async def seed_ready_target(args: argparse.Namespace, database: str, file: TextIO) -> None:
+    """Check API readiness and write the handoff before committing the seed."""
     async with httpx.AsyncClient(base_url=args.origin, trust_env=False) as client:
         if (await client.get("/health/ready")).status_code != 200:
             raise BenchmarkError("The selected benchmark API is not ready.")
     try:
         with seeded_ids("benchmarks-039"):
             async with get_session_factory()() as session, session.begin():
-                return await seed(session, args, database)
+                dataset = await seed(session, args, database)
+                await asyncio.to_thread(write_handoff, file, dataset)
+                # Closing flushes buffered credentials while a failure can still roll back the seed.
+                await asyncio.to_thread(file.close)
     finally:
         await get_engine().dispose()
 
@@ -303,8 +306,7 @@ def generate(args: argparse.Namespace) -> None:
     descriptor = os.open(handoff, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
     try:
         with os.fdopen(descriptor, "w") as file:
-            dataset = asyncio.run(seed_ready_target(args, database))
-            write_handoff(file, dataset)
+            asyncio.run(seed_ready_target(args, database, file))
     except BaseException:
         # Release the reservation while preserving the original failure if cleanup fails.
         with suppress(OSError):

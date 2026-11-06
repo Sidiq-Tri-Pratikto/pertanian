@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 from types import ModuleType
 from typing import NoReturn
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock, MagicMock, Mock
 from uuid import uuid4
 
 import httpx
@@ -122,6 +122,36 @@ def test_generator_releases_failed_handoff_reservation(monkeypatch: pytest.Monke
     monkeypatch.setattr(generate, "seed_ready_target", AsyncMock(side_effect=BenchmarkError("not ready")))
     with pytest.raises(BenchmarkError, match="not ready"):
         generate.generate(args)
+    assert not handoff.exists()
+
+
+def test_generator_rolls_back_seed_when_handoff_write_fails(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, dataset: Dataset
+) -> None:
+    """
+    Condition:
+    - Seeding succeeds but writing the handoff raises a filesystem error.
+
+    Expected:
+    - The transaction receives the write error and the generator releases the handoff.
+    """
+    tmp_path.chmod(0o700)
+    handoff = tmp_path / "handoff.json"
+    args = argparse.Namespace(origin=ORIGIN, staging=False, handoff=handoff, users=4, inventions=12, opportunities=4)
+    session = MagicMock()
+    session.__aenter__.return_value = session
+    client = httpx.AsyncClient(base_url=ORIGIN, transport=httpx.MockTransport(lambda _: httpx.Response(200)))
+    monkeypatch.setattr(generate.httpx, "AsyncClient", lambda **kwargs: client)
+    monkeypatch.setattr(generate, "target", lambda origin, *, staging: DATABASE)
+    monkeypatch.setattr(generate, "get_session_factory", lambda: lambda: session)
+    monkeypatch.setattr(generate, "get_engine", lambda: AsyncMock())
+    monkeypatch.setattr(generate, "seed", AsyncMock(return_value=dataset))
+    write_error = OSError("disk full")
+    monkeypatch.setattr(generate, "write_handoff", Mock(side_effect=write_error))
+
+    with pytest.raises(OSError, match="disk full"):
+        generate.generate(args)
+    assert session.begin.return_value.__aexit__.await_args.args[1] is write_error
     assert not handoff.exists()
 
 
