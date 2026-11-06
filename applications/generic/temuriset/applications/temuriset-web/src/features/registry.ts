@@ -238,7 +238,8 @@ export const FEATURES: Feature[] = [
     ],
     screens: ['S15'],
     specs: ['030', '032'],
-    status: 'coming_soon',
+    status: 'available',
+    home: '/pitches',
   },
   {
     id: 'profil-publik',
@@ -251,7 +252,8 @@ export const FEATURES: Feature[] = [
     ],
     screens: ['S16'],
     specs: ['031', '032'],
-    status: 'coming_soon',
+    status: 'available',
+    home: '/settings#profil-publik',
   },
   {
     id: 'tinjauan-organisasi',

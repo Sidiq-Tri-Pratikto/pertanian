@@ -16,6 +16,7 @@ import { PitchActions } from '@/features/pitches/PitchActions';
 import { RevisionPanel, type OwnFile } from '@/features/pitches/RevisionPanel';
 import type { NextAction, TabId } from '@/features/pitches/workspace';
 import { WorkspaceTabs } from '@/features/pitches/WorkspaceTabs';
+import type { Partnership } from '@/features/relationships/model';
 import type { Schedule } from '@/features/scheduling/api';
 import { SchedulePanel } from '@/features/scheduling/SchedulePanel';
 import { PROVENANCE } from '@/views/parts';
@@ -23,7 +24,7 @@ import { PROVENANCE } from '@/views/parts';
 type Submission = Pitch['submissions'][number];
 type Snapshot = { opportunity?: { version?: number }; inventions?: { title: string; number: number }[] };
 
-export type Room = { next: NextAction; schedule: Schedule; messages: Message[]; tasks: Task[] };
+export type Room = { next: NextAction; schedule: Schedule; messages: Message[]; tasks: Task[]; relationship?: Partnership | null };
 
 type Props = { me: Me; pitch: Pitch; tab: TabId; files: OwnFile[]; justSent: boolean; room: Room };
 
@@ -133,6 +134,15 @@ export function WorkspaceView({ me, pitch, tab, files, justSent, room }: Props) 
         <p className="tr-sys-type-body-strong">{step.title}</p>
       ) : null}
       <PitchActions pitch={pitch} actingPartyId={me.active_party_id} />
+      {room.relationship ? (
+        <div className="tr-row">
+          <NextLink className="tr-link" href={`/partnerships/${room.relationship.id}`}>Lihat ringkasan Kerja Sama</NextLink>
+        </div>
+      ) : step.action === 'propose_partnership' && me.capabilities?.includes('confirm_relationship') ? (
+        <div className="tr-row">
+          <NextLink className="tr-btn tr-btn--primary" href={`/partnerships/new?pitch=${pitch.id}`}>Usulkan ringkasan</NextLink>
+        </div>
+      ) : null}
       <WorkspaceTabs pitchId={pitch.id} value={tab} panels={panels} />
     </Screen>
   );

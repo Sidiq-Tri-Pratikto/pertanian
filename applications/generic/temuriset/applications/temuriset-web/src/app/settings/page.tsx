@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { serverGet } from '@/api/server';
 import { readCapabilities } from '@/features/capabilities';
 import type { Invitation, Member } from '@/features/organizations';
+import type { ProfileSettings } from '@/features/relationships/model';
 import { requireMe } from '@/features/session';
 import { SettingsView } from '@/views/SettingsView';
 
@@ -19,11 +20,13 @@ export default async function SettingsPage({ searchParams }: Props) {
     acting && me.capabilities?.includes('manage_members')
       ? await serverGet<Invitation[]>(`/api/v1/organizations/${acting.organization_id}/invitations`)
       : null;
+  const profile = me.capabilities?.includes('edit_portfolio') ? await serverGet<ProfileSettings>('/api/v1/profiles/me') : null;
   return (
     <SettingsView
       me={me}
       capabilities={await readCapabilities()}
       members={members}
+      profile={profile}
       invitations={invitations}
       joined={bergabung === '1'}
     />
