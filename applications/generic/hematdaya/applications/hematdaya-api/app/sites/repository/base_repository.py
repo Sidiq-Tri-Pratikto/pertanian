@@ -32,3 +32,7 @@ class SiteRepository(ABC):
     @abstractmethod
     async def update(self, site_id: UUID, values: dict[str, Any]) -> SiteModel:
         """Change site fields."""
+
+    @abstractmethod
+    async def advance_revision(self, site_id: UUID, column: str) -> None:
+        """Advance a revision counter on a locked site."""

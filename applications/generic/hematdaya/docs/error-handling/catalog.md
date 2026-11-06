@@ -10,6 +10,8 @@ One row per error. Keep in sync with `app/core/errors/codes.py` and `public.py`.
 | `APP-CONFLICT` | `CONFLICT` | 409 | Permintaan bertentangan dengan kondisi saat ini. Tinjau datanya lalu coba lagi. | State conflict | false | - | - |
 | `APP-DB-ERROR` | `DATA_ERROR` | 500 | Permintaan gagal karena kesalahan data. Hubungi dukungan dan sebutkan ID referensi. | Database failure | false | - | - |
 | `APP-DB-UNAVAILABLE` | `DATABASE_UNAVAILABLE` | 503 | Layanan data sedang tidak tersedia. Coba lagi beberapa menit lagi. | Connection, pool, or operational failure | true | 30 | 3 |
+| `APP-ASSET-CYCLE` | `INVALID_RELATION` | 400 | Hubungan aset ini membuat aset mencakup dirinya sendiri. Pilih aset induk yang lain. | Self-reference or containment cycle | false | - | - |
+| `APP-BINDING-OVERLAP` | `CONFLICT` | 409 | Aset ini sudah memiliki sumber acuan pada waktu tersebut. Akhiri sumber yang lama lalu coba lagi. | Overlapping authoritative bindings, refused by the database | false | - | - |
 | `APP-AUTH-REQUIRED` | `UNAUTHORIZED` | 401 | Anda perlu masuk terlebih dahulu. Masuk lalu coba lagi. | No credential a resolver accepts; sends `WWW-Authenticate: Bearer` | false | - | - |
 
 Framework failures use the status map in `public.py`: `UNAUTHORIZED` 401, `FORBIDDEN` 403, `METHOD_NOT_ALLOWED` 405, `VALIDATION_FAILED` 422, `RATE_LIMITED` 429.

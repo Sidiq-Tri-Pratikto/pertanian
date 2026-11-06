@@ -22,6 +22,7 @@ def _to_model(record: SiteRecord) -> SiteModel:
         timezone=record.timezone,
         currency=record.currency,
         virtual_now=record.virtual_now,
+        binding_revision=record.binding_revision,
     )
 
 
@@ -110,3 +111,14 @@ class SqlAlchemySiteRepository(SiteRepository):
         record = await self.session.get(SiteRecord, site_id, populate_existing=True)
         assert record is not None  # The caller holds the site lock.
         return _to_model(record)
+
+    async def advance_revision(self, site_id: UUID, column: str) -> None:
+        """Advance one monotonic revision counter.
+
+        Args:
+            site_id (UUID): The site, locked by the caller.
+            column (str): ``binding_revision`` or ``measurement_revision``.
+        """
+        await self.session.execute(
+            update(SiteRecord).where(SiteRecord.id == site_id).values({column: getattr(SiteRecord, column) + 1})
+        )

@@ -35,6 +35,7 @@ class SiteModel(BaseModel):
         timezone (str): IANA timezone used for every local period.
         currency (str): ISO currency code.
         virtual_now (datetime | None): The demo clock; None for standard sites.
+        binding_revision (int): Advances once per committed change to sources, bindings or scope validity.
     """
 
     id: UUID
@@ -45,3 +46,4 @@ class SiteModel(BaseModel):
     timezone: str
     currency: str
     virtual_now: datetime | None
+    binding_revision: int = 0

@@ -4,6 +4,8 @@ from typing import Annotated
 
 from fastapi import Depends
 
+from app.audit.repository.sqlalchemy.repository import SqlAlchemyAuditRepository
+from app.audit.service.service import AuditService
 from app.core.database import SessionDep
 from app.sites.repository.sqlalchemy.repository import SqlAlchemySiteRepository
 from app.sites.service.service import SiteService
@@ -18,7 +20,7 @@ def get_site_service(session: SessionDep) -> SiteService:
     Returns:
         SiteService: The service.
     """
-    return SiteService(SqlAlchemySiteRepository(session))
+    return SiteService(SqlAlchemySiteRepository(session), AuditService(SqlAlchemyAuditRepository(session)))
 
 
 SiteServiceDep = Annotated[SiteService, Depends(get_site_service)]

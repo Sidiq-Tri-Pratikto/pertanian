@@ -4,6 +4,105 @@
  */
 
 export interface paths {
+    "/api/v1/assets/{asset_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read an asset with its sources
+         * @description Return an owned asset, its bindings and their sources.
+         *
+         *     Args:
+         *         asset_id (UUID): The asset.
+         *         principal (PrincipalModel): The acting principal.
+         *         service (AssetService): Asset rules.
+         *
+         *     Returns:
+         *         AssetDetailResponse: The asset.
+         */
+        get: operations["get_asset_api_v1_assets__asset_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Change an asset
+         * @description Change an owned asset's name, category, location, expected use or archive state.
+         *
+         *     Args:
+         *         asset_id (UUID): The asset.
+         *         request (UpdateAssetRequest): The changes.
+         *         principal (PrincipalModel): The acting principal.
+         *         service (AssetService): Asset rules.
+         *
+         *     Returns:
+         *         AssetResponse: The asset.
+         */
+        patch: operations["update_asset_api_v1_assets__asset_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/assets/{asset_id}/bindings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Bind a source
+         * @description Attribute a source of the same site to an owned asset.
+         *
+         *     Args:
+         *         asset_id (UUID): The asset.
+         *         request (CreateBindingRequest): The binding.
+         *         principal (PrincipalModel): The acting principal.
+         *         service (AssetService): Asset rules.
+         *
+         *     Returns:
+         *         BindingResponse: The binding.
+         */
+        post: operations["create_binding_api_v1_assets__asset_id__bindings_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assets/{asset_id}/bindings/{binding_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * End a binding
+         * @description End a binding at site time. History stays; repeating it changes nothing.
+         *
+         *     Args:
+         *         asset_id (UUID): The asset.
+         *         binding_id (UUID): The binding.
+         *         principal (PrincipalModel): The acting principal.
+         *         service (AssetService): Asset rules.
+         *
+         *     Returns:
+         *         BindingResponse: The binding with its end.
+         */
+        delete: operations["delete_binding_api_v1_assets__asset_id__bindings__binding_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/capabilities": {
         parameters: {
             query?: never;
@@ -66,6 +165,50 @@ export interface paths {
          *         SiteResponse: The updated site.
          */
         patch: operations["update_site_api_v1_sites__site_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/sites/{site_id}/assets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List a site's assets
+         * @description Return one page of assets, active ones unless archived are asked for.
+         *
+         *     Args:
+         *         site_id (UUID): The site.
+         *         principal (PrincipalModel): The acting principal.
+         *         service (AssetService): Asset rules.
+         *         include_archived (bool, optional): Add archived assets. Defaults to False.
+         *         limit (int, optional): Page size up to 100. Defaults to 50.
+         *         cursor (str | None, optional): ``next_cursor`` of the previous page. Defaults to None.
+         *
+         *     Returns:
+         *         AssetPageResponse: The page.
+         */
+        get: operations["list_assets_api_v1_sites__site_id__assets_get"];
+        put?: never;
+        /**
+         * Add an asset
+         * @description Create an asset in an owned site.
+         *
+         *     Args:
+         *         site_id (UUID): The site.
+         *         request (CreateAssetRequest): The asset.
+         *         principal (PrincipalModel): The acting principal.
+         *         service (AssetService): Asset rules.
+         *
+         *     Returns:
+         *         AssetResponse: The asset.
+         */
+        post: operations["create_asset_api_v1_sites__site_id__assets_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/health/live": {
@@ -131,6 +274,91 @@ export interface components {
             status: components["schemas"]["CapabilityStatus"];
         };
         /**
+         * AssetDetailResponse
+         * @description An asset with its bindings, past and present, and their sources.
+         */
+        AssetDetailResponse: {
+            /** Archived */
+            archived: boolean;
+            /** Bindings */
+            bindings: components["schemas"]["BindingResponse"][];
+            /** Category */
+            category: string | null;
+            expected_use: components["schemas"]["ExpectedUse"];
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Location */
+            location: string | null;
+            /** Name */
+            name: string;
+            /** Parent Asset Id */
+            parent_asset_id: string | null;
+            scope_kind: components["schemas"]["ScopeKind"];
+            /** Sources */
+            sources: components["schemas"]["SourceResponse"][];
+        };
+        /**
+         * AssetPageResponse
+         * @description One page of assets ordered by name, then ID.
+         */
+        AssetPageResponse: {
+            /** Items */
+            items: components["schemas"]["AssetResponse"][];
+            /** Next Cursor */
+            next_cursor: string | null;
+        };
+        /**
+         * AssetResponse
+         * @description An asset.
+         */
+        AssetResponse: {
+            /** Archived */
+            archived: boolean;
+            /** Category */
+            category: string | null;
+            expected_use: components["schemas"]["ExpectedUse"];
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Location */
+            location: string | null;
+            /** Name */
+            name: string;
+            /** Parent Asset Id */
+            parent_asset_id: string | null;
+            scope_kind: components["schemas"]["ScopeKind"];
+        };
+        /**
+         * BindingResponse
+         * @description A source's attribution to an asset over ``[effective_from, effective_to)``.
+         */
+        BindingResponse: {
+            /** Authoritative */
+            authoritative: boolean;
+            /**
+             * Effective From
+             * Format: date-time
+             */
+            effective_from: string;
+            /** Effective To */
+            effective_to: string | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+        };
+        /**
          * CapabilityManifestResponse
          * @description Non-secret explanation of this deployment. It grants nothing; the service still authorizes every request.
          */
@@ -173,6 +401,44 @@ export interface components {
             id: string;
             /** Version */
             version: number;
+        };
+        /**
+         * CreateAssetRequest
+         * @description A new asset. Expected use stays unknown unless the user chooses it.
+         */
+        CreateAssetRequest: {
+            /** Category */
+            category?: string | null;
+            /** @default unknown */
+            expected_use?: components["schemas"]["ExpectedUse"];
+            /** Location */
+            location?: string | null;
+            /** Name */
+            name: string;
+            /** Parent Asset Id */
+            parent_asset_id?: string | null;
+            scope_kind: components["schemas"]["ScopeKind"];
+        };
+        /**
+         * CreateBindingRequest
+         * @description Attribute a source of the same site to an asset from a given instant.
+         */
+        CreateBindingRequest: {
+            /**
+             * Authoritative
+             * @default true
+             */
+            authoritative?: boolean;
+            /**
+             * Effective From
+             * Format: date-time
+             */
+            effective_from: string;
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
         };
         /**
          * ErrorBody
@@ -230,6 +496,18 @@ export interface components {
             retryable: boolean;
         };
         /**
+         * ExpectedUse
+         * @description How the user expects the asset to run. Never derived from its category.
+         * @enum {string}
+         */
+        ExpectedUse: "unknown" | "continuous" | "scheduled" | "intermittent";
+        /**
+         * MeasurementKind
+         * @description What a source's raw values mean.
+         * @enum {string}
+         */
+        MeasurementKind: "interval_energy" | "average_power" | "instantaneous_power" | "counter";
+        /**
          * PolicyResponse
          * @description One versioned analysis policy.
          */
@@ -239,6 +517,12 @@ export interface components {
             /** Version */
             version: number;
         };
+        /**
+         * ScopeKind
+         * @description What an asset's readings cover.
+         * @enum {string}
+         */
+        ScopeKind: "device" | "group" | "circuit" | "site_total";
         /**
          * SiteContext
          * @description Neutral by default. Context changes examples only, never calculations.
@@ -276,6 +560,53 @@ export interface components {
             timezone: string;
         };
         /**
+         * SourceOrigin
+         * @description Where a source's readings come from.
+         * @enum {string}
+         */
+        SourceOrigin: "live" | "import" | "dataset_replay" | "simulated";
+        /**
+         * SourceResponse
+         * @description A source and how its readings arrive.
+         */
+        SourceResponse: {
+            /** Cadence Seconds */
+            cadence_seconds: number | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Label */
+            label: string;
+            measurement_kind: components["schemas"]["MeasurementKind"];
+            origin: components["schemas"]["SourceOrigin"];
+            /** Resolution Mwh */
+            resolution_mwh: number | null;
+            transport_status: components["schemas"]["TransportStatus"];
+        };
+        /**
+         * TransportStatus
+         * @description How a source reaches the API. Nothing is ever a real live connection before 046.
+         * @enum {string}
+         */
+        TransportStatus: "none" | "simulated_live" | "historical";
+        /**
+         * UpdateAssetRequest
+         * @description Asset fields an owner may change. Archiving is reversible and keeps readings.
+         */
+        UpdateAssetRequest: {
+            /** Archived */
+            archived?: boolean | null;
+            /** Category */
+            category?: string | null;
+            expected_use?: components["schemas"]["ExpectedUse"] | null;
+            /** Location */
+            location?: string | null;
+            /** Name */
+            name?: string | null;
+        };
+        /**
          * UpdateSiteRequest
          * @description Fields an owner may change. Stored UTC instants keep their values when the timezone changes.
          */
@@ -295,6 +626,175 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    get_asset_api_v1_assets__asset_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                asset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssetDetailResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    update_asset_api_v1_assets__asset_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                asset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateAssetRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssetResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    create_binding_api_v1_assets__asset_id__bindings_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                asset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateBindingRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BindingResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    delete_binding_api_v1_assets__asset_id__bindings__binding_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                asset_id: string;
+                binding_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BindingResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     get_capabilities_api_v1_capabilities_get: {
         parameters: {
             query?: never;
@@ -386,6 +886,94 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SiteResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    list_assets_api_v1_sites__site_id__assets_get: {
+        parameters: {
+            query?: {
+                include_archived?: boolean;
+                limit?: number;
+                cursor?: string | null;
+            };
+            header?: never;
+            path: {
+                site_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssetPageResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    create_asset_api_v1_sites__site_id__assets_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                site_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateAssetRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssetResponse"];
                 };
             };
             /** @description Validation failed */

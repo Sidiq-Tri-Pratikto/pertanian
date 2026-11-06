@@ -7,6 +7,8 @@ from alembic import context
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import create_async_engine
 
+from app.assets.repository.sqlalchemy import models as assets_models  # noqa: F401
+from app.audit.repository.sqlalchemy import models as audit_models  # noqa: F401
 from app.core.database import Base
 from app.core.settings import get_settings
 from app.identity.repository.sqlalchemy import models as identity_models  # noqa: F401

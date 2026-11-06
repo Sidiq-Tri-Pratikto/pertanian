@@ -2,7 +2,7 @@
 
 **Feature Branch**: `005-assets-bindings-audit`
 **Created**: 2026-10-30
-**Status**: Seeded, not started
+**Status**: Implemented on `f/m1-energy-core`; API unit and Postgres integration tests pass
 **Milestone**: M1 Energy core
 **Depends on**: 004
 **Size**: M

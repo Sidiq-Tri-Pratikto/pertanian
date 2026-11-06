@@ -3,7 +3,7 @@
 from datetime import datetime
 from uuid import UUID, uuid4
 
-from sqlalchemy import DateTime, ForeignKey, Text, func
+from sqlalchemy import BigInteger, DateTime, ForeignKey, Text, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
@@ -22,4 +22,5 @@ class SiteRecord(Base):
     timezone: Mapped[str] = mapped_column(Text, default="Asia/Jakarta")
     currency: Mapped[str] = mapped_column(Text, default="IDR")
     virtual_now: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    binding_revision: Mapped[int] = mapped_column(BigInteger, default=0)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

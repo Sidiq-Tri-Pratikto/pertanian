@@ -49,6 +49,16 @@ PUBLIC_ERROR_BY_CODE: dict[str, PublicError] = {
         "Layanan data sedang tidak tersedia. Coba lagi beberapa menit lagi.",
         {"retryable": True, "retry_after_seconds": 30, "max_attempts": 3},
     ),
+    codes.APP_ASSET_CYCLE: PublicError(
+        "INVALID_RELATION",
+        400,
+        "Hubungan aset ini membuat aset mencakup dirinya sendiri. Pilih aset induk yang lain.",
+    ),
+    codes.APP_BINDING_OVERLAP: PublicError(
+        "CONFLICT",
+        409,
+        "Aset ini sudah memiliki sumber acuan pada waktu tersebut. Akhiri sumber yang lama lalu coba lagi.",
+    ),
     codes.APP_AUTH_REQUIRED: PublicError(
         "UNAUTHORIZED", 401, "Anda perlu masuk terlebih dahulu. Masuk lalu coba lagi."
     ),

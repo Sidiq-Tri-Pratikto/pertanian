@@ -101,3 +101,66 @@ async def make_site(
         virtual_now=virtual_now,
     )
     return rows[0][0]
+
+
+async def make_asset(site: UUID, name: str = "Kulkas", scope_kind: str = "device") -> UUID:
+    """Insert an asset.
+
+    Args:
+        site (UUID): Its site.
+        name (str, optional): Name. Defaults to Kulkas.
+        scope_kind (str, optional): Scope kind. Defaults to device.
+
+    Returns:
+        UUID: Its ID.
+    """
+    rows = await execute(
+        "INSERT INTO assets (id, site_id, name, scope_kind)"
+        " VALUES (gen_random_uuid(), :site, :name, :kind) RETURNING id",
+        site=site,
+        name=name,
+        kind=scope_kind,
+    )
+    return rows[0][0]
+
+
+async def make_source(site: UUID, label: str = "Sumber demo") -> UUID:
+    """Insert a simulated interval-energy source.
+
+    Args:
+        site (UUID): Its site.
+        label (str, optional): Label. Defaults to Sumber demo.
+
+    Returns:
+        UUID: Its ID.
+    """
+    rows = await execute(
+        "INSERT INTO sources (id, site_id, label, origin, measurement_kind, cadence_seconds, resolution_mwh)"
+        " VALUES (gen_random_uuid(), :site, :label, 'simulated', 'interval_energy', 3600, 1000) RETURNING id",
+        site=site,
+        label=label,
+    )
+    return rows[0][0]
+
+
+async def make_binding(site: UUID, asset: UUID, source: UUID, effective_from: str = "2026-09-27T17:00:00Z") -> UUID:
+    """Insert an open authoritative binding.
+
+    Args:
+        site (UUID): The site.
+        asset (UUID): The asset.
+        source (UUID): The source.
+        effective_from (str, optional): Start. Defaults to 2026-09-28 00.00 WIB.
+
+    Returns:
+        UUID: Its ID.
+    """
+    rows = await execute(
+        "INSERT INTO bindings (id, site_id, source_id, asset_id, effective_from, authoritative)"
+        " VALUES (gen_random_uuid(), :site, :source, :asset, :start, true) RETURNING id",
+        site=site,
+        source=source,
+        asset=asset,
+        start=datetime.fromisoformat(effective_from),
+    )
+    return rows[0][0]

@@ -54,7 +54,7 @@ Created by the spec named. Every table carries `created_at`; identifiers are UUI
 | `assets` | `site_id`, `name`, `category`, `location`, `scope_kind` (`device`, `group`, `circuit`, `site_total`), `parent_asset_id`, `expected_use` (`unknown`, `continuous`, `scheduled`, `intermittent`), `archived_at` | 005 |
 | `sources` | `site_id`, `label`, `origin` (`live`, `import`, `dataset_replay`, `simulated`), `measurement_kind`, `cadence_seconds`, `resolution_mwh` (nullable means unknown), `transport_status` | 005 |
 | `bindings` | `source_id`, `asset_id`, `effective_from`, `effective_to`, `authoritative`; partial `EXCLUDE` on overlapping authoritative ranges per asset | 005 |
-| `asset_relations` | `site_id`, `from_asset_id`, `to_asset_id`, `kind` (`contains`, `unknown_overlap`); same site, no self-reference, no cycle | 005 |
+| `asset_relations` | `site_id`, `from_asset_id`, `to_asset_id`, `kind` (`contains`, `unknown_overlap`, `disjoint`); same site, no self-reference, no cycle. `disjoint` is positive evidence of separate loads; a missing relation never is | 005 |
 | `audit_events` | `site_id`, `actor_principal_id`, `action`, `subject`, `affected_from`, `affected_to`, `detail`; append-only | 005 |
 | `measurements` | Source record ID or shape-specific fallback identity, `kind`, interval bounds or `measured_at`, `energy_mwh` BIGINT, `received_at`, `quality`, `revision`. Uniqueness and current reads use the same identity | 006 |
 | `demo_sessions` and creation operation records | Session scope, bearer digest, expiry, operation identity and bounded replay metadata | 008 |

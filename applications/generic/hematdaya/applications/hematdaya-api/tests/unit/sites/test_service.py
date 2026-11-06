@@ -31,6 +31,9 @@ class FakeSiteRepository(SiteRepository):
         self.sites[site.id] = site
         return site
 
+    async def advance_revision(self, site_id: UUID, column: str) -> None:
+        self.sites[site_id] = self.sites[site_id].model_copy(update={column: getattr(self.sites[site_id], column) + 1})
+
     async def update(self, site_id: UUID, values: dict[str, Any]) -> SiteModel:
         self.updates += 1
         self.sites[site_id] = self.sites[site_id].model_copy(update=values)

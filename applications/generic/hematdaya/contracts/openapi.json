@@ -19,6 +19,236 @@
         "title": "AdapterResponse",
         "type": "object"
       },
+      "AssetDetailResponse": {
+        "description": "An asset with its bindings, past and present, and their sources.",
+        "properties": {
+          "archived": {
+            "title": "Archived",
+            "type": "boolean"
+          },
+          "bindings": {
+            "items": {
+              "$ref": "#/components/schemas/BindingResponse"
+            },
+            "title": "Bindings",
+            "type": "array"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category"
+          },
+          "expected_use": {
+            "$ref": "#/components/schemas/ExpectedUse"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "location": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Location"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "parent_asset_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Asset Id"
+          },
+          "scope_kind": {
+            "$ref": "#/components/schemas/ScopeKind"
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/SourceResponse"
+            },
+            "title": "Sources",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "category",
+          "location",
+          "scope_kind",
+          "parent_asset_id",
+          "expected_use",
+          "archived",
+          "bindings",
+          "sources"
+        ],
+        "title": "AssetDetailResponse",
+        "type": "object"
+      },
+      "AssetPageResponse": {
+        "description": "One page of assets ordered by name, then ID.",
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/AssetResponse"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "title": "AssetPageResponse",
+        "type": "object"
+      },
+      "AssetResponse": {
+        "description": "An asset.",
+        "properties": {
+          "archived": {
+            "title": "Archived",
+            "type": "boolean"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category"
+          },
+          "expected_use": {
+            "$ref": "#/components/schemas/ExpectedUse"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "location": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Location"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "parent_asset_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Asset Id"
+          },
+          "scope_kind": {
+            "$ref": "#/components/schemas/ScopeKind"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "category",
+          "location",
+          "scope_kind",
+          "parent_asset_id",
+          "expected_use",
+          "archived"
+        ],
+        "title": "AssetResponse",
+        "type": "object"
+      },
+      "BindingResponse": {
+        "description": "A source's attribution to an asset over ``[effective_from, effective_to)``.",
+        "properties": {
+          "authoritative": {
+            "title": "Authoritative",
+            "type": "boolean"
+          },
+          "effective_from": {
+            "format": "date-time",
+            "title": "Effective From",
+            "type": "string"
+          },
+          "effective_to": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effective To"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "source_id": {
+            "format": "uuid",
+            "title": "Source Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "source_id",
+          "effective_from",
+          "effective_to",
+          "authoritative"
+        ],
+        "title": "BindingResponse",
+        "type": "object"
+      },
       "CapabilityManifestResponse": {
         "description": "Non-secret explanation of this deployment. It grants nothing; the service still authorizes every request.",
         "properties": {
@@ -116,6 +346,94 @@
           "version"
         ],
         "title": "CompositionResponse",
+        "type": "object"
+      },
+      "CreateAssetRequest": {
+        "additionalProperties": false,
+        "description": "A new asset. Expected use stays unknown unless the user chooses it.",
+        "properties": {
+          "category": {
+            "anyOf": [
+              {
+                "maxLength": 60,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category"
+          },
+          "expected_use": {
+            "$ref": "#/components/schemas/ExpectedUse",
+            "default": "unknown"
+          },
+          "location": {
+            "anyOf": [
+              {
+                "maxLength": 60,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Location"
+          },
+          "name": {
+            "maxLength": 60,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "parent_asset_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Asset Id"
+          },
+          "scope_kind": {
+            "$ref": "#/components/schemas/ScopeKind"
+          }
+        },
+        "required": [
+          "name",
+          "scope_kind"
+        ],
+        "title": "CreateAssetRequest",
+        "type": "object"
+      },
+      "CreateBindingRequest": {
+        "additionalProperties": false,
+        "description": "Attribute a source of the same site to an asset from a given instant.",
+        "properties": {
+          "authoritative": {
+            "default": true,
+            "title": "Authoritative",
+            "type": "boolean"
+          },
+          "effective_from": {
+            "format": "date-time",
+            "title": "Effective From",
+            "type": "string"
+          },
+          "source_id": {
+            "format": "uuid",
+            "title": "Source Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_id",
+          "effective_from"
+        ],
+        "title": "CreateBindingRequest",
         "type": "object"
       },
       "ErrorBody": {
@@ -246,6 +564,28 @@
         "title": "ErrorRecovery",
         "type": "object"
       },
+      "ExpectedUse": {
+        "description": "How the user expects the asset to run. Never derived from its category.",
+        "enum": [
+          "unknown",
+          "continuous",
+          "scheduled",
+          "intermittent"
+        ],
+        "title": "ExpectedUse",
+        "type": "string"
+      },
+      "MeasurementKind": {
+        "description": "What a source's raw values mean.",
+        "enum": [
+          "interval_energy",
+          "average_power",
+          "instantaneous_power",
+          "counter"
+        ],
+        "title": "MeasurementKind",
+        "type": "string"
+      },
       "PolicyResponse": {
         "description": "One versioned analysis policy.",
         "properties": {
@@ -264,6 +604,17 @@
         ],
         "title": "PolicyResponse",
         "type": "object"
+      },
+      "ScopeKind": {
+        "description": "What an asset's readings cover.",
+        "enum": [
+          "device",
+          "group",
+          "circuit",
+          "site_total"
+        ],
+        "title": "ScopeKind",
+        "type": "string"
       },
       "SiteContext": {
         "description": "Neutral by default. Context changes examples only, never calculations.",
@@ -329,6 +680,149 @@
         "title": "SiteResponse",
         "type": "object"
       },
+      "SourceOrigin": {
+        "description": "Where a source's readings come from.",
+        "enum": [
+          "live",
+          "import",
+          "dataset_replay",
+          "simulated"
+        ],
+        "title": "SourceOrigin",
+        "type": "string"
+      },
+      "SourceResponse": {
+        "description": "A source and how its readings arrive.",
+        "properties": {
+          "cadence_seconds": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cadence Seconds"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "measurement_kind": {
+            "$ref": "#/components/schemas/MeasurementKind"
+          },
+          "origin": {
+            "$ref": "#/components/schemas/SourceOrigin"
+          },
+          "resolution_mwh": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolution Mwh"
+          },
+          "transport_status": {
+            "$ref": "#/components/schemas/TransportStatus"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "origin",
+          "measurement_kind",
+          "cadence_seconds",
+          "resolution_mwh",
+          "transport_status"
+        ],
+        "title": "SourceResponse",
+        "type": "object"
+      },
+      "TransportStatus": {
+        "description": "How a source reaches the API. Nothing is ever a real live connection before 046.",
+        "enum": [
+          "none",
+          "simulated_live",
+          "historical"
+        ],
+        "title": "TransportStatus",
+        "type": "string"
+      },
+      "UpdateAssetRequest": {
+        "additionalProperties": false,
+        "description": "Asset fields an owner may change. Archiving is reversible and keeps readings.",
+        "properties": {
+          "archived": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Archived"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "maxLength": 60,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category"
+          },
+          "expected_use": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ExpectedUse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "location": {
+            "anyOf": [
+              {
+                "maxLength": 60,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Location"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "maxLength": 60,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          }
+        },
+        "title": "UpdateAssetRequest",
+        "type": "object"
+      },
       "UpdateSiteRequest": {
         "additionalProperties": false,
         "description": "Fields an owner may change. Stored UTC instants keep their values when the timezone changes.",
@@ -379,6 +873,250 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/v1/assets/{asset_id}": {
+      "get": {
+        "description": "Return an owned asset, its bindings and their sources.\n\nArgs:\n    asset_id (UUID): The asset.\n    principal (PrincipalModel): The acting principal.\n    service (AssetService): Asset rules.\n\nReturns:\n    AssetDetailResponse: The asset.",
+        "operationId": "get_asset_api_v1_assets__asset_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "asset_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Asset Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetDetailResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Read an asset with its sources",
+        "tags": [
+          "assets"
+        ]
+      },
+      "patch": {
+        "description": "Change an owned asset's name, category, location, expected use or archive state.\n\nArgs:\n    asset_id (UUID): The asset.\n    request (UpdateAssetRequest): The changes.\n    principal (PrincipalModel): The acting principal.\n    service (AssetService): Asset rules.\n\nReturns:\n    AssetResponse: The asset.",
+        "operationId": "update_asset_api_v1_assets__asset_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "asset_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Asset Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAssetRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Change an asset",
+        "tags": [
+          "assets"
+        ]
+      }
+    },
+    "/api/v1/assets/{asset_id}/bindings": {
+      "post": {
+        "description": "Attribute a source of the same site to an owned asset.\n\nArgs:\n    asset_id (UUID): The asset.\n    request (CreateBindingRequest): The binding.\n    principal (PrincipalModel): The acting principal.\n    service (AssetService): Asset rules.\n\nReturns:\n    BindingResponse: The binding.",
+        "operationId": "create_binding_api_v1_assets__asset_id__bindings_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "asset_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Asset Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBindingRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BindingResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Bind a source",
+        "tags": [
+          "assets"
+        ]
+      }
+    },
+    "/api/v1/assets/{asset_id}/bindings/{binding_id}": {
+      "delete": {
+        "description": "End a binding at site time. History stays; repeating it changes nothing.\n\nArgs:\n    asset_id (UUID): The asset.\n    binding_id (UUID): The binding.\n    principal (PrincipalModel): The acting principal.\n    service (AssetService): Asset rules.\n\nReturns:\n    BindingResponse: The binding with its end.",
+        "operationId": "delete_binding_api_v1_assets__asset_id__bindings__binding_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "asset_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Asset Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "binding_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Binding Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BindingResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "End a binding",
+        "tags": [
+          "assets"
+        ]
+      }
+    },
     "/api/v1/capabilities": {
       "get": {
         "description": "Return the non-secret manifest clients use to explain what is available.\n\nReturns:\n    CapabilityManifestResponse: The manifest.",
@@ -524,6 +1262,161 @@
         "summary": "Change site settings",
         "tags": [
           "sites"
+        ]
+      }
+    },
+    "/api/v1/sites/{site_id}/assets": {
+      "get": {
+        "description": "Return one page of assets, active ones unless archived are asked for.\n\nArgs:\n    site_id (UUID): The site.\n    principal (PrincipalModel): The acting principal.\n    service (AssetService): Asset rules.\n    include_archived (bool, optional): Add archived assets. Defaults to False.\n    limit (int, optional): Page size up to 100. Defaults to 50.\n    cursor (str | None, optional): ``next_cursor`` of the previous page. Defaults to None.\n\nReturns:\n    AssetPageResponse: The page.",
+        "operationId": "list_assets_api_v1_sites__site_id__assets_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "site_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Site Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "include_archived",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Include Archived",
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 400,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetPageResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "List a site's assets",
+        "tags": [
+          "assets"
+        ]
+      },
+      "post": {
+        "description": "Create an asset in an owned site.\n\nArgs:\n    site_id (UUID): The site.\n    request (CreateAssetRequest): The asset.\n    principal (PrincipalModel): The acting principal.\n    service (AssetService): Asset rules.\n\nReturns:\n    AssetResponse: The asset.",
+        "operationId": "create_asset_api_v1_sites__site_id__assets_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "site_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Site Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAssetRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Add an asset",
+        "tags": [
+          "assets"
         ]
       }
     },

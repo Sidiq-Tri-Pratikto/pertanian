@@ -3,6 +3,7 @@
 from datetime import datetime
 from uuid import UUID
 
+from app.audit.service.service import AuditService
 from app.core.errors.base import NotFoundError
 from app.identity.model.models import PrincipalModel
 from app.sites.model.models import SiteContext, SiteKind, SiteModel
@@ -13,13 +14,15 @@ from app.sites.repository.base_repository import SiteRepository
 class SiteService:
     """Resolves sites through their owner. A foreign site is indistinguishable from a missing one."""
 
-    def __init__(self, repository: SiteRepository) -> None:
+    def __init__(self, repository: SiteRepository, audit: AuditService | None = None) -> None:
         """Bind to storage.
 
         Args:
             repository (SiteRepository): Site storage.
+            audit (AuditService | None, optional): Audit trail for settings changes. Defaults to None.
         """
         self.repository = repository
+        self.audit = audit
 
     async def get_owned(self, site_id: UUID, principal: PrincipalModel) -> SiteModel:
         """Return a site the principal owns.
@@ -76,7 +79,27 @@ class SiteService:
         site = await self.lock_owned(site_id, principal)
         values = {key: value for key, value in request.model_dump(exclude_unset=True).items() if value is not None}
         changed = {key: value for key, value in values.items() if getattr(site, key) != value}
-        return await self.repository.update(site.id, changed) if changed else site
+        if not changed:
+            return site
+        updated = await self.repository.update(site.id, changed)
+        if self.audit is not None:
+            await self.audit.record(
+                site_id=site.id,
+                actor_principal_id=principal.id,
+                action="site.updated",
+                subject_type="site",
+                subject_id=site.id,
+                detail={key: str(value) for key, value in changed.items()},
+            )
+        return updated
+
+    async def advance_binding_revision(self, site: SiteModel) -> None:
+        """Mark a committed change to sources, bindings or scope validity. Call once, under the site lock.
+
+        Args:
+            site (SiteModel): The locked site.
+        """
+        await self.repository.advance_revision(site.id, "binding_revision")
 
     async def create(
         self,
