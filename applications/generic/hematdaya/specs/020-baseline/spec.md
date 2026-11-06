@@ -24,6 +24,7 @@
 3. **Given** only one eligible prior window, **When** compared, **Then** the state is `learning` with the reason, and measured totals stay.
 4. **Given** coverage under 90% in the current window, **When** compared, **Then** the state is `not_comparable`.
 5. **Given** a common mask under 90%, **When** compared, **Then** the comparison is suppressed.
+6. **Given** a timezone transition or changed measurement kind, **When** compared, **Then** only equivalent local-time slots and compatible measurements can contribute. Missing or incompatible slots never contribute energy to the comparison.
 
 ### User Story 2 - Never call silence "normal" (Priority: P1)
 
@@ -47,11 +48,12 @@
 
 ### Functional Requirements
 
-- **FR-001**: The baseline MUST use the same local weekday and time in the previous three weeks, at least two eligible.
+- **FR-001**: The baseline MUST use the same local weekday and time in the previous three weeks, at least two eligible, with equivalent elapsed duration, the same asset or unchanged selection, and compatible measurement kinds and schedule definitions where applicable.
 - **FR-002**: Each window MUST have at least 90% coverage, and the common mask at least 90%.
 - **FR-003**: `B` MUST be the median of eligible windows on the common mask.
 - **FR-004**: States MUST be `comparable`, `learning`, `not_comparable`, `descriptive`, `unavailable`.
-- **FR-005**: History MUST gain a reference series when two or more windows are eligible.
+- **FR-005**: History MUST gain a reference series when the comparison has at least two eligible windows and a valid common mask. The selected comparison values and reference values MUST use that same mask.
+- **FR-006**: The comparison MUST retain the UTC bounds, local alignment and energy of each eligible window and the actual common-mask intervals, alongside full recorded totals and separate coverage values.
 
 ### Key Entities
 
@@ -62,4 +64,4 @@
 ### Measurable Outcomes
 
 - **SC-001**: AT-16, AT-19, AT-20 and AT-21 ported tests pass.
-- **SC-002**: Common-mask arithmetic is integer mWh, with no float in any comparison path.
+- **SC-002**: Common-mask arithmetic uses integer mWh inputs and exact arithmetic for fractional medians, deviations and interval allocation. No binary float enters the comparison path.

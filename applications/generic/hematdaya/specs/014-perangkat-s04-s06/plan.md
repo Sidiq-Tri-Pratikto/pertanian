@@ -17,7 +17,7 @@ src/app/(tabs)/(beranda,perangkat,saran)/asset/[id].tsx
 
 ## Mobile
 
-`FlatList`, not FlashList, per the architecture decisions. Keep scroll offset in the navigation context keyed by route. `HDAssetRow`: one pressable row, no nested buttons, `meter` maps from `site_total`.
+`FlatList`, per the architecture decisions. Keep scroll offset in the navigation context keyed by route. `HDAssetRow`: one pressable row, no nested buttons, `meter` maps from `site_total`. Wire Beranda's ranking actions to the shared detail route, preserving the current period and scope. Key reads by workspace, site, period and applicable scope. Use the existing Segera hadir routes for source setup and import until their owning specs ship, and render conflict notices without an S11 link until 029.
 
 ## Prototype Reference
 
@@ -25,11 +25,11 @@ src/app/(tabs)/(beranda,perangkat,saran)/asset/[id].tsx
 
 ## Test Plan
 
-Sorting and tie-break; scope kinds; gap versus zero rows; stale row; conflict row; back restores scroll; failure keeps list; long Indonesian names at 320 px.
+Test sorting and stable ties, category and scope labels, gap and zero rows, stale and conflicting sources, one-tap detail from Beranda, scroll restoration, preserved content on failure, and long Indonesian names at 320 px.
 
 ## Out of Scope
 
-History chart (015), edit and archive (016), source setup (035).
+History chart (015), edit and archive (016), import (027), scope resolution (029), source setup (035).
 
 ## Task Outline
 

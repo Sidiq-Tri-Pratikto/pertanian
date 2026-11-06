@@ -16,7 +16,7 @@ S11 over the scope API, using a server-validated preview rather than client arit
 
 ## Mobile
 
-The prototype computed its preview in the client. Here a `dry_run` flag on `PUT` returns the resulting total, so the client stays free of arithmetic. Add that flag in this PR. Group parent/child by parent, as the prototype's fix did: "Kulkas, Router, TV saja" with the summed child value from the service.
+Call `POST /sites/{site_id}/aggregation-selection/preview` from 028 with the full draft, including proposed authority or skip, disjoint confirmations, and period. Render the server's totals and group child values under their parent. Keep all changes local until confirmation. Confirm with one `PUT /sites/{site_id}/aggregation-selection` carrying that proposal and its expected revisions. On stale rejection, retain the draft and request a fresh preview. After success, refresh the confirmed summary and affected queries.
 
 ## Prototype Reference
 
@@ -24,7 +24,9 @@ The prototype computed its preview in the client. Here a `dry_run` flag on `PUT`
 
 ## Test Plan
 
-Parent view; child view; source choice first; unknown confirmation; rejection; cancel; disabled reason; no fake zero; labels separate.
+- Parent view, child view, source choice preview without mutation, unknown confirmation.
+- Stale and failed save, cancel after selecting authority, draft edit invalidates preview, disabled reason.
+- No fake zero, labels separate.
 
 ## Out of Scope
 
@@ -32,7 +34,7 @@ Topology editing.
 
 ## Task Outline
 
-1. `dry_run` on the API.
+1. Wire the preview and aggregate save from 028.
 2. HDScopeSummary variants.
 3. Draft hook.
 4. Screen.

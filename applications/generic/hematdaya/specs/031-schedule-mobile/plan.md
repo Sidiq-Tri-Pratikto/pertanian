@@ -15,7 +15,11 @@ Compose the editor from ChoiceGroup and time fields, since `HD.ScheduleWindows` 
 
 ## Technical Context
 
-**New dependency**: `@react-native-community/datetimepicker` through `npx expo install`
+**New dependency**: `@react-native-community/datetimepicker` through `npx expo install` for native. On web, use a labelled time field with keyboard input, explicit format help, and errors tied to the field.
+
+## Save Flow
+
+Call the site or asset `/schedule/preview` endpoint from 030 for the complete draft. Keep the confirmed schedule and evidence visible until a separate save succeeds. A draft change invalidates the preview. Save through `PUT /schedule` with the reviewed draft and versions from preview. A rejected or stale save retains the draft, and a stale save asks for a fresh preview.
 
 ## Prototype Reference
 
@@ -23,7 +27,9 @@ Compose the editor from ChoiceGroup and time fields, since `HD.ScheduleWindows` 
 
 ## Test Plan
 
-Overnight; equal times; multiple windows; effective modes; asset modes; rejection; capability off; keyboard and large text; no schedule shows nothing extra.
+- Overnight, equal times, multiple windows, effective-now and historical correction.
+- All asset modes including `none`, preview makes no changes, draft edit invalidates preview, rejected and stale saves preserve confirmed content.
+- Capability off, native picker and keyboard-only web editing, large text, no schedule shows nothing extra.
 
 ## Out of Scope
 
@@ -32,7 +38,7 @@ Holiday handling.
 ## Task Outline
 
 1. Editor with client validation mirroring the service.
-2. Section with server preview.
+2. Section with read-only server preview and explicit save.
 3. Asset sheet.
 4. Outside values in Beranda and detail.
 5. Flip registry.

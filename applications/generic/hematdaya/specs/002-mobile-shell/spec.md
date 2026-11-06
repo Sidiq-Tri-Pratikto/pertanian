@@ -60,9 +60,11 @@ Every planned feature opens a "Segera hadir" screen, and Pengaturan lists them a
 
 **Acceptance Scenarios**:
 
-1. **Given** a reachable API, **When** Beranda loads, **Then** it shows "Layanan tersedia" and the release.
+1. **Given** a reachable API returning a valid capability manifest, **When** Beranda loads, **Then** it shows "Layanan tersedia" and the release.
 2. **Given** an unreachable API, **When** Beranda loads, **Then** it explains the failure in Indonesian, offers Coba lagi, and every tab keeps working.
-3. **Given** a non-retryable failure, **When** it shows, **Then** the service message and reference ID appear and no retry is offered.
+3. **Given** a non-retryable failure, **When** it shows, **Then** the user sees its safe message and reference ID when provided. The retry action is unavailable.
+4. **Given** a successful HTTP response with invalid JSON or an invalid manifest, **When** it is read, **Then** it shows the safe unavailable state without a release or raw payload.
+5. **Given** repeated retryable failures, **When** the server provides a wait or maximum attempt count, **Then** Coba lagi honors both, including the initial request in the count. Network failures use a maximum of three total attempts.
 
 ### Edge Cases
 

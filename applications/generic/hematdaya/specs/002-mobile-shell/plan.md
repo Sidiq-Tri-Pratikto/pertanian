@@ -48,10 +48,13 @@ applications/hematdaya-mobile/
 - Later detail routes go in the shared folder so the tab bar stays visible.
 - Placeholder icons are solid colour: the system has no logo. Real assets arrive in 042.
 - Screen titles receive focus on arrival, on web through `focus()` and on native through `sendAccessibilityEvent`.
+- The capabilities client validates a success body at runtime against the manifest shape, including nested entries. Invalid JSON or shape becomes the safe non-retryable `UNEXPECTED_RESPONSE`. The status hook keeps the error and any reference visible while honoring the server wait and total attempt limit.
 
 ## Test Plan
 
-Navigation through the real route tree: welcome, context, three tabs, tab stacks, Segera hadir, Rencana fitur, unknown feature, API up, down and non-retryable. Registry coverage and spec folders. Token values. Button loading and disabled guards. Notice tone words.
+Navigation through the real route tree: welcome, context, three tabs, Segera hadir and back, Rencana fitur, unknown feature, API up, down and non-retryable. Client tests cover malformed success responses and navigation tests cover recovery, attempt limit and server wait. Registry coverage, spec folders, tokens, button guards and notice tone words are checked.
+
+Close the remaining review evidence by testing that a detail stays open after switching away and back. Record browser, viewport, minimum measured hit area and contrast, and the keyboard focus sequence for SC-002/003. The completed web walkthrough is recorded in `tasks.md`. Retain measurements with the review evidence. Android and iOS runtime evidence belong to 003 and 042.
 
 ## Out of Scope
 

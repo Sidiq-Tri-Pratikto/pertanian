@@ -23,6 +23,7 @@
 2. **Given** overlapping windows, **When** computed, **Then** shared minutes count once (AT-12).
 3. **Given** a 60 Wh interval 16.30–17.30 and a window ending 17.00, **When** split, **Then** 30 inside and 30 outside, both labelled proportional estimates (AT-15).
 4. **Given** equal start and end without the 24-hour choice, **When** saved, **Then** it is refused.
+5. **Given** a proposed site schedule or asset override, **When** previewed, **Then** the service returns the effective definition, estimated split or reason, and impacted period without updating schedules, audit, or evidence.
 
 ### User Story 2 - Inheritance is explicit (Priority: P1)
 
@@ -59,10 +60,11 @@
 ### Functional Requirements
 
 - **FR-001**: Schedules MUST be weekly, multi-window, with next-day end and a separate 24-hour option.
-- **FR-002**: Effective expected use MUST resolve continuous, asset schedule, site schedule, unspecified, in that order.
+- **FR-002**: Effective expected use MUST distinguish all four override modes. `continuous` uses an all-day expectation, `none` stops inheritance and returns no split, `custom` uses the asset windows, and `inherit` uses the site schedule if present or returns no split.
 - **FR-003**: Splits MUST conserve energy.
 - **FR-004**: Routes and rules MUST use the capability guard.
 - **FR-005**: The outside-window rule MUST reuse the scale-aware rule from 021.
+- **FR-006**: The API MUST offer a read-only preview for site and asset drafts before a separate save. Save MUST check the expected schedule revisions and revalidate the proposed definition.
 
 ### Key Entities
 

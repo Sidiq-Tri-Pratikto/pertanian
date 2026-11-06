@@ -9,7 +9,7 @@
 **Covers**: AT-48
 **Flips**: none
 
-**Entry condition**: a GitHub repository exists, because this machine has no Java or Android SDK.
+**Entry condition**: a GitHub repository with Actions enabled and a hosted runner that can boot the Android emulator.
 
 ## User Scenarios & Testing
 
@@ -21,13 +21,13 @@
 
 **Acceptance Scenarios**:
 
-1. **Given** a PR, **When** the Android job runs, **Then** it builds a debug APK, boots an emulator, launches the app, and passes the welcome → Mulai → three tabs flow.
+1. **Given** a qualifying PR, **When** the Android job runs, **Then** it builds a debug APK, boots an emulator, launches the app with its JavaScript, and passes the welcome → Mulai → three tabs flow.
 2. **Given** the app crashes on start, **When** the job runs, **Then** it fails and uploads the log.
 
 ### Edge Cases
 
 - A flaky emulator boot retries once, then fails visibly. It never passes silently.
-- The job runs on `main` and on PRs touching `applications/hematdaya-mobile/`, so a long job does not block API-only PRs.
+- Run on qualifying pushes to `main` and PRs touching `applications/generic/hematdaya/applications/hematdaya-mobile/**` or `.github/workflows/hematdaya-android-smoke.yml`. Keep API-only changes outside the path filter.
 
 ## Requirements
 
@@ -36,6 +36,7 @@
 - **FR-001**: CI MUST build a native Android debug binary from the repository with no EAS account.
 - **FR-002**: CI MUST run a scripted smoke flow on an emulator.
 - **FR-003**: The evidence MUST name the API level and device profile.
+- **FR-004**: With the API absent, the smoke flow MUST assert the unavailable state on Beranda and still open Perangkat.
 
 ### Key Entities
 

@@ -19,12 +19,12 @@
 
 **Acceptance Scenarios**:
 
-1. **Given** `core-only`, **When** an optional capability is used through the API or a service call, **Then** it fails with `CAPABILITY_DISABLED` and a reason naming the capability.
-2. **Given** `core-plus-optional`, **When** the same call runs, **Then** it proceeds.
+1. **Given** `core-only`, **When** a guarded test use case is called directly, **Then** it fails with `CAPABILITY_DISABLED` and a reason naming the capability. Optional routes and workers adopt this guard as they ship.
+2. **Given** `core-plus-optional`, **When** the same test use case runs, **Then** the capability check passes while ownership and per-request prerequisites still apply.
 
-### User Story 2 - Core-only is a complete product (Priority: P1)
+### User Story 2 - Core energy behaves identically across compositions (Priority: P1)
 
-**Why this priority**: AT-47: CSV and demo work with no broker, meter, AI or push.
+**Why this priority**: This verifies the shared energy core without a broker, meter, AI or push. Full AT-47 evidence waits for the demo and CSV journeys, and full AT-53 evidence waits for actual optional paths.
 
 **Independent Test**: Run the energy test suite in both compositions.
 
@@ -44,7 +44,7 @@
 
 - **FR-001**: A single guard MUST live at the service layer, so an API call and a future worker share it.
 - **FR-002**: Compositions MUST be versioned data, not client-specific branches.
-- **FR-003**: Summaries MUST report `capability_disabled` for an unavailable optional value.
+- **FR-003**: Define the stable `capability_disabled` reason for optional summary values. Add the actual fields and their disabled-path behavior in 018, 030 and 032, as each module lands.
 - **FR-004**: CI MUST run the core energy tests under both compositions.
 
 ### Key Entities
@@ -57,3 +57,4 @@
 
 - **SC-001**: A test bypassing the router still gets `CAPABILITY_DISABLED`.
 - **SC-002**: Golden energy files pass under both compositions.
+- **SC-003**: Record partial AT-47 and AT-53 evidence for this spec. Verify CSV/demo core-only in 012 and 024–027 and actual optional API or service guard, owner checks and prerequisite behavior with each optional module.

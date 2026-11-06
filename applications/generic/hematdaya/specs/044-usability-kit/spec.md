@@ -25,6 +25,7 @@
 ### Edge Cases
 
 - A participant study that has not happened stays "pending".
+- The kit rehearsal is separate from G4 participant evidence. G4 remains pending until both segments have recorded study results and task blockers are resolved.
 - Targets of 4 of 5 and 30 seconds are formative, not population estimates.
 - No identifying personal data enters the repository.
 
@@ -43,4 +44,5 @@ None.
 
 ### Measurable Outcomes
 
-- **SC-001**: One pilot session finds the kit runnable.
+- **SC-001**: One rehearsal with a colleague finds the kit runnable.
+- **SC-002**: The reporting template has separate household and industrial sections and shows a pending state before each participant study takes place.

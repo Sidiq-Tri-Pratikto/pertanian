@@ -21,6 +21,7 @@
 
 1. **Given** 144 kWh and 2,880 units for one week, **When** computed, **Then** `0.050` kWh/unit with numerator, denominator, unit, period and method.
 2. **Given** the metric is disabled, **When** summaries run, **Then** totals, rankings and advice are unchanged.
+3. **Given** a reviewed metric draft with its denominator input, **When** confirmed, **Then** both save with one audit record or neither saves. The service rejects a changed draft or stale input revisions and asks for a new preview.
 
 ### User Story 2 - Never a fake number (Priority: P1)
 
@@ -32,7 +33,7 @@
 
 1. **Given** zero output with energy, **When** computed, **Then** no value and "Tidak dapat dihitung: keluaran nol".
 2. **Given** missing, negative or non-finite output, **When** computed, **Then** no value and a correction message.
-3. **Given** different units or product meaning, **When** compared, **Then** comparison is withheld (AT-25).
+3. **Given** different units, products, denominator methods, or measured source scope, **When** compared, **Then** comparison is withheld (AT-25). Floor-area comparisons also require equal period length or elapsed window.
 
 ### User Story 3 - Honest estimates (Priority: P1)
 
@@ -59,7 +60,8 @@
 - **FR-001**: One metric per site in v1, enabled only on request.
 - **FR-002**: Actual output MUST match the exact period.
 - **FR-003**: Estimated results MUST be labelled "Estimasi energi per …".
-- **FR-004**: An intensity insight MUST compare only compatible complete periods with one method.
+- **FR-004**: An intensity insight MUST compare only complete periods with compatible unit, product or area meaning, denominator method, and measured source scope. It MUST propagate measurement resolution through the denominator for the scale-aware rule from 021.
+- **FR-005**: The service MUST bind a successful preview to the exact draft and the data revisions used to calculate it. Saving the reviewed metric and denominator MUST be atomic and audited.
 
 ### Key Entities
 

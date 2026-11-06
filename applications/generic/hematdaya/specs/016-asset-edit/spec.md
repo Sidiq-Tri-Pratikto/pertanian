@@ -20,8 +20,9 @@
 **Acceptance Scenarios**:
 
 1. **Given** the edit sheet, **When** a valid name is saved, **Then** the list and detail update after acknowledgment only.
-2. **Given** a rejected save, **When** it fails, **Then** the draft stays, the old name stays confirmed, and retry is offered.
+2. **Given** a rejected save, **When** the server confirms it was rejected, **Then** the draft stays, the old name stays confirmed, and the next action follows the error recovery guidance.
 3. **Given** an empty name, **When** Simpan is pressed, **Then** the field shows the correction and focus moves to the error summary.
+4. **Given** the save response is lost, **When** the outcome is unknown, **Then** the app keeps the draft and the last confirmed name, reconciles the asset with the service, and only offers retry when it cannot overwrite newer changes.
 
 ### User Story 2 - Archive reversibly (Priority: P1)
 
@@ -47,6 +48,7 @@
 - **FR-001**: Edits MUST use `PATCH /assets/{id}` with name, category and location.
 - **FR-002**: Confirmed values MUST NOT change before acknowledgment.
 - **FR-003**: Archive MUST be reversible and MUST NOT delete data.
+- **FR-004**: Archive and restore MUST set `archived` to `true` and `false`, respectively, using the existing PATCH route from 005 and the same acknowledgment and unknown-outcome rules as edits.
 
 ### Key Entities
 
@@ -56,5 +58,5 @@ Asset from 005.
 
 ### Measurable Outcomes
 
-- **SC-001**: Failed save leaves server and screen unchanged.
-- **SC-002**: Archive plus restore returns identical totals.
+- **SC-001**: A rejected save leaves server and confirmed values unchanged. A timeout after commit reconciles to the saved state without submitting a duplicate edit.
+- **SC-002**: Archive and restore preserve measurement identities, values and binding history. Restoring returns identical totals for the same valid selection.

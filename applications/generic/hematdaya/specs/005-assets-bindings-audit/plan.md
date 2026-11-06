@@ -35,22 +35,25 @@ migrations/versions/0003_create_audit_events.py
 
 | Route | Behaviour |
 |---|---|
-| `GET /api/v1/sites/{site_id}/assets` | Active by default, `include_archived=true` adds archived; deterministic order by name then ID |
+| `GET /api/v1/sites/{site_id}/assets` | Active by default, `include_archived=true` adds archived. `limit` up to 100 and an opaque cursor over deterministic name/ID ordering. |
 | `POST /api/v1/sites/{site_id}/assets` | Name, scope kind, optional category, location, parent, expected use |
 | `GET /api/v1/assets/{asset_id}` | Includes bindings and sources |
 | `PATCH /api/v1/assets/{asset_id}` | Name, category, location, expected use, `archived` |
-| `POST /api/v1/assets/{asset_id}/bindings` | Source, effective from, authoritative |
-| `DELETE /api/v1/assets/{asset_id}/bindings/{binding_id}` | Sets `effective_to`; history stays |
+| `POST /api/v1/assets/{asset_id}/bindings` | Source, effective from, authoritative. Resolve the source within the asset's owned site before binding it. |
+| `DELETE /api/v1/assets/{asset_id}/bindings/{binding_id}` | Resolve the binding under the named owned asset. Close an open binding at site time only if it has started and the range remains nonempty. An already closed binding is a no-op. Reject an attempted empty range with a field error. |
 
 ## Data Model
 
 Columns as listed in `docs/roadmap/architecture.md`. Binding constraint:
 
 ```sql
-exclude using gist (asset_id with =, tstzrange(effective_from, effective_to) with &&) where (authoritative)
+check (effective_to is null or effective_to > effective_from)
+exclude using gist (asset_id with =, tstzrange(effective_from, effective_to, '[)') with &&) where (authoritative)
 ```
 
-Cycle check in the service with a depth-limited walk of `parent_asset_id`; same-site check by composite lookup.
+Cycle check in the service with a depth-limited walk of `parent_asset_id`. Use site-scoped lookups for the parent, relation targets and source, and an asset-scoped lookup for the binding. Validate all nested IDs before mutations. Close a binding with a conditional update on its open state so concurrent retries cannot move the effective end or double-write the audit row.
+
+Add a monotonic `binding_revision` to the site. Take the shared site write lock with `SELECT ... FOR UPDATE` on the owned site row before revalidating or changing sources, bindings, or asset and relation state affecting scope validity. Increment the revision once per changed transaction. Import and scope operations reuse the same lock through their transaction, and use the revision to detect a stale preview.
 
 ## Errors
 
@@ -65,7 +68,9 @@ Cycle check in the service with a depth-limited walk of `parent_asset_id`; same-
 
 ## Test Plan
 
-Rename keeps ID; duplicate names; category does not set expected use; cycle and self-reference; cross-site parent; binding end keeps row; authoritative overlap; non-authoritative overlap allowed; audit in success, none on rollback; owner isolation for all routes.
+- Rename keeps ID, duplicate names, category does not set expected use, cycle and self-reference.
+- Cross-site parent, source and binding ID, binding end keeps the row and remains unchanged on replay or concurrent unlink, invalid end and adjacent valid ranges, authoritative overlap.
+- Non-authoritative overlap allowed, shared site lock and revision changes only on commit, audit in success, none on rollback or no-op, owner isolation and pagination for lists.
 
 ## Out of Scope
 

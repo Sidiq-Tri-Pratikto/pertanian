@@ -50,16 +50,16 @@ Created by the spec named. Every table carries `created_at`; identifiers are UUI
 | Table | Key columns and constraints | Spec |
 |---|---|---|
 | `principals` | `kind` (`demo`, `user`) | 004 |
-| `sites` | `owner_principal_id` → principals, `kind` (`demo`, `standard`), `name`, `context`, `timezone`, `currency`, `virtual_now`; `CHECK (virtual_now IS NULL OR kind = 'demo')` | 004 |
+| `sites` | `owner_principal_id` → principals, `kind` (`demo`, `standard`), `name`, `context`, `timezone`, `currency`, `virtual_now` (required for demo and absent for standard), then `binding_revision` and `measurement_revision` | 004–006 |
 | `assets` | `site_id`, `name`, `category`, `location`, `scope_kind` (`device`, `group`, `circuit`, `site_total`), `parent_asset_id`, `expected_use` (`unknown`, `continuous`, `scheduled`, `intermittent`), `archived_at` | 005 |
 | `sources` | `site_id`, `label`, `origin` (`live`, `import`, `dataset_replay`, `simulated`), `measurement_kind`, `cadence_seconds`, `resolution_mwh` (nullable means unknown), `transport_status` | 005 |
 | `bindings` | `source_id`, `asset_id`, `effective_from`, `effective_to`, `authoritative`; partial `EXCLUDE` on overlapping authoritative ranges per asset | 005 |
 | `asset_relations` | `site_id`, `from_asset_id`, `to_asset_id`, `kind` (`contains`, `unknown_overlap`); same site, no self-reference, no cycle | 005 |
 | `audit_events` | `site_id`, `actor_principal_id`, `action`, `subject`, `affected_from`, `affected_to`, `detail`; append-only | 005 |
-| `measurements` | `source_id`, `source_record_id`, `kind`, `interval_start`, `interval_end`, `energy_mwh` BIGINT, `received_at`, `quality`, `revision`; unique on source identity and revision; index `(source_id, interval_start)` | 006 |
-| `demo_sessions` | `principal_id`, `site_id`, `scenario_id`, `token_hash`, `expires_at` | 008 |
-| `aggregation_selections` | `site_id` (unique), `revision` | 009 |
-| `aggregation_selection_assets` | `selection_id`, `asset_id` | 009 |
+| `measurements` | Source record ID or shape-specific fallback identity, `kind`, interval bounds or `measured_at`, `energy_mwh` BIGINT, `received_at`, `quality`, `revision`. Uniqueness and current reads use the same identity | 006 |
+| `demo_sessions` and creation operation records | Session scope, bearer digest, expiry, operation identity and bounded replay metadata | 008 |
+| `aggregation_selections` | `site_id` (unique), `revision` | 028 |
+| `aggregation_selection_assets` | `selection_id`, `asset_id` | 028 |
 | `tariffs` | `site_id`, `effective_from`, `milli_rupiah_per_kwh` BIGINT `>= 0`, `provenance` (`synthetic`, `user`) | 018 |
 | `insights` | `site_id`, `kind`, `asset_id`, `period_start`, `period_end`, stable `identity_key`, `current_revision` | 021 |
 | `insight_revisions` | `insight_id`, `revision`, `evidence` JSONB, `policy_id`, `policy_version`, `superseded_at` | 021 |
@@ -69,8 +69,8 @@ Created by the spec named. Every table carries `created_at`; identifiers are UUI
 | `schedules`, `schedule_windows` | Weekly windows, version, `effective_from`, `is_correction` | 030 |
 | `asset_schedule_overrides` | `asset_id`, `mode` (`inherit`, `none`, `continuous`, `custom`), `schedule_id` | 030 |
 | `output_metrics`, `output_inputs` | Definition, numerator assets, unit, method, quantities | 032 |
-| `users`, `refresh_sessions` | Owner identity; rotating refresh tokens | 036 |
-| `exports`, `deletion_requests` | Owner-only exports, purge status | 038 |
+| `users`, session and credential records | Owner identity, hashed opaque access and refresh credentials, revocable session families | 036 |
+| `exports`, `deletion_requests` | Owner-only exports and purge status that survives active site removal | 038 |
 
 ## Binding decisions
 
@@ -80,7 +80,7 @@ Created by the spec named. Every table carries `created_at`; identifiers are UUI
 
 ### Demo sessions
 
-Demo is a public write: each anonymous session seeds 2,688 or more rows. So the API caps active sessions, sets a TTL, purges expired sessions at creation, and seeds with `INSERT … SELECT` from `generate_series` or a shared template site, not row by row. Tokens are opaque, stored hashed, and sent as a bearer token. An expired session returns a typed error and the app offers to start again. "Mulai" before auth (036) is an empty labelled expiring workspace, not a saved account.
+Demo is a public write. Some scenarios seed thousands of rows, so admission enforces active capacity and a shared creation budget in the same transaction as the set-based seed. Creation has a bounded replay window with a separate proof. Neither bearer tokens nor replay proofs are stored in plaintext. Expired or purged sessions take the user back to a new session choice. "Mulai" before auth (036) opens a labelled expiring workspace.
 
 ### Two clocks
 
@@ -88,7 +88,7 @@ Demo is a public write: each anonymous session seeds 2,688 or more rows. So the 
 
 ### Numbers
 
-Storage: integer mWh, integer milli-rupiah per kWh, cost computed in integer nano-rupiah (Python `int`) and rounded once at the response. Wire: decimal strings (`"14.700"`, `"22050"`), through a string-only Pydantic type, because Pydantic `Decimal` input also accepts JSON numbers. Unavailable values are `null` beside a stable reason: `missing_tariff`, `no_schedule`, `no_output`, `insufficient_history`, `partial_coverage`, `scope_conflict`, `capability_disabled`. The mobile app formats these strings for display with string operations and never parses them into floats.
+Store energy in integer mWh and tariff in integer milli-rupiah per kWh. Compute cost in nano-rupiah, retaining exact fractions when a supported interval split produces them, and round once at the response. Use decimal strings on the wire (`"14.700"`, `"22050"`) through a string-only Pydantic type because Pydantic `Decimal` input also accepts JSON numbers. Unavailable values are `null` beside a stable reason such as `missing_tariff`, `no_schedule`, `no_output`, `insufficient_history`, `partial_coverage`, `scope_conflict` or `capability_disabled`. The mobile app formats these strings for display without parsing them into floats.
 
 ### Reads
 
@@ -96,15 +96,15 @@ Compute on read with SQL aggregation (`SUM`, `range_agg` for coverage union, `ge
 
 ### Bindings and conflicts
 
-A partial `EXCLUDE` constraint covers authoritative bindings only. Two non-authoritative bindings for one asset and time are allowed, because that is how an unresolved conflict is represented; the summary then refuses that asset until a user picks one.
+A partial `EXCLUDE` constraint covers authoritative bindings only. Overlapping non-authoritative candidates can represent unresolved source authority. A combined total requires proven disjoint scope and a valid effective binding over each contributing interval. 009 owns read-time validity and defaults. 028 owns persistence and the read-only preview and atomic write for proposed selection and source authority.
 
 ### Imports
 
-Previews are staged in Postgres (`imports`, `import_rows`), never in memory, so they survive a restart and any instance can serve them. Commit runs in one transaction. Idempotency comes from `imports.status` plus the unique measurement identity. A repeated commit returns the first result.
+Previews are staged in Postgres (`imports`, `import_rows`) so they survive a restart and any instance can serve them. Commit serializes same-import replay and overlapping work on shared sources or bindings. Revalidate the staged assumptions under the lock and commit readings, result, audit and affected insight invalidation together. A repeated commit returns the first result. Affected observations are re-evaluated on read under 021, with historical evidence preserved.
 
 ### Transactions
 
-One request is one transaction: `SessionDep` commits before the response is sent, and repositories only flush. See rule 005.
+One request is one transaction. `SessionDep` commits before the response is sent, and repositories only flush. Use the owned site row as the shared write lock for binding, scope and measurement changes, with revisions advanced in the same transaction. Import commits acquire the site lock before the import row. Demo admission follows the lock order in 008. See rule 005.
 
 ### Contract
 
@@ -134,7 +134,7 @@ One request is one transaction: `SessionDep` commits before the response is sent
 | Time | RFC 3339 UTC instants; ISO local dates for periods; half-open `[start, end)` windows derived from the site's calendar |
 | Period query | `start_date` and `end_date` (inclusive local dates) or `preset` (`today`, `this_week`, `last_7_days`); every response echoes the resolved UTC window and timezone |
 | Lists | `limit` (max 100) and opaque `cursor` |
-| Idempotency | `Idempotency-Key` header on commit, enrollment and feedback |
+| Idempotency | `Idempotency-Key` for demo creation, tariff writes, import commit, enrollment and feedback. Demo creation also requires the separate replay proof from 008 |
 | Errors | The envelope in `app/core/errors`; new failures get a typed error, a code in `codes.py`, a row in `public.py`, and a row in `docs/error-handling/catalog.md` |
 | Copy | User-facing messages are Indonesian and two clauses: what happened, what to do next |
 

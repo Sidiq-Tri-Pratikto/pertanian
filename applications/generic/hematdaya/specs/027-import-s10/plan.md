@@ -12,7 +12,7 @@ src/app/(tabs)/(beranda,perangkat,saran)/impor.tsx
 
 ## Summary
 
-Four-step flow over the import API, with drafts retained in memory across steps.
+Four-step flow over the import API. Retain file context and mapping across steps, and land on the imported period in the populated Beranda from 013.
 
 ## Technical Context
 
@@ -20,7 +20,9 @@ Four-step flow over the import API, with drafts retained in memory across steps.
 
 ## Mobile
 
-Read the file as UTF-8 and upload it; pasting uses a multiline `HDTextField`. Keyboard avoidance on mapping fields. `HDImportPreview` takes server counts and computes nothing. The system component's copy "Impor N baris" stands unless the owner chooses "Konfirmasi impor".
+Enforce the file-size limit before reading a selected UTF-8 file and uploading it. Use a multiline `HDTextField` for pasted content and keep mapping fields visible when the keyboard opens. `HDImportPreview` takes server counts and computes nothing. Use the handoff's step actions and show the exact accepted row count in the confirmation.
+
+Create one operation key per confirmed preview. Keep the preview ID, key, and acceptance payload through pending and unknown results. Prevent concurrent submissions. On timeout, offer Periksa status and fetch the existing import before another commit. Show the stored result if found. Retry an unresolved operation with the same key and payload. If a browser restart drops access to a selected file, request reselection when the bytes are needed and never claim they were recovered.
 
 ## Prototype Reference
 
@@ -28,7 +30,10 @@ Read the file as UTF-8 and upload it; pasting uses a multiline `HDTextField`. Ke
 
 ## Test Plan
 
-Each example; error summary focus; acknowledgment; unknown result; back retention; replace file; plain-text names; 320 px and large text; Android file picker.
+- Each example, empty workspace to imported-period totals, error summary focus, acknowledgment.
+- Lost commit response with status-first recovery, retry with the same operation key, double tap while pending, back retention.
+- Replace file, file reselection after browser restart, plain-text names, 320 px and large text.
+- Android file picker.
 
 ## Out of Scope
 

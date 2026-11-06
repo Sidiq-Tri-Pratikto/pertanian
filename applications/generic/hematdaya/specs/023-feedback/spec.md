@@ -22,6 +22,7 @@
 1. **Given** evidence, **When** Berguna is chosen, **Then** it shows pending, then confirmed after acknowledgment.
 2. **Given** a failed save, **When** it fails, **Then** retry is offered and nothing changed.
 3. **Given** a timeout with unknown result, **When** retried, **Then** the same idempotency key avoids a duplicate.
+4. **Given** a key was used for one action, **When** reused by the owner for a different insight, revision or action, **Then** the request is rejected without applying another change.
 
 ### User Story 2 - Hide, snooze, restore (Priority: P1)
 
@@ -56,8 +57,8 @@
 ### Functional Requirements
 
 - **FR-001**: `POST /insights/{id}/feedback` MUST accept useful, not relevant, snooze, hide and restore.
-- **FR-002**: The route MUST honour `Idempotency-Key`.
-- **FR-003**: Feedback MUST reference a revision.
+- **FR-002**: The route MUST scope `Idempotency-Key` by owner and operation, replay the original result for the same insight, revision and action, and reject conflicting reuse. The idempotency record and effect MUST commit together.
+- **FR-003**: Feedback MUST reference a revision of the addressed insight, and the owner MUST be authorized for both. Preserve existing feedback when an equivalent evaluation reuses its revision.
 - **FR-004**: No feedback action MAY affect measurements.
 
 ### Key Entities
@@ -68,5 +69,5 @@
 
 ### Measurable Outcomes
 
-- **SC-001**: Row counts in `measurements` are unchanged by any feedback test.
+- **SC-001**: Measurement identities, values and derived totals are unchanged by any feedback action or retry.
 - **SC-002**: AT-39 ported test passes through the API.

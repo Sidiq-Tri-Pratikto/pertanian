@@ -4,7 +4,7 @@
 
 ## Summary
 
-Add one GitHub Actions job: prebuild, Gradle debug build, emulator, Maestro smoke flow.
+Add one GitHub Actions job: prebuild, Gradle debug build, emulator, Metro and Maestro smoke flow.
 
 ## Technical Context
 
@@ -24,7 +24,9 @@ applications/hematdaya-mobile/e2e/smoke.yaml
 
 ## Flow
 
-`smoke.yaml`: launch, assert "Selamat datang", tap "Mulai", assert tabs "Beranda", "Perangkat", "Saran", tap "Perangkat", assert "Belum ada perangkat". The API is absent in CI, so Beranda must show the unavailable state and stay usable, which also proves the failure path natively.
+The standard debug APK does not embed the JavaScript bundle. Start Metro from the mobile application directory in CI, wait for its status endpoint, and run `adb reverse tcp:8081 tcp:8081` before launch. Keep Metro running through the smoke flow and capture its logs with logcat on failure. The FastAPI service stays absent.
+
+`smoke.yaml`: launch, assert "Selamat datang", tap "Mulai", assert tabs "Beranda", "Perangkat", "Saran" and "Layanan belum tersedia", tap "Perangkat", then assert "Belum ada perangkat".
 
 ## Risks
 
@@ -33,7 +35,7 @@ applications/hematdaya-mobile/e2e/smoke.yaml
 
 ## Test Plan
 
-Introduce a deliberate native crash on a throwaway branch and confirm the job fails with a log artifact.
+Run the valid flow and record the APK, emulator profile and API level. Introduce a deliberate native crash on a throwaway branch and confirm the job fails with a log artifact. Confirm that a mobile or workflow edit triggers the job and an API-only edit does not.
 
 ## Out of Scope
 
@@ -42,6 +44,6 @@ iOS (042), release signing (042), Play Store upload.
 ## Task Outline
 
 1. Add `e2e/smoke.yaml`.
-2. Add `android-smoke.yml` with path filter, Gradle cache, KVM, emulator runner, Maestro, log artifact.
+2. Add `hematdaya-android-smoke.yml` with the monorepo path filter, Gradle cache, KVM, emulator runner, Metro readiness and forwarding, Maestro and log artifacts.
 3. Prove failure on a throwaway branch.
 4. Record the first run in `docs/roadmap/README.md`.

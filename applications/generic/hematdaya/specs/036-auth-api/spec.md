@@ -4,7 +4,7 @@
 **Created**: 2026-10-30
 **Status**: Seeded, not started
 **Milestone**: M9 Saved service
-**Depends on**: 004
+**Depends on**: 004, 008, 025
 **Size**: L
 **Covers**: FR-01, AT-41
 **Flips**: registry `akun` stays `coming_soon` until 037
@@ -32,7 +32,7 @@
 **Acceptance Scenarios**:
 
 1. **Given** a second user, **When** any data route is called with the first user's ID, **Then** the response is `NOT_FOUND`.
-2. **Given** a demo token, **When** it calls a user route, **Then** it reaches only its own demo site.
+2. **Given** a demo token, **When** it calls a shared data route, **Then** it reaches only its own demo site. Account-only routes reject it.
 
 ### User Story 3 - Resist abuse (Priority: P1)
 
@@ -44,6 +44,7 @@
 
 1. **Given** repeated failed logins, **When** the limit is hit, **Then** the retryable `RATE_LIMITED` envelope returns with `Retry-After`.
 2. **Given** a reused refresh token, **When** presented, **Then** the whole session family is revoked.
+3. **Given** two concurrent refreshes with the same valid token, **When** both arrive, **Then** at most one rotation succeeds. Confirmed reuse revokes the family, including the new refresh token and all of its access tokens.
 
 ### Edge Cases
 
@@ -57,9 +58,9 @@
 
 - **FR-001**: Routes MUST match PRD §16: register, login, refresh, logout, `/me`.
 - **FR-002**: Passwords MUST be hashed with Argon2id.
-- **FR-003**: Refresh tokens MUST rotate with reuse detection.
+- **FR-003**: Refresh tokens MUST rotate atomically with reuse detection. Once logout or reuse revocation is committed, all access and refresh tokens in that family MUST fail authorization.
 - **FR-004**: The resolver MUST add user principals without touching site ownership.
-- **FR-005**: Rate limits MUST work across instances.
+- **FR-005**: Rate limits MUST work across instances on auth, anonymous demo admission per client and import preview per principal.
 
 ### Key Entities
 

@@ -15,9 +15,15 @@ src/api/client.ts                    # single-flight refresh
 
 Screens and session handling over 036. The workspace model gains a `user` kind beside `demo`.
 
+## Session coordination and drafts
+
+Use one in-flight refresh per native session. On web, coordinate refresh across tabs of the same origin and session before any request reaches 036. Waiting tabs receive the outcome in memory. Keep the cookie HTTP-only and keep access tokens out of persistent storage. If safe coordination or recovery after an ambiguous rotation is unavailable, show the sign-in boundary without replaying the consumed credential.
+
+Use 034's owner-scoped persistence. Restore a retained non-secret draft only after the server confirms the same owner and workspace. Logout clears that owner's tokens, cached reads and drafts. After expiry, reconcile unknown save outcomes with the feature's status or revision before offering explicit retry. Reuse the original operation key where the feature supports it.
+
 ## Test Plan
 
-Register, login, restart, logout clears cache, expiry during each save type, explicit retry, no duplicate commit, autofill attributes, focus and error summary.
+Register, login, restart, two web tabs refreshing simultaneously, shared terminal refresh failure, logout clears cache and drafts, different owner cannot recover a prior draft, expiry during each save type, explicit retry, no duplicate commit, autofill attributes, focus and error summary. Run the expiry checks against tariff (019), import (027), scope (029) and schedule (031).
 
 ## Out of Scope
 

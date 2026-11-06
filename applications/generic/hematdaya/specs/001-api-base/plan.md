@@ -37,16 +37,30 @@ contracts/openapi.json
 
 ## API Contract
 
-`GET /api/v1/capabilities` → 200:
+`GET /api/v1/capabilities` → 200, with the default composition:
 
 ```json
 {
   "schema_version": 1,
   "source_release": "0.1.0",
   "composition": {"id": "core-plus-optional", "version": 1},
-  "capabilities": [{"id": "core", "optional": false, "status": "planned"}],
-  "adapters": [{"id": "demo", "status": "planned"}],
-  "policies": [{"id": "baseline", "version": 1}]
+  "capabilities": [
+    {"id": "core", "optional": false, "status": "planned"},
+    {"id": "cost", "optional": true, "status": "planned"},
+    {"id": "schedule", "optional": true, "status": "planned"},
+    {"id": "output", "optional": true, "status": "planned"}
+  ],
+  "adapters": [
+    {"id": "demo", "status": "planned"},
+    {"id": "csv", "status": "planned"},
+    {"id": "shelly-plug-pm-gen3", "status": "planned"},
+    {"id": "tp-link", "status": "planned"}
+  ],
+  "policies": [
+    {"id": "baseline", "version": 1},
+    {"id": "change", "version": 1},
+    {"id": "stale", "version": 1}
+  ]
 }
 ```
 
@@ -55,7 +69,7 @@ contracts/openapi.json
 ## Test Plan
 
 - Manifest fields and honest statuses; core-only; invalid compositions; unknown composition stops startup.
-- Route table has no actuation path.
+- Review the method/path allowlist for the base application: GET for live, ready and capabilities, excluding framework documentation routes. The existing automated test scans operation IDs and paths for control terms. Strengthen it with an exact allowlist when the contract test is next updated.
 - Validation details are Indonesian and never echo values.
 - Liveness without a database; readiness failure envelope; readiness against real Postgres.
 

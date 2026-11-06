@@ -22,6 +22,7 @@
 1. **Given** Meter utama and its children, **When** a selection holds both, **Then** the save is refused, naming the overlap.
 2. **Given** Meter utama alone, **When** saved, **Then** summaries use 10 kWh for 25 Oktober.
 3. **Given** the children alone, **When** saved, **Then** summaries sum them and the unmeasured remainder stays unnamed.
+4. **Given** a draft selection with proposed authority or disjoint confirmations, **When** previewed, **Then** the service returns the proposed result and its validity without changing any selection, binding, relation, or audit record.
 
 ### User Story 2 - Choose the source of truth (Priority: P1)
 
@@ -48,15 +49,15 @@
 ### Edge Cases
 
 - Child percentages use the parent only when intervals and coverage are comparable.
-- A failed save leaves the confirmed selection in force.
+- A failed save leaves the confirmed selection, bindings, and relations in force. A proposal based on an older selection or affected authority revision must be reviewed again.
 
 ## Requirements
 
 ### Functional Requirements
 
-- **FR-001**: The API MUST expose `GET` and `PUT /sites/{id}/aggregation-selection`.
-- **FR-002**: `PUT` MUST validate relations and source conflicts at the service.
-- **FR-003**: Every selection change MUST be versioned and audited.
+- **FR-001**: The API MUST expose `GET` and `PUT /sites/{id}/aggregation-selection` and a read-only preview of the complete proposal.
+- **FR-002**: `PUT` MUST verify the expected revisions and revalidate relations and source conflicts at the service. It MUST apply selection, source authority, and disjoint confirmations in one transaction.
+- **FR-003**: Every committed selection or authority change MUST be versioned and audited, with effective time and affected period where applicable.
 
 ### Key Entities
 

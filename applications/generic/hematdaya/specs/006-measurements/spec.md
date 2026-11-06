@@ -37,6 +37,8 @@ All sources enter one ingestion rule that stores interval energy with its meanin
 1. **Given** an identical reading, **When** it arrives again, **Then** it is an idempotent repeat.
 2. **Given** the same identity with a changed value, **When** it arrives, **Then** it is a new revision with provenance, not a second reading.
 3. **Given** a late reading, **When** it arrives, **Then** the affected interval range is returned for recomputation.
+4. **Given** a point sample or counter reading without a capture ID, **When** the same source, kind and measurement time are ingested again, **Then** it is an idempotent repeat. A different time remains a distinct point.
+5. **Given** a late or corrected counter reading, **When** it changes the adjacent deltas, **Then** affected old deltas are replaced or withdrawn, never summed with the new deltas. Replaying the input leaves the same current measurements.
 
 ### Edge Cases
 
@@ -55,8 +57,10 @@ All sources enter one ingestion rule that stores interval energy with its meanin
 - **FR-003**: Average power MUST convert as `W × seconds / 3600`.
 - **FR-004**: Instantaneous power MUST never become energy.
 - **FR-005**: Counter deltas MUST stay within one segment; a decrease MUST start a new segment.
-- **FR-006**: Identity MUST prefer a stable source record ID, otherwise source, kind and interval.
+- **FR-006**: Identity MUST prefer a stable source record ID, otherwise source and kind plus interval bounds for interval observations or capture time for points.
 - **FR-007**: Decimal inputs MUST parse without binary floats, and the wire type MUST reject JSON numbers.
+- **FR-008**: Keep raw values, units, source provenance and capture times. When conversion to integer mWh needs quantization, round once at normalization using nearest mWh, with exact ties to even. Do not round to display precision during aggregation.
+- **FR-009**: Ingestion MUST use the shared site write lock and advance the measurement revision on a committed change. A replay or rollback leaves the revision unchanged.
 
 ### Key Entities
 

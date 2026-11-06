@@ -44,7 +44,7 @@
 
 - **FR-001**: Each UX check MUST be recorded per runtime with tool, device and result.
 - **FR-002**: Reduced motion MUST be verified on each platform.
-- **FR-003**: Blocking findings MUST be fixed or filed before G4.
+- **FR-003**: Task-blocking findings MUST be fixed and retested before G4 passes. Filing records the issue but leaves that gate open.
 
 ### Key Entities
 
@@ -55,3 +55,4 @@ None.
 ### Measurable Outcomes
 
 - **SC-001**: UX-07 to UX-10 and UX-14 each have per-runtime evidence.
+- **SC-002**: The G4 evidence index links the other applicable UX checks to their feature results and records a passing retest for each task blocker.

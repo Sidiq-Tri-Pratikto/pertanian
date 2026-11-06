@@ -14,13 +14,16 @@ docs/operations/mobile-release.md
 
 EAS profiles, real assets, device evidence.
 
+Use the HTTPS rehearsal deployment from 039 and the integrated core journeys. Record separate results for Android, iOS and web. A bundle export alone does not count as runtime evidence. Link a web run only if it identifies the tested browser and build. Otherwise record web as not run.
+
 ## Decisions to Take in This PR
 
 Owner confirms bundle ID, app name in stores, and any paid accounts.
 
 ## Test Plan
 
-Install; both journeys; cleartext blocked; R8 release run; hardware back on Android; safe areas on iOS.
+- Install, both journeys against HTTPS, cleartext blocked, R8 release run.
+- Hardware back on Android, safe areas on iOS, separate runtime and build evidence for Android, iOS and web.
 
 ## Out of Scope
 

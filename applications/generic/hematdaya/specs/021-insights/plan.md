@@ -21,12 +21,14 @@ migrations/versions/0007_create_insights.py
 
 | Route | Behaviour |
 |---|---|
-| `GET /api/v1/sites/{site_id}/insights?start_date=&end_date=` | `observations[]`, `notices[]`, `learning_count`, `comparable_count` |
-| `GET /api/v1/insights/{insight_id}` | Current revision with evidence; `?revision=` for an older one |
+| `GET /api/v1/sites/{site_id}/insights?start_date=&end_date=` | Active observations with IDs and revisions, notices, `learning_count`, `comparable_count` |
+| `GET /api/v1/insights/{insight_id}` | Current active revision after re-evaluation. `?revision=` returns the specified frozen revision with supersession status |
 
 ## Design
 
-Evaluate on read for the requested period, upsert by `identity_key` (`kind:asset:period`). Evidence hash decides whether a new revision is needed. Compute-on-read keeps recompute simple, per the architecture decisions. Policy ID `change`, version 1.
+Evaluate on read for the requested period, keyed by `identity_key` (`kind:asset:period` within the site). Expose an invalidation operation so 026 and other relevant writes record the affected identities or periods atomically with the input changes. Read the matching input version and apply one atomic, version-checked transition. If inputs change during evaluation, recompute before publishing. If a current observation no longer qualifies, clear its active status and mark its old revision superseded. Return active results only after resolving pending invalidation for the requested data.
+
+Hash the semantic evidence snapshot, including policy ID and version. Exclude generation time and invalidation metadata so equivalent evidence retains its revision and feedback. Enforce unique revision numbers per insight and update the current revision and supersession status in one transaction. Store the aligned comparison series and common mask in the immutable snapshot with the window and scope. Exact revision reads return that snapshot, even after correction or retirement. Initial policy ID is `change`, version 1.
 
 ## Prototype Reference
 
@@ -34,7 +36,7 @@ Evaluate on read for the requested period, upsert by `identity_key` (`kind:asset
 
 ## Test Plan
 
-AT-17 numbers; no observation for base fixtures; revision on change; idempotent evaluation; ranking; decrease wording; continuous asset copy; forbidden-word lint; notices for partial, stale, scope; owner isolation.
+Verify AT-17 values and that base fixtures produce no observation. Test correction and retirement, historical revision reads, atomic invalidation and rollback, and concurrent reads without duplicate or stale publication. Verify equivalent recomputation, ranking, copy for decreases and continuous assets, forbidden words, notices for partial or stale data and scope conflicts, and owner isolation.
 
 ## Out of Scope
 

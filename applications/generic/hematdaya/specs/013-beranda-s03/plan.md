@@ -25,6 +25,7 @@ src/app/(tabs)/(beranda)/beranda.tsx
 
 - `format.ts` ports `HD.format` for `14,700 kWh`, `Rp22.050`, `57,14%`, `19–25 Oktober 2026`, working on strings. Bar widths may use `Number()` for layout only, never for a displayed value.
 - `HDContributionRanking` takes `share_percent` from the service; it computes nothing.
+- Use the initial period returned by 008 and stored by 012. Show ranking rows and the data alternative in this PR. Wire asset-detail actions in 014 and the scope-resolution action in 029.
 - Shape mismatches to reconcile with the system: `last7` vs this-week, `Provenance` `demo` vs `simulated`, `meter` vs `site_total`.
 
 ## Prototype Reference
@@ -33,11 +34,11 @@ src/app/(tabs)/(beranda)/beranda.tsx
 
 ## Test Plan
 
-Each scenario: base, today empty, current, partial, zero, scope conflict. Formatting table tests. Tap count. Period change retains scope. Refresh failure keeps content. No schedule or output card. 320 px and large text.
+Each scenario: base initial period, today empty, current, partial, zero, scope conflict. Formatting table tests. Verify the chart and table without links to unshipped routes. Period change retains scope. Refresh failure keeps content. No schedule or output card. 320 px and large text.
 
 ## Out of Scope
 
-Cost value (019), insights (022), scope editing (029).
+Asset-detail actions (014), cost value (019), insights (022), scope resolution (029).
 
 ## Task Outline
 

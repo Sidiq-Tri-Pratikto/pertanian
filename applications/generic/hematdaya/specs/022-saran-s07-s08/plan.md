@@ -18,7 +18,7 @@ Screens over 021. Beranda gains its featured observation.
 
 ## Mobile
 
-`HDEvidencePanel` follows the design system's ordered steps. Its headings differ from the brief; the system's wording stands until the owner decides (see `design-system-binding` notes in `docs/design/README.md`). The comparison chart reuses `HDHistoryChart` with the reference series.
+`HDEvidencePanel` follows the design system's ordered steps (see the `design-system-binding` notes in `docs/design/README.md`). Pass the exact revision from Beranda or Saran into the detail route, read it through 021's `?revision=` contract, and include it in the query key. Display supersession status when the service reports it. Reuse 015's `HDHistoryChart` and data alternative with the frozen current/reference series and mask from that revision. Keep mutable asset history out of the evidence panel.
 
 ## Prototype Reference
 
@@ -26,7 +26,7 @@ Screens over 021. Beranda gains its featured observation.
 
 ## Test Plan
 
-Featured item; order of evidence; calculation detail; comparison table; no finding; learning; notices; back position; forbidden actions absent.
+Test the featured item, evidence order, calculation detail, and shared chart and table support. Correct the data between showing a card and opening it, then verify the exact selected revision remains visible. Cover no finding, learning, notices, back position, and the absence of forbidden actions.
 
 ## Out of Scope
 

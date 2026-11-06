@@ -31,9 +31,11 @@
 
 **Acceptance Scenarios**:
 
-1. **Given** an observation, **When** read, **Then** it carries asset, period, observed value, historical values, median, change, percent or why not, coverage, origin, resolution, policy version, generated time and "Yang belum diketahui".
+1. **Given** an observation, **When** read, **Then** its revision carries asset and scope, period, observed value, historical values, median, change, percent or why not, per-window coverage, common mask and aligned current/reference series, origin, resolution, policy version, generated time and "Yang belum diketahui".
 2. **Given** corrected data changes the numbers, **When** re-evaluated, **Then** a new revision exists, the old one is marked superseded, and it stays readable.
 3. **Given** the same inputs evaluated twice, **When** compared, **Then** no new revision appears.
+4. **Given** a committed import or correction makes an observation ineligible, **When** the period is next read, **Then** the old observation no longer appears as active, and its original revision remains readable as superseded.
+5. **Given** concurrent reads of the same changed inputs, **When** they evaluate the observation, **Then** exactly one new revision becomes current, or the active observation is retired once if it no longer qualifies.
 
 ### User Story 3 - Advice stays advice (Priority: P1)
 
@@ -62,6 +64,7 @@
 - **FR-003**: Evidence MUST be stored as an immutable revision with policy ID and version.
 - **FR-004**: Copy MUST be built from the snapshot, never free text generation.
 - **FR-005**: Notices MUST cover partial coverage, stale source and scope conflict.
+- **FR-006**: Writes that change inputs MUST invalidate affected insight identities or periods in the same transaction. Current insight reads MUST re-evaluate that state before returning active results, then atomically replace or retire revisions without deleting old evidence or feedback.
 
 ### Key Entities
 

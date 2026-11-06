@@ -17,11 +17,11 @@ app/baseline/
 
 ## API Contract
 
-`GET /api/v1/assets/{asset_id}/comparison?start_date=&end_date=` returns `state`, `reason`, `current`, `historical[]`, `baseline_kwh`, `mad_kwh`, `delta_kwh`, `percent`, `resolution_kwh`, `mask_coverage`. History gains `reference_kwh` per bucket.
+`GET /api/v1/assets/{asset_id}/comparison?start_date=&end_date=` returns `state`, `reason`, `current`, `historical[]`, `baseline_kwh`, `mad_kwh`, `delta_kwh`, `percent`, `resolution_kwh`, `mask_coverage` and the actual aligned `common_mask`. Each window includes local and UTC bounds, measured and common-mask energy, and coverage. History gains `comparison_kwh` and `reference_kwh` on the same valid mask alongside the separate full `energy_kwh`. Label per-bucket reference medians separately from the median of full matched periods. Their sum need not equal the period median.
 
 ## Design
 
-Load slots keyed by offset from each window start, in one query across the four windows. Mask is the intersection of offset and duration across current and eligible windows. Keep `compare` pure: slots in, comparison out. Differing cadence across windows gives `not_comparable`.
+Load slots in one query across the four windows. Align by relative calendar day, local clock time, duration and occurrence of a repeated local time. Use UTC interval bounds to measure coverage and elapsed duration. Exclude ambiguous or unmatched transition slots from the common mask. Exclude historical windows with incompatible cadence, measurement kind, asset selection or applicable schedule. If too few eligible windows or insufficient common coverage remain, return the corresponding non-comparable state. Keep `compare` pure. Preserve fractional allocations, even-sample medians and MAD as exact scaled integers or ratios until serializing the response.
 
 ## Prototype Reference
 
@@ -29,7 +29,7 @@ Load slots keyed by offset from each window start, in one query across the four 
 
 ## Test Plan
 
-Port tests; add elapsed windows at 21 Oktober 12.00, differing cadence, unknown resolution, zero baseline, conflict asset, more than seven days, and reference median with only two windows.
+Port the tests. Add elapsed windows at 21 Oktober 12.00, differing cadence and measurement kinds, IANA timezone transitions, unknown resolution, zero baseline, conflict asset, more than seven days, and an exact fractional median with two windows. Verify both series use the same mask and full totals remain available separately.
 
 ## Out of Scope
 

@@ -22,10 +22,14 @@ Optional capability: schedule storage, effective resolution, outside split and o
 
 | Route | Behaviour |
 |---|---|
-| `GET`, `PUT /api/v1/sites/{site_id}/schedule` | Windows, effective from, `is_correction`, with a preview in the response |
-| `GET`, `PUT /api/v1/assets/{asset_id}/schedule` | Mode and optional windows |
+| `GET /api/v1/sites/{site_id}/schedule` | Confirmed windows and version history |
+| `POST /api/v1/sites/{site_id}/schedule/preview` | Evaluate proposed windows, effective time, correction flag, and affected period without writes |
+| `PUT /api/v1/sites/{site_id}/schedule` | Save the revalidated proposal with its expected version |
+| `GET /api/v1/assets/{asset_id}/schedule` | Confirmed override, effective site or asset schedule, and versions |
+| `POST /api/v1/assets/{asset_id}/schedule/preview` | Evaluate the proposed mode and optional windows with the same effective-time and correction semantics, without writes |
+| `PUT /api/v1/assets/{asset_id}/schedule` | Save the revalidated override with expected asset and inherited site versions, when applicable |
 
-Summary gains `outside_schedule`: `inside_kwh`, `outside_kwh`, `estimated`, `schedule_label`, or a reason.
+Both previews return the versions used, affected period, and the same split shape used by summaries. `outside_schedule` includes `inside_kwh`, `outside_kwh`, `estimated`, schedule label and version, or an explicit unavailability reason. For `none`, stop before checking the site default. Resolve an effective-now draft to the actual save time on confirmation. An explicit historical correction uses the reviewed effective time and is versioned and audited. Invalidate affected observations in the save transaction for re-evaluation under 021. A preview or a failed save writes neither audit nor evidence.
 
 ## Prototype Reference
 
@@ -33,7 +37,10 @@ Summary gains `outside_schedule`: `inside_kwh`, `outside_kwh`, `estimated`, `sch
 
 ## Test Plan
 
-All oracles; every validation; mode resolution; versioned correction; comparison withheld across definitions; continuous asset; timezone; capability off; rejected save; foreign site.
+- All oracles, every validation, `none` with a configured site default, read-only site and asset previews.
+- Effective-now and versioned correction, stale version rejection, atomic save and invalidation, comparison withheld across definitions.
+- Continuous asset, timezone, capability off, rejected save.
+- Foreign site and asset.
 
 ## Out of Scope
 

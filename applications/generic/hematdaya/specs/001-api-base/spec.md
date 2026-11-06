@@ -40,11 +40,11 @@ The mobile app asks the service what is available and gets an honest answer, so 
 
 **Why this priority**: FR-20 is a non-negotiable product boundary and must hold from the first route.
 
-**Independent Test**: A test walks the OpenAPI route table.
+**Independent Test**: Compare the application routes with the expected read-only method/path pairs.
 
 **Acceptance Scenarios**:
 
-1. **Given** the route table, **When** it is inspected, **Then** no path or operation offers control, relay, command or on/off behaviour.
+1. **Given** the base application, **When** its route table is inspected, **Then** its product routes are the three documented GET endpoints and no path or operation offers control, relay, command or on/off behaviour.
 
 ### User Story 4 - Failures speak Indonesian (Priority: P2)
 

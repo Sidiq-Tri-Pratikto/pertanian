@@ -16,7 +16,9 @@ src/app/(tabs)/(beranda,perangkat,saran)/asset/[id].tsx
 
 ## Mobile
 
-Bars as `Rect`; gap hatch as an SVG `Pattern` with `color-chart-missingMarker`; zero as a baseline tick. Scale note and legend are text. Tokens: `color-chart-*`, `size-stroke-chart`, `size-chart-plotHeight`. The whole `Svg` has `role="img"` with an `aria-label`; the summary is plain text below it.
+Draw bars as `Rect`, gaps as an SVG `Pattern` with `color-chart-missingMarker`, and zero as a baseline tick. Use text for the scale note and legend. Use `color-chart-*`, `size-stroke-chart` and `size-chart-plotHeight` tokens. The whole `Svg` has `role="img"` with an `aria-label`. The summary below it formats the service's `highest_bucket` or its null state. Render actual bucket count, UTC bounds and local labels from 010, including short or long local days and repeated-hour labels that distinguish their offsets.
+
+Resolve `highest_bucket.start` against the same series by UTC start. The service chooses a fully covered measured bucket and breaks ties by earliest start. Preserve the service's distinct unavailable reasons in the chart's text alternative and table.
 
 ## Prototype Reference
 
@@ -24,7 +26,7 @@ Bars as `Rect`; gap hatch as an SVG `Pattern` with `color-chart-missingMarker`; 
 
 ## Test Plan
 
-All bucket states; dense hourly; table parity; large text; no hover dependency.
+Test every bucket state, 23-hour and 25-hour days, highest-bucket ties and the no-eligible-bucket state. Verify table parity, large text, and access to values without hover.
 
 ## Out of Scope
 

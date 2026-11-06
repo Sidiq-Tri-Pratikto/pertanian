@@ -36,6 +36,8 @@ A site holds arbitrary assets, each with a scope kind, and sources bind to asset
 1. **Given** an active binding, **When** it is removed, **Then** it gets an end time and is not deleted.
 2. **Given** an authoritative binding, **When** a second authoritative binding overlaps it, **Then** the database refuses it.
 3. **Given** two non-authoritative bindings for one asset, **When** both exist, **Then** they are stored as an unresolved conflict.
+4. **Given** a binding that already ended, **When** unlink is repeated, **Then** it leaves the original end and history unchanged and creates no second audit event.
+5. **Given** a source or binding outside the acting owner's target site, **When** its ID is used in a valid asset request, **Then** the service returns `NOT_FOUND` without writing a binding or audit event.
 
 ### User Story 3 - Every change leaves a record (Priority: P2)
 
@@ -62,10 +64,12 @@ A site holds arbitrary assets, each with a scope kind, and sources bind to asset
 - **FR-001**: Assets MUST carry a stable ID, name up to 60 characters, optional category and location, scope kind, and expected use.
 - **FR-002**: Scope kind MUST be one of `device`, `group`, `circuit`, `site_total`.
 - **FR-003**: Expected use MUST default to `unknown` and MUST never be derived from category.
-- **FR-004**: Bindings MUST be effective-dated, and removal MUST set an end time.
+- **FR-004**: Bindings MUST use half-open effective ranges. Removal MUST set the end once, after the start, without changing prior associations.
 - **FR-005**: At most one authoritative source per asset per instant MUST be enforced by the database.
 - **FR-006**: Relations MUST be within one site and acyclic.
 - **FR-007**: Audit events MUST be append-only, contain no secrets, and commit with their change.
+- **FR-008**: A binding's source and asset MUST belong to the same site. Asset lists MUST use bounded cursor pagination.
+- **FR-009**: Binding and source changes and asset or relation changes affecting scope validity MUST take the shared site write lock and advance the site's binding revision on commit. Failed and no-op transactions leave the revision unchanged.
 
 ### Key Entities
 
@@ -76,4 +80,4 @@ A site holds arbitrary assets, each with a scope kind, and sources bind to asset
 ### Measurable Outcomes
 
 - **SC-001**: Overlapping authoritative bindings fail at the database, proven by an integration test.
-- **SC-002**: Every mutation route in this PR writes exactly one audit event.
+- **SC-002**: Each committed change through a mutation route in this PR writes exactly one audit event. Failed saves and no-op repeats write none.

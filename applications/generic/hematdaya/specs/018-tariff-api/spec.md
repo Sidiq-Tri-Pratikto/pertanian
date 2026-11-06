@@ -43,9 +43,10 @@
 **Acceptance Scenarios**:
 
 1. **Given** two tariffs, **When** a period spans them, **Then** each interval uses its own rate.
-2. **Given** an interval crossing a tariff boundary, **When** computed, **Then** it splits by overlap under a stated uniform assumption and is flagged.
+2. **Given** a valid interval crossing a tariff boundary and no finer measurements, **When** the source semantics support a uniform allocation and the user accepts the assumption, **Then** the result uses overlap duration and labels the allocation estimate.
 3. **Given** a gap in tariff history, **When** computed, **Then** cost is incomplete with covered energy stated, never a zero-price interval.
 4. **Given** a new tariff effective now, **When** saved, **Then** old costs do not change; a confirmed retroactive correction recomputes and is audited.
+5. **Given** a boundary-crossing interval for which uniform allocation is unsuitable or unaccepted, **When** cost is read, **Then** that interval's cost is unknown and its recorded energy is counted as uncovered without changing the energy total.
 
 ### Edge Cases
 
@@ -58,8 +59,9 @@
 ### Functional Requirements
 
 - **FR-001**: Tariffs MUST be effective-dated, non-negative, per-site, with provenance.
-- **FR-002**: Cost MUST use integer arithmetic and round once.
-- **FR-003**: Summaries MUST state availability, covered energy and tariff provenance.
+- **FR-002**: Cost MUST use exact integer or rational arithmetic and round once after all eligible parts are summed.
+- **FR-003**: Summaries MUST state availability, covered and uncovered energy, tariff provenance and any split assumption or reason for unavailable cost.
+- **FR-004**: Retrying a confirmed tariff write with the same operation key MUST return the original effective rate and time without another audit entry.
 - **FR-004**: Routes MUST use the capability guard.
 
 ### Key Entities

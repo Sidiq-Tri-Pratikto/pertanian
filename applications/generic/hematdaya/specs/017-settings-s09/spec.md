@@ -30,7 +30,7 @@
 **Acceptance Scenarios**:
 
 1. **Given** a timezone change, **When** selected, **Then** the screen explains that local days recalculate and stored measurements stay.
-2. **Given** it is saved, **When** Beranda reloads, **Then** the resolved window shows the new timezone, and stored readings are unchanged.
+2. **Given** the change is acknowledged, **When** Beranda, history or comparisons next load, **Then** their local windows use the new timezone, no old-timezone result is labelled as current, and stored readings retain their UTC instants.
 
 ### User Story 3 - Drafts behave (Priority: P1)
 
@@ -42,6 +42,7 @@
 
 1. **Given** a rejected save, **When** it fails, **Then** the draft stays and confirmed values are still used.
 2. **Given** Batal, **When** pressed, **Then** the invoker returns with confirmed values.
+3. **Given** the save outcome is unknown, **When** the app reconnects, **Then** it keeps the draft, reads the authoritative settings, and reconciles before offering another save.
 
 ### Edge Cases
 
@@ -55,7 +56,8 @@
 - **FR-001**: The screen MUST edit site name, context and timezone.
 - **FR-002**: Timezone change MUST require explicit confirmation.
 - **FR-003**: Pengaturan MUST keep listing unshipped features.
-- **FR-004**: A save MUST write one audit event.
+- **FR-004**: A confirmed save MUST write one audit event in the same transaction. Replaying a save after a lost response MUST NOT duplicate it.
+- **FR-005**: After acknowledgment or authoritative reconciliation of a timezone change, the client MUST refresh site state and invalidate period-dependent data for that site. Previously confirmed content may be shown with its original timezone while refreshing.
 
 ### Key Entities
 

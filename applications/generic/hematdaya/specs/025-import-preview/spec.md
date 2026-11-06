@@ -33,7 +33,8 @@
 
 1. **Given** identical repeated rows, **When** previewed, **Then** one is accepted and the rest count as duplicates.
 2. **Given** different values for one source and interval, **When** previewed, **Then** they are conflicts and block commit even if the invalid share is low.
-3. **Given** a reimport of a committed file, **When** previewed, **Then** rows are exact duplicates and none are new.
+3. **Given** `[00:00, 02:00)` and `[01:00, 03:00)` for one source, in the file or against an accepted stored interval, **When** previewed, **Then** the overlapping candidate rows are conflicts even though their interval identities differ. Adjacent half-open intervals are valid.
+4. **Given** a reimport of a committed file with the same mapping, **When** previewed, **Then** rows are exact duplicates and the result is a no-op. A file with neither usable rows nor exact duplicates is blocked.
 
 ### User Story 3 - Map by identity, not name (Priority: P1)
 
@@ -62,6 +63,7 @@
 - **FR-003**: Limits MUST be enforced server-side.
 - **FR-004**: Preview MUST NOT change measurements.
 - **FR-005**: Assumptions MUST be listed before confirmation.
+- **FR-006**: Preview MUST classify interval overlaps after resolving source identity and MUST limit inline row errors, with remaining errors available by cursor.
 
 ### Key Entities
 

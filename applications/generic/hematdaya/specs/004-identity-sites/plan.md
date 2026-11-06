@@ -36,18 +36,19 @@ migrations/versions/0001_create_principals_and_sites.py
 | Route | Behaviour |
 |---|---|
 | `GET /api/v1/sites/{site_id}` | Owner only; `name`, `kind`, `context`, `timezone`, `currency`, `now` |
-| `PATCH /api/v1/sites/{site_id}` | Name, context, timezone; validated; audited from 005 |
+| `PATCH /api/v1/sites/{site_id}` | Owner only. Validate name, context and IANA timezone here. Add audit after 005 provides the audit service and explicit confirmation in the settings UI in 017. A timezone edit changes local windows, while stored UTC instants retain their original values. |
 
 ## Data Model
 
 ```sql
 principals(id uuid pk, kind text check (kind in ('demo','user')), created_at timestamptz)
 sites(id uuid pk, owner_principal_id uuid references principals not null,
-      kind text check (kind in ('demo','standard')), name text not null,
+      kind text not null check (kind in ('demo','standard')), name text not null,
       context text check (context in ('household','business','industry','unspecified')) default 'unspecified',
       timezone text not null default 'Asia/Jakarta', currency text not null default 'IDR',
       virtual_now timestamptz, created_at timestamptz,
-      check (virtual_now is null or kind = 'demo'))
+      check ((kind = 'demo' and virtual_now is not null)
+          or (kind = 'standard' and virtual_now is null)))
 ```
 
 Index `sites(owner_principal_id)`.
@@ -64,7 +65,7 @@ Index `sites(owner_principal_id)`.
 
 ## Test Plan
 
-Owner read; foreign read returns 404; missing credentials returns 401 with header; invalid timezone; CHECK on `virtual_now`; `site_clock` for both kinds; composition unaffected.
+Owner read and update. Foreign GET and PATCH return 404 without changing the site. Missing credentials return 401 with header. Invalid timezone leaves settings unchanged. The virtual-time CHECK rejects both a standard site with virtual time and a demo site without it. Verify `site_clock` for both kinds and that composition stays unaffected.
 
 ## Out of Scope
 

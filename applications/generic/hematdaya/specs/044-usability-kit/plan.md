@@ -10,11 +10,11 @@ docs/research/{moderator-guide-household.md, moderator-guide-industry.md, consen
 
 ## Summary
 
-Documents only. Running the study is the owner's work.
+Deliver the moderator kit and a readiness rehearsal. Keep a separate G4 evidence entry for each owner-run participant study, with counts, outcomes and task blockers. A rehearsal with a colleague verifies the kit and is not entered as a participant result.
 
 ## Test Plan
 
-One pilot with a colleague; note wrong turns in the kit itself.
+One rehearsal with a colleague and note wrong turns in the kit itself. Verify the report can record independent segment outcomes, including pending studies and unresolved task blockers.
 
 ## Out of Scope
 

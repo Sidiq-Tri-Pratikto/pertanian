@@ -13,9 +13,11 @@ docs/operations/benchmarks.md
 
 Measure §18 on the pilot host. No optimization in this PR.
 
+Use an isolated synthetic dataset and a fixed seed. Record fixture counts, actual import file size and row count, site window, app/database versions, hardware, request count and concurrency. Record cold and warm runs separately with the percentile method and failed requests. Time the complete validation and commit path from 025–026. Keep one evidence row for each §18 target and link other acceptance evidence or record the reason it remains not run.
+
 ## Test Plan
 
-The benchmark is the evidence. Record `EXPLAIN ANALYZE` for the slowest query.
+Repeat the fixed workload and record `EXPLAIN ANALYZE` for the slowest query on the benchmark database. Verify the response size and history bucket bounds alongside the latency evidence.
 
 ## Out of Scope
 

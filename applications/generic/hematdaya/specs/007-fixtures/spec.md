@@ -49,7 +49,8 @@ The household and industrial fixtures come from one deterministic generator with
 
 - **FR-001**: The generator MUST be pure and deterministic.
 - **FR-002**: The catalog MUST include: household base, no tariff, change, current period, learning plus no tariff plus partial, valid zero, stale plus offline, historical plus offline, scope overlap, empty, industry base, optional, change, current period.
-- **FR-003**: Fixtures MUST go through the same ingestion service as any other source.
+- **FR-003**: This spec MUST produce deterministic inputs for the shared ingestion service. Spec 008 persists them through the same service as any other source.
+- **FR-004**: Fixture definitions MUST retain interval, resolution, source, timezone and origin metadata. The historical demo scenario remains visibly simulated even when it exercises the historical-import view.
 
 ### Key Entities
 
@@ -61,3 +62,4 @@ The household and industrial fixtures come from one deterministic generator with
 
 - **SC-001**: Hourly sums reproduce: H day 2.100, week 14.700, four weeks 58.800 kWh; I output day 24.000, week 144.000, four weeks 576.000 kWh.
 - **SC-002**: Current-period oracles at 2026-10-21 12.00 reproduce: H 0.870 and 5.070 kWh; I 13.000 and 61.000 kWh.
+- **SC-003**: The reset part of FR-17 is verified in 008. The import-error part is verified with the CSV journey in 027. Neither is reported as fixture-generator evidence.

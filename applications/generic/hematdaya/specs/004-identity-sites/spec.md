@@ -22,7 +22,7 @@ Every site has an owner principal from the first migration, and a request can on
 **Acceptance Scenarios**:
 
 1. **Given** principal A owns a site, **When** A requests it, **Then** the site is returned.
-2. **Given** principal B, **When** B requests A's site, **Then** the response is `NOT_FOUND`, so the site's existence does not leak.
+2. **Given** principal B, **When** B reads or patches A's site, **Then** the response is `NOT_FOUND` and the site stays unchanged.
 3. **Given** no credentials on a protected route, **When** it is called, **Then** the response is `UNAUTHORIZED` with `WWW-Authenticate`.
 
 ### User Story 2 - A site has a visible timezone and neutral context (Priority: P1)
@@ -48,6 +48,7 @@ Demo sites run on a virtual clock and standard sites on the wall clock, behind o
 
 1. **Given** a demo site with `virtual_now` 2026-10-26 00.00, **When** product code asks for now, **Then** it gets that instant.
 2. **Given** a standard site, **When** `virtual_now` is written, **Then** the database refuses it.
+3. **Given** a demo site without a virtual time, **When** it is created, **Then** the database refuses it. The demo never falls back to the wall clock.
 
 ### Edge Cases
 
@@ -64,11 +65,12 @@ Demo sites run on a virtual clock and standard sites on the wall clock, behind o
 - **FR-004**: Foreign resources MUST return `NOT_FOUND`, never `FORBIDDEN`.
 - **FR-005**: Timezone MUST be a valid IANA name.
 - **FR-006**: `site_clock` MUST be the only source of product time.
+- **FR-007**: Every demo site MUST have a virtual time. Standard sites MUST have none. Audit, session expiry and security still use wall-clock time.
 
 ### Key Entities
 
 - **Principal**: `id`, `kind`.
-- **Site**: owner, kind, name, context, timezone, currency, optional virtual now.
+- **Site**: owner, kind, name, context, timezone, currency, virtual now for demo sites only.
 
 ## Success Criteria
 

@@ -4,7 +4,7 @@
 **Created**: 2026-10-30
 **Status**: Seeded, not started
 **Milestone**: M10 Platforms and usability
-**Depends on**: 037
+**Depends on**: 016, 023, 027, 029, 034, 037, 039
 **Size**: M
 **Covers**: AT-48
 **Flips**: none
@@ -23,6 +23,7 @@
 
 1. **Given** the preview profile, **When** built, **Then** an Android APK and an iOS build install on named devices and reach the HTTPS API.
 2. **Given** a release build, **When** it tries cleartext HTTP, **Then** it is blocked.
+3. **Given** the platform evidence, **When** reviewed, **Then** Android, iOS and web each name the exercised runtime and build or explicitly show not run.
 
 ### User Story 2 - A real identity (Priority: P2)
 
@@ -55,4 +56,4 @@ None.
 
 ### Measurable Outcomes
 
-- **SC-001**: The household and industry journeys pass on one Android and one iOS device.
+- **SC-001**: The household and industry core journeys pass on one Android and one iOS device against the HTTPS deployment from 039.

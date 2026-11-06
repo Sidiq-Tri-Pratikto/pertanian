@@ -19,13 +19,17 @@ Real accounts with revocable sessions, plus the web session decision.
 
 ## Decisions to Take in This PR
 
-- **Web sessions**: recommended, an `HttpOnly`, `Secure`, `SameSite` cookie for refresh on web, with CSRF protection; bearer access token in memory. Native keeps refresh in `expo-secure-store`.
-- **Rate limiting**: Postgres counters first. Add Redis only if 041 shows a need.
-- **Library**: `argon2-cffi`; access tokens as signed JWT with short expiry, or opaque with a lookup. Justify the choice in the PR.
+- **Web sessions**: use an `HttpOnly`, `Secure`, `SameSite` refresh cookie with CSRF protection and a bearer access token in memory. Native keeps refresh in `expo-secure-store`. Document the same-site deployment and exact origin policy for 039.
+- **Rate limiting**: use atomic Postgres counters across instances. Apply them to auth, per-client demo admission alongside the shared budget in 008, and per-principal import preview alongside the file and row limits in 025. Resolve anonymous client identity at trusted ingress and avoid recording the raw identifier in telemetry. 038 applies the shared limiter to exports when those routes ship. Revisit storage only if 041 shows a need.
+- **Credentials**: hash passwords with `argon2-cffi`. Store hashes of short-lived opaque access tokens and rotating refresh tokens, scoped to the same session family. Authorize each request against expiry and family state.
+
+## Rotation and revocation
+
+Lock the session family during rotation. Mark the presented refresh token consumed and create its replacement in one transaction. Retain consumed hashes until the family expires so replay can be detected. A known consumed token revokes that family before the typed error is sent. Use the shared error envelope and record. Commit the security state before returning the error response. A rollback must never report successful rotation or logout. An unknown token cannot revoke an arbitrary family.
 
 ## Settings
 
-`JWT_SECRET` or key reference, `ACCESS_TOKEN_MINUTES`, `REFRESH_TOKEN_DAYS`, rate limits. No default secret in production.
+`ACCESS_TOKEN_MINUTES`, `REFRESH_TOKEN_DAYS`, cookie/origin settings and rate limits. Validate bounds at startup and list them in `.env.example`.
 
 ## Prototype Reference
 
@@ -33,7 +37,7 @@ None: the prototype deliberately had no authentication.
 
 ## Test Plan
 
-Register, login, refresh rotation, reuse detection, logout, expiry, enumeration resistance, rate limit, route walk for isolation, sanitizer, demo principal still works.
+Register, login, concurrent refresh on independent connections, committed reuse revocation, logout, expiry, enumeration resistance, rate limit across instances, route walk for isolation, sanitizer, demo data access and refusal on account-only routes. Assert a replacement token and a previously issued access token are both rejected after reuse.
 
 ## Out of Scope
 
@@ -45,5 +49,5 @@ Team permissions, social login, cross-site dashboards.
 2. Migration.
 3. Passwords and tokens, tests first.
 4. Router and resolver.
-5. Rate limits on auth, imports, exports.
+5. Apply and test auth, demo and import rate limits. Document how 038 attaches export limits.
 6. Route-walk isolation test.

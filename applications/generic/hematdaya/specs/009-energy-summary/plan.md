@@ -4,7 +4,7 @@
 
 ## Summary
 
-The core read: SQL aggregation over `current_measurements` joined through authoritative bindings, plus scope validity, coverage and ranking.
+The core read: SQL aggregation over `current_measurements` resolved against effective bindings, plus shared scope validity, coverage and ranking. Persistence and user resolution of scope selection belong to 028.
 
 ## Project Structure
 
@@ -21,7 +21,7 @@ contracts/golden/summary-h-week.json, summary-i-week.json, summary-scope.json
 
 ## API Contract
 
-`GET /api/v1/sites/{site_id}/summary?preset=last_7_days` or `?start_date=&end_date=`:
+`GET /api/v1/sites/{site_id}/summary?preset=last_7_days` or `?start_date=&end_date=`. Validate the inclusive local-date span against a 366-day maximum before querying. This example is for the H fixture's known disjoint selection:
 
 ```json
 {
@@ -39,13 +39,13 @@ contracts/golden/summary-h-week.json, summary-i-week.json, summary-scope.json
 }
 ```
 
-`GET /api/v1/assets/{asset_id}/summary` returns one asset in the same shape.
+`GET /api/v1/assets/{asset_id}/summary` returns one asset in the same shape and is the parent-only read path until 028. The default site read considers all active assets but publishes a combined total and percentages only when the scope service can prove disjointness. Use the H/I fixture's known scope from 007/008 rather than treating missing relations as disjointness. Unresolved alternative-source overlap withholds that asset's combined value and returns separate source values. Scope persistence and resolution stay in 028, including its selection tables.
 
 ## SQL Notes
 
-- Coverage: `range_agg(tstzrange(interval_start, interval_end, '[)'))` intersected with the window; gaps are its complement.
-- Only readings bound authoritatively at `interval_start` count; `interval_end <= now`.
-- Boundary crossing: compute the fraction in Python only for the few crossing rows, in integers, and flag `allocated_estimate`.
+- Keep only completed observations with `interval_end <= now`. Resolve authority over half-open time ranges, then intersect an eligible reading with its binding range and the query window. Never count the portion after an old binding ends or before a new one begins. Do not add candidates for the same load and time when authority is unresolved.
+- For an ordinary interval where uniform allocation is defensible, compute each boundary fragment as the difference between cumulative integer allocations from the original interval start. Use exact arithmetic and the same rounding rule in every query so adjacent fragments reconcile. Set `allocated_estimate`. If allocation would mislead, omit the affected value and expose its reason. A long counter delta may contribute only when its whole span is supported by one binding and fits the query. Keep its known energy span separate from time resolution and never prorate it for a narrower period or bucket.
+- Derive gaps and per-asset coverage from the union of valid measured fragments using `range_agg(tstzrange(..., '[)'))`. For concurrent coverage intersect the selected assets' covered ranges. Report unresolved authority or unknown overlap separately from time gaps. Reuse these eligibility, allocation and coverage rules for history in 010.
 
 ## Prototype Reference
 
@@ -53,7 +53,7 @@ contracts/golden/summary-h-week.json, summary-i-week.json, summary-scope.json
 
 ## Test Plan
 
-Port AT-05, AT-06, FX-CUR, FX-NOW, AT-19, AT-21, AT-36, AT-36b, AT-35 at the API. Add period boundaries, Asia/Makassar window, crossing interval conservation, golden JSON, owner isolation, plus a 3,000-row query timing note.
+Port the applicable API oracles for AT-05, AT-06, FX-CUR, FX-NOW, AT-19, AT-21, AT-36, AT-36b and AT-35. Test unrelated unconfirmed meters, one-asset parent read, alternative-source detail, effective binding change inside an interval, a long counter span in whole and narrower requests, adjacent-fragment conservation, Asia/Makassar, maximum date span, golden JSON, owner isolation and a 3,000-row query timing note.
 
 ## Out of Scope
 

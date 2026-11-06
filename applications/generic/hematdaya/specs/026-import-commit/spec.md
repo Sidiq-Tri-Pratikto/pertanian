@@ -4,7 +4,7 @@
 **Created**: 2026-10-30
 **Status**: Seeded, not started
 **Milestone**: M5 CSV
-**Depends on**: 025
+**Depends on**: 021, 025
 **Size**: M
 **Covers**: FR-06, FR-19, AT-33, AT-34, AT-37
 **Flips**: manifest adapter `csv` → `available`
@@ -43,11 +43,11 @@
 **Acceptance Scenarios**:
 
 1. **Given** a commit, **When** it succeeds, **Then** the result lists rows added, skipped, duplicated, assets mapped and created, and periods affected.
-2. **Given** a late import over an existing period, **When** committed, **Then** affected insights get new revisions and an audit event names the range.
+2. **Given** a late import over an existing period, **When** committed, **Then** the same transaction invalidates affected insight identities and periods and writes an audit event naming the range. The next read evaluates those observations before returning current evidence and preserves prior revisions.
 
 ### Edge Cases
 
-- A preview gone stale because stored data changed is refused with a re-preview message.
+- A preview whose site measurement or binding revision changed is refused with a re-preview message. When two distinct previews contend for the same data, only a still-valid preview may commit.
 - Counter imports store deltas, and a reset interval has no energy.
 - Imported data is `Data historis · Impor CSV`, never a disconnected live meter.
 
@@ -58,7 +58,7 @@
 - **FR-001**: Commit MUST be one transaction through `IngestService`.
 - **FR-002**: Commit MUST be idempotent through `imports.status` and unique measurement identity.
 - **FR-003**: `GET /imports/{id}` MUST report status beyond any client timeout.
-- **FR-004**: Commit MUST write one audit event.
+- **FR-004**: The first successful commit MUST write one audit event. A data-changing commit MUST atomically invalidate affected insight identities or periods. A duplicate-only result records no affected periods, and replay writes no new audit event.
 
 ### Key Entities
 
@@ -69,4 +69,5 @@ Import from 025.
 ### Measurable Outcomes
 
 - **SC-001**: Concurrent double commit produces one result, proven by an integration test.
-- **SC-002**: A 150,000-row commit finishes within target or reports recoverable status; result recorded.
+- **SC-002**: Concurrent commits of distinct previews that conflict on a source interval or binding leave one valid result and one stale preview, with no partial changes.
+- **SC-003**: A 150,000-row commit finishes within the target or reports recoverable status. Record the result.

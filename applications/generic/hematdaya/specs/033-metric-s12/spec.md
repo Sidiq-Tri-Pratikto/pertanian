@@ -4,7 +4,7 @@
 **Created**: 2026-10-30
 **Status**: Seeded, not started
 **Milestone**: M7 Optional analysis
-**Depends on**: 017, 032
+**Depends on**: 014, 017, 032
 **Size**: M
 **Covers**: FR-11, UX-15, S12, P06
 **Flips**: registry `metrik-keluaran` → `available`
@@ -21,8 +21,9 @@
 
 1. **Given** S12, **When** valid inputs are previewed, **Then** numerator, denominator, method, units, period and coverage show.
 2. **Given** a valid preview, **When** saved, **Then** Beranda shows the metric.
-3. **Given** no valid preview, **When** Simpan metrik is reached, **Then** it is disabled with the reason.
-4. **Given** Nonaktifkan metrik, **When** acknowledged, **Then** the display goes and readings stay.
+3. **Given** no valid preview or a draft edited after preview, **When** Simpan metrik is reached, **Then** it is disabled with the reason.
+4. **Given** a stale preview or rejected save, **When** confirmation fails, **Then** the confirmed metric is unchanged and the draft stays available for correction or a new preview.
+5. **Given** Nonaktifkan metrik, **When** acknowledged, **Then** the display goes and readings stay.
 
 ### User Story 2 - Correct mistakes in place (Priority: P1)
 
@@ -46,6 +47,7 @@
 
 - **FR-001**: Entry MUST be secondary, from S09 or S06.
 - **FR-002**: The screen MUST NOT compute intensity.
+- **FR-003**: Simpan metrik MUST send the reviewed draft and preview fingerprint to the aggregate save from 032. The screen MUST invalidate the preview after any draft edit.
 
 ### Key Entities
 

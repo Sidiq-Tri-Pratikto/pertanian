@@ -8,11 +8,13 @@ Gated. Choose the model first, then design. Likely shape: Mosquitto with TLS, an
 
 ## Decisions to Take in This PR
 
-Model, broker hosting, credential handling, physical test setup. Verify current vendor documentation at that time.
+Model, broker hosting, credential handling, physical test setup. Verify current vendor documentation at that time. The spike must prove measurement-only permissions, or the model stays planned. Map an authenticated broker identity to an enrolled source server-side, authorize only measurement topics, and revoke source credentials independently of user sessions.
 
 ## Test Plan
 
-Enrollment; first reading; duplicate delivery; late data; stale; reference comparison; no control path.
+- Enrollment and valid first reading, duplicate delivery, late data, stale.
+- Reference comparison, no control path.
+- Verify cross-source topic denial, a forged site/source payload, revocation with an active connection, and refusal of relay/control topics using the adapter credential. Record the negative evidence before flipping the verified model.
 
 ## Out of Scope
 

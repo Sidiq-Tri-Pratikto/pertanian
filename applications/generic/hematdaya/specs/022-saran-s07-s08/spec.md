@@ -4,7 +4,7 @@
 **Created**: 2026-10-30
 **Status**: Seeded, not started
 **Milestone**: M4 Evidence
-**Depends on**: 013, 021
+**Depends on**: 013, 015, 021
 **Size**: M
 **Covers**: FR-13, UX-04, AT-01, AT-02, S07, S08, P04
 **Flips**: registry `saran` → `available`
@@ -22,7 +22,8 @@
 1. **Given** `h-change`, **When** Beranda opens, **Then** the featured observation reads "TV naik 1,400 kWh (+55,56%)" with Lihat dasar saran.
 2. **Given** evidence, **When** opened, **Then** it reads in order: observed, comparison, quality and scope, unknown, inspection step.
 3. **Given** Detail perhitungan, **When** opened, **Then** resolution, threshold, policy version and arithmetic show.
-4. **Given** Lihat data pembanding, **When** opened, **Then** an aligned chart and table show the same numbers.
+4. **Given** Lihat data pembanding, **When** opened, **Then** the aligned chart and table show the same current/reference numbers from the selected evidence revision and its common mask.
+5. **Given** a newer evidence revision arrives after a card is shown, **When** the user opens that card, **Then** the original revision remains visible and is marked superseded where applicable.
 
 ### User Story 2 - The list stays honest (Priority: P1)
 
@@ -49,6 +50,7 @@
 - **FR-001**: The screens MUST render evidence strings from the service.
 - **FR-002**: There MUST be no "Terapkan", shutdown action or diagnosis.
 - **FR-003**: Each item MUST name asset, statement, period and qualification.
+- **FR-004**: A featured or listed observation MUST link with its insight ID and exact evidence revision. The evidence view, calculation detail, chart and table MUST use that revision's frozen snapshot.
 
 ### Key Entities
 

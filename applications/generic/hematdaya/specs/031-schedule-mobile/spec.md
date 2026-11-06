@@ -4,7 +4,7 @@
 **Created**: 2026-10-30
 **Status**: Seeded, not started
 **Milestone**: M7 Optional analysis
-**Depends on**: 017, 030
+**Depends on**: 014, 017, 030
 **Size**: M
 **Covers**: FR-10, UX-15, AT-14, S09, P05
 **Flips**: registry `jadwal-pemakaian` → `available`
@@ -22,7 +22,8 @@
 1. **Given** the editor, **When** an overnight window is entered with Berakhir hari berikutnya, **Then** the preview says it is counted on the start day.
 2. **Given** equal times, **When** saved, **Then** the error asks for a correction or 24 jam.
 3. **Given** effective now, **When** previewed, **Then** past periods are stated as unchanged.
-4. **Given** historical correction, **When** previewed, **Then** inside and outside energy from the service show.
+4. **Given** historical correction, **When** previewed, **Then** inside and outside energy from the service show before anything is saved.
+5. **Given** a draft edited after preview, **When** Simpan is reached, **Then** a fresh preview is required.
 
 ### User Story 2 - Override per asset (Priority: P1)
 
@@ -54,8 +55,8 @@
 ### Functional Requirements
 
 - **FR-001**: The editor MUST support weekdays, multiple windows, next-day end and 24 jam.
-- **FR-002**: Previews MUST come from the service.
-- **FR-003**: Native time pickers MUST be used on phones.
+- **FR-002**: Previews MUST come from the read-only service endpoints in 030. Only confirmation sends a save, using the same draft and its expected versions.
+- **FR-003**: Native time pickers MUST be used on phones. Web time fields MUST be labelled and operable by keyboard.
 
 ### Key Entities
 

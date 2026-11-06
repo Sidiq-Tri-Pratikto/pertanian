@@ -35,8 +35,9 @@
 1. **Given** `power_w`, **When** parsed, **Then** it stays unresolved until the user confirms interval average; instantaneous power is blocked.
 2. **Given** competing value columns, **When** parsed, **Then** the user must choose one.
 3. **Given** naive timestamps, **When** parsed, **Then** the site timezone applies only after confirmation.
-4. **Given** one row or irregular gaps, **When** parsed, **Then** cadence is not inferred and an explicit interval is required.
-5. **Given** a long gap, **When** parsed, **Then** the earlier row is never stretched across it.
+4. **Given** a timestamp-only interval-energy or average-power stream with one row or no reliable cadence, **When** parsed, **Then** it needs a confirmed interval duration or explicit start/end columns.
+5. **Given** two mapped sources with different regular cadences and a long gap in one, **When** parsed, **Then** each stream keeps its own cadence. Every timestamp is the start of one interval, including the final row, and the long gap remains uncovered.
+6. **Given** timestamp-only counter readings, **When** parsed, **Then** they remain point readings. The parser does not infer interval duration or energy from cadence.
 
 ### User Story 3 - Say exactly what is wrong (Priority: P1)
 
@@ -64,7 +65,7 @@
 
 - **FR-001**: Header aliases MUST match PRD §10.2, case-insensitively.
 - **FR-002**: The parser MUST be pure and stream rows.
-- **FR-003**: Cadence inference MUST run per source and need 90% of gaps within one second of the median.
+- **FR-003**: For timestamp-only interval energy and average power, cadence inference MUST use sorted positive gaps per mapped source. At least 90% of those gaps MUST be within one second of their median. Every timestamp starts one confirmed or inferred interval, including the final row. Counter points bypass cadence inference.
 - **FR-004**: Decimal parsing MUST be exact to three places.
 - **FR-005**: Output MUST separate structural errors, meaning questions and row errors.
 

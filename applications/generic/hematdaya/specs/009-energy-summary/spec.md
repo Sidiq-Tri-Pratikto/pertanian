@@ -34,9 +34,10 @@
 **Acceptance Scenarios**:
 
 1. **Given** Meter utama contains Kulkas and both are selected, **When** the summary is read, **Then** total is `null`, reason `scope_conflict`, and individual values remain.
-2. **Given** only Meter utama is selected, **When** read, **Then** the total is its own value.
+2. **Given** Meter utama is requested through the single-asset summary, **When** read, **Then** the total is its own value. The user can persist a parent-only site selection from 028.
 3. **Given** Kulkas has two unresolved sources, **When** read, **Then** its value is withheld and each source's value is listed: never their sum.
 4. **Given** unknown overlap between two selected assets, **When** read, **Then** the combined total is refused.
+5. **Given** two unrelated meters with no evidence of disjointness, **When** the default summary includes both candidates, **Then** individual values remain visible and the combined total and contribution percentages are withheld.
 
 ### User Story 3 - Honest completeness (Priority: P1)
 
@@ -51,7 +52,8 @@
 
 ### Edge Cases
 
-- An interval crossing a period boundary is allocated proportionally and flagged as an estimate; parts sum exactly to the source value.
+- An ordinary interval may be allocated across a period or binding boundary only as a visible uniform-within-interval estimate. Use the same deterministic allocation in all queries so parts sum exactly to the source value. If the resolution does not support the split, disclose the gap instead.
+- A long valid counter delta can support its whole-span total. It cannot produce a number or measured time coverage for a narrower subperiod.
 - Half-open windows from the site's local calendar; weeks start Monday.
 - A full interval ending exactly at now is included.
 
@@ -61,9 +63,10 @@
 
 - **FR-001**: The API MUST return selected window (UTC and local), timezone, included and excluded assets with reasons, energy, coverage, gaps, latest measurement, origins and revision.
 - **FR-002**: Energy MUST be a decimal string; unavailable MUST be `null` with a reason.
-- **FR-003**: The default selection MUST be all active assets until 028 adds an explicit selection.
+- **FR-003**: Until 028, the default candidates MUST be all active assets. A combined total MUST require a single asset or demonstrably disjoint loads. Seeded H/I fixtures carry known disjointness. Never infer it from a missing relation or an unrelated source ID.
 - **FR-004**: Contribution percentages MUST be computed by the service and omitted for a zero total.
 - **FR-005**: Queries MUST use the site clock.
+- **FR-006**: A requested local-date range MUST be capped at 366 days before querying data.
 
 ### Key Entities
 

@@ -4,7 +4,7 @@
 **Created**: 2026-10-30
 **Status**: Seeded, not started
 **Milestone**: M9 Saved service
-**Depends on**: 012, 036
+**Depends on**: 012, 019, 027, 029, 031, 034, 036
 **Size**: M
 **Covers**: FR-01, AT-40
 **Flips**: registry `akun` → `available`
@@ -33,18 +33,19 @@
 
 1. **Given** an expired session during a save, **When** it fails, **Then** the non-secret draft stays, the login boundary shows, and retry after login is explicit.
 2. **Given** retry after login, **When** run, **Then** no duplicate commit occurs.
+3. **Given** a different owner logs in, **When** the previous session expired during a save, **Then** the previous owner's draft and confirmed data are unavailable to that owner.
 
 ### Edge Cases
 
 - Passwords never persist in a draft.
-- Refresh failure on two tabs on web does not sign out twice.
+- Two tabs using the same web refresh cookie share one refresh operation. Terminal failure is propagated to both tabs.
 
 ## Requirements
 
 ### Functional Requirements
 
 - **FR-001**: Tokens MUST be stored per the decision in 036.
-- **FR-002**: Refresh MUST be single-flight.
+- **FR-002**: Refresh MUST be single-flight within a native client and across web tabs that share the refresh cookie.
 - **FR-003**: Forms MUST support password managers and platform autofill.
 
 ### Key Entities

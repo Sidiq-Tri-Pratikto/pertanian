@@ -4,7 +4,7 @@
 **Created**: 2026-10-30
 **Status**: Seeded, not started
 **Milestone**: M3 Settings and cost
-**Depends on**: 017, 018
+**Depends on**: 014, 017, 018
 **Size**: S
 **Covers**: FR-08, UX-06, AT-07, S09, S03
 **Flips**: registry `estimasi-biaya` → `available`
@@ -22,6 +22,7 @@
 1. **Given** synthetic tariff, **When** Beranda opens, **Then** "Estimasi biaya energi terpantau" shows Rp22.050, says the tariff is simulated, and says it is not a bill.
 2. **Given** no tariff, **When** Beranda opens, **Then** "Biaya belum dihitung · tarif belum diatur" shows with an optional action, and energy stays.
 3. **Given** Detail biaya, **When** opened, **Then** tariff, effective dates, covered energy and bill limitation show.
+4. **Given** a tariff boundary with unavailable cost, **When** the user chooses to accept a suitable uniform allocation estimate, **Then** the displayed cost comes from the server and is labelled as an estimate. Declining keeps that portion unknown.
 
 ### User Story 2 - Set a tariff (Priority: P2)
 
@@ -31,9 +32,11 @@
 
 **Acceptance Scenarios**:
 
-1. **Given** the tariff field, **When** a decimal comma value is entered and saved, **Then** cost updates after acknowledgment.
-2. **Given** an empty field, **When** saved, **Then** tariff stays absent, not zero.
+1. **Given** the tariff field, **When** a decimal comma value is entered and saved, **Then** the effective time defaults to now, its date is visible, and cost updates after acknowledgment.
+2. **Given** an empty field, **When** the user tries to save, **Then** no tariff is created, removed or set to zero.
+3. **Given** a save result is unknown, **When** the user explicitly retries, **Then** the same operation key recovers the confirmed tariff without a second effective date.
 3. **Given** core-only, **When** settings open, **Then** the section explains the module is off.
+4. **Given** an earlier effective date, **When** the user requests a correction, **Then** the screen names the affected date and confirms recomputation before submitting.
 
 ### Edge Cases
 

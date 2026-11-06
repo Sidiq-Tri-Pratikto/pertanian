@@ -4,7 +4,7 @@
 **Created**: 2026-10-30
 **Status**: Seeded, not started
 **Milestone**: M9 Saved service
-**Depends on**: 036
+**Depends on**: 011, 036
 **Size**: M
 **Covers**: FR-22, AT-54
 **Flips**: none
@@ -30,8 +30,9 @@
 
 **Acceptance Scenarios**:
 
-1. **Given** a deployment, **When** inspected, **Then** source release, composition, policies and migration head are recorded and match the manifest.
+1. **Given** a deployment, **When** inspected, **Then** the release, composition and policies match the manifest, and the recorded migration head matches the database.
 2. **Given** a supported isolated client deployment, **When** made, **Then** it uses the same source with separate data, secrets and access, and never a source fork.
+3. **Given** both supported compositions, **When** deployed from one source release, **Then** each produces the exact household and industrial fixture results, and the release inventory identifies the composition, migration and rollback for each deployment.
 
 ### User Story 3 - Failures reach someone (Priority: P1)
 
@@ -47,6 +48,7 @@
 
 - A site is not a tenant: no tenant claim follows from this work.
 - Rollback steps are written and rehearsed.
+- The HTTPS environment can be rehearsed with synthetic data. Opening a saved-data pilot requires 038 and the restore rehearsal in 040.
 
 ## Requirements
 
@@ -65,4 +67,5 @@
 ### Measurable Outcomes
 
 - **SC-001**: A second person can deploy from the runbook alone.
-- **SC-002**: A phone release build reaches the API over HTTPS.
+- **SC-002**: An actual phone reaches the rehearsal API over HTTPS. 042 supplies the installed app's release-build evidence.
+- **SC-003**: The AT-54 evidence records both composition oracles, affected contract checks and separation of storage, secrets and access.

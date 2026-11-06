@@ -4,7 +4,7 @@
 **Created**: 2026-10-30
 **Status**: Seeded, not started
 **Milestone**: M9 Saved service
-**Depends on**: 039
+**Depends on**: 026, 039
 **Size**: S
 **Covers**: FR-07
 **Flips**: none
@@ -32,7 +32,7 @@
 ### Functional Requirements
 
 - **FR-001**: Benchmarks MUST be reproducible from the repository.
-- **FR-002**: Results MUST be committed with environment details.
+- **FR-002**: Results MUST be committed with environment details and a reproducible workload: fixture seed, row counts, window, request count, concurrency and cold or warm conditions.
 
 ### Key Entities
 

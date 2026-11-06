@@ -16,7 +16,7 @@ src/features/assets/{EditAssetSheet.tsx, ArchiveAssetSheet.tsx, useAssetMutation
 
 ## Mobile
 
-`HDErrorSummary` focuses itself and links to fields, through `ref.focus()`. Drafts are kept in the screen's feature state until explicitly discarded. Mutations invalidate the summary and asset queries only after acknowledgment.
+`HDErrorSummary` focuses itself and links to fields through `ref.focus()`. Keep drafts until explicitly discarded. Send edits and the absolute `archived` state via 005's PATCH route. Invalidate asset and summary queries after acknowledgment. On timeout, keep confirmed content visible and reconcile with GET before offering another save. If the returned values already match the requested state, use the read as confirmation. Otherwise show current values and preserve the draft for explicit review and a fresh save. An automatic retry would require a service-side precondition against overwriting a concurrent edit.
 
 ## Prototype Reference
 
@@ -24,7 +24,7 @@ src/features/assets/{EditAssetSheet.tsx, ArchiveAssetSheet.tsx, useAssetMutation
 
 ## Test Plan
 
-Save success; rejection keeps draft; validation; focus to summary; archive; restore; totals unchanged; owner isolation in API tests from 005.
+Test confirmed saves, draft retention after rejection, a lost response after commit, and a concurrent edit before reconciliation. Verify validation, focus, archive and restore, unchanged measurements and binding history, and owner isolation in the API tests from 005.
 
 ## Out of Scope
 
