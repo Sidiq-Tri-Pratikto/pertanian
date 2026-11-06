@@ -1,0 +1,272 @@
+name: HematDaya Android Smoke
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - applications/generic/hematdaya/applications/hematdaya-mobile/**
+      - .github/workflows/hematdaya-android-smoke.yml
+  pull_request:
+    paths:
+      - applications/generic/hematdaya/applications/hematdaya-mobile/**
+      - .github/workflows/hematdaya-android-smoke.yml
+
+permissions:
+  contents: read
+
+# A run costs Actions minutes on a private repository, so a new push replaces the PR's run in progress.
+concurrency:
+  group: hematdaya-android-smoke-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  hematdaya-android-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: applications/generic/hematdaya/applications/hematdaya-mobile
+    env:
+      API_LEVEL: "34"
+      DEVICE_PROFILE: pixel_6
+      EMULATOR_TARGET: default
+      EMULATOR_ARCH: x86_64
+      EMULATOR_BOOT_TIMEOUT: "300"
+      EMULATOR_OPTIONS: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot-save
+      APK_PATH: android/app/build/outputs/apk/debug/app-debug.apk
+      METRO_BUNDLE_URL: http://localhost:8081/.expo/.virtual-metro-entry.bundle?platform=android&dev=true
+      MAESTRO_CLI_NO_ANALYTICS: "1"
+      EXPO_NO_TELEMETRY: "1"
+      MAESTRO_DRIVER_STARTUP_TIMEOUT: "180000"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare evidence folder
+        run: |
+          echo "EVIDENCE_DIR=$RUNNER_TEMP/smoke" >> "$GITHUB_ENV"
+          mkdir -p "$RUNNER_TEMP/smoke"
+
+      # The NDK, the build and the emulator image together fill the runner's disk. This job uses none of these toolchains.
+      - name: Free disk space
+        run: |
+          df -h /
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL /usr/local/share/boost
+          df -h /
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      # A software emulator would burn minutes and then fail unclearly, so stop here instead.
+      - name: Check KVM
+        run: |
+          if [ ! -r /dev/kvm ] || [ ! -w /dev/kvm ]; then
+            echo "::error::/dev/kvm is not available. The entry condition of spec 003 is unmet: this hosted runner cannot boot the Android emulator."
+            exit 1
+          fi
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: applications/generic/hematdaya/applications/hematdaya-mobile/.nvmrc
+          cache: npm
+          cache-dependency-path: applications/generic/hematdaya/applications/hematdaya-mobile/package-lock.json
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Install Maestro
+        env:
+          MAESTRO_VERSION: 2.12.1
+          MAESTRO_SHA256: 54dbb0716425626604973cbb374c585ca30272375d9ce15177a1152765ddd9d7
+        run: |
+          curl -fsSL --retry 3 -o "$RUNNER_TEMP/maestro.zip" \
+            "https://github.com/mobile-dev-inc/maestro/releases/download/cli-${MAESTRO_VERSION}/maestro.zip"
+          echo "$MAESTRO_SHA256  $RUNNER_TEMP/maestro.zip" | sha256sum --check --strict -
+          unzip -q "$RUNNER_TEMP/maestro.zip" -d "$RUNNER_TEMP"
+          rm "$RUNNER_TEMP/maestro.zip"
+          echo "$RUNNER_TEMP/maestro/bin" >> "$GITHUB_PATH"
+          "$RUNNER_TEMP/maestro/bin/maestro" --version | tee "$EVIDENCE_DIR/maestro-version.txt"
+
+      - run: npm ci
+
+      - name: Generate the Android project
+        run: CI=1 npx expo prebuild --platform android --no-install
+
+      # Runs after prebuild because its cache key hashes Gradle files, and the action fails when none exist yet.
+      # The default provider is proprietary and only a free preview on private repositories. Basic is MIT and free.
+      - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+        with:
+          cache-provider: basic
+          add-job-summary: on-failure
+
+      # Stopping Gradle frees its memory for the emulator on a small hosted runner.
+      - name: Build debug APK
+        run: |
+          cd android
+          ./gradlew assembleDebug -PreactNativeArchitectures=x86_64
+          ./gradlew --stop
+
+      - name: Record APK
+        run: |
+          {
+            echo "apk_name=$(basename "$APK_PATH")"
+            echo "apk_size_bytes=$(stat -c %s "$APK_PATH")"
+            echo "apk_sha256=$(sha256sum "$APK_PATH" | cut -d ' ' -f 1)"
+          } > "$EVIDENCE_DIR/apk.txt"
+          df -h / | tee "$EVIDENCE_DIR/disk-after-build.txt"
+
+      # The debug APK has no embedded JavaScript, so Metro must outlive this step and serve the app during the flow.
+      - name: Start Metro
+        run: |
+          CI=1 nohup setsid npx expo start --port 8081 < /dev/null > "$EVIDENCE_DIR/metro.log" 2>&1 &
+          echo "$!" > "$RUNNER_TEMP/metro.pid"
+
+      - name: Wait for Metro
+        run: |
+          for _ in $(seq 1 60); do
+            if [ "$(curl -fsS --max-time 2 http://localhost:8081/status || true)" = "packager-status:running" ]; then
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "::error::Metro did not answer /status within 2 minutes."
+          tail -n 50 "$EVIDENCE_DIR/metro.log" || true
+          exit 1
+
+      # A cold bundle on a hosted runner can outlast a launch assertion.
+      - name: Preload the Android bundle
+        run: |
+          if ! curl -fsS --max-time 300 -o /dev/null "$METRO_BUNDLE_URL"; then
+            echo "::error::Metro did not serve the Android bundle within 5 minutes."
+            tail -n 50 "$EVIDENCE_DIR/metro.log" || true
+            exit 1
+          fi
+
+      # continue-on-error keeps the job alive to classify the failure. The final gate restores the verdict.
+      - name: Run smoke flow
+        id: first_attempt
+        continue-on-error: true
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
+        with:
+          api-level: ${{ env.API_LEVEL }}
+          target: ${{ env.EMULATOR_TARGET }}
+          arch: ${{ env.EMULATOR_ARCH }}
+          profile: ${{ env.DEVICE_PROFILE }}
+          emulator-boot-timeout: ${{ env.EMULATOR_BOOT_TIMEOUT }}
+          emulator-options: ${{ env.EMULATOR_OPTIONS }}
+          disable-animations: true
+          working-directory: applications/generic/hematdaya/applications/hematdaya-mobile
+          script: bash e2e/android-smoke.sh
+
+      # The script's first action creates the marker, so its absence means the emulator never came up.
+      - name: Classify the failed attempt
+        id: classify
+        if: steps.first_attempt.outcome == 'failure'
+        run: |
+          if [ -e "$RUNNER_TEMP/emulator-booted" ]; then
+            echo "retry=false" >> "$GITHUB_OUTPUT"
+            echo "::error::The emulator booted and the smoke run failed. Not retrying, because only a failed boot retries."
+          else
+            echo "retry=true" >> "$GITHUB_OUTPUT"
+            echo "::warning::The emulator did not start. Retrying once."
+            # A timed-out boot can leave the emulator holding the AVD, which would fail the retry for the wrong reason.
+            pkill -9 -f qemu-system || true
+          fi
+
+      - name: Retry smoke flow after a failed boot
+        id: retry_attempt
+        if: steps.classify.outputs.retry == 'true'
+        continue-on-error: true
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
+        with:
+          api-level: ${{ env.API_LEVEL }}
+          target: ${{ env.EMULATOR_TARGET }}
+          arch: ${{ env.EMULATOR_ARCH }}
+          profile: ${{ env.DEVICE_PROFILE }}
+          emulator-boot-timeout: ${{ env.EMULATOR_BOOT_TIMEOUT }}
+          emulator-options: ${{ env.EMULATOR_OPTIONS }}
+          disable-animations: true
+          working-directory: applications/generic/hematdaya/applications/hematdaya-mobile
+          script: bash e2e/android-smoke.sh
+
+      - name: Stop Metro
+        if: always()
+        run: |
+          if [ -e "$RUNNER_TEMP/metro.pid" ]; then
+            kill -- "-$(cat "$RUNNER_TEMP/metro.pid")" 2>/dev/null || true
+          fi
+
+      - name: Write job summary
+        id: summary
+        if: always()
+        env:
+          FIRST_OUTCOME: ${{ steps.first_attempt.outcome }}
+          RETRY_OUTCOME: ${{ steps.retry_attempt.outcome }}
+        run: |
+          mkdir -p "$EVIDENCE_DIR"
+
+          field() {
+            value="$(sed -n "s/^$2=//p" "$EVIDENCE_DIR/$1" 2>/dev/null || true)"
+            echo "${value:-not recorded}"
+          }
+
+          attempts=0
+          case "$FIRST_OUTCOME" in success | failure) attempts=1 ;; esac
+          retried=no
+          case "$RETRY_OUTCOME" in success | failure) attempts=2 retried="yes, the emulator did not start on the first attempt" ;; esac
+
+          flow_exit="$(cat "$EVIDENCE_DIR/flow-exit-code" 2>/dev/null || true)"
+          result=failed
+          if { [ "$FIRST_OUTCOME" = success ] || [ "$RETRY_OUTCOME" = success ]; } && [ "$flow_exit" = 0 ]; then
+            result=passed
+          fi
+
+          {
+            echo "## HematDaya Android smoke"
+            echo
+            echo "| Field | Value |"
+            echo "|---|---|"
+            echo "| Result | $result |"
+            echo "| Attempts | $attempts |"
+            echo "| Boot retry | $retried |"
+            echo "| Maestro exit code | ${flow_exit:-not reached} |"
+            echo "| API level (live) | $(field device.txt api_level) |"
+            echo "| API level (configured) | $API_LEVEL |"
+            echo "| Device profile (configured) | $DEVICE_PROFILE |"
+            echo "| Emulator image | $EMULATOR_TARGET, $EMULATOR_ARCH |"
+            echo "| Device model (live) | $(field device.txt device_model) |"
+            echo "| Display size (live) | $(field device.txt display_size) |"
+            echo "| Display density (live) | $(field device.txt display_density) |"
+            echo "| APK | $(field apk.txt apk_name) |"
+            echo "| APK size in bytes | $(field apk.txt apk_size_bytes) |"
+            echo "| APK SHA-256 | $(field apk.txt apk_sha256) |"
+            echo "| Maestro | $(head -n 1 "$EVIDENCE_DIR/maestro-version.txt" 2>/dev/null || echo "not recorded") |"
+            echo "| iOS | not run until spec 042 |"
+            echo
+            echo "Flow report, screenshots, logcat and the Metro log are in the \`android-smoke-evidence\` artifact."
+          } | tee "$EVIDENCE_DIR/summary.md" >> "$GITHUB_STEP_SUMMARY"
+
+          echo "result=$result" >> "$GITHUB_OUTPUT"
+
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-smoke-evidence
+          path: ${{ runner.temp }}/smoke
+          retention-days: 14
+
+      # Fails closed: anything other than a recorded pass, including a summary that never ran, fails the job.
+      - name: Smoke gate
+        if: ${{ !cancelled() }}
+        env:
+          RESULT: ${{ steps.summary.outputs.result }}
+        run: |
+          if [ "$RESULT" != passed ]; then
+            echo "::error::The Android smoke run did not pass. See the job summary and the android-smoke-evidence artifact."
+            exit 1
+          fi
