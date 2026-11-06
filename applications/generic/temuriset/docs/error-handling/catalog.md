@@ -39,8 +39,8 @@ One row per error. Keep in sync with `app/core/errors/codes.py` and `public.py`.
 | `APP-PROPOSAL-CLOSED` | `PROPOSAL_CLOSED` | 409 | Usulan waktu ini sudah tidak terbuka. Muat ulang untuk melihat usulan terbaru. | Accepting or cancelling a proposal that expired, was superseded, accepted or cancelled; the envelope adds `reason` | false | - | - |
 | `APP-ENTITY-REQUIRED` | `ENTITY_REQUIRED` | 422 | Kerja Sama ekuitas memerlukan badan usaha yang sudah berdiri. Pilih jenis lain atau dirikan badan usaha dulu. | Proposing an EQUITY relationship for a pitch whose source has no identified legal entity (AC21); discussion stays open | false | - | - |
 | `APP-MEETING-NOT-COMPLETED` | `MEETING_NOT_COMPLETED` | 409 | Ringkasan Kerja Sama diusulkan setelah pertemuan selesai. Catat hasil pertemuan bersama pihak lain dulu. | Proposing a relationship before both parties recorded a meeting as completed | false | - | - |
-| `APP-SUMMARY-REFUSED` | `SUMMARY_REFUSED` | 200 | Ringkasan otomatis ditolak. Lanjutkan dengan menyunting brief. | The summary was refused because the selection or its live authorization failed. The fallback carries `summarizer_error`. | false | - | - |
-| `APP-SUMMARY-UNAVAILABLE` | `SUMMARY_UNAVAILABLE` | 200 | Ringkasan otomatis tidak tersedia. Lanjutkan dengan menyunting brief. | The adapter failed. The fallback carries `summarizer_error` after at most one transient retry. | false | - | - |
+| `APP-SUMMARY-REFUSED` | `SUMMARY_REFUSED` | 200 | Ringkasan otomatis ditolak. Lanjutkan dengan menyunting brief. | The summary was refused because the selection, its live authorization or the bounded relay contract failed. The fallback carries `summarizer_error`. | false | - | - |
+| `APP-SUMMARY-UNAVAILABLE` | `SUMMARY_UNAVAILABLE` | 200 | Ringkasan otomatis tidak tersedia. Lanjutkan dengan menyunting brief. | The adapter failed. Only a timeout or connection failure can trigger a single retry. The fallback carries `summarizer_error`. | false | - | - |
 
 A missing `Idempotency-Key` on a consequential POST is `BAD_REQUEST` with `details` naming the header.
 

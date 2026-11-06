@@ -17,3 +17,6 @@ def setup_logging(level: str) -> None:
     logger.handlers = [handler]
     logger.setLevel(level)
     logger.propagate = False
+    # Dependency diagnostics can include untrusted status text or headers. Use the app's safe error recorder.
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+    logging.getLogger("httpcore").setLevel(logging.WARNING)

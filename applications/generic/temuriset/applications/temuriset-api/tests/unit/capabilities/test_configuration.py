@@ -4,7 +4,7 @@ import logging
 from unittest.mock import patch
 
 import pytest
-from pydantic import ValidationError
+from pydantic import SecretStr, ValidationError
 
 from app.capabilities.service.configuration import ConfigurationError, looks_secret, validate_configuration
 from app.capabilities.service.service import build_manifest
@@ -229,3 +229,89 @@ def test_manifest_reports_storage_implementation() -> None:
     manifest = build_manifest("generic-base", storage_adapter="s3")
     adapter = next(adapter for adapter in manifest.adapters if adapter.id == "object-storage")
     assert adapter.implementation == "s3"
+
+
+@pytest.mark.parametrize(
+    ("updates", "error"),
+    [
+        ({"environment": "production"}, "allowed only in development"),
+        ({"summary_relay_url": None}, "requires a literal HTTP loopback endpoint"),
+        (
+            {"summary_relay_url": SecretStr("http://localhost:54321/select")},
+            "requires a literal HTTP loopback endpoint",
+        ),
+        (
+            {"summary_relay_url": SecretStr("https://127.0.0.1:54321/select")},
+            "requires a literal HTTP loopback endpoint",
+        ),
+        (
+            {"summary_relay_url": SecretStr("http://127.0.0.1:65536/select")},
+            "requires a literal HTTP loopback endpoint",
+        ),
+        (
+            {"summary_relay_url": SecretStr("http://127.0.0.1:1234@synthetic.invalid")},
+            "requires a literal HTTP loopback endpoint",
+        ),
+        (
+            {"summary_relay_url": SecretStr("http://127.0.0.1:1234/select?token=secret-example")},
+            "requires a literal HTTP loopback endpoint",
+        ),
+        ({"summary_model_id": "secret-looking-key-123456789012345678901234567890123456"}, "SUMMARY_MODEL_ID"),
+        ({"summary_model_version": ""}, "SUMMARY_MODEL_VERSION"),
+        ({"summary_prompt_version": ""}, "SUMMARY_PROMPT_VERSION"),
+    ],
+)
+def test_local_summary_relay_rejects_unsafe_configuration(updates: dict, error: str) -> None:
+    """
+    Condition:
+    - The local relay is configured outside development, with unsafe addressing, or incomplete/secret metadata.
+
+    Expected:
+    - Startup fails and diagnostics name the setting without publishing supplied values.
+    """
+    settings = _settings(
+        file_scanner="clamav",
+        mailbox_adapter="disabled",
+        storage_adapter="s3",
+        s3_endpoint_url=SecretStr("https://storage.example.invalid"),
+        s3_bucket="synthetic-fixture",
+        s3_access_key=SecretStr("fake-storage-key"),
+        s3_secret_key=SecretStr("fake-storage-secret"),
+        summary_adapter="local-relay",
+        summary_relay_url=SecretStr("http://127.0.0.1:54321/select"),
+        summary_model_id="synthetic-selector",
+        summary_model_version="model-v2",
+        summary_prompt_version="prompt-v3",
+    ).model_copy(update=updates)
+
+    with pytest.raises(ConfigurationError, match=error) as failure:
+        validate_configuration(settings)
+    assert "secret-example" not in str(failure.value)
+    assert "secret-looking-key" not in str(failure.value)
+
+
+def test_ai_summary_manifest_defaults_off_and_accepts_valid_local_configuration() -> None:
+    """
+    Condition:
+    - The service runs with default settings, then with a validated development loopback relay.
+
+    Expected:
+    - Only the validated local profile advertises availability, without endpoint or provenance values.
+    """
+    default = build_manifest("generic-base")
+    off = next(adapter for adapter in default.adapters if adapter.id == "ai-summary")
+    assert off.status == "planned" and off.implementation == "off"
+
+    settings = _settings(
+        summary_adapter="local-relay",
+        summary_relay_url=SecretStr("http://[::1]:54321/select"),
+        summary_model_id="synthetic-selector",
+        summary_model_version="model-v2",
+        summary_prompt_version="prompt-v3",
+    )
+    assert validate_configuration(settings) == ("core", "company_funding")
+    local = build_manifest(settings.composition, summary_relay_enabled=True)
+    adapter = next(adapter for adapter in local.adapters if adapter.id == "ai-summary")
+    assert adapter.status == "available" and adapter.implementation == "local-relay"
+    assert "54321" not in local.model_dump_json()
+    assert "synthetic-selector" not in local.model_dump_json()

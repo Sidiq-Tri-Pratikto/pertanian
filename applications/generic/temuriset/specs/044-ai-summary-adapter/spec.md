@@ -2,7 +2,7 @@
 
 **Feature Branch**: `044-ai-summary-adapter`
 **Created**: 2026-11-05
-**Status**: Provider-neutral selection is implemented. Local transport and S11 readiness are in scope. External integration and activation remain gated.
+**Status**: Provider-neutral selection, the development loopback relay and the S11 suggestion flow are implemented. External integration and activation remain gated.
 **Milestone**: M12 Gated adapters
 **Depends on**: 022
 **Size**: M

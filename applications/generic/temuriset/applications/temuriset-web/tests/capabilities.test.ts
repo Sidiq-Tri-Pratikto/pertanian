@@ -6,7 +6,7 @@ vi.mock('next/headers', () => ({
 }));
 
 const { serverGet } = await import('@/api/server');
-const { hasCapability, readCapabilities } = await import('@/features/capabilities');
+const { hasCapability, readAdapterAvailability, readCapabilities } = await import('@/features/capabilities');
 const { findFeature, isOffered } = await import('@/features/registry');
 
 const manifest = {
@@ -67,6 +67,22 @@ describe('capabilities', () => {
     vi.stubGlobal('fetch', respond(503, {}));
 
     expect(await readCapabilities()).toBeNull();
+  });
+
+  it.each([
+    ['available', true],
+    ['planned', false],
+    ['simulated', false],
+  ] as const)('offers the S11 action only when the live adapter is %s', async (status, offered) => {
+    vi.stubGlobal('fetch', respond(200, { ...manifest, adapters: [{ id: 'ai-summary', status }] }));
+
+    expect(await readAdapterAvailability('ai-summary')).toBe(offered);
+  });
+
+  it('hides the S11 action if the manifest is unavailable', async () => {
+    vi.stubGlobal('fetch', respond(503, {}));
+
+    expect(await readAdapterAvailability('ai-summary')).toBe(false);
   });
 
   it('offers a feature only when its capability is selected', () => {

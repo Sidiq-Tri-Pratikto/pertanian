@@ -14,9 +14,9 @@ const router = { push: vi.fn(), replace: vi.fn(), refresh: vi.fn() };
 vi.mock('next/navigation', () => ({ useRouter: () => router }));
 
 type Reply = { status: number; body?: unknown } | 'network';
-let replies: Reply[] = [];
+let replies: (Reply | Promise<Reply>)[] = [];
 const fetchMock = vi.fn(async () => {
-  const reply = replies.shift() ?? { status: 500, body: {} };
+  const reply = await (replies.shift() ?? { status: 500, body: {} });
   if (reply === 'network') throw new TypeError('Failed to fetch');
   return new Response(reply.body === undefined ? null : JSON.stringify(reply.body), { status: reply.status });
 });
@@ -122,6 +122,97 @@ describe('preflight (S11)', () => {
     expect(submitted.key).toBeTruthy();
   });
 
+  it('keeps automatic summary hidden when the deployment does not offer it', async () => {
+    replies = [{ status: 200, body: preflight() }];
+    render(<PreflightView me={makeMe()} source={SOURCE} targetId={TARGET} />);
+
+    expect(await screen.findByRole('textbox', { name: /Brief pitching/ })).toBeEnabled();
+    expect(screen.queryByRole('button', { name: 'Buat ringkasan otomatis' })).not.toBeInTheDocument();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('requests an extractive suggestion and replaces an edited draft only after explicit confirmation', async () => {
+    const user = userEvent.setup();
+    const checked = preflight();
+    const summary = { ...checked.brief, text: 'Masalah: Air keruh.', summarizer_status: 'used' };
+    replies = [{ status: 200, body: checked }, { status: 200, body: summary }];
+    render(<PreflightView me={makeMe()} source={SOURCE} targetId={TARGET} summaryAvailable />);
+    const draft = await screen.findByRole('textbox', { name: /Brief pitching/ });
+    await user.type(draft, ' Catatan saya.');
+
+    await user.click(screen.getByRole('button', { name: 'Buat ringkasan otomatis' }));
+
+    expect(await screen.findByText(summary.text)).toBeInTheDocument();
+    expect(sent(1)).toEqual({ path: '/api/v1/briefs/b1/summary', body: undefined, key: undefined });
+    expect(draft).toHaveValue(checked.brief.text + ' Catatan saya.');
+    await user.click(screen.getByRole('button', { name: 'Ganti brief dengan ringkasan' }));
+    expect(draft).toHaveValue(summary.text);
+  });
+
+  it.each(['off', 'unavailable', 'refused', 'network'])('keeps the edited brief when summary is %s', async (status) => {
+    const user = userEvent.setup();
+    const checked = preflight();
+    const message = status === 'refused' ? 'Ringkasan otomatis ditolak' : 'Ringkasan otomatis tidak tersedia';
+    const error = status === 'unavailable' || status === 'refused'
+      ? failure(`SUMMARY_${status.toUpperCase()}`, `${message}. Lanjutkan dengan menyunting brief.`).error
+      : null;
+    replies = [
+      { status: 200, body: checked },
+      status === 'network' ? 'network' : { status: 200, body: { ...checked.brief, text: 'Templat lain.', summarizer_status: status, summarizer_error: error } },
+    ];
+    render(<PreflightView me={makeMe()} source={SOURCE} targetId={TARGET} summaryAvailable />);
+    const draft = await screen.findByRole('textbox', { name: /Brief pitching/ });
+    await user.type(draft, ' Catatan saya.');
+    await user.click(screen.getByRole('button', { name: 'Buat ringkasan otomatis' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(message);
+    expect(draft).toHaveValue(checked.brief.text + ' Catatan saya.');
+    expect(draft).toBeEnabled();
+    expect(screen.queryByRole('button', { name: 'Ganti brief dengan ringkasan' })).not.toBeInTheDocument();
+    if (error) expect(screen.getByText('ID referensi: ref_9')).toBeInTheDocument();
+  });
+
+  it('discards an in-flight suggestion after the draft is edited, even if the text returns to its prior value', async () => {
+    const user = userEvent.setup();
+    const checked = preflight();
+    const pending = Promise.withResolvers<Reply>();
+    replies = [{ status: 200, body: checked }, pending.promise];
+    render(<PreflightView me={makeMe()} source={SOURCE} targetId={TARGET} summaryAvailable />);
+    const draft = await screen.findByRole('textbox', { name: /Brief pitching/ });
+    await user.click(screen.getByRole('button', { name: 'Buat ringkasan otomatis' }));
+    expect(screen.getByRole('button', { name: 'Menyusun ringkasan…' })).toHaveAttribute('aria-busy', 'true');
+
+    await user.type(draft, 'x{Backspace}');
+    await act(async () => pending.resolve({ status: 200, body: { ...checked.brief, text: 'Saran lama.', summarizer_status: 'used' } }));
+
+    expect(draft).toHaveValue(checked.brief.text);
+    expect(screen.queryByText('Saran lama.')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Ganti brief dengan ringkasan' })).not.toBeInTheDocument();
+  });
+
+  it('discards a pending suggestion after preflight refresh', async () => {
+    const user = userEvent.setup();
+    const checked = preflight();
+    const pending = Promise.withResolvers<Reply>();
+    replies = [
+      { status: 200, body: checked },
+      pending.promise,
+      { status: 409, body: failure('PREFLIGHT_STALE', 'Ada yang berubah sejak pemeriksaan.') },
+      { status: 200, body: preflight({ token: 'token-2', opportunity: { ...checked.opportunity, version: 2 } }) },
+    ];
+    render(<PreflightView me={makeMe()} source={SOURCE} targetId={TARGET} summaryAvailable />);
+    await user.click(await screen.findByRole('checkbox', { name: /Laporan uji fungsi/ }));
+    await user.click(screen.getByRole('button', { name: 'Buat ringkasan otomatis' }));
+    await user.click(screen.getByRole('button', { name: 'Kirim pitching kepada Mitra A' }));
+    const conflict = await screen.findByRole('group', { name: 'Versi berubah' });
+    await user.click(within(conflict).getByRole('button', { name: 'Periksa ulang' }));
+
+    await screen.findByText('Mitra A · Validasi prototipe enam bulan, versi 2');
+    await act(async () => pending.resolve({ status: 200, body: { ...checked.brief, text: 'Saran kedaluwarsa.', summarizer_status: 'used' } }));
+    expect(screen.queryByText('Saran kedaluwarsa.')).not.toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: /Brief pitching/ })).toHaveValue(checked.brief.text);
+  });
+
   it('links the file list from the error summary and sends nothing when a required file is not chosen', async () => {
     const user = userEvent.setup();
     replies = [{ status: 200, body: preflight() }];
@@ -201,11 +292,18 @@ describe('preflight (S11)', () => {
     expect(await screen.findByText('Siap dikirim')).toBeInTheDocument();
   });
 
-  it('has no axe violations', async () => {
-    replies = [{ status: 200, body: preflight() }];
-    const element = <PreflightView me={makeMe()} source={SOURCE} targetId={TARGET} />;
-    const { container } = render(element);
+  it.each([false, true])('has no axe violations when summary availability is %s', async (summaryAvailable) => {
+    const checked = preflight();
+    replies = [
+      { status: 200, body: checked },
+      { status: 200, body: { ...checked.brief, text: 'Masalah: Air keruh.', summarizer_status: 'used' } },
+    ];
+    const { container } = render(<PreflightView me={makeMe()} source={SOURCE} targetId={TARGET} summaryAvailable={summaryAvailable} />);
     await screen.findByText('Siap dikirim');
+    if (summaryAvailable) {
+      await userEvent.setup().click(screen.getByRole('button', { name: 'Buat ringkasan otomatis' }));
+      await screen.findByText('Ringkasan siap ditinjau');
+    }
     let result: axe.AxeResults | undefined;
     await act(async () => {
       result = await axe.run(container, { rules: { 'color-contrast': { enabled: false }, region: { enabled: false }, 'landmark-unique': { enabled: false } } });

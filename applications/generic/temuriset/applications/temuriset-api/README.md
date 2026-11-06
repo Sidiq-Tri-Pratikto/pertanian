@@ -78,11 +78,22 @@ Run one test with `uv run pytest tests/unit/health/test_health.py -v`, or match 
 | `CODE_REQUESTS_PER_EMAIL_PER_HOUR` | no | `5` | Sign-in code requests per email per hour |
 | `CODE_REQUESTS_PER_ADDRESS_PER_HOUR` | no | `20` | Sign-in code requests per client address per hour |
 | `STORAGE_PATH` | no | `.storage` | Private folder for uploaded bytes; downloads always go through the gateway |
+| `SUMMARY_ADAPTER` | no | `off` | `local-relay` is available only in development with validated loopback settings |
+| `SUMMARY_RELAY_URL` | for `local-relay` | unset | HTTP endpoint on literal `127.0.0.1` or `[::1]`, with an explicit port and no credentials, query or fragment |
+| `SUMMARY_MODEL_ID`, `SUMMARY_MODEL_VERSION`, `SUMMARY_PROMPT_VERSION` | for `local-relay` | unset | Non-secret provenance identifiers supplied by the developer running the relay double |
 | `DEMO_MODE` | no | `false` | Offers the labelled demo accounts, sign-in from the picker and reset under `/api/v1/demo` |
 | `DEMO_DEPLOYMENT` | no | `false` | Marks the deployment as a demonstration; outside development, `DEMO_MODE=true` refuses to start without it |
 | `CLAMAV_HOST`, `CLAMAV_PORT` | no | `localhost`, `3310` | ClamAV daemon for `FILE_SCANNER=clamav` (`--profile scanner` in `dev-compose.yml`) |
 | `SKIP_MIGRATIONS` | no | `false` | Container start skips migrations when `true` |
 | `PORT` | no | `8000` | Container listen port (`make run` uses 8020 on the host) |
+
+### Local summary evaluation
+
+Use `SUMMARY_ADAPTER=local-relay` only with synthetic briefs and a contract double you control. The API sends a JSON POST with
+`{"candidates":[{"id":"…","text":"…"}]}`. The double returns `{"sentence_ids":["…"]}` selecting a nonempty proper subset of
+the supplied IDs. The API accepts UTF-8 JSON, sends at most 64 KiB and reads at most 16 KiB per attempt. Each attempt
+takes at most three seconds and a timeout or connection error can trigger one retry. The S11 editor keeps its draft and
+offers the verified result for explicit application. Production configuration requires the default off mode.
 
 ## Commands
 

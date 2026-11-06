@@ -18,7 +18,7 @@ import { ContextBar } from '@/features/ContextBar';
 import { matchesHref, READINESS, type MatchSourceRef } from '@/features/discovery/model';
 import { AVAILABILITY_REASON } from '@/features/intake/model';
 import { readPersona } from '@/features/persona';
-import { runPreflight, submitPitch } from '@/features/pitches/api';
+import { requestBriefSummary, runPreflight, submitPitch } from '@/features/pitches/api';
 import { missingFiles, SOURCE_KIND, type Preflight } from '@/features/pitches/model';
 import { keepsKey, stateOf, type SubmitState } from '@/features/pitches/submit-state';
 import { PROVENANCE } from '@/views/parts';
@@ -31,10 +31,14 @@ const REVIEW: Record<string, string> = {
   NEEDS_CLARIFICATION: 'Perlu klarifikasi',
 };
 
-type Props = { me: Me; source: MatchSourceRef; targetId: string };
+type Props = { me: Me; source: MatchSourceRef; targetId: string; summaryAvailable?: boolean };
+type SummaryState =
+  | { kind: 'idle' | 'pending' }
+  | { kind: 'suggestion'; text: string }
+  | { kind: 'failure'; refused?: boolean; message: string; requestId?: string | null };
 
 /** S11: everything that would be sent, the files to share and the brief, then one deliberate send (UX-08, UX-17). */
-export function PreflightView({ me, source, targetId }: Props) {
+export function PreflightView({ me, source, targetId, summaryAvailable = false }: Props) {
   const router = useRouter();
   const persona = readPersona(me.account.persona) ?? 'inovator';
   const [preflight, setPreflight] = useState<Preflight | null>(null);
@@ -44,11 +48,19 @@ export function PreflightView({ me, source, targetId }: Props) {
   const [state, setState] = useState<SubmitState>({ kind: 'idle' });
   const [attempt, setAttempt] = useState(0);
   const [missing, setMissing] = useState<string[]>([]);
+  const [summary, setSummary] = useState<SummaryState>({ kind: 'idle' });
+  const summaryRevision = useRef(0);
   // One key per intent, made when the page renders and kept across retries until a final answer (FR-002).
   const key = useRef(newIdempotencyKey());
   const started = useRef(false);
 
+  const invalidateSummary = useCallback(() => {
+    summaryRevision.current += 1;
+    setSummary({ kind: 'idle' });
+  }, []);
+
   const check = useCallback(async () => {
+    invalidateSummary();
     setLoadFailure(null);
     try {
       const fresh = await runPreflight(source, targetId, me.active_party_id);
@@ -61,13 +73,42 @@ export function PreflightView({ me, source, targetId }: Props) {
     } catch (error) {
       setLoadFailure(ApiError.from(error).message);
     }
-  }, [source, targetId, me.active_party_id]);
+  }, [source, targetId, me.active_party_id, invalidateSummary]);
 
   useEffect(() => {
     if (started.current) return;
     started.current = true;
     void check();
   }, [check]);
+
+  function editBrief(text: string) {
+    invalidateSummary();
+    setBrief(text);
+  }
+
+  async function summarize() {
+    if (!preflight || !summaryAvailable || summary.kind === 'pending') return;
+    const revision = ++summaryRevision.current;
+    setSummary({ kind: 'pending' });
+    try {
+      const suggestion = await requestBriefSummary(preflight.brief.id);
+      if (revision !== summaryRevision.current) return;
+      if (suggestion.summarizer_status === 'used') {
+        setSummary({ kind: 'suggestion', text: suggestion.text });
+      } else {
+        setSummary({
+          kind: 'failure',
+          refused: suggestion.summarizer_status === 'refused',
+          message: 'Lanjutkan dengan menyunting brief.',
+          requestId: suggestion.summarizer_error?.request_id,
+        });
+      }
+    } catch (error) {
+      if (revision !== summaryRevision.current) return;
+      const failure = ApiError.from(error);
+      setSummary({ kind: 'failure', message: failure.message, requestId: failure.requestId });
+    }
+  }
 
   async function send() {
     if (!preflight || brief === null) return;
@@ -196,7 +237,28 @@ export function PreflightView({ me, source, targetId }: Props) {
           <p className="tr-muted">Belum ada berkas yang dapat dibagikan untuk inovasi ini.</p>
         )}
       </fieldset>
-      <TextArea id="brief-pitching" label="Brief pitching" hint="Disusun dari fakta yang Anda nyatakan. Anda dapat mengubahnya sebelum mengirim." value={brief ?? ''} onChange={setBrief} rows={12} limit={BRIEF_LIMIT} />
+      <TextArea id="brief-pitching" label="Brief pitching" hint="Disusun dari fakta yang Anda nyatakan. Anda dapat mengubahnya sebelum mengirim." value={brief ?? ''} onChange={editBrief} rows={12} limit={BRIEF_LIMIT} />
+      {summaryAvailable && (state.kind === 'idle' || state.kind === 'failed' || state.kind === 'not_ready') ? (
+        <div className="tr-stack">
+          <Button busy={summary.kind === 'pending'} busyLabel="Menyusun ringkasan…" onClick={() => void summarize()}>
+            Buat ringkasan otomatis
+          </Button>
+          {summary.kind === 'suggestion' ? (
+            <>
+              <Status tone="neutral" label="Ringkasan siap ditinjau" live>
+                <p className="tr-quote">{summary.text}</p>
+              </Status>
+              <Button onClick={() => editBrief(summary.text)}>Ganti brief dengan ringkasan</Button>
+            </>
+          ) : null}
+          {summary.kind === 'failure' ? (
+            <Status tone="warning" label={summary.refused ? 'Ringkasan otomatis ditolak' : 'Ringkasan otomatis tidak tersedia'} live="alert">
+              <p>{summary.message}</p>
+              {summary.requestId ? <p className="tr-muted tr-sys-type-support">{`ID referensi: ${summary.requestId}`}</p> : null}
+            </Status>
+          ) : null}
+        </div>
+      ) : null}
       {state.kind === 'stale' ? (
         <VersionConflict what={`${state.reason} Periksa ulang sebelum mengirim.`} draft={brief} onRefresh={() => void check()} refreshLabel="Periksa ulang" />
       ) : null}

@@ -27,6 +27,11 @@ class Settings(BaseSettings):
         storage_path (str): Folder of the local storage adapter; bytes never get a public URL.
         clamav_host (str): ClamAV daemon host for ``FILE_SCANNER=clamav``.
         clamav_port (int): ClamAV daemon port.
+        summary_adapter (str): Summary selection mode; ``local-relay`` is development-only.
+        summary_relay_url (SecretStr | None): Literal loopback endpoint for the local contract double.
+        summary_model_id (str): Trusted model identity for local evaluation.
+        summary_model_version (str): Trusted model version for local evaluation.
+        summary_prompt_version (str): Trusted prompt template version for local evaluation.
         demo_mode (bool): Offer labelled demo accounts and their reset (spec 021).
         demo_deployment (bool): This deployment is a demonstration; required for ``demo_mode`` outside development.
     """
@@ -56,6 +61,11 @@ class Settings(BaseSettings):
     s3_secret_key: SecretStr | None = None
     clamav_host: str = "localhost"
     clamav_port: int = 3310
+    summary_adapter: Literal["off", "local-relay"] = "off"
+    summary_relay_url: SecretStr | None = None
+    summary_model_id: str = ""
+    summary_model_version: str = ""
+    summary_prompt_version: str = ""
     demo_mode: bool = False
     demo_deployment: bool = False
 

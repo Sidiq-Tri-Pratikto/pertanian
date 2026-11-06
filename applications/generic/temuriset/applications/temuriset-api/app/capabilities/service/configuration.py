@@ -10,6 +10,8 @@ from app.core.settings import Settings
 # A long unbroken run of key characters is how keys and tokens look; composition values are short words.
 _TOKEN_LIKE = re.compile(r"[A-Za-z0-9_+/=-]{32,}")
 _DEVELOPMENT_ONLY_SCANNERS = ("development-accept",)
+_SUMMARY_LOOPBACK_URL = re.compile(r"http://(?:127\.0\.0\.1|\[::1\]):([1-9][0-9]{0,4})(?:/[A-Za-z0-9/._~-]*)?")
+_SUMMARY_VERSION = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]{0,63}")
 
 
 class ConfigurationError(ValueError):
@@ -96,4 +98,22 @@ def validate_configuration(settings: Settings) -> tuple[str, ...]:
             valid_endpoint = False
         if not valid_endpoint:
             raise ConfigurationError("S3 endpoint must be an HTTP(S) origin without embedded credentials.")
+    if settings.summary_adapter == "local-relay":
+        _validate_summary_relay(settings)
     return capability_ids
+
+
+def _validate_summary_relay(settings: Settings) -> None:
+    if settings.environment != "development":
+        raise ConfigurationError("SUMMARY_ADAPTER=local-relay is allowed only in development.")
+    url = settings.summary_relay_url.get_secret_value() if settings.summary_relay_url else ""
+    endpoint = _SUMMARY_LOOPBACK_URL.fullmatch(url)
+    if not endpoint or int(endpoint[1]) > 65535:
+        raise ConfigurationError("SUMMARY_RELAY_URL requires a literal HTTP loopback endpoint with a valid port.")
+    for name, value in (
+        ("SUMMARY_MODEL_ID", settings.summary_model_id),
+        ("SUMMARY_MODEL_VERSION", settings.summary_model_version),
+        ("SUMMARY_PROMPT_VERSION", settings.summary_prompt_version),
+    ):
+        if not _SUMMARY_VERSION.fullmatch(value) or looks_secret(value):
+            raise ConfigurationError(f"{name} requires a non-secret model or version identifier.")

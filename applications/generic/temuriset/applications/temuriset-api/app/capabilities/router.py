@@ -22,6 +22,7 @@ async def get_capabilities() -> CapabilityManifestResponse:
         settings.composition_overrides,
         storage_adapter=settings.storage_adapter,
         scanner_adapter=settings.file_scanner,
+        summary_relay_enabled=settings.summary_adapter == "local-relay",
     )
     manifest.demo = settings.demo_mode
     return manifest

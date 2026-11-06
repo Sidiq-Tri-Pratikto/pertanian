@@ -7,18 +7,29 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import PlainTextResponse
 
-from app.briefs.model.schema import BriefResponse, PreflightRequest, PreflightResponse
+from app.briefs.model.schema import BriefResponse, PreflightRequest, PreflightResponse, SummaryProvenance
 from app.briefs.service.service import BriefService
-from app.briefs.service.summarizer_service import OffSummarizer, SummarizerPort
+from app.briefs.service.summarizer_service import LocalRelaySummarizer, OffSummarizer, SummarizerPort
 from app.core.database import SessionDep
 from app.core.security import PrincipalDep, current_principal
+from app.core.settings import get_settings
 
 router = APIRouter(tags=["briefs"])
 
 
 def get_summarizer() -> SummarizerPort:
-    """Supply the default adapter at the existing summary route."""
-    return OffSummarizer()
+    """Resolve the summary adapter from startup-validated settings."""
+    settings = get_settings()
+    if settings.summary_adapter != "local-relay" or settings.summary_relay_url is None:
+        return OffSummarizer()
+    return LocalRelaySummarizer(
+        endpoint=settings.summary_relay_url,
+        provenance=SummaryProvenance(
+            model_id=settings.summary_model_id,
+            model_version=settings.summary_model_version,
+            prompt_version=settings.summary_prompt_version,
+        ),
+    )
 
 
 SummarizerDep = Annotated[SummarizerPort, Depends(get_summarizer)]

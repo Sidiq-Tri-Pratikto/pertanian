@@ -2,10 +2,13 @@
 
 import asyncio
 import hashlib
+import json
+import logging
 from collections.abc import Awaitable, Callable
 
 import pytest
-from httpx import AsyncClient
+from httpx import AsyncClient, ConnectError, MockTransport, ReadTimeout, Request, Response
+from pydantic import SecretStr
 from sqlalchemy import text
 
 from app.briefs.model.schema import SummaryProvenance
@@ -13,8 +16,10 @@ from app.briefs.router import get_summarizer
 from app.briefs.service import summarizer_service
 from app.briefs.service.service import REDACTED
 from app.briefs.service.summarizer_service import SummaryCandidate
+from app.capabilities.service.configuration import validate_configuration
 from app.core.database import get_session_factory
 from app.core.security import SESSION_COOKIE
+from app.core.settings import get_settings
 from app.main import app
 from tests.factories.moderation import grant_operator, suspend_listing
 from tests.integration.conftest import SignUp
@@ -52,7 +57,8 @@ async def test_f01_to_a1_shows_exactly_what_would_be_sent(world: World) -> None:
     assert any(line.startswith("Belum selesai: Sertifikat komersialisasi.") for line in lines)
     assert lines[-1] == "Tim: Rani (pembuat)."
     assert all(sentence["refs"] for sentence in checked["brief"]["sentences"])
-    assert "7731" not in str(checked)
+    assert "harga bahan rahasia 7731" not in str(checked)
+    assert "7731" not in checked["brief"]["text"]
     assert checked["brief"]["summarizer"] == "off"
 
 
@@ -153,6 +159,166 @@ async def test_summary_is_off_by_default_and_keeps_the_template(world: World) ->
     assert response.status_code == 200
     assert response.json() == checked["brief"]
     assert response.json()["summarizer_status"] == "off"
+
+
+@pytest.fixture
+def local_relay(monkeypatch: pytest.MonkeyPatch) -> Callable[[Callable[[Request], Response]], None]:
+    """Configure the real route and substitute only the relay's HTTP transport."""
+    settings = get_settings()
+    monkeypatch.setattr(settings, "summary_adapter", "local-relay")
+    monkeypatch.setattr(settings, "summary_relay_url", SecretStr("http://127.0.0.1:54321/select"))
+    monkeypatch.setattr(settings, "summary_model_id", "synthetic-selector")
+    monkeypatch.setattr(settings, "summary_model_version", "model-v2")
+    monkeypatch.setattr(settings, "summary_prompt_version", "prompt-v3")
+    validate_configuration(settings)
+
+    def connect(handler: Callable[[Request], Response]) -> None:
+        def client(**kwargs: object) -> AsyncClient:
+            assert kwargs.get("trust_env") is False
+            assert kwargs.get("follow_redirects") is False
+            return AsyncClient(
+                transport=MockTransport(handler),
+                trust_env=False,
+                follow_redirects=False,
+            )
+
+        monkeypatch.setattr(summarizer_service, "AsyncClient", client)
+
+    return connect
+
+
+async def test_configured_relay_receives_only_authorized_candidates(
+    world: World, local_relay: Callable[[Callable[[Request], Response]], None]
+) -> None:
+    """
+    Condition:
+    - The local relay selects one candidate from a brief after the supporting file is revoked.
+
+    Expected:
+    - The route publishes local availability, excludes the revoked sentence and sends only opaque IDs and text.
+    - The response contains the original sentence, original references and trusted configured provenance.
+    - The brief stored for manual editing remains unchanged.
+    """
+    checked = await preflight(world, "F01", "A1")
+    rani, _ = client_of(world, "F01")
+    galih, _ = client_of(world, "F03")
+    path = f"/api/v1/briefs/{checked['brief']['id']}"
+    version_id = checked["shareable_files"][0]["version_id"]
+    await _change("UPDATE document_versions SET file_state = 'REJECTED' WHERE id = :id", version_id)
+    observed = []
+
+    def select(request: Request) -> Response:
+        assert request.method == "POST"
+        assert str(request.url) == "http://127.0.0.1:54321/select"
+        assert "cookie" not in request.headers and "authorization" not in request.headers
+        assert request.headers["content-type"] == "application/json"
+        payload = json.loads(request.content)
+        assert set(payload) == {"candidates"}
+        candidates = payload["candidates"]
+        assert all(set(item) == {"id", "text"} for item in candidates)
+        assert all(len(item["id"]) == 32 for item in candidates)
+        assert version_id not in request.content.decode()
+        assert "Laporan uji fungsi ClearSpring" not in request.content.decode()
+        observed.extend(candidates)
+        return Response(200, json={"sentence_ids": [candidates[0]["id"]]})
+
+    local_relay(select)
+    manifest = await rani.get("/api/v1/capabilities")
+    adapter = next(item for item in manifest.json()["adapters"] if item["id"] == "ai-summary")
+    assert adapter == {"id": "ai-summary", "implementation": "local-relay", "status": "available"}
+    assert "54321" not in manifest.text and "synthetic-selector" not in manifest.text
+
+    denied = await galih.post(f"{path}/summary")
+    assert denied.status_code == 404
+    assert denied.json()["error"]["code"] == "NOT_FOUND"
+    assert observed == []
+    response = await rani.post(f"{path}/summary")
+    assert response.status_code == 200
+    assert observed[0]["text"] == checked["brief"]["sentences"][0]["text"]
+    assert response.json()["sentences"] == checked["brief"]["sentences"][:1]
+    assert response.json()["summarizer_status"] == "used"
+    assert response.json()["summarizer_provenance"] == {
+        "model_id": "synthetic-selector",
+        "model_version": "model-v2",
+        "prompt_version": "prompt-v3",
+    }
+    assert (await rani.get(path)).json() == checked["brief"]
+
+
+@pytest.mark.parametrize(
+    ("failure", "status", "attempts"),
+    [
+        ("connect", "unavailable", 2),
+        ("timeout", "unavailable", 2),
+        ("redirect", "unavailable", 1),
+        ("rate-limit", "unavailable", 1),
+        ("malformed", "refused", 1),
+        ("duplicate-key", "refused", 1),
+        ("oversized", "refused", 1),
+    ],
+)
+async def test_relay_failure_is_bounded_and_diagnostics_exclude_wire_content(
+    world: World,
+    local_relay: Callable[[Callable[[Request], Response]], None],
+    caplog: pytest.LogCaptureFixture,
+    failure: str,
+    status: str,
+    attempts: int,
+) -> None:
+    """
+    Condition:
+    - The local relay fails or violates the response contract.
+
+    Expected:
+    - Only connection failure retries, once with new opaque IDs.
+    - The template is preserved and exactly one safe terminal record matches the response reference.
+    """
+    checked = await preflight(world, "F01", "A1")
+    rani, _ = client_of(world, "F01")
+    marker = "fake-confidential-relay-payload-4719"
+    candidate_ids = []
+    caplog.set_level(logging.DEBUG)
+
+    def broken(request: Request) -> Response:
+        candidate_ids.append({item["id"] for item in json.loads(request.content)["candidates"]})
+        if failure == "connect":
+            raise ConnectError(marker, request=request)
+        if failure == "timeout":
+            raise ReadTimeout(marker, request=request)
+        if failure == "redirect":
+            return Response(302, headers={"Location": f"https://example.invalid/{marker}"})
+        if failure == "rate-limit":
+            return Response(429, text=marker, extensions={"reason_phrase": marker.encode()})
+        if failure == "duplicate-key":
+            identifier = next(iter(candidate_ids[-1]))
+            return Response(
+                200,
+                content=f'{{"sentence_ids":[],"sentence_ids":["{identifier}"]}}',
+                headers={"content-type": "application/json"},
+            )
+        content = marker.encode()
+        if failure == "oversized":
+            content = json.dumps({"sentence_ids": [next(iter(candidate_ids[-1]))]}).encode() + b" " * 16384
+        return Response(200, content=content, headers={"content-type": "application/json"})
+
+    local_relay(broken)
+    response = await rani.post(f"/api/v1/briefs/{checked['brief']['id']}/summary")
+    assert response.status_code == 200
+    result = response.json()
+    assert result["text"] == checked["brief"]["text"]
+    assert result["summarizer_status"] == status
+    assert result["summarizer_provenance"] is None
+    assert len(candidate_ids) == attempts
+    if attempts == 2:
+        assert candidate_ids[0].isdisjoint(candidate_ids[1])
+    error = result["summarizer_error"]
+    assert error["code"] == f"SUMMARY_{status.upper()}"
+    assert error["recovery"]["retryable"] is False
+    expected = "Ringkasan otomatis tidak tersedia" if status == "unavailable" else "Ringkasan otomatis ditolak"
+    assert error["message"] == f"{expected}. Lanjutkan dengan menyunting brief."
+    assert caplog.text.count(error["request_id"]) == 1
+    assert f"APP-SUMMARY-{status.upper()}" in caplog.text
+    assert marker not in response.text + caplog.text
 
 
 async def test_summary_returns_only_selected_sentences_with_trusted_provenance(
