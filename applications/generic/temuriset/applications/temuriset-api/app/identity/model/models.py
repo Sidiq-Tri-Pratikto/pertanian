@@ -19,6 +19,7 @@ class AccountModel(BaseModel):
     time_zone: str
     persona: str
     kind: str
+    status: str = "active"
     version: int
 
 

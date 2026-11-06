@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.access.service.service import capabilities_for, create_personal_party, memberships_for, personal_party_id
 from app.core import clock
 from app.core.errors import codes as error_codes
-from app.core.errors.base import AppError, NotFoundError
+from app.core.errors.base import AppError, NotFoundError, UnauthenticatedError
 from app.core.settings import Settings
 from app.identity.model.models import AccountModel, Principal
 from app.identity.model.schema import (
@@ -125,9 +125,9 @@ class IdentityService:
         """
         address = hash_address(client_address)
         await self._enforce_rate_limit(email=request.email, address=address)
-        account = await self.repository.find_account_by_email(request.email)
-        if account is not None and account.kind == "demo":
-            # Demo accounts sign in only from the demo picker and never receive email (spec 021).
+        account = await self.repository.find_account_by_email(request.email, lock=True)
+        # Demo accounts sign in only from the demo picker and never receive email.
+        if account is not None and (account.kind == "demo" or account.status != "active"):
             return
         if account is None and request.purpose == "sign_in":
             await self.mailbox.send(self.session, to_email=request.email, subject=_CODE_SUBJECT, body=_NO_ACCOUNT_BODY)
@@ -184,6 +184,9 @@ class IdentityService:
             CodeExpiredError: No open code, expired, or five wrong guesses already.
             CodeInvalidError: Wrong code; the guess is counted.
         """
+        account = await self.repository.find_account_by_email(request.email, lock=True)
+        if account is not None and account.status != "active":
+            raise CodeExpiredError()
         record = await self.repository.latest_open_code(request.email)
         now = clock.now()
         if record is None or record.expires_at <= now or record.attempts >= MAX_CODE_ATTEMPTS:
@@ -194,7 +197,6 @@ class IdentityService:
             await self.session.commit()
             raise CodeInvalidError(attempts_left=MAX_CODE_ATTEMPTS - record.attempts - 1)
         await self.repository.consume_codes(request.email, now)
-        account = await self.repository.find_account_by_email(request.email)
         if account is None:
             if record.profile is None:
                 raise CodeExpiredError()
@@ -239,6 +241,9 @@ class IdentityService:
         now = clock.now()
         found = await self.repository.find_live_session(hash_token(token), now)
         if found is None:
+            return None
+        account = await self.repository.find_account(found.account_id)
+        if account is None or account.status != "active":
             return None
         if now - found.last_seen_at >= SESSION_REFRESH:
             await self.repository.update_session(found.id, last_seen_at=now, expires_at=now + SESSION_LIFETIME)
@@ -290,6 +295,49 @@ class IdentityService:
             principal (Principal): Who is signed in.
         """
         await self.repository.update_session(principal.session_id, revoked_at=clock.now())
+
+    async def lock_account(self, account_id: UUID) -> None:
+        """Serialize concurrent requests that are unique to an account."""
+        if await self.repository.find_account(account_id, lock=True) is None:
+            raise NotFoundError()
+
+    async def lock_active_account(self, account_id: UUID) -> None:
+        """Prevent a file write from crossing a concurrent account freeze."""
+        account = await self.repository.find_account(account_id, lock=True)
+        if account is None or account.status != "active":
+            raise UnauthenticatedError()
+
+    async def freeze_for_deletion(self, account_id: UUID, *, remove_sign_in: bool) -> None:
+        """Disable sign-in during fulfilment and remove records only when policy permits."""
+        account = await self.repository.find_account(account_id, lock=True)
+        if account is None:
+            raise NotFoundError()
+        await self.repository.update_account(account.id, account.version, status="suspended")
+        if remove_sign_in:
+            await self.repository.remove_sign_in_records(account.id, account.email)
+
+    async def anonymize_for_deletion(self, account_id: UUID) -> str:
+        """Remove profile identifiers and return the previous address for one outcome message."""
+        account = await self.repository.find_account(account_id, lock=True)
+        if account is None:
+            raise NotFoundError()
+        await self.repository.update_account(
+            account.id,
+            account.version,
+            email=f"deleted-{account.id}@invalid.invalid",
+            display_name="Akun dihapus",
+            email_verified_at=None,
+            locale="id",
+            time_zone="Asia/Jakarta",
+        )
+        return account.email
+
+    async def deletion_address(self, account_id: UUID) -> str:
+        """Resolve the destination for a retention-held account's outcome."""
+        account = await self.repository.find_account(account_id)
+        if account is None:
+            raise NotFoundError()
+        return account.email
 
     async def me(self, principal: Principal) -> MeResponse:
         """Describe the signed-in account.

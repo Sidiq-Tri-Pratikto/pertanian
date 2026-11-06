@@ -82,7 +82,7 @@ class SqlAlchemyIntakeRepository:
         query = select(OpportunityRecord).where(OpportunityRecord.id == opportunity_id)
         return await self.session.scalar(query.with_for_update() if lock else query)
 
-    async def of_partner(self, party_id: UUID, *, include_drafts: bool, limit: int) -> list[OpportunityRecord]:
+    async def of_partner(self, party_id: UUID, *, include_drafts: bool, limit: int | None) -> list[OpportunityRecord]:
         """List a partner's opportunities.
 
         Args:
@@ -202,3 +202,7 @@ class SqlAlchemyIntakeRepository:
         for position, row in enumerate(rows):
             self.session.add(RequirementRecord(opportunity_version_id=version_id, position=position, **row))
         await self.session.flush()
+
+    async def delete_profile(self, profile: PartnerProfileRecord) -> None:
+        """Withdraw a current partner profile."""
+        await self.session.delete(profile)

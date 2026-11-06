@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import func, select, update
+from sqlalchemy import delete, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.identity.model.models import AccountModel, EmailCodeModel, SessionModel
@@ -31,7 +31,7 @@ class SqlAlchemyIdentityRepository:
         """
         self.session = session
 
-    async def find_account_by_email(self, email: str) -> AccountModel | None:
+    async def find_account_by_email(self, email: str, *, lock: bool = False) -> AccountModel | None:
         """Find an account by normalized email.
 
         Args:
@@ -40,10 +40,11 @@ class SqlAlchemyIdentityRepository:
         Returns:
             AccountModel | None: The account.
         """
-        record = await self.session.scalar(select(AccountRecord).where(AccountRecord.email == email))
+        query = select(AccountRecord).where(AccountRecord.email == email)
+        record = await self.session.scalar(query.with_for_update() if lock else query)
         return _account(record) if record is not None else None
 
-    async def find_account(self, account_id: UUID) -> AccountModel | None:
+    async def find_account(self, account_id: UUID, *, lock: bool = False) -> AccountModel | None:
         """Find an account by id.
 
         Args:
@@ -52,7 +53,7 @@ class SqlAlchemyIdentityRepository:
         Returns:
             AccountModel | None: The account.
         """
-        record = await self.session.get(AccountRecord, account_id)
+        record = await self.session.get(AccountRecord, account_id, with_for_update=lock)
         return _account(record) if record is not None else None
 
     async def create_account(self, **values: Any) -> AccountModel:
@@ -212,6 +213,12 @@ class SqlAlchemyIdentityRepository:
             **values (Any): Column values.
         """
         await self.session.execute(update(SessionRecord).where(SessionRecord.id == session_id).values(**values))
+
+    async def remove_sign_in_records(self, account_id: UUID, email: str) -> None:
+        """Remove the account's login credentials and previously issued development messages."""
+        await self.session.execute(delete(SessionRecord).where(SessionRecord.account_id == account_id))
+        await self.session.execute(delete(EmailCodeRecord).where(EmailCodeRecord.email == email))
+        await self.session.execute(delete(MailboxMessageRecord).where(MailboxMessageRecord.to_email == email))
 
     async def mailbox(self, email: str, limit: int = 10) -> list[MailboxMessageRecord]:
         """Read the newest development mailbox messages for an email.

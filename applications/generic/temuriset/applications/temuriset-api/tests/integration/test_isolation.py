@@ -38,6 +38,8 @@ NOT_DATA_ROUTES = {
     ("GET", "/api/v1/demo/accounts"),
     ("POST", "/api/v1/demo/sign-in"),
     ("POST", "/api/v1/demo/reset"),
+    ("POST", "/api/v1/reports"),
+    ("POST", "/api/v1/privacy-requests"),
 }
 
 
@@ -64,6 +66,8 @@ class Owner:
     preflight_token: str = ""
     pitch_id: str = ""
     revision_item_id: str = ""
+    report_id: str = ""
+    privacy_request_id: str = ""
 
 
 @dataclass
@@ -77,6 +81,33 @@ class Case:
 
 
 ROUTES: dict[tuple[str, str], Case] = {
+    ("GET", "/api/v1/reports"): Case("GET", lambda _o: "/api/v1/reports"),
+    ("GET", "/api/v1/reports/{report_id}"): Case("GET", lambda o: f"/api/v1/reports/{o.report_id}"),
+    ("GET", "/api/v1/operator/reports"): Case("GET", lambda _o: "/api/v1/operator/reports"),
+    ("POST", "/api/v1/operator/reports/{report_id}/actions"): Case(
+        "POST",
+        lambda o: f"/api/v1/operator/reports/{o.report_id}/actions",
+        lambda _o, actor: {"acting_party_id": actor, "expected_version": 1, "action": "START_REVIEW", "note": "Review"},
+        {"Idempotency-Key": "isolation-review"},
+    ),
+    ("GET", "/api/v1/operator/reports/{report_id}/documents/{document_id}/versions/{number}/content"): Case(
+        "GET",
+        lambda o: f"/api/v1/operator/reports/{o.report_id}/documents/{o.document_id}/versions/1/content",
+    ),
+    ("GET", "/api/v1/privacy-requests"): Case("GET", lambda _o: "/api/v1/privacy-requests"),
+    ("GET", "/api/v1/privacy-requests/{request_id}"): Case(
+        "GET", lambda o: f"/api/v1/privacy-requests/{o.privacy_request_id}"
+    ),
+    ("GET", "/api/v1/privacy-requests/{request_id}/export"): Case(
+        "GET", lambda o: f"/api/v1/privacy-requests/{o.privacy_request_id}/export"
+    ),
+    ("GET", "/api/v1/operator/privacy-requests"): Case("GET", lambda _o: "/api/v1/operator/privacy-requests"),
+    ("POST", "/api/v1/operator/privacy-requests/{request_id}/fulfill"): Case(
+        "POST",
+        lambda o: f"/api/v1/operator/privacy-requests/{o.privacy_request_id}/fulfill",
+        lambda _o, actor: {"acting_party_id": actor, "expected_version": 1},
+        {"Idempotency-Key": "isolation-fulfill"},
+    ),
     ("GET", "/api/v1/operations/{operation_id}"): Case("GET", lambda o: f"/api/v1/operations/{o.operation_id}"),
     ("GET", "/api/v1/organizations/{organization_id}/members"): Case(
         "GET", lambda o: f"/api/v1/organizations/{o.organization_id}/members"
@@ -479,6 +510,18 @@ async def owner(
         )
     ).json()
     pitch = await _pitch_to_a_partner(new_client, sign_up, client, party, support["id"])
+    report = await client.post(
+        "/api/v1/reports",
+        json={"acting_party_id": party, "expected_version": None, "reason": "Owner Co private reason"},
+        headers={"Idempotency-Key": "owner-report"},
+    )
+    assert report.status_code == 201, report.text
+    export = await client.post(
+        "/api/v1/privacy-requests",
+        json={"acting_party_id": party, "expected_version": None, "kind": "EXPORT"},
+        headers={"Idempotency-Key": "owner-export"},
+    )
+    assert export.status_code == 201, export.text
     yield Owner(
         organization_id=organization["id"],
         party_id=organization["party_id"],
@@ -495,6 +538,8 @@ async def owner(
         funding_request_id=funding["id"],
         opportunity_id=opportunity["id"],
         match_run_id=match_run["run_id"],
+        report_id=report.json()["id"],
+        privacy_request_id=export.json()["id"],
         **pitch,
     )
 
@@ -548,6 +593,8 @@ async def test_unrelated_party_sees_nothing(
         owner.match_run_id,
         owner.brief_id,
         owner.pitch_id,
+        owner.report_id,
+        owner.privacy_request_id,
     ):
         assert secret not in response.text
 

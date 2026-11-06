@@ -1,6 +1,6 @@
 """Private documents: upload intents, versions, grants and the authorization behind every download."""
 
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Awaitable, Callable
 from dataclasses import dataclass
 from datetime import timedelta
 from typing import Any
@@ -9,17 +9,20 @@ from uuid import UUID, uuid4
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.access.model.models import Capability
-from app.access.service.policy import check_context, require
+from app.access.service.policy import check_context, require, require_case_file
 from app.access.service.service import party_names
 from app.core import clock
+from app.core.database import get_session_factory
 from app.core.errors import codes
-from app.core.errors.base import AppError, NotFoundError, RequestInvalidError
+from app.core.errors.base import AppError, ForbiddenError, NotFoundError, RequestInvalidError
+from app.core.errors.recorder import emergency_log
 from app.core.settings import Settings
 from app.documents.model.schema import (
     DocumentResponse,
     DocumentVersionResponse,
     GrantRequest,
     GrantResponse,
+    PersonalDocumentMetadata,
     RevokedResponse,
     UploadedResponse,
     UploadIntentRequest,
@@ -36,6 +39,7 @@ from app.documents.repository.sqlalchemy.repository import SqlAlchemyDocumentRep
 from app.documents.service.sniff import LIMIT_TEXT, LIMITS, sniff
 from app.documents.service.storage_service import LocalStorage, StorageAdapter, TooLargeError
 from app.identity.model.models import Principal
+from app.identity.service.service import IdentityService
 from app.platform.service.audit import record_audit
 from app.platform.service.outbox import enqueue_job
 
@@ -195,6 +199,7 @@ class DocumentService:
             storage (StorageAdapter | None, optional): Byte storage. Defaults to the local folder.
         """
         self.session = session
+        self.identity = IdentityService(session, settings)
         self.storage = storage or LocalStorage(settings.storage_path)
         self.repository = SqlAlchemyDocumentRepository(session)
 
@@ -220,6 +225,7 @@ class DocumentService:
         """
         check_context(principal, request.acting_party_id)
         require(principal, Capability.EDIT_PORTFOLIO, principal.active_party_id)
+        await self.identity.lock_active_account(principal.account_id)
         if request.media_type not in LIMITS:
             raise FileTypeUnsupportedError()
         if request.size_bytes > LIMITS[request.media_type]:
@@ -263,6 +269,7 @@ class DocumentService:
             RequestInvalidError: When the intent expired or was used.
             FileTooLargeError: When more bytes arrive than were declared.
         """
+        await self.identity.lock_active_account(principal.account_id)
         intent = await self.repository.intent(intent_id)
         if intent is None or intent.owner_party_id != principal.active_party_id:
             raise NotFoundError()
@@ -327,6 +334,22 @@ class DocumentService:
         return [
             await self._view(document) for document in await self.repository.documents_of(principal.active_party_id)
         ]
+
+    async def prepare_party_erasure(self, party_id: UUID) -> None:
+        """Revoke retrieval and prevent queued scans from restoring availability."""
+        await self.repository.prepare_party_erasure(party_id, clock.now())
+
+    async def erase_party_bytes(self, party_id: UUID) -> None:
+        """Erase the prepared files before the worker may mark their category removed."""
+        for version in await self.repository.pending_erase_versions(party_id):
+            await self.storage.delete(version.storage_key)
+            version.file_state = "ERASED"
+            version.extracted_characters = None
+
+    async def export_personal_metadata(self, principal: Principal) -> list[PersonalDocumentMetadata]:
+        """Return only metadata for documents owned by the requester's personal party."""
+        documents = await self.repository.documents_of(principal.personal_party_id)
+        return [PersonalDocumentMetadata.model_validate(item, from_attributes=True) for item in documents]
 
     async def owner_view(self, principal: Principal, document_id: UUID) -> DocumentResponse:
         """Read one document as its owner.
@@ -509,6 +532,54 @@ class DocumentService:
             )
         elif version.file_state != "AVAILABLE":
             raise FileNotAvailableError()
+        return self._download(version)
+
+    async def require_version(self, version_id: UUID) -> None:
+        """Validate a local administrator's exact document version reference."""
+        if await self.repository.version(version_id=version_id) is None:
+            raise NotFoundError()
+
+    async def case_download(
+        self,
+        principal: Principal,
+        case_id: UUID,
+        document_id: UUID,
+        number: int,
+        grant_for_version: Callable[[UUID], Awaitable[UUID | None]],
+    ) -> Download:
+        """Check a case-specific authorization on each fetch before exposing protected bytes."""
+        version = await self.repository.version(document_id=document_id, number=number)
+        grant_id = await grant_for_version(version.id) if version is not None else None
+        try:
+            require_case_file(granted=grant_id is not None)
+            if version is None or version.file_state != "AVAILABLE":
+                raise FileNotAvailableError()
+        except (ForbiddenError, FileNotAvailableError) as denial:
+            # A refusal rolls back the request session. The audit evidence must survive it.
+            try:
+                async with get_session_factory()() as audit_session, audit_session.begin():
+                    await record_audit(
+                        audit_session,
+                        action="report.file_denied",
+                        subject_type="report",
+                        subject_id=str(case_id),
+                        actor_account_id=principal.account_id,
+                    )
+            except Exception:  # noqa: BLE001 - a secondary audit failure cannot mask the original denial
+                emergency_log(denial.reference_id, denial.code)
+            raise
+        await record_audit(
+            self.session,
+            action="report.file_downloaded",
+            subject_type="report",
+            subject_id=str(case_id),
+            actor_account_id=principal.account_id,
+            detail={"grant_id": str(grant_id), "version_id": str(version.id)},
+        )
+        return self._download(version)
+
+    @staticmethod
+    def _download(version: DocumentVersionRecord) -> Download:
         extension = {"application/pdf": "pdf", "image/png": "png", "image/jpeg": "jpg", "image/webp": "webp"}.get(
             version.media_type, "docx"
         )

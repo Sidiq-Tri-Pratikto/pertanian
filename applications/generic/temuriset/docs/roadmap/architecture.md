@@ -151,6 +151,14 @@ Timestamps are UTC `timestamptz`; display uses the account's IANA zone. Scheduli
 
 Bytes never get a public URL. Uploads go through an upload intent with declared size and media type (PDF and DOCX up to 20 MB, images up to 5 MB), then the API validates signature and size and stores under a generated key. File state, extraction state and review state are separate columns and never overwrite each other. Downloads go through `GET /api/v1/documents/{id}/versions/{n}/content`, which re-authorizes every request, including range requests. Revocation blocks new requests only; the response and UI say that delivered copies cannot be recalled. Storage adapters are `local` (development volume) and `s3` (S3-compatible, 037). Scanner adapters are `clamav` and `development-accept`; configuration validation refuses `development-accept` outside development.
 
+### Moderation and privacy
+
+Private reports and privacy requests belong to the account, regardless of the acting organization. Operator authority is a live, explicit account grant. The protected file gateway checks the case, operator and exact document version on every request. A case grant can be withdrawn, and a refusal for a visible case leaves a sanitized audit record.
+
+A live suspension hides the affected public listing and stops new actions while owners retain access to wind down existing work. Suspension and restoration emit `listing.suspended` and `listing.restored` in the decision transaction. Spec 018 must apply these changes to the discovery projection.
+
+A deletion receipt is generated from versioned policy rows and account holds. A scoped operator rechecks the policy, freezes the account and starts fulfilment. Pending erasure invalidates further file retrieval. The worker confirms physical removal before recording the final answer, and its retries can repeat deletion of an already absent file. Production outcome mail waits for 042. Exports are rebuilt under the requesting account's live permissions and include allowlisted personal fields and document metadata.
+
 ### Matching
 
 `app/matching/engine/` is pure Python: no database, no I/O, deterministic. It receives authorized projections and returns rows, eligibility, readiness, relevance, fit bounds, coverage, reasons and gaps. Weights and thresholds come from the versioned policies in the capability manifest. A known failed mandatory requirement can never be averaged away, a target with no relevance signal abstains, and `UNKNOWN` outranks a score in the label. Golden responses for F01–F06 live in `contracts/golden/` from 019. The lexical baseline is Postgres full-text search with the `simple` configuration plus `pg_trgm`; dense retrieval waits for 045.

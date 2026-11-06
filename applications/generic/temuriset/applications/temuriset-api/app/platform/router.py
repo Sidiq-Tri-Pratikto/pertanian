@@ -6,6 +6,7 @@ from fastapi import APIRouter
 
 from app.core.database import SessionDep
 from app.core.errors.base import NotFoundError
+from app.core.security import PrincipalDep
 from app.platform.actor import ActorDep
 from app.platform.model.schema import OperationResponse, OperationResult, OperationStatus
 from app.platform.repository.sqlalchemy.repository import SqlAlchemyPlatformRepository
@@ -14,13 +15,16 @@ router = APIRouter(prefix="/operations", tags=["operations"])
 
 
 @router.get("/{operation_id}", summary="Report on an operation")
-async def get_operation(operation_id: UUID, session: SessionDep, actor_party_id: ActorDep) -> OperationResponse:
+async def get_operation(
+    operation_id: UUID, session: SessionDep, actor_party_id: ActorDep, principal: PrincipalDep
+) -> OperationResponse:
     """Tell the acting party whether its operation committed.
 
     Args:
         operation_id (UUID): From the response the client may have lost.
         session (SessionDep): Database session.
         actor_party_id (ActorDep): The acting party.
+        principal (PrincipalDep): The account scope for private operations.
 
     Returns:
         OperationResponse: ``COMMITTED`` with a result reference, ``PENDING``, or ``UNKNOWN`` for an id the service
@@ -32,7 +36,8 @@ async def get_operation(operation_id: UUID, session: SessionDep, actor_party_id:
     record = await SqlAlchemyPlatformRepository(session).find_operation(operation_id)
     if record is None:
         return OperationResponse(operation_id=operation_id, status=OperationStatus.UNKNOWN)
-    if record.actor_party_id != actor_party_id:
+    owner_id = principal.personal_party_id if record.operation.startswith("private.") else actor_party_id
+    if record.actor_party_id != owner_id:
         raise NotFoundError()
     if record.status != "committed":
         return OperationResponse(operation_id=operation_id, status=OperationStatus.PENDING)

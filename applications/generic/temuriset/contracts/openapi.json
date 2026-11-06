@@ -742,6 +742,54 @@
         "title": "CapabilityStatus",
         "type": "string"
       },
+      "CategoryRetained": {
+        "description": "A category a deletion keeps, with why and for how long.",
+        "properties": {
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "period": {
+            "title": "Period",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "reason",
+          "period"
+        ],
+        "title": "CategoryRetained",
+        "type": "object"
+      },
+      "CategoryToRemove": {
+        "description": "A category a deletion removes.",
+        "properties": {
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "label"
+        ],
+        "title": "CategoryToRemove",
+        "type": "object"
+      },
       "ChosenFile": {
         "additionalProperties": false,
         "description": "One file version to share with the recipient.",
@@ -1238,6 +1286,109 @@
           "kind"
         ],
         "title": "CreateOrganizationRequest",
+        "type": "object"
+      },
+      "CreatePrivacyRequest": {
+        "additionalProperties": false,
+        "description": "Ask for one's data, or for its deletion.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "expected_version": {
+            "title": "Expected Version",
+            "type": "null"
+          },
+          "kind": {
+            "enum": [
+              "EXPORT",
+              "DELETION"
+            ],
+            "title": "Kind",
+            "type": "string"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "expected_version",
+          "kind"
+        ],
+        "title": "CreatePrivacyRequest",
+        "type": "object"
+      },
+      "CreateReportRequest": {
+        "additionalProperties": false,
+        "description": "Report something privately. The object is named, never checked, so a report cannot probe for what exists.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "category": {
+            "default": "OTHER",
+            "enum": [
+              "IMPERSONATION",
+              "UNSUPPORTED_CLAIM",
+              "UNWANTED_CONTACT",
+              "ABUSE",
+              "OTHER"
+            ],
+            "title": "Category",
+            "type": "string"
+          },
+          "expected_version": {
+            "title": "Expected Version",
+            "type": "null"
+          },
+          "reason": {
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          },
+          "subject_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subject Id"
+          },
+          "subject_label": {
+            "default": "",
+            "maxLength": 200,
+            "title": "Subject Label",
+            "type": "string"
+          },
+          "subject_type": {
+            "default": "OTHER",
+            "enum": [
+              "INVENTION",
+              "OPPORTUNITY",
+              "PARTNER_PROFILE",
+              "FUNDING_REQUEST",
+              "SUPPORT_REQUEST",
+              "PITCH",
+              "MESSAGE",
+              "OTHER"
+            ],
+            "title": "Subject Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "expected_version",
+          "reason"
+        ],
+        "title": "CreateReportRequest",
         "type": "object"
       },
       "CreateSupportRequest": {
@@ -2491,6 +2642,27 @@
           "coverage"
         ],
         "title": "FitResponse",
+        "type": "object"
+      },
+      "FulfillPrivacyRequest": {
+        "additionalProperties": false,
+        "description": "Carry out a deletion against the version the operator saw.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "expected_version": {
+            "title": "Expected Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "expected_version"
+        ],
+        "title": "FulfillPrivacyRequest",
         "type": "object"
       },
       "FundingRequestInput": {
@@ -3984,6 +4156,207 @@
         "title": "OperationStatus",
         "type": "string"
       },
+      "OperatorActionRequest": {
+        "additionalProperties": false,
+        "description": "Act on a case against the version the operator saw, saying why.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "action": {
+            "enum": [
+              "START_REVIEW",
+              "SUSPEND_LISTING",
+              "LIFT_SUSPENSION",
+              "RESOLVE",
+              "DISMISS"
+            ],
+            "title": "Action",
+            "type": "string"
+          },
+          "expected_version": {
+            "title": "Expected Version",
+            "type": "integer"
+          },
+          "note": {
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Note",
+            "type": "string"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "expected_version",
+          "action",
+          "note"
+        ],
+        "title": "OperatorActionRequest",
+        "type": "object"
+      },
+      "OperatorActionResponse": {
+        "description": "One thing an operator did.",
+        "properties": {
+          "action": {
+            "enum": [
+              "START_REVIEW",
+              "SUSPEND_LISTING",
+              "LIFT_SUSPENSION",
+              "RESOLVE",
+              "DISMISS"
+            ],
+            "title": "Action",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "note": {
+            "title": "Note",
+            "type": "string"
+          },
+          "operator_account_id": {
+            "format": "uuid",
+            "title": "Operator Account Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "action",
+          "note",
+          "operator_account_id",
+          "created_at"
+        ],
+        "title": "OperatorActionResponse",
+        "type": "object"
+      },
+      "OperatorReportResponse": {
+        "description": "A case as an operator with the moderation scope sees it.",
+        "properties": {
+          "actions": {
+            "items": {
+              "$ref": "#/components/schemas/OperatorActionResponse"
+            },
+            "title": "Actions",
+            "type": "array"
+          },
+          "case_number": {
+            "title": "Case Number",
+            "type": "string"
+          },
+          "category": {
+            "enum": [
+              "IMPERSONATION",
+              "UNSUPPORTED_CLAIM",
+              "UNWANTED_CONTACT",
+              "ABUSE",
+              "OTHER"
+            ],
+            "title": "Category",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "operation_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operation Id"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "reporter_party_id": {
+            "format": "uuid",
+            "title": "Reporter Party Id",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "RECEIVED",
+              "IN_REVIEW",
+              "RESOLVED",
+              "DISMISSED"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "subject_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subject Id"
+          },
+          "subject_label": {
+            "title": "Subject Label",
+            "type": "string"
+          },
+          "subject_type": {
+            "enum": [
+              "INVENTION",
+              "OPPORTUNITY",
+              "PARTNER_PROFILE",
+              "FUNDING_REQUEST",
+              "SUPPORT_REQUEST",
+              "PITCH",
+              "MESSAGE",
+              "OTHER"
+            ],
+            "title": "Subject Type",
+            "type": "string"
+          },
+          "suspended": {
+            "title": "Suspended",
+            "type": "boolean"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "case_number",
+          "version",
+          "category",
+          "subject_type",
+          "subject_id",
+          "subject_label",
+          "reason",
+          "status",
+          "reporter_party_id",
+          "suspended",
+          "actions",
+          "created_at"
+        ],
+        "title": "OperatorReportResponse",
+        "type": "object"
+      },
       "OpportunityResponse": {
         "description": "An opportunity and its current version. ``version`` is for ``expected_version``; ``number`` names the content.",
         "properties": {
@@ -4535,6 +4908,31 @@
           "name"
         ],
         "title": "PartyName",
+        "type": "object"
+      },
+      "PersonalDocumentMetadata": {
+        "description": "Requester-owned document metadata without file bytes or other parties' grants.",
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "kind"
+        ],
+        "title": "PersonalDocumentMetadata",
         "type": "object"
       },
       "PinnedInvention": {
@@ -5162,6 +5560,187 @@
         "title": "PreflightResponse",
         "type": "object"
       },
+      "PrivacyAnswer": {
+        "description": "The generated answer. ``removed`` lists only what has really been removed.",
+        "properties": {
+          "notice": {
+            "title": "Notice",
+            "type": "string"
+          },
+          "removed": {
+            "items": {
+              "$ref": "#/components/schemas/CategoryToRemove"
+            },
+            "title": "Removed",
+            "type": "array"
+          },
+          "retained": {
+            "items": {
+              "$ref": "#/components/schemas/CategoryRetained"
+            },
+            "title": "Retained",
+            "type": "array"
+          },
+          "to_remove": {
+            "items": {
+              "$ref": "#/components/schemas/CategoryToRemove"
+            },
+            "title": "To Remove",
+            "type": "array"
+          }
+        },
+        "required": [
+          "to_remove",
+          "removed",
+          "retained",
+          "notice"
+        ],
+        "title": "PrivacyAnswer",
+        "type": "object"
+      },
+      "PrivacyExportResponse": {
+        "description": "Everything the requester may see now. Built on each read, so a lost permission is lost here too.",
+        "properties": {
+          "account": {
+            "$ref": "#/components/schemas/AccountResponse"
+          },
+          "documents": {
+            "items": {
+              "$ref": "#/components/schemas/PersonalDocumentMetadata"
+            },
+            "title": "Documents",
+            "type": "array"
+          },
+          "generated_at": {
+            "format": "date-time",
+            "title": "Generated At",
+            "type": "string"
+          },
+          "memberships": {
+            "items": {
+              "$ref": "#/components/schemas/MembershipResponse"
+            },
+            "title": "Memberships",
+            "type": "array"
+          },
+          "personal_party_id": {
+            "format": "uuid",
+            "title": "Personal Party Id",
+            "type": "string"
+          },
+          "privacy_requests": {
+            "items": {
+              "$ref": "#/components/schemas/PrivacyRequestResponse"
+            },
+            "title": "Privacy Requests",
+            "type": "array"
+          },
+          "reports": {
+            "items": {
+              "$ref": "#/components/schemas/ReportResponse"
+            },
+            "title": "Reports",
+            "type": "array"
+          }
+        },
+        "required": [
+          "generated_at",
+          "account",
+          "memberships",
+          "personal_party_id",
+          "documents",
+          "reports",
+          "privacy_requests"
+        ],
+        "title": "PrivacyExportResponse",
+        "type": "object"
+      },
+      "PrivacyRequestResponse": {
+        "description": "A privacy request and its answer.",
+        "properties": {
+          "answer": {
+            "$ref": "#/components/schemas/PrivacyAnswer"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "fulfilled_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fulfilled At"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "EXPORT",
+              "DELETION"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "operation_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operation Id"
+          },
+          "policy_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Policy Version"
+          },
+          "status": {
+            "enum": [
+              "RECEIVED",
+              "PROCESSING",
+              "FULFILLED"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "version",
+          "kind",
+          "status",
+          "answer",
+          "policy_version",
+          "created_at",
+          "fulfilled_at"
+        ],
+        "title": "PrivacyRequestResponse",
+        "type": "object"
+      },
       "PublicClaimResponse": {
         "description": "A claim as anyone may read it.",
         "properties": {
@@ -5690,6 +6269,49 @@
           "expected_version"
         ],
         "title": "RemoveMemberRequest",
+        "type": "object"
+      },
+      "ReportResponse": {
+        "description": "What a reporter sees: the case and its status, and nothing an operator wrote.",
+        "properties": {
+          "case_number": {
+            "title": "Case Number",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "operation_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operation Id"
+          },
+          "status": {
+            "enum": [
+              "RECEIVED",
+              "IN_REVIEW",
+              "RESOLVED",
+              "DISMISSED"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "case_number",
+          "status"
+        ],
+        "title": "ReportResponse",
         "type": "object"
       },
       "RequirementInput": {
@@ -6894,6 +7516,7 @@
             "anyOf": [
               {
                 "enum": [
+                  "SUSPENDED",
                   "TARGET_NOT_ACTIVE",
                   "EXTERNAL_ROUTE",
                   "NO_NEW_APPROACHES",
@@ -10191,7 +10814,7 @@
     },
     "/api/v1/operations/{operation_id}": {
       "get": {
-        "description": "Tell the acting party whether its operation committed.\n\nArgs:\n    operation_id (UUID): From the response the client may have lost.\n    session (SessionDep): Database session.\n    actor_party_id (ActorDep): The acting party.\n\nReturns:\n    OperationResponse: ``COMMITTED`` with a result reference, ``PENDING``, or ``UNKNOWN`` for an id the service\n        has no record of.\n\nRaises:\n    NotFoundError: When the operation belongs to another party.",
+        "description": "Tell the acting party whether its operation committed.\n\nArgs:\n    operation_id (UUID): From the response the client may have lost.\n    session (SessionDep): Database session.\n    actor_party_id (ActorDep): The acting party.\n    principal (PrincipalDep): The account scope for private operations.\n\nReturns:\n    OperationResponse: ``COMMITTED`` with a result reference, ``PENDING``, or ``UNKNOWN`` for an id the service\n        has no record of.\n\nRaises:\n    NotFoundError: When the operation belongs to another party.",
         "operationId": "get_operation_api_v1_operations__operation_id__get",
         "parameters": [
           {
@@ -10240,6 +10863,347 @@
         "summary": "Report on an operation",
         "tags": [
           "operations"
+        ]
+      }
+    },
+    "/api/v1/operator/privacy-requests": {
+      "get": {
+        "description": "List pending requests under the live moderation scope.",
+        "operationId": "operator_privacy_requests_api_v1_operator_privacy_requests_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PrivacyRequestResponse"
+                  },
+                  "title": "Response Operator Privacy Requests Api V1 Operator Privacy Requests Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "List pending deletions",
+        "tags": [
+          "moderation"
+        ]
+      }
+    },
+    "/api/v1/operator/privacy-requests/{request_id}/fulfill": {
+      "post": {
+        "description": "Accept an authorized versioned decision and return the current processing state.",
+        "operationId": "fulfill_privacy_request_api_v1_operator_privacy_requests__request_id__fulfill_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "request_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Request Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FulfillPrivacyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrivacyRequestResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Begin policy-based deletion",
+        "tags": [
+          "moderation"
+        ]
+      }
+    },
+    "/api/v1/operator/reports": {
+      "get": {
+        "description": "Return the bounded queue to a currently authorized operator.",
+        "operationId": "operator_reports_api_v1_operator_reports_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "RECEIVED",
+                    "IN_REVIEW",
+                    "RESOLVED",
+                    "DISMISSED"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/OperatorReportResponse"
+                  },
+                  "title": "Response Operator Reports Api V1 Operator Reports Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "List the scoped moderation queue",
+        "tags": [
+          "moderation"
+        ]
+      }
+    },
+    "/api/v1/operator/reports/{report_id}/actions": {
+      "post": {
+        "description": "Apply a versioned operator action with a private reason.",
+        "operationId": "act_on_report_api_v1_operator_reports__report_id__actions_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "report_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Report Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OperatorActionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperatorReportResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Apply an audited case action",
+        "tags": [
+          "moderation"
+        ]
+      }
+    },
+    "/api/v1/operator/reports/{report_id}/documents/{document_id}/versions/{number}/content": {
+      "get": {
+        "description": "Stream a protected version after checking the case and exact file grant.",
+        "operationId": "download_case_file_api_v1_operator_reports__report_id__documents__document_id__versions__number__content_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "report_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Report Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "document_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Document Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "number",
+            "required": true,
+            "schema": {
+              "title": "Number",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Download an explicitly granted case file",
+        "tags": [
+          "moderation"
         ]
       }
     },
@@ -11040,7 +12004,7 @@
     },
     "/api/v1/partners/{party_id}": {
       "get": {
-        "description": "Read what a partner states about itself, as anyone signed in may see it.\n\nArgs:\n    party_id (UUID): The party.\n    _ (PrincipalDep): Any signed-in account.\n    session (SessionDep): Database session.\n\nReturns:\n    PartnerProfileResponse: The profile.",
+        "description": "Read what a partner states about itself, as anyone signed in may see it.\n\nArgs:\n    party_id (UUID): The party.\n    principal (PrincipalDep): Any signed-in account.\n    session (SessionDep): Database session.\n\nReturns:\n    PartnerProfileResponse: The profile.",
         "operationId": "read_partner_api_v1_partners__party_id__get",
         "parameters": [
           {
@@ -11977,6 +12941,340 @@
         "summary": "Withdraw a pitch",
         "tags": [
           "pitches"
+        ]
+      }
+    },
+    "/api/v1/privacy-requests": {
+      "get": {
+        "description": "Return the signed-in account's request receipts.",
+        "operationId": "list_privacy_requests_api_v1_privacy_requests_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PrivacyRequestResponse"
+                  },
+                  "title": "Response List Privacy Requests Api V1 Privacy Requests Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "List my privacy requests",
+        "tags": [
+          "moderation"
+        ]
+      },
+      "post": {
+        "description": "Return an export receipt or a policy-based deletion plan.",
+        "operationId": "create_privacy_request_api_v1_privacy_requests_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePrivacyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrivacyRequestResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Open a privacy request",
+        "tags": [
+          "moderation"
+        ]
+      }
+    },
+    "/api/v1/privacy-requests/{request_id}": {
+      "get": {
+        "description": "Return a current receipt for a request the account owns.",
+        "operationId": "read_privacy_request_api_v1_privacy_requests__request_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "request_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Request Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrivacyRequestResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Read my privacy request",
+        "tags": [
+          "moderation"
+        ]
+      }
+    },
+    "/api/v1/privacy-requests/{request_id}/export": {
+      "get": {
+        "description": "Produce a fresh, account-authorized JSON export.",
+        "operationId": "download_privacy_export_api_v1_privacy_requests__request_id__export_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "request_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Request Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrivacyExportResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Download my authorized export",
+        "tags": [
+          "moderation"
+        ]
+      }
+    },
+    "/api/v1/reports": {
+      "get": {
+        "description": "Show only the signed-in account's reports.",
+        "operationId": "list_reports_api_v1_reports_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ReportResponse"
+                  },
+                  "title": "Response List Reports Api V1 Reports Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "List my private reports",
+        "tags": [
+          "moderation"
+        ]
+      },
+      "post": {
+        "description": "File a case and return its receipt.",
+        "operationId": "create_report_api_v1_reports_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateReportRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "File a private report",
+        "tags": [
+          "moderation"
+        ]
+      }
+    },
+    "/api/v1/reports/{report_id}": {
+      "get": {
+        "description": "Read the reporter's case receipt.",
+        "operationId": "read_report_api_v1_reports__report_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "report_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Report Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Read my report status",
+        "tags": [
+          "moderation"
         ]
       }
     },

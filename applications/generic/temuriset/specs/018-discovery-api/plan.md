@@ -42,3 +42,7 @@ Matching and ranking by fit (019), dense retrieval (045), trending.
 2. Query, filters, sections, cursor.
 3. Saved items and feedback.
 4. Isolation and contract.
+
+### Moderation integration
+
+Consume `listing.suspended` and `listing.restored` when building the discovery projection. Test that suspension removes a listing from discovery and restoration returns it only if it still qualifies.

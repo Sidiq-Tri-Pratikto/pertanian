@@ -23,6 +23,7 @@ vi.mock('@/api/server', () => ({
       if (!me) throw new ApiError('UNAUTHENTICATED', 'Anda perlu masuk terlebih dahulu.', { retryable: false });
       return me;
     }
+    if (path === '/api/v1/reports' || path === '/api/v1/privacy-requests') return [];
     if (path === '/api/v1/inventions') return [];
     if (path === '/api/v1/support-requests') return supportRequests;
     if (path === '/api/v1/opportunities') return [];
@@ -211,6 +212,8 @@ describe('a signed-in inventor', () => {
     expect(screen.getByText('Asia/Jakarta')).toBeInTheDocument();
     expect(screen.getByText(/Organisasi tidak wajib/)).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Rencana fitur' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Laporkan masalah' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Permintaan privasi' })).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: /Anggota/ })).toBeNull();
     expect(screen.getByRole('button', { name: 'Keluar' })).toBeInTheDocument();
   });

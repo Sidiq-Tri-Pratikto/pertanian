@@ -32,6 +32,7 @@ One row per error. Keep in sync with `app/core/errors/codes.py` and `public.py`.
 | `APP-PREFLIGHT-STALE` | `PREFLIGHT_STALE` | 409 | Ada yang berubah sejak pemeriksaan. Periksa ulang sebelum mengirim; brief Anda tetap tersimpan. | Unknown or expired preflight token, or a pinned version, permission or configuration changed; the envelope adds `reason` | false | - | - |
 | `APP-NOT-READY` | `NOT_READY` | 422 | Masih ada syarat pengajuan yang belum selesai. Lengkapi syarat yang disebutkan lalu periksa ulang. | Readiness is not `READY_TO_SUBMIT`, or a required file was not chosen; the envelope adds `requirement` | false | - | - |
 | `APP-REQUIRED-ANSWERS-MISSING` | `REQUIRED_ANSWERS_MISSING` | 422 | Masih ada pertanyaan wajib yang belum dijawab. Jawab pertanyaan yang ditandai lalu kirim ulang. | Resubmitting a revision round while a required item has no answer; the envelope adds `items`, the unanswered item ids | false | - | - |
+| `APP-LISTING-SUSPENDED` | `LISTING_SUSPENDED` | 409 | Daftar ini sedang ditangguhkan. Hubungi pengelola layanan bila Anda merasa ini keliru. | Saving, publishing, activating or referencing a listing an operator suspended | false | - | - |
 
 A missing `Idempotency-Key` on a consequential POST is `BAD_REQUEST` with `details` naming the header.
 

@@ -10,6 +10,7 @@ from app.access.service.service import party_names
 from app.core import clock
 from app.core.errors.base import ConflictError, NotFoundError
 from app.identity.model.models import Principal
+from app.moderation.service.suspension import is_suspended, require_unsuspended
 from app.platform.service.audit import record_audit
 from app.platform.service.outbox import publish
 from app.platform.service.versions import check_expected
@@ -146,6 +147,7 @@ class PortfolioService:
         check_context(principal, request.acting_party_id)
         invention = await self._owned(principal, invention_id, lock=True)
         require(principal, Capability.EDIT_PORTFOLIO, invention.managing_party_id)
+        await require_unsuspended(self.session, "INVENTION", invention_id)
         if invention.status == "ARCHIVED":
             raise ConflictError(_ARCHIVED)
         check_expected(invention.version, request.expected_version)
@@ -180,6 +182,7 @@ class PortfolioService:
         check_context(principal, request.acting_party_id)
         invention = await self._owned(principal, invention_id, lock=True)
         require(principal, Capability.EDIT_PORTFOLIO, invention.managing_party_id)
+        await require_unsuspended(self.session, "INVENTION", invention_id)
         if invention.status == "ARCHIVED":
             raise ConflictError(_ARCHIVED)
         check_expected(invention.version, request.expected_version)
@@ -255,6 +258,15 @@ class PortfolioService:
             )
         return await self._view(invention, operation_id)
 
+    async def withdraw_personal_listings(self, party_id: UUID) -> None:
+        """Archive current personal inventions while preserving every referenced version."""
+        for item in await self.repository.of_party(party_id):
+            invention = await self.repository.find(item.id, lock=True)
+            if invention is not None and invention.status != "ARCHIVED":
+                invention.status = "ARCHIVED"
+                invention.version += 1
+                await publish(self.session, "invention.archived", {"invention_id": str(invention.id)})
+
     async def public_view(self, invention_id: UUID) -> PublicInventionResponse:
         """The published version as anyone may read it; private notes and document links stay out.
 
@@ -269,6 +281,8 @@ class PortfolioService:
         """
         invention = await self.repository.find(invention_id)
         if invention is None or invention.status == "ARCHIVED" or invention.published_version_id is None:
+            raise NotFoundError()
+        if await is_suspended(self.session, "INVENTION", invention_id):
             raise NotFoundError()
         version = await self.repository.version(invention.published_version_id)
         assert version is not None  # noqa: S101 - the pointer always names a stored version
@@ -322,9 +336,10 @@ async def submittable_version(session: AsyncSession, invention_id: UUID) -> UUID
     Raises:
         ConflictError: When archived or never published (AC09).
     """
-    invention = await SqlAlchemyPortfolioRepository(session).find(invention_id)
+    invention = await SqlAlchemyPortfolioRepository(session).find(invention_id, lock=True)
     if invention is None:
         raise NotFoundError()
+    await require_unsuspended(session, "INVENTION", invention_id)
     if invention.status == "ARCHIVED" or invention.published_version_id is None:
         raise ConflictError(_ARCHIVED if invention.status == "ARCHIVED" else _NO_DRAFT)
     return invention.published_version_id
@@ -382,3 +397,9 @@ async def owned_submittable_version(session: AsyncSession, invention_id: UUID, p
     if invention is None or invention.managing_party_id != party_id:
         raise NotFoundError()
     return await submittable_version(session, invention_id)
+
+
+async def lock_moderation_target(session: AsyncSession, invention_id: UUID) -> None:
+    """Serialize a suspension decision with a change to the same invention."""
+    if await SqlAlchemyPortfolioRepository(session).find(invention_id, lock=True) is None:
+        raise NotFoundError()

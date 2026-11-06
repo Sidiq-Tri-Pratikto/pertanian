@@ -39,3 +39,7 @@ Decisions (025), web (024).
 3. Grants and notification event.
 4. Idempotency and parallel test.
 5. Lists and detail, contract.
+
+### Moderation integration
+
+Use the suspended target reason returned by 034. Record a policy-backed retention category for submitted snapshots before a pilot. Preserve the earlier version and its authorization checks when a personal listing is withdrawn.
