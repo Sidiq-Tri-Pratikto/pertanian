@@ -1,5 +1,10 @@
 """Reject malformed synthetic benchmark inputs and missing or miscounted measurements."""
 
+import argparse
+import sys
+from pathlib import Path
+from types import ModuleType
+from typing import NoReturn
 from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
 
@@ -8,8 +13,9 @@ import pytest
 from pydantic import SecretStr
 
 from app.core.settings import Settings
+from app.identity.service.codes import new_token
 from app.matching.model.schema import MatchResultResponse, MatchRunResponse, MatchSource
-from benchmarks import generate
+from benchmarks import generate, run
 from benchmarks.generate import Actor, BenchmarkError, Dataset, verify_dataset, write_handoff
 from benchmarks.run import ME, Request, Samples, load_dataset, sample, verify_match
 
@@ -22,7 +28,7 @@ def dataset() -> Dataset:
     """Use two separate synthetic actors and two opportunities owned by one partner."""
     actors = [
         Actor(
-            token=SecretStr(str(uuid4())),
+            token=SecretStr(new_token()),
             account_id=uuid4(),
             party_id=uuid4(),
             inventions=[uuid4()],
@@ -52,16 +58,97 @@ def test_target_rejects_another_origin_or_database(monkeypatch):
         generate.target(ORIGIN, staging=False)
 
 
-def test_handoff_requires_sessions(tmp_path, dataset):
-    """The runner rejects a private handoff with no session cookie."""
-    dataset.actors[0].token = SecretStr("")
+@pytest.mark.parametrize("token", ["", "a" * 42 + ";", "a" * 42 + "é", "a" * 43 + "\r\nCookie: injected"])
+def test_handoff_requires_safe_sessions(tmp_path: Path, dataset: Dataset, token: str) -> None:
+    """
+    Condition:
+    - A private handoff has a missing or malformed session cookie.
+
+    Expected:
+    - The runner refuses it before building a request.
+    """
+    dataset.actors[0].token = SecretStr(token)
     tmp_path.chmod(0o700)
     path = tmp_path / "handoff.json"
     with path.open("w") as file:
         write_handoff(file, dataset)
     path.chmod(0o600)
-    with pytest.raises(BenchmarkError, match="absent synthetic sessions"):
+    with pytest.raises(BenchmarkError, match="invalid synthetic session token"):
         load_dataset(path, ORIGIN, DATABASE)
+
+
+@pytest.mark.parametrize(("command", "entrypoint"), [(generate, "generate"), (run, "run_with_cleanup")])
+def test_cli_sanitizes_http_errors(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    command: ModuleType,
+    entrypoint: str,
+) -> None:
+    """
+    Condition:
+    - The HTTP exception for a benchmark request includes a fake private cookie.
+
+    Expected:
+    - The command exits with a safe failure message and omits the cookie.
+    """
+    token = "benchmark-fake-private-cookie"
+    request = httpx.Request("GET", ORIGIN, headers={"Cookie": f"tr_session={token}"})
+
+    def request_failure(args: argparse.Namespace) -> NoReturn:
+        raise httpx.ConnectError(f"request with {request.headers['Cookie']} failed", request=request)
+
+    monkeypatch.setattr(sys, "argv", ["benchmark", "--origin", ORIGIN, "--handoff", "sessions.json"])
+    monkeypatch.setattr(command, entrypoint, request_failure)
+    with pytest.raises(SystemExit) as error:
+        command.main()
+    assert error.value.code == 1
+    captured = capsys.readouterr()
+    assert "selected API request failed" in captured.err
+    assert token not in captured.out + captured.err
+
+
+def test_generator_releases_failed_handoff_reservation(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    """
+    Condition:
+    - API readiness or seeding fails after the generator reserves the handoff.
+
+    Expected:
+    - The original failure is raised and the reserved file is removed.
+    """
+    tmp_path.chmod(0o700)
+    handoff = tmp_path / "handoff.json"
+    args = argparse.Namespace(origin=ORIGIN, staging=False, handoff=handoff, users=4, inventions=12, opportunities=4)
+    monkeypatch.setattr(generate, "target", lambda origin, *, staging: DATABASE)
+    monkeypatch.setattr(generate, "seed_ready_target", AsyncMock(side_effect=BenchmarkError("not ready")))
+    with pytest.raises(BenchmarkError, match="not ready"):
+        generate.generate(args)
+    assert not handoff.exists()
+
+
+def test_warmup_reports_slow_requests_without_applying_the_latency_target() -> None:
+    """
+    Condition:
+    - An endpoint exceeds its latency budget with no failed requests.
+
+    Expected:
+    - The measurement fails the target and the diagnostic warmup passes while still reporting latency.
+    """
+    samples = Samples(latency=[700])
+    assert samples.report(ME)["passed"] is False
+    outcome = samples.report(ME, enforce_target=False)
+    assert (outcome["p95_ms"], outcome["target_ms"], outcome["passed"]) == (700, None, True)
+
+
+def test_warmup_reports_request_failures_without_successful_samples() -> None:
+    """
+    Condition:
+    - The diagnostic warmup times out before completing a successful request.
+
+    Expected:
+    - The warmup reports the timeout and fails without attempting to calculate p95.
+    """
+    outcome = Samples(timeouts=1).report(ME, enforce_target=False)
+    assert (outcome["attempted"], outcome["timeouts"], outcome["p95_ms"], outcome["passed"]) == (1, 1, None, False)
 
 
 async def test_readiness_rejects_incomplete_seed(dataset):

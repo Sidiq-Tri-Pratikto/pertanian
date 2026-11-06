@@ -6,6 +6,7 @@ import json
 import os
 import re
 import stat
+from contextlib import suppress
 from pathlib import Path
 from typing import TextIO
 from urllib.parse import urlsplit
@@ -280,23 +281,35 @@ def write_handoff(file: TextIO, dataset: Dataset) -> None:
     json.dump(content, file)
 
 
-async def generate(args: argparse.Namespace) -> None:
+async def seed_ready_target(args: argparse.Namespace, database: str) -> Dataset:
+    """Check API readiness and seed the selected database in one transaction."""
+    async with httpx.AsyncClient(base_url=args.origin, trust_env=False) as client:
+        if (await client.get("/health/ready")).status_code != 200:
+            raise BenchmarkError("The selected benchmark API is not ready.")
+    try:
+        with seeded_ids("benchmarks-039"):
+            async with get_session_factory()() as session, session.begin():
+                return await seed(session, args, database)
+    finally:
+        await get_engine().dispose()
+
+
+def generate(args: argparse.Namespace) -> None:
     """Guard, seed and hand off a private dataset for the benchmark runner."""
     database = target(args.origin, staging=args.staging)
     handoff = private_path(args.handoff)
     if not 2 <= args.users <= 100 or not args.users <= args.inventions or not 1 <= args.opportunities <= 500:
         raise BenchmarkError("Require 2–100 users, at least one invention per user, and 1–500 opportunities.")
-    async with httpx.AsyncClient(base_url=args.origin, trust_env=False) as client:
-        if (await client.get("/health/ready")).status_code != 200:
-            raise BenchmarkError("The selected benchmark API is not ready.")
     descriptor = os.open(handoff, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
     try:
-        with os.fdopen(descriptor, "w") as file, seeded_ids("benchmarks-039"):
-            async with get_session_factory()() as session, session.begin():
-                dataset = await seed(session, args, database)
+        with os.fdopen(descriptor, "w") as file:
+            dataset = asyncio.run(seed_ready_target(args, database))
             write_handoff(file, dataset)
-    finally:
-        await get_engine().dispose()
+    except BaseException:
+        # Release the reservation while preserving the original failure if cleanup fails.
+        with suppress(OSError):
+            handoff.unlink()
+        raise
     print(
         f"Seeded {args.inventions} inventions, {args.opportunities} opportunities and {args.users} synthetic sessions."
     )
@@ -313,9 +326,15 @@ def main() -> None:
     parser.add_argument("--users", type=int, default=20)
     args = parser.parse_args()
     try:
-        asyncio.run(generate(args))
-    except (BenchmarkError, httpx.HTTPError, FileExistsError) as error:
+        generate(args)
+    except BenchmarkError as error:
         parser.exit(1, f"Benchmark seed failed: {error}\n")
+    except httpx.HTTPError:
+        parser.exit(1, "Benchmark seed failed: the selected API request failed.\n")
+    except FileExistsError:
+        parser.exit(1, "Benchmark seed failed: the private handoff already exists.\n")
+    except OSError:
+        parser.exit(1, "Benchmark seed failed: could not access the private handoff or database.\n")
 
 
 if __name__ == "__main__":
