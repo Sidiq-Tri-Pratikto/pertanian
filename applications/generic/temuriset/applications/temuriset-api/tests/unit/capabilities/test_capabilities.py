@@ -60,7 +60,7 @@ def test_nothing_claims_more_than_exists(composition: str) -> None:
         "object-storage": "available",
         "file-scanner": "available",
         "lexical-rules": "available",
-        "ics-export": "planned",
+        "ics-export": "available",
     }
 
 

@@ -36,6 +36,54 @@ def side_of(principal: Principal, record: PitchRecord) -> Side | None:
     return None
 
 
+async def pitch_by_id(session: AsyncSession, pitch_id: UUID) -> PitchRecord | None:
+    """Find a pitch with no access check, for worker consumers only (027).
+
+    Args:
+        session (AsyncSession): The worker's session.
+        pitch_id (UUID): The pitch.
+
+    Returns:
+        PitchRecord | None: The pitch.
+    """
+    return await SqlAlchemyPitchRepository(session).find(pitch_id)
+
+
+async def visible_pitch(session: AsyncSession, principal: Principal, pitch_id: UUID) -> tuple[PitchRecord, Side]:
+    """Find a pitch the active party is a side of, for other modules' rooms (027, 028).
+
+    Args:
+        session (AsyncSession): The request's session.
+        principal (Principal): Who is signed in.
+        pitch_id (UUID): The pitch.
+
+    Returns:
+        tuple[PitchRecord, Side]: The pitch and the reader's side.
+
+    Raises:
+        NotFoundError: For anyone but its two parties (AC48).
+    """
+    record = await SqlAlchemyPitchRepository(session).find(pitch_id)
+    side = side_of(principal, record) if record else None
+    if record is None or side is None:
+        raise NotFoundError()
+    return record, side
+
+
+def require_side(principal: Principal, side: Side) -> None:
+    """Refuse a member without its side's capability: ``submit_pitch`` or ``decide_pitch``.
+
+    Args:
+        principal (Principal): Who is signed in.
+        side (Side): The reader's side.
+
+    Raises:
+        ForbiddenError: Without the capability.
+    """
+    if CAPABILITY_OF[side] not in principal.capabilities:
+        raise ForbiddenError()
+
+
 async def locked_pitch(
     repository: SqlAlchemyPitchRepository, principal: Principal, pitch_id: UUID, action: str, expected_version: int
 ) -> PitchRecord:
@@ -92,6 +140,8 @@ async def move(
             "requester_party_id": str(record.requester_party_id),
             "recipient_party_id": str(record.recipient_party_id),
             "status": record.status,
+            "version": record.version,
+            "actor_party_id": str(principal.active_party_id),
             **(payload or {}),
         },
     )

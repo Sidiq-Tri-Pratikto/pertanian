@@ -271,6 +271,33 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/dev/bookings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Book a party's time, for tests
+         * @description Mark a party busy, as another meeting would, so conflicts can be shown without a second pitch.
+         *
+         *     Args:
+         *         body (DevBookingRequest): Party, interval and title.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         dict[str, str]: The booking id.
+         */
+        post: operations["book_time_api_v1_dev_bookings_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/dev/mailbox": {
         parameters: {
             query?: never;
@@ -1245,6 +1272,179 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/me/queue": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * What waits, for Beranda
+         * @description List pitches waiting on someone, those waiting on the active party first.
+         *
+         *     Args:
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         list[QueueItem]: Items.
+         */
+        get: operations["read_queue_api_v1_me_queue_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/meetings/{meeting_id}/calendar.ics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Download a calendar file
+         * @description Return the meeting as an iCalendar file built from its UTC instants.
+         *
+         *     Args:
+         *         meeting_id (UUID): The meeting.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         Response: ``text/calendar`` with an attachment name.
+         */
+        get: operations["calendar_file_api_v1_meetings__meeting_id__calendar_ics_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/meetings/{meeting_id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Cancel a meeting
+         * @description Cancel a confirmed meeting and free both bookings.
+         *
+         *     Args:
+         *         meeting_id (UUID): The meeting.
+         *         body (VersionedRequest): ``expected_version``.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         MeetingResponse: The meeting.
+         */
+        post: operations["cancel_meeting_api_v1_meetings__meeting_id__cancel_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/meetings/{meeting_id}/outcome": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Record a meeting outcome
+         * @description Record what the acting party says happened; only both agreeing settles it.
+         *
+         *     Args:
+         *         meeting_id (UUID): The meeting.
+         *         body (OutcomeRequest): Result and note.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         MeetingResponse: The meeting.
+         */
+        post: operations["record_outcome_api_v1_meetings__meeting_id__outcome_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/notifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read my notifications
+         * @description Read the active party's in-app notifications, newest first.
+         *
+         *     Args:
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         since (datetime | None, optional): Only newer ones. Defaults to None.
+         *         unread (bool, optional): Only unread ones. Defaults to False.
+         *         limit (int, optional): The most to return. Defaults to 50.
+         *
+         *     Returns:
+         *         list[NotificationResponse]: Notifications.
+         */
+        get: operations["list_notifications_api_v1_notifications_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/notifications/{notification_id}/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Mark a notification read
+         * @description Mark one notification read; repeating it changes nothing.
+         *
+         *     Args:
+         *         notification_id (UUID): The notification.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         NotificationResponse: The notification.
+         */
+        put: operations["mark_read_api_v1_notifications__notification_id__read_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/operations/{operation_id}": {
         parameters: {
             query?: never;
@@ -1868,6 +2068,78 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/pitches/{pitch_id}/messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read a room's messages
+         * @description Read messages oldest first; poll with ``since`` for newer ones.
+         *
+         *     Args:
+         *         pitch_id (UUID): The pitch.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         since (datetime | None, optional): Only messages after this instant. Defaults to None.
+         *         limit (int, optional): The most to return. Defaults to 100.
+         *
+         *     Returns:
+         *         list[MessageResponse]: Messages.
+         */
+        get: operations["list_messages_api_v1_pitches__pitch_id__messages_get"];
+        put?: never;
+        /**
+         * Send a message
+         * @description Add a message to the room; a retry with the same key returns the same message.
+         *
+         *     Args:
+         *         pitch_id (UUID): The pitch.
+         *         body (SendMessageRequest): The text.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         MessageResponse: The message.
+         */
+        post: operations["send_message_api_v1_pitches__pitch_id__messages_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/pitches/{pitch_id}/next-action": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Whose turn it is
+         * @description Return who acts next on a pitch, for the active party, computed on the server.
+         *
+         *     Args:
+         *         pitch_id (UUID): The pitch.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         NextAction: ``who`` is ``you``, ``other`` or null, with a title, text, tab and action.
+         */
+        get: operations["read_next_action_api_v1_pitches__pitch_id__next_action_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/pitches/{pitch_id}/resubmit": {
         parameters: {
             query?: never;
@@ -1988,6 +2260,106 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/pitches/{pitch_id}/schedule": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read a pitch's schedule
+         * @description Read proposals and meetings, with expiry evaluated now.
+         *
+         *     Args:
+         *         pitch_id (UUID): The pitch.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         ScheduleResponse: Proposals and meetings.
+         */
+        get: operations["read_schedule_api_v1_pitches__pitch_id__schedule_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/pitches/{pitch_id}/schedule-proposals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Propose meeting times
+         * @description Offer 2–5 times; an open proposal is superseded. With ``replaces_meeting_id`` it proposes a replacement.
+         *
+         *     Args:
+         *         pitch_id (UUID): The pitch.
+         *         body (ProposeRequest): Slots, length, zone, agenda, link and replaced meeting.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         ProposalResponse: The proposal.
+         */
+        post: operations["propose_api_v1_pitches__pitch_id__schedule_proposals_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/pitches/{pitch_id}/tasks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read a room's tasks
+         * @description Read tasks oldest first.
+         *
+         *     Args:
+         *         pitch_id (UUID): The pitch.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         list[TaskResponse]: Tasks.
+         */
+        get: operations["list_tasks_api_v1_pitches__pitch_id__tasks_get"];
+        put?: never;
+        /**
+         * Add a task
+         * @description Add a task owned by one of the two parties.
+         *
+         *     Args:
+         *         pitch_id (UUID): The pitch.
+         *         body (CreateTaskRequest): Title, owner, due date and reference.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         TaskResponse: The task.
+         */
+        post: operations["add_task_api_v1_pitches__pitch_id__tasks_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/pitches/{pitch_id}/withdraw": {
         parameters: {
             query?: never;
@@ -2081,6 +2453,66 @@ export interface paths {
          *         session (SessionDep): Database session.
          */
         delete: operations["unsave_item_api_v1_saved_items__subject_type___subject_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/schedule-proposals/{proposal_id}/accept": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Confirm a slot
+         * @description Confirm one slot; a conflict changes nothing and is ``BOOKING_CONFLICT``.
+         *
+         *     Args:
+         *         proposal_id (UUID): The proposal.
+         *         body (AcceptRequest): The slot and ``expected_version``.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         MeetingResponse: The confirmed meeting.
+         */
+        post: operations["accept_api_v1_schedule_proposals__proposal_id__accept_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/schedule-proposals/{proposal_id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Cancel a proposal
+         * @description Cancel an open proposal; any meeting stays.
+         *
+         *     Args:
+         *         proposal_id (UUID): The proposal.
+         *         body (VersionedRequest): ``expected_version``.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         ProposalResponse: The proposal.
+         */
+        post: operations["cancel_proposal_api_v1_schedule_proposals__proposal_id__cancel_post"];
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -2288,6 +2720,36 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/tasks/{task_id}/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Complete a task
+         * @description Mark a task done against its version.
+         *
+         *     Args:
+         *         task_id (UUID): The task.
+         *         body (CompleteTaskRequest): ``expected_version``.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         TaskResponse: The task.
+         */
+        post: operations["complete_task_api_v1_tasks__task_id__complete_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health/live": {
         parameters: {
             query?: never;
@@ -2341,6 +2803,24 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /**
+         * AcceptRequest
+         * @description Confirm one slot of the proposal version the client saw.
+         */
+        AcceptRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /** Expected Version */
+            expected_version: number;
+            /**
+             * Slot Id
+             * Format: uuid
+             */
+            slot_id: string;
+        };
         /**
          * AccountResponse
          * @description The signed-in account. A verified email proves control of the address, nothing more.
@@ -2804,6 +3284,19 @@ export interface components {
             sent?: true;
         };
         /**
+         * CompleteTaskRequest
+         * @description Mark a task done against the version the client saw.
+         */
+        CompleteTaskRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /** Expected Version */
+            expected_version: number;
+        };
+        /**
          * CompositionResponse
          * @description The validated product composition of this deployment.
          */
@@ -2984,6 +3477,31 @@ export interface components {
             support_forms?: ("project_funding" | "testing_support" | "mentoring" | "facilities" | "distribution" | "technical_partner" | "other")[];
         };
         /**
+         * CreateTaskRequest
+         * @description A clarification task for one of the two parties.
+         */
+        CreateTaskRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /** Due Date */
+            due_date?: string | null;
+            /**
+             * Owner Party Id
+             * Format: uuid
+             */
+            owner_party_id: string;
+            /**
+             * Reference
+             * @default
+             */
+            reference?: string;
+            /** Title */
+            title: string;
+        };
+        /**
          * DecisionRequest
          * @description Approve for discussion or reject, on the submission the recipient read.
          */
@@ -3082,6 +3600,32 @@ export interface components {
         DemoSignInRequest: {
             /** Key */
             key: string;
+        };
+        /**
+         * DevBookingRequest
+         * @description A busy interval for one party.
+         */
+        DevBookingRequest: {
+            /**
+             * Ends At
+             * Format: date-time
+             */
+            ends_at: string;
+            /**
+             * Party Id
+             * Format: uuid
+             */
+            party_id: string;
+            /**
+             * Starts At
+             * Format: date-time
+             */
+            starts_at: string;
+            /**
+             * Title
+             * @default Agenda lain
+             */
+            title?: string;
         };
         /**
          * DiscoveryItem
@@ -4095,6 +4639,56 @@ export interface components {
             personal_party_id: string;
         };
         /**
+         * MeetingResponse
+         * @description A meeting with each party's outcome.
+         */
+        MeetingResponse: {
+            /** Agenda */
+            agenda: string;
+            /**
+             * Disagreement
+             * @description Both parties recorded outcomes that differ; it stays visible.
+             */
+            disagreement: boolean;
+            /**
+             * Ends At
+             * Format: date-time
+             */
+            ends_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Link */
+            link: string | null;
+            /** Operation Id */
+            operation_id?: string | null;
+            /** Outcomes */
+            outcomes: components["schemas"]["OutcomeResponse"][];
+            /**
+             * Proposal Id
+             * Format: uuid
+             */
+            proposal_id: string;
+            /** Started */
+            started: boolean;
+            /**
+             * Starts At
+             * Format: date-time
+             */
+            starts_at: string;
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "CONFIRMED" | "COMPLETED" | "CANCELLED" | "NO_SHOW_REPORTED";
+            /** Time Zone */
+            time_zone: string;
+            /** Version */
+            version: number;
+        };
+        /**
          * MemberResponse
          * @description One member and what they may do.
          */
@@ -4130,6 +4724,75 @@ export interface components {
              * Format: uuid
              */
             party_id: string;
+        };
+        /**
+         * MessageResponse
+         * @description One message, with who wrote it.
+         */
+        MessageResponse: {
+            /** Author Name */
+            author_name: string;
+            /**
+             * Author Party Id
+             * Format: uuid
+             */
+            author_party_id: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Mine */
+            mine: boolean;
+            /** Operation Id */
+            operation_id?: string | null;
+            /** Text */
+            text: string;
+        };
+        /**
+         * NextAction
+         * @description Who acts next and what that is, for the reader's side.
+         */
+        NextAction: {
+            /** Action */
+            action?: string | null;
+            /** Tab */
+            tab: string;
+            /** Text */
+            text: string;
+            /** Title */
+            title: string;
+            /** Who */
+            who: ("you" | "other") | null;
+        };
+        /**
+         * NotificationResponse
+         * @description One in-app notification.
+         */
+        NotificationResponse: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Pitch Id */
+            pitch_id: string | null;
+            /** Read */
+            read: boolean;
+            /** Tab */
+            tab: string;
+            /** Text */
+            text: string;
         };
         /**
          * OperationResponse
@@ -4307,6 +4970,47 @@ export interface components {
             party_id: string;
             /** Version */
             version: number;
+        };
+        /**
+         * OutcomeRequest
+         * @description What the acting party says happened.
+         */
+        OutcomeRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /**
+             * Note
+             * @default
+             */
+            note?: string;
+            /**
+             * Result
+             * @enum {string}
+             */
+            result: "COMPLETED" | "NO_SHOW";
+        };
+        /**
+         * OutcomeResponse
+         * @description One party's outcome.
+         */
+        OutcomeResponse: {
+            /** Note */
+            note: string;
+            /**
+             * Party Id
+             * Format: uuid
+             */
+            party_id: string;
+            /** Party Name */
+            party_name: string;
+            /**
+             * Result
+             * @enum {string}
+             */
+            result: "COMPLETED" | "NO_SHOW";
         };
         /**
          * PartnerProfileResponse
@@ -4683,6 +5387,87 @@ export interface components {
             token: string;
         };
         /**
+         * ProposalResponse
+         * @description A proposal and its state, with expiry evaluated on read.
+         */
+        ProposalResponse: {
+            /** Accepted Slot Id */
+            accepted_slot_id: string | null;
+            /** Agenda */
+            agenda: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Expired Reason */
+            expired_reason: ("AGE" | "ALL_PAST") | null;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Link */
+            link: string | null;
+            /** Mine */
+            mine: boolean;
+            /** Minutes */
+            minutes: number;
+            /** Operation Id */
+            operation_id?: string | null;
+            /** Proposed By Name */
+            proposed_by_name: string;
+            /**
+             * Proposed By Party Id
+             * Format: uuid
+             */
+            proposed_by_party_id: string;
+            /** Replaces Meeting Id */
+            replaces_meeting_id: string | null;
+            /** Slots */
+            slots: components["schemas"]["SlotResponse"][];
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "OPEN" | "ACCEPTED" | "SUPERSEDED" | "EXPIRED" | "CANCELLED";
+            /** Time Zone */
+            time_zone: string;
+            /** Version */
+            version: number;
+        };
+        /**
+         * ProposeRequest
+         * @description Offer 2–5 times for one meeting, or for a replacement of a confirmed one.
+         */
+        ProposeRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /** Agenda */
+            agenda: string;
+            /** Link */
+            link?: string | null;
+            /**
+             * Minutes
+             * @enum {integer}
+             */
+            minutes: 30 | 60;
+            /** Replaces Meeting Id */
+            replaces_meeting_id?: string | null;
+            /** Slots */
+            slots: string[];
+            /** Time Zone */
+            time_zone: string;
+        };
+        /**
          * PublicClaimResponse
          * @description A claim as anyone may read it.
          */
@@ -4781,6 +5566,36 @@ export interface components {
             status: string;
             /** Version */
             version: number;
+        };
+        /**
+         * QueueItem
+         * @description One pitch waiting on someone, for Beranda.
+         */
+        QueueItem: {
+            /** Action */
+            action?: string | null;
+            /** Opportunity Title */
+            opportunity_title: string;
+            /**
+             * Pitch Id
+             * Format: uuid
+             */
+            pitch_id: string;
+            /** Subject Title */
+            subject_title: string;
+            /** Tab */
+            tab: string;
+            /** Text */
+            text: string;
+            /** Title */
+            title: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Who */
+            who: ("you" | "other") | null;
         };
         /**
          * RangeInput
@@ -5266,6 +6081,38 @@ export interface components {
             thesis?: string;
         };
         /**
+         * ScheduleResponse
+         * @description Everything scheduled for one pitch.
+         */
+        ScheduleResponse: {
+            /** Can Schedule */
+            can_schedule: boolean;
+            /**
+             * External Calendar
+             * @description No calendar is connected, so outside availability is unknown (AC68).
+             * @default unknown
+             * @constant
+             */
+            external_calendar?: "unknown";
+            /** Meetings */
+            meetings: components["schemas"]["MeetingResponse"][];
+            /** Proposals */
+            proposals: components["schemas"]["ProposalResponse"][];
+        };
+        /**
+         * SendMessageRequest
+         * @description One message to the room.
+         */
+        SendMessageRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /** Text */
+            text: string;
+        };
+        /**
          * ShareableFile
          * @description A file version the applicant may choose to share; nothing is shared until submission.
          */
@@ -5290,6 +6137,29 @@ export interface components {
              * Format: uuid
              */
             version_id: string;
+        };
+        /**
+         * SlotResponse
+         * @description One offered interval.
+         */
+        SlotResponse: {
+            /**
+             * Ends At
+             * Format: date-time
+             */
+            ends_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Position */
+            position: number;
+            /**
+             * Starts At
+             * Format: date-time
+             */
+            starts_at: string;
         };
         /**
          * SubmissionResponse
@@ -5421,6 +6291,44 @@ export interface components {
             available: boolean;
             /** Reason */
             reason: ("TARGET_NOT_ACTIVE" | "EXTERNAL_ROUTE" | "NO_NEW_APPROACHES" | "DIRECT_INTAKE_CLOSED" | "INTAKE_UNCONFIRMED") | null;
+        };
+        /**
+         * TaskResponse
+         * @description One task.
+         */
+        TaskResponse: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Due Date */
+            due_date: string | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Operation Id */
+            operation_id?: string | null;
+            /** Owner Name */
+            owner_name: string;
+            /**
+             * Owner Party Id
+             * Format: uuid
+             */
+            owner_party_id: string;
+            /** Reference */
+            reference: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "OPEN" | "DONE";
+            /** Title */
+            title: string;
+            /** Version */
+            version: number;
         };
         /**
          * TransitionRequest
@@ -5649,6 +6557,19 @@ export interface components {
          * @description Publish or archive against the version the client saw.
          */
         VersionedActionRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /** Expected Version */
+            expected_version: number;
+        };
+        /**
+         * VersionedRequest
+         * @description A change against the version the client saw.
+         */
+        VersionedRequest: {
             /**
              * Acting Party Id
              * Format: uuid
@@ -6042,6 +6963,50 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MeResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    book_time_api_v1_dev_bookings_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DevBookingRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string;
+                    };
                 };
             };
             /** @description Validation failed */
@@ -7558,6 +8523,245 @@ export interface operations {
             };
         };
     };
+    read_queue_api_v1_me_queue_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QueueItem"][];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    calendar_file_api_v1_meetings__meeting_id__calendar_ics_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                meeting_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/calendar": unknown;
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    cancel_meeting_api_v1_meetings__meeting_id__cancel_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                meeting_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VersionedRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeetingResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    record_outcome_api_v1_meetings__meeting_id__outcome_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                meeting_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OutcomeRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeetingResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    list_notifications_api_v1_notifications_get: {
+        parameters: {
+            query?: {
+                since?: string | null;
+                unread?: boolean;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationResponse"][];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    mark_read_api_v1_notifications__notification_id__read_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                notification_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     get_operation_api_v1_operations__operation_id__get: {
         parameters: {
             query?: never;
@@ -8572,6 +9776,133 @@ export interface operations {
             };
         };
     };
+    list_messages_api_v1_pitches__pitch_id__messages_get: {
+        parameters: {
+            query?: {
+                since?: string | null;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                pitch_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessageResponse"][];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    send_message_api_v1_pitches__pitch_id__messages_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pitch_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SendMessageRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessageResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    read_next_action_api_v1_pitches__pitch_id__next_action_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pitch_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NextAction"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     resubmit_api_v1_pitches__pitch_id__resubmit_post: {
         parameters: {
             query?: never;
@@ -8750,6 +10081,174 @@ export interface operations {
             };
         };
     };
+    read_schedule_api_v1_pitches__pitch_id__schedule_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pitch_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScheduleResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    propose_api_v1_pitches__pitch_id__schedule_proposals_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pitch_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProposeRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProposalResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    list_tasks_api_v1_pitches__pitch_id__tasks_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pitch_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskResponse"][];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    add_task_api_v1_pitches__pitch_id__tasks_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pitch_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateTaskRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     withdraw_api_v1_pitches__pitch_id__withdraw_post: {
         parameters: {
             query?: never;
@@ -8890,6 +10389,94 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    accept_api_v1_schedule_proposals__proposal_id__accept_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                proposal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AcceptRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeetingResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    cancel_proposal_api_v1_schedule_proposals__proposal_id__cancel_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                proposal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VersionedRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProposalResponse"];
+                };
             };
             /** @description Validation failed */
             422: {
@@ -9230,6 +10817,50 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    complete_task_api_v1_tasks__task_id__complete_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                task_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CompleteTaskRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskResponse"];
                 };
             };
             /** @description Validation failed */

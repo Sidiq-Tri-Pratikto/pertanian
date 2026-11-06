@@ -2,7 +2,7 @@
 
 **Feature Branch**: `028-scheduling-api`
 **Created**: 2026-11-05
-**Status**: Seeded, not started
+**Status**: Built, awaiting review
 **Milestone**: M8 Discussion and scheduling
 **Depends on**: 025
 **Size**: L

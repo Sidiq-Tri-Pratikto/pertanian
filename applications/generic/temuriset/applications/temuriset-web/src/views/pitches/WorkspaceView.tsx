@@ -11,16 +11,21 @@ import { ContextBar } from '@/features/ContextBar';
 import { formatDateTime } from '@/features/organizations';
 import { readPersona } from '@/features/persona';
 import { PITCH_STATUS, SOURCE_KIND, type Pitch } from '@/features/pitches/model';
+import { DiscussionPanel, type Message, type Task } from '@/features/discussion/DiscussionPanel';
 import { PitchActions } from '@/features/pitches/PitchActions';
 import { RevisionPanel, type OwnFile } from '@/features/pitches/RevisionPanel';
-import { turnOf, type TabId } from '@/features/pitches/workspace';
+import type { NextAction, TabId } from '@/features/pitches/workspace';
 import { WorkspaceTabs } from '@/features/pitches/WorkspaceTabs';
+import type { Schedule } from '@/features/scheduling/api';
+import { SchedulePanel } from '@/features/scheduling/SchedulePanel';
 import { PROVENANCE } from '@/views/parts';
 
 type Submission = Pitch['submissions'][number];
 type Snapshot = { opportunity?: { version?: number }; inventions?: { title: string; number: number }[] };
 
-type Props = { me: Me; pitch: Pitch; tab: TabId; files: OwnFile[]; justSent: boolean };
+export type Room = { next: NextAction; schedule: Schedule; messages: Message[]; tasks: Task[] };
+
+type Props = { me: Me; pitch: Pitch; tab: TabId; files: OwnFile[]; justSent: boolean; room: Room };
 
 function pins(submission: Submission): string {
   const snapshot = (submission.snapshot ?? {}) as Snapshot;
@@ -42,27 +47,18 @@ function Frozen({ submission }: { submission: Submission }) {
   );
 }
 
-function next(pitch: Pitch, mine: boolean, turn: 'you' | 'other' | null) {
-  const other = mine ? pitch.recipient_name : pitch.requester_name;
-  const round = pitch.rounds.find((item) => item.open);
-  if (pitch.status === 'APPROVED_FOR_DISCUSSION') {
-    return { who: 'you' as const, title: 'Diskusi terbuka', body: 'Persetujuan ini membuka diskusi; belum merupakan pendanaan atau kerja sama. Ruang diskusi dan jadwal segera hadir.' };
-  }
-  if (!turn) return null;
-  if (turn === 'other') {
-    return { who: 'other' as const, title: `Menunggu ${other}`, body: mine ? 'Anda akan diberi tahu saat ada keputusan atau permintaan revisi.' : 'Pengirim sedang menjawab permintaan revisi.' };
-  }
-  if (round) return { who: 'you' as const, title: `Jawab revisi putaran ${round.number}`, body: 'Jawab setiap pertanyaan wajib, lalu kirim ulang.' };
-  return { who: 'you' as const, title: 'Tinjau pitching ini', body: 'Setujui untuk diskusi, minta revisi per butir, atau tolak dengan alasan singkat.' };
-}
-
 /** S13: one room for summary, revisions, documents and history, with whose turn it is above (UX-11). */
-export function WorkspaceView({ me, pitch, tab, files, justSent }: Props) {
+export function WorkspaceView({ me, pitch, tab, files, justSent, room }: Props) {
   const persona = readPersona(me.account.persona) ?? 'inovator';
   const mine = pitch.requester_party_id === me.active_party_id;
   const zone = me.account.time_zone;
   const latest = pitch.submissions[pitch.submissions.length - 1];
-  const step = next(pitch, mine, turnOf(pitch, me.active_party_id));
+  const step = room.next;
+  const ended = ['REJECTED', 'WITHDRAWN', 'CLOSED'].includes(pitch.status);
+  const parties = [
+    { id: pitch.requester_party_id, name: pitch.requester_name },
+    { id: pitch.recipient_party_id, name: pitch.recipient_name },
+  ];
   const rejection = [...pitch.decisions].reverse().find((decision) => decision.decision === 'REJECT');
   const shared = pitch.submissions.flatMap((submission) => submission.files.map((file) => ({ ...file, submission: submission.number })));
   const panels: Record<TabId, ReactNode> = {
@@ -92,16 +88,8 @@ export function WorkspaceView({ me, pitch, tab, files, justSent }: Props) {
         )}
       </div>
     ),
-    diskusi: (
-      <EmptyState icon="chat" title="Diskusi segera hadir">
-        Pesan dan tugas untuk pitching ini akan tersedia di sini.
-      </EmptyState>
-    ),
-    jadwal: (
-      <EmptyState icon="calendar" title="Jadwal segera hadir">
-        Usulan waktu pertemuan akan tersedia di sini setelah persetujuan.
-      </EmptyState>
-    ),
+    diskusi: <DiscussionPanel pitchId={pitch.id} open={!ended} messages={room.messages} tasks={room.tasks} parties={parties} actingPartyId={me.active_party_id} zone={zone} />,
+    jadwal: <SchedulePanel pitchId={pitch.id} approved={pitch.status === 'APPROVED_FOR_DISCUSSION'} schedule={room.schedule} actingPartyId={me.active_party_id} zone={zone} />,
     riwayat: (
       <div className="tr-stack">
         <h2 className="tr-sys-type-heading-sm">Riwayat</h2>
@@ -137,10 +125,12 @@ export function WorkspaceView({ me, pitch, tab, files, justSent }: Props) {
       <p>
         <Status tone="neutral" label={PITCH_STATUS[pitch.status] ?? pitch.status} />
       </p>
-      {step ? (
+      {step.who ? (
         <NextStep who={step.who} title={step.title}>
-          {step.body}
+          {step.text}
         </NextStep>
+      ) : step.title && step.title !== PITCH_STATUS[pitch.status] ? (
+        <p className="tr-sys-type-body-strong">{step.title}</p>
       ) : null}
       <PitchActions pitch={pitch} actingPartyId={me.active_party_id} />
       <WorkspaceTabs pitchId={pitch.id} value={tab} panels={panels} />

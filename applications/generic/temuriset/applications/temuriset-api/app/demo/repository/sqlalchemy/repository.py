@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 _DELETES = (
     "UPDATE opportunities SET current_version_id = NULL WHERE partner_party_id = ANY(:parties)",
     "UPDATE partner_profiles SET general_intake_version_id = NULL WHERE party_id = ANY(:parties)",
+    "DELETE FROM bookings WHERE party_id = ANY(:parties)",
     "DELETE FROM pitches WHERE requester_party_id = ANY(:parties) OR recipient_party_id = ANY(:parties)",
     "DELETE FROM preflights WHERE actor_party_id = ANY(:parties)",
     "DELETE FROM match_runs WHERE actor_party_id = ANY(:parties)",

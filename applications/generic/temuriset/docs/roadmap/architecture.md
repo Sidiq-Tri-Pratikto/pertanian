@@ -97,10 +97,10 @@ Created by the spec named. Every table has `id` (UUID), `created_at` and, when m
 | `pitch_decisions` | `pitch_id`, `submission_number`, `pitch_version`, `decision` (`APPROVE`, `REJECT`), `reason` (shared with the requester only), `decided_by_party_id`, `decided_by_account_id` | 025 |
 | `revision_rounds`, `revision_items` | Round `number` and `submission_number`; item `position`, `category`, `question`, `reason`, `required`, `due_date`, `expected_evidence`, `review` (`ACCEPTED`, `NEEDS_DETAIL`), `review_note`, `version` | 025 |
 | `revision_answers` | One per item: `response` (`CAN`, `DISCUSS`, `CANNOT`), `text`, `files` JSONB (document, version, title), `version`, `saved_by_account_id` | 025 |
-| `messages`, `tasks`, `notifications` | Pitch-scoped messages; tasks with owner party, due date, status, reference; per-party notifications with `read_at` | 027 |
+| `messages`, `tasks`, `notifications` | Pitch-scoped messages (text never logged); tasks with owner party, `due_date`, `reference`, `status` (`OPEN`, `DONE`), `version`; per-party notifications with `event_key`, `channel`, `text`, `tab`, `read_at`, unique (`event_key`, `party_id`, `channel`) | 027 |
 | `schedule_proposals`, `schedule_slots` | `pitch_id`, `proposed_by`, `minutes` (30, 60), `time_zone`, `agenda`, `link`, `state` (`OPEN`, `ACCEPTED`, `SUPERSEDED`, `EXPIRED`, `CANCELLED`), `expired_reason`, `replaces_meeting_id`; slots with `starts_at` | 028 |
 | `meetings`, `meeting_outcomes` | `pitch_id`, `starts_at`, `ends_at`, `state` (`CONFIRMED`, `COMPLETED`, `CANCELLED`, `NO_SHOW_REPORTED`); outcome per party | 028 |
-| `bookings` | `party_id`, `meeting_id`, `during` `tstzrange`; `EXCLUDE USING gist (party_id WITH =, during WITH &&)` | 028 |
+| `bookings` | `party_id`, `meeting_id` (empty for another agenda), `title`, `during` `tstzrange` half-open; `EXCLUDE USING gist (party_id WITH =, during WITH &&)` with `btree_gist` | 028 |
 | `partnerships` | `pitch_id`, `type` (`PROJECT`, `LICENSE`, `EQUITY`), `legal_entity_id`, `contested` | 030 |
 | `partnership_versions` | `partnership_id`, `number`, `values` JSONB, `ceiling` TEXT[], `status` (`PENDING_COUNTERPARTY`, `CONFIRMED`, `CHANGES_REQUESTED`, `DECLINED`), `proposed_by`, `checksum` | 030 |
 | `partnership_confirmations` | `version_id`, `party_id`, `subset` TEXT[], `confirmed_by`; unique (`version_id`, `party_id`) | 030 |
@@ -185,7 +185,13 @@ Revision answers are drafts with their own version, saved with `PUT` and no key,
 
 Demo accounts are `accounts.kind = 'demo'` with `.invalid` addresses; they receive no code by email and sign in only from `POST /demo/sign-in`. The demo namespace is those accounts, their personal parties, and organizations whose every member is a demo account. Reset deletes that namespace in a fixed order (audit and outbox events stay as history) and seeds again through the domain services inside `seeded_ids("demo")`, which gives every content row an id derived from its table and creation order, so ids and versions repeat exactly. Idempotency records of demo parties are deleted too, so a replay never answers for the old state. `DEMO_MODE` outside development needs `DEMO_DEPLOYMENT=true`. The prototype's virtual clock is not built: no R1 rule yet reads a demo time.
 
+### Discussion and whose turn (M8)
+
+`app/discussion/service/next_action.py` is the prototype's `pitchTurn` on the server: from the pitch status and, once approved, the scheduling state (open proposal and who made it, a confirmed meeting and whether it started, who recorded an outcome, a completed meeting), it returns `who` (`you`, `other` or null), a title, a sentence, the room tab and an action key for each side. `GET /pitches/{id}/next-action`, `GET /me/queue` (Beranda, "Menunggu Anda" first) and `PitchSummary.waiting_on_party_id` all read it, so no screen derives turns. A completed meeting waits on no one until partnerships (030) exist. Messages and tasks need the side's capability (`submit_pitch` or `decide_pitch`) and an unended pitch; lists poll with `since`. In-app notifications are outbox consumers (`notifications.in_app`) on the pitch and scheduling topics; each inserts with `ON CONFLICT DO NOTHING` on (`event_key`, `party_id`, `channel`), where the key is the topic, the pitch and its version or the proposal or meeting, so a redelivery or a failing sibling consumer never adds a second one (AC46). Marking read is a naturally idempotent `PUT`.
+
 ### Scheduling
+
+Proposals need `schedule` and an approved pitch. A new proposal supersedes any open one, which is how a counter works; with a confirmed meeting, a proposal must name it in `replaces_meeting_id`. Policy `proposal-expiry` v1: an open proposal expires at 72 hours of age (`AGE`) or when every slot has started (`ALL_PAST`), evaluated on every read and accept and persisted by the `scheduling.expire` job queued for that instant. `POST /dev/bookings` (development only) marks a party busy, as the prototype's "Agenda lain Peserta P" does. The ICS file is built from stored UTC instants; outside calendar availability is reported as `unknown` (AC68).
 
 Accepting a slot inserts a booking for every required party inside the request's transaction; the `EXCLUDE` constraint makes overlap impossible even under a race, and the losing request gets `BOOKING_CONFLICT` with the proposal intact. A replacement deletes the old bookings and inserts the new ones in the same transaction. An elapsed meeting stays `CONFIRMED` until both parties record an outcome.
 
@@ -229,6 +235,7 @@ A mandatory requirement is always `PUBLIC`, so no secret criterion can reject a 
 | D6 | `RequirementRow` takes an optional `headingLevel` | S09 places rows directly under a section heading, so a fixed `h4` would skip a level | The design system adds the prop |
 | D7 | `Link` runs `onClick` beside the navigation instead of preventing it | D3 chose real links; following an external route must both open the site and record the handoff | Never; documented port |
 | D8 | `Tabs` is controlled (`value` and `onChange` required), and `ChoiceGroup` takes an optional `value` and `onChange` | S13 keeps the tab in the address (`?tab=`), and `RevisionItem` holds each answer in state so a failed save keeps it | Never; documented port |
+| D9 | `ScheduleSlotList` takes `canConfirm`, an `accepted` state, and slots with an `end` | The proposer sees its own slots read-only, and slot ends come from the API rather than from the client's arithmetic | The design system adds the props |
 
 ## API conventions
 

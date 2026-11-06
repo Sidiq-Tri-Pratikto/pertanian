@@ -146,6 +146,16 @@ PUBLIC_ERROR_BY_CODE: dict[str, PublicError] = {
         422,
         "Masih ada pertanyaan wajib yang belum dijawab. Jawab pertanyaan yang ditandai lalu kirim ulang.",
     ),
+    codes.APP_BOOKING_CONFLICT: PublicError(
+        "BOOKING_CONFLICT",
+        409,
+        "Waktu ini bentrok dengan jadwal peserta. Pilih waktu lain atau usulkan waktu baru.",
+    ),
+    codes.APP_PROPOSAL_CLOSED: PublicError(
+        "PROPOSAL_CLOSED",
+        409,
+        "Usulan waktu ini sudah tidak terbuka. Muat ulang untuk melihat usulan terbaru.",
+    ),
 }
 
 PUBLIC_ERROR_BY_STATUS: dict[int, PublicError] = {

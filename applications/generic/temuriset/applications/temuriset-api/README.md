@@ -47,6 +47,9 @@ make check             # lint, format check, all tests, 80% coverage gate
 | `tests/integration/pitches/` | Preflight pins, shareable files and the template brief per fixture, the summarizer off, failing or untraceable (AC35, AC68), export redaction (AC36); submission with grants and notification, replay and conflict (AC37, AC38), duplicates (AC39), races, closed targets (AC26), stale and expired preflights (AC34), required files, frozen snapshots, the daily limit; decisions (AC40–AC42) with races, stale submissions, retries, the other side and a view-only member; revision rounds, draft answers, honest answers, missing required answers, new file versions, item review (AC43–AC45) | Postgres |
 | `tests/unit/briefs/` | Amount grouping and the summary traceability check | Nothing |
 | `tests/unit/pitches/` | The pitch state table against PRD section 7, every status and action pair | Nothing |
+| `tests/unit/discussion/` | Whose turn for both parties in every pitch and scheduling state | Nothing |
+| `tests/integration/discussion/` | Next action and queue per party, messages with `since` and retries, tasks after approval, notifications once per event and party, a failing consumer that never repeats the decision (AC46), strangers (AC48) | Postgres |
+| `tests/integration/scheduling/` | J04 conflicts and half-open acceptance (AC50), 50 parallel acceptances, racing overlapping bookings, replacement (AC51), 72-hour and all-past expiry, elapsed meetings and outcomes (AC47), ICS (AC68), invalid proposals | Postgres |
 | `tests/integration/demo/` | Demo routes absent outside demo mode, the labelled picker, no email for demo accounts, two resets with identical ids, real accounts untouched, goldens and variants on seeded data, demo activity counts nowhere (AC03) | Postgres |
 | `tests/unit/demo/` | Production refuses demo mode unless marked a demonstration | Nothing |
 | `tests/integration/portfolio/` | Drafts, each publication rule, immutable versions (AC07–AC11), stale drafts, archive, public projection, outbox events | Postgres |
@@ -144,6 +147,12 @@ Run one test with `uv run pytest tests/unit/health/test_health.py -v`, or match 
 | `GET /api/v1/pitches?box=outgoing\|incoming`, `GET /api/v1/pitches/{id}` | Sent or received pitches with whose turn it is, and one pitch with its frozen submissions, decisions, rounds and the reader's allowed actions, for its two sides only |
 | `POST /api/v1/pitches/{id}/begin-review`, `/decisions`, `/revision-rounds`, `/resubmit`, `/withdraw`, `/close` | Status changes from the PRD section 7 table (`Idempotency-Key`, `expected_version`); `INVALID_TRANSITION`, `STALE_VERSION`, `REQUIRED_ANSWERS_MISSING` |
 | `PUT /api/v1/pitches/{id}/revision-items/{item_id}/answer`, `.../review` | Save a draft answer with its version; mark an answered item `ACCEPTED` or `NEEDS_DETAIL` |
+| `GET`, `POST /api/v1/pitches/{id}/messages`, `GET`, `POST /api/v1/pitches/{id}/tasks`, `POST /api/v1/tasks/{id}/complete` | The room's messages (poll with `since`) and tasks; sends take `Idempotency-Key` |
+| `GET /api/v1/pitches/{id}/next-action`, `GET /api/v1/me/queue` | Whose turn it is on one pitch, and everything waiting for Beranda |
+| `GET /api/v1/notifications`, `PUT /api/v1/notifications/{id}/read` | The acting party's in-app notifications (`since`, `unread`) and marking one read |
+| `GET /api/v1/pitches/{id}/schedule`, `POST /api/v1/pitches/{id}/schedule-proposals` | Proposals and meetings with expiry evaluated now; propose 2–5 slots of 30 or 60 minutes, or a replacement |
+| `POST /api/v1/schedule-proposals/{id}/accept`, `.../cancel`, `POST /api/v1/meetings/{id}/cancel`, `.../outcome`, `GET /api/v1/meetings/{id}/calendar.ics` | Confirm a slot (`BOOKING_CONFLICT`, `PROPOSAL_CLOSED`), cancel, record outcomes, download ICS |
+| `POST /api/v1/dev/bookings` | Development only: mark a party busy for browser tests |
 | `GET /api/v1/demo/accounts`, `POST /api/v1/demo/sign-in`, `POST /api/v1/demo/reset` | Demo mode only: the labelled accounts, sign-in with no email, and a reset of demo rows with variants `gap`, `scan`, `proposed_entity` |
 | `GET /api/v1/dev/mailbox?email=` | Development only: the codes and notes that would have been emailed |
 | `GET /api/v1/operations/{id}` | Whether the acting party's operation committed, for a client that lost the response |
