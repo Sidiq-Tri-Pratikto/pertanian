@@ -26,6 +26,9 @@ class FakeSiteRepository(SiteRepository):
         site = self.sites.get(site_id)
         return site if site is not None and site.owner_principal_id == owner_id else None
 
+    async def lock(self, site_id: UUID) -> SiteModel | None:
+        return self.sites.get(site_id)
+
     async def add(self, **fields: Any) -> SiteModel:
         site = SiteModel(id=uuid4(), owner_principal_id=fields.pop("owner_id"), **fields)
         self.sites[site.id] = site

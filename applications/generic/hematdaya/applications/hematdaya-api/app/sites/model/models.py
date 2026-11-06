@@ -36,6 +36,7 @@ class SiteModel(BaseModel):
         currency (str): ISO currency code.
         virtual_now (datetime | None): The demo clock; None for standard sites.
         binding_revision (int): Advances once per committed change to sources, bindings or scope validity.
+        measurement_revision (int): Advances once per committed change to readings.
     """
 
     id: UUID
@@ -47,3 +48,4 @@ class SiteModel(BaseModel):
     currency: str
     virtual_now: datetime | None
     binding_revision: int = 0
+    measurement_revision: int = 0

@@ -16,6 +16,10 @@ class SiteRepository(ABC):
         """Return the owner's site, optionally taking the shared site write lock."""
 
     @abstractmethod
+    async def lock(self, site_id: UUID) -> SiteModel | None:
+        """Take the shared site write lock for a caller that already resolved the site."""
+
+    @abstractmethod
     async def add(
         self,
         *,

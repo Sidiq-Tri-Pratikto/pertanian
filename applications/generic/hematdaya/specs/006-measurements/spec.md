@@ -2,7 +2,7 @@
 
 **Feature Branch**: `006-measurements`
 **Created**: 2026-10-30
-**Status**: Seeded, not started
+**Status**: Implemented on `f/m1-energy-core`; API unit and Postgres integration tests pass (10,000-row batch 0.85 s locally)
 **Milestone**: M1 Energy core
 **Depends on**: 005
 **Size**: L

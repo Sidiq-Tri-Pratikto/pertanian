@@ -23,4 +23,5 @@ class SiteRecord(Base):
     currency: Mapped[str] = mapped_column(Text, default="IDR")
     virtual_now: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     binding_revision: Mapped[int] = mapped_column(BigInteger, default=0)
+    measurement_revision: Mapped[int] = mapped_column(BigInteger, default=0)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

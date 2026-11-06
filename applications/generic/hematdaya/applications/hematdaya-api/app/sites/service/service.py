@@ -135,3 +135,30 @@ class SiteService:
             currency=currency,
             virtual_now=virtual_now,
         )
+
+    async def lock(self, site_id: UUID) -> SiteModel:
+        """Take the shared site write lock for internal callers that already resolved ownership.
+
+        Re-taking it inside the same transaction is a no-op, so an import that holds it can call ingestion.
+
+        Args:
+            site_id (UUID): The site.
+
+        Returns:
+            SiteModel: The site, current as of the lock.
+
+        Raises:
+            NotFoundError: When the site is gone.
+        """
+        site = await self.repository.lock(site_id)
+        if site is None:
+            raise NotFoundError()
+        return site
+
+    async def advance_measurement_revision(self, site: SiteModel) -> None:
+        """Mark a committed change to readings. Call once, under the site lock.
+
+        Args:
+            site (SiteModel): The locked site.
+        """
+        await self.repository.advance_revision(site.id, "measurement_revision")

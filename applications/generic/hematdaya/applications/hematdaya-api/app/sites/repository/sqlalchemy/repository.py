@@ -23,6 +23,7 @@ def _to_model(record: SiteRecord) -> SiteModel:
         currency=record.currency,
         virtual_now=record.virtual_now,
         binding_revision=record.binding_revision,
+        measurement_revision=record.measurement_revision,
     )
 
 
@@ -56,6 +57,23 @@ class SqlAlchemySiteRepository(SiteRepository):
             return None
         if lock:
             await self.session.refresh(record)
+        return _to_model(record)
+
+    async def lock(self, site_id: UUID) -> SiteModel | None:
+        """Take the shared site write lock without an owner check, for callers that already resolved the site.
+
+        Args:
+            site_id (UUID): The site.
+
+        Returns:
+            SiteModel | None: The site as of the lock, or None when it is gone.
+        """
+        record = (
+            await self.session.execute(select(SiteRecord).where(SiteRecord.id == site_id).with_for_update())
+        ).scalar_one_or_none()
+        if record is None:
+            return None
+        await self.session.refresh(record)
         return _to_model(record)
 
     async def add(

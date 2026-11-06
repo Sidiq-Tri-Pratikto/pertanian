@@ -110,6 +110,7 @@ _FIELD_MESSAGES = {
     "enum": "Pilih salah satu nilai yang tersedia.",
     "literal_error": "Pilih salah satu nilai yang tersedia.",
     "json_invalid": "Isi permintaan bukan JSON yang valid.",
+    "decimal_string_type": 'Kirim angka sebagai teks, misalnya "12.5".',
     "timezone_invalid": "Zona waktu tidak dikenal. Pilih zona waktu IANA, misalnya Asia/Jakarta.",
 }
 
