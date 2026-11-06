@@ -210,7 +210,8 @@ export const FEATURES: Feature[] = [
     ],
     screens: ['S02', 'S13'],
     specs: ['027', '029'],
-    status: 'coming_soon',
+    status: 'available',
+    home: '/pitches',
   },
   {
     id: 'jadwal',
@@ -223,7 +224,8 @@ export const FEATURES: Feature[] = [
     ],
     screens: ['S14'],
     specs: ['028', '029'],
-    status: 'coming_soon',
+    status: 'available',
+    home: '/pitches',
   },
   {
     id: 'kerja-sama',

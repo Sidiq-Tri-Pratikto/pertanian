@@ -98,7 +98,7 @@ test('J03: revision with an honest answer, a new file version, resubmission, ite
   await second.getByRole('textbox', { name: /^Pertanyaan/ }).fill('Kapan kapasitas 20 L/jam direncanakan tersedia?');
   await second.getByRole('textbox', { name: /^Alasan/ }).fill('Membantu kami menyusun tahap uji berikutnya.');
   await partner.getByRole('button', { name: 'Kirim permintaan revisi kepada Rani' }).click();
-  await expect(partner.getByRole('heading', { name: 'Menunggu Rani' })).toBeVisible();
+  await expect(partner.getByRole('heading', { name: 'Menunggu jawaban revisi' })).toBeVisible();
   await expect(partner.getByText('Jawaban terlihat setelah pengirim mengirim ulang.')).toBeVisible();
 
   // Rani: a test report in two versions, so version 2 can be chosen on purpose.
@@ -106,7 +106,7 @@ test('J03: revision with an honest answer, a new file version, resubmission, ite
   await uploadPdf(page, party, 'Rincian biaya per lokasi', report);
   await page.goto('/pitches');
   await page.getByRole('listitem').filter({ hasText: title }).getByRole('link', { name: /Buka pitching/ }).click();
-  await expect(page.getByRole('heading', { name: 'Jawab revisi putaran 1' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Jawab permintaan revisi' })).toBeVisible();
   await page.getByRole('tab', { name: 'Revisi' }).click();
   await expect(page).toHaveURL(/tab=revisi/);
 
@@ -121,7 +121,7 @@ test('J03: revision with an honest answer, a new file version, resubmission, ite
   await expect(page.getByText('Tersimpan', { exact: true })).toBeVisible();
   await page.getByRole('group', { name: 'Berkas untuk kiriman ini' }).getByRole('checkbox', { name: 'Rincian biaya per lokasi, versi 2' }).check();
   await page.getByRole('button', { name: 'Kirim ulang kepada Mitra J03' }).click();
-  await expect(page.getByRole('heading', { name: 'Menunggu Mitra J03' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Pitching Anda sedang menunggu keputusan' })).toBeVisible();
   await expect(page.getByText('Putaran 1 · untuk kiriman 1')).toBeVisible();
 
   // Mitra J03: the answer is visible now; accepting it approves nothing, approval is its own dialog.
@@ -146,7 +146,7 @@ test('J03: revision with an honest answer, a new file version, resubmission, ite
   await approve.click();
   await dialog.getByRole('button', { name: 'Setujui untuk diskusi' }).click();
   await expect(partner.getByText('Disetujui untuk diskusi', { exact: true })).toBeVisible();
-  await expect(partner.getByRole('heading', { name: 'Diskusi terbuka' })).toBeVisible();
+  await expect(partner.getByRole('heading', { name: 'Usulkan waktu pertemuan' }).first()).toBeVisible();
 
   // Rani: both submissions and round 1 stay in the history.
   await page.goto(`/pitches/${pitchId}?tab=riwayat`);
