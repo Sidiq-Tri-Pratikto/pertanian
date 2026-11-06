@@ -10,6 +10,11 @@ const config: NextConfig = {
   // Next is always started from this folder; pinning the root stops it adopting lockfiles found further up.
   turbopack: { root: process.cwd() },
   poweredByHeader: false,
+  logging: {
+    incomingRequests: {
+      ignore: [/^\/undangan\//, /^\/api\/v1\/invitations\//, /^\/api\/v1\/dev\/mailbox\/?(?:\?|$)/],
+    },
+  },
   async rewrites() {
     return [
       { source: '/api/v1/:path*', destination: `${apiUrl}/api/v1/:path*` },

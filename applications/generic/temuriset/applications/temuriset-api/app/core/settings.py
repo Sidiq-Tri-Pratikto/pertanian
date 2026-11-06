@@ -21,7 +21,10 @@ class Settings(BaseSettings):
         file_scanner (str): Upload scanner adapter; ``development-accept`` is refused outside development.
         web_origin (str): The web client's origin. Unsafe requests carrying a session must come from it.
         session_cookie_secure (bool | None): ``Secure`` flag on the session cookie; None means outside development.
-        mailbox_adapter (str): Email delivery; ``development`` writes to a table and is refused outside development.
+        mailbox_adapter (str): Email delivery mode. Only ``disabled`` is allowed outside development.
+        email_relay_url (SecretStr | None): Literal loopback relay endpoint.
+        email_relay_sender (SecretStr | None): Local relay sender address.
+        email_envelope_key (SecretStr | None): Independent Fernet key for transient delivery material.
         code_requests_per_email_per_hour (int): Sign-in code requests allowed per email in an hour.
         code_requests_per_address_per_hour (int): Sign-in code requests allowed per client address in an hour.
         storage_path (str): Folder of the local storage adapter; bytes never get a public URL.
@@ -49,7 +52,10 @@ class Settings(BaseSettings):
     file_scanner: Literal["clamav", "development-accept"] = "development-accept"
     web_origin: str = "http://localhost:3020"
     session_cookie_secure: bool | None = None
-    mailbox_adapter: Literal["development", "disabled"] = "development"
+    mailbox_adapter: Literal["development", "disabled", "loopback-relay"] = "development"
+    email_relay_url: SecretStr | None = None
+    email_relay_sender: SecretStr | None = None
+    email_envelope_key: SecretStr | None = None
     code_requests_per_email_per_hour: int = 5
     code_requests_per_address_per_hour: int = 20
     storage_adapter: Literal["local", "s3"] = "local"

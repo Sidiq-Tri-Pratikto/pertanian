@@ -1372,7 +1372,7 @@ export interface paths {
         head?: never;
         /**
          * Change account preferences
-         * @description Change display name, locale, time zone or persona against ``expected_version``.
+         * @description Change profile or notification preferences against ``expected_version``.
          *
          *     Args:
          *         body (UpdateMeRequest): Changes.
@@ -3510,6 +3510,8 @@ export interface components {
             display_name: string;
             /** Email */
             email: string;
+            /** Email Notifications */
+            email_notifications: boolean;
             /** Email Verified */
             email_verified: boolean;
             /**
@@ -7913,6 +7915,8 @@ export interface components {
         UpdateMeRequest: {
             /** Display Name */
             display_name?: string | null;
+            /** Email Notifications */
+            email_notifications?: boolean | null;
             /** Expected Version */
             expected_version: number;
             /** Locale */

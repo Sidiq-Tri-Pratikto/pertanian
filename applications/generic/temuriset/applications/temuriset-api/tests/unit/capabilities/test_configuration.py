@@ -4,8 +4,10 @@ import logging
 from unittest.mock import patch
 
 import pytest
+from cryptography.fernet import Fernet
 from pydantic import SecretStr, ValidationError
 
+from app.capabilities.router import get_capabilities
 from app.capabilities.service.configuration import ConfigurationError, looks_secret, validate_configuration
 from app.capabilities.service.service import build_manifest
 from app.core.settings import Settings
@@ -315,3 +317,92 @@ def test_ai_summary_manifest_defaults_off_and_accepts_valid_local_configuration(
     assert adapter.status == "available" and adapter.implementation == "local-relay"
     assert "54321" not in local.model_dump_json()
     assert "synthetic-selector" not in local.model_dump_json()
+
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        "http://localhost:8090/deliver",
+        "http://192.0.2.1:8090/deliver",
+        "http://127.0.0.1@192.0.2.1:8090/deliver",
+        "http://127.0.0.1:8090/deliver?token=fixture",
+        "http://127.0.0.1:8090/deliver#fixture",
+        "http://127.0.0.1:8090/\\deliver",
+        "http://127.0.0.1:65536/deliver",
+        "http://[::1]junk/deliver",
+        "file:///tmp/relay",
+    ],
+)
+def test_loopback_mail_rejects_unsafe_relay_urls(url: str) -> None:
+    """
+    Condition:
+    - An explicitly enabled relay has an unsafe or nonliteral address.
+
+    Expected:
+    - Startup fails without echoing the address.
+    """
+    settings = _settings(
+        mailbox_adapter="loopback-relay",
+        email_relay_url=url,
+        email_relay_sender="relay@example.test",
+        email_envelope_key=Fernet.generate_key().decode("ascii"),
+    )
+    with pytest.raises(ConfigurationError, match="EMAIL_RELAY_URL") as raised:
+        validate_configuration(settings)
+    assert url not in str(raised.value)
+
+
+@pytest.mark.parametrize("url", ["http://127.0.0.1:8090/deliver", "https://[::1]:8090/deliver"])
+def test_loopback_mail_needs_development_and_valid_credentials(url: str) -> None:
+    """
+    Condition:
+    - Startup selects a loopback relay with a literal endpoint.
+
+    Expected:
+    - Only development with a sender and a valid envelope key is accepted.
+    """
+    settings = _settings(
+        mailbox_adapter="loopback-relay",
+        email_relay_url=url,
+        email_relay_sender="relay@example.test",
+        email_envelope_key=Fernet.generate_key().decode("ascii"),
+    )
+    assert validate_configuration(settings) == ("core", "company_funding")
+    for updates, message in (
+        ({"environment": "staging", "file_scanner": "clamav"}, "MAILBOX_ADAPTER=loopback-relay"),
+        ({"email_relay_sender": None}, "EMAIL_RELAY_SENDER"),
+        ({"email_envelope_key": None}, "EMAIL_ENVELOPE_KEY"),
+        ({"email_envelope_key": SecretStr(FAKE_KEY)}, "EMAIL_ENVELOPE_KEY"),
+    ):
+        with pytest.raises(ConfigurationError, match=message) as raised:
+            validate_configuration(settings.model_copy(update=updates))
+        assert FAKE_KEY not in str(raised.value)
+
+
+@pytest.mark.parametrize(
+    ("mode", "status", "implementation"),
+    [
+        ("development", "planned", None),
+        ("disabled", "planned", None),
+        ("loopback-relay", "available", "loopback-relay"),
+    ],
+)
+async def test_manifest_reports_local_email_without_configuration(
+    mode: str, status: str, implementation: str | None
+) -> None:
+    """
+    Condition:
+    - The validated deployment selects the development table, disabled mail, or the loopback relay.
+
+    Expected:
+    - Only the loopback relay is available, and the manifest includes no endpoint, sender or key.
+    """
+    key = Fernet.generate_key().decode("ascii")
+    url, sender = "http://127.0.0.1:8090/deliver", "relay@example.test"
+    settings = _settings(mailbox_adapter=mode, email_relay_url=url, email_relay_sender=sender, email_envelope_key=key)
+    validate_configuration(settings)
+    with patch("app.capabilities.router.get_settings", return_value=settings):
+        manifest = await get_capabilities()
+    adapter = next(item for item in manifest.adapters if item.id == "email")
+    assert (adapter.status, adapter.implementation) == (status, implementation)
+    assert all(private not in manifest.model_dump_json() for private in (key, url, sender))

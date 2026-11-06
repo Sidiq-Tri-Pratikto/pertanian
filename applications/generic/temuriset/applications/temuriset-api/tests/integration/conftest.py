@@ -9,9 +9,11 @@ import pytest
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy import text
 
+import app.identity.service.mail_jobs  # noqa: F401 - registers secret mail jobs
 from app.core.database import get_engine
 from app.core.settings import get_settings
 from app.main import app
+from tests.integration.mail_relay import local_relay  # noqa: F401 - shared fixture
 
 TABLES = (
     "portability_import_rows, portability_import_runs, portability_external_references, portability_export_jobs, "

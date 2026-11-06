@@ -5,6 +5,7 @@ from fastapi import APIRouter
 from app.capabilities.model.schema import CapabilityManifestResponse
 from app.capabilities.service.service import build_manifest
 from app.core.settings import get_settings
+from app.identity.service.mailbox_service import loopback_mail_enabled
 
 router = APIRouter(prefix="/capabilities", tags=["capabilities"])
 
@@ -23,6 +24,7 @@ async def get_capabilities() -> CapabilityManifestResponse:
         storage_adapter=settings.storage_adapter,
         scanner_adapter=settings.file_scanner,
         summary_relay_enabled=settings.summary_adapter == "local-relay",
+        email_relay=loopback_mail_enabled(settings),
     )
     manifest.demo = settings.demo_mode
     return manifest

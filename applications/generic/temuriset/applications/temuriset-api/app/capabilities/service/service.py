@@ -103,6 +103,7 @@ def build_manifest(
     storage_adapter: str = "local",
     scanner_adapter: str = "development-accept",
     summary_relay_enabled: bool = False,
+    email_relay: bool = False,
 ) -> CapabilityManifestResponse:
     """Build the manifest for one composition.
 
@@ -112,6 +113,7 @@ def build_manifest(
         storage_adapter (str, optional): Configured storage. Defaults to "local".
         scanner_adapter (str, optional): Configured scanner. Defaults to "development-accept".
         summary_relay_enabled (bool, optional): Validated local summary relay enabled. Defaults to False.
+        email_relay (bool, optional): Validated local email relay enabled. Defaults to False.
 
     Returns:
         CapabilityManifestResponse: The manifest. A capability that is not selected is absent, not ``planned``.
@@ -132,6 +134,13 @@ def build_manifest(
             id="ai-summary",
             status=CapabilityStatus.AVAILABLE if summary_relay_enabled else CapabilityStatus.PLANNED,
             implementation="local-relay" if summary_relay_enabled else "off",
+        )
+    )
+    adapters.append(
+        AdapterResponse(
+            id="email",
+            status=CapabilityStatus.AVAILABLE if email_relay else CapabilityStatus.PLANNED,
+            implementation="loopback-relay" if email_relay else None,
         )
     )
     return CapabilityManifestResponse(

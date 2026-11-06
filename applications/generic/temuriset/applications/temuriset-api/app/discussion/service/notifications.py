@@ -1,16 +1,33 @@
-"""In-app notifications as outbox consumers: one per event, party and channel (FR-002, AC46)."""
+"""Independent in-app and optional email notifications from the same pitch events (AC46)."""
 
 from collections.abc import Awaitable, Callable
+from hashlib import sha256
 from typing import Any, Literal
 from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.access.model.models import Capability
+from app.access.service.service import assert_can_act, authorized_accounts
+from app.core import clock
+from app.core.errors.base import ForbiddenError, NotFoundError
+from app.core.settings import get_settings
 from app.discussion.repository.sqlalchemy.repository import SqlAlchemyDiscussionRepository
-from app.pitches.service.decisions import pitch_by_id
+from app.identity.service.accounts import email_notification_accounts, email_notification_address
+from app.identity.service.mailbox_service import (
+    NOTIFICATION_DELIVERY,
+    NOTIFICATION_RETRY_WINDOW,
+    deliver_to_relay,
+    loopback_mail_enabled,
+)
+from app.pitches.repository.sqlalchemy.models import PitchRecord
+from app.pitches.service.decisions import CAPABILITY_OF, pitch_by_id
+from app.pitches.service.transitions import Side
+from app.platform.service.outbox import enqueue_job
 from app.worker.registry import registry
 
 CONSUMER = "notifications.in_app"
+EMAIL_CONSUMER = "notifications.email"
 
 Target = Literal["requester", "recipient", "other"]
 
@@ -59,11 +76,7 @@ async def notify(session: AsyncSession, topic: str, payload: dict[str, Any]) -> 
     record = await pitch_by_id(session, UUID(payload["pitch_id"]))
     if record is None:
         return
-    if target == "other":
-        actor = UUID(payload["actor_party_id"])
-        party = record.recipient_party_id if actor == record.requester_party_id else record.requester_party_id
-    else:
-        party = record.requester_party_id if target == "requester" else record.recipient_party_id
+    party, _side = _target_party(record, target, payload)
     await SqlAlchemyDiscussionRepository(session).notify(
         {
             "party_id": party,
@@ -76,12 +89,85 @@ async def notify(session: AsyncSession, topic: str, payload: dict[str, Any]) -> 
     )
 
 
-def _consumer(topic: str) -> Callable[[AsyncSession, dict[str, Any]], Awaitable[None]]:
+def _target_party(record: PitchRecord, target: Target, payload: dict[str, Any]) -> tuple[UUID, Side]:
+    side = target
+    if side == "other":
+        side = "recipient" if UUID(payload["actor_party_id"]) == record.requester_party_id else "requester"
+    return (record.requester_party_id if side == "requester" else record.recipient_party_id), side
+
+
+def _delivery_capability(topic: str, side: Side) -> Capability:
+    if topic.startswith(("meeting.", "schedule.")):
+        return Capability.SCHEDULE
+    if topic.startswith("partnership."):
+        return Capability.CONFIRM_RELATIONSHIP
+    return CAPABILITY_OF[side]
+
+
+async def _queue_email(session: AsyncSession, topic: str, payload: dict[str, Any]) -> None:
+    if not loopback_mail_enabled(get_settings()):
+        return
+    record = await pitch_by_id(session, UUID(payload["pitch_id"]))
+    if record is None:
+        return
+    party_id, side = _target_party(record, RULES[topic][0], payload)
+    candidates = await authorized_accounts(session, party_id, _delivery_capability(topic, side))
+    for account_id in await email_notification_accounts(session, candidates):
+        key = sha256(f"{event_key(topic, payload)}:{account_id}:email".encode()).hexdigest()
+        await enqueue_job(
+            session,
+            NOTIFICATION_DELIVERY,
+            {
+                "key": key,
+                "topic": topic,
+                "account_id": str(account_id),
+                "party_id": str(party_id),
+                "pitch_id": str(record.id),
+            },
+            dedupe_key=key,
+            input_expires_at=clock.now() + NOTIFICATION_RETRY_WINDOW,
+        )
+
+
+@registry.job(NOTIFICATION_DELIVERY)
+async def deliver_notification(session: AsyncSession, job_input: dict[str, Any]) -> None:
+    """Recheck the event's party access and the recipient's live opt-in on every attempt."""
+    settings = get_settings()
+    if not loopback_mail_enabled(settings):
+        return
+    party_id, account_id = UUID(job_input["party_id"]), UUID(job_input["account_id"])
+    record = await pitch_by_id(session, UUID(job_input["pitch_id"]))
+    if record is None or party_id not in (record.requester_party_id, record.recipient_party_id):
+        return
+    side = "requester" if party_id == record.requester_party_id else "recipient"
+    try:
+        await assert_can_act(session, account_id, party_id, _delivery_capability(job_input["topic"], side))
+    except (ForbiddenError, NotFoundError):
+        return
+    address = await email_notification_address(session, account_id)
+    if address is None:
+        return
+    await deliver_to_relay(
+        settings,
+        delivery_key=job_input["key"],
+        to_email=address,
+        subject="Pemberitahuan TemuRiset",
+        body=(
+            "Ada pembaruan yang perlu Anda tinjau di TemuRiset. Masuk untuk melihat pemberitahuan:\n\n"
+            f"{settings.web_origin.rstrip('/')}/home"
+        ),
+    )
+
+
+def _consumer(
+    topic: str, notify_for_channel: Callable[[AsyncSession, str, dict[str, Any]], Awaitable[None]]
+) -> Callable[[AsyncSession, dict[str, Any]], Awaitable[None]]:
     async def handle(session: AsyncSession, payload: dict[str, Any]) -> None:
-        await notify(session, topic, payload)
+        await notify_for_channel(session, topic, payload)
 
     return handle
 
 
 for _topic in RULES:
-    registry.consumer(_topic, CONSUMER)(_consumer(_topic))
+    registry.consumer(_topic, CONSUMER)(_consumer(_topic, notify))
+    registry.consumer(_topic, EMAIL_CONSUMER)(_consumer(_topic, _queue_email))

@@ -39,6 +39,10 @@
             "title": "Email",
             "type": "string"
           },
+          "email_notifications": {
+            "title": "Email Notifications",
+            "type": "boolean"
+          },
           "email_verified": {
             "title": "Email Verified",
             "type": "boolean"
@@ -78,6 +82,7 @@
           "time_zone",
           "persona",
           "kind",
+          "email_notifications",
           "version"
         ],
         "title": "AccountResponse",
@@ -9863,6 +9868,17 @@
             ],
             "title": "Display Name"
           },
+          "email_notifications": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email Notifications"
+          },
           "expected_version": {
             "title": "Expected Version",
             "type": "integer"
@@ -13463,7 +13479,7 @@
         ]
       },
       "patch": {
-        "description": "Change display name, locale, time zone or persona against ``expected_version``.\n\nArgs:\n    body (UpdateMeRequest): Changes.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    MeResponse: The updated account.",
+        "description": "Change profile or notification preferences against ``expected_version``.\n\nArgs:\n    body (UpdateMeRequest): Changes.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    MeResponse: The updated account.",
         "operationId": "update_me_api_v1_me_patch",
         "requestBody": {
           "content": {
