@@ -25,11 +25,13 @@
 
 ## Phase 4 · Verification and activation
 
-- [ ] T009 Regenerate `contracts/openapi.json` and `applications/temuriset-web/src/api/schema.generated.ts`; run the evaluation set, targeted tests and the check in `Makefile`.
+- [X] T009 Regenerate `contracts/openapi.json` and `applications/temuriset-web/src/api/schema.generated.ts`; run the evaluation set, targeted tests and the check in `Makefile`.
 - [ ] T010 Only after the approved provider, processing terms and reviewed evaluation set are evidenced and verified, make the validated adapter available in `applications/temuriset-api/app/capabilities/service/service.py` and update only the AI-summary entry in `applications/temuriset-web/src/features/registry.ts`; record gate evidence in `specs/044-ai-summary-adapter/spec.md`.
 
 ## Dependencies and parallel work
 
 T001 verifies the existing product seam. T003 and T004 can run in parallel after T002. T005 precedes T006. The provider-neutral MVP is T003–T006 with a fake provider and default off mode. T009 runs for the provider-neutral MVP and again after real transport and UI work. T007 waits for external approvals. T008 depends on a validated adapter status. T010 requires T007–T009 and the external review.
+
+The local provider-neutral verification ran on schema `0015` with a fake provider. The scoped suite passed 62 tests. Both application checks passed, including 835 API tests and 257 web tests. Regenerated OpenAPI and TypeScript matched the integrated contracts. Repeat T009 after provider transport and UI work.
 
 T007, T008 and T010 wait for provider approval, processing terms and an independently reviewed evaluation set.
