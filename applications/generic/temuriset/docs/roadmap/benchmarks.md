@@ -86,6 +86,12 @@ reached the other actor's search in 0.818 seconds. API `make lint` and all 14
 focused tests passed on this revision. The temporary processes, databases and
 handoffs were removed after verification.
 
+The project-level `make check` passed on this code after the timed smoke.
+The API passed 914 tests at 96.31% line coverage. The web passed 275 tests at
+81.68% line coverage. Traceability mapped 143 requirements across 45 specs.
+The check used locked dependencies, Node 24.15.0 and a fresh loopback
+PostgreSQL 16.11 cluster in place of the Makefile's Docker provisioning.
+
 The synchronized run used a dedicated PostgreSQL process cluster, while the
 initial run used a shared instance and overlapped other host validation. The
 [standard-read performance follow-up](../../specs/039-benchmarks/standard-read-follow-up.md)
