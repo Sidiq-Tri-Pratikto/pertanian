@@ -45,6 +45,11 @@ jobs:
       - run: make check
         env:
           DATABASE_URL: postgresql+asyncpg://app:app@localhost:5432/app
+      - name: Core energy under the core-only composition
+        run: uv run pytest tests/unit/energy tests/unit/capabilities tests/integration/test_summary.py tests/integration/test_history.py
+        env:
+          DATABASE_URL: postgresql+asyncpg://app:app@localhost:5432/app
+          COMPOSITION: core-only
       - run: make openapi && git diff --exit-code ../../contracts/openapi.json
         env:
           DATABASE_URL: postgresql+asyncpg://app:app@localhost:5432/app

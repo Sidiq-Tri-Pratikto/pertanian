@@ -82,6 +82,11 @@ PUBLIC_ERROR_BY_CODE: dict[str, PublicError] = {
     codes.APP_RANGE_TOO_LARGE: PublicError(
         "RANGE_TOO_LARGE", 400, "Rentang waktu terlalu panjang. Pilih rentang yang lebih pendek lalu coba lagi."
     ),
+    codes.APP_CAPABILITY_DISABLED: PublicError(
+        "CAPABILITY_DISABLED",
+        403,
+        "Fitur ini tidak aktif pada layanan ini. Gunakan fitur inti atau hubungi pengelola layanan.",
+    ),
     codes.APP_AUTH_REQUIRED: PublicError(
         "UNAUTHORIZED", 401, "Anda perlu masuk terlebih dahulu. Masuk lalu coba lagi."
     ),

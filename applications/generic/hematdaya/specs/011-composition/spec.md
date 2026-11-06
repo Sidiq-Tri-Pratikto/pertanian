@@ -2,7 +2,7 @@
 
 **Feature Branch**: `011-composition`
 **Created**: 2026-10-30
-**Status**: Seeded, not started
+**Status**: Implemented on `f/m1-energy-core`. Guard unit tests pass, and the energy unit, summary and history tests (goldens included) pass under both `core-plus-optional` and `core-only`. AT-47 and AT-53 are partial: CSV/demo core-only journeys arrive in 012 and 024–027, and real optional routes in 018, 030 and 032
 **Milestone**: M1 Energy core
 **Depends on**: 009
 **Size**: M
