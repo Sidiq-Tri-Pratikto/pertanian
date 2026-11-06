@@ -46,8 +46,8 @@
 - [X] T012 After T001–T011, run the focused view and axe tests in `tests/privacy.test.tsx` and the browser tests in `e2e/privacy.spec.ts`. Confirm each US1 scenario, including the room case. Until the room case passes, keep `privasi-laporan` at `coming_soon` in `src/features/registry.ts` and 035 open.
 - [X] T013 After T012 passes, update `tests/registry.test.ts` and `tests/pages.test.tsx` for the new availability and flip `privasi-laporan` to `available` with `home: '/settings#laporkan'` in `src/features/registry.ts`.
 - [X] T014 Update the `/settings` row in `README.md`.
-- [ ] T015 From the project folder, run `python3 docs/roadmap/check_traceability.py`, `make check` and `make e2e`. Read the output and record which checks ran, including the required room case. Resolve any failures before closure.
-- [ ] T016 After T015 passes, set **Status** to `Built, awaiting review` in `../../specs/035-web-settings-privacy/spec.md`.
+- [X] T015 From the project folder, run `python3 docs/roadmap/check_traceability.py`, `make check` and `make e2e`. Read the output and record which checks ran, including the required room case. Resolve any failures before closure.
+- [X] T016 After T015 passes, set **Status** to `Built, awaiting review` in `../../specs/035-web-settings-privacy/spec.md`.
 
 ## Requirement coverage
 
@@ -80,3 +80,4 @@ Preserve the carried S18 and S08 behavior. Finish the real pitch-room case befor
 
 - The new Chromium case reached an authorized pitch room and failed while waiting for the missing report link before implementation. After wiring the link, all four privacy journeys passed against the production web build, including the private report and unrelated-account cases. Twelve runs were skipped as expected because each journey names its target viewport.
 - The six focused Vitest cases passed, including the privacy view axe checks.
+- The project quality gate passed 250 web tests with 88.14% line coverage, lint, TypeScript, and traceability. The full Chromium suite passed 403 cases with 401 intentional viewport skips, including the S13 report and J03.
