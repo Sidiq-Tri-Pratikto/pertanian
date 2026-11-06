@@ -24,11 +24,14 @@ vi.mock('@/api/server', () => ({
       return me;
     }
     if (path === '/api/v1/reports' || path === '/api/v1/privacy-requests') return [];
+    if (path === '/api/v1/profiles/me') return { party_id: me?.active_party_id, bio: '', published: false, version: 1 };
     if (path === '/api/v1/inventions') return [];
     if (path === '/api/v1/support-requests') return supportRequests;
     if (path === '/api/v1/opportunities') return [];
     if (path === '/api/v1/funding-requests') return [];
     if (path.startsWith('/api/v1/pitches?')) return [];
+    if (path === '/api/v1/me/queue') return [];
+    if (path.startsWith('/api/v1/notifications')) return [];
     if (path.startsWith('/api/v1/discovery?')) {
       const sections = ['relevant', 'new', 'curated'].map((id) => ({ id, title: id, items: [] }));
       return { type: 'partners', sections, filters: {}, next_cursor: null, total_estimate: 0, relaxation: null };
@@ -168,7 +171,7 @@ describe('a signed-in inventor', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Beranda' })).toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: 'Bertindak sebagai' })).toHaveDisplayValue('Rani · Pribadi');
     expect(screen.getByText('Memeriksa layanan…')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Lihat rencana Diskusi/ })).toHaveAttribute('href', '/segera-hadir/diskusi');
+    expect(screen.queryByRole('link', { name: /Lihat rencana Kerja Sama/ })).not.toBeInTheDocument();
     expect(screen.queryByRole('link', { name: /Lihat rencana Akun dan konteks kerja/ })).toBeNull();
     expect(screen.queryByRole('link', { name: /Lihat rencana Portofolio inovasi/ })).toBeNull();
   });
@@ -190,12 +193,12 @@ describe('a signed-in inventor', () => {
   });
 
   it('describes a planned feature without creating anything', async () => {
-    render((await ComingSoon.default({ params: Promise.resolve({ feature: 'jadwal' }) })) as ReactElement);
+    render((await ComingSoon.default({ params: Promise.resolve({ feature: 'impor-ekspor' }) })) as ReactElement);
 
-    expect(screen.getByRole('heading', { level: 1, name: 'Jadwal pertemuan' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: 'Impor dan ekspor data' })).toBeInTheDocument();
     expect(screen.getByText(/Tidak ada data yang dibuat atau disimpan/)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Kembali' })).toHaveAttribute('href', '/home');
-    expect(await ComingSoon.generateMetadata({ params: Promise.resolve({ feature: 'jadwal' }) })).toEqual({ title: 'Jadwal pertemuan' });
+    expect(await ComingSoon.generateMetadata({ params: Promise.resolve({ feature: 'impor-ekspor' }) })).toEqual({ title: 'Impor dan ekspor data' });
   });
 
   it('sends a shipped feature to its screen and says so for an unknown one', async () => {
@@ -213,6 +216,7 @@ describe('a signed-in inventor', () => {
     expect(screen.getByText('Asia/Jakarta')).toBeInTheDocument();
     expect(screen.getByText(/Organisasi tidak wajib/)).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Rencana fitur' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Profil publik' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Laporkan masalah' })).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: /Lihat rencana Privasi dan laporan/ })).toBeNull();
     expect(screen.getByRole('heading', { name: 'Permintaan privasi' })).toBeInTheDocument();
@@ -324,7 +328,7 @@ describe('features of optional capabilities', () => {
     render((await SettingsPage({ searchParams: Promise.resolve({}) })) as ReactElement);
 
     expect(screen.queryByRole('link', { name: /Lihat rencana Tinjauan organisasi/ })).toBeNull();
-    expect(screen.getByRole('link', { name: /Lihat rencana Diskusi/ })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Lihat profil publik' })).toBeInTheDocument();
   });
 });
 

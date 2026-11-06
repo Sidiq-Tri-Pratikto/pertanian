@@ -22,6 +22,7 @@ from app.core.settings import get_settings
 from app.demo.router import router as demo_router
 from app.dev.router import router as dev_router
 from app.discovery.router import router as discovery_router
+from app.discussion.router import router as discussion_router
 from app.documents.router import router as documents_router
 from app.funding.router import router as funding_router
 from app.health.router import router as health_router
@@ -34,6 +35,8 @@ from app.pitches.router import router as pitches_router
 from app.platform.router import router as platform_router
 from app.platform.service.idempotency import IdempotentReplay, replay_response
 from app.portfolio.router import router as portfolio_router
+from app.relationships.router import router as relationships_router
+from app.scheduling.router import router as scheduling_router
 
 API_PREFIX = "/api/v1"
 
@@ -80,6 +83,9 @@ def create_app() -> FastAPI:
     app.include_router(matching_router, prefix=API_PREFIX)
     app.include_router(briefs_router, prefix=API_PREFIX)
     app.include_router(pitches_router, prefix=API_PREFIX)
+    app.include_router(discussion_router, prefix=API_PREFIX)
+    app.include_router(scheduling_router, prefix=API_PREFIX)
+    app.include_router(relationships_router, prefix=API_PREFIX)
     app.include_router(demo_router, prefix=API_PREFIX)
     app.include_router(moderation_router, prefix=API_PREFIX)
     if settings.environment == "development":

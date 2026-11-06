@@ -43,7 +43,8 @@ test('an open range reads "Belum ditentukan" and Beranda asks to complete it', a
   const id = await makeSupportRequest(page, { min: null, max: null, unknown_reason: 'not_determined' });
   await page.goto('/home');
 
-  await page.getByRole('link', { name: 'Lengkapi kisaran biaya pilot untuk kebutuhan ini' }).click();
+  await expect(page.getByRole('heading', { name: 'Lengkapi kisaran biaya pilot untuk kebutuhan ini' })).toBeVisible();
+  await page.getByRole('link', { name: /^Kerjakan sekarang/ }).click();
 
   await expect(page).toHaveURL(new RegExp(`/support-requests/${id}$`));
   await expect(page.getByRole('region', { name: 'Ringkasan' }).getByText('Belum ditentukan')).toBeVisible();

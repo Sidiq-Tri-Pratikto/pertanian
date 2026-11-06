@@ -26,9 +26,9 @@ const HOME: Record<Persona, Destination> = {
     empty: {
       icon: 'bulb',
       title: 'Belum ada yang perlu dikerjakan',
-      body: 'Draf, pitching, dan jadwal Anda akan muncul di sini setelah fiturnya tersedia.',
+      body: 'Pitching, revisi, dan jadwal yang menunggu Anda akan muncul di sini.',
     },
-    features: ['akun', 'inovasi', 'dukungan-proyek', 'kecocokan', 'diskusi'],
+    features: ['akun', 'inovasi', 'dukungan-proyek', 'kecocokan', 'diskusi', 'kerja-sama'],
   },
   mitra: {
     nav: '',
@@ -38,7 +38,7 @@ const HOME: Record<Persona, Destination> = {
     empty: {
       icon: 'inbox',
       title: 'Belum ada yang perlu dikerjakan',
-      body: 'Pitching masuk dan jadwal akan muncul di sini setelah fiturnya tersedia.',
+      body: 'Pitching masuk dan jadwal yang menunggu Anda akan muncul di sini.',
     },
     features: ['akun', 'profil-mitra', 'keputusan-revisi', 'jadwal'],
   },

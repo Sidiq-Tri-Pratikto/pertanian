@@ -2,7 +2,7 @@
 
 **Feature Branch**: `031-public-profiles-api`
 **Created**: 2026-11-05
-**Status**: Seeded, not started
+**Status**: Built, awaiting review
 **Milestone**: M9 Relationships
 **Depends on**: 030
 **Size**: M
@@ -39,3 +39,7 @@ A party's public profile shows its deliberately published biography, published i
 ### Measurable Outcomes
 
 - **SC-001**: AC55–AC57 pass; a test asserts private strings never appear in public responses.
+
+## Validation
+
+Signed-out API tests passed consent narrowing, contest redaction, unpublished biography, and archived inventions disappearing before the discovery worker runs. The OpenAPI contract and generated client match their regenerated outputs.

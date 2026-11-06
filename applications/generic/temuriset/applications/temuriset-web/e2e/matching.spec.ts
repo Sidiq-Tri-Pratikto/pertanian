@@ -80,7 +80,7 @@ test('J01: from Beranda through the range repair and the match to a submitted pi
 
   await expect(page).toHaveURL(/\/pitches\/[0-9a-f-]{36}\?terkirim=1$/);
   await expect(page.getByText('Pitching terkirim kepada Mitra J01')).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Menunggu Mitra J01' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Pitching Anda sedang menunggu keputusan' })).toBeVisible();
 
   await partner.goto('/pitches?box=masuk');
   await expect(partner.getByRole('link', { name: new RegExp(title) })).toBeVisible();

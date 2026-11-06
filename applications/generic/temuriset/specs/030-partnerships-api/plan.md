@@ -6,10 +6,9 @@
 
 ```text
 app/relationships/
-├── router.py                     # /partnerships, /{id}, /confirmations, /corrections, /restrictions, /decline, /request-review
+├── router.py                     # Pitch proposal and eligibility, plus versioned partnership actions
 ├── service/service.py            # propose, correct, confirm, decline, restrict, contest
-├── service/consent.py            # effective_fields(version, confirmations, restrictions)
-├── service/checksum.py
+├── service/consent.py            # Checksums and effective fields
 └── repository/sqlalchemy/        # partnerships, partnership_versions, partnership_confirmations, partnership_restrictions
 migrations/versions/0016_relationships.py
 ```
@@ -20,7 +19,11 @@ migrations/versions/0016_relationships.py
 
 ## Test Plan
 
-AC21, AC52–AC54; checksum binding; restriction append-only; contest hides; property test on consent; isolation.
+AC21, AC52–AC54; checksum binding; restriction append-only; contest hides; property test on consent; route isolation; two simultaneous proposals for the same pitch.
+
+## Integration decisions
+
+Read proposal options through the same eligibility rules as proposal creation. Lock the pitch before validating and inserting a proposal, so simultaneous parties produce one relationship and a recoverable conflict. Keep public consent and review decisions in the API.
 
 ## Out of Scope
 

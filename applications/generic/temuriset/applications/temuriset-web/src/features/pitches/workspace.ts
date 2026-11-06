@@ -7,6 +7,7 @@ export type RevisionItemView = components['schemas']['RevisionItemResponse'];
 export type Answer = components['schemas']['AnswerResponse'];
 export type ChosenFile = { document_id: string; version: number };
 type Moved = components['schemas']['PitchActionResponse'];
+export type NextAction = components['schemas']['NextAction'];
 
 export const TABS = [
   { id: 'ringkasan', label: 'Ringkasan' },
