@@ -14,6 +14,7 @@ COPY --from=build /srv/.venv .venv
 COPY alembic.ini entrypoint.sh ./
 COPY migrations migrations
 COPY app app
+COPY benchmarks/fixtures/retrieval.json benchmarks/fixtures/retrieval.json
 ENV PATH="/srv/.venv/bin:$PATH" PYTHONUNBUFFERED=1
 USER appuser
 EXPOSE 8000

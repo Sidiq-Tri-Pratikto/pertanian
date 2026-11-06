@@ -1334,6 +1334,7 @@ export interface paths {
          *         body (MatchRequest): The source.
          *         principal (PrincipalDep): Who is signed in.
          *         session (SessionDep): Database session.
+         *         request (Request): Carries the immutable startup retrieval snapshot.
          *         operation (Idempotency): Replays a retried request.
          *
          *     Returns:
@@ -5642,6 +5643,24 @@ export interface components {
             subject_type: "INVENTION" | "FUNDING_REQUEST" | "PARTNER";
         };
         /**
+         * MatchModelPins
+         * @description Trusted identity and versions of a synthetic model profile.
+         */
+        MatchModelPins: {
+            /** Calibration */
+            calibration: string;
+            /** Model Id */
+            model_id: string;
+            /** Revision */
+            revision: string;
+            /** Template */
+            template: string;
+            /** Tokenizer */
+            tokenizer: string;
+            /** Truncation */
+            truncation: string;
+        };
+        /**
          * MatchRequest
          * @description Evaluate one owned source against every active opportunity.
          */
@@ -5714,6 +5733,30 @@ export interface components {
             title: string;
         };
         /**
+         * MatchRetrieval
+         * @description Safe provenance of a requested local experiment and its effective mode.
+         */
+        MatchRetrieval: {
+            /** Artifact Sha256 */
+            artifact_sha256?: string | null;
+            /** Effective Mode */
+            effective_mode: ("dense" | "hybrid" | "reranked") | "lexical";
+            /** Fallback Reason */
+            fallback_reason?: ("artifact_missing" | "artifact_invalid" | "unsupported_input") | null;
+            /** Fixture Sha256 */
+            fixture_sha256?: string | null;
+            /** Fixture Version */
+            fixture_version?: string | null;
+            model: components["schemas"]["MatchModelPins"];
+            /** Profile */
+            profile: string;
+            /**
+             * Requested Mode
+             * @enum {string}
+             */
+            requested_mode: "dense" | "hybrid" | "reranked";
+        };
+        /**
          * MatchRunResponse
          * @description A stored run: recommended results first, then those not to be shown as a positive match.
          */
@@ -5735,6 +5778,7 @@ export interface components {
             };
             /** Results */
             results: components["schemas"]["MatchResultResponse"][];
+            retrieval?: components["schemas"]["MatchRetrieval"] | null;
             /**
              * Run Id
              * Format: uuid

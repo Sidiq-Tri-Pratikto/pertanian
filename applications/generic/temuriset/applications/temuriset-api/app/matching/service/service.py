@@ -16,13 +16,22 @@ from app.core.settings import get_settings
 from app.documents.service.service import evidence_results
 from app.funding.service.service import FundingService
 from app.identity.model.models import Principal
+from app.identity.service.accounts import account_is_demo
 from app.intake.model.schema import OpportunityResponse
 from app.intake.service.service import IntakeService
-from app.matching.engine.evaluate import ENGINE, POLICY_VERSIONS, evaluate, rank
+from app.matching.engine.evaluate import ENGINE, POLICY_VERSIONS, evaluate, rank, rank_experiment
 from app.matching.engine.inputs import Money, Source, Target
-from app.matching.model.schema import MatchRequest, MatchResultResponse, MatchRunResponse, MatchSource
+from app.matching.model.schema import (
+    MatchModelPins,
+    MatchRequest,
+    MatchResultResponse,
+    MatchRetrieval,
+    MatchRunResponse,
+    MatchSource,
+)
 from app.matching.repository.sqlalchemy.models import MatchRunRecord
 from app.matching.repository.sqlalchemy.repository import SqlAlchemyMatchingRepository
+from app.matching.service.retrieval_adapter import PINS, PROFILE, RetrievalExperiment
 from app.moderation.service.suspension import require_unsuspended
 from app.needs.service.service import NeedsService
 from app.portfolio.model.schema import InventionVersionResponse
@@ -202,12 +211,15 @@ class MatchingService:
         )
         return source, raise_.subject_label, version_ids
 
-    async def run(self, principal: Principal, request: MatchRequest) -> MatchRunResponse:
+    async def run(
+        self, principal: Principal, request: MatchRequest, experiment: RetrievalExperiment | None = None
+    ) -> MatchRunResponse:
         """Evaluate the source against each active opportunity separately, then order and persist the run.
 
         Args:
             principal (Principal): Who is signed in.
             request (MatchRequest): The source.
+            experiment (RetrievalExperiment | None, optional): Startup experiment. Defaults to None.
 
         Returns:
             MatchRunResponse: The stored run.
@@ -216,9 +228,31 @@ class MatchingService:
         source, title, _ = await self.source_of(principal, request.source_type, request.source_id)
         opportunities = await IntakeService(self.session).active_targets(principal.active_party_id)
         names = await party_names(self.session, list({item.partner_party_id for item in opportunities}))
-        results = [evaluate(source, target_of(item, names.get(item.partner_party_id, ""))) for item in opportunities]
-        shown, excluded = rank(results)
+        targets = [target_of(item, names.get(item.partner_party_id, "")) for item in opportunities]
+        admitted = None
+        if experiment and experiment.artifact and await account_is_demo(self.session, principal.account_id):
+            admitted = experiment.select(source, title, targets)
+        evidence = set(admitted or ())
+        results = [evaluate(source, target, retrieval_evidence=target.version_id in evidence) for target in targets]
+        shown, excluded = rank(results) if admitted is None else rank_experiment(results, admitted)
+        engine = ENGINE
+        provenance = None
+        if experiment is not None:
+            provenance = MatchRetrieval(
+                requested_mode=experiment.mode,
+                effective_mode=experiment.mode if admitted is not None else "lexical",
+                fallback_reason=(experiment.fallback or "unsupported_input") if admitted is None else None,
+                profile=PROFILE,
+                model=MatchModelPins(**PINS),
+                fixture_version=experiment.corpus.version if experiment.corpus else None,
+                fixture_sha256=experiment.corpus.digest if admitted is not None and experiment.corpus else None,
+                artifact_sha256=experiment.artifact.digest if admitted is not None and experiment.artifact else None,
+            )
+            if admitted is not None:
+                engine = f"{experiment.mode}-rules@1"
         inputs = asdict(source)
+        if provenance is not None:
+            inputs["retrieval"] = provenance.model_dump(mode="json")
         run = await self.repository.save_run(
             MatchRunRecord(
                 actor_party_id=principal.active_party_id,
@@ -226,7 +260,7 @@ class MatchingService:
                 source_id=request.source_id,
                 source_version=source.version,
                 source_title=title,
-                engine=ENGINE,
+                engine=engine,
                 policy_versions=POLICY_VERSIONS,
                 inputs={
                     **{key: value for key, value in inputs.items() if key not in ("budget", "contribution")},
@@ -245,6 +279,7 @@ class MatchingService:
             source=MatchSource(type=source.type, id=request.source_id, version=source.version, title=title),  # type: ignore[arg-type]
             results=[MatchResultResponse.model_validate(result) for result in shown],
             excluded=[MatchResultResponse.model_validate(result) for result in excluded],
+            retrieval=provenance,
         )
 
     async def read(self, principal: Principal, run_id: UUID) -> MatchRunResponse:
@@ -264,6 +299,7 @@ class MatchingService:
         if found is None or found[0].actor_party_id != principal.active_party_id:
             raise NotFoundError()
         run, rows = found
+        retrieval = run.inputs.get("retrieval")
         return MatchRunResponse(
             run_id=run.id,
             created_at=run.created_at,
@@ -277,6 +313,7 @@ class MatchingService:
             ),
             results=[MatchResultResponse.model_validate(row.result) for row in rows if row.shown],
             excluded=[MatchResultResponse.model_validate(row.result) for row in rows if not row.shown],
+            retrieval=MatchRetrieval.model_validate(retrieval) if retrieval is not None else None,
         )
 
 

@@ -2,7 +2,7 @@
 
 from uuid import UUID
 
-from fastapi import APIRouter, status
+from fastapi import APIRouter, Request, status
 
 from app.core.database import SessionDep
 from app.core.security import PrincipalDep
@@ -19,6 +19,7 @@ async def run_match(
     body: MatchRequest,
     principal: PrincipalDep,
     session: SessionDep,
+    request: Request,
     operation: Idempotency = idempotent("matches.run"),
 ) -> MatchRunResponse:
     """Evaluate an owned source against every other partner's active opportunity, with reasons and gaps.
@@ -27,12 +28,14 @@ async def run_match(
         body (MatchRequest): The source.
         principal (PrincipalDep): Who is signed in.
         session (SessionDep): Database session.
+        request (Request): Carries the immutable startup retrieval snapshot.
         operation (Idempotency): Replays a retried request.
 
     Returns:
         MatchRunResponse: The stored run.
     """
-    run = await MatchingService(session).run(principal, body)
+    experiment = getattr(request.app.state, "match_retrieval", None)
+    run = await MatchingService(session).run(principal, body, experiment)
     run.operation_id = operation.operation_id
     return await operation.respond(  # type: ignore[return-value]
         run, status_code=201, result=OperationResult(type="match_run", id=str(run.run_id))

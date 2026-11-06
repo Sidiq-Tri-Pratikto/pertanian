@@ -54,3 +54,9 @@ async def email_notification_accounts(session: AsyncSession, account_ids: list[U
 async def email_notification_address(session: AsyncSession, account_id: UUID) -> str | None:
     """Read the address just before send, while the account remains eligible."""
     return await SqlAlchemyIdentityRepository(session).email_notification_address(account_id)
+
+
+async def account_is_demo(session: AsyncSession, account_id: UUID) -> bool:
+    """Check the stored demo classification of a signed-in account."""
+    account = await SqlAlchemyIdentityRepository(session).find_account(account_id)
+    return account is not None and account.kind == "demo"

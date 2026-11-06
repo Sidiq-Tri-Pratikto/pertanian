@@ -84,6 +84,8 @@ Run one test with `uv run pytest tests/unit/health/test_health.py -v`, or match 
 | `SUMMARY_ADAPTER` | no | `off` | `local-relay` is available only in development with validated loopback settings |
 | `SUMMARY_RELAY_URL` | for `local-relay` | unset | HTTP endpoint on literal `127.0.0.1` or `[::1]`, with an explicit port and no credentials, query or fragment |
 | `SUMMARY_MODEL_ID`, `SUMMARY_MODEL_VERSION`, `SUMMARY_PROMPT_VERSION` | for `local-relay` | unset | Non-secret provenance identifiers supplied by the developer running the relay double |
+| `MATCH_RETRIEVAL_MODE` | no | `off` | `dense`, `hybrid`, and `reranked` are local synthetic modes for a development demo |
+| `MATCH_RETRIEVAL_ARTIFACT` | for synthetic modes | unset | Local validated artifact read once at startup. A missing or rejected artifact falls back to lexical matching |
 | `DEMO_MODE` | no | `false` | Offers the labelled demo accounts, sign-in from the picker and reset under `/api/v1/demo` |
 | `DEMO_DEPLOYMENT` | no | `false` | Marks the deployment as a demonstration; outside development, `DEMO_MODE=true` refuses to start without it |
 | `CLAMAV_HOST`, `CLAMAV_PORT` | no | `localhost`, `3310` | ClamAV daemon for `FILE_SCANNER=clamav` (`--profile scanner` in `dev-compose.yml`) |

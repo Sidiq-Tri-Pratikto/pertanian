@@ -536,3 +536,24 @@ async def test_integrated_local_adapters_report_independent_manifest_status(
     assert statuses["email"] == ("available" if email_enabled else "planned")
     assert statuses["calendar"] == ("available" if calendar_enabled else "planned")
     assert statuses["ai-summary"] == ("available" if summary_enabled else "planned")
+
+
+def test_synthetic_matching_requires_explicit_development_demo_and_no_deployed_selection() -> None:
+    """
+    Condition:
+    - A local retrieval mode is selected, with or without its local profile and compatible composition.
+
+    Expected:
+    - The default remains off and only an explicit development/demo profile can try the experiment.
+    """
+    assert _settings().match_retrieval_mode == "off"
+    with pytest.raises(ConfigurationError, match="DEMO_MODE"):
+        validate_configuration(_settings(match_retrieval_mode="hybrid"))
+    with pytest.raises(ConfigurationError, match="deployed retrieval"):
+        validate_configuration(
+            _settings(demo_mode=True, match_retrieval_mode="hybrid", composition_overrides={"dense_retrieval": True})
+        )
+    assert validate_configuration(_settings(demo_mode=True, match_retrieval_mode="hybrid")) == (
+        "core",
+        "company_funding",
+    )

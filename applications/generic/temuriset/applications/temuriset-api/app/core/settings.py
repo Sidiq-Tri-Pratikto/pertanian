@@ -44,6 +44,8 @@ class Settings(BaseSettings):
         summary_model_id (str): Trusted model identity for local evaluation.
         summary_model_version (str): Trusted model version for local evaluation.
         summary_prompt_version (str): Trusted prompt template version for local evaluation.
+        match_retrieval_mode (str): Local synthetic retrieval mode, default off.
+        match_retrieval_artifact (SecretStr | None): Local artifact path read at startup for a synthetic mode.
         demo_mode (bool): Offer labelled demo accounts and their reset (spec 021).
         demo_deployment (bool): This deployment is a demonstration; required for ``demo_mode`` outside development.
     """
@@ -90,6 +92,8 @@ class Settings(BaseSettings):
     summary_model_id: str = ""
     summary_model_version: str = ""
     summary_prompt_version: str = ""
+    match_retrieval_mode: Literal["off", "dense", "hybrid", "reranked"] = "off"
+    match_retrieval_artifact: SecretStr | None = None
     demo_mode: bool = False
     demo_deployment: bool = False
 

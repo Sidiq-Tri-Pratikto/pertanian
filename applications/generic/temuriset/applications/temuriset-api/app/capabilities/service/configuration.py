@@ -107,6 +107,11 @@ def validate_configuration(settings: Settings) -> tuple[str, ...]:
     if settings.summary_adapter == "local-relay":
         _validate_summary_relay(settings)
     _validate_calendar(settings)
+    if settings.match_retrieval_mode != "off":
+        if settings.environment != "development" or not settings.demo_mode:
+            raise ConfigurationError("Synthetic matching requires development with DEMO_MODE=true.")
+        if {"dense_retrieval", "reranking"}.intersection(capability_ids):
+            raise ConfigurationError("Synthetic matching cannot select deployed retrieval capabilities.")
     return capability_ids
 
 

@@ -57,6 +57,11 @@ export function MatchesView({ me, source, externals }: Props) {
           <Button onClick={() => void load()}>Coba lagi</Button>
         </Status>
       ) : null}
+      {run?.retrieval?.fallback_reason ? (
+        <Status tone="neutral" label="Pencarian eksperimental tidak tersedia" live>
+          <p>Kecocokan dihitung dengan kata kunci dan aturan yang berlaku.</p>
+        </Status>
+      ) : null}
       {!run && !failure ? <Status tone="neutral" label="Menghitung kecocokan" live /> : null}
       {run ? (
         <>

@@ -4521,6 +4521,45 @@
         "title": "MarkedItem",
         "type": "object"
       },
+      "MatchModelPins": {
+        "description": "Trusted identity and versions of a synthetic model profile.",
+        "properties": {
+          "calibration": {
+            "title": "Calibration",
+            "type": "string"
+          },
+          "model_id": {
+            "title": "Model Id",
+            "type": "string"
+          },
+          "revision": {
+            "title": "Revision",
+            "type": "string"
+          },
+          "template": {
+            "title": "Template",
+            "type": "string"
+          },
+          "tokenizer": {
+            "title": "Tokenizer",
+            "type": "string"
+          },
+          "truncation": {
+            "title": "Truncation",
+            "type": "string"
+          }
+        },
+        "required": [
+          "model_id",
+          "revision",
+          "tokenizer",
+          "truncation",
+          "template",
+          "calibration"
+        ],
+        "title": "MatchModelPins",
+        "type": "object"
+      },
       "MatchRequest": {
         "description": "Evaluate one owned source against every active opportunity.",
         "properties": {
@@ -4670,6 +4709,101 @@
         "title": "MatchResultResponse",
         "type": "object"
       },
+      "MatchRetrieval": {
+        "description": "Safe provenance of a requested local experiment and its effective mode.",
+        "properties": {
+          "artifact_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Artifact Sha256"
+          },
+          "effective_mode": {
+            "anyOf": [
+              {
+                "enum": [
+                  "dense",
+                  "hybrid",
+                  "reranked"
+                ],
+                "type": "string"
+              },
+              {
+                "const": "lexical",
+                "type": "string"
+              }
+            ],
+            "title": "Effective Mode"
+          },
+          "fallback_reason": {
+            "anyOf": [
+              {
+                "enum": [
+                  "artifact_missing",
+                  "artifact_invalid",
+                  "unsupported_input"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fallback Reason"
+          },
+          "fixture_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fixture Sha256"
+          },
+          "fixture_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fixture Version"
+          },
+          "model": {
+            "$ref": "#/components/schemas/MatchModelPins"
+          },
+          "profile": {
+            "title": "Profile",
+            "type": "string"
+          },
+          "requested_mode": {
+            "enum": [
+              "dense",
+              "hybrid",
+              "reranked"
+            ],
+            "title": "Requested Mode",
+            "type": "string"
+          }
+        },
+        "required": [
+          "requested_mode",
+          "effective_mode",
+          "profile",
+          "model"
+        ],
+        "title": "MatchRetrieval",
+        "type": "object"
+      },
       "MatchRunResponse": {
         "description": "A stored run: recommended results first, then those not to be shown as a positive match.",
         "properties": {
@@ -4714,6 +4848,16 @@
             },
             "title": "Results",
             "type": "array"
+          },
+          "retrieval": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MatchRetrieval"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "run_id": {
             "format": "uuid",
@@ -13596,7 +13740,7 @@
     },
     "/api/v1/matches": {
       "post": {
-        "description": "Evaluate an owned source against every other partner's active opportunity, with reasons and gaps.\n\nArgs:\n    body (MatchRequest): The source.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    MatchRunResponse: The stored run.",
+        "description": "Evaluate an owned source against every other partner's active opportunity, with reasons and gaps.\n\nArgs:\n    body (MatchRequest): The source.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    request (Request): Carries the immutable startup retrieval snapshot.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    MatchRunResponse: The stored run.",
         "operationId": "run_match_api_v1_matches_post",
         "requestBody": {
           "content": {

@@ -29,6 +29,7 @@ from app.health.router import router as health_router
 from app.identity.router import auth_router, me_router
 from app.intake.router import router as intake_router
 from app.matching.router import router as matching_router
+from app.matching.service.retrieval_adapter import load_experiment
 from app.moderation.router import router as moderation_router
 from app.needs.router import router as needs_router
 from app.pitches.router import router as pitches_router
@@ -60,6 +61,7 @@ def create_app() -> FastAPI:
     setup_logging(settings.log_level)
     validate_configuration(settings)  # Unsafe or unsupported configuration must never serve traffic.
     app = FastAPI(title="temuriset-api", version=SOURCE_RELEASE, lifespan=lifespan)
+    app.state.match_retrieval = load_experiment(settings)
     app.add_middleware(OriginCheckMiddleware)
     app.add_middleware(ErrorBoundaryMiddleware)
     app.add_middleware(CalendarPrivacyMiddleware)
