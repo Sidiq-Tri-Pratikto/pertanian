@@ -29,7 +29,7 @@ applications/hematdaya-mobile/e2e/android-smoke.sh
 
 The standard debug APK does not embed the JavaScript bundle. Start Metro from the mobile application directory in CI, wait for its status endpoint, and run `adb reverse tcp:8081 tcp:8081` before launch. Keep Metro running through the smoke flow. Keep its log and logcat as separate files, and upload both on every run. The FastAPI service stays absent.
 
-`smoke.yaml`: launch, assert "Selamat datang", tap "Mulai", assert tabs "Beranda", "Perangkat", "Saran" and "Layanan belum tersedia", tap "Perangkat", then assert "Belum ada perangkat".
+`smoke.yaml`: launch, assert "Selamat datang", tap "Mulai", assert "Belum berhasil" and "Coba lagi" (no API in this job since 012), open `hematdaya://beranda`, assert "Belum ada data energi" and tabs "Beranda", "Perangkat", "Saran" and "Layanan belum tersedia", tap "Perangkat", then assert "Belum ada perangkat".
 
 Only a failed emulator boot retries, once. The job tells a boot failure from a flow failure with a marker the script creates first. A final gate fails the job unless one attempt succeeded, and a retry leaves a visible warning.
 

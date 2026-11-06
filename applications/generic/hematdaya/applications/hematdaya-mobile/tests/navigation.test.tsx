@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import { act, fireEvent, renderRouter, screen } from 'expo-router/testing-library';
 
 import householdWeek from '../../../contracts/golden/summary-h-week.json';
@@ -221,5 +222,24 @@ describe('service status', () => {
     expect(await screen.findByText('Permintaan belum dapat diselesaikan.')).toBeOnTheScreen();
     expect(screen.getByText('ID referensi: ref_1')).toBeOnTheScreen();
     expect(screen.queryByRole('button', { name: 'Coba lagi' })).toBeNull();
+  });
+
+  it('follows the Android smoke flow with no service: Mulai fails honestly, Beranda is still reachable', async () => {
+    jest.spyOn(globalThis, 'fetch').mockRejectedValue(new TypeError('Network request failed'));
+    // Mirrors e2e/smoke.yaml: every string it asserts must appear here too.
+    await renderRouter('./src/app', { initialUrl: '/' });
+    expect(await screen.findByText('Selamat datang')).toBeOnTheScreen();
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Mulai' }));
+    expect(await screen.findByText('Belum berhasil')).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: 'Coba lagi' })).toBeOnTheScreen();
+    expect(screen.queryByText('Belum ada data energi')).toBeNull();
+
+    await act(() => router.push('/beranda'));
+    expect(await screen.findByText('Belum ada data energi')).toBeOnTheScreen();
+    expect(screen.getByRole('tab', { name: 'Saran' })).toBeOnTheScreen();
+    expect(await screen.findByText('Layanan belum tersedia')).toBeOnTheScreen();
+    await fireEvent.press(screen.getByRole('tab', { name: 'Perangkat' }));
+    expect(await screen.findByText('Belum ada perangkat')).toBeOnTheScreen();
   });
 });
