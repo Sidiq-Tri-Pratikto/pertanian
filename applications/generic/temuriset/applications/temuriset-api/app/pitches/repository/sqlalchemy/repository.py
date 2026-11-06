@@ -3,7 +3,7 @@
 from datetime import datetime
 from uuid import UUID
 
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.pitches.repository.sqlalchemy.models import (
@@ -126,6 +126,24 @@ class SqlAlchemyPitchRepository:
         """
         column = PitchRecord.recipient_party_id if incoming else PitchRecord.requester_party_id
         query = select(PitchRecord).where(column == party_id).order_by(PitchRecord.created_at.desc()).limit(limit)
+        return list(await self.session.scalars(query))
+
+    async def involving(self, party_id: UUID, limit: int) -> list[PitchRecord]:
+        """List a party's sent and received pitches, most recently changed first.
+
+        Args:
+            party_id (UUID): The party.
+            limit (int): The most to return.
+
+        Returns:
+            list[PitchRecord]: Pitches.
+        """
+        query = (
+            select(PitchRecord)
+            .where(or_(PitchRecord.requester_party_id == party_id, PitchRecord.recipient_party_id == party_id))
+            .order_by(PitchRecord.updated_at.desc())
+            .limit(limit)
+        )
         return list(await self.session.scalars(query))
 
     async def submissions(self, pitch_id: UUID) -> list[tuple[PitchSubmissionRecord, list[PitchSubmissionFileRecord]]]:
