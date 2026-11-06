@@ -8,7 +8,7 @@
 
 ## Phase 2 · Foundations
 
-- [ ] T002 Add the shared authenticated secret envelope in `applications/temuriset-api/app/core/secret_envelope.py` with a purpose/key separation test in `applications/temuriset-api/tests/unit/core/test_secret_envelope.py`. Add runtime dependencies to `applications/temuriset-api/pyproject.toml` and `applications/temuriset-api/uv.lock` as needed (FR-001).
+- [X] T002 Add the shared authenticated secret envelope in `applications/temuriset-api/app/core/secret_envelope.py` with a purpose/key separation test in `applications/temuriset-api/tests/unit/core/test_secret_envelope.py`. Add runtime dependencies to `applications/temuriset-api/pyproject.toml` and `applications/temuriset-api/uv.lock` as needed (FR-001).
 - [ ] T003 Add default-off loopback relay validation and safe environment examples in `applications/temuriset-api/app/core/settings.py`, `applications/temuriset-api/app/capabilities/service/configuration.py`, `applications/temuriset-api/tests/unit/capabilities/test_configuration.py` and `applications/temuriset-api/.env.example` (FR-001, FR-005).
 
 ## Phase 3 · US1 (P1) · Email with one decision
