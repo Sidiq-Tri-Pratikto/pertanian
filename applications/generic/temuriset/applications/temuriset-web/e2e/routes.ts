@@ -21,6 +21,7 @@ export const ROUTES: Route[] = [
   { path: '/inventions', persona: 'inovator' },
   { path: '/discover', persona: 'inovator' },
   { path: '/pitches', persona: 'inovator' },
+  { path: '/pitches/00000000-0000-4000-8000-000000000000', persona: 'inovator' },
   { path: '/settings', persona: 'inovator', primary: 'Keluar' },
   { path: '/undangan/tidak-ada', persona: 'inovator' },
   { path: '/segera-hadir/diskusi', persona: 'inovator' },

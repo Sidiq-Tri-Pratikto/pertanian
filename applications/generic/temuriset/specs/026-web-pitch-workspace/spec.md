@@ -2,7 +2,7 @@
 
 **Feature Branch**: `026-web-pitch-workspace`
 **Created**: 2026-11-05
-**Status**: Seeded, not started
+**Status**: Built, awaiting review
 **Milestone**: M7 Review and revisions
 **Depends on**: 024, 025
 **Size**: L

@@ -1778,6 +1778,246 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/pitches/{pitch_id}/begin-review": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Begin reviewing a pitch
+         * @description Mark a submitted pitch as under review. This decides nothing.
+         *
+         *     Args:
+         *         pitch_id (UUID): The pitch.
+         *         body (PitchActionRequest): Acting party and ``expected_version``.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         PitchActionResponse: The pitch.
+         */
+        post: operations["begin_review_api_v1_pitches__pitch_id__begin_review_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/pitches/{pitch_id}/close": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Close a discussion
+         * @description Close an approved discussion with a reason.
+         *
+         *     Args:
+         *         pitch_id (UUID): The pitch.
+         *         body (CloseRequest): Acting party, ``expected_version`` and reason.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         PitchActionResponse: The pitch.
+         */
+        post: operations["close_api_v1_pitches__pitch_id__close_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/pitches/{pitch_id}/decisions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Approve for discussion or reject
+         * @description Decide on the exact submission and version. Approval opens discussion only; rejection needs a reason.
+         *
+         *     Args:
+         *         pitch_id (UUID): The pitch.
+         *         body (DecisionRequest): Submission, ``expected_version``, decision and reason.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         PitchActionResponse: The pitch.
+         */
+        post: operations["decide_api_v1_pitches__pitch_id__decisions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/pitches/{pitch_id}/resubmit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Resubmit after answering
+         * @description Send the next submission once every required item has an answer.
+         *
+         *     Args:
+         *         pitch_id (UUID): The pitch.
+         *         body (ResubmitRequest): ``expected_version``, brief and files.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         PitchActionResponse: The pitch and submission number.
+         */
+        post: operations["resubmit_api_v1_pitches__pitch_id__resubmit_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/pitches/{pitch_id}/revision-items/{item_id}/answer": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Save a draft answer
+         * @description Save the requester's draft answer to one item of the open round, against its version.
+         *
+         *     Args:
+         *         pitch_id (UUID): The pitch.
+         *         item_id (UUID): The item.
+         *         body (AnswerRequest): Response, text, files and ``expected_version``.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         AnswerResponse: The saved answer.
+         */
+        put: operations["save_answer_api_v1_pitches__pitch_id__revision_items__item_id__answer_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/pitches/{pitch_id}/revision-items/{item_id}/review": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Review an answer
+         * @description Accept an answer or ask for more detail, against the item's version.
+         *
+         *     Args:
+         *         pitch_id (UUID): The pitch.
+         *         item_id (UUID): The item.
+         *         body (ItemReviewRequest): Result, note and ``expected_version``.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         ItemReviewResponse: The item's review.
+         */
+        put: operations["review_item_api_v1_pitches__pitch_id__revision_items__item_id__review_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/pitches/{pitch_id}/revision-rounds": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Request a revision
+         * @description Open the next numbered round of itemized questions.
+         *
+         *     Args:
+         *         pitch_id (UUID): The pitch.
+         *         body (RevisionRequest): Submission, ``expected_version`` and items.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         PitchActionResponse: The pitch and round number.
+         */
+        post: operations["request_revision_api_v1_pitches__pitch_id__revision_rounds_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/pitches/{pitch_id}/withdraw": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Withdraw a pitch
+         * @description Withdraw before a final decision; later decisions are refused.
+         *
+         *     Args:
+         *         pitch_id (UUID): The pitch.
+         *         body (PitchActionRequest): Acting party and ``expected_version``.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         PitchActionResponse: The pitch.
+         */
+        post: operations["withdraw_api_v1_pitches__pitch_id__withdraw_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/saved-items": {
         parameters: {
             query?: never;
@@ -2138,6 +2378,56 @@ export interface components {
             status: components["schemas"]["CapabilityStatus"];
         };
         /**
+         * AnswerRequest
+         * @description Save a draft answer; the first save sends no version.
+         */
+        AnswerRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /** Expected Version */
+            expected_version?: number | null;
+            /**
+             * Files
+             * @default []
+             */
+            files?: components["schemas"]["ChosenFile"][];
+            /**
+             * Response
+             * @enum {string}
+             */
+            response: "CAN" | "DISCUSS" | "CANNOT";
+            /**
+             * Text
+             * @default
+             */
+            text?: string;
+        };
+        /**
+         * AnswerResponse
+         * @description The requester's answer to one item.
+         */
+        AnswerResponse: {
+            /** Files */
+            files: components["schemas"]["SubmittedFile"][];
+            /**
+             * Response
+             * @enum {string}
+             */
+            response: "CAN" | "DISCUSS" | "CANNOT";
+            /**
+             * Saved At
+             * Format: date-time
+             */
+            saved_at: string;
+            /** Text */
+            text: string;
+            /** Version */
+            version: number;
+        };
+        /**
          * AvailabilityResponse
          * @description Current availability, kept apart from the general thesis and labelled with where it comes from.
          */
@@ -2455,6 +2745,21 @@ export interface components {
             subject_name: string;
         };
         /**
+         * CloseRequest
+         * @description Close a discussion, with the reason both parties will read.
+         */
+        CloseRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /** Expected Version */
+            expected_version: number;
+            /** Reason */
+            reason: string;
+        };
+        /**
          * CodeRequest
          * @description Ask for a sign-in code. Sign-up also carries the profile, applied only when the code is verified.
          */
@@ -2677,6 +2982,48 @@ export interface components {
              * @default []
              */
             support_forms?: ("project_funding" | "testing_support" | "mentoring" | "facilities" | "distribution" | "technical_partner" | "other")[];
+        };
+        /**
+         * DecisionRequest
+         * @description Approve for discussion or reject, on the submission the recipient read.
+         */
+        DecisionRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /**
+             * Decision
+             * @enum {string}
+             */
+            decision: "APPROVE" | "REJECT";
+            /** Expected Version */
+            expected_version: number;
+            /** Reason */
+            reason?: string | null;
+            /** Submission */
+            submission: number;
+        };
+        /**
+         * DecisionResponse
+         * @description A recipient decision. Its reason is seen by the two parties only.
+         */
+        DecisionResponse: {
+            /**
+             * Decided At
+             * Format: date-time
+             */
+            decided_at: string;
+            /**
+             * Decision
+             * @enum {string}
+             */
+            decision: "APPROVE" | "REJECT";
+            /** Reason */
+            reason: string | null;
+            /** Submission Number */
+            submission_number: number;
         };
         /**
          * DemoAccount
@@ -3478,6 +3825,46 @@ export interface components {
             email: string;
         };
         /**
+         * ItemReviewRequest
+         * @description Accept an answer or ask for more detail.
+         */
+        ItemReviewRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /** Expected Version */
+            expected_version: number;
+            /** Note */
+            note?: string | null;
+            /**
+             * Result
+             * @enum {string}
+             */
+            result: "ACCEPTED" | "NEEDS_DETAIL";
+        };
+        /**
+         * ItemReviewResponse
+         * @description An item's review after it was marked.
+         */
+        ItemReviewResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Review
+             * @enum {string}
+             */
+            review: "ACCEPTED" | "NEEDS_DETAIL";
+            /** Review Note */
+            review_note: string | null;
+            /** Version */
+            version: number;
+        };
+        /**
          * LegalEntityInput
          * @description A company the acting party declares.
          */
@@ -4037,10 +4424,51 @@ export interface components {
             version: number;
         };
         /**
+         * PitchActionRequest
+         * @description A status change against the pitch version the client saw.
+         */
+        PitchActionRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /** Expected Version */
+            expected_version: number;
+        };
+        /**
+         * PitchActionResponse
+         * @description The pitch after a status change.
+         */
+        PitchActionResponse: {
+            /** Operation Id */
+            operation_id?: string | null;
+            /**
+             * Pitch Id
+             * Format: uuid
+             */
+            pitch_id: string;
+            /** Round */
+            round?: number | null;
+            /** Status */
+            status: string;
+            /** Submission */
+            submission?: number | null;
+            /** Version */
+            version: number;
+        };
+        /**
          * PitchResponse
-         * @description A pitch with its frozen submissions, for its requester or recipient.
+         * @description A pitch with its frozen submissions, decisions and rounds, for its requester or recipient.
          */
         PitchResponse: {
+            /**
+             * Allowed Actions
+             * @description What the reader may do now: table actions plus ``answer`` and ``review_items``.
+             */
+            allowed_actions: string[];
+            /** Decisions */
+            decisions: components["schemas"]["DecisionResponse"][];
             /**
              * Id
              * Format: uuid
@@ -4069,6 +4497,8 @@ export interface components {
              * Format: uuid
              */
             requester_party_id: string;
+            /** Rounds */
+            rounds: components["schemas"]["RevisionRoundResponse"][];
             /** Status */
             status: string;
             /**
@@ -4090,8 +4520,18 @@ export interface components {
              * Format: date-time
              */
             submitted_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
             /** Version */
             version: number;
+            /**
+             * Waiting On Party Id
+             * @description Whose move it is: the requester or the recipient, or none during discussion and after the end.
+             */
+            waiting_on_party_id: string | null;
         };
         /**
          * PitchSummary
@@ -4145,6 +4585,16 @@ export interface components {
              * Format: date-time
              */
             submitted_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /**
+             * Waiting On Party Id
+             * @description Whose move it is: the requester or the recipient, or none during discussion and after the end.
+             */
+            waiting_on_party_id: string | null;
         };
         /**
          * PolicyResponse
@@ -4536,6 +4986,118 @@ export interface components {
             result: "PASS" | "FAIL" | "UNKNOWN";
             /** Verification Mode */
             verification_mode: string;
+        };
+        /**
+         * ResubmitRequest
+         * @description Send again after answering: the brief as edited and the file versions chosen on purpose.
+         */
+        ResubmitRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /** Brief */
+            brief?: string | null;
+            /** Expected Version */
+            expected_version: number;
+            /**
+             * Files
+             * @default []
+             */
+            files?: components["schemas"]["ChosenFile"][];
+        };
+        /**
+         * RevisionItemInput
+         * @description One itemized question.
+         */
+        RevisionItemInput: {
+            /** Category */
+            category: string;
+            /** Due Date */
+            due_date?: string | null;
+            /**
+             * Expected Evidence
+             * @default
+             */
+            expected_evidence?: string;
+            /** Question */
+            question: string;
+            /** Reason */
+            reason: string;
+            /** Required */
+            required: boolean;
+        };
+        /**
+         * RevisionItemResponse
+         * @description One requested item, its answer once visible, and the recipient's review.
+         */
+        RevisionItemResponse: {
+            answer: components["schemas"]["AnswerResponse"] | null;
+            /** Category */
+            category: string;
+            /** Due Date */
+            due_date: string | null;
+            /** Expected Evidence */
+            expected_evidence: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Position */
+            position: number;
+            /** Question */
+            question: string;
+            /** Reason */
+            reason: string;
+            /** Required */
+            required: boolean;
+            /** Review */
+            review: ("ACCEPTED" | "NEEDS_DETAIL") | null;
+            /** Review Note */
+            review_note: string | null;
+            /** Version */
+            version: number;
+        };
+        /**
+         * RevisionRequest
+         * @description Open a numbered round on the submission the recipient read.
+         */
+        RevisionRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /** Expected Version */
+            expected_version: number;
+            /** Items */
+            items: components["schemas"]["RevisionItemInput"][];
+            /** Submission */
+            submission: number;
+        };
+        /**
+         * RevisionRoundResponse
+         * @description One numbered round.
+         */
+        RevisionRoundResponse: {
+            /** Items */
+            items: components["schemas"]["RevisionItemResponse"][];
+            /** Number */
+            number: number;
+            /**
+             * Open
+             * @description Still waiting for the requester to resubmit; its answers are drafts.
+             */
+            open: boolean;
+            /**
+             * Requested At
+             * Format: date-time
+             */
+            requested_at: string;
+            /** Submission Number */
+            submission_number: number;
         };
         /**
          * RevokeRequest
@@ -7856,6 +8418,360 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PitchResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    begin_review_api_v1_pitches__pitch_id__begin_review_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pitch_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PitchActionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PitchActionResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    close_api_v1_pitches__pitch_id__close_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pitch_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CloseRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PitchActionResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    decide_api_v1_pitches__pitch_id__decisions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pitch_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DecisionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PitchActionResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    resubmit_api_v1_pitches__pitch_id__resubmit_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pitch_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResubmitRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PitchActionResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    save_answer_api_v1_pitches__pitch_id__revision_items__item_id__answer_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pitch_id: string;
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnswerRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnswerResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    review_item_api_v1_pitches__pitch_id__revision_items__item_id__review_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pitch_id: string;
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ItemReviewRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemReviewResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    request_revision_api_v1_pitches__pitch_id__revision_rounds_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pitch_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RevisionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PitchActionResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    withdraw_api_v1_pitches__pitch_id__withdraw_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pitch_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PitchActionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PitchActionResponse"];
                 };
             };
             /** @description Validation failed */

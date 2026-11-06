@@ -74,6 +74,101 @@
         "title": "AdapterResponse",
         "type": "object"
       },
+      "AnswerRequest": {
+        "additionalProperties": false,
+        "description": "Save a draft answer; the first save sends no version.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "expected_version": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Version"
+          },
+          "files": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ChosenFile"
+            },
+            "maxItems": 10,
+            "title": "Files",
+            "type": "array"
+          },
+          "response": {
+            "enum": [
+              "CAN",
+              "DISCUSS",
+              "CANNOT"
+            ],
+            "title": "Response",
+            "type": "string"
+          },
+          "text": {
+            "default": "",
+            "maxLength": 5000,
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "response"
+        ],
+        "title": "AnswerRequest",
+        "type": "object"
+      },
+      "AnswerResponse": {
+        "description": "The requester's answer to one item.",
+        "properties": {
+          "files": {
+            "items": {
+              "$ref": "#/components/schemas/SubmittedFile"
+            },
+            "title": "Files",
+            "type": "array"
+          },
+          "response": {
+            "enum": [
+              "CAN",
+              "DISCUSS",
+              "CANNOT"
+            ],
+            "title": "Response",
+            "type": "string"
+          },
+          "saved_at": {
+            "format": "date-time",
+            "title": "Saved At",
+            "type": "string"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "response",
+          "text",
+          "files",
+          "version",
+          "saved_at"
+        ],
+        "title": "AnswerResponse",
+        "type": "object"
+      },
       "AvailabilityResponse": {
         "description": "Current availability, kept apart from the general thesis and labelled with where it comes from.",
         "properties": {
@@ -821,6 +916,34 @@
         "title": "ClaimResponse",
         "type": "object"
       },
+      "CloseRequest": {
+        "additionalProperties": false,
+        "description": "Close a discussion, with the reason both parties will read.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "expected_version": {
+            "title": "Expected Version",
+            "type": "integer"
+          },
+          "reason": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "expected_version",
+          "reason"
+        ],
+        "title": "CloseRequest",
+        "type": "object"
+      },
       "CodeRequest": {
         "description": "Ask for a sign-in code. Sign-up also carries the profile, applied only when the code is verified.",
         "properties": {
@@ -1220,6 +1343,95 @@
           "invention_id"
         ],
         "title": "CreateSupportRequest",
+        "type": "object"
+      },
+      "DecisionRequest": {
+        "additionalProperties": false,
+        "description": "Approve for discussion or reject, on the submission the recipient read.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "decision": {
+            "enum": [
+              "APPROVE",
+              "REJECT"
+            ],
+            "title": "Decision",
+            "type": "string"
+          },
+          "expected_version": {
+            "title": "Expected Version",
+            "type": "integer"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "maxLength": 500,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "submission": {
+            "minimum": 1.0,
+            "title": "Submission",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "expected_version",
+          "submission",
+          "decision"
+        ],
+        "title": "DecisionRequest",
+        "type": "object"
+      },
+      "DecisionResponse": {
+        "description": "A recipient decision. Its reason is seen by the two parties only.",
+        "properties": {
+          "decided_at": {
+            "format": "date-time",
+            "title": "Decided At",
+            "type": "string"
+          },
+          "decision": {
+            "enum": [
+              "APPROVE",
+              "REJECT"
+            ],
+            "title": "Decision",
+            "type": "string"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "submission_number": {
+            "title": "Submission Number",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "decision",
+          "reason",
+          "submission_number",
+          "decided_at"
+        ],
+        "title": "DecisionResponse",
         "type": "object"
       },
       "DemoAccount": {
@@ -3126,6 +3338,89 @@
         "title": "InviteRequest",
         "type": "object"
       },
+      "ItemReviewRequest": {
+        "additionalProperties": false,
+        "description": "Accept an answer or ask for more detail.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "expected_version": {
+            "title": "Expected Version",
+            "type": "integer"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "maxLength": 1000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "result": {
+            "enum": [
+              "ACCEPTED",
+              "NEEDS_DETAIL"
+            ],
+            "title": "Result",
+            "type": "string"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "expected_version",
+          "result"
+        ],
+        "title": "ItemReviewRequest",
+        "type": "object"
+      },
+      "ItemReviewResponse": {
+        "description": "An item's review after it was marked.",
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "review": {
+            "enum": [
+              "ACCEPTED",
+              "NEEDS_DETAIL"
+            ],
+            "title": "Review",
+            "type": "string"
+          },
+          "review_note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Review Note"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "review",
+          "review_note",
+          "version"
+        ],
+        "title": "ItemReviewResponse",
+        "type": "object"
+      },
       "LegalEntityInput": {
         "additionalProperties": false,
         "description": "A company the acting party declares.",
@@ -4338,9 +4633,104 @@
         "title": "PinnedSource",
         "type": "object"
       },
-      "PitchResponse": {
-        "description": "A pitch with its frozen submissions, for its requester or recipient.",
+      "PitchActionRequest": {
+        "additionalProperties": false,
+        "description": "A status change against the pitch version the client saw.",
         "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "expected_version": {
+            "title": "Expected Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "expected_version"
+        ],
+        "title": "PitchActionRequest",
+        "type": "object"
+      },
+      "PitchActionResponse": {
+        "description": "The pitch after a status change.",
+        "properties": {
+          "operation_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operation Id"
+          },
+          "pitch_id": {
+            "format": "uuid",
+            "title": "Pitch Id",
+            "type": "string"
+          },
+          "round": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Round"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "submission": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Submission"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "pitch_id",
+          "status",
+          "version"
+        ],
+        "title": "PitchActionResponse",
+        "type": "object"
+      },
+      "PitchResponse": {
+        "description": "A pitch with its frozen submissions, decisions and rounds, for its requester or recipient.",
+        "properties": {
+          "allowed_actions": {
+            "description": "What the reader may do now: table actions plus ``answer`` and ``review_items``.",
+            "items": {
+              "type": "string"
+            },
+            "title": "Allowed Actions",
+            "type": "array"
+          },
+          "decisions": {
+            "items": {
+              "$ref": "#/components/schemas/DecisionResponse"
+            },
+            "title": "Decisions",
+            "type": "array"
+          },
           "id": {
             "format": "uuid",
             "title": "Id",
@@ -4377,6 +4767,13 @@
             "title": "Requester Party Id",
             "type": "string"
           },
+          "rounds": {
+            "items": {
+              "$ref": "#/components/schemas/RevisionRoundResponse"
+            },
+            "title": "Rounds",
+            "type": "array"
+          },
           "status": {
             "title": "Status",
             "type": "string"
@@ -4410,9 +4807,27 @@
             "title": "Submitted At",
             "type": "string"
           },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          },
           "version": {
             "title": "Version",
             "type": "integer"
+          },
+          "waiting_on_party_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Whose move it is: the requester or the recipient, or none during discussion and after the end.",
+            "title": "Waiting On Party Id"
           }
         },
         "required": [
@@ -4429,8 +4844,13 @@
           "recipient_name",
           "purpose",
           "submitted_at",
+          "updated_at",
+          "waiting_on_party_id",
           "version",
-          "submissions"
+          "submissions",
+          "decisions",
+          "rounds",
+          "allowed_actions"
         ],
         "title": "PitchResponse",
         "type": "object"
@@ -4499,6 +4919,24 @@
             "format": "date-time",
             "title": "Submitted At",
             "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          },
+          "waiting_on_party_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Whose move it is: the requester or the recipient, or none during discussion and after the end.",
+            "title": "Waiting On Party Id"
           }
         },
         "required": [
@@ -4514,7 +4952,9 @@
           "recipient_party_id",
           "recipient_name",
           "purpose",
-          "submitted_at"
+          "submitted_at",
+          "updated_at",
+          "waiting_on_party_id"
         ],
         "title": "PitchSummary",
         "type": "object"
@@ -5500,6 +5940,281 @@
           "action"
         ],
         "title": "RequirementRow",
+        "type": "object"
+      },
+      "ResubmitRequest": {
+        "additionalProperties": false,
+        "description": "Send again after answering: the brief as edited and the file versions chosen on purpose.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "brief": {
+            "anyOf": [
+              {
+                "maxLength": 10000,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brief"
+          },
+          "expected_version": {
+            "title": "Expected Version",
+            "type": "integer"
+          },
+          "files": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ChosenFile"
+            },
+            "maxItems": 20,
+            "title": "Files",
+            "type": "array"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "expected_version"
+        ],
+        "title": "ResubmitRequest",
+        "type": "object"
+      },
+      "RevisionItemInput": {
+        "additionalProperties": false,
+        "description": "One itemized question.",
+        "properties": {
+          "category": {
+            "maxLength": 60,
+            "minLength": 1,
+            "title": "Category",
+            "type": "string"
+          },
+          "due_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Due Date"
+          },
+          "expected_evidence": {
+            "default": "",
+            "maxLength": 500,
+            "title": "Expected Evidence",
+            "type": "string"
+          },
+          "question": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Question",
+            "type": "string"
+          },
+          "reason": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          },
+          "required": {
+            "title": "Required",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "category",
+          "question",
+          "reason",
+          "required"
+        ],
+        "title": "RevisionItemInput",
+        "type": "object"
+      },
+      "RevisionItemResponse": {
+        "description": "One requested item, its answer once visible, and the recipient's review.",
+        "properties": {
+          "answer": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AnswerResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "category": {
+            "title": "Category",
+            "type": "string"
+          },
+          "due_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Due Date"
+          },
+          "expected_evidence": {
+            "title": "Expected Evidence",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "position": {
+            "title": "Position",
+            "type": "integer"
+          },
+          "question": {
+            "title": "Question",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "required": {
+            "title": "Required",
+            "type": "boolean"
+          },
+          "review": {
+            "anyOf": [
+              {
+                "enum": [
+                  "ACCEPTED",
+                  "NEEDS_DETAIL"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Review"
+          },
+          "review_note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Review Note"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "position",
+          "category",
+          "question",
+          "reason",
+          "required",
+          "due_date",
+          "expected_evidence",
+          "review",
+          "review_note",
+          "version",
+          "answer"
+        ],
+        "title": "RevisionItemResponse",
+        "type": "object"
+      },
+      "RevisionRequest": {
+        "additionalProperties": false,
+        "description": "Open a numbered round on the submission the recipient read.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "expected_version": {
+            "title": "Expected Version",
+            "type": "integer"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/RevisionItemInput"
+            },
+            "maxItems": 20,
+            "minItems": 1,
+            "title": "Items",
+            "type": "array"
+          },
+          "submission": {
+            "minimum": 1.0,
+            "title": "Submission",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "expected_version",
+          "submission",
+          "items"
+        ],
+        "title": "RevisionRequest",
+        "type": "object"
+      },
+      "RevisionRoundResponse": {
+        "description": "One numbered round.",
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/RevisionItemResponse"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "number": {
+            "title": "Number",
+            "type": "integer"
+          },
+          "open": {
+            "description": "Still waiting for the requester to resubmit; its answers are drafts.",
+            "title": "Open",
+            "type": "boolean"
+          },
+          "requested_at": {
+            "format": "date-time",
+            "title": "Requested At",
+            "type": "string"
+          },
+          "submission_number": {
+            "title": "Submission Number",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "number",
+          "submission_number",
+          "requested_at",
+          "open",
+          "items"
+        ],
+        "title": "RevisionRoundResponse",
         "type": "object"
       },
       "RevokeRequest": {
@@ -10728,6 +11443,538 @@
           }
         },
         "summary": "Read a pitch",
+        "tags": [
+          "pitches"
+        ]
+      }
+    },
+    "/api/v1/pitches/{pitch_id}/begin-review": {
+      "post": {
+        "description": "Mark a submitted pitch as under review. This decides nothing.\n\nArgs:\n    pitch_id (UUID): The pitch.\n    body (PitchActionRequest): Acting party and ``expected_version``.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    PitchActionResponse: The pitch.",
+        "operationId": "begin_review_api_v1_pitches__pitch_id__begin_review_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pitch_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Pitch Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PitchActionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PitchActionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Begin reviewing a pitch",
+        "tags": [
+          "pitches"
+        ]
+      }
+    },
+    "/api/v1/pitches/{pitch_id}/close": {
+      "post": {
+        "description": "Close an approved discussion with a reason.\n\nArgs:\n    pitch_id (UUID): The pitch.\n    body (CloseRequest): Acting party, ``expected_version`` and reason.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    PitchActionResponse: The pitch.",
+        "operationId": "close_api_v1_pitches__pitch_id__close_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pitch_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Pitch Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CloseRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PitchActionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Close a discussion",
+        "tags": [
+          "pitches"
+        ]
+      }
+    },
+    "/api/v1/pitches/{pitch_id}/decisions": {
+      "post": {
+        "description": "Decide on the exact submission and version. Approval opens discussion only; rejection needs a reason.\n\nArgs:\n    pitch_id (UUID): The pitch.\n    body (DecisionRequest): Submission, ``expected_version``, decision and reason.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    PitchActionResponse: The pitch.",
+        "operationId": "decide_api_v1_pitches__pitch_id__decisions_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pitch_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Pitch Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DecisionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PitchActionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Approve for discussion or reject",
+        "tags": [
+          "pitches"
+        ]
+      }
+    },
+    "/api/v1/pitches/{pitch_id}/resubmit": {
+      "post": {
+        "description": "Send the next submission once every required item has an answer.\n\nArgs:\n    pitch_id (UUID): The pitch.\n    body (ResubmitRequest): ``expected_version``, brief and files.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    PitchActionResponse: The pitch and submission number.",
+        "operationId": "resubmit_api_v1_pitches__pitch_id__resubmit_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pitch_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Pitch Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResubmitRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PitchActionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Resubmit after answering",
+        "tags": [
+          "pitches"
+        ]
+      }
+    },
+    "/api/v1/pitches/{pitch_id}/revision-items/{item_id}/answer": {
+      "put": {
+        "description": "Save the requester's draft answer to one item of the open round, against its version.\n\nArgs:\n    pitch_id (UUID): The pitch.\n    item_id (UUID): The item.\n    body (AnswerRequest): Response, text, files and ``expected_version``.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    AnswerResponse: The saved answer.",
+        "operationId": "save_answer_api_v1_pitches__pitch_id__revision_items__item_id__answer_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pitch_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Pitch Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "item_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Item Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnswerRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnswerResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Save a draft answer",
+        "tags": [
+          "pitches"
+        ]
+      }
+    },
+    "/api/v1/pitches/{pitch_id}/revision-items/{item_id}/review": {
+      "put": {
+        "description": "Accept an answer or ask for more detail, against the item's version.\n\nArgs:\n    pitch_id (UUID): The pitch.\n    item_id (UUID): The item.\n    body (ItemReviewRequest): Result, note and ``expected_version``.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    ItemReviewResponse: The item's review.",
+        "operationId": "review_item_api_v1_pitches__pitch_id__revision_items__item_id__review_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pitch_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Pitch Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "item_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Item Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ItemReviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemReviewResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Review an answer",
+        "tags": [
+          "pitches"
+        ]
+      }
+    },
+    "/api/v1/pitches/{pitch_id}/revision-rounds": {
+      "post": {
+        "description": "Open the next numbered round of itemized questions.\n\nArgs:\n    pitch_id (UUID): The pitch.\n    body (RevisionRequest): Submission, ``expected_version`` and items.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    PitchActionResponse: The pitch and round number.",
+        "operationId": "request_revision_api_v1_pitches__pitch_id__revision_rounds_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pitch_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Pitch Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RevisionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PitchActionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Request a revision",
+        "tags": [
+          "pitches"
+        ]
+      }
+    },
+    "/api/v1/pitches/{pitch_id}/withdraw": {
+      "post": {
+        "description": "Withdraw before a final decision; later decisions are refused.\n\nArgs:\n    pitch_id (UUID): The pitch.\n    body (PitchActionRequest): Acting party and ``expected_version``.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    PitchActionResponse: The pitch.",
+        "operationId": "withdraw_api_v1_pitches__pitch_id__withdraw_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pitch_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Pitch Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PitchActionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PitchActionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Withdraw a pitch",
         "tags": [
           "pitches"
         ]

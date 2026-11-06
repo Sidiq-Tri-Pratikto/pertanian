@@ -63,6 +63,7 @@ class Owner:
     brief_id: str = ""
     preflight_token: str = ""
     pitch_id: str = ""
+    revision_item_id: str = ""
 
 
 @dataclass
@@ -294,6 +295,35 @@ ROUTES: dict[tuple[str, str], Case] = {
     ),
     ("GET", "/api/v1/pitches"): Case("GET", lambda _o: "/api/v1/pitches?box=incoming"),
     ("GET", "/api/v1/pitches/{pitch_id}"): Case("GET", lambda o: f"/api/v1/pitches/{o.pitch_id}"),
+    **{
+        ("POST", f"/api/v1/pitches/{{pitch_id}}/{action}"): Case(
+            "POST",
+            lambda o, action=action: f"/api/v1/pitches/{o.pitch_id}/{action}",
+            lambda _o, actor, body=body: {"acting_party_id": actor, "expected_version": 2, **body},
+            {"Idempotency-Key": f"isolation-{action}"},
+        )
+        for action, body in {
+            "begin-review": {},
+            "decisions": {"submission": 1, "decision": "APPROVE"},
+            "revision-rounds": {
+                "submission": 1,
+                "items": [{"category": "x", "question": "x", "reason": "x", "required": False}],
+            },
+            "resubmit": {},
+            "withdraw": {},
+            "close": {"reason": "x"},
+        }.items()
+    },
+    ("PUT", "/api/v1/pitches/{pitch_id}/revision-items/{item_id}/answer"): Case(
+        "PUT",
+        lambda o: f"/api/v1/pitches/{o.pitch_id}/revision-items/{o.revision_item_id}/answer",
+        lambda _o, actor: {"acting_party_id": actor, "response": "CAN"},
+    ),
+    ("PUT", "/api/v1/pitches/{pitch_id}/revision-items/{item_id}/review"): Case(
+        "PUT",
+        lambda o: f"/api/v1/pitches/{o.pitch_id}/revision-items/{o.revision_item_id}/review",
+        lambda _o, actor: {"acting_party_id": actor, "expected_version": 1, "result": "ACCEPTED"},
+    ),
     # Unpublished, so even the public view must not reveal that it exists.
     ("GET", "/api/v1/inventions/{invention_id}/public"): Case(
         "GET", lambda o: f"/api/v1/inventions/{o.invention_id}/public"
@@ -313,27 +343,36 @@ async def _pitch_to_a_partner(
         await save_profile(partner, me["active_party_id"], PROFILES["A"]["content"])
         created = (await create_opportunity(partner, me["active_party_id"], OPPORTUNITIES["A3"]["content"])).json()
         await move_opportunity(partner, me["active_party_id"], created["id"], "activate", 1)
-    checked = (
-        await client.post(
-            "/api/v1/pitches/preflight",
-            json={
-                "acting_party_id": party,
-                "source_type": "SUPPORT_REQUEST",
-                "source_id": support_id,
-                "opportunity_id": created["id"],
-            },
+        checked = (
+            await client.post(
+                "/api/v1/pitches/preflight",
+                json={
+                    "acting_party_id": party,
+                    "source_type": "SUPPORT_REQUEST",
+                    "source_id": support_id,
+                    "opportunity_id": created["id"],
+                },
+            )
+        ).json()
+        pitch = await client.post(
+            "/api/v1/pitches",
+            json={"acting_party_id": party, "preflight_token": checked["token"], "brief": "Brief", "files": []},
+            headers={"Idempotency-Key": "pitch"},
         )
-    ).json()
-    pitch = await client.post(
-        "/api/v1/pitches",
-        json={"acting_party_id": party, "preflight_token": checked["token"], "brief": "Brief", "files": []},
-        headers={"Idempotency-Key": "pitch"},
-    )
-    assert pitch.status_code == 201, pitch.text
+        assert pitch.status_code == 201, pitch.text
+        item = {"category": "Anggaran", "question": "Berapa?", "reason": "Perlu.", "required": True}
+        opened = await partner.post(
+            f"/api/v1/pitches/{pitch.json()['pitch_id']}/revision-rounds",
+            json={"acting_party_id": me["active_party_id"], "expected_version": 1, "submission": 1, "items": [item]},
+            headers={"Idempotency-Key": "round"},
+        )
+        assert opened.status_code == 201, opened.text
+    read = (await client.get(f"/api/v1/pitches/{pitch.json()['pitch_id']}")).json()
     return {
         "brief_id": checked["brief"]["id"],
         "preflight_token": checked["token"],
         "pitch_id": pitch.json()["pitch_id"],
+        "revision_item_id": read["rounds"][0]["items"][0]["id"],
     }
 
 

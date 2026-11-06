@@ -12,7 +12,7 @@ type TextFieldProps = {
   required?: boolean;
   error?: ReactNode;
   errorCode?: string;
-  type?: 'text' | 'email' | 'decimal';
+  type?: 'text' | 'email' | 'decimal' | 'date';
   id?: string;
   name?: string;
   autoComplete?: string;

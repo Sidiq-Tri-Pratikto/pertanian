@@ -13,13 +13,17 @@ type ChoiceGroupProps = {
   hint?: string;
   required?: boolean;
   error?: string;
+  /** Controlled mode: the chosen value and its change handler. */
+  value?: string;
+  onChange?: (value: string) => void;
 };
 
 /**
- * Port of TR.ChoiceGroup for uncontrolled forms, so a server action receives the value without JavaScript.
+ * Port of TR.ChoiceGroup. Uncontrolled by default, so a server action receives the value without JavaScript; pass
+ * `value` and `onChange` to control it.
  * Selection styling comes from `:has(:checked)` in `src/design/app.css`, which mirrors `.is-selected`.
  */
-export function ChoiceGroup({ legend, name, options, defaultValue, hint, required, error }: ChoiceGroupProps) {
+export function ChoiceGroup({ legend, name, options, defaultValue, hint, required, error, value, onChange }: ChoiceGroupProps) {
   const hintId = `${name}-hint`;
   const errorId = `${name}-error`;
   const describedBy = [hint ? hintId : null, error ? errorId : null].filter(Boolean).join(' ') || undefined;
@@ -40,7 +44,14 @@ export function ChoiceGroup({ legend, name, options, defaultValue, hint, require
           const id = `${name}-${option.value}`;
           return (
             <label key={option.value} htmlFor={id} className="tr-choice">
-              <input type="radio" id={id} name={name} value={option.value} defaultChecked={option.value === defaultValue} required={required} />
+              <input
+                type="radio"
+                id={id}
+                name={name}
+                value={option.value}
+                required={required}
+                {...(onChange ? { checked: option.value === value, onChange: () => onChange(option.value) } : { defaultChecked: option.value === defaultValue })}
+              />
               <span className="tr-choice__body">
                 <span className="tr-sys-type-label">{option.label}</span>
                 {option.hint ? <span className="tr-choice__hint tr-sys-type-support">{option.hint}</span> : null}

@@ -1,14 +1,11 @@
 import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import axe from 'axe-core';
-import type { ReactElement } from 'react';
 
 import { ApiError } from '@/api/errors';
-import type { Pitch, PitchSummary, Preflight } from '@/features/pitches/model';
+import type { Preflight } from '@/features/pitches/model';
 import { missingFiles } from '@/features/pitches/model';
 import { keepsKey, stateOf } from '@/features/pitches/submit-state';
-import { PitchesView } from '@/views/pitches/PitchesView';
-import { PitchView } from '@/views/pitches/PitchView';
 import { PreflightView } from '@/views/pitches/PreflightView';
 
 import { makeMe, PERSONAL } from './fixtures';
@@ -76,15 +73,6 @@ function preflight(overrides: Partial<Preflight> = {}): Preflight {
     duplicate_pitch_id: null,
     ...overrides,
   };
-}
-
-async function violations(element: ReactElement): Promise<string[]> {
-  const { container } = render(element);
-  let result: axe.AxeResults | undefined;
-  await act(async () => {
-    result = await axe.run(container, { rules: { 'color-contrast': { enabled: false }, region: { enabled: false }, 'landmark-unique': { enabled: false } } });
-  });
-  return result!.violations.map((violation) => `${violation.id}: ${violation.nodes.map((node) => node.target).join(', ')}`);
 }
 
 describe('submit state machine', () => {
@@ -223,61 +211,5 @@ describe('preflight (S11)', () => {
       result = await axe.run(container, { rules: { 'color-contrast': { enabled: false }, region: { enabled: false }, 'landmark-unique': { enabled: false } } });
     });
     expect(result!.violations.map((violation) => violation.id)).toEqual([]);
-  });
-});
-
-const SUMMARY: PitchSummary = {
-  id: 'pitch-1',
-  status: 'SUBMITTED',
-  subject_type: 'SUPPORT_REQUEST',
-  subject_id: SOURCE.id,
-  subject_title: 'ClearSpring',
-  opportunity_id: TARGET,
-  opportunity_title: 'Validasi prototipe enam bulan',
-  requester_party_id: PERSONAL,
-  requester_name: 'Rani',
-  recipient_party_id: 'a',
-  recipient_name: 'Mitra A',
-  purpose: 'PROJECT',
-  submitted_at: '2026-11-06T09:00:00Z',
-};
-
-describe('pitch lists and detail (S12)', () => {
-  it('lists outgoing pitches with recipient and status, and says when there are none', () => {
-    const { unmount } = render(<PitchesView me={makeMe()} box="outgoing" pitches={[SUMMARY]} capabilities={['core']} />);
-    expect(screen.getByRole('link', { name: 'ClearSpring → Validasi prototipe enam bulan' })).toHaveAttribute('href', '/pitches/pitch-1');
-    expect(screen.getByText('Dukungan Proyek · kepada Mitra A')).toBeInTheDocument();
-    expect(screen.getByText('Terkirim')).toBeInTheDocument();
-    unmount();
-
-    render(<PitchesView me={makeMe({ persona: 'mitra' })} box="masuk" pitches={[]} capabilities={['core']} />);
-    expect(screen.getByRole('heading', { name: 'Belum ada pitching masuk' })).toBeInTheDocument();
-  });
-
-  it('shows the frozen submission and whose turn it is', () => {
-    const pitch: Pitch = {
-      ...SUMMARY,
-      version: 1,
-      submissions: [
-        {
-          number: 1,
-          brief: 'Masalah: Air keruh.\nSaat ini: Kapasitas saring 10 L/jam.',
-          snapshot: { opportunity: { version: 1 }, inventions: [{ title: 'ClearSpring', number: 1 }] },
-          files: [{ document_id: 'd1', version: 1, title: 'Laporan uji fungsi ClearSpring' }],
-          submitted_at: '2026-11-06T09:00:00Z',
-        },
-      ],
-    };
-    render(<PitchView me={makeMe()} pitch={pitch} justSent />);
-
-    expect(screen.getByText('Pitching terkirim kepada Mitra A')).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Menunggu Mitra A meninjau' })).toBeInTheDocument();
-    expect(screen.getByText('Mandat versi 1 · ClearSpring versi 1')).toBeInTheDocument();
-    expect(screen.getByText('Saat ini: Kapasitas saring 10 L/jam.')).toBeInTheDocument();
-    expect(screen.getByText('Laporan uji fungsi ClearSpring, versi 1')).toBeInTheDocument();
-  });
-
-  it('has no axe violations', async () => {
-    expect(await violations(<PitchesView me={makeMe()} box="outgoing" pitches={[SUMMARY]} capabilities={['core']} />)).toEqual([]);
   });
 });

@@ -196,7 +196,8 @@ export const FEATURES: Feature[] = [
     ],
     screens: ['S12', 'S13'],
     specs: ['025', '026'],
-    status: 'coming_soon',
+    status: 'available',
+    home: '/pitches',
   },
   {
     id: 'diskusi',
