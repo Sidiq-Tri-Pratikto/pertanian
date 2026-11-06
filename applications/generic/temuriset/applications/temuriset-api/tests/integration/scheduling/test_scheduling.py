@@ -7,7 +7,7 @@ from typing import Any
 import pytest
 from sqlalchemy import func, select, text
 from sqlalchemy.dialects.postgresql import Range
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import DBAPIError
 
 from app.core import clock
 from app.core.database import get_session_factory
@@ -130,7 +130,7 @@ async def test_two_overlapping_bookings_of_one_party_race_and_one_commits(world:
     - Two transactions book overlapping hours for one party at the same moment (AC50, FR-001).
 
     Expected:
-    - The exclusion constraint lets exactly one commit; the other fails with an integrity error.
+    - Exactly one booking is stored; the other transaction hits an exclusion violation or a deadlock.
     """
     party = world.recipients.parties["A"]
 
@@ -141,14 +141,18 @@ async def test_two_overlapping_bookings_of_one_party_race_and_one_commits(world:
                 await session.flush()
                 await asyncio.sleep(0.2)
             return "committed"
-        except IntegrityError:
-            return "conflict"
+        except DBAPIError as error:
+            # Concurrent GiST exclusion checks can deadlock instead of reporting an exclusion violation.
+            if getattr(error.orig, "sqlstate", None) in {"23P01", "40P01"}:
+                return "conflict"
+            raise
 
     results = await asyncio.gather(
         book("2026-11-04T09:00:00Z", "2026-11-04T10:00:00Z"), book("2026-11-04T09:30:00Z", "2026-11-04T10:30:00Z")
     )
 
     assert sorted(results) == ["committed", "conflict"]
+    assert [booked_party for booked_party, _ in await _bookings()] == [party]
 
 
 async def test_a_replacement_keeps_the_old_meeting_until_it_is_accepted(world: World) -> None:
