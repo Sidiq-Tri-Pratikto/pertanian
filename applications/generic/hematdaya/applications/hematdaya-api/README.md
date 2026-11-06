@@ -30,6 +30,7 @@ make check             # lint, format check, all tests, 80% coverage gate
 | `tests/unit/capabilities/` | Manifest and composition | Nothing |
 | `tests/unit/core/` | Errors, database session, OpenAPI document, no actuation routes | Nothing |
 | `tests/unit/health/` | Liveness and readiness | Nothing |
+| `tests/unit/imports/` | CSV parser | Nothing |
 | `tests/integration/` | Real requests against Postgres after migrations | Postgres |
 
 Run one test with `uv run pytest tests/unit/health/test_health.py -v`, or match by name with `uv run pytest tests -k capabilities`. `make test-coverage` also writes an HTML report to `htmlcov/index.html`.
