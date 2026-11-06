@@ -2,9 +2,10 @@
 
 Spec 039 covers standard API reads, discovery and matching. The M7 baseline had
 demo fixtures, but no isolated 1,000/100/20 workload or comparable latency
-record. The integrated benchmark also includes the M10/M11 code and deployment
-contracts from [037](../../specs/037-deploy-release/spec.md). See the
-[deployment runbook](../../../../../deployment/temuriset/RUNBOOK.md) for the
+record. The benchmark report records the synchronized M11 source alongside the
+initial local baseline. Deployment contracts are in
+[037](../../../specs/037-deploy-release/spec.md). See the
+[deployment runbook](../../../../../../deployment/temuriset/RUNBOOK.md) for the
 supported Linux Compose topology.
 
 ## Target and credentials
@@ -23,16 +24,17 @@ and leaves the HTTP demo account allowlist alone.
 
 Use an owner-only directory outside the source tree for the handoff. The generator
 creates the file exclusively with mode 0600. The runner verifies its origin,
-account set and per-session API identity. Never commit or upload the handoff.
+account set, cookie format and per-session API identity. The CLI reports HTTP
+failures without request credentials. Keep the handoff out of commits and uploads.
 Destroy it and the disposable database after the run. Each complete run archives
 one fixture after timing, so start each repetition on a fresh database.
 
 ## Run locally
 
 From the API directory with its locked development dependencies installed,
-create a database, then run the following in an exported environment inherited
-by the API, worker and benchmark processes. Use a separate database, port and
-private directory for each run.
+create a fresh disposable PostgreSQL instance and database, then run the
+following in an exported environment inherited by the API, worker and benchmark
+processes. Use a separate database, port and private directory for each run.
 
 ```sh
 export DATABASE_URL=postgresql+asyncpg://postgres@127.0.0.1:55419/temuriset_benchmark
@@ -46,7 +48,7 @@ export STORAGE_PATH="$private_dir/storage"
 uv run alembic upgrade head
 
 # Separate processes with the same environment.
-uv run uvicorn app.main:app --host 127.0.0.1 --port 8040 --no-access-log
+uv run uvicorn app.main:app --host 127.0.0.1 --port 8040 --workers 1 --no-access-log
 uv run python -m app.worker
 
 # From a third terminal with the same environment.
@@ -77,9 +79,11 @@ application response cache. Discovery omits the active party’s own listings. T
 The runner reports actual phase wall time, per-endpoint attempted and successful
 counts, timeouts, other transport failures, HTTP status counts, invalid payloads
 and nearest-rank p95 in milliseconds among successful requests (rank
-`ceil(0.95 × n)`). A phase needs a successful sample at each requested endpoint.
-Treat HTTP or payload failures as workload failures even when a latency statistic
-can be calculated. Compare standard reads with 500 ms and discovery with 2,000 ms.
+`ceil(0.95 × n)`). First-pass and warmed phases need a successful sample at each
+requested endpoint and compare p95 against 500 ms for standard reads and 2,000 ms
+for discovery. Warmup reports p95 when successful samples are available, and only
+request and payload failures affect its pass status. Those failures also count in
+the measured phases.
 
 A fresh idempotent match request from an inventor evaluates opportunities owned
 by other parties. The elapsed time covers the HTTP request through response body
@@ -93,4 +97,4 @@ The result JSON includes UTC time, dataset, phases, matching, visibility and the
 runtime capability manifest. Record release commit, Alembic head, hardware, OS,
 runtime versions, network topology and cache conditions alongside the result.
 Keep the local and staging results in separate rows in
-[the benchmark report](../../docs/roadmap/benchmarks.md).
+[the benchmark report](../../../docs/roadmap/benchmarks.md).

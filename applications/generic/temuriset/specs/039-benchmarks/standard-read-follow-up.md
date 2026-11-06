@@ -2,10 +2,12 @@
 
 **Status** Planned
 
-The [local 039 benchmark](../../docs/roadmap/benchmarks.md) measured warmed p95
+The initial local 039 benchmark measured warmed p95
 of 651.002 ms for account, 1,887.819 ms for invention list and 541.428 ms for
 owned detail against a 500 ms target at 20 concurrent users. The first-pass list
-also exceeded 500 ms. Treat the local measurements as the starting evidence.
+also exceeded 500 ms. A synchronized rerun on a dedicated PostgreSQL instance
+met all first-pass and warmed targets. Keep both runs as starting evidence and
+use paired repetitions to assess consistency. [Benchmark report](../../docs/roadmap/benchmarks.md)
 
 ## Scope
 
