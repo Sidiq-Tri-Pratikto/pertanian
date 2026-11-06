@@ -2,7 +2,7 @@
 
 **Feature Branch**: `041-usability-kit`
 **Created**: 2026-11-05
-**Status**: Seeded, not started
+**Status**: Kit ready after a synthetic facilitator walkthrough. Participant recruitment and results remain open.
 **Milestone**: M11 Portability and operations
 **Depends on**: 040
 **Size**: S
