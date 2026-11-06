@@ -2,12 +2,13 @@
 
 - **Feature branch** `043-calendar-adapter`
 - **Created** 2026-11-05
-- **Status** Local readiness planned. External connection and activation remain gated.
+- **Status** Local readiness verified with a synthetic provider. External activation requires provider approval and staging evidence.
 - **Milestone** M12 Gated adapters
 
 **Depends on**: 028, 042
 
 **Covers**: FR17, AC68
+
 - **Flips after provider approval** Manifest adapter `calendar` and web registry `kalender` become available for an approved deployment.
 
 - **Entry condition for external use.** A contracted calendar provider and approved consent wording for reading free and busy times. Local readiness uses an opt-in, development-only loopback provider double and synthetic calendars. The release profile keeps the adapter off.
