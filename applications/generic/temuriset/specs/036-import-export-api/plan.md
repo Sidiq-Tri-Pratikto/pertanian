@@ -11,7 +11,7 @@ applications/temuriset-api/
 │   ├── model/schema.py
 │   ├── service/{schema_v1.json,imports.py,exports.py,jobs.py}
 │   └── repository/sqlalchemy/{models,repository}.py
-└── migrations/versions/<next revision>_portability.py
+└── migrations/versions/0019_portability.py
 applications/temuriset-web/
 ├── src/app/inventions/import/page.tsx
 ├── src/features/portability/api.ts

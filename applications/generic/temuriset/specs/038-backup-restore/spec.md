@@ -2,7 +2,7 @@
 
 **Feature Branch**: `038-backup-restore`
 **Created**: 2026-11-05
-**Status**: Final integrated local Compose recovery and stacked PR-base compatibility passed at Alembic 0015. The earlier M7-to-0014 comparison remains blocked by the old erasure worker. Actual staging and trusted previous-release evidence remain open.
+**Status**: The `0018 → 0019` PR-base comparison on `main` passed. The historical Compose recovery covers `0015`. The older `0013 → 0014` comparison failed on the erasure schema change and the old worker stranded an erasure job. Actual staging and trusted previous-release evidence remain open.
 **Milestone**: M11 Portability and operations
 **Depends on**: 037
 **Size**: M

@@ -2,7 +2,7 @@
 
 **Feature Branch**: `037-deploy-release`
 **Created**: 2026-11-05
-**Status**: Final integrated local smoke passed at Alembic 0015 on all three compositions, with both ARM64 image scans passing. Actual staging, protected publication and rollout acceptance remain open.
+**Status**: The historical Alembic `0015` build passed local smoke on all three compositions and both ARM64 image scans. The `0019` branch passes the local PR-base compatibility check. Actual staging, protected publication and rollout acceptance remain open.
 **Milestone**: M11 Portability and operations
 **Depends on**: 003, 005
 **Size**: L

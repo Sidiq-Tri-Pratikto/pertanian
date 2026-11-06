@@ -20,7 +20,7 @@ Use the binding 037 architecture: Compose on Linux, operator-provided domain and
 
 ## Test Plan
 
-Repeat API/web checks, image builds and scans, migration idempotence, manifest validation and synthetic Compose smoke against the integrated source. Preserve earlier runs with their original build identifiers. Map staging coverage to the real M7 journey tests and require actual 003/J01–J05 results on the approved HTTPS origin. Capture Editor Play and supported exports in independent prototype records.
+Repeat API/web checks, image builds and scans, migration idempotence, manifest validation and synthetic Compose smoke against the integrated source. Preserve earlier runs with their original build identifiers. Map staging coverage to the named journey tests and require actual 003/J01–J05 results on the approved HTTPS origin. Capture Editor Play and supported exports in independent prototype records.
 
 ## Task Outline
 
