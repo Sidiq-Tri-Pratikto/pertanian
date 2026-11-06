@@ -19,6 +19,7 @@ export const ROUTES: Route[] = [
   { path: '/start?masuk=1', persona: null, primary: 'Kirim kode' },
   { path: '/home', persona: 'inovator' },
   { path: '/inventions', persona: 'inovator' },
+  { path: '/inventions/import', persona: 'inovator' },
   { path: '/discover', persona: 'inovator' },
   { path: '/pitches', persona: 'inovator' },
   { path: '/pitches/00000000-0000-4000-8000-000000000000', persona: 'inovator' },

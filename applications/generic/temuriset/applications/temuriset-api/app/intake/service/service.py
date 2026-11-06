@@ -366,6 +366,10 @@ class IntakeService:
             actor_party_id=principal.active_party_id if principal else None,
         )
 
+    def validate_directory_profile(self, content: PartnerProfileContent) -> None:
+        """Check source-profile fields against intake rules before preview."""
+        self._profile_columns(content)
+
     async def record_directory_profile(self, party_id: UUID, content: PartnerProfileContent) -> PartnerProfileResponse:
         """Record what a source reports about a party. Service only: nobody may claim a source through the API (D6).
 

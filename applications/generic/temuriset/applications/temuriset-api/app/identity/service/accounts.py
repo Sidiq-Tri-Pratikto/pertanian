@@ -39,3 +39,8 @@ async def display_names(session: AsyncSession, account_ids: list[UUID]) -> dict[
         if account is not None:
             names[account_id] = account.display_name
     return names
+
+
+async def account_is_active(session: AsyncSession, account_id: UUID) -> bool:
+    """Recheck a recorded requester without depending on a browser session."""
+    return await SqlAlchemyIdentityRepository(session).is_account_active(account_id)

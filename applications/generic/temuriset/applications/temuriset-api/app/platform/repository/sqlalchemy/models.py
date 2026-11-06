@@ -22,6 +22,7 @@ class IdempotencyRecord(MutableRow, Base):
     )
 
     actor_party_id: Mapped[UUID]
+    owner_account_id: Mapped[UUID | None]
     operation: Mapped[str] = mapped_column(String(128))
     # Released (set to NULL) when an expired key is reused, so the old operation stays readable.
     key: Mapped[str | None] = mapped_column(String(128))

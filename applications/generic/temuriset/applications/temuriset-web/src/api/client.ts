@@ -10,10 +10,11 @@ type JsonOf<Path extends keyof paths> = paths[Path] extends {
   ? Body
   : never;
 
-export async function getResponse(path: string): Promise<Response> {
+/** Make one bounded same-origin request and normalize the registered failure envelope. */
+export async function getResponse(path: string, options?: RequestInit): Promise<Response> {
   let response: Response;
   try {
-    response = await fetch(String(path), { signal: AbortSignal.timeout(TIMEOUT_MS), cache: 'no-store' });
+    response = await fetch(path, { ...options, signal: AbortSignal.timeout(TIMEOUT_MS), cache: 'no-store' });
   } catch {
     throw ApiError.unreachable();
   }
@@ -42,21 +43,11 @@ type SendOptions = {
 export async function send<Body>(method: 'POST' | 'PUT' | 'PATCH' | 'DELETE', path: string, body?: unknown, options: SendOptions = {}): Promise<Body> {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
   if (options.idempotencyKey) headers['Idempotency-Key'] = options.idempotencyKey;
-  let response: Response;
-  try {
-    response = await fetch(path, {
-      method,
-      headers,
-      body: body === undefined ? undefined : JSON.stringify(body),
-      signal: AbortSignal.timeout(TIMEOUT_MS),
-      cache: 'no-store',
-    });
-  } catch {
-    throw ApiError.unreachable();
-  }
-  if (!response.ok) {
-    throw await readFailure(response);
-  }
+  const response = await getResponse(path, {
+    method,
+    headers,
+    body: body === undefined ? undefined : JSON.stringify(body),
+  });
   return (response.status === 204 ? undefined : await response.json()) as Body;
 }
 

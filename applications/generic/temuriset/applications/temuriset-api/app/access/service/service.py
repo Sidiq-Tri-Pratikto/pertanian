@@ -81,14 +81,22 @@ async def capabilities_for(session: AsyncSession, account_id: UUID, party_id: UU
         frozenset[str] | None: Every capability for its personal party, the membership's capabilities for an
             organization it belongs to, or None when it may not act as that party.
     """
+    access = await party_access_for(session, account_id, party_id)
+    return access[0] if access is not None else None
+
+
+async def party_access_for(
+    session: AsyncSession, account_id: UUID, party_id: UUID
+) -> tuple[frozenset[str], UUID | None] | None:
+    """Return live capabilities and the membership identity, or None if the account lost access."""
     repository = SqlAlchemyAccessRepository(session)
     if party_id == await repository.personal_party_id(account_id):
-        return ALL_CAPABILITIES
+        return ALL_CAPABILITIES, None
     organization_id = await repository.organization_of_party(party_id)
     if organization_id is None:
         return None
     membership = await repository.active_membership(organization_id, account_id)
-    return frozenset(membership.capabilities) if membership is not None else None
+    return (frozenset(membership.capabilities), membership.id) if membership is not None else None
 
 
 async def memberships_for(session: AsyncSession, account_id: UUID) -> list[MembershipResponse]:

@@ -32,6 +32,7 @@ export function InventionsView({ me, inventions }: { me: Me; inventions: Inventi
       subtitle="Profil inovasi yang Anda kelola. Draf hanya terlihat oleh Anda."
       provenance={PROVENANCE}
       context={<ContextBar me={me} />}>
+      <p><Link className="tr-link" href="/inventions/import">Impor dan ekspor data</Link></p>
       {inventions.length ? (
         <>
           <ul className="tr-stack">

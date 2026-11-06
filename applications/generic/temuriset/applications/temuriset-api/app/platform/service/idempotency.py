@@ -153,20 +153,41 @@ def idempotent(
     """
 
     async def begin(request: Request, session: SessionDep, actor_party_id: UUID = Depends(actor)) -> Idempotency:
-        key = request.headers.get(KEY_HEADER)
-        if not key or len(key) > _MAX_KEY_LENGTH:
-            raise IdempotencyKeyMissingError()
-        digest = request_digest(actor_party_id, operation, request.url.path, await request.body())
-        repository = SqlAlchemyPlatformRepository(session)
-        claim = {"actor_party_id": actor_party_id, "operation": operation, "key": key, "request_sha256": digest}
-        record = await repository.claim_idempotency_key(**claim, expires_at=clock.now() + RETENTION)
-        if record.status == "committed" and record.expires_at <= clock.now():
-            await repository.release_idempotency_key(record.operation_id)
-            record = await repository.claim_idempotency_key(**claim, expires_at=clock.now() + RETENTION)
-        if record.request_sha256 != digest:
-            raise IdempotencyConflictError()
-        if record.status == "committed" and record.response_status is not None:
-            raise IdempotentReplay(record.response_status, record.response_body or {})
-        return Idempotency(record.operation_id, repository)
+        return await claim_operation(request, session, actor_party_id, operation, await request.body())
 
     return Depends(begin)
+
+
+async def claim_operation(
+    request: Request,
+    session: SessionDep,
+    actor_party_id: UUID,
+    operation: str,
+    canonical_body: bytes,
+    *,
+    owner_account_id: UUID | None = None,
+) -> Idempotency:
+    """Claim a shared or account-private operation, accepting a precomputed body digest input."""
+    key = request.headers.get(KEY_HEADER)
+    if not key or len(key) > _MAX_KEY_LENGTH:
+        raise IdempotencyKeyMissingError()
+    if owner_account_id is not None:
+        key = hashlib.sha256(f"{owner_account_id}:{key}".encode()).hexdigest()
+    digest = request_digest(actor_party_id, operation, request.url.path, canonical_body)
+    repository = SqlAlchemyPlatformRepository(session)
+    claim = {
+        "actor_party_id": actor_party_id,
+        "operation": operation,
+        "key": key,
+        "request_sha256": digest,
+        "owner_account_id": owner_account_id,
+    }
+    record = await repository.claim_idempotency_key(**claim, expires_at=clock.now() + RETENTION)
+    if record.status == "committed" and record.expires_at <= clock.now():
+        await repository.release_idempotency_key(record.operation_id)
+        record = await repository.claim_idempotency_key(**claim, expires_at=clock.now() + RETENTION)
+    if record.request_sha256 != digest:
+        raise IdempotencyConflictError()
+    if record.status == "committed" and record.response_status is not None:
+        raise IdempotentReplay(record.response_status, record.response_body or {})
+    return Idempotency(record.operation_id, repository)
