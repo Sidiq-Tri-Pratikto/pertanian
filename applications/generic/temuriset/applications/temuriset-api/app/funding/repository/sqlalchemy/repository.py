@@ -98,6 +98,12 @@ class SqlAlchemyFundingRepository:
         query = select(FundingInventionLinkRecord).where(FundingInventionLinkRecord.funding_request_id == request_id)
         return list(await self.session.scalars(query.order_by(FundingInventionLinkRecord.position)))
 
+    async def linked_requests(self, invention_id: UUID) -> list[UUID]:
+        """Find requests whose current projection may contain the invention."""
+        links = FundingInventionLinkRecord
+        statement = select(links.funding_request_id).where(links.invention_id == invention_id)
+        return list(await self.session.scalars(statement.order_by(links.funding_request_id)))
+
     async def replace_links(self, request_id: UUID, links: list[tuple[UUID, UUID]]) -> None:
         """Replace the current links.
 

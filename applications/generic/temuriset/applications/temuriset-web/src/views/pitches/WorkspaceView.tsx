@@ -15,6 +15,7 @@ import { PitchActions } from '@/features/pitches/PitchActions';
 import { RevisionPanel, type OwnFile } from '@/features/pitches/RevisionPanel';
 import { turnOf, type TabId } from '@/features/pitches/workspace';
 import { WorkspaceTabs } from '@/features/pitches/WorkspaceTabs';
+import { reportHref } from '@/features/privacy/model';
 import { PROVENANCE } from '@/views/parts';
 
 type Submission = Pitch['submissions'][number];
@@ -144,6 +145,7 @@ export function WorkspaceView({ me, pitch, tab, files, justSent }: Props) {
       ) : null}
       <PitchActions pitch={pitch} actingPartyId={me.active_party_id} />
       <WorkspaceTabs pitchId={pitch.id} value={tab} panels={panels} />
+      <p><NextLink className="tr-link" href={reportHref('PITCH', pitch.id)}>Laporkan</NextLink></p>
     </Screen>
   );
 }

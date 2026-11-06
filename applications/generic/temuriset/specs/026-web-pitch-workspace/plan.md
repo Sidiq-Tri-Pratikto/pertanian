@@ -36,4 +36,4 @@ Discussion and schedule tabs (029).
 
 ### Reporting integration
 
-When the authorized workspace is available, link **Laporkan** to the shared settings report form with `reportHref("PITCH", pitchId)`. Pass only the subject type and opaque ID. The 035 browser acceptance case must start in the workspace and submit a prefilled report.
+The authorized workspace links **Laporkan** to the shared settings report form with `reportHref("PITCH", pitchId)`. The link passes the subject type and opaque ID. The 035 browser case starts in a real workspace, submits the prefilled report, and checks the unrelated-account view.

@@ -60,6 +60,12 @@ class SqlAlchemyDiscoveryRepository:
         """
         self.session = session
 
+    async def lock_updates(self, *, exclusive: bool = False) -> None:
+        """Let moderation replace the projection between worker writes, never during a stale rebuild."""
+        key = func.hashtextextended("temuriset.discovery", 0)
+        lock = func.pg_advisory_xact_lock if exclusive else func.pg_advisory_xact_lock_shared
+        await self.session.execute(select(lock(key)))
+
     async def upsert(
         self,
         *,
@@ -138,6 +144,15 @@ class SqlAlchemyDiscoveryRepository:
                 SearchDocumentRecord.subject_type == subject_type, SearchDocumentRecord.subject_id == subject_id
             )
         )
+
+    async def raises_showing(self, invention_id: UUID) -> list[UUID]:
+        """Find cards still showing an invention even when the live funding link has changed."""
+        row = SearchDocumentRecord
+        statement = select(row.subject_id).where(
+            row.subject_type == "FUNDING_REQUEST",
+            row.card["inventions"].contains([{"invention_id": str(invention_id)}]),
+        )
+        return list(await self.session.scalars(statement))
 
     async def owned(self, subject_type: str, party_id: UUID) -> list[SearchDocumentRecord]:
         """List a party's own rows of one type, for its stated preferences.
@@ -270,7 +285,15 @@ class SqlAlchemyDiscoveryRepository:
             set[tuple[str, UUID]]: Subject type and id pairs.
         """
         rows = await self.session.execute(
-            select(model.subject_type, model.subject_id).where(model.party_id == party_id)  # type: ignore[attr-defined]
+            select(model.subject_type, model.subject_id)
+            .join(
+                SearchDocumentRecord,
+                and_(
+                    model.subject_type == SearchDocumentRecord.subject_type,
+                    model.subject_id == SearchDocumentRecord.subject_id,
+                ),
+            )
+            .where(model.party_id == party_id)  # type: ignore[attr-defined]
         )
         return {(subject_type, subject_id) for subject_type, subject_id in rows}
 

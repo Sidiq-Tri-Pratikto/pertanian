@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 
-import { expect, makePartnerProfile, signUp, test, WEB_ORIGIN } from './fixtures';
+import { expect, makePartnerProfile, signUp, submitTestPitch, test, uniqueEmail, WEB_ORIGIN } from './fixtures';
 
 test('reports a partner privately, then reads the case again', async ({ page, browser }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium-1280', 'This journey runs at one width.');
@@ -24,6 +24,38 @@ test('reports a partner privately, then reads the case again', async ({ page, br
     await expect(report.getByRole('listitem')).toContainText(/TR-\d+ · Diterima/);
   } finally {
     await partner.close();
+  }
+});
+
+test('reports a real pitch from its authorized room', async ({ page, browser }, testInfo) => {
+  test.skip(testInfo.project.name !== 'chromium-1280', 'This journey runs at one width.');
+  const partner = await browser.newContext({ baseURL: WEB_ORIGIN });
+  const outsider = await browser.newContext({ baseURL: WEB_ORIGIN });
+  const title = `Mandat Rahasia ${uniqueEmail('report').split('@')[0]}`;
+  const reason = 'Mohon tinjau isi pitching ini.';
+  try {
+    const { pitchId } = await submitTestPitch(page, await partner.newPage(), title, 'Mitra Laporan');
+    await page.goto(`/pitches/${pitchId}`);
+    await expect(page.getByRole('heading', { level: 1 })).toContainText(title);
+    await page.getByRole('link', { name: 'Laporkan', exact: true }).click();
+    await expect(page).toHaveURL(new RegExp(`lapor=PITCH&objek=${pitchId}#laporkan$`));
+    const report = page.getByRole('region', { name: 'Laporkan masalah' });
+    await expect(report.getByText('Pitch', { exact: true })).toBeVisible();
+    await report.getByRole('textbox', { name: /Alasan laporan/ }).fill(reason);
+    await report.getByRole('button', { name: 'Kirim laporan' }).click();
+    await expect(report.getByRole('status')).toContainText(/Laporan TR-\d+ diterima/);
+    expect(decodeURIComponent(page.url())).not.toContain(title);
+    expect(decodeURIComponent(page.url())).not.toContain(reason);
+
+    const unrelated = await outsider.newPage();
+    await signUp(unrelated, 'inovator');
+    await unrelated.goto(`/pitches/${pitchId}`);
+    await expect(unrelated.getByRole('heading', { name: 'Anda belum memiliki akses', exact: true })).toBeVisible();
+    await expect(unrelated.getByRole('link', { name: 'Laporkan', exact: true })).toHaveCount(0);
+    await expect(unrelated.getByText(title, { exact: false })).toHaveCount(0);
+  } finally {
+    await partner.close();
+    await outsider.close();
   }
 });
 

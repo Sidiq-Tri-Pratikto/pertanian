@@ -200,6 +200,7 @@ describe('a signed-in inventor', () => {
 
   it('sends a shipped feature to its screen and says so for an unknown one', async () => {
     expect(await redirectOf(() => ComingSoon.default({ params: Promise.resolve({ feature: 'akun' }) }))).toBe('/settings');
+    expect(await redirectOf(() => ComingSoon.default({ params: Promise.resolve({ feature: 'privasi-laporan' }) }))).toBe('/settings#laporkan');
 
     render((await ComingSoon.default({ params: Promise.resolve({ feature: 'escrow' }) })) as ReactElement);
     expect(screen.getByRole('heading', { level: 1, name: 'Fitur tidak dikenal' })).toBeInTheDocument();
@@ -213,6 +214,7 @@ describe('a signed-in inventor', () => {
     expect(screen.getByText(/Organisasi tidak wajib/)).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Rencana fitur' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Laporkan masalah' })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /Lihat rencana Privasi dan laporan/ })).toBeNull();
     expect(screen.getByRole('heading', { name: 'Permintaan privasi' })).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: /Anggota/ })).toBeNull();
     expect(screen.getByRole('button', { name: 'Keluar' })).toBeInTheDocument();

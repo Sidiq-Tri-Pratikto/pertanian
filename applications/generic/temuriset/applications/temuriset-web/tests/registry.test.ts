@@ -18,7 +18,8 @@ describe('feature registry', () => {
   });
 
   it('marks available only what has shipped', () => {
-    expect(FEATURES.filter((feature) => feature.status !== 'coming_soon').map((feature) => feature.id)).toEqual(['akun', 'inovasi', 'dokumen', 'dukungan-proyek', 'pendanaan-perusahaan', 'profil-mitra', 'mandat', 'jelajahi', 'kecocokan', 'data-demo', 'pemeriksaan-pitching', 'pitching', 'keputusan-revisi']);
+    expect(FEATURES.filter((feature) => feature.status !== 'coming_soon').map((feature) => feature.id)).toEqual(['akun', 'inovasi', 'dokumen', 'dukungan-proyek', 'pendanaan-perusahaan', 'profil-mitra', 'mandat', 'jelajahi', 'kecocokan', 'data-demo', 'pemeriksaan-pitching', 'pitching', 'keputusan-revisi', 'privasi-laporan']);
+    expect(findFeature('privasi-laporan')?.home).toBe('/settings#laporkan');
   });
 
   it('keeps spec numbers out of product copy', () => {

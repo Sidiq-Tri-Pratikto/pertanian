@@ -6,15 +6,18 @@ from datetime import timedelta
 from uuid import UUID
 
 import pytest
+from httpx import AsyncClient
 from sqlalchemy import func, select, text
 
 from app.core import clock
 from app.core.database import get_session_factory
 from app.pitches.repository.sqlalchemy.models import PitchRecord
 from tests.factories.inventors import F01_BUDGET, SUPPORT_REQUESTS
+from tests.factories.moderation import grant_operator, suspend_listing
 from tests.factories.recipients import move_opportunity, save_opportunity
+from tests.integration.conftest import SignUp
 from tests.integration.matching.conftest import World
-from tests.integration.pitches.conftest import client_of, preflight, submit
+from tests.integration.pitches.conftest import act, client_of, preflight, reread, submit, submitted
 
 pytestmark = [pytest.mark.integration, pytest.mark.usefixtures("clean_tables")]
 
@@ -319,3 +322,35 @@ async def test_only_the_two_sides_read_a_pitch(world: World) -> None:
 
     assert (await galih.get(f"/api/v1/pitches/{pitch['pitch_id']}")).status_code == 404
     assert (await galih.get("/api/v1/pitches", params={"box": "incoming"})).json() == []
+
+
+@pytest.mark.parametrize("kind", ["INVENTION", "OPPORTUNITY", "PARTNER_PROFILE"])
+async def test_suspension_blocks_an_existing_token_but_preserves_wind_down(
+    world: World, client: AsyncClient, sign_up: SignUp, kind: str
+) -> None:
+    """
+    Condition:
+    - A participant has a submitted pitch and a fresh preflight when its listing is suspended.
+
+    Expected:
+    - The fresh token sends nothing. The existing participants can read the frozen pitch and withdraw it.
+    """
+    original = await submitted(world)
+    checked = await preflight(world, "F01", "A1")
+    party = await grant_operator(client, sign_up)
+    subject = {
+        "INVENTION": world.inventors.inventions["F01"],
+        "OPPORTUNITY": world.opportunity("A1"),
+        "PARTNER_PROFILE": world.recipients.parties["A"],
+    }[kind]
+    await suspend_listing(client, party, kind, subject)
+    response = await submit(world, "F01", checked, key="token-before-suspension")
+    code = "LISTING_SUSPENDED" if kind == "INVENTION" else "NOT_FOUND"
+    assert response.json()["error"]["code"] == code, response.text
+    sender, _ = client_of(world, "F01")
+    recipient = world.recipients.clients["A"]
+    assert (await reread(recipient, original))["submissions"] == original["submissions"]
+    assert (await reread(sender, original))["submissions"] == original["submissions"]
+    withdrawal = await act(sender, original, "withdraw", "suspended-withdraw")
+    assert withdrawal.status_code == 200, withdrawal.text
+    assert await _pitch_count() == 1

@@ -9,6 +9,7 @@ from httpx import AsyncClient
 from app.core.database import get_session_factory
 from app.moderation.repository.sqlalchemy.models import OperatorGrantRecord
 from tests.integration.conftest import SignUp
+from tests.integration.discovery.test_discovery import discover, project
 
 pytestmark = [pytest.mark.integration, pytest.mark.usefixtures("clean_tables")]
 
@@ -42,6 +43,7 @@ async def test_suspension_hides_public_listing_and_lift_restores_it(
     assert request.status_code == 201, request.text
     draft = request.json()
     public_url = f"/api/v1/inventions/{invention_id}/public"
+    await project()
 
     async with new_client() as operator:
         actor = await sign_up(operator, "listing-operator@example.test")
@@ -49,6 +51,7 @@ async def test_suspension_hides_public_listing_and_lift_restores_it(
             session.add(OperatorGrantRecord(account_id=UUID(actor["account"]["id"]), scope="moderation"))
             await session.commit()
         assert (await operator.get(public_url)).status_code == 200
+        assert (await discover(operator))["total_estimate"] == 1
         case = await operator.post(
             "/api/v1/reports",
             json={
@@ -69,6 +72,7 @@ async def test_suspension_hides_public_listing_and_lift_restores_it(
         assert suspended.status_code == 200, suspended.text
         assert suspended.json()["suspended"]
         assert (await operator.get(public_url)).status_code == 404
+        assert (await discover(operator))["total_estimate"] == 0
         assert (await client.get(f"/api/v1/inventions/{invention_id}")).status_code == 200
         blocked = await client.post(
             "/api/v1/support-requests",
@@ -91,6 +95,7 @@ async def test_suspension_hides_public_listing_and_lift_restores_it(
         assert lifted.status_code == 200, lifted.text
         assert not lifted.json()["suspended"]
         assert (await operator.get(public_url)).status_code == 200
+        assert (await discover(operator))["total_estimate"] == 1
 
 
 async def test_suspended_mandate_is_hidden_and_owner_can_wind_down(

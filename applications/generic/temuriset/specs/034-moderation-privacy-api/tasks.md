@@ -78,18 +78,18 @@ The decisions below combine the carried implementation and the M7 integration wo
 
 ## Phase 6: M7 integration foundation
 
-- [ ] T030 Move the carried revision to `migrations/versions/0014_moderation.py` with down revision `0013`. Verify one head, upgrade from 0013, downgrade and re-upgrade in a disposable database, then run `alembic check`.
+- [X] T030 Move the carried revision to `migrations/versions/0014_moderation.py` with down revision `0013`. Verify one head, upgrade from 0013, downgrade and re-upgrade in a disposable database, then run `alembic check`.
 ## Phase 7: User Story 1 on M7
 
-- [ ] T031 [P] [US1] Extend `tests/integration/moderation/test_suspension.py` and `tests/integration/discovery/test_discovery.py` for immediate and worker-settled suspension, saved results, counts, restoration and late events. Cover suspended inventions, partner profiles and opportunities, including derived invention details in funding cards and mandate details in partner cards. Restoration must respect current publication and availability.
-- [ ] T032 [P] [US1] Add cases in `tests/integration/pitches/test_preflight.py` and `tests/integration/pitches/test_pitches.py` for blocked new preflight and submission from a suspended source or to a suspended target, including a token minted before suspension. Verify existing authorized pitch reads and wind-down remain available.
-- [ ] T033 [US1] Apply the suspension policy to `app/discovery/service/projection.py` and the discovery read path. Re-read current listing state on events. Prevent stale direct and derived results and count leaks while preserving still-eligible cards. Use the intake and portfolio public projections and existing discovery queries.
-- [ ] T034 [US1] Reuse listing and target availability in `app/briefs/service/service.py`, `app/matching/service/service.py` and `app/pitches/service/submission.py` wherever the M7 tests identify a gap. Keep existing authorized room history and case handling.
+- [X] T031 [P] [US1] Extend `tests/integration/moderation/test_suspension.py` and `tests/integration/discovery/test_discovery.py` for immediate and worker-settled suspension, saved results, counts, restoration and late events. Cover suspended inventions, partner profiles and opportunities, including derived invention details in funding cards and mandate details in partner cards. Restoration must respect current publication and availability.
+- [X] T032 [P] [US1] Add cases in `tests/integration/pitches/test_preflight.py` and `tests/integration/pitches/test_pitches.py` for blocked new preflight and submission from a suspended source or to a suspended target, including a token minted before suspension. Verify existing authorized pitch reads and wind-down remain available.
+- [X] T033 [US1] Apply the suspension policy to `app/discovery/service/projection.py` and the discovery read path. Re-read current listing state on events. Prevent stale direct and derived results and count leaks while preserving still-eligible cards. Use the intake and portfolio public projections and existing discovery queries.
+- [X] T034 [US1] Reuse listing and target availability in `app/briefs/service/service.py`, `app/matching/service/service.py` and `app/pitches/service/submission.py` wherever the M7 tests identify a gap. Keep existing authorized room history and case handling.
 
 ## Phase 8: User Story 2 on M7
 
-- [ ] T035 [US2] Extend `tests/integration/moderation/test_privacy.py` for the policy-backed retention of submitted pitch snapshots, authorized historical access after withdrawal, and separate denial of erased or revoked file bytes.
-- [ ] T036 [US2] Add the retained pitch snapshot policy data in `migrations/versions/0014_moderation.py`. Preserve frozen history and apply document erasure and grant checks independently in `app/moderation/service/retention.py` and the existing document service where needed.
+- [X] T035 [US2] Extend `tests/integration/moderation/test_privacy.py` for the policy-backed retention of submitted pitch snapshots, authorized historical access after withdrawal, and separate denial of erased or revoked file bytes.
+- [X] T036 [US2] Add the retained pitch snapshot policy data in `migrations/versions/0014_moderation.py`. Preserve frozen history and apply document erasure and grant checks independently in `app/moderation/service/retention.py` and the existing document service where needed.
 ## Phase 9: Integrated validation
 
 - [ ] T037 Run the integration cases in `tests/integration/moderation/`, `tests/integration/discovery/` and `tests/integration/pitches/`. Refresh `../../contracts/openapi.json` and the generated web client from the integrated router. Run `make check` and traceability, record current results here, and update `../../specs/034-moderation-privacy-api/spec.md` only after the required cases pass.
@@ -120,3 +120,10 @@ Complete the integration tasks for both stories. Verify the merged contracts and
 - Migration 0009 passed upgrade, downgrade, upgrade and `alembic check` on an isolated PostgreSQL 16 database.
 - API `make check` passed 532 tests at 92.37% line coverage. The focused moderation suite then passed all 9 tests with the final suspension, export and competing-fulfilment cases.
 - OpenAPI matches the generated contract. Traceability maps 143 requirements across 45 specs. The M7 integration checks are tracked separately in T030–T037.
+
+
+## Integrated validation on M7
+
+- The isolated PostgreSQL migration has one head, `0014`. Upgrade from `0013`, downgrade to `0013`, re-upgrade, and `alembic check` passed.
+- The new regressions first reproduced a visible suspended invention in discovery and successful preflight from a suspended source. The privacy receipt also lacked a retention category for frozen pitch snapshots.
+- Regenerated OpenAPI and TypeScript matched the tracked contracts byte for byte. Traceability mapped 143 requirements across 45 specs.
