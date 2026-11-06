@@ -6,10 +6,12 @@ from typing import Any
 
 import pytest
 from sqlalchemy import func, select, text
+from sqlalchemy.dialects.postgresql import Range
+from sqlalchemy.exc import DBAPIError
 
 from app.core import clock
 from app.core.database import get_session_factory
-from app.scheduling.repository.sqlalchemy.models import MeetingRecord
+from app.scheduling.repository.sqlalchemy.models import BookingRecord, MeetingRecord
 from app.scheduling.service.service import SchedulingService
 from tests.integration.matching.conftest import World
 from tests.integration.pitches.conftest import act, client_of, preflight, reread, submit
@@ -130,6 +132,37 @@ async def test_fifty_parallel_acceptances_book_once(world: World) -> None:
     assert {r.json()["error"]["code"] for r in responses if r.status_code != 200} == {"PROPOSAL_CLOSED"}
     assert await _meetings() == 1
     assert len(await _bookings()) == 2
+
+
+async def test_concurrent_raw_booking_inserts_enforce_the_exclusion_constraint(world: World) -> None:
+    """
+    Condition:
+    - Two direct database writers try overlapping intervals for one party without taking the API's advisory locks.
+
+    Expected:
+    - Exactly one booking is stored; the other transaction hits an exclusion violation or a deadlock.
+    """
+    party = world.recipients.parties["A"]
+
+    async def book(start: str, end: str) -> str:
+        try:
+            async with get_session_factory()() as session, session.begin():
+                session.add(BookingRecord(party_id=party, title="x", during=Range(at(start), at(end), bounds="[)")))
+                await session.flush()
+                await asyncio.sleep(0.2)
+            return "committed"
+        except DBAPIError as error:
+            # Concurrent GiST exclusion checks can deadlock instead of reporting an exclusion violation.
+            if getattr(error.orig, "sqlstate", None) in {"23P01", "40P01"}:
+                return "conflict"
+            raise
+
+    results = await asyncio.gather(
+        book("2026-11-04T09:00:00Z", "2026-11-04T10:00:00Z"), book("2026-11-04T09:30:00Z", "2026-11-04T10:30:00Z")
+    )
+
+    assert sorted(results) == ["committed", "conflict"]
+    assert [booked_party for booked_party, _ in await _bookings()] == [party]
 
 
 async def test_two_overlapping_bookings_of_one_party_race_and_one_commits(world: World) -> None:
