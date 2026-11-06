@@ -5,8 +5,9 @@ from uuid import UUID
 
 from fastapi import APIRouter
 
-from app.energy.dependencies import EnergyServiceDep
-from app.energy.model.schema import SummaryResponse
+from app.energy.dependencies import EnergyServiceDep, HistoryServiceDep
+from app.energy.model.schema import HistoryResponse, SummaryResponse
+from app.energy.service.history import Granularity
 from app.energy.service.periods import Preset
 from app.energy.service.summary import PeriodQuery
 from app.identity.dependencies import PrincipalDep
@@ -64,3 +65,30 @@ async def asset_summary(
         SummaryResponse: The summary.
     """
     return await service.asset_summary(asset_id, principal, PeriodQuery(preset, start_date, end_date))
+
+
+@router.get("/assets/{asset_id}/measurements", summary="Bucketed history for one asset")
+async def asset_history(
+    asset_id: UUID,
+    principal: PrincipalDep,
+    service: HistoryServiceDep,
+    bucket: Granularity = Granularity.DAY,
+    preset: Preset | None = None,
+    start_date: date | None = None,
+    end_date: date | None = None,
+) -> HistoryResponse:
+    """Return day or hour buckets in local time with UTC bounds, state and coverage; at most 1,000 buckets.
+
+    Args:
+        asset_id (UUID): The asset.
+        principal (PrincipalModel): The acting principal.
+        service (HistoryService): History reads.
+        bucket (Granularity, optional): ``day`` or ``hour``. Defaults to day.
+        preset (Preset | None, optional): A named period. Defaults to None.
+        start_date (date | None, optional): First local date. Defaults to None.
+        end_date (date | None, optional): Last local date. Defaults to None.
+
+    Returns:
+        HistoryResponse: The series.
+    """
+    return await service.asset_history(asset_id, principal, PeriodQuery(preset, start_date, end_date), bucket)

@@ -100,3 +100,34 @@ class SummaryResponse(BaseModel):
     latest_measurement_at: datetime | None
     origins: list[str]
     revision: int
+
+
+class HistoryBucketResponse(BaseModel):
+    """One bucket. A missing bucket is null with state ``missing``, never zero."""
+
+    start: datetime
+    end: datetime
+    local_date: date
+    local_time: str | None
+    utc_offset: str
+    energy_kwh: str | None
+    unavailable_reason: str | None
+    state: str
+    coverage: str | None
+
+
+class HighestBucketResponse(BaseModel):
+    """The fully covered measured bucket with the greatest value; earliest start breaks a tie."""
+
+    start: datetime
+
+
+class HistoryResponse(BaseModel):
+    """Bucketed history that reconciles with the summary."""
+
+    window: WindowResponse
+    bucket: str
+    origins: list[str]
+    resolution_mwh: int | None
+    highest_bucket: HighestBucketResponse | None
+    buckets: list[HistoryBucketResponse]

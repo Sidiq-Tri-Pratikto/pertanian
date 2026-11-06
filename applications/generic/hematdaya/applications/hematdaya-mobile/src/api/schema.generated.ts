@@ -103,6 +103,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/assets/{asset_id}/measurements": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Bucketed history for one asset
+         * @description Return day or hour buckets in local time with UTC bounds, state and coverage; at most 1,000 buckets.
+         *
+         *     Args:
+         *         asset_id (UUID): The asset.
+         *         principal (PrincipalModel): The acting principal.
+         *         service (HistoryService): History reads.
+         *         bucket (Granularity, optional): ``day`` or ``hour``. Defaults to day.
+         *         preset (Preset | None, optional): A named period. Defaults to None.
+         *         start_date (date | None, optional): First local date. Defaults to None.
+         *         end_date (date | None, optional): Last local date. Defaults to None.
+         *
+         *     Returns:
+         *         HistoryResponse: The series.
+         */
+        get: operations["asset_history_api_v1_assets__asset_id__measurements_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/assets/{asset_id}/summary": {
         parameters: {
             query?: never;
@@ -808,6 +840,72 @@ export interface components {
             start: string;
         };
         /**
+         * Granularity
+         * @description Bucket size.
+         * @enum {string}
+         */
+        Granularity: "day" | "hour";
+        /**
+         * HighestBucketResponse
+         * @description The fully covered measured bucket with the greatest value; earliest start breaks a tie.
+         */
+        HighestBucketResponse: {
+            /**
+             * Start
+             * Format: date-time
+             */
+            start: string;
+        };
+        /**
+         * HistoryBucketResponse
+         * @description One bucket. A missing bucket is null with state ``missing``, never zero.
+         */
+        HistoryBucketResponse: {
+            /** Coverage */
+            coverage: string | null;
+            /**
+             * End
+             * Format: date-time
+             */
+            end: string;
+            /** Energy Kwh */
+            energy_kwh: string | null;
+            /**
+             * Local Date
+             * Format: date
+             */
+            local_date: string;
+            /** Local Time */
+            local_time: string | null;
+            /**
+             * Start
+             * Format: date-time
+             */
+            start: string;
+            /** State */
+            state: string;
+            /** Unavailable Reason */
+            unavailable_reason: string | null;
+            /** Utc Offset */
+            utc_offset: string;
+        };
+        /**
+         * HistoryResponse
+         * @description Bucketed history that reconciles with the summary.
+         */
+        HistoryResponse: {
+            /** Bucket */
+            bucket: string;
+            /** Buckets */
+            buckets: components["schemas"]["HistoryBucketResponse"][];
+            highest_bucket: components["schemas"]["HighestBucketResponse"] | null;
+            /** Origins */
+            origins: string[];
+            /** Resolution Mwh */
+            resolution_mwh: number | null;
+            window: components["schemas"]["WindowResponse"];
+        };
+        /**
          * InitialPeriodResponse
          * @description The period a scenario opens on.
          */
@@ -1217,6 +1315,51 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BindingResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    asset_history_api_v1_assets__asset_id__measurements_get: {
+        parameters: {
+            query?: {
+                bucket?: components["schemas"]["Granularity"];
+                preset?: components["schemas"]["Preset"] | null;
+                start_date?: string | null;
+                end_date?: string | null;
+            };
+            header?: never;
+            path: {
+                asset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HistoryResponse"];
                 };
             };
             /** @description Validation failed */

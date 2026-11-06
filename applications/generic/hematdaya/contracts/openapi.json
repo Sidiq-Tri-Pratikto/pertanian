@@ -861,6 +861,172 @@
         "title": "GapResponse",
         "type": "object"
       },
+      "Granularity": {
+        "description": "Bucket size.",
+        "enum": [
+          "day",
+          "hour"
+        ],
+        "title": "Granularity",
+        "type": "string"
+      },
+      "HighestBucketResponse": {
+        "description": "The fully covered measured bucket with the greatest value; earliest start breaks a tie.",
+        "properties": {
+          "start": {
+            "format": "date-time",
+            "title": "Start",
+            "type": "string"
+          }
+        },
+        "required": [
+          "start"
+        ],
+        "title": "HighestBucketResponse",
+        "type": "object"
+      },
+      "HistoryBucketResponse": {
+        "description": "One bucket. A missing bucket is null with state ``missing``, never zero.",
+        "properties": {
+          "coverage": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Coverage"
+          },
+          "end": {
+            "format": "date-time",
+            "title": "End",
+            "type": "string"
+          },
+          "energy_kwh": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Energy Kwh"
+          },
+          "local_date": {
+            "format": "date",
+            "title": "Local Date",
+            "type": "string"
+          },
+          "local_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Local Time"
+          },
+          "start": {
+            "format": "date-time",
+            "title": "Start",
+            "type": "string"
+          },
+          "state": {
+            "title": "State",
+            "type": "string"
+          },
+          "unavailable_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unavailable Reason"
+          },
+          "utc_offset": {
+            "title": "Utc Offset",
+            "type": "string"
+          }
+        },
+        "required": [
+          "start",
+          "end",
+          "local_date",
+          "local_time",
+          "utc_offset",
+          "energy_kwh",
+          "unavailable_reason",
+          "state",
+          "coverage"
+        ],
+        "title": "HistoryBucketResponse",
+        "type": "object"
+      },
+      "HistoryResponse": {
+        "description": "Bucketed history that reconciles with the summary.",
+        "properties": {
+          "bucket": {
+            "title": "Bucket",
+            "type": "string"
+          },
+          "buckets": {
+            "items": {
+              "$ref": "#/components/schemas/HistoryBucketResponse"
+            },
+            "title": "Buckets",
+            "type": "array"
+          },
+          "highest_bucket": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HighestBucketResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "origins": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Origins",
+            "type": "array"
+          },
+          "resolution_mwh": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolution Mwh"
+          },
+          "window": {
+            "$ref": "#/components/schemas/WindowResponse"
+          }
+        },
+        "required": [
+          "window",
+          "bucket",
+          "origins",
+          "resolution_mwh",
+          "highest_bucket",
+          "buckets"
+        ],
+        "title": "HistoryResponse",
+        "type": "object"
+      },
       "InitialPeriodResponse": {
         "description": "The period a scenario opens on.",
         "properties": {
@@ -1689,6 +1855,119 @@
         "summary": "End a binding",
         "tags": [
           "assets"
+        ]
+      }
+    },
+    "/api/v1/assets/{asset_id}/measurements": {
+      "get": {
+        "description": "Return day or hour buckets in local time with UTC bounds, state and coverage; at most 1,000 buckets.\n\nArgs:\n    asset_id (UUID): The asset.\n    principal (PrincipalModel): The acting principal.\n    service (HistoryService): History reads.\n    bucket (Granularity, optional): ``day`` or ``hour``. Defaults to day.\n    preset (Preset | None, optional): A named period. Defaults to None.\n    start_date (date | None, optional): First local date. Defaults to None.\n    end_date (date | None, optional): Last local date. Defaults to None.\n\nReturns:\n    HistoryResponse: The series.",
+        "operationId": "asset_history_api_v1_assets__asset_id__measurements_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "asset_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Asset Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "bucket",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/Granularity",
+              "default": "day"
+            }
+          },
+          {
+            "in": "query",
+            "name": "preset",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/Preset"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Preset"
+            }
+          },
+          {
+            "in": "query",
+            "name": "start_date",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Start Date"
+            }
+          },
+          {
+            "in": "query",
+            "name": "end_date",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "End Date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HistoryResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Bucketed history for one asset",
+        "tags": [
+          "energy"
         ]
       }
     },
