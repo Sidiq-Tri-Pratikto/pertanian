@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import CheckConstraint, ForeignKey, Index, String
+from sqlalchemy import CheckConstraint, ForeignKey, Index, String, false
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -29,6 +29,7 @@ class AccountRecord(MutableRow, Base):
     persona: Mapped[str] = mapped_column(String(16))
     kind: Mapped[str] = mapped_column(String(8), default="user")
     status: Mapped[str] = mapped_column(String(16), default="active")
+    email_notifications: Mapped[bool] = mapped_column(default=False, server_default=false())
 
 
 class EmailCodeRecord(Row, Base):
