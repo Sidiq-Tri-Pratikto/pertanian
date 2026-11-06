@@ -2,7 +2,7 @@
 
 **Feature Branch**: `037-deploy-release`
 **Created**: 2026-11-05
-**Status**: Integrated local validation passed at Alembic 0014, including the pinned ARM64 image scans and synthetic HTTPS topology. Actual staging, protected publication and rollout acceptance remain open.
+**Status**: Final integrated local smoke passed at Alembic 0015 on all three compositions, with both ARM64 image scans passing. Actual staging, protected publication and rollout acceptance remain open.
 **Milestone**: M11 Portability and operations
 **Depends on**: 003, 005
 **Size**: L

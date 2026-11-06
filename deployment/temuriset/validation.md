@@ -43,6 +43,22 @@ On 6 November 2026 the integrated worktree based on `485028dbf28d9d755c2cf1462e9
 | API and web checks | API Ruff and 770 tests passed at 96.26% coverage. Web ESLint, TypeScript and 253 tests passed at 88.14% line coverage. OpenAPI and TypeScript regenerated. Traceability mapped 143 requirements across 45 specs. |
 | Local Chromium | The production Next build ran 800 entries across 320, 360, 768 and 1280 CSS px, with 400 passes and 398 intentional viewport skips. Two trace-file collisions between concurrent browser runs interrupted the other axe cases. Both passed in isolation with separate output directories. J01–J03 and privacy interaction tests passed. The [audit matrix](../../applications/generic/temuriset/docs/roadmap/accessibility-audit.md) records the narrower accessibility checks. |
 
+## Final integrated local evidence at Alembic 0015
+
+On 6 November 2026, the assembled source at `eae3900618b9481dfd6222185ecac006b6acfb2a` passed the isolated release smoke on native ARM64 Docker Desktop. The smoke ran `deployment/temuriset/tests/smoke.sh` with both images built from that source and captured the inventory through the live HTTPS origin.
+
+| Check | Result |
+|---|---|
+| Local image manifests | API and worker `sha256:996c2c17f15bd3afced562ece92cb1ac1be5bf9d20c4cf43f751204ba9c0089a`. Web `sha256:6ec51021c76acdf882c0187f34fe6f4dc5453a2fefd5ffb92189e14f3ae0a01e`. |
+| Security scans | Pinned Trivy 0.69.3 reported zero HIGH or CRITICAL findings in both local Alpine 3.24.3 application images. |
+| Live inventory | Alembic `0015`, source release `0.1.0`, capability schema 1, demo disabled. All three compositions reported version 1. S3 object storage, ClamAV scanning and lexical rules were available. ICS was planned. |
+| `generic-base` | Core and company funding available. Twice-run migration, private PDF upload, scan and extraction, granted full and range reads, denied ungranted access, no-store, revocation and S3 bounds checks passed. |
+| `generic-with-review` | Core and company funding available. Organization review remained planned. HTTPS health, runtime inventory and disabled-mail checks passed. |
+| `project-support-only` | Core available and company funding absent. HTTPS health, runtime inventory and disabled-mail checks passed. The private bucket rejected unsigned listing, and web replacement preserved HTTPS through the same edge. |
+| Recovery and migration | The separate synthetic Compose recovery and the stacked PR-base compatibility check at `0014 → 0015` passed. See the [recovery drill](backup/drill.md). |
+
+These observations cover the local ARM64 build and synthetic topology. A protected publication and the Linux/amd64 workflow and rollout have separate evidence.
+
 ## Design-system and prototype evidence
 
 The application binds TemuRiset Design System `1.0.0-draft`. The source CSS is copied byte-for-byte into the web app. `src/components/tr/` ports the TR names, semantics and class mappings. The [architecture record](../../applications/generic/temuriset/docs/roadmap/architecture.md) describes web deviations D1–D8. The [canvas binding](../../docs/generic/temuriset/app-prototype/binding.json) describes a separate component copy and its fingerprints and deviations. This draft remains subject to design owner approval.

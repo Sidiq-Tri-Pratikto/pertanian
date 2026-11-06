@@ -41,6 +41,17 @@ The Compose drill on 6 November 2026 used a disposable project `temuriset-backup
 | Recovery time | Restore command 7.094 s. Recovery through restored HTTPS gateway verification 42.306 s, including app restarts and the row and access checks. Provisioning and incident investigation are outside the measurement. |
 | Verified pair | One restored row with fingerprint `b4e77a72d50cfa3baac4e2d5e4caeaaa3725caadb2e9666924f7dd9cfe55c5a3` over storage key, checksum, byte size and file state. One PDF with SHA-256 `8da40be05f62ae93cd00aea53618c796fb7bc19d2bbab2e5b09bd0a87428bc7a`. The granted request returned 200 and the ungranted request 404 before and after restore. |
 
+## Final integrated local synthetic rehearsal at Alembic 0015
+
+On 6 November 2026, `deployment/temuriset/backup/tests/drill.sh --compose` exercised the disposable project `temuriset-backup-drill-ae0397d7c7` from assembled source `eae3900618b9481dfd6222185ecac006b6acfb2a`. The source and restore gateways used API image ID `sha256:996c2c17f15bd3afced562ece92cb1ac1be5bf9d20c4cf43f751204ba9c0089a` and web image ID `sha256:6ec51021c76acdf882c0187f34fe6f4dc5453a2fefd5ffb92189e14f3ae0a01e`.
+
+| Check | Result |
+|---|---|
+| Capture and destructive change | Missing and changed objects each blocked bundle publication. After a valid encrypted snapshot, the drill inserted a sentinel, dropped `document_versions` and its dependent foreign keys, and deleted the source PDF. |
+| Recovery point and observed loss | Schema `0015`, snapshot `2026-11-06T02:32:13.960395Z`. The sentinel written at `02:32:16.099459Z` was absent after restore. The 2.139 s interval measures this fixture's write after the snapshot. |
+| Recovery time | 3.939 s inside the restore command. 20.205 s from restore start through row verification, app restarts and HTTPS gateway checks. Provisioning and investigation were outside the measurement. |
+| Verified pair | One restored row with fingerprint `99112d165067bf3e372505d9a65c1a5d10949424ad29393b1cfc927f82f391a2` over storage key, checksum, byte size and file state. One PDF with SHA-256 `8da40be05f62ae93cd00aea53618c796fb7bc19d2bbab2e5b09bd0a87428bc7a`. The grantee received 200 and the ungranted user 404 before and after restore. |
+
 ## Migration compatibility evidence
 
 | Comparison | Evidence |
@@ -49,6 +60,7 @@ The Compose drill on 6 November 2026 used a disposable project `temuriset-backup
 | Synthetic expand | Same base against a disposable copy with a synthetic additive `0010` creating a table. Alembic `0009 → 0010`, with both API versions and both workers passing the same coexistence checks. |
 | Synthetic contract | Same base against a disposable copy with a synthetic `0010` dropping an existing table. The check rejected the change to existing schema signatures. Repository migration files were untouched. |
 | M7 integration comparison | Archived M7 `d6cb95f3df2cc8c9fd18b5391d03b3b7b856218d` against the local integrated worktree at `485028dbf28d9d755c2cf1462e9afb2778ea68bd`. PostgreSQL 16.11, Alembic `0013 → 0014`. The compatibility guard exited 1 on replacement of `document_versions.file_state`. This is a non-passing development comparison. |
+| Stacked PR-base comparison | M10 `49a99fdd9805fa75716e782650db5dcb6a076491` against candidate commit `eae3900618b9481dfd6222185ecac006b6acfb2a`. Alembic `0014 → 0015`. Both APIs read and wrote the tested records and both workers processed the supported job probe. This is PR-base evidence for a changed head. |
 | Actual previous release | Open. No trusted `temuriset-vX.Y.Z` release exists. Once available, dispatch **TemuRiset migration compatibility** from protected `main` with the tag and matching commit SHA from the trusted release inventory. Keep the workflow artifact with the change record. AC71 requires a passing actual-release comparison with a new Alembic head. |
 
 The 0013 check allowed `CREATED`, `UPLOADING`, `QUARANTINED`, `AVAILABLE` and `REJECTED`. Revision 0014 adds `ERASURE_PENDING` and `ERASED` to that set. In an independent disposable probe on the upgraded database, the old owner metadata serializer returned both new strings with HTTP 200, rejected non-owner metadata with 404 and refused owner and grantee content with `FILE_NOT_AVAILABLE`. The old scanner left both rows unchanged. A separate real candidate deletion revoked the owner session (the old API returned 401) and the download grant (the old API returned `GRANT_REVOKED`). The old worker claimed the newly enqueued `documents.erase` job as `NEEDS_MANUAL_INPUT:UNKNOWN_JOB_KIND`, leaving the request `PROCESSING` and the version `ERASURE_PENDING`.
