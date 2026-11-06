@@ -23,7 +23,7 @@
 ## Phase 4. Polish
 
 - [X] T008 Record the initial workload validation, API lint and focused benchmark tests in `docs/roadmap/benchmarks.md`.
-- [X] T009 Keep handoff filesystem I/O outside the async event loop in `applications/temuriset-api/benchmarks/generate.py` and `applications/temuriset-api/benchmarks/run.py`. Validate handoff cookies before requests and keep CLI HTTP diagnostics free of credential values. Apply latency thresholds to first-pass and warmed samples, while preserving failure checks in warmup. Add regression checks in `applications/temuriset-api/tests/unit/test_benchmarks.py`.
+- [X] T009 Keep handoff filesystem I/O outside the async event loop in `applications/temuriset-api/benchmarks/generate.py` and `applications/temuriset-api/benchmarks/run.py`. Roll back the seed when the handoff write fails. Validate handoff cookies before requests and keep CLI HTTP diagnostics free of credential values. Apply latency thresholds to first-pass and warmed samples, while preserving failure checks in warmup. Add regression checks in `applications/temuriset-api/tests/unit/test_benchmarks.py`.
 - [X] T010 Run the smoke and full 1,000-invention, 100-opportunity, 20-user workloads on separate fresh disposable databases using the synchronized local build. Record the source revision, runtime, topology, cache conditions, sample counts, latency, errors, matching, visibility and exit status in `docs/roadmap/benchmarks.md` alongside the initial results. Update `specs/039-benchmarks/spec.md` to reflect the recorded evidence.
 - [ ] T011 Run the project-level `make check` from `Makefile` on the synchronized build and record the result or environment blocker in `docs/roadmap/benchmarks.md`.
 

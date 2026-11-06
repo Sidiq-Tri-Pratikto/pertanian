@@ -75,6 +75,17 @@ API `make lint` passed. The focused command
 `python -m pytest tests/unit/test_benchmarks.py -q` passed 13 tests in the
 locked environment.
 
+On source revision `9d785db4c06d6569fd1a546e691d070bb4b02381`, an injected
+handoff write error removed the reserved file and rolled back the seed. SQL
+confirmed zero accounts, inventions, opportunities and outbox events. The
+normal generator then seeded the same disposable database, and the 12/4/4
+smoke started at 05:18:23 UTC on 2026-11-06 and exited 0. All 2,232 read
+attempts succeeded and met the measured targets. Matching covered four
+candidates in 41.804 ms. Anonymous discovery returned HTTP 401 and withdrawal
+reached the other actor's search in 0.818 seconds. API `make lint` and all 14
+focused tests passed on this revision. The temporary processes, databases and
+handoffs were removed after verification.
+
 The synchronized run used a dedicated PostgreSQL process cluster, while the
 initial run used a shared instance and overlapped other host validation. The
 [standard-read performance follow-up](../../specs/039-benchmarks/standard-read-follow-up.md)
