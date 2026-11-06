@@ -191,8 +191,13 @@ def main() -> None:
             run([str(new_python), "-m", "alembic", "upgrade", "head"], env, candidate)
             new_head = sql("SELECT version_num FROM alembic_version")
             after = {tuple(item) for item in json.loads(sql(SCHEMA))}
-            if before - after:
-                raise RuntimeError("Existing schema signatures changed. Review contract changes after old-code retirement.")
+            removed = before - after
+            if removed:
+                names = ", ".join(sorted({f"{kind} {table}.{name}" for kind, table, name, *_ in removed}))
+                raise RuntimeError(
+                    f"Existing schema signatures changed. Alembic {old_head} to {new_head}: {names}. "
+                    "Review contract changes after old-code retirement."
+                )
             existing_tables = {item[1] for item in before if item[0] == "column"}
             if any(item[0] == "constraint" and item[1] in existing_tables for item in after - before):
                 raise RuntimeError("An existing table gained a constraint. Review compatibility before promotion.")

@@ -19,6 +19,7 @@ import app.moderation.repository.sqlalchemy.models  # noqa: F401
 import app.needs.repository.sqlalchemy.models  # noqa: F401
 import app.pitches.repository.sqlalchemy.models  # noqa: F401
 import app.platform.repository.sqlalchemy.models  # noqa: F401 - registers the tables for autogenerate
+import app.portability.repository.sqlalchemy.models  # noqa: F401
 import app.portfolio.repository.sqlalchemy.models  # noqa: F401
 from app.core.database import Base
 from app.core.settings import get_settings

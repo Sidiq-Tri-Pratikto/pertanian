@@ -2,7 +2,7 @@
 
 **Feature Branch**: `039-benchmarks`
 **Created**: 2026-11-05
-**Status**: Seeded, not started
+**Status**: Local baseline measured. Standard-read misses tracked in [follow-up](standard-read-follow-up.md). Synthetic staging blocked pending an approved target.
 **Milestone**: M11 Portability and operations
 **Depends on**: 021, 037
 **Size**: M

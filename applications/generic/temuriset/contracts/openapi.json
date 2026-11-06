@@ -1133,6 +1133,51 @@
         "title": "ContextRequest",
         "type": "object"
       },
+      "CreateExportRequest": {
+        "additionalProperties": false,
+        "description": "Create a job for explicit, unique resource references.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "expected_version": {
+            "title": "Expected Version",
+            "type": "null"
+          },
+          "selections": {
+            "items": {
+              "discriminator": {
+                "mapping": {
+                  "DOCUMENT": "#/components/schemas/DocumentSelection",
+                  "INVENTION": "#/components/schemas/InventionSelection"
+                },
+                "propertyName": "kind"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/InventionSelection"
+                },
+                {
+                  "$ref": "#/components/schemas/DocumentSelection"
+                }
+              ]
+            },
+            "maxItems": 100,
+            "minItems": 1,
+            "title": "Selections",
+            "type": "array"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "expected_version",
+          "selections"
+        ],
+        "title": "CreateExportRequest",
+        "type": "object"
+      },
       "CreateInventionRequest": {
         "description": "Start an invention for the acting party.",
         "properties": {
@@ -1900,6 +1945,35 @@
         "title": "DocumentResponse",
         "type": "object"
       },
+      "DocumentSelection": {
+        "additionalProperties": false,
+        "description": "The exact version of a document the requester can download.",
+        "properties": {
+          "document_id": {
+            "format": "uuid",
+            "title": "Document Id",
+            "type": "string"
+          },
+          "kind": {
+            "const": "DOCUMENT",
+            "title": "Kind",
+            "type": "string"
+          },
+          "version": {
+            "maximum": 2147483647.0,
+            "minimum": 1.0,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "kind",
+          "document_id",
+          "version"
+        ],
+        "title": "DocumentSelection",
+        "type": "object"
+      },
       "DocumentVersionResponse": {
         "description": "One version's three independent states.",
         "properties": {
@@ -2252,6 +2326,61 @@
           "note"
         ],
         "title": "EvidenceResponse",
+        "type": "object"
+      },
+      "ExportStatusResponse": {
+        "description": "Job status without a direct link to private storage.",
+        "properties": {
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "title": "Expires At",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "operation_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operation Id"
+          },
+          "status": {
+            "enum": [
+              "PENDING",
+              "SUCCEEDED",
+              "FAILED",
+              "EXPIRED"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "expires_at"
+        ],
+        "title": "ExportStatusResponse",
         "type": "object"
       },
       "FactInput": {
@@ -3185,6 +3314,111 @@
         "title": "HandoffResponse",
         "type": "object"
       },
+      "ImportActionRequest": {
+        "additionalProperties": false,
+        "description": "Act on the version of the run the requester reviewed.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "expected_version": {
+            "minimum": 1.0,
+            "title": "Expected Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "expected_version"
+        ],
+        "title": "ImportActionRequest",
+        "type": "object"
+      },
+      "ImportStatusResponse": {
+        "description": "Private import status and a bounded page of preview decisions.",
+        "properties": {
+          "apply": {
+            "$ref": "#/components/schemas/StageProgress"
+          },
+          "committed": {
+            "title": "Committed",
+            "type": "integer"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "title": "Expires At",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "next_offset": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Offset"
+          },
+          "operation_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operation Id"
+          },
+          "preview": {
+            "$ref": "#/components/schemas/StageProgress"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/PreviewRow"
+            },
+            "title": "Rows",
+            "type": "array"
+          },
+          "skipped": {
+            "title": "Skipped",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          },
+          "validation": {
+            "$ref": "#/components/schemas/StageProgress"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "version",
+          "validation",
+          "preview",
+          "apply",
+          "total",
+          "committed",
+          "skipped",
+          "expires_at"
+        ],
+        "title": "ImportStatusResponse",
+        "type": "object"
+      },
       "InventionResponse": {
         "description": "The owner's view: draft, published version and history.",
         "properties": {
@@ -3256,6 +3490,42 @@
           "history"
         ],
         "title": "InventionResponse",
+        "type": "object"
+      },
+      "InventionSelection": {
+        "additionalProperties": false,
+        "description": "An invention in the acting party's portfolio, from its draft or published pointer.",
+        "properties": {
+          "include_private_notes": {
+            "default": false,
+            "title": "Include Private Notes",
+            "type": "boolean"
+          },
+          "invention_id": {
+            "format": "uuid",
+            "title": "Invention Id",
+            "type": "string"
+          },
+          "kind": {
+            "const": "INVENTION",
+            "title": "Kind",
+            "type": "string"
+          },
+          "version": {
+            "enum": [
+              "DRAFT",
+              "PUBLISHED"
+            ],
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "invention_id",
+          "version"
+        ],
+        "title": "InventionSelection",
         "type": "object"
       },
       "InventionSummaryResponse": {
@@ -5592,6 +5862,89 @@
         "title": "PreflightResponse",
         "type": "object"
       },
+      "PreviewRow": {
+        "description": "Review summary without source labels, free-form values or private notes.",
+        "properties": {
+          "action": {
+            "enum": [
+              "CREATE",
+              "UPDATE",
+              "UNCHANGED",
+              "CONFLICT"
+            ],
+            "title": "Action",
+            "type": "string"
+          },
+          "conflicts": {
+            "items": {
+              "enum": [
+                "facts",
+                "rights_claims",
+                "destination",
+                "partner_profile"
+              ],
+              "type": "string"
+            },
+            "title": "Conflicts",
+            "type": "array"
+          },
+          "external_id": {
+            "maxLength": 160,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$",
+            "title": "External Id",
+            "type": "string"
+          },
+          "mapped_fields": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Mapped Fields",
+            "type": "array"
+          },
+          "outcome": {
+            "anyOf": [
+              {
+                "enum": [
+                  "COMMITTED",
+                  "SKIPPED",
+                  "UNCHANGED"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Outcome"
+          },
+          "resource": {
+            "enum": [
+              "INVENTION",
+              "PARTNER_PROFILE"
+            ],
+            "title": "Resource",
+            "type": "string"
+          },
+          "skipped_fields": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Skipped Fields",
+            "type": "array"
+          }
+        },
+        "required": [
+          "external_id",
+          "resource",
+          "action",
+          "mapped_fields",
+          "skipped_fields",
+          "conflicts"
+        ],
+        "title": "PreviewRow",
+        "type": "object"
+      },
       "PrivacyAnswer": {
         "description": "The generated answer. ``removed`` lists only what has really been removed.",
         "properties": {
@@ -7272,6 +7625,44 @@
           "fact_keys"
         ],
         "title": "ShareableFile",
+        "type": "object"
+      },
+      "StageProgress": {
+        "description": "Independent state and processed work of one stage.",
+        "properties": {
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "processed": {
+            "title": "Processed",
+            "type": "integer"
+          },
+          "status": {
+            "enum": [
+              "NOT_STARTED",
+              "PENDING",
+              "SUCCEEDED",
+              "FAILED",
+              "CANCELLED",
+              "EXPIRED"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "processed"
+        ],
+        "title": "StageProgress",
         "type": "object"
       },
       "SubmissionResponse": {
@@ -9463,6 +9854,179 @@
         ]
       }
     },
+    "/api/v1/exports": {
+      "post": {
+        "description": "Queue export of explicitly chosen invention and document versions.",
+        "operationId": "start_export_api_v1_exports_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 128,
+              "minLength": 1,
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateExportRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExportStatusResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Queue an authorized JSON export",
+        "tags": [
+          "portability"
+        ]
+      }
+    },
+    "/api/v1/exports/{export_id}": {
+      "get": {
+        "description": "Read owner-only status. A live authorization loss permanently expires the result.",
+        "operationId": "get_export_api_v1_exports__export_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "export_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Export Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExportStatusResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Read export status and expiry",
+        "tags": [
+          "portability"
+        ]
+      }
+    },
+    "/api/v1/exports/{export_id}/download": {
+      "get": {
+        "description": "Serve a private JSON attachment only while every pinned dependency remains authorized.",
+        "operationId": "download_export_api_v1_exports__export_id__download_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "export_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Export Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Download an export with fresh authorization",
+        "tags": [
+          "portability"
+        ]
+      }
+    },
     "/api/v1/funding-requests": {
       "get": {
         "description": "List the acting party's funding requests, also when company funding is switched off (AC67).\n\nArgs:\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    list[FundingRequestResponse]: Requests.",
@@ -9983,6 +10547,327 @@
         "summary": "Revoke a grant",
         "tags": [
           "documents"
+        ]
+      }
+    },
+    "/api/v1/imports/validate": {
+      "post": {
+        "description": "Stage the bounded raw file in the current context and queue validation.",
+        "operationId": "start_import_api_v1_imports_validate_post",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "acting_party_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Acting Party Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "expected_version",
+            "required": false,
+            "schema": {
+              "title": "Expected Version",
+              "type": "null"
+            }
+          },
+          {
+            "in": "query",
+            "name": "map_private_notes",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Map Private Notes",
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 128,
+              "minLength": 1,
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "format": "binary",
+                "type": "string"
+              }
+            }
+          },
+          "description": "Version 1 JSON file, up to 20 MiB. Its SHA-256 participates in idempotency.",
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportStatusResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Stage and validate a JSON import",
+        "tags": [
+          "portability"
+        ]
+      }
+    },
+    "/api/v1/imports/{run_id}": {
+      "get": {
+        "description": "Only the requester in the owning context can read preview rows.",
+        "operationId": "get_import_api_v1_imports__run_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "maximum": 2000,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportStatusResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Read import stage status and preview",
+        "tags": [
+          "portability"
+        ]
+      }
+    },
+    "/api/v1/imports/{run_id}/apply": {
+      "post": {
+        "description": "Queue apply against the exact completed preview version.",
+        "operationId": "apply_import_api_v1_imports__run_id__apply_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 128,
+              "minLength": 1,
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImportActionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportStatusResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Apply reviewed import",
+        "tags": [
+          "portability"
+        ]
+      }
+    },
+    "/api/v1/imports/{run_id}/cancel": {
+      "post": {
+        "description": "Stop the next checkpoint and report how many records committed.",
+        "operationId": "cancel_import_api_v1_imports__run_id__cancel_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 128,
+              "minLength": 1,
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImportActionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportStatusResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Cancel import work",
+        "tags": [
+          "portability"
         ]
       }
     },
@@ -10870,7 +11755,7 @@
     },
     "/api/v1/operations/{operation_id}": {
       "get": {
-        "description": "Tell the acting party whether its operation committed.\n\nArgs:\n    operation_id (UUID): From the response the client may have lost.\n    session (SessionDep): Database session.\n    actor_party_id (ActorDep): The acting party.\n    principal (PrincipalDep): The account scope for private operations.\n\nReturns:\n    OperationResponse: ``COMMITTED`` with a result reference, ``PENDING``, or ``UNKNOWN`` for an id the service\n        has no record of.\n\nRaises:\n    NotFoundError: When the operation belongs to another party.",
+        "description": "Tell the acting party whether its operation committed.\n\nArgs:\n    operation_id (UUID): From the response the client may have lost.\n    session (SessionDep): Database session.\n    principal (PrincipalDep): The account scope for private operations.\n\nReturns:\n    OperationResponse: ``COMMITTED`` with a result reference, ``PENDING``, or ``UNKNOWN`` for an id the service\n        has no record of.\n\nRaises:\n    NotFoundError: When the operation belongs to another party.",
         "operationId": "get_operation_api_v1_operations__operation_id__get",
         "parameters": [
           {

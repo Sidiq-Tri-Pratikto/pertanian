@@ -2,7 +2,7 @@
 
 **Feature Branch**: `040-accessibility-audit`
 **Created**: 2026-11-05
-**Status**: Seeded, not started
+**Status**: Local Chromium checkpoints audited on the integrated synthetic build. Full staging, J04/J05, screen-reader verification and remaining scoped conditions are open.
 **Milestone**: M11 Portability and operations
 **Depends on**: 032, 035
 **Size**: M
@@ -22,14 +22,14 @@
 
 ### Edge Cases
 
-- Results are PASS, FAIL, NOT RUN or BLOCKED with surface and version; nothing is reported as conformance.
+- Results are PASS, FAIL, NOT RUN or BLOCKED with surface and version. Local production-build checks and actual staging checks have separate rows. A missing journey or assistive-technology pairing is recorded with its gating reason.
 
 ## Requirements
 
 ### Functional Requirements
 
 - **FR-001**: The audit MUST record each check with browser, assistive technology, viewport, zoom and build.
-- **FR-002**: Each FAIL MUST become an issue or a fix in this PR.
+- **FR-002**: Each FAIL MUST be linked to a fix with retest evidence or a reproducible issue. If no issue can be filed during the audit, retain the prepared issue details and keep disposition open.
 
 ## Success Criteria
 

@@ -90,6 +90,8 @@ class Download:
     media_type: str
     size_bytes: int
     filename: str
+    version_id: UUID
+    grant_id: UUID | None = None
 
 
 def evidence_status(version: DocumentVersionRecord | None, mode: str) -> str:
@@ -497,44 +499,43 @@ class DocumentService:
     async def authorize_download(
         self, principal: Principal, document_id: UUID, number: int, byte_range: str | None
     ) -> Download:
-        """Re-authorize one download request, range requests included, and record what leaves under a grant.
+        """Authorize and record a direct version download, including range requests."""
+        file = await self.resolve_download(principal, document_id, number)
+        await self.record_delivery(principal, file, byte_range)
+        return file
 
-        Args:
-            principal (Principal): Who is signed in.
-            document_id (UUID): The document.
-            number (int): The version.
-            byte_range (str | None): The ``Range`` header, recorded with the event.
-
-        Returns:
-            Download: What to stream.
-
-        Raises:
-            NotFoundError: For anyone who is neither owner nor grantee, with no title.
-            GrantRevokedError: When the party's grant on this version was revoked.
-            FileNotAvailableError: When the version is quarantined or rejected.
-        """
+    async def resolve_download(
+        self, principal: Principal, document_id: UUID, number: int, *, required_grant_id: UUID | None = None
+    ) -> Download:
+        """Check one exact version and applicable live grant without recording a delivered copy."""
         document = await self.repository.document(document_id)
         version = await self.repository.version(document_id=document_id, number=number) if document else None
         if document is None or version is None:
             raise NotFoundError()
+        grant_id = None
         if document.owner_party_id != principal.active_party_id:
             grants = await self.repository.grants_for(version.id, principal.active_party_id)
+            if required_grant_id is not None:
+                grants = [grant for grant in grants if grant.id == required_grant_id]
             if not grants:
                 raise NotFoundError()
-            if grants[0].revoked_at is not None:
-                raise GrantRevokedError()
-            if version.file_state != "AVAILABLE":
-                raise FileNotAvailableError()
-            await self.repository.add(
-                DownloadEventRecord(
-                    grant_id=grants[0].id,
-                    actor_party_id=principal.active_party_id,
-                    range=(byte_range or None) and byte_range[:64],
-                )
+            now = clock.now()
+            valid = next(
+                (
+                    grant
+                    for grant in grants
+                    if grant.revoked_at is None and (grant.expires_at is None or grant.expires_at > now)
+                ),
+                None,
             )
-        elif version.file_state != "AVAILABLE":
+            if valid is None:
+                raise GrantRevokedError()
+            grant_id = valid.id
+        elif required_grant_id is not None:
+            raise NotFoundError()
+        if version.file_state != "AVAILABLE":
             raise FileNotAvailableError()
-        return self._download(version)
+        return self._download(version, grant_id)
 
     async def require_version(self, version_id: UUID) -> None:
         """Validate a local administrator's exact document version reference."""
@@ -581,7 +582,7 @@ class DocumentService:
         return self._download(version)
 
     @staticmethod
-    def _download(version: DocumentVersionRecord) -> Download:
+    def _download(version: DocumentVersionRecord, grant_id: UUID | None = None) -> Download:
         extension = {"application/pdf": "pdf", "image/png": "png", "image/jpeg": "jpg", "image/webp": "webp"}.get(
             version.media_type, "docx"
         )
@@ -590,4 +591,17 @@ class DocumentService:
             media_type=version.media_type,
             size_bytes=version.size_bytes,
             filename=f"dokumen-v{version.number}.{extension}",
+            version_id=version.id,
+            grant_id=grant_id,
         )
+
+    async def record_delivery(self, principal: Principal, file: Download, byte_range: str | None = None) -> None:
+        """Record one delivered copy for grant owners' revocation history."""
+        if file.grant_id is not None:
+            await self.repository.add(
+                DownloadEventRecord(
+                    grant_id=file.grant_id,
+                    actor_party_id=principal.active_party_id,
+                    range=(byte_range or None) and byte_range[:64],
+                )
+            )

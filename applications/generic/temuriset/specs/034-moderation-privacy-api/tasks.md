@@ -92,7 +92,7 @@ The decisions below combine the carried implementation and the M7 integration wo
 - [X] T036 [US2] Add the retained pitch snapshot policy data in `migrations/versions/0014_moderation.py`. Preserve frozen history and apply document erasure and grant checks independently in `app/moderation/service/retention.py` and the existing document service where needed.
 ## Phase 9: Integrated validation
 
-- [ ] T037 Run the integration cases in `tests/integration/moderation/`, `tests/integration/discovery/` and `tests/integration/pitches/`. Refresh `../../contracts/openapi.json` and the generated web client from the integrated router. Run `make check` and traceability, record current results here, and update `../../specs/034-moderation-privacy-api/spec.md` only after the required cases pass.
+- [X] T037 Run the integration cases in `tests/integration/moderation/`, `tests/integration/discovery/` and `tests/integration/pitches/`. Refresh `../../contracts/openapi.json` and the generated web client from the integrated router. Run `make check` and traceability, record current results here, and update `../../specs/034-moderation-privacy-api/spec.md` only after the required cases pass.
 
 ## Requirement coverage
 
@@ -127,3 +127,4 @@ Complete the integration tasks for both stories. Verify the merged contracts and
 - The isolated PostgreSQL migration has one head, `0014`. Upgrade from `0013`, downgrade to `0013`, re-upgrade, and `alembic check` passed.
 - The new regressions first reproduced a visible suspended invention in discovery and successful preflight from a suspended source. The privacy receipt also lacked a retention category for frozen pitch snapshots.
 - Regenerated OpenAPI and TypeScript matched the tracked contracts byte for byte. Traceability mapped 143 requirements across 45 specs.
+- The project quality gate passed on the integrated code. PostgreSQL API coverage was 97% with 772 tests. The gate also passed 250 web tests, lint, TypeScript, and traceability.

@@ -14,6 +14,7 @@ from app.core.settings import get_settings
 from app.main import app
 
 TABLES = (
+    "portability_import_rows, portability_import_runs, portability_external_references, portability_export_jobs, "
     "revision_answers, revision_items, revision_rounds, pitch_decisions, "
     "pitch_submission_files, pitch_submissions, pitches, briefs, preflights, "
     "match_results, match_runs, search_documents, saved_items, relevance_feedback, "

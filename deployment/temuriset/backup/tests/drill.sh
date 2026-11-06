@@ -15,6 +15,7 @@ for tool in "${required_tools[@]}"; do
   command -v "$tool" >/dev/null || { printf 'Required tool unavailable: %s\n' "$tool" >&2; exit 1; }
 done
 scratch="$(mktemp -d)"
+chmod 0700 "$scratch"
 id="$("$python" -c 'import uuid; print(uuid.uuid4().hex[:10])')"
 container="temuriset-backup-drill-$id"
 postgres_started=0

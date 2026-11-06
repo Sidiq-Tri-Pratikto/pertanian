@@ -581,6 +581,66 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/exports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Queue an authorized JSON export
+         * @description Queue export of explicitly chosen invention and document versions.
+         */
+        post: operations["start_export_api_v1_exports_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/exports/{export_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read export status and expiry
+         * @description Read owner-only status. A live authorization loss permanently expires the result.
+         */
+        get: operations["get_export_api_v1_exports__export_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/exports/{export_id}/download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Download an export with fresh authorization
+         * @description Serve a private JSON attachment only while every pinned dependency remains authorized.
+         */
+        get: operations["download_export_api_v1_exports__export_id__download_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/funding-requests": {
         parameters: {
             query?: never;
@@ -806,6 +866,86 @@ export interface paths {
          *         RevokedResponse: The outcome.
          */
         post: operations["revoke_grant_api_v1_grants__grant_id__revoke_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/imports/validate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Stage and validate a JSON import
+         * @description Stage the bounded raw file in the current context and queue validation.
+         */
+        post: operations["start_import_api_v1_imports_validate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/imports/{run_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read import stage status and preview
+         * @description Only the requester in the owning context can read preview rows.
+         */
+        get: operations["get_import_api_v1_imports__run_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/imports/{run_id}/apply": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Apply reviewed import
+         * @description Queue apply against the exact completed preview version.
+         */
+        post: operations["apply_import_api_v1_imports__run_id__apply_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/imports/{run_id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Cancel import work
+         * @description Stop the next checkpoint and report how many records committed.
+         */
+        post: operations["cancel_import_api_v1_imports__run_id__cancel_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1260,7 +1400,6 @@ export interface paths {
          *     Args:
          *         operation_id (UUID): From the response the client may have lost.
          *         session (SessionDep): Database session.
-         *         actor_party_id (ActorDep): The acting party.
          *         principal (PrincipalDep): The account scope for private operations.
          *
          *     Returns:
@@ -3063,6 +3202,21 @@ export interface components {
             party_id: string;
         };
         /**
+         * CreateExportRequest
+         * @description Create a job for explicit, unique resource references.
+         */
+        CreateExportRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /** Expected Version */
+            expected_version: null;
+            /** Selections */
+            selections: (components["schemas"]["InventionSelection"] | components["schemas"]["DocumentSelection"])[];
+        };
+        /**
          * CreateInventionRequest
          * @description Start an invention for the acting party.
          */
@@ -3458,6 +3612,24 @@ export interface components {
             versions: components["schemas"]["DocumentVersionResponse"][];
         };
         /**
+         * DocumentSelection
+         * @description The exact version of a document the requester can download.
+         */
+        DocumentSelection: {
+            /**
+             * Document Id
+             * Format: uuid
+             */
+            document_id: string;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "DOCUMENT";
+            /** Version */
+            version: number;
+        };
+        /**
          * DocumentVersionResponse
          * @description One version's three independent states.
          */
@@ -3625,6 +3797,31 @@ export interface components {
             provided: number;
             /** Reviewed */
             reviewed: number;
+        };
+        /**
+         * ExportStatusResponse
+         * @description Job status without a direct link to private storage.
+         */
+        ExportStatusResponse: {
+            /** Error Code */
+            error_code?: string | null;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Operation Id */
+            operation_id?: string | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "PENDING" | "SUCCEEDED" | "FAILED" | "EXPIRED";
         };
         /**
          * FactInput
@@ -3985,6 +4182,52 @@ export interface components {
             submitted?: false;
         };
         /**
+         * ImportActionRequest
+         * @description Act on the version of the run the requester reviewed.
+         */
+        ImportActionRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /** Expected Version */
+            expected_version: number;
+        };
+        /**
+         * ImportStatusResponse
+         * @description Private import status and a bounded page of preview decisions.
+         */
+        ImportStatusResponse: {
+            apply: components["schemas"]["StageProgress"];
+            /** Committed */
+            committed: number;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Next Offset */
+            next_offset?: number | null;
+            /** Operation Id */
+            operation_id?: string | null;
+            preview: components["schemas"]["StageProgress"];
+            /** Rows */
+            rows?: components["schemas"]["PreviewRow"][];
+            /** Skipped */
+            skipped: number;
+            /** Total */
+            total: number;
+            validation: components["schemas"]["StageProgress"];
+            /** Version */
+            version: number;
+        };
+        /**
          * InventionResponse
          * @description The owner's view: draft, published version and history.
          */
@@ -4009,6 +4252,32 @@ export interface components {
             status: string;
             /** Version */
             version: number;
+        };
+        /**
+         * InventionSelection
+         * @description An invention in the acting party's portfolio, from its draft or published pointer.
+         */
+        InventionSelection: {
+            /**
+             * Include Private Notes
+             * @default false
+             */
+            include_private_notes?: boolean;
+            /**
+             * Invention Id
+             * Format: uuid
+             */
+            invention_id: string;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "INVENTION";
+            /**
+             * Version
+             * @enum {string}
+             */
+            version: "DRAFT" | "PUBLISHED";
         };
         /**
          * InventionSummaryResponse
@@ -5096,6 +5365,32 @@ export interface components {
             token: string;
         };
         /**
+         * PreviewRow
+         * @description Review summary without source labels, free-form values or private notes.
+         */
+        PreviewRow: {
+            /**
+             * Action
+             * @enum {string}
+             */
+            action: "CREATE" | "UPDATE" | "UNCHANGED" | "CONFLICT";
+            /** Conflicts */
+            conflicts: ("facts" | "rights_claims" | "destination" | "partner_profile")[];
+            /** External Id */
+            external_id: string;
+            /** Mapped Fields */
+            mapped_fields: string[];
+            /** Outcome */
+            outcome?: ("COMMITTED" | "SKIPPED" | "UNCHANGED") | null;
+            /**
+             * Resource
+             * @enum {string}
+             */
+            resource: "INVENTION" | "PARTNER_PROFILE";
+            /** Skipped Fields */
+            skipped_fields: string[];
+        };
+        /**
          * PrivacyAnswer
          * @description The generated answer. ``removed`` lists only what has really been removed.
          */
@@ -5797,6 +6092,21 @@ export interface components {
              * Format: uuid
              */
             version_id: string;
+        };
+        /**
+         * StageProgress
+         * @description Independent state and processed work of one stage.
+         */
+        StageProgress: {
+            /** Error Code */
+            error_code?: string | null;
+            /** Processed */
+            processed: number;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "NOT_STARTED" | "PENDING" | "SUCCEEDED" | "FAILED" | "CANCELLED" | "EXPIRED";
         };
         /**
          * SubmissionResponse
@@ -7030,6 +7340,130 @@ export interface operations {
             };
         };
     };
+    start_export_api_v1_exports_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateExportRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExportStatusResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    get_export_api_v1_exports__export_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                export_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExportStatusResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    download_export_api_v1_exports__export_id__download_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                export_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     list_funding_requests_api_v1_funding_requests_get: {
         parameters: {
             query?: never;
@@ -7382,6 +7816,190 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RevokedResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    start_import_api_v1_imports_validate_post: {
+        parameters: {
+            query: {
+                acting_party_id: string;
+                expected_version?: null;
+                map_private_notes?: boolean;
+            };
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Version 1 JSON file, up to 20 MiB. Its SHA-256 participates in idempotency. */
+        requestBody: {
+            content: {
+                "application/json": string;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportStatusResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    get_import_api_v1_imports__run_id__get: {
+        parameters: {
+            query?: {
+                offset?: number;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportStatusResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    apply_import_api_v1_imports__run_id__apply_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ImportActionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportStatusResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    cancel_import_api_v1_imports__run_id__cancel_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ImportActionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportStatusResponse"];
                 };
             };
             /** @description Validation failed */

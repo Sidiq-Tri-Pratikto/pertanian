@@ -1,7 +1,7 @@
 # Tasks: Deployment and release
 
 **Input:** `specs/037-deploy-release/spec.md`, `plan.md`, the constitution, the PRD, and binding `docs/roadmap/architecture.md`.
-**Base:** M10 at `eeab59e`. Implement 037 before rehearsing 038. Paths below are relative to the pertanian repository root unless defined as an alias.
+**Base:** Latest `origin/main` with M7, plus the in-scope 034–044 changes. Checked items are inherited from the earlier M10-based implementation at `eeab59e`. T020–T021 verify its integration on this base. Complete 037 topology checks before the 038 Compose rehearsal. Paths below are relative to the pertanian repository root unless defined as an alias.
 
 | Alias | Path |
 |---|---|
@@ -47,27 +47,34 @@
 
 - [X] T018 [US1] Run local synthetic Compose smoke from `DEPLOY/tests/smoke.sh`, with bounded scans, twice-run migration, private storage, and checks against at least two independently configured supported compositions. Record version inventory and scope in `DEPLOY/validation.md`. Record missing external infrastructure or tooling rather than replacing the checks with simulated passes.
 - [X] T019 [US1] Update the binding/deviation and mock-versus-server evidence in `PROJECT/docs/roadmap/architecture.md` and `DEPLOY/validation.md`. Identify the actual design-system version and source, TR mappings, deviations, prototype and runtime coverage, and fixture/reset scope. Record Editor Play and separately opened supported exports independently for UX-23, where available.
-- [ ] T020 [US1] For actual staging acceptance, record approved staging URL, release digest, composition, runtime, fixture provenance, and the 003 browser suite plus J01–J05 in `DEPLOY/validation.md`. **Blocked** until approved staging and authentication are available and the journeys' prerequisite features ship. The 042 real-mail dependency and absent journeys cannot be satisfied by local dev-mail or a prototype. Leave production promotion and SC-001 open.
+- [X] T020 [US1] In `WEB/e2e/staging.ts`, `WEB/playwright.config.ts` and `WEB/e2e/staging-reporter.ts`, resolve J01 from its named test in `WEB/e2e/matching.spec.ts`, J02 from `WEB/e2e/j02-company-raise.spec.ts`, and J03 from `WEB/e2e/j03-revision.spec.ts`. Validate the required journey identities rather than accepting any test in the same file. Run a focused discovery/guard check to prove missing J04/J05 (027–032), misconfiguration, filtering or unexpected skips still fail closed. Confirm the 042 staging-auth changes are reflected in `DEPLOY/RUNBOOK.md` when verified.
+- [X] T021 [US1] Re-run the manifest contract and promotion evidence rejection checks from `DEPLOY/tests/test_release_manifest.py`, and build, scan and smoke the integrated images with `DEPLOY/tests/smoke.sh` and `.github/workflows/temuriset-release.yml` as the procedure. Record the actual image IDs, compositions, live capability/adapter inventory and observed Alembic head in `DEPLOY/validation.md`. Retain the M10 measurements as historical.
+- [ ] T022 [US1] For actual staging acceptance, record approved staging URL, release digest, composition, runtime, fixture provenance, and the 003 browser suite plus J01–J05 in `DEPLOY/validation.md`. **Blocked** until approved staging and authentication are available and the journeys' prerequisite features ship. The 042 real-mail dependency and missing J04/J05 prevent substituting local development mail or a prototype. Record actual rollout per composition only after it is observed. Leave production promotion and SC-001 open.
+- [ ] T023 [US1] Record a trusted published release's verified commit-bound image digests and manifest and an independently observed rollout for at least two supported compositions in `DEPLOY/validation.md`. Evidence remains gated on a protected release and separately approved rollout. Keep release availability and AC70 rollout evidence distinct.
+- [ ] T024 [US1] Record Editor Play and independently opened supported exports with the tested version, J01–J05 differences, fixture/reset scope and limitations in `DEPLOY/validation.md`. Keep this evidence open where the actual surfaces are unavailable.
 
 ## Phase 4: Polish
 
-- [X] T021 Regenerate `PROJECT/contracts/openapi.json` and `WEB/src/api/schema.generated.ts` with `make openapi` and `make generate-api`. Run lint, API/web checks, the available browser suite, and `PROJECT/docs/roadmap/check_traceability.py`; record actual results in `DEPLOY/validation.md`.
-- [X] T022 Update `API/README.md`, `WEB/README.md`, and `PROJECT/specs/037-deploy-release/spec.md` with actual configuration and status. Keep staging acceptance open until T020 passes. T021 and T022 can complete for local work while T020 is blocked. Do not claim a release, rollout, image scan, or production readiness based on code alone.
+- [X] T025 Regenerate `PROJECT/contracts/openapi.json` and `WEB/src/api/schema.generated.ts` with `make openapi` and `make generate-api`. Run lint, API/web checks, the available browser suite, and `PROJECT/docs/roadmap/check_traceability.py`; record actual results in `DEPLOY/validation.md`.
+- [X] T026 Update `API/README.md`, `WEB/README.md`, and `PROJECT/specs/037-deploy-release/spec.md` with actual configuration and status. Keep staging acceptance open until T022 passes. T025 and T026 describe historical validation and documentation. Do not claim a release, rollout, image scan, or production readiness based on code alone.
+
+- [X] T027 Verify regenerated contracts, API/web checks and the local 003 browser suite on the integrated worktree via `PROJECT/Makefile`, and run `PROJECT/docs/roadmap/check_traceability.py`. Update the deployment binding and integrated status in `PROJECT/docs/roadmap/architecture.md`, `DEPLOY/validation.md` and `PROJECT/specs/037-deploy-release/spec.md` from actual evidence.
 
 ## Dependencies & Execution Order
 
 - T001–T003 precede test design and implementation. T004–T006 can be written in parallel and must establish failing checks for new behavior.
 - T007–T010 establish safe runtime adapters and inventory. T011/T012 can proceed independently after T002/T003. T013 depends on T007–T012.
 - T014 can run independently after configuration and manifest fields are settled. T015 follows T013/T014. T016/T017 define staging invocation and responsibilities before evidence collection.
-- Local MVP is the 037 build/test artifacts and isolated stack, T018–T019. Production promotion still waits for T020 and the 038 recovery checks.
+- T020/T021 revalidate the inherited work on the integrated source. T022 waits on T020 and the actual staging prerequisites. T023 and T024 each require their own external evidence. T027 follows local checks and remains actionable while external tasks are gated.
+- The local MVP is an integrated run of the existing release tooling and isolated stack. Production promotion still waits for T022 and 038 recovery and actual previous-release compatibility.
 
 ## Requirements Coverage
 
 | Requirement | Tasks | Evidence |
 |---|---|---|
-| FR-001 and acceptance 1 | T006, T010–T015, T018, T021 | Release workflow and immutable manifest; no publication on this task |
-| FR-002, SC-001 and acceptance 3 | T015–T016, T018–T020 | Local evidence separate; real staging gate |
-| FR-003 and FR24 | T002–T003, T017, T022 | Runbook and inventory with actual deployment dependencies |
-| AC70 and acceptance 2 | T014–T015, T017–T018 | Composition-specific results and release/rollout distinction |
-| UX-23 and UX-24, acceptance 4 | T016, T019–T020 | Design-system binding and evidence sources identified |
+| FR-001 and acceptance 1 | T006, T010–T015, T018, T021, T023, T025, T027 | Validated release workflow and immutable manifest, with publication recorded separately |
+| FR-002, SC-001 and acceptance 3 | T015–T016, T018, T020–T022, T027 | Integrated local evidence and a separate staging gate |
+| FR-003 and FR24 | T002–T003, T017, T026–T027 | Runbook and inventory with actual deployment dependencies |
+| AC70 and acceptance 2 | T014–T015, T017–T018, T021, T023 | Composition-specific checks and actual rollout records |
+| UX-23 and UX-24, acceptance 4 | T016, T019–T020, T022, T024, T027 | Runtime evidence, prototype/editor/export evidence and design binding |
 | Adapter flip and deployment edge cases | T003–T005, T007–T013 | Actual backend in manifest; TLS, secret-store inputs and same-origin proxy |
