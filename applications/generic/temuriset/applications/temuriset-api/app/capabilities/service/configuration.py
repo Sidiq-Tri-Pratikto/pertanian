@@ -2,7 +2,7 @@
 
 import re
 from ipaddress import ip_address
-from urllib.parse import urlsplit
+from urllib.parse import SplitResult, urlsplit
 
 from app.capabilities.service.service import select_capabilities
 from app.core.errors.sanitize import REDACTED, redact_text
@@ -106,6 +106,7 @@ def validate_configuration(settings: Settings) -> tuple[str, ...]:
             raise ConfigurationError("S3 endpoint must be an HTTP(S) origin without embedded credentials.")
     if settings.summary_adapter == "local-relay":
         _validate_summary_relay(settings)
+    _validate_calendar(settings)
     return capability_ids
 
 
@@ -155,3 +156,57 @@ def _validate_email_relay(settings: Settings) -> None:
         validated_key(key)
     except ValueError:
         raise ConfigurationError("EMAIL_ENVELOPE_KEY must be a valid Fernet key.") from None
+
+
+def _validate_calendar(settings: Settings) -> None:
+    if settings.calendar_adapter == "off":
+        return
+    if settings.environment != "development":
+        raise ConfigurationError("CALENDAR_ADAPTER=loopback-oauth is allowed only in development.")
+    for name in ("calendar_authorize_url", "calendar_token_url", "calendar_freebusy_url", "calendar_revoke_url"):
+        endpoint = _loopback_url(getattr(settings, name))
+        if endpoint is None or not re.fullmatch(r"/[A-Za-z0-9_/-]{1,128}", endpoint.path):
+            raise ConfigurationError(f"{name.upper()} must be a literal loopback HTTP(S) endpoint.")
+    if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]{0,63}", settings.calendar_client_id):
+        raise ConfigurationError("CALENDAR_CLIENT_ID must be a synthetic client identifier.")
+    web = _loopback_url(settings.web_origin, allow_localhost=True)
+    if web is None or web.path:
+        raise ConfigurationError("WEB_ORIGIN must be a loopback origin when the local calendar is enabled.")
+    callback = _loopback_url(settings.calendar_callback_origin, allow_localhost=True)
+    if (
+        callback is None
+        or callback.path
+        or callback.hostname != web.hostname
+        or callback.scheme != web.scheme
+        or callback.port is None
+        or callback.port == (web.port or (443 if web.scheme == "https" else 80))
+    ):
+        raise ConfigurationError("CALENDAR_CALLBACK_ORIGIN must use the web hostname and a separate loopback API port.")
+    try:
+        calendar_key = validated_key(
+            settings.calendar_envelope_key.get_secret_value() if settings.calendar_envelope_key else ""
+        )
+    except ValueError:
+        raise ConfigurationError("CALENDAR_ENVELOPE_KEY must be a dedicated, valid envelope key.") from None
+    email_key = getattr(settings, "email_envelope_key", None)
+    if (
+        settings.mailbox_adapter == "loopback-relay"
+        and email_key
+        and calendar_key.decode("ascii") == email_key.get_secret_value()
+    ):
+        raise ConfigurationError("Email and calendar require independent envelope keys.")
+
+
+def _loopback_url(value: str, *, allow_localhost: bool = False) -> SplitResult | None:
+    hosts = ("127.0.0.1", "::1", "localhost") if allow_localhost else ("127.0.0.1", "::1")
+    if any(char in value for char in ("?", "#", "@", "\\")) or any(char.isspace() or ord(char) < 32 for char in value):
+        return None
+    try:
+        parsed = urlsplit(value)
+        if parsed.scheme not in ("http", "https") or parsed.hostname not in hosts or parsed.port == 0:
+            return None
+        canonical_host = "[::1]" if parsed.hostname == "::1" else parsed.hostname
+        canonical_netloc = canonical_host if parsed.port is None else f"{canonical_host}:{parsed.port}"
+        return parsed if parsed.netloc == canonical_netloc else None
+    except ValueError:
+        return None

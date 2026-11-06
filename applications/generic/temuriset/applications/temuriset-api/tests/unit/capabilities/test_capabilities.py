@@ -63,6 +63,7 @@ def test_nothing_claims_more_than_exists(composition: str) -> None:
         "ics-export": "available",
         "ai-summary": "planned",
         "email": "planned",
+        "calendar": "planned",
     }
 
 

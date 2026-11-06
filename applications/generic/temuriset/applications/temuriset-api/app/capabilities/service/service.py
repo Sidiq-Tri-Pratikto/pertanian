@@ -104,6 +104,7 @@ def build_manifest(
     scanner_adapter: str = "development-accept",
     summary_relay_enabled: bool = False,
     email_relay: bool = False,
+    calendar_enabled: bool = False,
 ) -> CapabilityManifestResponse:
     """Build the manifest for one composition.
 
@@ -114,6 +115,7 @@ def build_manifest(
         scanner_adapter (str, optional): Configured scanner. Defaults to "development-accept".
         summary_relay_enabled (bool, optional): Validated local summary relay enabled. Defaults to False.
         email_relay (bool, optional): Validated local email relay enabled. Defaults to False.
+        calendar_enabled (bool): Whether the validated development calendar profile is active.
 
     Returns:
         CapabilityManifestResponse: The manifest. A capability that is not selected is absent, not ``planned``.
@@ -141,6 +143,13 @@ def build_manifest(
             id="email",
             status=CapabilityStatus.AVAILABLE if email_relay else CapabilityStatus.PLANNED,
             implementation="loopback-relay" if email_relay else None,
+        )
+    )
+    adapters.append(
+        AdapterResponse(
+            id="calendar",
+            status=CapabilityStatus.AVAILABLE if calendar_enabled else CapabilityStatus.PLANNED,
+            implementation="loopback-oauth" if calendar_enabled else None,
         )
     )
     return CapabilityManifestResponse(

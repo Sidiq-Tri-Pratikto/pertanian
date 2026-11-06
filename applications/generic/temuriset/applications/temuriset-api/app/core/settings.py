@@ -25,6 +25,15 @@ class Settings(BaseSettings):
         email_relay_url (SecretStr | None): Literal loopback relay endpoint.
         email_relay_sender (SecretStr | None): Local relay sender address.
         email_envelope_key (SecretStr | None): Independent Fernet key for transient delivery material.
+        calendar_adapter (str): Calendar integration; the loopback profile is development-only.
+        calendar_authorize_url (str): Loopback authorization endpoint.
+        calendar_callback_origin (str): Direct loopback API origin for the fixed OAuth callback.
+        calendar_token_url (str): Loopback token endpoint.
+        calendar_freebusy_url (str): Loopback free/busy endpoint.
+        calendar_revoke_url (str): Loopback revocation endpoint.
+        calendar_client_id (str): Synthetic OAuth client identifier.
+        calendar_scope (str): The exact free/busy scope granted by the local double.
+        calendar_envelope_key (SecretStr | None): Calendar-only encryption key.
         code_requests_per_email_per_hour (int): Sign-in code requests allowed per email in an hour.
         code_requests_per_address_per_hour (int): Sign-in code requests allowed per client address in an hour.
         storage_path (str): Folder of the local storage adapter; bytes never get a public URL.
@@ -56,6 +65,15 @@ class Settings(BaseSettings):
     email_relay_url: SecretStr | None = None
     email_relay_sender: SecretStr | None = None
     email_envelope_key: SecretStr | None = None
+    calendar_adapter: Literal["off", "loopback-oauth"] = "off"
+    calendar_authorize_url: str = ""
+    calendar_callback_origin: str = "http://localhost:8020"
+    calendar_token_url: str = ""
+    calendar_freebusy_url: str = ""
+    calendar_revoke_url: str = ""
+    calendar_client_id: str = ""
+    calendar_scope: Literal["freebusy.read"] = "freebusy.read"
+    calendar_envelope_key: SecretStr | None = None
     code_requests_per_email_per_hour: int = 5
     code_requests_per_address_per_hour: int = 20
     storage_adapter: Literal["local", "s3"] = "local"
@@ -74,6 +92,11 @@ class Settings(BaseSettings):
     summary_prompt_version: str = ""
     demo_mode: bool = False
     demo_deployment: bool = False
+
+    @property
+    def calendar_enabled(self) -> bool:
+        """Whether startup selected the development-only calendar profile."""
+        return self.environment == "development" and self.calendar_adapter == "loopback-oauth"
 
     @property
     def cookie_secure(self) -> bool:

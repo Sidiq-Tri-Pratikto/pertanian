@@ -23,6 +23,7 @@ vi.mock('@/api/server', () => ({
       if (!me) throw new ApiError('UNAUTHENTICATED', 'Anda perlu masuk terlebih dahulu.', { retryable: false });
       return me;
     }
+    if (path === '/api/v1/me/calendar') return { state: 'off', version: 0 };
     if (path === '/api/v1/reports' || path === '/api/v1/privacy-requests') return [];
     if (path === '/api/v1/profiles/me') return { party_id: me?.active_party_id, bio: '', published: false, version: 1 };
     if (path === '/api/v1/inventions') return [];

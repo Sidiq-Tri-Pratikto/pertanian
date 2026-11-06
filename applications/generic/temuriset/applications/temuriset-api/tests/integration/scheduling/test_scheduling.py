@@ -15,7 +15,17 @@ from app.scheduling.repository.sqlalchemy.models import BookingRecord, MeetingRe
 from app.scheduling.service.service import SchedulingService
 from tests.integration.matching.conftest import World
 from tests.integration.pitches.conftest import client_of
-from tests.integration.scheduling.conftest import accept, approved, busy, propose, schedule
+from tests.integration.scheduling.conftest import (
+    TEST_ACCESS_TOKEN,
+    CalendarRelay,
+    accept,
+    approved,
+    busy,
+    connect_calendar,
+    disconnect_calendar,
+    propose,
+    schedule,
+)
 
 pytestmark = [pytest.mark.integration, pytest.mark.usefixtures("clean_tables")]
 
@@ -368,3 +378,160 @@ async def test_cancelling_a_proposal_keeps_the_meeting_and_cancelling_a_meeting_
     assert kept == 1
     assert cancelled.json()["state"] == "CANCELLED"
     assert await _bookings() == []
+
+
+async def test_connected_viewer_sees_only_own_half_open_advice_and_can_book_busy_slot(
+    world: World,
+    calendar_relay: CalendarRelay,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """
+    Condition:
+    - One party connected its calendar. A busy interval touches two slot boundaries and overlaps one slot.
+
+    Expected:
+    - Only the viewer who connected sees its own advice, and relay input contains only the exact UTC windows.
+    - External busyness leaves internal concurrent booking and ICS unchanged.
+    """
+    import json
+
+    mitra = world.recipients.clients["A"]
+    rani, _ = client_of(world, "F01")
+    await connect_calendar(rani)
+    monkeypatch.setenv("HTTP_PROXY", "http://127.0.0.1:1")
+    monkeypatch.setenv("NO_PROXY", "")
+    calendar_relay.busy = {"busy": [{"start": "2026-11-04T10:00:00Z", "end": "2026-11-04T12:30:00Z"}]}
+    pitch = await approved(world)
+    with clock.frozen(MADE):
+        proposal = (await propose(mitra, pitch, J04, "calendar-proposal")).json()
+        from_owner = await rani.get(f"/api/v1/pitches/{pitch['id']}/schedule")
+        other = await schedule(mitra, pitch)
+        first, second = await asyncio.gather(
+            accept(rani, proposal, 2, "calendar-accept-1"),
+            accept(rani, proposal, 2, "calendar-accept-2"),
+        )
+        made = next(result for result in (first, second) if result.status_code == 200)
+        ics = await rani.get(f"/api/v1/meetings/{made.json()['id']}/calendar.ics")
+    assert "no-store" in from_owner.headers["cache-control"]
+    assert from_owner.json()["external_calendar"] == "advisory"
+    assert [slot["external_availability"] for slot in from_owner.json()["proposals"][0]["slots"]] == [
+        "free",
+        "busy",
+        "free",
+    ]
+    assert other["external_calendar"] == "unknown"
+    assert all("external_availability" not in slot for slot in other["proposals"][0]["slots"])
+    assert [request.path for request in calendar_relay.requests] == ["/token", "/freebusy"]
+    sent = calendar_relay.requests[-1]
+    assert sent.headers["authorization"] == f"Bearer {TEST_ACCESS_TOKEN}"
+    assert json.loads(sent.body) == {
+        "windows": [
+            {"start": "2026-11-04T09:00:00Z", "end": "2026-11-04T10:00:00Z"},
+            {"start": "2026-11-04T11:00:00Z", "end": "2026-11-04T12:00:00Z"},
+            {"start": "2026-11-04T13:00:00Z", "end": "2026-11-04T14:00:00Z"},
+        ]
+    }
+    assert sorted(result.status_code for result in (first, second)) == [200, 409]
+    assert await _meetings() == 1
+    assert "DTSTART:20261104T110000Z\r\n" in ics.text
+
+
+@pytest.mark.parametrize("failure", ["redirect", "oversize", "event_data", "timeout"])
+async def test_provider_failure_remains_unknown_and_never_affects_internal_scheduling(
+    world: World,
+    calendar_relay: CalendarRelay,
+    failure: str,
+) -> None:
+    """
+    Condition:
+    - A connected calendar returns a redirect, oversize, event details, or fails to respond.
+
+    Expected:
+    - The API returns unknown with no annotations, keeps provider data private, and booking and ICS succeed.
+    """
+    mitra = world.recipients.clients["A"]
+    rani, _ = client_of(world, "F01")
+    await connect_calendar(rani)
+    if failure == "redirect":
+        calendar_relay.busy_status = 307
+    elif failure == "oversize":
+        calendar_relay.busy = {"busy": "x" * 20_000}
+    elif failure == "event_data":
+        calendar_relay.busy = {
+            "busy": [
+                {
+                    "start": "2026-11-04T09:15:00Z",
+                    "end": "2026-11-04T09:45:00Z",
+                    "title": "private synthetic event",
+                }
+            ]
+        }
+    else:
+        calendar_relay.block_busy = True
+    pitch = await approved(world)
+    with clock.frozen(MADE):
+        proposal = (await propose(mitra, pitch, J04, "calendar-failure")).json()
+        read = await schedule(rani, pitch)
+        calendar_relay.release_busy.set()
+        made = await accept(rani, proposal, 1, "calendar-failure-accept")
+        assert made.status_code == 200, made.text
+        ics = await rani.get(f"/api/v1/meetings/{made.json()['id']}/calendar.ics")
+    assert read["external_calendar"] == "unknown"
+    assert all("external_availability" not in slot for slot in read["proposals"][0]["slots"])
+    assert "private synthetic event" not in str(read)
+    assert [request.path for request in calendar_relay.requests] == ["/token", "/freebusy"]
+    assert "DTSTART:20261104T090000Z\r\n" in ics.text
+
+
+async def test_disconnect_during_advisory_lookup_suppresses_the_in_flight_result(
+    world: World,
+    calendar_relay: CalendarRelay,
+) -> None:
+    """
+    Condition:
+    - The viewer disconnects while its private free/busy lookup is waiting on the relay.
+
+    Expected:
+    - Disconnect finishes without waiting on the old lookup, and the finished lookup returns unknown.
+    """
+    mitra = world.recipients.clients["A"]
+    rani, _ = client_of(world, "F01")
+    await connect_calendar(rani)
+    calendar_relay.block_busy = True
+    pitch = await approved(world)
+    with clock.frozen(MADE):
+        await propose(mitra, pitch, J04, "calendar-race")
+        reading = asyncio.create_task(schedule(rani, pitch))
+        await asyncio.wait_for(calendar_relay.busy_started.wait(), 1)
+        disconnected = await asyncio.wait_for(disconnect_calendar(rani), 1)
+        assert disconnected.status_code == 200
+        assert (await rani.get("/api/v1/me/calendar")).json()["revocation"] == "confirmed"
+        calendar_relay.release_busy.set()
+        read = await reading
+    assert read["external_calendar"] == "unknown"
+    assert all("external_availability" not in slot for slot in read["proposals"][0]["slots"])
+    assert [request.path for request in calendar_relay.requests] == ["/token", "/freebusy", "/revoke"]
+
+
+async def test_lookup_rechecks_live_session_after_provider_io(world: World, calendar_relay: CalendarRelay) -> None:
+    """
+    Condition:
+    - The viewer loses the authorized session while its external lookup is waiting on the relay.
+
+    Expected:
+    - A stale session cannot receive the pitch projection or calendar advice.
+    """
+    mitra = world.recipients.clients["A"]
+    rani, _ = client_of(world, "F01")
+    await connect_calendar(rani)
+    calendar_relay.block_busy = True
+    pitch = await approved(world)
+    with clock.frozen(MADE):
+        await propose(mitra, pitch, J04, "calendar-signout")
+        reading = asyncio.create_task(rani.get(f"/api/v1/pitches/{pitch['id']}/schedule"))
+        await asyncio.wait_for(calendar_relay.busy_started.wait(), 1)
+        await rani.post("/api/v1/auth/sign-out")
+        calendar_relay.release_busy.set()
+        response = await reading
+    assert (response.status_code, response.json()["error"]["code"]) == (401, "UNAUTHENTICATED")
+    assert "external_availability" not in response.text

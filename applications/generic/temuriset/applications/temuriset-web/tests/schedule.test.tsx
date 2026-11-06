@@ -278,3 +278,33 @@ describe('Beranda (S02)', () => {
     expect(screen.getByText(/Belum dibaca/)).toBeInTheDocument();
   });
 });
+
+it('announces viewer-only calendar advice without disabling an externally busy slot', async () => {
+  const ordinary = proposal();
+  const { container } = render(panel(schedule({
+    external_calendar: 'advisory',
+    proposals: [{
+      ...ordinary,
+      slots: [
+        { ...ordinary.slots[0], external_availability: 'busy' },
+        { ...ordinary.slots[1], external_availability: 'free' },
+        ordinary.slots[2],
+      ],
+    }],
+  })));
+
+  expect(screen.getByText(/berasal dari kalender Anda/)).toBeVisible();
+  const busy = screen.getByRole('radio', { name: /Kalender Anda: sibuk/ });
+  expect(busy).toBeEnabled();
+  expect(screen.getByRole('radio', { name: /Kalender Anda: kosong/ })).toBeEnabled();
+  await userEvent.click(busy);
+  expect(busy).toBeChecked();
+  expect(screen.getByRole('button', { name: 'Konfirmasi waktu' })).not.toHaveAttribute('aria-disabled', 'true');
+  expect((await axe.run(container)).violations).toEqual([]);
+});
+
+it('states external availability is unknown when the adapter cannot determine it', () => {
+  render(panel(schedule({ proposals: [proposal()] })));
+  expect(screen.getByText(/Ketersediaan di kalender luar belum diketahui/)).toBeVisible();
+  expect(screen.queryByText(/Kalender Anda: (sibuk|kosong)/)).not.toBeInTheDocument();
+});

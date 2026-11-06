@@ -26,6 +26,12 @@ NOT_DATA_ROUTES = {
     ("POST", "/api/v1/auth/sign-out"),
     ("GET", "/api/v1/me"),
     ("PATCH", "/api/v1/me"),
+    # These routes have no target account parameter. OAuth isolation is exercised with valid state in test_calendar.
+    ("GET", "/api/v1/me/calendar"),
+    ("POST", "/api/v1/me/calendar/connect"),
+    ("GET", "/api/v1/me/calendar/connect"),
+    ("GET", "/api/v1/me/calendar/callback"),
+    ("POST", "/api/v1/me/calendar/disconnect"),
     # Settings are scoped to the session's active party; public profile redaction is tested in relationships.
     ("GET", "/api/v1/profiles/me"),
     ("PUT", "/api/v1/profiles/me"),

@@ -25,6 +25,7 @@ async def get_capabilities() -> CapabilityManifestResponse:
         scanner_adapter=settings.file_scanner,
         summary_relay_enabled=settings.summary_adapter == "local-relay",
         email_relay=loopback_mail_enabled(settings),
+        calendar_enabled=settings.calendar_enabled,
     )
     manifest.demo = settings.demo_mode
     return manifest

@@ -40,6 +40,7 @@ from app.scheduling.repository.sqlalchemy.models import (
     ScheduleSlotRecord,
 )
 from app.scheduling.repository.sqlalchemy.repository import SqlAlchemySchedulingRepository
+from app.scheduling.service.calendar_adapter import CalendarWindow
 from app.scheduling.service.expiry import expire_if_due, expires_at
 from app.scheduling.service.ics import calendar
 
@@ -381,6 +382,37 @@ class SchedulingService:
             meetings=meetings,
             can_schedule=record.status == "APPROVED_FOR_DISCUSSION" and Capability.SCHEDULE in principal.capabilities,
         )
+
+    @staticmethod
+    def calendar_windows(schedule: ScheduleResponse) -> tuple[UUID, dict[UUID, CalendarWindow]] | None:
+        """Limit external reads to the current proposal's future slots."""
+        open_proposal = next((proposal for proposal in schedule.proposals if proposal.state == "OPEN"), None)
+        if open_proposal is None:
+            return None
+        now = clock.now()
+        windows = {
+            slot.id: CalendarWindow(slot.starts_at, slot.ends_at)
+            for slot in open_proposal.slots
+            if slot.starts_at > now
+        }
+        return (open_proposal.id, windows) if windows else None
+
+    @staticmethod
+    def annotate_calendar(
+        schedule: ScheduleResponse,
+        query: tuple[UUID, dict[UUID, CalendarWindow]],
+        busy: list[CalendarWindow],
+    ) -> None:
+        """Apply the advisory result only to queried slots still in the same open proposal."""
+        current = SchedulingService.calendar_windows(schedule)
+        if current is None or current[0] != query[0]:
+            return
+        proposal = next(proposal for proposal in schedule.proposals if proposal.id == query[0])
+        for slot in proposal.slots:
+            window = current[1].get(slot.id)
+            if window is not None and window == query[1].get(slot.id):
+                slot.external_availability = "busy" if any(window.overlaps(interval) for interval in busy) else "free"
+                schedule.external_calendar = "advisory"
 
     async def ics(self, principal: Principal, meeting_id: UUID) -> str:
         """Build a calendar file from the stored UTC instants (FR-004, AC68).

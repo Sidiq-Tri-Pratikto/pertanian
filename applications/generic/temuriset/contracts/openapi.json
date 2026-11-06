@@ -694,6 +694,186 @@
         "title": "BudgetResponse",
         "type": "object"
       },
+      "CalendarConnectRequest": {
+        "additionalProperties": false,
+        "description": "The account accepts the local read-only free/busy consent.",
+        "properties": {
+          "consent": {
+            "const": true,
+            "title": "Consent",
+            "type": "boolean"
+          },
+          "expected_version": {
+            "minimum": 0.0,
+            "title": "Expected Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "expected_version",
+          "consent"
+        ],
+        "title": "CalendarConnectRequest",
+        "type": "object"
+      },
+      "CalendarConnectResponse": {
+        "description": "The committed local consent and the same-origin navigation step.",
+        "properties": {
+          "authorization_path": {
+            "const": "/api/v1/me/calendar/connect",
+            "default": "/api/v1/me/calendar/connect",
+            "title": "Authorization Path",
+            "type": "string"
+          },
+          "operation_id": {
+            "format": "uuid",
+            "title": "Operation Id",
+            "type": "string"
+          },
+          "revocation": {
+            "anyOf": [
+              {
+                "enum": [
+                  "confirmed",
+                  "unconfirmed",
+                  "not_required"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Provider revocation outcome for the latest local disconnect, when known.",
+            "title": "Revocation"
+          },
+          "state": {
+            "enum": [
+              "off",
+              "off_with_connection",
+              "disconnected",
+              "pending",
+              "connected",
+              "expired"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "state",
+          "version",
+          "operation_id"
+        ],
+        "title": "CalendarConnectResponse",
+        "type": "object"
+      },
+      "CalendarDisconnectResponse": {
+        "description": "The local disconnect and whether the provider confirmed token revocation.",
+        "properties": {
+          "operation_id": {
+            "format": "uuid",
+            "title": "Operation Id",
+            "type": "string"
+          },
+          "revocation": {
+            "enum": [
+              "unconfirmed",
+              "not_required"
+            ],
+            "title": "Revocation",
+            "type": "string"
+          },
+          "state": {
+            "enum": [
+              "off",
+              "off_with_connection",
+              "disconnected",
+              "pending",
+              "connected",
+              "expired"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "state",
+          "version",
+          "revocation",
+          "operation_id"
+        ],
+        "title": "CalendarDisconnectResponse",
+        "type": "object"
+      },
+      "CalendarStatusResponse": {
+        "description": "Account-owned connection state, without any provider identity or credentials.",
+        "properties": {
+          "revocation": {
+            "anyOf": [
+              {
+                "enum": [
+                  "confirmed",
+                  "unconfirmed",
+                  "not_required"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Provider revocation outcome for the latest local disconnect, when known.",
+            "title": "Revocation"
+          },
+          "state": {
+            "enum": [
+              "off",
+              "off_with_connection",
+              "disconnected",
+              "pending",
+              "connected",
+              "expired"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "state",
+          "version"
+        ],
+        "title": "CalendarStatusResponse",
+        "type": "object"
+      },
+      "CalendarVersionRequest": {
+        "additionalProperties": false,
+        "description": "An account calendar mutation against a previously observed version.",
+        "properties": {
+          "expected_version": {
+            "minimum": 0.0,
+            "title": "Expected Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "expected_version"
+        ],
+        "title": "CalendarVersionRequest",
+        "type": "object"
+      },
       "Capability": {
         "description": "What a member may do as an organization (FR02). A personal party holds every capability.",
         "enum": [
@@ -9092,9 +9272,12 @@
             "type": "boolean"
           },
           "external_calendar": {
-            "const": "unknown",
             "default": "unknown",
-            "description": "No calendar is connected, so outside availability is unknown (AC68).",
+            "description": "Unknown unless the viewer\u2019s own calendar returned advisory slot availability (AC68).",
+            "enum": [
+              "unknown",
+              "advisory"
+            ],
             "title": "External Calendar",
             "type": "string"
           },
@@ -9200,6 +9383,22 @@
             "format": "date-time",
             "title": "Ends At",
             "type": "string"
+          },
+          "external_availability": {
+            "anyOf": [
+              {
+                "enum": [
+                  "busy",
+                  "free"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Advisory availability for the signed-in account.",
+            "title": "External Availability"
           },
           "id": {
             "format": "uuid",
@@ -13529,6 +13728,212 @@
         ]
       }
     },
+    "/api/v1/me/calendar": {
+      "get": {
+        "description": "Report only the signed-in account's connection state.",
+        "operationId": "calendar_status_api_v1_me_calendar_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalendarStatusResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Read my calendar connection",
+        "tags": [
+          "scheduling"
+        ]
+      }
+    },
+    "/api/v1/me/calendar/callback": {
+      "get": {
+        "description": "Consume state before the exchange and always redirect without reflecting callback parameters.",
+        "operationId": "calendar_callback_api_v1_me_calendar_callback_get",
+        "responses": {
+          "307": {
+            "description": "Successful Response"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Finish local calendar consent",
+        "tags": [
+          "scheduling"
+        ]
+      }
+    },
+    "/api/v1/me/calendar/connect": {
+      "get": {
+        "description": "Redirect the initiating browser session to the fixed loopback provider.",
+        "operationId": "authorize_calendar_api_v1_me_calendar_connect_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "version",
+            "required": true,
+            "schema": {
+              "minimum": 1,
+              "title": "Version",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "307": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Open the local calendar consent screen",
+        "tags": [
+          "scheduling"
+        ]
+      },
+      "post": {
+        "description": "Commit explicit consent and return a same-origin navigation path without credentials.",
+        "operationId": "connect_calendar_api_v1_me_calendar_connect_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CalendarConnectRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalendarConnectResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Consent to the local free/busy calendar",
+        "tags": [
+          "scheduling"
+        ]
+      }
+    },
+    "/api/v1/me/calendar/disconnect": {
+      "post": {
+        "description": "Commit local invalidation before attempting bounded provider revocation.",
+        "operationId": "disconnect_calendar_api_v1_me_calendar_disconnect_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CalendarVersionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalendarDisconnectResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Disconnect my external calendar",
+        "tags": [
+          "scheduling"
+        ]
+      }
+    },
     "/api/v1/me/context": {
       "put": {
         "description": "Act as the personal party or an organization the account belongs to.\n\nArgs:\n    body (ContextRequest): The party to act as.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    MeResponse: The account in its new context.",
@@ -16763,7 +17168,7 @@
     },
     "/api/v1/pitches/{pitch_id}/schedule": {
       "get": {
-        "description": "Read proposals and meetings, with expiry evaluated now.\n\nArgs:\n    pitch_id (UUID): The pitch.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    ScheduleResponse: Proposals and meetings.",
+        "description": "Read authorized scheduling data and optionally annotate the viewer's own calendar.",
         "operationId": "read_schedule_api_v1_pitches__pitch_id__schedule_get",
         "parameters": [
           {

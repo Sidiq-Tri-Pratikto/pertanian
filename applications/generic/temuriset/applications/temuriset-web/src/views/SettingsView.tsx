@@ -15,6 +15,7 @@ import { FEATURES, type Capabilities } from '@/features/registry';
 import { ServiceStatus } from '@/features/ServiceStatus';
 import { LOCALES } from '@/features/signIn';
 import { FeatureList, PROVENANCE } from '@/views/parts';
+import { CalendarConnection, type CalendarConnectionProps } from '@/views/settings/CalendarConnection';
 import { PrivacyRequests } from '@/views/settings/PrivacyRequests';
 import { ReportForm } from '@/views/settings/ReportForm';
 
@@ -27,6 +28,7 @@ type SettingsViewProps = {
   /** Its invitations, for members who manage members. */
   invitations: Invitation[] | null;
   joined?: boolean;
+  calendar?: CalendarConnectionProps;
   profile?: ProfileSettings | null;
   reports?: SectionData<Report>;
   privacy?: SectionData<PrivacyRequest>;
@@ -34,7 +36,7 @@ type SettingsViewProps = {
 };
 
 /** S18: the account, its organizations, members and invitations, the service check and every planned feature. */
-export function SettingsView({ me, capabilities, members, invitations, joined, profile, reports, privacy, reportSubject, emailNotificationsAvailable }: SettingsViewProps) {
+export function SettingsView({ me, capabilities, members, invitations, joined, calendar, profile, reports, privacy, reportSubject, emailNotificationsAvailable }: SettingsViewProps) {
   const persona = readPersona(me.account.persona) ?? 'inovator';
   const organizations = me.organizations ?? [];
   const acting = organizations.find((organization) => organization.party_id === me.active_party_id);
@@ -133,6 +135,7 @@ export function SettingsView({ me, capabilities, members, invitations, joined, p
         {profile ? <ProfileForm key={profile.party_id} profile={profile} /> : null}
       </section>
       {reports ? <ReportForm key={reportSubject?.id ?? 'blank'} scope={scope} subject={reportSubject ?? null} initial={reports} /> : null}
+      {calendar ? <CalendarConnection key={`${calendar.initial?.state ?? 'unavailable'}-${calendar.initial?.version ?? 0}`} {...calendar} /> : null}
       {privacy ? <PrivacyRequests scope={scope} initial={privacy} /> : null}
       <section className="tr-stack" aria-labelledby="judul-layanan">
         <h2 id="judul-layanan" className="tr-sys-type-heading-sm">

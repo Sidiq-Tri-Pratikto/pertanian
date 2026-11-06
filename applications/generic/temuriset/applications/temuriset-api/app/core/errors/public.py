@@ -67,6 +67,12 @@ PUBLIC_ERROR_BY_CODE: dict[str, PublicError] = {
         503,
         "Email tidak dapat dikirim. Hubungi pengelola layanan.",
     ),
+    codes.APP_CALENDAR_UNAVAILABLE: PublicError(
+        "CALENDAR_UNAVAILABLE", 503, "Kalender luar belum dapat diakses. Periksa sambungan kalender Anda."
+    ),
+    codes.APP_CALENDAR_CALLBACK_INVALID: PublicError(
+        "CALENDAR_CALLBACK_INVALID", 400, "Kalender belum tersambung. Mulai lagi dari pengaturan kalender."
+    ),
     codes.APP_STORAGE_UNAVAILABLE: PublicError(
         "STORAGE_UNAVAILABLE",
         503,
