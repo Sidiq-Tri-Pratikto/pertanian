@@ -48,7 +48,11 @@ export function SchedulePanel({ pitchId, approved, schedule, actingPartyId, zone
   return (
     <div className="tr-stack">
       <h2 className="tr-sys-type-heading-sm">Jadwal</h2>
-      <p className="tr-muted tr-sys-type-support">Ketersediaan di kalender luar tidak diketahui; TemuRiset hanya memeriksa jadwal yang tercatat di sini.</p>
+      <p className="tr-muted tr-sys-type-support">
+        {schedule.external_calendar === 'advisory'
+          ? 'Ketersediaan di bawah berasal dari kalender Anda. Konfirmasi tetap mengikuti jadwal di TemuRiset.'
+          : 'Ketersediaan di kalender luar belum diketahui. TemuRiset tetap memeriksa jadwal yang tercatat di sini.'}
+      </p>
       {!schedule.can_schedule ? <Status tone="neutral" label="Akun Anda hanya dapat melihat jadwal ini" /> : null}
       {completed ? (
         <section className="tr-panel tr-stack" aria-labelledby="pertemuan-selesai">
@@ -150,7 +154,7 @@ function OpenProposal({ proposal, zone, actingPartyId, canSchedule, onPropose }:
         </p>
       ) : null}
       <ScheduleSlotList
-        slots={proposal.slots.map((slot) => ({ id: slot.id, start: slot.starts_at, end: slot.ends_at, minutes: proposal.minutes, conflict: conflicts.includes(slot.id) }))}
+        slots={proposal.slots.map((slot) => ({ id: slot.id, start: slot.starts_at, end: slot.ends_at, minutes: proposal.minutes, conflict: conflicts.includes(slot.id), externalAvailability: slot.external_availability ?? undefined }))}
         zone={zone}
         otherZone={proposal.mine ? undefined : proposal.time_zone}
         selectedId={selected}

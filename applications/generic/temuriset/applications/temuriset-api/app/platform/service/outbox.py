@@ -31,6 +31,8 @@ async def enqueue_job(
     *,
     actor_party_id: UUID | None = None,
     run_after: datetime | None = None,
+    input_expires_at: datetime | None = None,
+    dedupe_key: str | None = None,
 ) -> UUID:
     """Queue a job for the worker, in the caller's transaction.
 
@@ -40,10 +42,18 @@ async def enqueue_job(
         job_input (dict[str, Any] | None, optional): JSON input. Defaults to None.
         actor_party_id (UUID | None, optional): Party the job acts for. Defaults to None.
         run_after (datetime | None, optional): Earliest start. Defaults to now.
+        input_expires_at (datetime | None, optional): Deadline for scrubbing transient input. Defaults to None.
+        dedupe_key (str | None, optional): Stable key for one logical job. Defaults to None.
 
     Returns:
         UUID: The job id.
     """
+    due_at = run_after or clock.now()
     return await SqlAlchemyPlatformRepository(session).add_job(
-        kind=kind, input=job_input or {}, actor_party_id=actor_party_id, run_after=run_after or clock.now()
+        kind=kind,
+        input=job_input or {},
+        actor_party_id=actor_party_id,
+        run_after=min(due_at, input_expires_at) if input_expires_at is not None else due_at,
+        input_expires_at=input_expires_at,
+        dedupe_key=dedupe_key,
     )

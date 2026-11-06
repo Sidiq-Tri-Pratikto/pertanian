@@ -4,8 +4,10 @@ import logging
 from unittest.mock import patch
 
 import pytest
-from pydantic import ValidationError
+from cryptography.fernet import Fernet
+from pydantic import SecretStr, ValidationError
 
+from app.capabilities.router import get_capabilities
 from app.capabilities.service.configuration import ConfigurationError, looks_secret, validate_configuration
 from app.capabilities.service.service import build_manifest
 from app.core.settings import Settings
@@ -229,3 +231,329 @@ def test_manifest_reports_storage_implementation() -> None:
     manifest = build_manifest("generic-base", storage_adapter="s3")
     adapter = next(adapter for adapter in manifest.adapters if adapter.id == "object-storage")
     assert adapter.implementation == "s3"
+
+
+@pytest.mark.parametrize(
+    ("updates", "error"),
+    [
+        ({"environment": "production"}, "allowed only in development"),
+        ({"summary_relay_url": None}, "requires a literal HTTP loopback endpoint"),
+        (
+            {"summary_relay_url": SecretStr("http://localhost:54321/select")},
+            "requires a literal HTTP loopback endpoint",
+        ),
+        (
+            {"summary_relay_url": SecretStr("https://127.0.0.1:54321/select")},
+            "requires a literal HTTP loopback endpoint",
+        ),
+        (
+            {"summary_relay_url": SecretStr("http://127.0.0.1:65536/select")},
+            "requires a literal HTTP loopback endpoint",
+        ),
+        (
+            {"summary_relay_url": SecretStr("http://127.0.0.1:1234@synthetic.invalid")},
+            "requires a literal HTTP loopback endpoint",
+        ),
+        (
+            {"summary_relay_url": SecretStr("http://127.0.0.1:1234/select?token=secret-example")},
+            "requires a literal HTTP loopback endpoint",
+        ),
+        ({"summary_model_id": "secret-looking-key-123456789012345678901234567890123456"}, "SUMMARY_MODEL_ID"),
+        ({"summary_model_version": ""}, "SUMMARY_MODEL_VERSION"),
+        ({"summary_prompt_version": ""}, "SUMMARY_PROMPT_VERSION"),
+    ],
+)
+def test_local_summary_relay_rejects_unsafe_configuration(updates: dict, error: str) -> None:
+    """
+    Condition:
+    - The local relay is configured outside development, with unsafe addressing, or incomplete/secret metadata.
+
+    Expected:
+    - Startup fails and diagnostics name the setting without publishing supplied values.
+    """
+    settings = _settings(
+        file_scanner="clamav",
+        mailbox_adapter="disabled",
+        storage_adapter="s3",
+        s3_endpoint_url=SecretStr("https://storage.example.invalid"),
+        s3_bucket="synthetic-fixture",
+        s3_access_key=SecretStr("fake-storage-key"),
+        s3_secret_key=SecretStr("fake-storage-secret"),
+        summary_adapter="local-relay",
+        summary_relay_url=SecretStr("http://127.0.0.1:54321/select"),
+        summary_model_id="synthetic-selector",
+        summary_model_version="model-v2",
+        summary_prompt_version="prompt-v3",
+    ).model_copy(update=updates)
+
+    with pytest.raises(ConfigurationError, match=error) as failure:
+        validate_configuration(settings)
+    assert "secret-example" not in str(failure.value)
+    assert "secret-looking-key" not in str(failure.value)
+
+
+def test_ai_summary_manifest_defaults_off_and_accepts_valid_local_configuration() -> None:
+    """
+    Condition:
+    - The service runs with default settings, then with a validated development loopback relay.
+
+    Expected:
+    - Only the validated local profile advertises availability, without endpoint or provenance values.
+    """
+    default = build_manifest("generic-base")
+    off = next(adapter for adapter in default.adapters if adapter.id == "ai-summary")
+    assert off.status == "planned" and off.implementation == "off"
+
+    settings = _settings(
+        summary_adapter="local-relay",
+        summary_relay_url=SecretStr("http://[::1]:54321/select"),
+        summary_model_id="synthetic-selector",
+        summary_model_version="model-v2",
+        summary_prompt_version="prompt-v3",
+    )
+    assert validate_configuration(settings) == ("core", "company_funding")
+    local = build_manifest(settings.composition, summary_relay_enabled=True)
+    adapter = next(adapter for adapter in local.adapters if adapter.id == "ai-summary")
+    assert adapter.status == "available" and adapter.implementation == "local-relay"
+    assert "54321" not in local.model_dump_json()
+    assert "synthetic-selector" not in local.model_dump_json()
+
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        "http://localhost:8090/deliver",
+        "http://192.0.2.1:8090/deliver",
+        "http://127.0.0.1@192.0.2.1:8090/deliver",
+        "http://127.0.0.1:8090/deliver?token=fixture",
+        "http://127.0.0.1:8090/deliver#fixture",
+        "http://127.0.0.1:8090/\\deliver",
+        "http://127.0.0.1:65536/deliver",
+        "http://[::1]junk/deliver",
+        "file:///tmp/relay",
+    ],
+)
+def test_loopback_mail_rejects_unsafe_relay_urls(url: str) -> None:
+    """
+    Condition:
+    - An explicitly enabled relay has an unsafe or nonliteral address.
+
+    Expected:
+    - Startup fails without echoing the address.
+    """
+    settings = _settings(
+        mailbox_adapter="loopback-relay",
+        email_relay_url=url,
+        email_relay_sender="relay@example.test",
+        email_envelope_key=Fernet.generate_key().decode("ascii"),
+    )
+    with pytest.raises(ConfigurationError, match="EMAIL_RELAY_URL") as raised:
+        validate_configuration(settings)
+    assert url not in str(raised.value)
+
+
+@pytest.mark.parametrize("url", ["http://127.0.0.1:8090/deliver", "https://[::1]:8090/deliver"])
+def test_loopback_mail_needs_development_and_valid_credentials(url: str) -> None:
+    """
+    Condition:
+    - Startup selects a loopback relay with a literal endpoint.
+
+    Expected:
+    - Only development with a sender and a valid envelope key is accepted.
+    """
+    settings = _settings(
+        mailbox_adapter="loopback-relay",
+        email_relay_url=url,
+        email_relay_sender="relay@example.test",
+        email_envelope_key=Fernet.generate_key().decode("ascii"),
+    )
+    assert validate_configuration(settings) == ("core", "company_funding")
+    for updates, message in (
+        ({"environment": "staging", "file_scanner": "clamav"}, "MAILBOX_ADAPTER=loopback-relay"),
+        ({"email_relay_sender": None}, "EMAIL_RELAY_SENDER"),
+        ({"email_envelope_key": None}, "EMAIL_ENVELOPE_KEY"),
+        ({"email_envelope_key": SecretStr(FAKE_KEY)}, "EMAIL_ENVELOPE_KEY"),
+    ):
+        with pytest.raises(ConfigurationError, match=message) as raised:
+            validate_configuration(settings.model_copy(update=updates))
+        assert FAKE_KEY not in str(raised.value)
+
+
+@pytest.mark.parametrize(
+    ("mode", "status", "implementation"),
+    [
+        ("development", "planned", None),
+        ("disabled", "planned", None),
+        ("loopback-relay", "available", "loopback-relay"),
+    ],
+)
+async def test_manifest_reports_local_email_without_configuration(
+    mode: str, status: str, implementation: str | None
+) -> None:
+    """
+    Condition:
+    - The validated deployment selects the development table, disabled mail, or the loopback relay.
+
+    Expected:
+    - Only the loopback relay is available, and the manifest includes no endpoint, sender or key.
+    """
+    key = Fernet.generate_key().decode("ascii")
+    url, sender = "http://127.0.0.1:8090/deliver", "relay@example.test"
+    settings = _settings(mailbox_adapter=mode, email_relay_url=url, email_relay_sender=sender, email_envelope_key=key)
+    validate_configuration(settings)
+    with patch("app.capabilities.router.get_settings", return_value=settings):
+        manifest = await get_capabilities()
+    adapter = next(item for item in manifest.adapters if item.id == "email")
+    assert (adapter.status, adapter.implementation) == (status, implementation)
+    assert all(private not in manifest.model_dump_json() for private in (key, url, sender))
+
+
+def _calendar_settings(**overrides: object) -> Settings:
+    values = {
+        "calendar_adapter": "loopback-oauth",
+        "calendar_client_id": "calendar-local",
+        "calendar_envelope_key": Fernet.generate_key().decode(),
+        "calendar_authorize_url": "http://127.0.0.1:8029/authorize",
+        "calendar_token_url": "http://[::1]:8029/token",
+        "calendar_freebusy_url": "http://127.0.0.1:8029/freebusy",
+        "calendar_revoke_url": "http://127.0.0.1:8029/revoke",
+    }
+    return _settings(**(values | overrides))
+
+
+def test_local_calendar_accepts_only_the_validated_development_profile() -> None:
+    """
+    Condition:
+    - The adapter is off by default and the opt-in settings point only to the local relay.
+
+    Expected:
+    - The default reports off. Startup accepts the synthetic scope and fixed separate API callback.
+    """
+    assert not _settings().calendar_enabled
+    settings = _calendar_settings()
+    assert settings.calendar_enabled
+    assert validate_configuration(settings) == ("core", "company_funding")
+
+
+@pytest.mark.parametrize(
+    ("values", "setting"),
+    [
+        ({"calendar_token_url": "http://localhost:8029/token"}, "CALENDAR_TOKEN_URL"),
+        ({"calendar_token_url": "http://2130706433:8029/token"}, "CALENDAR_TOKEN_URL"),
+        ({"calendar_token_url": "http://[::1]foreign:8029/token"}, "CALENDAR_TOKEN_URL"),
+        ({"calendar_token_url": "http://127.0.0.1:0/token"}, "CALENDAR_TOKEN_URL"),
+        ({"calendar_token_url": f"http://127.0.0.1:8029/token?key={FAKE_KEY}"}, "CALENDAR_TOKEN_URL"),
+        ({"calendar_token_url": f"http://{FAKE_KEY}@127.0.0.1:8029/token"}, "CALENDAR_TOKEN_URL"),
+        ({"calendar_revoke_url": "http://localhost.evil.example/revoke"}, "CALENDAR_REVOKE_URL"),
+        ({"calendar_callback_origin": "http://localhost:3020"}, "CALENDAR_CALLBACK_ORIGIN"),
+        ({"calendar_callback_origin": "http://127.0.0.1:8020"}, "CALENDAR_CALLBACK_ORIGIN"),
+        ({"web_origin": "http://example.test"}, "WEB_ORIGIN"),
+        ({"calendar_envelope_key": FAKE_KEY}, "CALENDAR_ENVELOPE_KEY"),
+    ],
+)
+def test_calendar_invalid_endpoint_origin_or_key_stops_startup_safely(values: dict[str, object], setting: str) -> None:
+    """
+    Condition:
+    - A relay URL or callback could use an unsafe destination, or the encryption key is invalid.
+
+    Expected:
+    - Startup fails naming the setting while hiding the rejected values.
+    """
+    with pytest.raises(ConfigurationError, match=setting) as failure:
+        validate_configuration(_calendar_settings(**values))
+    assert FAKE_KEY not in str(failure.value)
+
+
+def test_calendar_profile_cannot_start_in_production_or_with_a_wider_scope() -> None:
+    """
+    Condition:
+    - The loopback adapter is selected in production, or configured with wider calendar permissions.
+
+    Expected:
+    - Both settings fail before the service can serve the adapter.
+    """
+    with pytest.raises(ValidationError, match="calendar_scope"):
+        _calendar_settings(calendar_scope="full-calendar")
+    production = _calendar_settings(
+        environment="production",
+        file_scanner="clamav",
+        mailbox_adapter="disabled",
+        storage_adapter="s3",
+        s3_endpoint_url="https://storage.example.test",
+        s3_bucket="test",
+        s3_access_key="synthetic",
+        s3_secret_key="synthetic",
+    )
+    with pytest.raises(ConfigurationError, match="CALENDAR_ADAPTER"):
+        validate_configuration(production)
+
+
+def test_calendar_and_enabled_email_adapter_require_independent_keys() -> None:
+    """
+    Condition:
+    - The two local adapters would reuse one key.
+
+    Expected:
+    - The deployment refuses the shared key without disclosing it.
+    """
+    key = SecretStr(Fernet.generate_key().decode())
+    settings = _calendar_settings(
+        calendar_envelope_key=key,
+        mailbox_adapter="loopback-relay",
+        email_relay_url="http://127.0.0.1:8090/deliver",
+        email_relay_sender="relay@example.test",
+        email_envelope_key=key,
+    )
+    with pytest.raises(ConfigurationError, match="independent envelope keys") as failure:
+        validate_configuration(settings)
+    assert key.get_secret_value() not in str(failure.value)
+
+
+@pytest.mark.parametrize(
+    ("email_enabled", "calendar_enabled", "summary_enabled"),
+    [(False, False, False), (True, False, False), (False, True, False), (True, True, True)],
+)
+async def test_integrated_local_adapters_report_independent_manifest_status(
+    email_enabled: bool, calendar_enabled: bool, summary_enabled: bool
+) -> None:
+    """Validate each local profile separately and all three together with independent keys."""
+    settings = _calendar_settings(
+        mailbox_adapter="loopback-relay" if email_enabled else "disabled",
+        email_relay_url="http://127.0.0.1:8090/deliver",
+        email_relay_sender="relay@example.test",
+        email_envelope_key=Fernet.generate_key().decode(),
+        calendar_adapter="loopback-oauth" if calendar_enabled else "off",
+        summary_adapter="local-relay" if summary_enabled else "off",
+        summary_relay_url="http://127.0.0.1:8091/select",
+        summary_model_id="synthetic-selector",
+        summary_model_version="model-v1",
+        summary_prompt_version="prompt-v1",
+    )
+    validate_configuration(settings)
+    with patch("app.capabilities.router.get_settings", return_value=settings):
+        manifest = await get_capabilities()
+    statuses = {adapter.id: adapter.status for adapter in manifest.adapters}
+    assert statuses["email"] == ("available" if email_enabled else "planned")
+    assert statuses["calendar"] == ("available" if calendar_enabled else "planned")
+    assert statuses["ai-summary"] == ("available" if summary_enabled else "planned")
+
+
+def test_synthetic_matching_requires_explicit_development_demo_and_no_deployed_selection() -> None:
+    """
+    Condition:
+    - A local retrieval mode is selected, with or without its local profile and compatible composition.
+
+    Expected:
+    - The default remains off and only an explicit development/demo profile can try the experiment.
+    """
+    assert _settings().match_retrieval_mode == "off"
+    with pytest.raises(ConfigurationError, match="DEMO_MODE"):
+        validate_configuration(_settings(match_retrieval_mode="hybrid"))
+    with pytest.raises(ConfigurationError, match="deployed retrieval"):
+        validate_configuration(
+            _settings(demo_mode=True, match_retrieval_mode="hybrid", composition_overrides={"dense_retrieval": True})
+        )
+    assert validate_configuration(_settings(demo_mode=True, match_retrieval_mode="hybrid")) == (
+        "core",
+        "company_funding",
+    )

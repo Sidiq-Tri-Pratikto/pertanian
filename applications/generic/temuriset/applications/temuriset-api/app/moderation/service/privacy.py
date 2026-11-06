@@ -10,7 +10,7 @@ from app.core.errors.base import ConflictError, InvalidTransitionError, NotFound
 from app.core.settings import get_settings
 from app.documents.service.service import DocumentService
 from app.identity.model.models import Principal
-from app.identity.service.mailbox_service import DisabledMailbox, mailbox_for
+from app.identity.service.mailbox_service import DisabledMailbox, privacy_mailbox_for
 from app.identity.service.service import IdentityService
 from app.moderation.model.schema import (
     CreatePrivacyRequest,
@@ -171,7 +171,7 @@ class PrivacyService:
             detail={"policy_version": row.policy_version},
         )
         await publish(self.session, "privacy.outcome_ready", {"privacy_request_id": str(row.id)})
-        mailbox = mailbox_for(get_settings())
+        mailbox = privacy_mailbox_for(get_settings())
         if isinstance(mailbox, DisabledMailbox):
             await record_audit(
                 self.session,

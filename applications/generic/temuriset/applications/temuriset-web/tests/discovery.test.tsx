@@ -234,6 +234,18 @@ describe('matches (S10)', () => {
     expect(screen.getByText(/Menghalangi: Fitur baru direncanakan/)).toBeInTheDocument();
   });
 
+  it('explains the lexical fallback while preserving the ordinary match cards', async () => {
+    replies = [{ status: 201, body: {
+      ...runOf([golden('match-f01-a1', 'bbbbbbbb')]),
+      retrieval: { requested_mode: 'hybrid', effective_mode: 'lexical', fallback_reason: 'artifact_missing' },
+    } }];
+    render(<MatchesView me={makeMe()} source={SOURCE} externals={[]} />);
+
+    expect(await screen.findByText('Pencarian eksperimental tidak tersedia')).toBeInTheDocument();
+    expect(screen.getByText('Kecocokan dihitung dengan kata kunci dan aturan yang berlaku.')).toBeInTheDocument();
+    expect(screen.getByText('Kecocokan kuat')).toBeInTheDocument();
+  });
+
   it('keeps the source and offers a retry when matching fails', async () => {
     const user = userEvent.setup();
     replies = [

@@ -40,3 +40,4 @@ class JobModel(BaseModel):
     actor_party_id: UUID | None
     input: dict[str, Any]
     attempts: int
+    input_expires_at: datetime | None = None

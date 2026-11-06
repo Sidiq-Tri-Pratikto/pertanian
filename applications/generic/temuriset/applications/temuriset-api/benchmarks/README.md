@@ -98,3 +98,59 @@ runtime capability manifest. Record release commit, Alembic head, hardware, OS,
 runtime versions, network topology and cache conditions alongside the result.
 Keep the local and staging results in separate rows in
 [the benchmark report](../../../docs/roadmap/benchmarks.md).
+
+## Frozen hybrid retrieval comparison
+
+Spec 045's offline command compares the shipped `lexical-rules@1` keyword-overlap
+path with dense, BM25/dense hybrid, and hybrid plus reranking. Every mode uses the
+same curated source and catalog versions for each query and the same authoritative
+rule engine. The fixture carries author-assigned synthetic topical grades,
+expected rule outcomes and source grounding, explicit relationship links, and
+new or established manager cohorts. Development and held-out pools are disjoint.
+The command applies the versioned admission policy and fits no thresholds.
+
+From the API directory, run the synthetic model double in one terminal.
+
+```sh
+uv run python -m benchmarks.retrieval serve-double --port 58045
+```
+
+Produce and evaluate the artifact from another terminal. The relay receives the
+committed fixture's text with model pins. The producer then sends each query's
+bounded fused rerank head. The double uses a fixed topic vocabulary over those
+texts for vectors and rerank scores. It has no database access and refuses
+unrecognized text and model pins.
+
+```sh
+scratch=$(mktemp -d)
+uv run python -m benchmarks.retrieval produce \
+  --endpoint http://127.0.0.1:58045/retrieval --artifact "$scratch/retrieval.json"
+uv run python -m benchmarks.retrieval evaluate --artifact "$scratch/retrieval.json" \
+  > "$scratch/retrieval-report.json"
+```
+
+The producer atomically writes a private artifact tied to the exact fixture digest
+and model pins. Keep it outside the repository. Stop the double and remove the
+scratch directory after the run.
+
+The report gives each metric's numerator, denominator, and count of queries where
+it was undefined. Grades range from 0 for irrelevant to 3 for strongly useful.
+Grades 2 and 3 count toward binary relevance. Candidate recall uses the list
+before rule exclusion. Returned precision divides by actual results, and
+precision@5 divides by five per judged query, including empty displays.
+nDCG@5 uses gains of 2 to the power of the grade minus 1, the full judged
+catalog's ideal, and the mean over queries with nonzero ideal gain. Topical
+judgments are separate from mandatory rule eligibility.
+
+Safety tracks mandatory failures in returned lists, all judged rule outcomes,
+provisional UNKNOWN status and reasons, and source support for the factual
+reasons on returned results. The command exits with a failure if a safety check
+fails. Coverage and abstention measure the share of queries with and without a
+returned result. Result counts distinguish shown, excluded, and other
+undisplayed catalog entries. Exposure counts actual returned positions and
+distinct managers by cohort. Per-query elapsed time covers local in-process
+retrieval, rule evaluation and ranking. Real provider cost is unmeasured.
+
+The small synthetic pools demonstrate behavior and reporting. Production
+quality, subgroup exposure, latency and cost require the permissioned,
+independently reviewed study in [the benchmark report](../../../docs/roadmap/benchmarks.md).

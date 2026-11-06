@@ -1,9 +1,14 @@
 import { send } from '@/api/client';
+import type { components } from '@/api/schema.generated';
 import type { MatchSourceRef } from '@/features/discovery/model';
 import type { Preflight } from '@/features/pitches/model';
 
 export function runPreflight(source: MatchSourceRef, targetId: string, actingPartyId: string): Promise<Preflight> {
   return send('POST', '/api/v1/pitches/preflight', { acting_party_id: actingPartyId, source_type: source.type, source_id: source.id, opportunity_id: targetId });
+}
+
+export function requestBriefSummary(briefId: string): Promise<components['schemas']['BriefResponse']> {
+  return send('POST', `/api/v1/briefs/${encodeURIComponent(briefId)}/summary`);
 }
 
 export type SubmitBody = { acting_party_id: string; preflight_token: string; brief: string; files: { document_id: string; version: number }[] };

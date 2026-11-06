@@ -167,15 +167,28 @@ class SqlAlchemyPlatformRepository:
         await self.session.flush()
         return record.id
 
-    async def add_job(self, **values: Any) -> UUID:
-        """Queue one job.
+    async def add_job(self, *, dedupe_key: str | None = None, **values: Any) -> UUID:
+        """Queue one job, or return the durable job for a matching deduplication key.
 
         Args:
+            dedupe_key (str | None, optional): Stable logical job key. Defaults to None.
             **values (Any): Column values.
 
         Returns:
             UUID: The job id.
         """
+        if dedupe_key is not None:
+            inserted = await self.session.scalar(
+                insert(JobRecord)
+                .values(dedupe_key=dedupe_key, **values)
+                .on_conflict_do_nothing(index_elements=[JobRecord.dedupe_key])
+                .returning(JobRecord.id)
+            )
+            if inserted is not None:
+                return inserted
+            existing = await self.session.scalar(select(JobRecord.id).where(JobRecord.dedupe_key == dedupe_key))
+            assert existing is not None  # Jobs are retained, including after delivery.
+            return existing
         record = JobRecord(**values)
         self.session.add(record)
         await self.session.flush()
@@ -265,6 +278,7 @@ class SqlAlchemyPlatformRepository:
                 actor_party_id=record.actor_party_id,
                 input=record.input,
                 attempts=record.attempts,
+                input_expires_at=record.input_expires_at,
             )
             for record in records
         ]

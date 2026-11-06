@@ -83,12 +83,15 @@ class JobRecord(MutableRow, Base):
     __table_args__ = (
         CheckConstraint(f"status IN {JOB_STATUSES}", name="status"),
         Index("ix_jobs_due", "run_after", postgresql_where="status = 'PENDING'"),
+        Index("uq_jobs_dedupe_key", "dedupe_key", unique=True),
     )
 
     kind: Mapped[str] = mapped_column(String(128))
     status: Mapped[str] = mapped_column(String(32), default="PENDING")
     actor_party_id: Mapped[UUID | None]
     input: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
+    input_expires_at: Mapped[datetime | None]
+    dedupe_key: Mapped[str | None] = mapped_column(String(64))
     result_ref: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
     attempts: Mapped[int] = mapped_column(default=0, server_default="0")
     run_after: Mapped[datetime] = mapped_column(default=clock.now)

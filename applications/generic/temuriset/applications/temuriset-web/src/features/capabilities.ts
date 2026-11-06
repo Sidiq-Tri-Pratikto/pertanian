@@ -8,15 +8,22 @@ export function hasCapability(manifest: CapabilityManifest, id: string): boolean
   return manifest.capabilities.some((capability) => capability.id === id);
 }
 
-/**
- * Reads the manifest once per server render. When it cannot be read, optional features stay hidden: the page never
- * advertises what the deployment may not run, and the service refuses it anyway.
- */
-export const readCapabilities = cache(async (): Promise<Capabilities> => {
+// Share one manifest read per server render. If it fails, optional features stay hidden.
+export const readCapabilityManifest = cache(async (): Promise<CapabilityManifest | null> => {
   try {
-    const manifest = await serverGet<CapabilityManifest>('/api/v1/capabilities');
-    return manifest.capabilities.map((capability) => capability.id);
+    return await serverGet<CapabilityManifest>('/api/v1/capabilities');
   } catch {
     return null;
   }
 });
+
+export async function readCapabilities(): Promise<Capabilities> {
+  const manifest = await readCapabilityManifest();
+  if (!Array.isArray(manifest?.capabilities)) return null;
+  return manifest.capabilities.map((capability) => capability?.id).filter((id) => typeof id === 'string');
+}
+
+export async function readAdapterAvailability(id: string): Promise<boolean> {
+  const manifest = await readCapabilityManifest();
+  return Array.isArray(manifest?.adapters) && manifest.adapters.some((adapter) => adapter?.id === id && adapter.status === 'available');
+}

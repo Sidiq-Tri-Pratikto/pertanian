@@ -9,8 +9,15 @@ from typing import Any
 
 import pytest
 from httpx import AsyncClient
+from pydantic import SecretStr
+from sqlalchemy import text
 
+from app.core.database import get_session_factory
 from app.core.settings import get_settings
+from app.main import app
+from app.matching.service import retrieval_adapter
+from tests.factories.inventors import INVENTIONS, SUPPORT_REQUESTS
+from tests.factories.recipients import OPPORTUNITIES, PROFILES
 from tests.integration.matching.conftest import World, result_for, row
 
 pytestmark = [pytest.mark.integration, pytest.mark.usefixtures("clean_tables")]
@@ -70,7 +77,7 @@ async def test_f01_gap_golden_then_completing_restores_readiness(make_world: Cal
 
         rani, request_id = world.inventors.clients["rani"], world.inventors.support_requests["F01"]
         current = (await rani.get(f"/api/v1/support-requests/{request_id}")).json()
-        from tests.factories.inventors import F01_BUDGET, SUPPORT_REQUESTS  # noqa: PLC0415
+        from tests.factories.inventors import F01_BUDGET  # noqa: PLC0415
 
         saved = await rani.put(
             f"/api/v1/support-requests/{request_id}",
@@ -249,3 +256,164 @@ async def test_funding_matching_needs_company_funding(world: World, monkeypatch:
     assert body["request_id"]
     assert body["message"].startswith("Fitur ini tidak tersedia")
     assert allowed["results"]
+
+
+def _synthetic_snapshot(tmp_path: Path, case: str) -> retrieval_adapter.RetrievalExperiment:
+    queries = {}
+    targets = {
+        key: {
+            "text": f"kandidat {key}",
+            "selector": {
+                "version": 1,
+                "title": opportunity["content"]["title"],
+                "partner": PROFILES[opportunity["partner"]]["party"]["name"],
+                "keywords": opportunity["content"]["keywords"],
+            },
+        }
+        for key, opportunity in OPPORTUNITIES.items()
+    }
+    for key in ("F01", "F02", "F03"):
+        invention = INVENTIONS[key]["content"]
+        queries[key] = {
+            "text": "pompa tiruan",
+            "targets": list(targets),
+            "selector": {
+                "type": "SUPPORT_REQUEST",
+                "version": 2,
+                "title": invention["title"],
+                "sector": invention["sector"],
+                "stage": invention["stage"],
+                "keywords": invention["keywords"],
+                "relationship": SUPPORT_REQUESTS[key]["relationship_form"],
+            },
+        }
+    if case == "stale":
+        targets["A1"]["selector"]["version"] = 2
+    fixture = tmp_path / "fixture.json"
+    fixture.write_text(json.dumps({"version": "test-v1", "sources": queries, "targets": targets}))
+    corpus = retrieval_adapter.load_corpus(fixture)
+    artifact = tmp_path / "artifact.json"
+    axis = [1] + [0] * 7
+    if case != "missing":
+        artifact.write_text(
+            json.dumps(
+                {
+                    "format": 1,
+                    "fixture_version": corpus.version,
+                    "fixture_sha256": "mismatch" if case == "invalid" else corpus.digest,
+                    "output": {
+                        "pins": retrieval_adapter.PINS,
+                        "source_vectors": [axis] * len(queries),
+                        "target_vectors": ([[0, 1] + [0] * 6] if case == "abstain" else [axis]) * len(targets),
+                        "rerank_scores": [([] if case == "abstain" else [0.9] * len(targets)) for _ in queries],
+                    },
+                }
+            )
+        )
+    settings = get_settings().model_copy(
+        update={
+            "match_retrieval_mode": "dense",
+            "match_retrieval_artifact": SecretStr(str(artifact)),
+        }
+    )
+    experiment = retrieval_adapter.load_experiment(settings, fixture)
+    assert experiment is not None
+    fixture.unlink()
+    artifact.unlink(missing_ok=True)
+    return experiment
+
+
+async def _label_demo(*party_ids: str) -> None:
+    async with get_session_factory()() as session, session.begin():
+        for party_id in party_ids:
+            await session.execute(
+                text("UPDATE accounts SET kind = 'demo' WHERE id = (SELECT account_id FROM parties WHERE id = :party)"),
+                {"party": party_id},
+            )
+
+
+async def test_synthetic_matching_pins_an_owned_replay_and_preserves_fail_and_unknown(
+    world: World, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """
+    Condition:
+    - Seeded authorized demo projections match the exact fixture and the validated startup files are then removed.
+
+    Expected:
+    - The normal route uses only the snapshot, protects owned reads/replays and preserves all rule outcomes.
+    """
+    baseline = await world.support("F01", "legacy")
+    assert "retrieval" not in baseline and baseline["engine"] == "lexical-rules@1"
+    monkeypatch.setattr(app.state, "match_retrieval", _synthetic_snapshot(tmp_path, "valid"), raising=False)
+
+    def no_relay(**_kwargs: object) -> None:
+        pytest.fail("The request path must never call a relay.")
+
+    monkeypatch.setattr(retrieval_adapter, "AsyncClient", no_relay)
+    real_lookalike = await world.support("F01", "real")
+    assert real_lookalike["retrieval"]["fallback_reason"] == "unsupported_input"
+    assert real_lookalike["results"] == baseline["results"]
+
+    await _label_demo(*(world.inventors.parties[key] for key in ("rani", "dewi", "galih")))
+    experimental = await world.support("F01", "synthetic")
+    assert experimental["engine"] == "dense-rules@1"
+    provenance = experimental["retrieval"]
+    assert provenance["effective_mode"] == provenance["requested_mode"] == "dense"
+    assert provenance["fallback_reason"] is None
+    assert provenance["model"] == retrieval_adapter.PINS
+    assert len(provenance["fixture_sha256"]) == len(provenance["artifact_sha256"]) == 64
+    assert len(experimental["results"]) <= 5
+    assert (
+        result_for(experimental, world.opportunity("A1"))["fit"] == result_for(baseline, world.opportunity("A1"))["fit"]
+    )
+
+    fail = await world.support("F03", "fail")
+    excluded = result_for(fail, world.opportunity("D1"))
+    assert excluded in fail["excluded"] and excluded["eligibility"] == "INCOMPATIBLE"
+    unknown = await world.support("F02", "unknown")
+    provisional = result_for(unknown, world.opportunity("A2"))
+    assert provisional["eligibility"] == "NEEDS_VERIFICATION"
+    assert provisional["gap"]["result"] == "UNKNOWN"
+    assert provisional["gap"]["reason"] and provisional["gap"]["action"]
+
+    run_path = f"/api/v1/match-runs/{experimental['run_id']}"
+    rani, galih = (world.inventors.clients[key] for key in ("rani", "galih"))
+    assert (await rani.get(run_path)).json()["retrieval"] == provenance
+    assert (await galih.get(run_path)).status_code == 404
+    assert (await world.support("F01", "synthetic")) == experimental
+    assert (await world.support("F01", "legacy")) == baseline
+
+
+@pytest.mark.parametrize(
+    ("case", "reason"),
+    [
+        ("missing", "artifact_missing"),
+        ("invalid", "artifact_invalid"),
+        ("stale", "unsupported_input"),
+        ("abstain", None),
+    ],
+)
+async def test_synthetic_artifact_fallback_is_exact_and_valid_empty_output_abstains(
+    world: World, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, case: str, reason: str | None
+) -> None:
+    """
+    Condition:
+    - The profile has missing, rejected or stale input, or a valid model artifact with no admitted evidence.
+
+    Expected:
+    - Failed experiments preserve the original lexical results; a valid empty result stays experimental.
+    """
+    baseline = await world.support("F01", "baseline")
+    await _label_demo(world.inventors.parties["rani"])
+    monkeypatch.setattr(app.state, "match_retrieval", _synthetic_snapshot(tmp_path, case), raising=False)
+    tested = await world.support("F01", "synthetic")
+    assert tested["retrieval"]["fallback_reason"] == reason
+    if reason:
+        assert tested["retrieval"]["effective_mode"] == "lexical"
+        assert "artifact_sha256" not in tested["retrieval"]
+        assert tested["engine"] == baseline["engine"]
+        assert tested["results"] == baseline["results"]
+        assert tested["excluded"] == baseline["excluded"]
+    else:
+        assert tested["retrieval"]["effective_mode"] == "dense"
+        assert tested["results"] == []

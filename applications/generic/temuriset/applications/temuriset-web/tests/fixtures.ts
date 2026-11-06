@@ -21,6 +21,7 @@ export function makeMe(overrides: { persona?: 'inovator' | 'mitra'; organization
       time_zone: 'Asia/Jakarta',
       persona: overrides.persona ?? 'inovator',
       kind: 'user',
+      email_notifications: false,
       version: 1,
     },
     personal_party_id: PERSONAL,

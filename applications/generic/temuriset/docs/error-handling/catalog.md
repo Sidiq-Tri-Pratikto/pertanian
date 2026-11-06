@@ -11,6 +11,10 @@ One row per error. Keep in sync with `app/core/errors/codes.py` and `public.py`.
 | `APP-DB-ERROR` | `DATA_ERROR` | 500 | Permintaan gagal karena kesalahan data. Hubungi dukungan dan sebutkan ID referensi. | Database failure | false | - | - |
 | `APP-DB-UNAVAILABLE` | `DATABASE_UNAVAILABLE` | 503 | Layanan data sedang tidak tersedia. Coba lagi beberapa menit lagi. | Connection, pool, or operational failure | true | 30 | 3 |
 | `APP-MAIL-UNAVAILABLE` | `MAIL_UNAVAILABLE` | 503 | Pengiriman email belum tersedia. Hubungi pengelola layanan. | Sign-in code or invitation while mail delivery is disabled | false | - | - |
+| `APP-MAIL-RELAY-RETRY` | `MAIL_RELAY_RETRY` | 503 | Pengiriman email tertunda. Tunggu hingga layanan mencoba lagi. | Loopback email worker timeout, connection failure, HTTP 429 or 5xx | true | 5 | 8 |
+| `APP-MAIL-RELAY-REJECTED` | `MAIL_RELAY_REJECTED` | 503 | Email tidak dapat dikirim. Hubungi pengelola layanan. | Loopback email worker terminal response or invalid message | false | - | - |
+| `APP-CALENDAR-UNAVAILABLE` | `CALENDAR_UNAVAILABLE` | 503 | Kalender luar belum dapat diakses. Periksa sambungan kalender Anda. | Calendar transport, validation or credential envelope failure. Callback failure redirects to settings with a reference. Scheduling falls back to unknown and a failed provider revocation leaves a local disconnect. | false | - | - |
+| `APP-CALENDAR-CALLBACK-INVALID` | `CALENDAR_CALLBACK_INVALID` | 400 | Kalender belum tersambung. Mulai lagi dari pengaturan kalender. | Missing, expired, reused or mismatched OAuth attempt. The callback redirects to settings with a reference. | false | - | - |
 | `APP-STORAGE-UNAVAILABLE` | `STORAGE_UNAVAILABLE` | 503 | Penyimpanan berkas belum dapat diakses. Coba lagi nanti. | The private object store cannot complete the operation | false | - | - |
 | `APP-CAPABILITY-UNAVAILABLE` | `CAPABILITY_UNAVAILABLE` | 403 | Fitur ini tidak tersedia pada layanan ini. Hubungi pengelola layanan bila Anda memerlukannya. | Route guarded by `require_capability` for a capability this deployment does not select | false | - | - |
 | `APP-UNAUTHENTICATED` | `UNAUTHENTICATED` | 401 | Anda perlu masuk terlebih dahulu. Masuk lalu coba lagi. | No trusted acting party (until 007: the development-only `X-Party-Id` header is missing, or the service is not in development) | false | - | - |
@@ -39,6 +43,8 @@ One row per error. Keep in sync with `app/core/errors/codes.py` and `public.py`.
 | `APP-PROPOSAL-CLOSED` | `PROPOSAL_CLOSED` | 409 | Usulan waktu ini sudah tidak terbuka. Muat ulang untuk melihat usulan terbaru. | Accepting or cancelling a proposal that expired, was superseded, accepted or cancelled; the envelope adds `reason` | false | - | - |
 | `APP-ENTITY-REQUIRED` | `ENTITY_REQUIRED` | 422 | Kerja Sama ekuitas memerlukan badan usaha yang sudah berdiri. Pilih jenis lain atau dirikan badan usaha dulu. | Proposing an EQUITY relationship for a pitch whose source has no identified legal entity (AC21); discussion stays open | false | - | - |
 | `APP-MEETING-NOT-COMPLETED` | `MEETING_NOT_COMPLETED` | 409 | Ringkasan Kerja Sama diusulkan setelah pertemuan selesai. Catat hasil pertemuan bersama pihak lain dulu. | Proposing a relationship before both parties recorded a meeting as completed | false | - | - |
+| `APP-SUMMARY-REFUSED` | `SUMMARY_REFUSED` | 200 | Ringkasan otomatis ditolak. Lanjutkan dengan menyunting brief. | The summary was refused because the selection, its live authorization or the bounded relay contract failed. The fallback carries `summarizer_error`. | false | - | - |
+| `APP-SUMMARY-UNAVAILABLE` | `SUMMARY_UNAVAILABLE` | 200 | Ringkasan otomatis tidak tersedia. Lanjutkan dengan menyunting brief. | The adapter failed. Only a timeout or connection failure can trigger a single retry. The fallback carries `summarizer_error`. | false | - | - |
 
 A missing `Idempotency-Key` on a consequential POST is `BAD_REQUEST` with `details` naming the header.
 

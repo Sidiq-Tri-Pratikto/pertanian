@@ -93,3 +93,28 @@ class MeetingOutcomeRecord(MutableRow, Base):
     result: Mapped[str] = mapped_column(String(16))
     note: Mapped[str] = mapped_column(String(1000), default="")
     recorded_by_account_id: Mapped[UUID]
+
+
+class CalendarConnectionRecord(Base):
+    """The account's credential and at most one pending, session-bound OAuth attempt."""
+
+    __tablename__ = "calendar_connections"
+    __table_args__ = (
+        CheckConstraint("(encrypted_token IS NULL) = (token_expires_at IS NULL)", name="token_pair"),
+        CheckConstraint(
+            "(state_sha256 IS NULL) = (encrypted_verifier IS NULL) AND "
+            "(state_sha256 IS NULL OR state_expires_at IS NOT NULL) AND "
+            "(state_expires_at IS NULL) = (state_session_id IS NULL)",
+            name="state_group",
+        ),
+    )
+
+    account_id: Mapped[UUID] = mapped_column(ForeignKey("accounts.id", ondelete="CASCADE"), primary_key=True)
+    version: Mapped[int] = mapped_column(default=0, server_default="0")
+    provider_revocation_confirmed: Mapped[bool | None]
+    encrypted_token: Mapped[bytes | None]
+    token_expires_at: Mapped[datetime | None]
+    state_sha256: Mapped[str | None] = mapped_column(String(64))
+    encrypted_verifier: Mapped[bytes | None]
+    state_expires_at: Mapped[datetime | None]
+    state_session_id: Mapped[UUID | None]

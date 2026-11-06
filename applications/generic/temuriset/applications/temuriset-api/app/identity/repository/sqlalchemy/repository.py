@@ -6,6 +6,7 @@ from uuid import UUID
 
 from sqlalchemy import delete, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql.elements import ColumnElement
 
 from app.identity.model.models import AccountModel, EmailCodeModel, SessionModel
 from app.identity.repository.sqlalchemy.models import (
@@ -18,6 +19,15 @@ from app.identity.repository.sqlalchemy.models import (
 
 def _account(record: AccountRecord) -> AccountModel:
     return AccountModel.model_validate(record, from_attributes=True)
+
+
+def _email_eligible() -> tuple[ColumnElement[bool], ...]:
+    return (
+        AccountRecord.email_notifications.is_(True),
+        AccountRecord.email_verified_at.is_not(None),
+        AccountRecord.status == "active",
+        AccountRecord.kind == "user",
+    )
 
 
 class SqlAlchemyIdentityRepository:
@@ -60,6 +70,22 @@ class SqlAlchemyIdentityRepository:
         """Read the current account status for work authorized outside the session."""
         status = await self.session.scalar(select(AccountRecord.status).where(AccountRecord.id == account_id))
         return status == "active"
+
+    async def email_notification_accounts(self, account_ids: list[UUID]) -> list[UUID]:
+        """Resolve opted-in account IDs without loading any email addresses."""
+        if not account_ids:
+            return []
+        return list(
+            await self.session.scalars(
+                select(AccountRecord.id).where(*_email_eligible(), AccountRecord.id.in_(account_ids))
+            )
+        )
+
+    async def email_notification_address(self, account_id: UUID) -> str | None:
+        """Return an address only while the account is eligible for optional email."""
+        return await self.session.scalar(
+            select(AccountRecord.email).where(*_email_eligible(), AccountRecord.id == account_id)
+        )
 
     async def create_account(self, **values: Any) -> AccountModel:
         """Insert an account.
@@ -132,31 +158,34 @@ class SqlAlchemyIdentityRepository:
         assert oldest is not None  # noqa: S101 - only called when the window holds requests
         return oldest
 
-    async def add_code(self, **values: Any) -> None:
+    async def add_code(self, **values: Any) -> UUID:
         """Store a code.
 
         Args:
             **values (Any): Column values.
         """
-        self.session.add(EmailCodeRecord(**values))
+        record = EmailCodeRecord(**values)
+        self.session.add(record)
         await self.session.flush()
+        return record.id
 
-    async def latest_open_code(self, email: str) -> EmailCodeModel | None:
-        """Lock the newest unconsumed code for an email.
+    async def latest_open_code(self, email: str, *, lock: bool = True) -> EmailCodeModel | None:
+        """Find the newest unconsumed code for an email.
 
         Args:
             email (str): Normalized email.
+            lock (bool, optional): Hold the row for a verification attempt. Defaults to True.
 
         Returns:
-            EmailCodeModel | None: The code, locked for this transaction.
+            EmailCodeModel | None: The latest open code.
         """
-        record = await self.session.scalar(
+        query = (
             select(EmailCodeRecord)
             .where(EmailCodeRecord.email == email, EmailCodeRecord.consumed_at.is_(None))
             .order_by(EmailCodeRecord.created_at.desc())
             .limit(1)
-            .with_for_update()
         )
+        record = await self.session.scalar(query.with_for_update() if lock else query)
         return EmailCodeModel.model_validate(record, from_attributes=True) if record is not None else None
 
     async def count_attempt(self, code_id: UUID) -> None:

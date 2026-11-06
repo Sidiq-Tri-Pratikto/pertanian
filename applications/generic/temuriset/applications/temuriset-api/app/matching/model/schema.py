@@ -4,9 +4,10 @@ from datetime import datetime
 from typing import Literal
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from app.intake.model.schema import TargetAvailabilityResponse
+from app.matching.engine.retrieval import RetrievalMode
 
 SourceType = Literal["SUPPORT_REQUEST", "FUNDING_REQUEST"]
 Result = Literal["PASS", "FAIL", "UNKNOWN"]
@@ -82,6 +83,30 @@ class MatchSource(BaseModel):
     title: str
 
 
+class MatchModelPins(BaseModel):
+    """Trusted identity and versions of a synthetic model profile."""
+
+    model_id: str
+    revision: str
+    tokenizer: str
+    truncation: str
+    template: str
+    calibration: str
+
+
+class MatchRetrieval(BaseModel):
+    """Safe provenance of a requested local experiment and its effective mode."""
+
+    requested_mode: RetrievalMode
+    effective_mode: RetrievalMode | Literal["lexical"]
+    fallback_reason: Literal["artifact_missing", "artifact_invalid", "unsupported_input"] | None = None
+    profile: str
+    model: MatchModelPins
+    fixture_version: str | None = None
+    fixture_sha256: str | None = Field(default=None, exclude_if=lambda value: value is None)
+    artifact_sha256: str | None = Field(default=None, exclude_if=lambda value: value is None)
+
+
 class MatchRunResponse(BaseModel):
     """A stored run: recommended results first, then those not to be shown as a positive match."""
 
@@ -93,3 +118,4 @@ class MatchRunResponse(BaseModel):
     results: list[MatchResultResponse]
     excluded: list[MatchResultResponse]
     operation_id: UUID | None = None
+    retrieval: MatchRetrieval | None = Field(default=None, exclude_if=lambda value: value is None)

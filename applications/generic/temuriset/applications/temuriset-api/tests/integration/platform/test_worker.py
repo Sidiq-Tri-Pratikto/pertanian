@@ -250,3 +250,55 @@ async def test_worker_loop_stops_when_asked() -> None:
     await asyncio.wait_for(worker, timeout=5)
 
     assert await _deliveries() == 1
+
+
+async def test_expiring_job_releases_sealed_input_on_deadline() -> None:
+    """
+    Condition:
+    - An expiring job fails just before its deadline and would ordinarily wait past it for a retry.
+
+    Expected:
+    - The deadline takes precedence, the job makes no further calls and its input is scrubbed.
+    """
+    using = Registry()
+    calls = []
+
+    @using.job("sealed")
+    async def fail(_session: AsyncSession, payload: dict[str, Any]) -> None:
+        calls.append(payload)
+        raise RuntimeError("temporary failure")
+
+    session_factory = get_session_factory()
+    deadline = START + timedelta(seconds=1)
+    with clock.frozen(START):
+        async with session_factory.begin() as session:
+            job_id = await enqueue_job(session, "sealed", {"envelope": "opaque"}, input_expires_at=deadline)
+        assert await run_jobs(session_factory, using) == 1
+    with clock.frozen(deadline):
+        assert await run_jobs(session_factory, using) == 1
+    async with session_factory() as session:
+        job = await session.get(JobRecord, job_id)
+        assert job is not None
+        assert (job.status, job.attempts, job.input) == ("CANCELLED", 1, {})
+    assert calls == [{"envelope": "opaque"}]
+
+
+async def test_job_deduplication_is_transactional_and_concurrent() -> None:
+    """
+    Condition:
+    - Two transactions enqueue the same logical job and a third tries again after both commit.
+
+    Expected:
+    - They all resolve to one durable job.
+    """
+
+    async def enqueue() -> UUID:
+        async with get_session_factory().begin() as session:
+            return await enqueue_job(
+                session, "email.notification_delivery", {"account_id": "opaque"}, dedupe_key="a" * 64
+            )
+
+    first, second = await asyncio.gather(enqueue(), enqueue())
+    assert first == second == await enqueue()
+    async with get_session_factory()() as session:
+        assert await session.scalar(select(func.count()).select_from(JobRecord)) == 1

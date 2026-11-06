@@ -1,17 +1,38 @@
 """Preflight and briefs: see exactly what would be sent, edit it, export it."""
 
-from typing import Literal
+from functools import partial
+from typing import Annotated, Literal
 from uuid import UUID
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends, Request
 from fastapi.responses import PlainTextResponse
 
-from app.briefs.model.schema import BriefResponse, PreflightRequest, PreflightResponse
+from app.briefs.model.schema import BriefResponse, PreflightRequest, PreflightResponse, SummaryProvenance
 from app.briefs.service.service import BriefService
+from app.briefs.service.summarizer_service import LocalRelaySummarizer, OffSummarizer, SummarizerPort
 from app.core.database import SessionDep
-from app.core.security import PrincipalDep
+from app.core.security import PrincipalDep, current_principal
+from app.core.settings import get_settings
 
 router = APIRouter(tags=["briefs"])
+
+
+def get_summarizer() -> SummarizerPort:
+    """Resolve the summary adapter from startup-validated settings."""
+    settings = get_settings()
+    if settings.summary_adapter != "local-relay" or settings.summary_relay_url is None:
+        return OffSummarizer()
+    return LocalRelaySummarizer(
+        endpoint=settings.summary_relay_url,
+        provenance=SummaryProvenance(
+            model_id=settings.summary_model_id,
+            model_version=settings.summary_model_version,
+            prompt_version=settings.summary_prompt_version,
+        ),
+    )
+
+
+SummarizerDep = Annotated[SummarizerPort, Depends(get_summarizer)]
 
 
 @router.post("/pitches/preflight", summary="Check a pitch before sending")
@@ -47,18 +68,21 @@ async def read_brief(brief_id: UUID, principal: PrincipalDep, session: SessionDe
 
 
 @router.post("/briefs/{brief_id}/summary", summary="Ask for a shorter brief")
-async def summarize_brief(brief_id: UUID, principal: PrincipalDep, session: SessionDep) -> BriefResponse:
-    """Ask the summarizer. When it is off, fails or adds anything untraceable, the template brief comes back.
+async def summarize_brief(
+    brief_id: UUID, request: Request, session: SessionDep, summarizer: SummarizerDep
+) -> BriefResponse:
+    """Ask for an extractive suggestion. A failed or disabled adapter returns the editable template.
 
     Args:
         brief_id (UUID): The brief.
-        principal (PrincipalDep): Who is signed in.
+        request (Request): The request carrying the live session cookie.
         session (SessionDep): Database session.
+        summarizer (SummarizerDep): The configured adapter.
 
     Returns:
-        BriefResponse: The brief, with ``summarizer_status``.
+        BriefResponse: The brief with its summary status.
     """
-    return await BriefService(session).summarize(principal, brief_id)
+    return await BriefService(session, summarizer).summarize(brief_id, partial(current_principal, request, session))
 
 
 @router.get(

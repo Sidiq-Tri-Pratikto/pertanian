@@ -56,6 +56,23 @@ PUBLIC_ERROR_BY_CODE: dict[str, PublicError] = {
         503,
         "Pengiriman email belum tersedia. Hubungi pengelola layanan.",
     ),
+    codes.APP_MAIL_RELAY_RETRY: PublicError(
+        "MAIL_RELAY_RETRY",
+        503,
+        "Pengiriman email tertunda. Tunggu hingga layanan mencoba lagi.",
+        {"retryable": True, "retry_after_seconds": 5, "max_attempts": 8},
+    ),
+    codes.APP_MAIL_RELAY_REJECTED: PublicError(
+        "MAIL_RELAY_REJECTED",
+        503,
+        "Email tidak dapat dikirim. Hubungi pengelola layanan.",
+    ),
+    codes.APP_CALENDAR_UNAVAILABLE: PublicError(
+        "CALENDAR_UNAVAILABLE", 503, "Kalender luar belum dapat diakses. Periksa sambungan kalender Anda."
+    ),
+    codes.APP_CALENDAR_CALLBACK_INVALID: PublicError(
+        "CALENDAR_CALLBACK_INVALID", 400, "Kalender belum tersambung. Mulai lagi dari pengaturan kalender."
+    ),
     codes.APP_STORAGE_UNAVAILABLE: PublicError(
         "STORAGE_UNAVAILABLE",
         503,
@@ -180,6 +197,12 @@ PUBLIC_ERROR_BY_CODE: dict[str, PublicError] = {
         "LISTING_SUSPENDED",
         409,
         "Daftar ini sedang ditangguhkan. Hubungi pengelola layanan bila Anda merasa ini keliru.",
+    ),
+    codes.APP_SUMMARY_REFUSED: PublicError(
+        "SUMMARY_REFUSED", 200, "Ringkasan otomatis ditolak. Lanjutkan dengan menyunting brief."
+    ),
+    codes.APP_SUMMARY_UNAVAILABLE: PublicError(
+        "SUMMARY_UNAVAILABLE", 200, "Ringkasan otomatis tidak tersedia. Lanjutkan dengan menyunting brief."
     ),
 }
 

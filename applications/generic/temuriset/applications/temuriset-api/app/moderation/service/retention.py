@@ -15,6 +15,7 @@ from app.moderation.model.schema import CategoryRetained, CategoryToRemove, Priv
 from app.moderation.repository.sqlalchemy.repository import SqlAlchemyModerationRepository
 from app.needs.service.service import NeedsService
 from app.portfolio.service.service import PortfolioService
+from app.scheduling.service.calendar_connection import erase_calendar_connection
 
 _REMOVABLE = frozenset({"sign_in_records", "public_listings", "private_documents", "account_profile"})
 
@@ -68,6 +69,7 @@ async def complete_deletion(session: AsyncSession, account_id: UUID, answer: Pri
         party_id = await personal_party_id(session, account_id)
         await DocumentService(session, get_settings()).erase_party_bytes(party_id)
     if "account_profile" in keys:
+        await erase_calendar_connection(session, account_id)
         await anonymize_personal_party(session, account_id)
         return await identity.anonymize_for_deletion(account_id)
     return await identity.deletion_address(account_id)

@@ -1,12 +1,15 @@
 """Scheduling storage."""
 
+from hashlib import blake2b
 from uuid import UUID
 
-from sqlalchemy import delete, select
+from sqlalchemy import delete, func, select
+from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.scheduling.repository.sqlalchemy.models import (
     BookingRecord,
+    CalendarConnectionRecord,
     MeetingOutcomeRecord,
     MeetingRecord,
     ScheduleProposalRecord,
@@ -136,6 +139,18 @@ class SqlAlchemySchedulingRepository:
             )
         )
 
+    async def lock_booking_parties(self, *party_ids: UUID) -> None:
+        """Serialize overlapping writers before they reach the booking exclusion index."""
+        keys = {
+            int.from_bytes(
+                blake2b(party_id.bytes, digest_size=8, person=b"temuriset.book").digest(), "big", signed=True
+            )
+            for party_id in party_ids
+        }
+        # Order the actual lock keys so competing participant sets cannot acquire them in opposite orders.
+        for key in sorted(keys):
+            await self.session.execute(select(func.pg_advisory_xact_lock(key)))
+
     async def release(self, meeting_id: UUID) -> None:
         """Delete a meeting's bookings, freeing its time for both parties.
 
@@ -143,3 +158,25 @@ class SqlAlchemySchedulingRepository:
             meeting_id (UUID): The meeting.
         """
         await self.session.execute(delete(BookingRecord).where(BookingRecord.meeting_id == meeting_id))
+
+    async def calendar(self, account_id: UUID, *, lock: bool = False) -> CalendarConnectionRecord | None:
+        """Read only the named account's current calendar generation."""
+        query = select(CalendarConnectionRecord).where(CalendarConnectionRecord.account_id == account_id)
+        if lock:
+            query = query.with_for_update()
+        return await self.session.scalar(query.execution_options(populate_existing=True))
+
+    async def lock_calendar(self, account_id: UUID) -> CalendarConnectionRecord:
+        """Create the account's initial generation if absent and serialize its mutations."""
+        await self.session.execute(
+            insert(CalendarConnectionRecord).values(account_id=account_id).on_conflict_do_nothing()
+        )
+        record = await self.calendar(account_id, lock=True)
+        assert record is not None  # noqa: S101 - the row was inserted or already exists in this transaction
+        return record
+
+    async def erase_calendar(self, account_id: UUID) -> None:
+        """Erase the account's calendar metadata and ciphertext with the profile transaction."""
+        await self.session.execute(
+            delete(CalendarConnectionRecord).where(CalendarConnectionRecord.account_id == account_id)
+        )

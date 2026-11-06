@@ -49,12 +49,13 @@ def _one(value: bool) -> Decimal:
     return Decimal(1) if value else Decimal(0)
 
 
-def evaluate(source: Source, target: Target) -> dict[str, Any]:
+def evaluate(source: Source, target: Target, *, retrieval_evidence: bool = False) -> dict[str, Any]:
     """Evaluate one source against one opportunity version.
 
     Args:
         source (Source): The applicant's authorized projection.
         target (Target): The opportunity's applicant-visible projection.
+        retrieval_evidence (bool, optional): Admitted experimental evidence for relevance. Defaults to False.
 
     Returns:
         dict[str, Any]: JSON-ready result; numbers are decimal strings.
@@ -104,7 +105,7 @@ def evaluate(source: Source, target: Target) -> dict[str, Any]:
     )
     fit = fit_bounds(a, b)
     # No relevance signal means abstaining: compatible stage or geography alone never recommends a target.
-    relevant = overlap > 0
+    relevant = overlap > 0 or retrieval_evidence
     gap = (failed or unknown or [None])[0]
     return {
         "opportunity_id": target.opportunity_id,
@@ -156,3 +157,29 @@ def rank(results: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[dict
     shown = [result for result in ordered if result["relevant"] and result["eligibility"] != "INCOMPATIBLE"]
     excluded = [result for result in ordered if not (result["relevant"] and result["eligibility"] != "INCOMPATIBLE")]
     return shown, excluded
+
+
+def rank_experiment(
+    results: list[dict[str, Any]], admitted: tuple[str, ...]
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """Keep rule exclusions and show at most five admitted matches.
+
+    Args:
+        results (list[dict[str, Any]]): One authoritative result per target.
+        admitted (tuple[str, ...]): Admitted opportunity version IDs in retrieval order.
+
+    Returns:
+        tuple[list[dict[str, Any]], list[dict[str, Any]]]: Experimental recommendations and rule exclusions.
+    """
+    shown, excluded = rank(results)
+    positions = {key: index for index, key in enumerate(admitted)}
+    candidates = [result for result in shown if result["opportunity_version_id"] in positions]
+    candidates.sort(
+        key=lambda result: (
+            _ELIGIBILITY_ORDER[result["eligibility"]],
+            -Decimal(result["fit"]["lower"]),
+            positions[result["opportunity_version_id"]],
+            result["opportunity_id"],
+        )
+    )
+    return candidates[:5], excluded

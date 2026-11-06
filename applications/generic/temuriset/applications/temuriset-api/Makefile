@@ -14,6 +14,7 @@ lock:
 	cp .env.example .env
 
 .PHONY: run
+# OAuth callback access records have their query removed by app.core.logging.
 run: .env
 	uv run uvicorn app.main:app --host 0.0.0.0 --port $(PORT) --reload
 

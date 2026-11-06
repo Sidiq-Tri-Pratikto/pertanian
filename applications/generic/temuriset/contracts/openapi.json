@@ -39,6 +39,10 @@
             "title": "Email",
             "type": "string"
           },
+          "email_notifications": {
+            "title": "Email Notifications",
+            "type": "boolean"
+          },
           "email_verified": {
             "title": "Email Verified",
             "type": "boolean"
@@ -78,6 +82,7 @@
           "time_zone",
           "persona",
           "kind",
+          "email_notifications",
           "version"
         ],
         "title": "AccountResponse",
@@ -282,7 +287,7 @@
         "type": "object"
       },
       "BriefResponse": {
-        "description": "The editable brief. ``summarizer_status`` says whether a summary was used, off, or refused as untraceable.",
+        "description": "The editable template or an authorized extractive suggestion.",
         "properties": {
           "id": {
             "format": "uuid",
@@ -305,12 +310,33 @@
             "title": "Summarizer",
             "type": "string"
           },
+          "summarizer_error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ErrorBody"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "summarizer_provenance": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SummaryProvenance"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "summarizer_status": {
             "default": "off",
             "enum": [
               "off",
               "used",
-              "refused"
+              "refused",
+              "unavailable"
             ],
             "title": "Summarizer Status",
             "type": "string"
@@ -666,6 +692,186 @@
           "lines_explanation"
         ],
         "title": "BudgetResponse",
+        "type": "object"
+      },
+      "CalendarConnectRequest": {
+        "additionalProperties": false,
+        "description": "The account accepts the local read-only free/busy consent.",
+        "properties": {
+          "consent": {
+            "const": true,
+            "title": "Consent",
+            "type": "boolean"
+          },
+          "expected_version": {
+            "minimum": 0.0,
+            "title": "Expected Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "expected_version",
+          "consent"
+        ],
+        "title": "CalendarConnectRequest",
+        "type": "object"
+      },
+      "CalendarConnectResponse": {
+        "description": "The committed local consent and the same-origin navigation step.",
+        "properties": {
+          "authorization_path": {
+            "const": "/api/v1/me/calendar/connect",
+            "default": "/api/v1/me/calendar/connect",
+            "title": "Authorization Path",
+            "type": "string"
+          },
+          "operation_id": {
+            "format": "uuid",
+            "title": "Operation Id",
+            "type": "string"
+          },
+          "revocation": {
+            "anyOf": [
+              {
+                "enum": [
+                  "confirmed",
+                  "unconfirmed",
+                  "not_required"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Provider revocation outcome for the latest local disconnect, when known.",
+            "title": "Revocation"
+          },
+          "state": {
+            "enum": [
+              "off",
+              "off_with_connection",
+              "disconnected",
+              "pending",
+              "connected",
+              "expired"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "state",
+          "version",
+          "operation_id"
+        ],
+        "title": "CalendarConnectResponse",
+        "type": "object"
+      },
+      "CalendarDisconnectResponse": {
+        "description": "The local disconnect and whether the provider confirmed token revocation.",
+        "properties": {
+          "operation_id": {
+            "format": "uuid",
+            "title": "Operation Id",
+            "type": "string"
+          },
+          "revocation": {
+            "enum": [
+              "unconfirmed",
+              "not_required"
+            ],
+            "title": "Revocation",
+            "type": "string"
+          },
+          "state": {
+            "enum": [
+              "off",
+              "off_with_connection",
+              "disconnected",
+              "pending",
+              "connected",
+              "expired"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "state",
+          "version",
+          "revocation",
+          "operation_id"
+        ],
+        "title": "CalendarDisconnectResponse",
+        "type": "object"
+      },
+      "CalendarStatusResponse": {
+        "description": "Account-owned connection state, without any provider identity or credentials.",
+        "properties": {
+          "revocation": {
+            "anyOf": [
+              {
+                "enum": [
+                  "confirmed",
+                  "unconfirmed",
+                  "not_required"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Provider revocation outcome for the latest local disconnect, when known.",
+            "title": "Revocation"
+          },
+          "state": {
+            "enum": [
+              "off",
+              "off_with_connection",
+              "disconnected",
+              "pending",
+              "connected",
+              "expired"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "state",
+          "version"
+        ],
+        "title": "CalendarStatusResponse",
+        "type": "object"
+      },
+      "CalendarVersionRequest": {
+        "additionalProperties": false,
+        "description": "An account calendar mutation against a previously observed version.",
+        "properties": {
+          "expected_version": {
+            "minimum": 0.0,
+            "title": "Expected Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "expected_version"
+        ],
+        "title": "CalendarVersionRequest",
         "type": "object"
       },
       "Capability": {
@@ -4315,6 +4521,45 @@
         "title": "MarkedItem",
         "type": "object"
       },
+      "MatchModelPins": {
+        "description": "Trusted identity and versions of a synthetic model profile.",
+        "properties": {
+          "calibration": {
+            "title": "Calibration",
+            "type": "string"
+          },
+          "model_id": {
+            "title": "Model Id",
+            "type": "string"
+          },
+          "revision": {
+            "title": "Revision",
+            "type": "string"
+          },
+          "template": {
+            "title": "Template",
+            "type": "string"
+          },
+          "tokenizer": {
+            "title": "Tokenizer",
+            "type": "string"
+          },
+          "truncation": {
+            "title": "Truncation",
+            "type": "string"
+          }
+        },
+        "required": [
+          "model_id",
+          "revision",
+          "tokenizer",
+          "truncation",
+          "template",
+          "calibration"
+        ],
+        "title": "MatchModelPins",
+        "type": "object"
+      },
       "MatchRequest": {
         "description": "Evaluate one owned source against every active opportunity.",
         "properties": {
@@ -4464,6 +4709,101 @@
         "title": "MatchResultResponse",
         "type": "object"
       },
+      "MatchRetrieval": {
+        "description": "Safe provenance of a requested local experiment and its effective mode.",
+        "properties": {
+          "artifact_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Artifact Sha256"
+          },
+          "effective_mode": {
+            "anyOf": [
+              {
+                "enum": [
+                  "dense",
+                  "hybrid",
+                  "reranked"
+                ],
+                "type": "string"
+              },
+              {
+                "const": "lexical",
+                "type": "string"
+              }
+            ],
+            "title": "Effective Mode"
+          },
+          "fallback_reason": {
+            "anyOf": [
+              {
+                "enum": [
+                  "artifact_missing",
+                  "artifact_invalid",
+                  "unsupported_input"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fallback Reason"
+          },
+          "fixture_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fixture Sha256"
+          },
+          "fixture_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fixture Version"
+          },
+          "model": {
+            "$ref": "#/components/schemas/MatchModelPins"
+          },
+          "profile": {
+            "title": "Profile",
+            "type": "string"
+          },
+          "requested_mode": {
+            "enum": [
+              "dense",
+              "hybrid",
+              "reranked"
+            ],
+            "title": "Requested Mode",
+            "type": "string"
+          }
+        },
+        "required": [
+          "requested_mode",
+          "effective_mode",
+          "profile",
+          "model"
+        ],
+        "title": "MatchRetrieval",
+        "type": "object"
+      },
       "MatchRunResponse": {
         "description": "A stored run: recommended results first, then those not to be shown as a positive match.",
         "properties": {
@@ -4508,6 +4848,16 @@
             },
             "title": "Results",
             "type": "array"
+          },
+          "retrieval": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MatchRetrieval"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "run_id": {
             "format": "uuid",
@@ -9066,9 +9416,12 @@
             "type": "boolean"
           },
           "external_calendar": {
-            "const": "unknown",
             "default": "unknown",
-            "description": "No calendar is connected, so outside availability is unknown (AC68).",
+            "description": "Unknown unless the viewer\u2019s own calendar returned advisory slot availability (AC68).",
+            "enum": [
+              "unknown",
+              "advisory"
+            ],
             "title": "External Calendar",
             "type": "string"
           },
@@ -9174,6 +9527,22 @@
             "format": "date-time",
             "title": "Ends At",
             "type": "string"
+          },
+          "external_availability": {
+            "anyOf": [
+              {
+                "enum": [
+                  "busy",
+                  "free"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Advisory availability for the signed-in account.",
+            "title": "External Availability"
           },
           "id": {
             "format": "uuid",
@@ -9375,6 +9744,30 @@
           "title"
         ],
         "title": "SubmittedFile",
+        "type": "object"
+      },
+      "SummaryProvenance": {
+        "description": "Trusted versions of the model and prompt that produced a selection.",
+        "properties": {
+          "model_id": {
+            "title": "Model Id",
+            "type": "string"
+          },
+          "model_version": {
+            "title": "Model Version",
+            "type": "string"
+          },
+          "prompt_version": {
+            "title": "Prompt Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "model_id",
+          "model_version",
+          "prompt_version"
+        ],
+        "title": "SummaryProvenance",
         "type": "object"
       },
       "SupportRequestResponse": {
@@ -9817,6 +10210,17 @@
               }
             ],
             "title": "Display Name"
+          },
+          "email_notifications": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email Notifications"
           },
           "expected_version": {
             "title": "Expected Version",
@@ -10510,7 +10914,7 @@
     },
     "/api/v1/briefs/{brief_id}/summary": {
       "post": {
-        "description": "Ask the summarizer. When it is off, fails or adds anything untraceable, the template brief comes back.\n\nArgs:\n    brief_id (UUID): The brief.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    BriefResponse: The brief, with ``summarizer_status``.",
+        "description": "Ask for an extractive suggestion. A failed or disabled adapter returns the editable template.\n\nArgs:\n    brief_id (UUID): The brief.\n    request (Request): The request carrying the live session cookie.\n    session (SessionDep): Database session.\n    summarizer (SummarizerDep): The configured adapter.\n\nReturns:\n    BriefResponse: The brief with its summary status.",
         "operationId": "summarize_brief_api_v1_briefs__brief_id__summary_post",
         "parameters": [
           {
@@ -13336,7 +13740,7 @@
     },
     "/api/v1/matches": {
       "post": {
-        "description": "Evaluate an owned source against every other partner's active opportunity, with reasons and gaps.\n\nArgs:\n    body (MatchRequest): The source.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    MatchRunResponse: The stored run.",
+        "description": "Evaluate an owned source against every other partner's active opportunity, with reasons and gaps.\n\nArgs:\n    body (MatchRequest): The source.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    request (Request): Carries the immutable startup retrieval snapshot.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    MatchRunResponse: The stored run.",
         "operationId": "run_match_api_v1_matches_post",
         "requestBody": {
           "content": {
@@ -13418,7 +13822,7 @@
         ]
       },
       "patch": {
-        "description": "Change display name, locale, time zone or persona against ``expected_version``.\n\nArgs:\n    body (UpdateMeRequest): Changes.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    MeResponse: The updated account.",
+        "description": "Change profile or notification preferences against ``expected_version``.\n\nArgs:\n    body (UpdateMeRequest): Changes.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    MeResponse: The updated account.",
         "operationId": "update_me_api_v1_me_patch",
         "requestBody": {
           "content": {
@@ -13465,6 +13869,212 @@
         "summary": "Change account preferences",
         "tags": [
           "account"
+        ]
+      }
+    },
+    "/api/v1/me/calendar": {
+      "get": {
+        "description": "Report only the signed-in account's connection state.",
+        "operationId": "calendar_status_api_v1_me_calendar_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalendarStatusResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Read my calendar connection",
+        "tags": [
+          "scheduling"
+        ]
+      }
+    },
+    "/api/v1/me/calendar/callback": {
+      "get": {
+        "description": "Consume state before the exchange and always redirect without reflecting callback parameters.",
+        "operationId": "calendar_callback_api_v1_me_calendar_callback_get",
+        "responses": {
+          "303": {
+            "description": "Successful Response"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Finish local calendar consent",
+        "tags": [
+          "scheduling"
+        ]
+      }
+    },
+    "/api/v1/me/calendar/connect": {
+      "get": {
+        "description": "Redirect the initiating browser session to the fixed loopback provider.",
+        "operationId": "authorize_calendar_api_v1_me_calendar_connect_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "version",
+            "required": true,
+            "schema": {
+              "minimum": 1,
+              "title": "Version",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "303": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Open the local calendar consent screen",
+        "tags": [
+          "scheduling"
+        ]
+      },
+      "post": {
+        "description": "Commit explicit consent and return a same-origin navigation path without credentials.",
+        "operationId": "connect_calendar_api_v1_me_calendar_connect_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CalendarConnectRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalendarConnectResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Consent to the local free/busy calendar",
+        "tags": [
+          "scheduling"
+        ]
+      }
+    },
+    "/api/v1/me/calendar/disconnect": {
+      "post": {
+        "description": "Commit local invalidation before attempting bounded provider revocation.",
+        "operationId": "disconnect_calendar_api_v1_me_calendar_disconnect_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CalendarVersionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalendarDisconnectResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Disconnect my external calendar",
+        "tags": [
+          "scheduling"
         ]
       }
     },
@@ -16702,7 +17312,7 @@
     },
     "/api/v1/pitches/{pitch_id}/schedule": {
       "get": {
-        "description": "Read proposals and meetings, with expiry evaluated now.\n\nArgs:\n    pitch_id (UUID): The pitch.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    ScheduleResponse: Proposals and meetings.",
+        "description": "Read authorized scheduling data and optionally annotate the viewer's own calendar.",
         "operationId": "read_schedule_api_v1_pitches__pitch_id__schedule_get",
         "parameters": [
           {

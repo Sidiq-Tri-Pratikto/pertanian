@@ -1,5 +1,6 @@
 """Accounts and sessions through the real application and Postgres (spec 006)."""
 
+import asyncio
 import logging
 from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
@@ -10,7 +11,15 @@ from sqlalchemy import func, select
 
 from app.core import clock
 from app.core.database import get_session_factory
+from app.core.settings import get_settings
+from app.identity.model.schema import CodeRequest
 from app.identity.repository.sqlalchemy.models import AccountRecord, EmailCodeRecord, SessionRecord
+from app.identity.service.mailbox_service import SECRET_DELIVERY
+from app.identity.service.service import IdentityService
+from app.platform.repository.sqlalchemy.models import JobRecord
+from app.worker.loop import run_jobs
+from app.worker.registry import registry
+from tests.integration.mail_relay import LocalRelay
 
 pytestmark = [pytest.mark.integration, pytest.mark.usefixtures("clean_tables")]
 
@@ -58,6 +67,7 @@ async def test_inventor_signs_up_without_any_organization(client: AsyncClient, l
         "time_zone": "Asia/Jakarta",
         "persona": "inovator",
         "kind": "user",
+        "email_notifications": False,
         "version": 1,
     }
     assert body["active_party_id"] == body["personal_party_id"]
@@ -388,3 +398,161 @@ async def test_disabled_mail_rejects_code_without_persisting_it(
     async with get_session_factory()() as session:
         assert await session.scalar(select(func.count()).select_from(EmailCodeRecord)) == 0
         assert await session.scalar(select(func.count()).select_from(MailboxMessageRecord)) == 0
+
+
+async def test_loopback_delivers_a_real_code_only_after_commit(client: AsyncClient, local_relay: LocalRelay) -> None:
+    """
+    Condition:
+    - A synthetic signup queues an encrypted message and one originating transaction rolls back.
+
+    Expected:
+    - An independent worker cannot deliver uncommitted work. A committed request sends once and its code verifies.
+    """
+    local_relay.enable()
+    address = "loopback-signup@example.test"
+    factory = get_session_factory()
+    async with factory() as session:
+        service = IdentityService(session, get_settings())
+        await service.request_code(CodeRequest(email=address, purpose="sign_up", display_name="Rani"), "127.0.0.1")
+        assert await run_jobs(factory, registry) == 0
+        await session.rollback()
+
+    assert await _code_rows() == []
+    assert not local_relay.requests
+    requested = await _request(client, address)
+    assert (requested.status_code, requested.json()) == (202, {"sent": True})
+    assert not local_relay.requests
+    assert (await client.get("/api/v1/dev/mailbox", params={"email": address})).json() == []
+
+    async with factory() as session:
+        job = await session.scalar(select(JobRecord).where(JobRecord.kind == SECRET_DELIVERY))
+        assert job is not None
+        assert set(job.input) == {"key", "envelope"}
+        assert address not in str(job.input)
+        assert job.input_expires_at == (await _code_rows())[0].expires_at
+
+    assert await run_jobs(factory, registry) == 1
+    [message] = local_relay.accepted.values()
+    assert message["to"] == address and message["from"] == "relay@example.test"
+    assert message["subject"] == "Kode verifikasi TemuRiset"
+    code = message["body"].splitlines()[0].rsplit(" ", 1)[1]
+    async with factory() as session:
+        job = await session.scalar(select(JobRecord).where(JobRecord.kind == SECRET_DELIVERY))
+        assert job is not None and (job.status, job.input) == ("SUCCEEDED", {})
+    assert (await client.post("/api/v1/auth/verify", json={"email": address, "code": code})).status_code == 200
+    replay = await client.post("/api/v1/auth/verify", json={"email": address, "code": code})
+    assert replay.json()["error"]["code"] == "CODE_EXPIRED"
+
+
+async def test_loopback_terminal_failure_scrubs_its_message(
+    client: AsyncClient, local_relay: LocalRelay, caplog: pytest.LogCaptureFixture
+) -> None:
+    """
+    Condition:
+    - The relay redirects a signup message and echoes the submission in its response.
+
+    Expected:
+    - The redirect stays terminal and private. The job input is scrubbed and the worker records one safe failure.
+    """
+    local_relay.enable()
+    local_relay.outcomes.append(302)
+    address = "terminal-recipient@example.test"
+    assert (await _request(client, address)).status_code == 202
+    assert await run_jobs(get_session_factory(), registry) == 1
+    assert await run_jobs(get_session_factory(), registry) == 0
+    [(_, attempted)] = local_relay.requests
+    assert local_relay.accepted == {}
+    async with get_session_factory()() as session:
+        job = await session.scalar(select(JobRecord).where(JobRecord.kind == SECRET_DELIVERY))
+        assert job is not None
+        assert (job.status, job.attempts, job.input, job.last_error_code) == (
+            "FAILED",
+            1,
+            {},
+            "APP-MAIL-RELAY-REJECTED",
+        )
+    assert caplog.text.count("APP-MAIL-RELAY-REJECTED") == 2  # One record contains both code and original_code.
+    assert "ref_" in caplog.text
+    assert "fixture-private-relay-response" not in caplog.text
+    assert attempted["body"] not in caplog.text
+    assert address not in caplog.text
+
+
+async def test_retry_discards_a_replaced_code(
+    client: AsyncClient, local_relay: LocalRelay, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """
+    Condition:
+    - A code's delivery fails, then the same address requests a replacement before the retry.
+
+    Expected:
+    - Only the replacement arrives and verifies. The stale job is scrubbed without resending the first code.
+    """
+    local_relay.enable()
+    local_relay.outcomes.append(503)
+    codes = iter(["111111", "222222"])
+    monkeypatch.setattr("app.identity.service.service.new_code", lambda: next(codes))
+    email = "replace-code@example.test"
+    factory = get_session_factory()
+
+    with clock.frozen(START):
+        assert (await _request(client, email)).status_code == 202
+        assert await run_jobs(factory, registry) == 1
+    with clock.frozen(START + timedelta(seconds=1)):
+        assert (await _request(client, email)).status_code == 202
+    with clock.frozen(START + timedelta(seconds=5)):
+        assert await run_jobs(factory, registry) == 2
+        assert (await client.post("/api/v1/auth/verify", json={"email": email, "code": "222222"})).status_code == 200
+
+    assert len(local_relay.requests) == 2
+    [message] = local_relay.accepted.values()
+    assert "222222" in message["body"] and "111111" not in message["body"]
+    async with factory() as session:
+        jobs = list(await session.scalars(select(JobRecord).where(JobRecord.kind == SECRET_DELIVERY)))
+        assert len(jobs) == 2 and all(job.status == "SUCCEEDED" and not job.input for job in jobs)
+
+
+async def test_loopback_does_not_queue_mail_for_an_unknown_sign_in(
+    client: AsyncClient, local_relay: LocalRelay
+) -> None:
+    """
+    Condition:
+    - An unknown address requests sign-in without creating a challenge.
+
+    Expected:
+    - The public response remains the same and no unthrottled notification can be sent to that address.
+    """
+    local_relay.enable()
+    response = await _request(client, "unknown@example.test", purpose="sign_in")
+    assert (response.status_code, response.json()) == (202, {"sent": True})
+    assert await run_jobs(get_session_factory(), registry) == 0
+    assert not local_relay.requests
+
+
+async def test_verification_does_not_wait_for_the_worker_acknowledgement(
+    client: AsyncClient, local_relay: LocalRelay
+) -> None:
+    """
+    Condition:
+    - The relay has accepted a code message while the worker still awaits its acknowledgement.
+
+    Expected:
+    - The account can verify without waiting for the delivery transaction to release a code row lock.
+    """
+    local_relay.enable()
+    acknowledgement = asyncio.Event()
+    local_relay.allow_acknowledgement = acknowledgement
+    email = "pending-ack@example.test"
+    assert (await _request(client, email)).status_code == 202
+    delivery = asyncio.create_task(run_jobs(get_session_factory(), registry))
+    try:
+        await asyncio.wait_for(local_relay.message_received.wait(), timeout=3)
+        [message] = local_relay.accepted.values()
+        code = message["body"].splitlines()[0].rsplit(" ", 1)[1]
+        verified = await asyncio.wait_for(
+            client.post("/api/v1/auth/verify", json={"email": email, "code": code}), timeout=2
+        )
+        assert verified.status_code == 200 and not delivery.done()
+    finally:
+        acknowledgement.set()
+        assert await delivery == 1

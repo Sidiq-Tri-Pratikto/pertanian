@@ -102,12 +102,20 @@ def build_manifest(
     *,
     storage_adapter: str = "local",
     scanner_adapter: str = "development-accept",
+    summary_relay_enabled: bool = False,
+    email_relay: bool = False,
+    calendar_enabled: bool = False,
 ) -> CapabilityManifestResponse:
     """Build the manifest for one composition.
 
     Args:
         composition_id (str): A supported composition.
         overrides (dict[str, bool] | None, optional): Capability overrides. Defaults to None.
+        storage_adapter (str, optional): Configured storage. Defaults to "local".
+        scanner_adapter (str, optional): Configured scanner. Defaults to "development-accept".
+        summary_relay_enabled (bool, optional): Validated local summary relay enabled. Defaults to False.
+        email_relay (bool, optional): Validated local email relay enabled. Defaults to False.
+        calendar_enabled (bool): Whether the validated development calendar profile is active.
 
     Returns:
         CapabilityManifestResponse: The manifest. A capability that is not selected is absent, not ``planned``.
@@ -116,6 +124,34 @@ def build_manifest(
         ValueError: When the composition or the overrides are not supported.
     """
     capability_ids = select_capabilities(composition_id, overrides)
+    implementations = {"object-storage": storage_adapter, "file-scanner": scanner_adapter}
+    adapters = [
+        adapter.model_copy(update={"implementation": implementations[adapter.id]})
+        if adapter.id in implementations
+        else adapter
+        for adapter in ADAPTERS
+    ]
+    adapters.append(
+        AdapterResponse(
+            id="ai-summary",
+            status=CapabilityStatus.AVAILABLE if summary_relay_enabled else CapabilityStatus.PLANNED,
+            implementation="local-relay" if summary_relay_enabled else "off",
+        )
+    )
+    adapters.append(
+        AdapterResponse(
+            id="email",
+            status=CapabilityStatus.AVAILABLE if email_relay else CapabilityStatus.PLANNED,
+            implementation="loopback-relay" if email_relay else None,
+        )
+    )
+    adapters.append(
+        AdapterResponse(
+            id="calendar",
+            status=CapabilityStatus.AVAILABLE if calendar_enabled else CapabilityStatus.PLANNED,
+            implementation="loopback-oauth" if calendar_enabled else None,
+        )
+    )
     return CapabilityManifestResponse(
         schema_version=MANIFEST_SCHEMA_VERSION,
         source_release=SOURCE_RELEASE,
@@ -123,11 +159,6 @@ def build_manifest(
         default_locale=DEFAULT_LOCALE,
         supported_currencies=list(SUPPORTED_CURRENCIES),
         capabilities=[CAPABILITIES[capability_id] for capability_id in capability_ids],
-        adapters=[
-            adapter.model_copy(update={"implementation": implementation})
-            if (implementation := {"object-storage": storage_adapter, "file-scanner": scanner_adapter}.get(adapter.id))
-            else adapter
-            for adapter in ADAPTERS
-        ],
+        adapters=adapters,
         policies=list(POLICIES),
     )

@@ -74,15 +74,70 @@ Run one test with `uv run pytest tests/unit/health/test_health.py -v`, or match 
 | `FILE_SCANNER` | no | `development-accept` | `clamav` or `development-accept`; the second stops startup outside development |
 | `WEB_ORIGIN` | no | `http://localhost:3020` | Origin of the web client; an unsafe request carrying the session cookie from any other origin gets `FORBIDDEN` |
 | `SESSION_COOKIE_SECURE` | no | unset | `Secure` flag on `tr_session`; unset means secure everywhere but development |
-| `MAILBOX_ADAPTER` | no | `development` | Writes email to `mailbox_messages`, readable at `GET /api/v1/dev/mailbox` in development; stops startup elsewhere until spec 042 |
+| `MAILBOX_ADAPTER` | no | `development` | Select `development` for the local mailbox table, `loopback-relay` for a synthetic development relay, or `disabled`. Outside development, use `disabled`. |
+| `EMAIL_RELAY_URL` | relay only | unset | HTTP(S) endpoint on a literal loopback IP, for example `http://127.0.0.1:8090/deliver`. |
+| `EMAIL_RELAY_SENDER` | relay only | unset | Synthetic address supplied to the local relay as the sender. |
+| `EMAIL_ENVELOPE_KEY` | relay only | unset | Independent Fernet key for short-lived code and invitation envelopes. Give the API and worker the same key through their local secret configuration. |
 | `CODE_REQUESTS_PER_EMAIL_PER_HOUR` | no | `5` | Sign-in code requests per email per hour |
 | `CODE_REQUESTS_PER_ADDRESS_PER_HOUR` | no | `20` | Sign-in code requests per client address per hour |
 | `STORAGE_PATH` | no | `.storage` | Private folder for uploaded bytes; downloads always go through the gateway |
+| `SUMMARY_ADAPTER` | no | `off` | `local-relay` is available only in development with validated loopback settings |
+| `SUMMARY_RELAY_URL` | for `local-relay` | unset | HTTP endpoint on literal `127.0.0.1` or `[::1]`, with an explicit port and no credentials, query or fragment |
+| `SUMMARY_MODEL_ID`, `SUMMARY_MODEL_VERSION`, `SUMMARY_PROMPT_VERSION` | for `local-relay` | unset | Non-secret provenance identifiers supplied by the developer running the relay double |
+| `MATCH_RETRIEVAL_MODE` | no | `off` | `dense`, `hybrid`, and `reranked` are local synthetic modes for a development demo |
+| `MATCH_RETRIEVAL_ARTIFACT` | for synthetic modes | unset | Local validated artifact read once at startup. A missing or rejected artifact falls back to lexical matching |
 | `DEMO_MODE` | no | `false` | Offers the labelled demo accounts, sign-in from the picker and reset under `/api/v1/demo` |
 | `DEMO_DEPLOYMENT` | no | `false` | Marks the deployment as a demonstration; outside development, `DEMO_MODE=true` refuses to start without it |
 | `CLAMAV_HOST`, `CLAMAV_PORT` | no | `localhost`, `3310` | ClamAV daemon for `FILE_SCANNER=clamav` (`--profile scanner` in `dev-compose.yml`) |
 | `SKIP_MIGRATIONS` | no | `false` | Container start skips migrations when `true` |
 | `PORT` | no | `8000` | Container listen port (`make run` uses 8020 on the host) |
+
+### Local summary evaluation
+
+Use `SUMMARY_ADAPTER=local-relay` only with synthetic briefs and a contract double you control. The API sends a JSON POST with
+`{"candidates":[{"id":"…","text":"…"}]}`. The double returns `{"sentence_ids":["…"]}` selecting a nonempty proper subset of
+the supplied IDs. The API accepts UTF-8 JSON, sends at most 64 KiB and reads at most 16 KiB per attempt. Each attempt
+takes at most three seconds and a timeout or connection error can trigger one retry. The S11 editor keeps its draft and
+offers the verified result for explicit application. Production configuration requires the default off mode.
+
+## Synthetic local calendar
+
+The default profile uses `CALENDAR_ADAPTER=off`. To run a synthetic OAuth double, set `ENVIRONMENT=development`,
+`CALENDAR_ADAPTER=loopback-oauth` and the following values in the API environment. Use test accounts and synthetic
+availability.
+
+| Variable | Value |
+|---|---|
+| `CALENDAR_AUTHORIZE_URL` | The synthetic authorization endpoint on literal `127.0.0.1` or `[::1]` |
+| `CALENDAR_TOKEN_URL` | The synthetic code and S256 verifier exchange endpoint on literal loopback |
+| `CALENDAR_FREEBUSY_URL` | The synthetic free/busy endpoint on literal loopback |
+| `CALENDAR_REVOKE_URL` | The synthetic token revocation endpoint on literal loopback |
+| `CALENDAR_CLIENT_ID` | The double's synthetic public client identifier |
+| `CALENDAR_SCOPE` | `freebusy.read` |
+| `CALENDAR_ENVELOPE_KEY` | A dedicated Fernet key generated locally, independent of the mail key |
+| `CALENDAR_CALLBACK_ORIGIN` | The direct API loopback origin, default `http://localhost:8020` |
+
+The callback origin uses the same hostname and scheme as `WEB_ORIGIN`, with its own API port. Register only
+`CALENDAR_CALLBACK_ORIGIN/api/v1/me/calendar/callback`. The browser returns directly to the API with its host-scoped
+session cookie, so the Next proxy never handles the callback query. Uvicorn omits that query from access records.
+The callback strips its query from application routing metadata and returns a no-store, no-referrer redirect to
+web settings. A safe reference accompanies a failed callback.
+
+After signing in, select **Siapkan sambungan kalender** in settings after accepting the read-only consent, then
+follow **Lanjut ke kalender uji**. The double returns an authorization code tied to the S256 challenge and the
+fixed callback. Its token response has `access_token`, bearer `token_type`, integer `expires_in` from 1 to
+3600 seconds, and the exact `freebusy.read` scope. There is no offline refresh. Its free/busy POST accepts at most
+five UTC windows and returns only busy UTC intervals. A lookup may add advisory labels for the viewer's own
+calendar. Internal scheduling and ICS continue when the relay is unavailable.
+
+Disconnect removes the local credential and invalidates in-flight attempts before a single bounded remote
+revocation attempt. The mutation receipt is stable across retries. Account status reports whether the relay
+confirmed revocation for that version. While the adapter is off, the owner can still erase the local connection
+without contacting the relay. Account-profile erasure removes the entire local record.
+
+The synthetic OAuth and free/busy suite starts an ephemeral literal-loopback double with
+`uv run pytest tests/integration/scheduling` after Postgres starts. External-provider approval, consent review and
+staging evidence are separate release gates.
 
 ## Commands
 
@@ -173,7 +228,41 @@ Use `python -m app.moderation --help` from the service for local grant administr
 
 ## Staging and production runtime
 
-Use the [deployment runbook](../../../../../deployment/temuriset/RUNBOOK.md) for the pinned Compose topology and secret-store setup. Configure `STORAGE_ADAPTER=s3` with the private origin, bucket, region and scoped access keys in `.env.example`. Configure `FILE_SCANNER=clamav` and `MAILBOX_ADAPTER=disabled` outside development. The public capability manifest reports storage and scanner implementations. Download and range authorization remain in the API, and storage errors omit provider details.
+Use the [deployment runbook](../../../../../deployment/temuriset/RUNBOOK.md) for the pinned Compose topology and secret-store setup. Configure `STORAGE_ADAPTER=s3` with the private origin, bucket, region and scoped access keys in `.env.example`. Configure `FILE_SCANNER=clamav` and `MAILBOX_ADAPTER=disabled` outside development. The public capability manifest reports storage and scanner implementations and email readiness. Download and range authorization remain in the API, and storage errors omit provider details.
+
+
+### Local email relay
+
+Use synthetic accounts with a local relay double. Set `ENVIRONMENT=development` and
+`MAILBOX_ADAPTER=loopback-relay` for both the API and worker, supply the relay URL and a synthetic
+sender such as `relay@example.test`, and generate a distinct local key:
+
+```bash
+export EMAIL_ENVELOPE_KEY="$(uv run python -c 'from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())')"
+```
+
+Supply the same key to the API and worker through their local secret environment. Start
+the API and worker after migrating the database. The manifest reports the `email` adapter as
+`available` with implementation `loopback-relay` in this profile, and S18 offers optional email.
+
+The worker posts JSON with `from`, `to`, `subject` and `body` as plain text strings and a stable
+`Idempotency-Key` header. The relay must return 2xx for first acceptance and for subsequent requests
+under the same accepted key. It must retain acceptance keys for at least one hour. An attempt is
+bounded by five seconds and the JSON request by 8 KiB. The worker does not follow redirects or
+consume response bodies. Connection failures, timeouts, 429 and 5xx retry with bounded backoff and
+the same key.
+
+Code and invitation material is encrypted in the job and cleared on a terminal attempt or expiry.
+It is usable for at most ten minutes and is rechecked against the current challenge or invitation
+before sending. Unknown-address sign-in requests keep the same public acknowledgement and do not
+queue mail in relay mode. Optional notification delivery is independent of in-app notices, with a
+15-minute attempt window and live opt-in, account eligibility and party access checks on each
+attempt. The notice links to the authenticated home page without including pitch details.
+
+Release deployments keep `MAILBOX_ADAPTER=disabled`. External email needs approved processing terms,
+a sender domain verified for SPF, DKIM and DMARC, and sandbox evidence of delivery and deduplication.
+Erasure outcomes use the independent development or disabled path. A production erasure receipt
+requires its own approved delivery policy.
 
 The same non-root image accepts the `api`, `worker` and `migrate` commands. The deployment runs `migrate` before API or worker startup. Running the image without a command retains the existing development startup behavior. With disabled mail, sign-in code requests and invitations return `MAIL_UNAVAILABLE`. A deletion outcome can be ready even when its email could not be sent.
 
