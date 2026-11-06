@@ -1,6 +1,6 @@
 # Implementation Plan: Android smoke CI
 
-**Branch**: `003-android-smoke-ci` | **Date**: 2026-10-30 | **Spec**: [spec.md](spec.md)
+**Branch**: `m0/android-smoke-ci` | **Date**: 2026-10-30 | **Spec**: [spec.md](spec.md)
 
 ## Summary
 

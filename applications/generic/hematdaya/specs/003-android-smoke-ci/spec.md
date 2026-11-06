@@ -1,6 +1,6 @@
 # Feature Specification: Android smoke CI
 
-**Feature Branch**: `003-android-smoke-ci`
+**Feature Branch**: `m0/android-smoke-ci`
 **Created**: 2026-10-30
 **Status**: Built, awaiting review
 **Milestone**: M0 Foundations

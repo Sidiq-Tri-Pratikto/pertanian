@@ -1,7 +1,7 @@
 # Tasks: Android smoke CI
 
 **Input**: `specs/003-android-smoke-ci/spec.md`, `plan.md`, generated against `origin/main` at `af1a5aa`
-**Branch**: `003-android-smoke-ci`
+**Branch**: `m0/android-smoke-ci`
 **Prerequisites**: 002 is merged. The entry condition (a hosted runner that can boot the emulator) is unproven until T013.
 **Tests**: The Maestro flow is the test. The spec requires proof that the job can fail, so T014–T016 are part of this feature, not extras.
 
@@ -22,7 +22,7 @@
 | D9 | The failure proof breaks a native import with `TurboModuleRegistry.getEnforcing('HematDayaMissingModule')` at module scope of `src/app/_layout.tsx`, on a throwaway branch only. The uploaded log must name that module. | The spec's Independent Test says "breaks a native import". The app then fails to start, the flow must fail, and the log must explain why. |
 | D10 | Local checks cover what can run here: `actionlint` with shellcheck through Docker, the prebuild output and Metro readiness. No local Android SDK exists, so **native behavior is proven only by the CI run**. | Rule 009: record which runtime was exercised. |
 | D11 | Tasks T012–T016 and T018 need GitHub, so they run after the local tasks. | The job only exists there. |
-| D12 | Each throwaway PR uses `003-android-smoke-ci` as its base, is a draft, and carries one kind of change. After reading the result, close it and delete its branch. | A PR to `main` always includes the workflow file, which matches the path filter, so it could never prove an API-only edit is excluded. The trigger has no branch filter, so these PRs still run the job. |
+| D12 | Each throwaway PR uses `m0/android-smoke-ci` as its base, is a draft, and carries one kind of change. After reading the result, close it and delete its branch. | A PR to `main` always includes the workflow file, which matches the path filter, so it could never prove an API-only edit is excluded. The trigger has no branch filter, so these PRs still run the job. |
 | D13 | PRs get `concurrency` with `cancel-in-progress: true`, keyed on the PR ref. CI sets `MAESTRO_CLI_NO_ANALYTICS=1`, `EXPO_NO_TELEMETRY=1` and `MAESTRO_DRIVER_STARTUP_TIMEOUT=180000`. | A run costs Actions minutes on a private repository. CI sends no telemetry, and a hosted emulator can be slow to start the driver. |
 
 ---
