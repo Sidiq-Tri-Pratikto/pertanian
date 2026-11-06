@@ -37,7 +37,7 @@ jobs:
   # Spec 003: Chromium against `next build` + `next start` and a live API, at 320, 360, 768 and 1280 px.
   e2e:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     defaults:
       run:
         working-directory: applications/generic/temuriset
