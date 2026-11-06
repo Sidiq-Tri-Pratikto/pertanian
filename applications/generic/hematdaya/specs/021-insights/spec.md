@@ -2,7 +2,7 @@
 
 **Feature Branch**: `021-insights`
 **Created**: 2026-10-30
-**Status**: Seeded, not started
+**Status**: Implemented on `f/m4-evidence`; AT-17 numbers, revision, retirement, concurrency, notice and copy-lint tests pass. The manifest `core` capability is now `available`
 **Milestone**: M4 Evidence
 **Depends on**: 020
 **Size**: L

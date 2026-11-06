@@ -15,7 +15,7 @@ CORE = "core"
 
 # Status moves here feature by feature, in the pull request that ships it. Nothing may claim more than exists.
 CAPABILITIES = {
-    CORE: CapabilityResponse(id=CORE, optional=False, status=CapabilityStatus.PLANNED),
+    CORE: CapabilityResponse(id=CORE, optional=False, status=CapabilityStatus.AVAILABLE),
     "cost": CapabilityResponse(id="cost", optional=True, status=CapabilityStatus.PLANNED),
     "schedule": CapabilityResponse(id="schedule", optional=True, status=CapabilityStatus.PLANNED),
     "output": CapabilityResponse(id="output", optional=True, status=CapabilityStatus.PLANNED),

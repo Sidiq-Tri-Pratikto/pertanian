@@ -81,5 +81,7 @@ Run one test with `uv run pytest tests/unit/health/test_health.py -v`, or match 
 | `GET /api/v1/assets/{asset_id}/summary` | The same for one asset, such as a parent meter alone |
 | `GET /api/v1/assets/{asset_id}/measurements` | Day or hour buckets with state, coverage and the highest complete bucket; at most 1,000. Adds `comparison_kwh` and `reference_kwh` on the common mask when a comparison is valid |
 | `GET /api/v1/assets/{asset_id}/comparison` | Matched baseline against the same local weekdays and times of the three previous weeks; up to 7 days |
+| `GET /api/v1/sites/{site_id}/insights` | Evaluates the period and returns active observations ranked by additional kWh, plus partial, stale and scope notices |
+| `GET /api/v1/insights/{insight_id}` | The current revision after re-evaluation, or `?revision=` for a frozen one |
 
 Every route except health, capabilities and the scenario list needs `Authorization: Bearer <token>`. A resource owned by someone else answers `NOT_FOUND`.

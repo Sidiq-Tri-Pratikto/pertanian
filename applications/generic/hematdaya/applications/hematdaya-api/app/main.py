@@ -22,6 +22,7 @@ from app.demo.router import router as demo_router
 from app.energy.router import router as energy_router
 from app.health.router import router as health_router
 from app.identity.dependencies import register_principal_resolver
+from app.insights.router import router as insights_router
 from app.sites.router import router as sites_router
 
 API_PREFIX = "/api/v1"
@@ -59,6 +60,7 @@ def create_app() -> FastAPI:
     app.include_router(demo_router, prefix=API_PREFIX)
     app.include_router(energy_router, prefix=API_PREFIX)
     app.include_router(baseline_router, prefix=API_PREFIX)
+    app.include_router(insights_router, prefix=API_PREFIX)
     register_principal_resolver(resolve_demo_principal)
     install_error_schema(app)
     return app

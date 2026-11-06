@@ -366,7 +366,7 @@
           },
           "policies": {
             "items": {
-              "$ref": "#/components/schemas/PolicyResponse"
+              "$ref": "#/components/schemas/app__capabilities__model__schema__PolicyResponse"
             },
             "title": "Policies",
             "type": "array"
@@ -1292,6 +1292,162 @@
         "title": "InitialPeriodResponse",
         "type": "object"
       },
+      "InsightCopyResponse": {
+        "description": "Text built from the snapshot.",
+        "properties": {
+          "comparison": {
+            "title": "Comparison",
+            "type": "string"
+          },
+          "observed": {
+            "title": "Observed",
+            "type": "string"
+          },
+          "pct_note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pct Note"
+          },
+          "step": {
+            "title": "Step",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "unknown": {
+            "title": "Unknown",
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "observed",
+          "pct_note",
+          "comparison",
+          "unknown",
+          "step"
+        ],
+        "title": "InsightCopyResponse",
+        "type": "object"
+      },
+      "InsightListResponse": {
+        "description": "Active observations for a period, with notices and how many assets could be compared.",
+        "properties": {
+          "comparable_count": {
+            "title": "Comparable Count",
+            "type": "integer"
+          },
+          "learning_count": {
+            "title": "Learning Count",
+            "type": "integer"
+          },
+          "notices": {
+            "items": {
+              "$ref": "#/components/schemas/NoticeResponse"
+            },
+            "title": "Notices",
+            "type": "array"
+          },
+          "observations": {
+            "items": {
+              "$ref": "#/components/schemas/InsightResponse"
+            },
+            "title": "Observations",
+            "type": "array"
+          },
+          "window": {
+            "$ref": "#/components/schemas/WindowResponse"
+          }
+        },
+        "required": [
+          "window",
+          "observations",
+          "notices",
+          "learning_count",
+          "comparable_count"
+        ],
+        "title": "InsightListResponse",
+        "type": "object"
+      },
+      "InsightResponse": {
+        "description": "One observation at one revision. A superseded revision stays readable.",
+        "properties": {
+          "active": {
+            "title": "Active",
+            "type": "boolean"
+          },
+          "asset_id": {
+            "format": "uuid",
+            "title": "Asset Id",
+            "type": "string"
+          },
+          "current_revision": {
+            "title": "Current Revision",
+            "type": "integer"
+          },
+          "direction": {
+            "title": "Direction",
+            "type": "string"
+          },
+          "evidence": {
+            "additionalProperties": true,
+            "title": "Evidence",
+            "type": "object"
+          },
+          "generated_at": {
+            "format": "date-time",
+            "title": "Generated At",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "policy": {
+            "$ref": "#/components/schemas/app__insights__model__schema__PolicyResponse"
+          },
+          "revision": {
+            "title": "Revision",
+            "type": "integer"
+          },
+          "superseded": {
+            "title": "Superseded",
+            "type": "boolean"
+          },
+          "text": {
+            "$ref": "#/components/schemas/InsightCopyResponse"
+          }
+        },
+        "required": [
+          "id",
+          "revision",
+          "current_revision",
+          "kind",
+          "direction",
+          "asset_id",
+          "active",
+          "superseded",
+          "generated_at",
+          "policy",
+          "evidence",
+          "text"
+        ],
+        "title": "InsightResponse",
+        "type": "object"
+      },
       "IssueType": {
         "description": "Why a combined total is refused.",
         "enum": [
@@ -1314,23 +1470,46 @@
         "title": "MeasurementKind",
         "type": "string"
       },
-      "PolicyResponse": {
-        "description": "One versioned analysis policy.",
+      "NoticeResponse": {
+        "description": "A data-quality notice, ranked apart from observations.",
         "properties": {
+          "asset_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Asset Id"
+          },
+          "body": {
+            "title": "Body",
+            "type": "string"
+          },
           "id": {
             "title": "Id",
             "type": "string"
           },
-          "version": {
-            "title": "Version",
-            "type": "integer"
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
           }
         },
         "required": [
           "id",
-          "version"
+          "kind",
+          "asset_id",
+          "title",
+          "body"
         ],
-        "title": "PolicyResponse",
+        "title": "NoticeResponse",
         "type": "object"
       },
       "Preset": {
@@ -1843,6 +2022,44 @@
           "is_current"
         ],
         "title": "WindowResponse",
+        "type": "object"
+      },
+      "app__capabilities__model__schema__PolicyResponse": {
+        "description": "One versioned analysis policy.",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "version"
+        ],
+        "title": "PolicyResponse",
+        "type": "object"
+      },
+      "app__insights__model__schema__PolicyResponse": {
+        "description": "The versioned rule that produced the evidence.",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "version"
+        ],
+        "title": "PolicyResponse",
         "type": "object"
       }
     }
@@ -2617,6 +2834,77 @@
         ]
       }
     },
+    "/api/v1/insights/{insight_id}": {
+      "get": {
+        "description": "Return the current revision after re-evaluation, or a frozen revision with its supersession status.\n\nArgs:\n    insight_id (UUID): The insight.\n    principal (PrincipalModel): The acting principal.\n    service (InsightService): Insight rules.\n    revision (int | None, optional): A specific revision. Defaults to None.\n\nReturns:\n    InsightResponse: The revision.",
+        "operationId": "get_insight_api_v1_insights__insight_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "insight_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Insight Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "revision",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Revision"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InsightResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Read an insight",
+        "tags": [
+          "insights"
+        ]
+      }
+    },
     "/api/v1/sites/{site_id}": {
       "get": {
         "description": "Return an owned site.\n\nArgs:\n    site_id (UUID): The site.\n    principal (PrincipalModel): The acting principal.\n    service (SiteService): Site rules.\n\nReturns:\n    SiteResponse: The site.",
@@ -2885,6 +3173,110 @@
         "summary": "Add an asset",
         "tags": [
           "assets"
+        ]
+      }
+    },
+    "/api/v1/sites/{site_id}/insights": {
+      "get": {
+        "description": "Evaluate the period and return active observations ranked by additional kWh, plus data-quality notices.\n\nArgs:\n    site_id (UUID): The site.\n    principal (PrincipalModel): The acting principal.\n    service (InsightService): Insight rules.\n    preset (Preset | None, optional): A named period. Defaults to None.\n    start_date (date | None, optional): First local date. Defaults to None.\n    end_date (date | None, optional): Last local date. Defaults to None.\n\nReturns:\n    InsightListResponse: Observations, notices and counts.",
+        "operationId": "site_insights_api_v1_sites__site_id__insights_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "site_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Site Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "preset",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/Preset"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Preset"
+            }
+          },
+          {
+            "in": "query",
+            "name": "start_date",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Start Date"
+            }
+          },
+          {
+            "in": "query",
+            "name": "end_date",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "End Date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InsightListResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Observations and notices for a period",
+        "tags": [
+          "insights"
         ]
       }
     },
