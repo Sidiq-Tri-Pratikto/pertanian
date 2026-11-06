@@ -77,5 +77,7 @@ Run one test with `uv run pytest tests/unit/health/test_health.py -v`, or match 
 | `GET`, `PATCH /api/v1/assets/{asset_id}` | Asset with its bindings and sources; rename, archive |
 | `POST /api/v1/assets/{asset_id}/bindings` | Bind a source of the same site |
 | `DELETE /api/v1/assets/{asset_id}/bindings/{binding_id}` | End a binding at site time; history stays |
+| `GET /api/v1/sites/{site_id}/summary` | Recorded energy, coverage, gaps and ranking for every active asset; `preset` or `start_date` and `end_date` |
+| `GET /api/v1/assets/{asset_id}/summary` | The same for one asset, such as a parent meter alone |
 
 Every route except health, capabilities and the scenario list needs `Authorization: Bearer <token>`. A resource owned by someone else answers `NOT_FOUND`.

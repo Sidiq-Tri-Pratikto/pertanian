@@ -14,6 +14,7 @@ from app.assets.model.models import (
     ExpectedUse,
     MeasurementKind,
     RelationKind,
+    RelationModel,
     ScopeKind,
     SourceModel,
     SourceOrigin,
@@ -42,6 +43,16 @@ class AssetDetail(BaseModel):
     asset: AssetModel
     bindings: list[BindingModel]
     sources: list[SourceModel]
+
+
+class SiteSnapshot(BaseModel):
+    """A site's asset model at one moment, for reads that must agree with each other."""
+
+    assets: list[AssetModel]
+    bindings: list[BindingModel]
+    sources: list[SourceModel]
+    relations: list[RelationModel]
+    containment: list[tuple[UUID, UUID]]
 
 
 class AssetPage(BaseModel):
@@ -374,6 +385,39 @@ class AssetService:
         ):
             raise AssetCycleError()
         await self.repository.add_relation(site.id, from_asset_id, to_asset_id, kind)
+
+    async def snapshot(self, site: SiteModel) -> SiteSnapshot:
+        """Return a resolved site's assets, bindings, sources, relations and containment.
+
+        Args:
+            site (SiteModel): The site, already resolved through its owner.
+
+        Returns:
+            SiteSnapshot: The snapshot.
+        """
+        assets, bindings, sources = await self.repository.site_snapshot(site.id)
+        return SiteSnapshot(
+            assets=assets,
+            bindings=bindings,
+            sources=sources,
+            relations=await self.repository.list_relations(site.id),
+            containment=await self.repository.containment(site.id),
+        )
+
+    async def owned_asset(self, asset_id: UUID, principal: PrincipalModel) -> tuple[AssetModel, SiteModel]:
+        """Resolve an asset through its owner.
+
+        Args:
+            asset_id (UUID): The asset.
+            principal (PrincipalModel): The acting principal.
+
+        Returns:
+            tuple[AssetModel, SiteModel]: The asset and its site.
+
+        Raises:
+            NotFoundError: When it is missing or someone else's.
+        """
+        return await self._owned_asset(asset_id, principal, lock=False)
 
     async def clear(self, site: SiteModel) -> None:
         """Remove a locked site's assets, sources, bindings, relations and readings. Demo reset uses this.

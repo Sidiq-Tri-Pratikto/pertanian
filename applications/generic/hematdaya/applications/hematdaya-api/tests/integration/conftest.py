@@ -204,3 +204,22 @@ async def start_demo(client: AsyncClient, scenario_id: str = "h-base") -> dict:
     assert response.status_code == 201, response.text
     body = response.json()
     return body | {"auth": {"Authorization": f"Bearer {body['token']}"}}
+
+
+async def summary(client: AsyncClient, session: dict, path: str | None = None, **params: str) -> dict:
+    """Read a summary as a demo session.
+
+    Args:
+        client (AsyncClient): The client.
+        session (dict): A ``start_demo`` result.
+        path (str | None, optional): Route; defaults to the session site's summary.
+        **params (str): Query parameters.
+
+    Returns:
+        dict: The response body.
+    """
+    response = await client.get(
+        path or f"/api/v1/sites/{session['site_id']}/summary", params=params, headers=session["auth"]
+    )
+    assert response.status_code == 200, response.text
+    return response.json()

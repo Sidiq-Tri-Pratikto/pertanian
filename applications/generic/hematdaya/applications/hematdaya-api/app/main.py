@@ -18,6 +18,7 @@ from app.core.openapi import install_error_schema
 from app.core.settings import get_settings
 from app.demo.dependencies import resolve_demo_principal
 from app.demo.router import router as demo_router
+from app.energy.router import router as energy_router
 from app.health.router import router as health_router
 from app.identity.dependencies import register_principal_resolver
 from app.sites.router import router as sites_router
@@ -55,6 +56,7 @@ def create_app() -> FastAPI:
     app.include_router(sites_router, prefix=API_PREFIX)
     app.include_router(assets_router, prefix=API_PREFIX)
     app.include_router(demo_router, prefix=API_PREFIX)
+    app.include_router(energy_router, prefix=API_PREFIX)
     register_principal_resolver(resolve_demo_principal)
     install_error_schema(app)
     return app

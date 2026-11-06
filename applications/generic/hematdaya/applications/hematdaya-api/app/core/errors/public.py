@@ -79,6 +79,9 @@ PUBLIC_ERROR_BY_CODE: dict[str, PublicError] = {
         409,
         "Permintaan demo ini sudah dipakai untuk sesi lain atau sudah kedaluwarsa. Mulai sesi demo baru.",
     ),
+    codes.APP_RANGE_TOO_LARGE: PublicError(
+        "RANGE_TOO_LARGE", 400, "Rentang waktu terlalu panjang. Pilih rentang yang lebih pendek lalu coba lagi."
+    ),
     codes.APP_AUTH_REQUIRED: PublicError(
         "UNAUTHORIZED", 401, "Anda perlu masuk terlebih dahulu. Masuk lalu coba lagi."
     ),

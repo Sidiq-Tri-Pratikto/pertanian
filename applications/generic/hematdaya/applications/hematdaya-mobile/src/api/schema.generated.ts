@@ -103,6 +103,37 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/assets/{asset_id}/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Recorded energy for one asset
+         * @description Return one asset's recorded energy in the summary shape; a parent meter alone is valid.
+         *
+         *     Args:
+         *         asset_id (UUID): The asset.
+         *         principal (PrincipalModel): The acting principal.
+         *         service (EnergyService): Energy reads.
+         *         preset (Preset | None, optional): A named period. Defaults to None.
+         *         start_date (date | None, optional): First local date. Defaults to None.
+         *         end_date (date | None, optional): Last local date. Defaults to None.
+         *
+         *     Returns:
+         *         SummaryResponse: The summary.
+         */
+        get: operations["asset_summary_api_v1_assets__asset_id__summary_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/capabilities": {
         parameters: {
             query?: never;
@@ -321,6 +352,39 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/sites/{site_id}/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Recorded energy for a site
+         * @description Return recorded energy for every active asset, with coverage and any reason the total is withheld.
+         *
+         *     Pass ``preset`` or both ``start_date`` and ``end_date`` (inclusive local dates, at most 366 days).
+         *
+         *     Args:
+         *         site_id (UUID): The site.
+         *         principal (PrincipalModel): The acting principal.
+         *         service (EnergyService): Energy reads.
+         *         preset (Preset | None, optional): A named period. Defaults to None.
+         *         start_date (date | None, optional): First local date. Defaults to None.
+         *         end_date (date | None, optional): Last local date. Defaults to None.
+         *
+         *     Returns:
+         *         SummaryResponse: The summary.
+         */
+        get: operations["site_summary_api_v1_sites__site_id__summary_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health/live": {
         parameters: {
             query?: never;
@@ -409,6 +473,32 @@ export interface components {
             scope_kind: components["schemas"]["ScopeKind"];
             /** Sources */
             sources: components["schemas"]["SourceResponse"][];
+        };
+        /**
+         * AssetEnergyResponse
+         * @description One asset's recorded energy in the window.
+         */
+        AssetEnergyResponse: {
+            /**
+             * Asset Id
+             * Format: uuid
+             */
+            asset_id: string;
+            /** Conflict Sources */
+            conflict_sources: components["schemas"]["ConflictSourceResponse"][] | null;
+            /** Coverage */
+            coverage: string | null;
+            /** Energy Kwh */
+            energy_kwh: string | null;
+            /** Energy Unavailable Reason */
+            energy_unavailable_reason: string | null;
+            /** Gaps */
+            gaps: components["schemas"]["GapResponse"][];
+            /** Name */
+            name: string;
+            scope_kind: components["schemas"]["ScopeKind"];
+            /** Share Percent */
+            share_percent: string | null;
         };
         /**
          * AssetPageResponse
@@ -511,6 +601,33 @@ export interface components {
             id: string;
             /** Version */
             version: number;
+        };
+        /**
+         * ConflictSourceResponse
+         * @description One unresolved candidate's value, shown beside the others and never summed.
+         */
+        ConflictSourceResponse: {
+            /** Energy Kwh */
+            energy_kwh: string;
+            /** Label */
+            label: string;
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+        };
+        /**
+         * CoverageResponse
+         * @description Completeness of the selection, never averaged away.
+         */
+        CoverageResponse: {
+            /** Allocated Estimate */
+            allocated_estimate: boolean;
+            /** Concurrent */
+            concurrent: string | null;
+            /** Minimum */
+            minimum: string | null;
         };
         /**
          * CreateAssetRequest
@@ -654,11 +771,42 @@ export interface components {
             retryable: boolean;
         };
         /**
+         * ExcludedAssetResponse
+         * @description An asset left out, with the reason.
+         */
+        ExcludedAssetResponse: {
+            /**
+             * Asset Id
+             * Format: uuid
+             */
+            asset_id: string;
+            /** Name */
+            name: string;
+            /** Reason */
+            reason: string;
+        };
+        /**
          * ExpectedUse
          * @description How the user expects the asset to run. Never derived from its category.
          * @enum {string}
          */
         ExpectedUse: "unknown" | "continuous" | "scheduled" | "intermittent";
+        /**
+         * GapResponse
+         * @description A stretch with no valid reading.
+         */
+        GapResponse: {
+            /**
+             * End
+             * Format: date-time
+             */
+            end: string;
+            /**
+             * Start
+             * Format: date-time
+             */
+            start: string;
+        };
         /**
          * InitialPeriodResponse
          * @description The period a scenario opens on.
@@ -678,6 +826,12 @@ export interface components {
             start_date: string;
         };
         /**
+         * IssueType
+         * @description Why a combined total is refused.
+         * @enum {string}
+         */
+        IssueType: "parent_child" | "unknown_overlap" | "unconfirmed" | "source_conflict";
+        /**
          * MeasurementKind
          * @description What a source's raw values mean.
          * @enum {string}
@@ -694,6 +848,12 @@ export interface components {
             version: number;
         };
         /**
+         * Preset
+         * @description Named periods relative to site time.
+         * @enum {string}
+         */
+        Preset: "today" | "this_week" | "last_7_days";
+        /**
          * ScenarioResponse
          * @description A scenario clients can start.
          */
@@ -708,11 +868,49 @@ export interface components {
             segment: string;
         };
         /**
+         * ScopeAssetResponse
+         * @description An asset considered for the total.
+         */
+        ScopeAssetResponse: {
+            /**
+             * Asset Id
+             * Format: uuid
+             */
+            asset_id: string;
+            /** Name */
+            name: string;
+        };
+        /**
+         * ScopeIssueResponse
+         * @description Why a combined total is refused.
+         */
+        ScopeIssueResponse: {
+            /** Asset Ids */
+            asset_ids: string[];
+            /** Message */
+            message: string;
+            type: components["schemas"]["IssueType"];
+        };
+        /**
          * ScopeKind
          * @description What an asset's readings cover.
          * @enum {string}
          */
         ScopeKind: "device" | "group" | "circuit" | "site_total";
+        /**
+         * ScopeResponse
+         * @description Which assets were considered and whether they may be added together.
+         */
+        ScopeResponse: {
+            /** Excluded */
+            excluded: components["schemas"]["ExcludedAssetResponse"][];
+            /** Included */
+            included: components["schemas"]["ScopeAssetResponse"][];
+            /** Issues */
+            issues: components["schemas"]["ScopeIssueResponse"][];
+            /** Valid */
+            valid: boolean;
+        };
         /**
          * SiteContext
          * @description Neutral by default. Context changes examples only, never calculations.
@@ -776,6 +974,27 @@ export interface components {
             transport_status: components["schemas"]["TransportStatus"];
         };
         /**
+         * SummaryResponse
+         * @description Recorded energy for a period and scope.
+         */
+        SummaryResponse: {
+            /** Assets */
+            assets: components["schemas"]["AssetEnergyResponse"][];
+            coverage: components["schemas"]["CoverageResponse"];
+            /** Energy Kwh */
+            energy_kwh: string | null;
+            /** Energy Unavailable Reason */
+            energy_unavailable_reason: string | null;
+            /** Latest Measurement At */
+            latest_measurement_at: string | null;
+            /** Origins */
+            origins: string[];
+            /** Revision */
+            revision: number;
+            scope: components["schemas"]["ScopeResponse"];
+            window: components["schemas"]["WindowResponse"];
+        };
+        /**
          * TransportStatus
          * @description How a source reaches the API. Nothing is ever a real live connection before 046.
          * @enum {string}
@@ -806,6 +1025,41 @@ export interface components {
             name?: string | null;
             /** Timezone */
             timezone?: string | null;
+        };
+        /**
+         * WindowResponse
+         * @description The resolved period in local dates and UTC instants.
+         */
+        WindowResponse: {
+            /**
+             * Effective End
+             * Format: date-time
+             */
+            effective_end: string;
+            /**
+             * End
+             * Format: date-time
+             */
+            end: string;
+            /**
+             * End Date
+             * Format: date
+             */
+            end_date: string;
+            /** Is Current */
+            is_current: boolean;
+            /**
+             * Start
+             * Format: date-time
+             */
+            start: string;
+            /**
+             * Start Date
+             * Format: date
+             */
+            start_date: string;
+            /** Timezone */
+            timezone: string;
         };
     };
     responses: never;
@@ -963,6 +1217,50 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BindingResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    asset_summary_api_v1_assets__asset_id__summary_get: {
+        parameters: {
+            query?: {
+                preset?: components["schemas"]["Preset"] | null;
+                start_date?: string | null;
+                end_date?: string | null;
+            };
+            header?: never;
+            path: {
+                asset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SummaryResponse"];
                 };
             };
             /** @description Validation failed */
@@ -1294,6 +1592,50 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AssetResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    site_summary_api_v1_sites__site_id__summary_get: {
+        parameters: {
+            query?: {
+                preset?: components["schemas"]["Preset"] | null;
+                start_date?: string | null;
+                end_date?: string | null;
+            };
+            header?: never;
+            path: {
+                site_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SummaryResponse"];
                 };
             };
             /** @description Validation failed */

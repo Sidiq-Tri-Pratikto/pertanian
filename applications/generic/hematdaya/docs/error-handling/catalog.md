@@ -17,6 +17,7 @@ One row per error. Keep in sync with `app/core/errors/codes.py` and `public.py`.
 | `APP-SCENARIO-UNKNOWN` | `NOT_FOUND` | 404 | Skenario demo tidak ditemukan. Pilih skenario dari daftar yang tersedia. | Scenario outside the catalog | false | - | - |
 | `APP-DEMO-REPLAY-PROOF-MISMATCH` | `NOT_FOUND` | 404 | Data yang diminta tidak ditemukan. Periksa alamatnya lalu coba lagi. | Known operation repeated without its replay proof; deliberately generic | false | - | - |
 | `APP-DEMO-REPLAY-CONFLICT` | `CONFLICT` | 409 | Permintaan demo ini sudah dipakai untuk sesi lain atau sudah kedaluwarsa. Mulai sesi demo baru. | Proven replay with a changed payload, after its window, or for an ended session | false | - | - |
+| `APP-RANGE-TOO-LARGE` | `RANGE_TOO_LARGE` | 400 | Rentang waktu terlalu panjang. Pilih rentang yang lebih pendek lalu coba lagi. | Period over 366 days, or a series over 1,000 buckets | false | - | - |
 | `APP-AUTH-REQUIRED` | `UNAUTHORIZED` | 401 | Anda perlu masuk terlebih dahulu. Masuk lalu coba lagi. | No credential a resolver accepts; sends `WWW-Authenticate: Bearer` | false | - | - |
 
 Framework failures use the status map in `public.py`: `UNAUTHORIZED` 401, `FORBIDDEN` 403, `METHOD_NOT_ALLOWED` 405, `VALIDATION_FAILED` 422, `RATE_LIMITED` 429.

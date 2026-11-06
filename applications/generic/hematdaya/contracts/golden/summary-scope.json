@@ -1,0 +1,158 @@
+{
+  "assets": [
+    {
+      "asset_id": "id-0",
+      "conflict_sources": null,
+      "coverage": "1.000",
+      "energy_kwh": "20.000",
+      "energy_unavailable_reason": null,
+      "gaps": [],
+      "name": "Meter utama",
+      "scope_kind": "site_total",
+      "share_percent": null
+    },
+    {
+      "asset_id": "id-1",
+      "conflict_sources": null,
+      "coverage": "1.000",
+      "energy_kwh": "0.720",
+      "energy_unavailable_reason": null,
+      "gaps": [],
+      "name": "TV",
+      "scope_kind": "device",
+      "share_percent": null
+    },
+    {
+      "asset_id": "id-2",
+      "conflict_sources": null,
+      "coverage": "1.000",
+      "energy_kwh": "0.600",
+      "energy_unavailable_reason": null,
+      "gaps": [],
+      "name": "Pompa Air",
+      "scope_kind": "device",
+      "share_percent": null
+    },
+    {
+      "asset_id": "id-3",
+      "conflict_sources": null,
+      "coverage": "1.000",
+      "energy_kwh": "0.480",
+      "energy_unavailable_reason": null,
+      "gaps": [],
+      "name": "Router",
+      "scope_kind": "device",
+      "share_percent": null
+    },
+    {
+      "asset_id": "id-4",
+      "conflict_sources": [
+        {
+          "energy_kwh": "2.000",
+          "label": "Colokan simulasi Kulkas (sumber kedua)",
+          "source_id": "id-5"
+        },
+        {
+          "energy_kwh": "2.000",
+          "label": "Sumber demo (simulasi)",
+          "source_id": "id-6"
+        }
+      ],
+      "coverage": null,
+      "energy_kwh": null,
+      "energy_unavailable_reason": "source_conflict",
+      "gaps": [],
+      "name": "Kulkas",
+      "scope_kind": "device",
+      "share_percent": null
+    }
+  ],
+  "coverage": {
+    "allocated_estimate": false,
+    "concurrent": null,
+    "minimum": "1.000"
+  },
+  "energy_kwh": null,
+  "energy_unavailable_reason": "scope_conflict",
+  "latest_measurement_at": "2026-10-25T17:00:00Z",
+  "origins": [
+    "simulated"
+  ],
+  "revision": "revision",
+  "scope": {
+    "excluded": [],
+    "included": [
+      {
+        "asset_id": "id-4",
+        "name": "Kulkas"
+      },
+      {
+        "asset_id": "id-0",
+        "name": "Meter utama"
+      },
+      {
+        "asset_id": "id-2",
+        "name": "Pompa Air"
+      },
+      {
+        "asset_id": "id-3",
+        "name": "Router"
+      },
+      {
+        "asset_id": "id-1",
+        "name": "TV"
+      }
+    ],
+    "issues": [
+      {
+        "asset_ids": [
+          "id-0",
+          "id-4"
+        ],
+        "message": "Meter utama sudah mencakup Kulkas. Keduanya tidak dapat dijumlahkan.",
+        "type": "parent_child"
+      },
+      {
+        "asset_ids": [
+          "id-0",
+          "id-2"
+        ],
+        "message": "Belum diketahui apakah Meter utama dan Pompa Air mengukur beban yang terpisah.",
+        "type": "unknown_overlap"
+      },
+      {
+        "asset_ids": [
+          "id-0",
+          "id-3"
+        ],
+        "message": "Meter utama sudah mencakup Router. Keduanya tidak dapat dijumlahkan.",
+        "type": "parent_child"
+      },
+      {
+        "asset_ids": [
+          "id-0",
+          "id-1"
+        ],
+        "message": "Meter utama sudah mencakup TV. Keduanya tidak dapat dijumlahkan.",
+        "type": "parent_child"
+      },
+      {
+        "asset_ids": [
+          "id-4"
+        ],
+        "message": "Kulkas memiliki lebih dari satu sumber untuk beban yang sama. Pilih sumber acuan; nilainya tidak dijumlahkan.",
+        "type": "source_conflict"
+      }
+    ],
+    "valid": false
+  },
+  "window": {
+    "effective_end": "2026-10-25T17:00:00Z",
+    "end": "2026-10-25T17:00:00Z",
+    "end_date": "2026-10-25",
+    "is_current": false,
+    "start": "2026-10-23T17:00:00Z",
+    "start_date": "2026-10-24",
+    "timezone": "Asia/Jakarta"
+  }
+}

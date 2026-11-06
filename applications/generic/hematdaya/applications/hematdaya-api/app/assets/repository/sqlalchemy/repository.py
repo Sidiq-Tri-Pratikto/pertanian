@@ -348,3 +348,19 @@ class SqlAlchemyAssetRepository(AssetRepository):
         """
         await self.session.execute(delete(AssetRecord).where(AssetRecord.site_id == site_id))
         await self.session.execute(delete(SourceRecord).where(SourceRecord.site_id == site_id))
+
+    async def site_snapshot(self, site_id: UUID) -> tuple[list[AssetModel], list[BindingModel], list[SourceModel]]:
+        """Return a site's assets, bindings and sources in three queries.
+
+        Args:
+            site_id (UUID): The site.
+
+        Returns:
+            tuple[list[AssetModel], list[BindingModel], list[SourceModel]]: Assets by name, bindings, sources.
+        """
+        assets = await self.session.scalars(
+            select(AssetRecord).where(AssetRecord.site_id == site_id).order_by(AssetRecord.name, AssetRecord.id)
+        )
+        bindings = await self.session.scalars(select(BindingRecord).where(BindingRecord.site_id == site_id))
+        sources = await self.session.scalars(select(SourceRecord).where(SourceRecord.site_id == site_id))
+        return [_asset(r) for r in assets], [_binding(r) for r in bindings], [_source(r) for r in sources]

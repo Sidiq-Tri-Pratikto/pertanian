@@ -78,3 +78,7 @@ class AssetRepository(ABC):
     @abstractmethod
     async def clear(self, site_id: UUID) -> None:
         """Delete a site's assets and sources; bindings, relations and readings cascade."""
+
+    @abstractmethod
+    async def site_snapshot(self, site_id: UUID) -> tuple[list[AssetModel], list[BindingModel], list[SourceModel]]:
+        """Return every asset, binding and source of a site."""

@@ -1,0 +1,90 @@
+"""Energy reads over SQL aggregation on ``current_measurements``."""
+
+from datetime import datetime
+from uuid import UUID
+
+from sqlalchemy import text
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.energy.repository.base_repository import EnergyRepository, Span, Straddler, WholeAggregate
+
+_HITS = """
+WITH part AS (
+    SELECT * FROM unnest(CAST(:p_idx AS int[]), CAST(:p_source AS uuid[]), CAST(:p_lo AS timestamptz[]),
+        CAST(:p_hi AS timestamptz[])) AS t(idx, source_id, lo, hi)
+), bucket AS (
+    SELECT * FROM unnest(CAST(:b_idx AS int[]), CAST(:b_lo AS timestamptz[]), CAST(:b_hi AS timestamptz[]))
+        AS t(idx, lo, hi)
+), hit AS (
+    SELECT p.idx AS part, b.idx AS bucket, c.interval_start AS s, c.interval_end AS e, c.energy_mwh AS energy,
+        c.quality, GREATEST(c.interval_start, p.lo, b.lo) AS fs, LEAST(c.interval_end, p.hi, b.hi) AS fe
+    FROM part p
+    JOIN current_measurements c ON c.source_id = p.source_id AND c.energy_mwh IS NOT NULL
+        AND c.interval_start < p.hi AND c.interval_end > p.lo AND c.interval_end <= :now
+    JOIN bucket b ON c.interval_start < b.hi AND c.interval_end > b.lo
+    WHERE GREATEST(c.interval_start, p.lo, b.lo) < LEAST(c.interval_end, p.hi, b.hi)
+)
+"""
+_WHOLE = (
+    _HITS
+    + """, whole AS (
+    SELECT part, bucket, sum(energy)::bigint AS energy, max(e) AS latest, range_agg(tstzrange(s, e, '[)')) AS covered
+    FROM hit WHERE fs = s AND fe = e GROUP BY part, bucket
+)
+SELECT part, bucket, energy, latest,
+    ARRAY(SELECT lower(r) FROM unnest(covered) AS r ORDER BY 1) AS lows,
+    ARRAY(SELECT upper(r) FROM unnest(covered) AS r ORDER BY 1) AS highs
+FROM whole
+"""
+)
+_STRADDLERS = _HITS + "SELECT part, bucket, s, e, fs, fe, energy, quality FROM hit WHERE NOT (fs = s AND fe = e)"
+
+
+class SqlAlchemyEnergyRepository(EnergyRepository):
+    """Energy reads in Postgres."""
+
+    def __init__(self, session: AsyncSession) -> None:
+        """Bind to the request session.
+
+        Args:
+            session (AsyncSession): The request's session.
+        """
+        self.session = session
+
+    async def aggregate(
+        self, parts: list[tuple[UUID, Span]], buckets: list[Span], now: datetime
+    ) -> tuple[list[WholeAggregate], list[Straddler]]:
+        """Sum whole readings with their covered ranges, and list boundary-crossing readings.
+
+        Only completed readings count: an interval ending after ``now`` is excluded, one ending exactly at
+        ``now`` is included.
+
+        Args:
+            parts (list[tuple[UUID, Span]]): (source, span) pairs, indexed by position.
+            buckets (list[Span]): Half-open buckets, indexed by position.
+            now (datetime): Site time.
+
+        Returns:
+            tuple[list[WholeAggregate], list[Straddler]]: Whole aggregates and straddling readings.
+        """
+        if not parts or not buckets:
+            return [], []
+        params = {
+            "p_idx": list(range(len(parts))),
+            "p_source": [source for source, _ in parts],
+            "p_lo": [span[0] for _, span in parts],
+            "p_hi": [span[1] for _, span in parts],
+            "b_idx": list(range(len(buckets))),
+            "b_lo": [bucket[0] for bucket in buckets],
+            "b_hi": [bucket[1] for bucket in buckets],
+            "now": now,
+        }
+        whole = [
+            WholeAggregate(row.part, row.bucket, row.energy, row.latest, list(zip(row.lows, row.highs, strict=True)))
+            for row in await self.session.execute(text(_WHOLE), params)
+        ]
+        straddlers = [
+            Straddler(row.part, row.bucket, (row.s, row.e), (row.fs, row.fe), row.energy, row.quality)
+            for row in await self.session.execute(text(_STRADDLERS), params)
+        ]
+        return whole, straddlers

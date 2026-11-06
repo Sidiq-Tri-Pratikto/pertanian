@@ -27,6 +27,8 @@ FOREIGN_ROUTES = [
     ("PATCH", "/api/v1/assets/{asset}", {"name": "Diambil alih"}),
     ("POST", "/api/v1/assets/{asset}/bindings", {"source_id": "{source}", "effective_from": "2026-10-01T00:00:00Z"}),
     ("DELETE", "/api/v1/assets/{asset}/bindings/{binding}", None),
+    ("GET", "/api/v1/sites/{site}/summary?preset=last_7_days", None),
+    ("GET", "/api/v1/assets/{asset}/summary?preset=last_7_days", None),
 ]
 
 
