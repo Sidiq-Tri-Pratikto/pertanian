@@ -10544,7 +10544,7 @@ export interface operations {
         requestBody?: never;
         responses: {
             /** @description Successful Response */
-            307: {
+            303: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -10573,7 +10573,7 @@ export interface operations {
         requestBody?: never;
         responses: {
             /** @description Successful Response */
-            307: {
+            303: {
                 headers: {
                     [name: string]: unknown;
                 };

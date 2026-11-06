@@ -24,10 +24,19 @@
 
 ## Phase 4 · Verification and activation
 
-- [ ] T010 Refresh `contracts/openapi.json` and `applications/temuriset-web/src/api/schema.generated.ts`; run migrations, targeted tests and full gates in `Makefile`. Document safe settings and callback behavior in `applications/temuriset-api/README.md` and record local evidence here (SC-001).
+- [X] T010 Refresh `contracts/openapi.json` and `applications/temuriset-web/src/api/schema.generated.ts`; run migrations, targeted tests and full gates in `Makefile`. Document safe settings and callback behavior in `applications/temuriset-api/README.md` and record local evidence here (SC-001).
 - [ ] T011 Record contracted provider, approved free/busy consent and credential-handling review, and staging contract, disconnect and scheduling evidence in `specs/043-calendar-adapter/spec.md` (FR-004, SC-002).
 - [ ] T012 After T011, enable the approved configuration in `applications/temuriset-api/app/capabilities/service/configuration.py` and promote only the calendar registry entry in `applications/temuriset-web/src/features/registry.ts` after deployment verification (FR-004).
 
 ## Dependencies and parallel work
 
 T002 depends on the shared envelope from 042 T002. T003–T005 can run in parallel. T006 precedes T007 and T008. T009 consumes the route and manifest contracts. The local MVP is the viewer-owned connection and advisory read with the unchanged internal journey, verified in T010. T011–T012 are external activation work. Apply 043 migrations and regenerate contracts after 042.
+
+
+## Local verification
+
+- The isolated API `make check` passed 969 tests with 96.10% line coverage on native PostgreSQL 16. The focused startup, OAuth, scheduling and route isolation run passed 204 tests. The follow-up OpenAPI unit run passed five tests and verified the documented 303 redirects.
+- The web `make check` passed 281 tests with 81.87% line coverage on Node 24. The refreshed client contract also passed `make typecheck`.
+- Alembic upgraded to `0021`, downgraded to `0020` and upgraded again. The repository migration compatibility harness ran both API versions and workers with synthetic data across the `0020` to `0021` boundary in a disposable database.
+- Chromium against a local production web build exercised read-only consent and the direct callback, own-only S14 availability, provider-confirmed disconnect, unknown fallback, internal slot confirmation and the ICS download. The S18 calendar region had no axe violations or horizontal overflow at 320 CSS pixels. The Uvicorn callback access record contained the path and 303 status without the query.
+- These checks used synthetic accounts and a literal-loopback provider. T011 and T012 require the separately approved provider and staging evidence.
