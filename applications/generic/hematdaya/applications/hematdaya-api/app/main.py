@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.assets.router import router as assets_router
+from app.baseline.router import router as baseline_router
 from app.capabilities.router import router as capabilities_router
 from app.capabilities.service.service import SOURCE_RELEASE, build_manifest
 from app.core.database import get_engine
@@ -57,6 +58,7 @@ def create_app() -> FastAPI:
     app.include_router(assets_router, prefix=API_PREFIX)
     app.include_router(demo_router, prefix=API_PREFIX)
     app.include_router(energy_router, prefix=API_PREFIX)
+    app.include_router(baseline_router, prefix=API_PREFIX)
     register_principal_resolver(resolve_demo_principal)
     install_error_schema(app)
     return app

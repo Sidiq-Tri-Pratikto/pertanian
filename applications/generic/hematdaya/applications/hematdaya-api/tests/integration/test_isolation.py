@@ -30,6 +30,7 @@ FOREIGN_ROUTES = [
     ("GET", "/api/v1/sites/{site}/summary?preset=last_7_days", None),
     ("GET", "/api/v1/assets/{asset}/summary?preset=last_7_days", None),
     ("GET", "/api/v1/assets/{asset}/measurements?preset=last_7_days", None),
+    ("GET", "/api/v1/assets/{asset}/comparison?preset=last_7_days", None),
 ]
 
 

@@ -6,7 +6,14 @@ from uuid import UUID
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.energy.repository.base_repository import EnergyRepository, Span, Straddler, WholeAggregate
+from app.energy.repository.base_repository import (
+    EnergyRepository,
+    SlotRepository,
+    Span,
+    Straddler,
+    WholeAggregate,
+    WholeReading,
+)
 
 _HITS = """
 WITH part AS (
@@ -17,7 +24,7 @@ WITH part AS (
         AS t(idx, lo, hi)
 ), hit AS (
     SELECT p.idx AS part, b.idx AS bucket, c.interval_start AS s, c.interval_end AS e, c.energy_mwh AS energy,
-        c.quality, GREATEST(c.interval_start, p.lo, b.lo) AS fs, LEAST(c.interval_end, p.hi, b.hi) AS fe
+        c.quality, c.kind, GREATEST(c.interval_start, p.lo, b.lo) AS fs, LEAST(c.interval_end, p.hi, b.hi) AS fe
     FROM part p
     JOIN current_measurements c ON c.source_id = p.source_id AND c.energy_mwh IS NOT NULL
         AND c.interval_start < p.hi AND c.interval_end > p.lo AND c.interval_end <= :now
@@ -88,3 +95,48 @@ class SqlAlchemyEnergyRepository(EnergyRepository):
             for row in await self.session.execute(text(_STRADDLERS), params)
         ]
         return whole, straddlers
+
+
+_WHOLE_READINGS = _HITS + "SELECT part, bucket, s, e, energy, kind FROM hit WHERE fs = s AND fe = e ORDER BY bucket, s"
+
+
+class SqlAlchemySlotRepository(SlotRepository):
+    """Whole readings for slot alignment, in one query across every window."""
+
+    def __init__(self, session: AsyncSession) -> None:
+        """Bind to the request session.
+
+        Args:
+            session (AsyncSession): The request's session.
+        """
+        self.session = session
+
+    async def whole_readings(
+        self, parts: list[tuple[UUID, Span]], windows: list[Span], now: datetime
+    ) -> list[WholeReading]:
+        """List whole, completed readings; a reading crossing a part or window edge never becomes a slot.
+
+        Args:
+            parts (list[tuple[UUID, Span]]): (source, span) authority parts.
+            windows (list[Span]): Current and prior windows.
+            now (datetime): Site time.
+
+        Returns:
+            list[WholeReading]: Readings by window and start.
+        """
+        if not parts or not windows:
+            return []
+        params = {
+            "p_idx": list(range(len(parts))),
+            "p_source": [source for source, _ in parts],
+            "p_lo": [span[0] for _, span in parts],
+            "p_hi": [span[1] for _, span in parts],
+            "b_idx": list(range(len(windows))),
+            "b_lo": [window[0] for window in windows],
+            "b_hi": [window[1] for window in windows],
+            "now": now,
+        }
+        return [
+            WholeReading(row.part, row.bucket, row.s, row.e, row.energy, row.kind)
+            for row in await self.session.execute(text(_WHOLE_READINGS), params)
+        ]

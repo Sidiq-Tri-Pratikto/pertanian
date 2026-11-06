@@ -103,6 +103,37 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/assets/{asset_id}/comparison": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Compare a period with its matched baseline
+         * @description Compare up to seven days with the same local weekdays and times in the previous three weeks.
+         *
+         *     Args:
+         *         asset_id (UUID): The asset.
+         *         principal (PrincipalModel): The acting principal.
+         *         service (BaselineService): Comparison.
+         *         preset (Preset | None, optional): A named period. Defaults to None.
+         *         start_date (date | None, optional): First local date. Defaults to None.
+         *         end_date (date | None, optional): Last local date. Defaults to None.
+         *
+         *     Returns:
+         *         ComparisonResponse: State, reason and, when valid, every number on the common mask.
+         */
+        get: operations["asset_comparison_api_v1_assets__asset_id__comparison_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/assets/{asset_id}/measurements": {
         parameters: {
             query?: never;
@@ -625,6 +656,75 @@ export interface components {
          */
         CapabilityStatus: "planned" | "simulated" | "available";
         /**
+         * ComparisonResponse
+         * @description A matched-baseline comparison. Full recorded totals stay separate from common-mask totals.
+         */
+        ComparisonResponse: {
+            /** Baseline Kwh */
+            baseline_kwh: string | null;
+            /** Common Mask */
+            common_mask: components["schemas"]["GapResponse"][];
+            current: components["schemas"]["ComparisonWindowResponse"] | null;
+            /** Delta Kwh */
+            delta_kwh: string | null;
+            /** Historical */
+            historical: components["schemas"]["ComparisonWindowResponse"][];
+            /** Mad Kwh */
+            mad_kwh: string | null;
+            /** Mask Coverage */
+            mask_coverage: string | null;
+            /** Percent */
+            percent: string | null;
+            /** Reason */
+            reason: string | null;
+            /** Resolution Kwh */
+            resolution_kwh: string | null;
+            state: components["schemas"]["ComparisonState"];
+            window: components["schemas"]["WindowResponse"];
+        };
+        /**
+         * ComparisonState
+         * @description What the comparison can honestly say.
+         * @enum {string}
+         */
+        ComparisonState: "comparable" | "learning" | "not_comparable" | "descriptive" | "unavailable";
+        /**
+         * ComparisonWindowResponse
+         * @description One aligned window: the current one (0 weeks before) or a prior one.
+         */
+        ComparisonWindowResponse: {
+            /** Coverage */
+            coverage: string;
+            /** Eligible */
+            eligible: boolean;
+            /**
+             * End
+             * Format: date-time
+             */
+            end: string;
+            /**
+             * End Date
+             * Format: date
+             */
+            end_date: string;
+            /** Mask Kwh */
+            mask_kwh: string | null;
+            /** Measured Kwh */
+            measured_kwh: string;
+            /**
+             * Start
+             * Format: date-time
+             */
+            start: string;
+            /**
+             * Start Date
+             * Format: date
+             */
+            start_date: string;
+            /** Weeks Before */
+            weeks_before: number;
+        };
+        /**
          * CompositionResponse
          * @description The validated product composition of this deployment.
          */
@@ -861,6 +961,8 @@ export interface components {
          * @description One bucket. A missing bucket is null with state ``missing``, never zero.
          */
         HistoryBucketResponse: {
+            /** Comparison Kwh */
+            comparison_kwh?: string | null;
             /** Coverage */
             coverage: string | null;
             /**
@@ -877,6 +979,8 @@ export interface components {
             local_date: string;
             /** Local Time */
             local_time: string | null;
+            /** Reference Kwh */
+            reference_kwh?: string | null;
             /**
              * Start
              * Format: date-time
@@ -898,6 +1002,8 @@ export interface components {
             bucket: string;
             /** Buckets */
             buckets: components["schemas"]["HistoryBucketResponse"][];
+            /** Comparison State */
+            comparison_state: string | null;
             highest_bucket: components["schemas"]["HighestBucketResponse"] | null;
             /** Origins */
             origins: string[];
@@ -1315,6 +1421,50 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BindingResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    asset_comparison_api_v1_assets__asset_id__comparison_get: {
+        parameters: {
+            query?: {
+                preset?: components["schemas"]["Preset"] | null;
+                start_date?: string | null;
+                end_date?: string | null;
+            };
+            header?: never;
+            path: {
+                asset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ComparisonResponse"];
                 };
             };
             /** @description Validation failed */

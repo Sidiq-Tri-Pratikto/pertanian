@@ -114,6 +114,8 @@ class HistoryBucketResponse(BaseModel):
     unavailable_reason: str | None
     state: str
     coverage: str | None
+    comparison_kwh: str | None = None
+    reference_kwh: str | None = None
 
 
 class HighestBucketResponse(BaseModel):
@@ -130,4 +132,5 @@ class HistoryResponse(BaseModel):
     origins: list[str]
     resolution_mwh: int | None
     highest_bucket: HighestBucketResponse | None
+    comparison_state: str | None
     buckets: list[HistoryBucketResponse]
