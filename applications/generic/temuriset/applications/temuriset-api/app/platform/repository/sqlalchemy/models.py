@@ -83,7 +83,7 @@ class JobRecord(MutableRow, Base):
     __table_args__ = (
         CheckConstraint(f"status IN {JOB_STATUSES}", name="status"),
         Index("ix_jobs_due", "run_after", postgresql_where="status = 'PENDING'"),
-        UniqueConstraint("dedupe_key", name="uq_jobs_dedupe_key"),
+        Index("uq_jobs_dedupe_key", "dedupe_key", unique=True),
     )
 
     kind: Mapped[str] = mapped_column(String(128))

@@ -1,5 +1,6 @@
 """Accounts and sessions through the real application and Postgres (spec 006)."""
 
+import asyncio
 import logging
 from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
@@ -526,3 +527,32 @@ async def test_loopback_does_not_queue_mail_for_an_unknown_sign_in(
     assert (response.status_code, response.json()) == (202, {"sent": True})
     assert await run_jobs(get_session_factory(), registry) == 0
     assert not local_relay.requests
+
+
+async def test_verification_does_not_wait_for_the_worker_acknowledgement(
+    client: AsyncClient, local_relay: LocalRelay
+) -> None:
+    """
+    Condition:
+    - The relay has accepted a code message while the worker still awaits its acknowledgement.
+
+    Expected:
+    - The account can verify without waiting for the delivery transaction to release a code row lock.
+    """
+    local_relay.enable()
+    acknowledgement = asyncio.Event()
+    local_relay.allow_acknowledgement = acknowledgement
+    email = "pending-ack@example.test"
+    assert (await _request(client, email)).status_code == 202
+    delivery = asyncio.create_task(run_jobs(get_session_factory(), registry))
+    try:
+        await asyncio.wait_for(local_relay.message_received.wait(), timeout=3)
+        [message] = local_relay.accepted.values()
+        code = message["body"].splitlines()[0].rsplit(" ", 1)[1]
+        verified = await asyncio.wait_for(
+            client.post("/api/v1/auth/verify", json={"email": email, "code": code}), timeout=2
+        )
+        assert verified.status_code == 200 and not delivery.done()
+    finally:
+        acknowledgement.set()
+        assert await delivery == 1

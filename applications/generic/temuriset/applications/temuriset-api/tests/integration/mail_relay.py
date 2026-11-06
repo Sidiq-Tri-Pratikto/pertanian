@@ -21,6 +21,8 @@ class LocalRelay:
     monkeypatch: pytest.MonkeyPatch
     port: int = 0
     outcomes: deque[int | None] = field(default_factory=deque)
+    message_received: asyncio.Event = field(default_factory=asyncio.Event)
+    allow_acknowledgement: asyncio.Event | None = None
     requests: list[tuple[str, dict[str, str]]] = field(default_factory=list)
     accepted: dict[str, dict[str, str]] = field(default_factory=dict)
 
@@ -47,6 +49,9 @@ class LocalRelay:
             status = self.outcomes.popleft() if self.outcomes else 202
             if status is None or 200 <= status < 300:
                 self.accepted.setdefault(key, message)
+            self.message_received.set()
+            if self.allow_acknowledgement is not None:
+                await self.allow_acknowledgement.wait()
             if status is not None:
                 # Even failures may echo the request; the client must ignore the response body.
                 data = b"fixture-private-relay-response " + json.dumps(message).encode("utf-8")

@@ -169,22 +169,23 @@ class SqlAlchemyIdentityRepository:
         await self.session.flush()
         return record.id
 
-    async def latest_open_code(self, email: str) -> EmailCodeModel | None:
-        """Lock the newest unconsumed code for an email.
+    async def latest_open_code(self, email: str, *, lock: bool = True) -> EmailCodeModel | None:
+        """Find the newest unconsumed code for an email.
 
         Args:
             email (str): Normalized email.
+            lock (bool, optional): Hold the row for a verification attempt. Defaults to True.
 
         Returns:
-            EmailCodeModel | None: The code, locked for this transaction.
+            EmailCodeModel | None: The latest open code.
         """
-        record = await self.session.scalar(
+        query = (
             select(EmailCodeRecord)
             .where(EmailCodeRecord.email == email, EmailCodeRecord.consumed_at.is_(None))
             .order_by(EmailCodeRecord.created_at.desc())
             .limit(1)
-            .with_for_update()
         )
+        record = await self.session.scalar(query.with_for_update() if lock else query)
         return EmailCodeModel.model_validate(record, from_attributes=True) if record is not None else None
 
     async def count_attempt(self, code_id: UUID) -> None:
