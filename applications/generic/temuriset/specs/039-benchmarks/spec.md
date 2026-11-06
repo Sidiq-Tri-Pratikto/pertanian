@@ -2,7 +2,7 @@
 
 **Feature Branch**: `039-benchmarks`
 **Created**: 2026-11-05
-**Status**: Local baseline measured. Standard-read misses tracked in [follow-up](standard-read-follow-up.md). Synthetic staging blocked pending an approved target.
+**Status**: [Initial local baseline](../../docs/roadmap/benchmarks.md) recorded. Standard-read misses are tracked in the [performance follow-up](standard-read-follow-up.md). Local verification of the synchronized build is pending. Synthetic staging remains blocked pending an approved target.
 **Milestone**: M11 Portability and operations
 **Depends on**: 021, 037
 **Size**: M
