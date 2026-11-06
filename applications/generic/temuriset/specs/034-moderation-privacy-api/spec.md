@@ -2,7 +2,7 @@
 
 **Feature Branch**: `034-moderation-privacy-api`
 **Created**: 2026-11-05
-**Status**: In progress
+**Status**: Built, awaiting review
 **Milestone**: M10 Governance
 **Depends on**: 010, 018, 023
 **Size**: M
