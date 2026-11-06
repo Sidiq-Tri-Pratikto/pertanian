@@ -1,5 +1,6 @@
-"""Pitches, their frozen submissions and the file versions each submission shared."""
+"""Pitches, their frozen submissions, shared file versions, decisions and itemized revision rounds."""
 
+from datetime import date
 from typing import Any
 from uuid import UUID
 
@@ -62,7 +63,7 @@ class PitchSubmissionRecord(Row, Base):
 
     pitch_id: Mapped[UUID] = mapped_column(ForeignKey("pitches.id", ondelete="CASCADE"), index=True)
     number: Mapped[int]
-    preflight_id: Mapped[UUID]
+    preflight_id: Mapped[UUID | None]
     brief: Mapped[str] = mapped_column(Text)
     snapshot: Mapped[dict[str, Any]] = mapped_column(JSONB)
     submitted_by_account_id: Mapped[UUID]
@@ -79,3 +80,65 @@ class PitchSubmissionFileRecord(Row, Base):
     version: Mapped[int]
     title: Mapped[str] = mapped_column(String(200), default="")
     grant_id: Mapped[UUID]
+
+
+class PitchDecisionRecord(Row, Base):
+    """One recipient decision on one submission and pitch version. The reason is shared with the requester only."""
+
+    __tablename__ = "pitch_decisions"
+    __table_args__ = (CheckConstraint("decision IN ('APPROVE', 'REJECT')", name="decision"),)
+
+    pitch_id: Mapped[UUID] = mapped_column(ForeignKey("pitches.id", ondelete="CASCADE"), index=True)
+    submission_number: Mapped[int]
+    pitch_version: Mapped[int]
+    decision: Mapped[str] = mapped_column(String(16))
+    reason: Mapped[str | None] = mapped_column(String(500))
+    decided_by_party_id: Mapped[UUID]
+    decided_by_account_id: Mapped[UUID]
+
+
+class RevisionRoundRecord(Row, Base):
+    """One numbered round of itemized revision requests on one submission."""
+
+    __tablename__ = "revision_rounds"
+    __table_args__ = (UniqueConstraint("pitch_id", "number"),)
+
+    pitch_id: Mapped[UUID] = mapped_column(ForeignKey("pitches.id", ondelete="CASCADE"), index=True)
+    number: Mapped[int]
+    submission_number: Mapped[int]
+    requested_by_party_id: Mapped[UUID]
+    requested_by_account_id: Mapped[UUID]
+
+
+class RevisionItemRecord(MutableRow, Base):
+    """One question of a round, with the recipient's review of its answer."""
+
+    __tablename__ = "revision_items"
+    __table_args__ = (
+        UniqueConstraint("round_id", "position"),
+        CheckConstraint("review IS NULL OR review IN ('ACCEPTED', 'NEEDS_DETAIL')", name="review"),
+    )
+
+    round_id: Mapped[UUID] = mapped_column(ForeignKey("revision_rounds.id", ondelete="CASCADE"), index=True)
+    position: Mapped[int]
+    category: Mapped[str] = mapped_column(String(60))
+    question: Mapped[str] = mapped_column(String(1000))
+    reason: Mapped[str] = mapped_column(String(1000))
+    required: Mapped[bool]
+    due_date: Mapped[date | None]
+    expected_evidence: Mapped[str] = mapped_column(String(500), default="")
+    review: Mapped[str | None] = mapped_column(String(16))
+    review_note: Mapped[str | None] = mapped_column(String(1000))
+
+
+class RevisionAnswerRecord(MutableRow, Base):
+    """The requester's answer to one item: a draft with its own version until the round is resubmitted."""
+
+    __tablename__ = "revision_answers"
+    __table_args__ = (CheckConstraint("response IN ('CAN', 'DISCUSS', 'CANNOT')", name="response"),)
+
+    item_id: Mapped[UUID] = mapped_column(ForeignKey("revision_items.id", ondelete="CASCADE"), unique=True)
+    response: Mapped[str] = mapped_column(String(8))
+    text: Mapped[str] = mapped_column(Text, default="")
+    files: Mapped[list[dict[str, Any]]] = mapped_column(JSONB, default=list)
+    saved_by_account_id: Mapped[UUID]

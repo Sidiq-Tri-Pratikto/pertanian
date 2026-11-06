@@ -24,8 +24,12 @@ from app.identity.model.models import Principal
 from app.intake.model.models import AvailabilityReason
 from app.needs.service.service import NeedsService
 from app.pitches.model.schema import (
+    AnswerResponse,
+    DecisionResponse,
     PitchResponse,
     PitchSummary,
+    RevisionItemResponse,
+    RevisionRoundResponse,
     SubmissionResponse,
     SubmitPitchRequest,
     SubmitPitchResponse,
@@ -33,6 +37,7 @@ from app.pitches.model.schema import (
 )
 from app.pitches.repository.sqlalchemy.models import PitchRecord, PitchSubmissionFileRecord, PitchSubmissionRecord
 from app.pitches.repository.sqlalchemy.repository import SqlAlchemyPitchRepository
+from app.pitches.service.transitions import Side, allowed, waiting_on
 from app.platform.service.audit import record_audit
 from app.platform.service.outbox import publish
 from app.portfolio.service.service import version_view
@@ -41,7 +46,7 @@ from app.portfolio.service.service import version_view
 PITCHES_PER_DAY = 5
 RATE_WINDOW = timedelta(days=1)
 
-_CLOSED_REASON: dict[str, str] = {
+CLOSED_REASON: dict[str, str] = {
     "TARGET_NOT_ACTIVE": "Mandat ini sudah ditutup, dijeda atau berakhir.",
     "EXTERNAL_ROUTE": "Mitra ini menerima lewat formulirnya sendiri, bukan pitching di TemuRiset.",
     "NO_NEW_APPROACHES": "Mitra ini sedang tidak menerima pendekatan baru.",
@@ -112,6 +117,26 @@ async def active_pitch_id(
     return found.id if found else None
 
 
+def _waiting_party(record: PitchRecord) -> UUID | None:
+    side = waiting_on(record.status)
+    if side is None:
+        return None
+    return record.requester_party_id if side == "requester" else record.recipient_party_id
+
+
+def _actions(principal: Principal, record: PitchRecord, side: Side) -> list[str]:
+    """What the reader may do now, so screens never re-derive the state table."""
+    capability = Capability.SUBMIT_PITCH if side == "requester" else Capability.DECIDE_PITCH
+    if capability not in principal.capabilities:
+        return []
+    actions = allowed(record.status, side)
+    if side == "requester" and record.status == "REVISION_REQUESTED":
+        actions.append("answer")
+    if side == "recipient" and record.status in ("SUBMITTED", "UNDER_REVIEW"):
+        actions.append("review_items")
+    return actions
+
+
 class PitchService:
     """Submits pitches and reads them for their requester or recipient."""
 
@@ -160,12 +185,24 @@ class PitchService:
                     )
         return chosen
 
-    async def _snapshot(self, principal: Principal, checked: dict[str, Any], record: Any) -> dict[str, Any]:
-        """Freeze the source, the facts shown and the requirement rows; references, never bytes."""
-        if record.source_type == "SUPPORT_REQUEST":
-            source, _ = await NeedsService(self.session).source(principal, record.source_id)
+    async def snapshot(
+        self, principal: Principal, checked: dict[str, Any], source_type: str, source_id: UUID
+    ) -> dict[str, Any]:
+        """Freeze the source, the facts shown and the requirement rows; references, never bytes.
+
+        Args:
+            principal (Principal): The requester.
+            checked (dict[str, Any]): What ``BriefService.evaluate`` returned.
+            source_type (str): ``SUPPORT_REQUEST`` or ``FUNDING_REQUEST``.
+            source_id (UUID): The source.
+
+        Returns:
+            dict[str, Any]: The snapshot.
+        """
+        if source_type == "SUPPORT_REQUEST":
+            source, _ = await NeedsService(self.session).source(principal, source_id)
         else:
-            source, _ = await FundingService(self.session).source(principal, record.source_id)
+            source, _ = await FundingService(self.session).source(principal, source_id)
         inventions = []
         for version_id in checked["version_ids"]:
             version = await version_view(self.session, version_id)
@@ -229,7 +266,7 @@ class PitchService:
         availability = checked["opportunity"].target_availability
         if not availability.available:
             reason: AvailabilityReason = availability.reason  # type: ignore[assignment]
-            raise TargetClosedError(public_fields={"reason": _CLOSED_REASON[reason]})
+            raise TargetClosedError(public_fields={"reason": CLOSED_REASON[reason]})
         stale = stale_preflight_reason(record, principal, checked)
         if stale is not None:
             raise PreflightStaleError(public_fields={"reason": stale})
@@ -272,7 +309,7 @@ class PitchService:
                 number=1,
                 preflight_id=record.id,
                 brief=request.brief,
-                snapshot=await self._snapshot(principal, checked, record),
+                snapshot=await self.snapshot(principal, checked, record.source_type, record.source_id),
                 submitted_by_account_id=principal.account_id,
             )
         )
@@ -333,6 +370,8 @@ class PitchService:
                 recipient_name=names.get(record.recipient_party_id, ""),
                 purpose=record.purpose,
                 submitted_at=record.created_at,
+                updated_at=record.updated_at,
+                waiting_on_party_id=_waiting_party(record),
             )
             for record in records
         ]
@@ -368,6 +407,7 @@ class PitchService:
         if record is None or principal.active_party_id not in (record.requester_party_id, record.recipient_party_id):
             raise NotFoundError()
         summary = (await self._summaries([record]))[0]
+        side: Side = "requester" if principal.active_party_id == record.requester_party_id else "recipient"
         submissions = [
             SubmissionResponse(
                 number=submission.number,
@@ -378,4 +418,62 @@ class PitchService:
             )
             for submission, files in await self.repository.submissions(record.id)
         ]
-        return PitchResponse(**summary.model_dump(), version=record.version, submissions=submissions)
+        decisions = [
+            DecisionResponse(
+                decision=decision.decision,  # type: ignore[arg-type]
+                reason=decision.reason,
+                submission_number=decision.submission_number,
+                decided_at=decision.created_at,
+            )
+            for decision in await self.repository.decisions(record.id)
+        ]
+        stored = await self.repository.rounds(record.id)
+        rounds = []
+        for index, (round_, items) in enumerate(stored):
+            is_open = record.status == "REVISION_REQUESTED" and index == len(stored) - 1
+            # Draft answers stay with the requester until the round is resubmitted.
+            hidden = is_open and side == "recipient"
+            rounds.append(
+                RevisionRoundResponse(
+                    number=round_.number,
+                    submission_number=round_.submission_number,
+                    requested_at=round_.created_at,
+                    open=is_open,
+                    items=[
+                        RevisionItemResponse(
+                            id=item.id,
+                            position=item.position,
+                            category=item.category,
+                            question=item.question,
+                            reason=item.reason,
+                            required=item.required,
+                            due_date=item.due_date,
+                            expected_evidence=item.expected_evidence,
+                            review=item.review,  # type: ignore[arg-type]
+                            review_note=item.review_note,
+                            version=item.version,
+                            answer=None
+                            if answer is None or hidden
+                            else AnswerResponse(
+                                response=answer.response,  # type: ignore[arg-type]
+                                text=answer.text,
+                                files=[
+                                    SubmittedFile(**{k: f[k] for k in ("document_id", "version", "title")})
+                                    for f in answer.files
+                                ],
+                                version=answer.version,
+                                saved_at=answer.updated_at,
+                            ),
+                        )
+                        for item, answer in items
+                    ],
+                )
+            )
+        return PitchResponse(
+            **summary.model_dump(),
+            version=record.version,
+            submissions=submissions,
+            decisions=decisions,
+            rounds=rounds,
+            allowed_actions=_actions(principal, record, side),
+        )

@@ -158,6 +158,31 @@ async def owned_version_details(
     return sorted(details, key=lambda item: (item["title"], item["version"]))
 
 
+async def owned_file(
+    session: AsyncSession, owner_party_id: UUID, document_id: UUID, number: int
+) -> dict[str, Any] | None:
+    """Describe one available version of the party's own document, for revision answers and resubmission (025).
+
+    Args:
+        session (AsyncSession): The request's session.
+        owner_party_id (UUID): The owner.
+        document_id (UUID): The document.
+        number (int): The version number.
+
+    Returns:
+        dict[str, Any] | None: Document id, version id and number, and title; None for another party's document,
+            an unknown version, or one whose file is not available.
+    """
+    repository = SqlAlchemyDocumentRepository(session)
+    document = await repository.document(document_id)
+    if document is None or document.owner_party_id != owner_party_id:
+        return None
+    version = await repository.version(document_id=document_id, number=number)
+    if version is None or version.file_state != "AVAILABLE":
+        return None
+    return {"document_id": str(document.id), "version_id": str(version.id), "version": number, "title": document.title}
+
+
 class DocumentService:
     """Documents of the acting party, and downloads by grantees."""
 

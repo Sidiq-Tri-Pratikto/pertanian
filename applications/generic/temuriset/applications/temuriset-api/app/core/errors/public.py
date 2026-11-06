@@ -141,6 +141,11 @@ PUBLIC_ERROR_BY_CODE: dict[str, PublicError] = {
         422,
         "Masih ada syarat pengajuan yang belum selesai. Lengkapi syarat yang disebutkan lalu periksa ulang.",
     ),
+    codes.APP_REQUIRED_ANSWERS_MISSING: PublicError(
+        "REQUIRED_ANSWERS_MISSING",
+        422,
+        "Masih ada pertanyaan wajib yang belum dijawab. Jawab pertanyaan yang ditandai lalu kirim ulang.",
+    ),
 }
 
 PUBLIC_ERROR_BY_STATUS: dict[int, PublicError] = {

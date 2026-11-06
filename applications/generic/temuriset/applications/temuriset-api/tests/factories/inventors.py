@@ -65,8 +65,8 @@ async def _account(client: Any, key: str, sign_up: Callable[..., Awaitable[dict]
     return organization["party_id"]
 
 
-async def _document(client: Any, party_id: str, title: str) -> str:
-    """Upload a small PDF, let the scanner pass it, and return its version id."""
+async def upload_document(client: Any, party_id: str, title: str, document_id: str | None = None) -> str:
+    """Upload a small PDF, or a new version of a document, let the scanner pass it, and return its version id."""
     # Imported here so that reading the plain data above needs no application or database.
     from uuid import UUID  # noqa: PLC0415
 
@@ -88,6 +88,7 @@ async def _document(client: Any, party_id: str, title: str) -> str:
                 "kind": "evidence",
                 "media_type": "application/pdf",
                 "size_bytes": len(content),
+                "document_id": document_id,
             },
         ),
         201,
@@ -97,7 +98,10 @@ async def _document(client: Any, party_id: str, title: str) -> str:
         pass
     async with get_session_factory()() as session:
         version = await session.scalar(
-            select(DocumentVersionRecord.id).where(DocumentVersionRecord.document_id == UUID(uploaded["document_id"]))
+            select(DocumentVersionRecord.id)
+            .where(DocumentVersionRecord.document_id == UUID(uploaded["document_id"]))
+            .order_by(DocumentVersionRecord.number.desc())
+            .limit(1)
         )
     return str(version)
 
@@ -117,7 +121,7 @@ async def publish_invention(client: Any, party_id: str, key: str) -> str:
     content = {**fixture["content"], "facts": [dict(fact) for fact in fixture["content"]["facts"]]}
     for fact in content["facts"]:
         if fact["key"] in fixture.get("documents", {}):
-            fact["document_version_id"] = await _document(client, party_id, fixture["documents"][fact["key"]])
+            fact["document_version_id"] = await upload_document(client, party_id, fixture["documents"][fact["key"]])
     created = _ok(
         await client.post(
             "/api/v1/inventions", json={"acting_party_id": party_id}, headers={"Idempotency-Key": f"create-{key}"}

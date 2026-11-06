@@ -31,6 +31,7 @@ One row per error. Keep in sync with `app/core/errors/codes.py` and `public.py`.
 | `APP-TARGET-CLOSED` | `TARGET_CLOSED` | 409 | Mandat ini tidak lagi menerima pitching baru. Diskusi yang sudah berjalan tetap berlanjut. | Submitting to an opportunity that is not active or whose route no longer accepts pitches; the envelope adds `reason` | false | - | - |
 | `APP-PREFLIGHT-STALE` | `PREFLIGHT_STALE` | 409 | Ada yang berubah sejak pemeriksaan. Periksa ulang sebelum mengirim; brief Anda tetap tersimpan. | Unknown or expired preflight token, or a pinned version, permission or configuration changed; the envelope adds `reason` | false | - | - |
 | `APP-NOT-READY` | `NOT_READY` | 422 | Masih ada syarat pengajuan yang belum selesai. Lengkapi syarat yang disebutkan lalu periksa ulang. | Readiness is not `READY_TO_SUBMIT`, or a required file was not chosen; the envelope adds `requirement` | false | - | - |
+| `APP-REQUIRED-ANSWERS-MISSING` | `REQUIRED_ANSWERS_MISSING` | 422 | Masih ada pertanyaan wajib yang belum dijawab. Jawab pertanyaan yang ditandai lalu kirim ulang. | Resubmitting a revision round while a required item has no answer; the envelope adds `items`, the unanswered item ids | false | - | - |
 
 A missing `Idempotency-Key` on a consequential POST is `BAD_REQUEST` with `details` naming the header.
 

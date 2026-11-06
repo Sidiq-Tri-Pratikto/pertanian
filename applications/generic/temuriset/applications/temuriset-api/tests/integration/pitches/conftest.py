@@ -64,3 +64,62 @@ async def submit(
         },
         headers={"Idempotency-Key": key},
     )
+
+
+# The two J03 items from the prototype: a required pilot-budget question and an optional planned-feature question.
+REVISION_ITEMS: list[dict[str, Any]] = [
+    {
+        "category": "Anggaran",
+        "question": "Apakah biaya pilot sudah mencakup pengujian di dua lokasi?",
+        "reason": "Kami perlu memastikan cakupan biaya sebelum menyiapkan uji.",
+        "required": True,
+        "due_date": "2026-11-09",
+        "expected_evidence": "Rincian biaya per lokasi",
+    },
+    {
+        "category": "Fitur",
+        "question": "Kapan kapasitas 20 L/jam direncanakan tersedia?",
+        "reason": "Membantu kami menyusun tahap uji berikutnya.",
+        "required": False,
+    },
+]
+
+
+async def submitted(loaded: World) -> dict[str, Any]:
+    """Send F01 to A1 with its test report and return Mitra A's reading of it."""
+    response = await submit(loaded, "F01", await preflight(loaded, "F01", "A1"))
+    assert response.status_code == 201, response.text
+    return (await loaded.recipients.clients["A"].get(f"/api/v1/pitches/{response.json()['pitch_id']}")).json()
+
+
+async def act(client: AsyncClient, pitch: dict[str, Any], action: str, key: str, **body: Any) -> Response:
+    """POST a pitch action as the client's acting party, against the version read."""
+    return await client.post(
+        f"/api/v1/pitches/{pitch['id']}/{action}",
+        json={
+            "acting_party_id": client.headers["X-Acting-Party"],
+            "expected_version": pitch["version"],
+            **body,
+        },
+        headers={"Idempotency-Key": key},
+    )
+
+
+async def reread(client: AsyncClient, pitch: dict[str, Any]) -> dict[str, Any]:
+    """Read a pitch again."""
+    return (await client.get(f"/api/v1/pitches/{pitch['id']}")).json()
+
+
+async def answer(
+    client: AsyncClient, pitch: dict[str, Any], item_id: str, response: str, version: int | None = None, **body: Any
+) -> Response:
+    """Save a draft answer as the requester."""
+    return await client.put(
+        f"/api/v1/pitches/{pitch['id']}/revision-items/{item_id}/answer",
+        json={
+            "acting_party_id": client.headers["X-Acting-Party"],
+            "expected_version": version,
+            "response": response,
+            **body,
+        },
+    )
