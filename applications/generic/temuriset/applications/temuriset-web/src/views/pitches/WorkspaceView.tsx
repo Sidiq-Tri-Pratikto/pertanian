@@ -16,6 +16,7 @@ import { PitchActions } from '@/features/pitches/PitchActions';
 import { RevisionPanel, type OwnFile } from '@/features/pitches/RevisionPanel';
 import type { NextAction, TabId } from '@/features/pitches/workspace';
 import { WorkspaceTabs } from '@/features/pitches/WorkspaceTabs';
+import { reportHref } from '@/features/privacy/model';
 import type { Partnership } from '@/features/relationships/model';
 import type { Schedule } from '@/features/scheduling/api';
 import { SchedulePanel } from '@/features/scheduling/SchedulePanel';
@@ -144,6 +145,7 @@ export function WorkspaceView({ me, pitch, tab, files, justSent, room }: Props) 
         </div>
       ) : null}
       <WorkspaceTabs pitchId={pitch.id} value={tab} panels={panels} />
+      <p><NextLink className="tr-link" href={reportHref('PITCH', pitch.id)}>Laporkan</NextLink></p>
     </Screen>
   );
 }

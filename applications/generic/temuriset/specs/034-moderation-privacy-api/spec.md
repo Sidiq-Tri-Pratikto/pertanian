@@ -2,9 +2,9 @@
 
 **Feature Branch**: `034-moderation-privacy-api`
 **Created**: 2026-11-05
-**Status**: Seeded, not started
+**Status**: Built, awaiting review
 **Milestone**: M10 Governance
-**Depends on**: 010
+**Depends on**: 010, 018, 023
 **Size**: M
 **Covers**: FR22, AC64, AC66
 **Flips**: none
@@ -18,7 +18,7 @@ Users report impersonation, unsupported claims, unwanted contact or abuse with a
 **Acceptance Scenarios**:
 
 1. **Given** a report of impersonation, **When** filed, **Then** a private case exists and the reporter sees its status only (AC64).
-2. **Given** an operator suspends a listing, **When** applied, **Then** new actions stop and public discovery hides it, while ongoing cases stay handled.
+2. **Given** an operator suspends a listing, **When** applied, **Then** new actions stop and public discovery hides the affected listing and its derived details, while ongoing cases stay accessible to authorized participants.
 3. **Given** an operator without a case-specific grant, **When** it requests a confidential file, **Then** it is refused.
 
 ### User Story 2 - Privacy requests tell the truth (Priority: P1)

@@ -24,7 +24,7 @@ export const ROUTES: Route[] = [
   { path: '/pitches/00000000-0000-4000-8000-000000000000', persona: 'inovator' },
   { path: '/settings', persona: 'inovator', primary: 'Keluar' },
   { path: '/undangan/tidak-ada', persona: 'inovator' },
-  { path: '/segera-hadir/privasi-laporan', persona: 'inovator' },
+  { path: '/segera-hadir/impor-ekspor', persona: 'inovator' },
   { path: '/partnerships/new', persona: 'inovator' },
   { path: '/partnerships/00000000-0000-4000-8000-000000000000', persona: 'inovator' },
   { path: '/profiles/00000000-0000-4000-8000-000000000000', persona: null },

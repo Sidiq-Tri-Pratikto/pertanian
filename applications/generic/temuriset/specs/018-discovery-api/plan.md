@@ -42,3 +42,7 @@ Matching and ranking by fit (019), dense retrieval (045), trending.
 2. Query, filters, sections, cursor.
 3. Saved items and feedback.
 4. Isolation and contract.
+
+### Moderation integration
+
+Spec 034 refreshes discovery in the suspension or restoration transaction and rechecks live publication when its outbox events arrive. Tests cover direct results, saved results, counts, and the invention and mandate details folded into funding and partner cards.

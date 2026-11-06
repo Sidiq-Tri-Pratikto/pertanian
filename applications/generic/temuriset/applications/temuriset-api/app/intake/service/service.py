@@ -41,6 +41,7 @@ from app.intake.repository.sqlalchemy.models import (
 from app.intake.repository.sqlalchemy.repository import SqlAlchemyIntakeRepository
 from app.intake.service.financial import validate_check_range, validate_financial
 from app.intake.service.requirements import validate_requirements
+from app.moderation.service.suspension import is_suspended, require_unsuspended, suspended_listings
 from app.platform.service.audit import record_audit
 from app.platform.service.outbox import enqueue_job, publish
 from app.platform.service.versions import StaleVersionError, check_expected
@@ -284,7 +285,7 @@ class IntakeService:
             "external_url": str(content.external_url) if content.contact_route == "EXTERNAL" else None,
         }
 
-    async def read_profile(self, party_id: UUID) -> PartnerProfileResponse:
+    async def read_profile(self, party_id: UUID, *, owner: bool = False) -> PartnerProfileResponse:
         """Read a party's profile as anyone signed in may see it.
 
         Args:
@@ -298,6 +299,8 @@ class IntakeService:
         """
         record = await self.repository.profile(party_id)
         if record is None:
+            raise NotFoundError()
+        if not owner and await is_suspended(self.session, "PARTNER_PROFILE", party_id):
             raise NotFoundError()
         return await self._profile_view(record)
 
@@ -324,6 +327,7 @@ class IntakeService:
         columns = self._profile_columns(request)
         columns |= {"intake_status": request.intake_status, "source": "OWNER_CONFIRMED"}
         record = await self.repository.profile(party_id, lock=True)
+        await require_unsuspended(self.session, "PARTNER_PROFILE", party_id)
         if record is None:
             record = await self._first_profile(party_id, columns, request.expected_version)
         else:
@@ -402,9 +406,10 @@ class IntakeService:
             ConflictError: When its route is not external.
         """
         check_context(principal, request.acting_party_id)
-        profile = await self.repository.profile(party_id)
+        profile = await self.repository.profile(party_id, lock=True)
         if profile is None:
             raise NotFoundError()
+        await require_unsuspended(self.session, "PARTNER_PROFILE", party_id)
         if profile.contact_route != "EXTERNAL" or profile.external_url is None:
             raise ConflictError("Mitra ini tidak memakai jalur eksternal. Gunakan jalur yang tersedia pada profilnya.")
         handoff = await self.repository.add(
@@ -461,6 +466,7 @@ class IntakeService:
         profile: PartnerProfileRecord | None,
         *,
         owner: bool,
+        suspended: bool = False,
         operation_id: UUID | None = None,
     ) -> OpportunityResponse:
         status = effective_status(record.status, record.closes_at, clock.now())
@@ -472,7 +478,11 @@ class IntakeService:
             kind=record.kind,
             status=status,
             closes_at=record.closes_at,
-            target_availability=self._availability(record, profile, status),
+            target_availability=(
+                TargetAvailabilityResponse(available=False, reason="SUSPENDED")
+                if suspended
+                else self._availability(record, profile, status)
+            ),
             general_intake_label=GENERAL_INTAKE_LABEL if record.kind == "GENERAL_INTAKE" else None,
             operation_id=operation_id,
             **self._content(version, rows, owner=owner),
@@ -483,7 +493,15 @@ class IntakeService:
         assert version is not None  # noqa: S101 - the pointer always names a stored version
         rows = await self.repository.requirements([version.id])
         profile = await self.repository.profile(record.partner_party_id)
-        return self._view(record, version, rows[version.id], profile, owner=True, operation_id=operation_id)
+        return self._view(
+            record,
+            version,
+            rows[version.id],
+            profile,
+            owner=True,
+            suspended=await self._hidden_by_suspension(record),
+            operation_id=operation_id,
+        )
 
     @staticmethod
     def _validated(content: OpportunityContent) -> tuple[dict[str, Any], list[dict[str, Any]]]:
@@ -593,6 +611,8 @@ class IntakeService:
         check_context(principal, request.acting_party_id)
         party_id = principal.active_party_id
         require(principal, Capability.EDIT_PORTFOLIO, party_id)
+        await self.repository.profile(party_id, lock=True)
+        await require_unsuspended(self.session, "PARTNER_PROFILE", party_id)
         columns, rows = self._validated(request)
         if request.kind == "GENERAL_INTAKE" and await self.repository.open_general_intake(party_id) is not None:
             raise ConflictError(
@@ -632,6 +652,7 @@ class IntakeService:
         """
         check_context(principal, request.acting_party_id)
         record = await self._owned(principal, opportunity_id, lock=True)
+        await self._require_unsuspended_opportunity(record)
         status = effective_status(record.status, record.closes_at, clock.now())
         if status in {"CLOSED", "EXPIRED"}:
             raise InvalidTransitionError()
@@ -692,6 +713,7 @@ class IntakeService:
         if effective_status(record.status, record.closes_at, clock.now()) not in allowed:
             raise InvalidTransitionError()
         if target == "ACTIVE":
+            await self._require_unsuspended_opportunity(record)
             await self._require_current_ready(record)
         record.status = target
         record.version += 1
@@ -704,6 +726,16 @@ class IntakeService:
         await self._changed(record, action, principal)
         return await self._owner_view(record, operation_id)
 
+    async def _require_unsuspended_opportunity(self, record: OpportunityRecord) -> None:
+        await self.repository.profile(record.partner_party_id, lock=True)
+        await require_unsuspended(self.session, "PARTNER_PROFILE", record.partner_party_id)
+        await require_unsuspended(self.session, "OPPORTUNITY", record.id)
+
+    async def _hidden_by_suspension(self, record: OpportunityRecord) -> bool:
+        return await is_suspended(self.session, "OPPORTUNITY", record.id) or await is_suspended(
+            self.session, "PARTNER_PROFILE", record.partner_party_id
+        )
+
     async def _require_current_ready(self, record: OpportunityRecord) -> None:
         version = await self.repository.version(record.current_version_id)
         assert version is not None  # noqa: S101 - the pointer always names a stored version
@@ -712,12 +744,15 @@ class IntakeService:
         rows = [{"mandatory": row.mandatory, "reason": row.reason} for row in stored[version.id]]
         await self._require_ready(record.partner_party_id, columns, rows, record.closes_at)
 
-    async def read(self, principal: Principal, opportunity_id: UUID) -> OpportunityResponse:
+    async def read(
+        self, principal: Principal, opportunity_id: UUID, *, lock_for_pitch: bool = False
+    ) -> OpportunityResponse:
         """Read an opportunity. Others never reach a draft and see only requirements meant for applicants (D4, D9).
 
         Args:
             principal (Principal): Who is signed in.
             opportunity_id (UUID): The opportunity.
+            lock_for_pitch (bool, optional): Serialize a new pitch evaluation with listing changes.
 
         Returns:
             OpportunityResponse: The opportunity with its current version.
@@ -725,15 +760,18 @@ class IntakeService:
         Raises:
             NotFoundError: When it does not exist, or is a draft of another party.
         """
-        record = await self.repository.find(opportunity_id)
-        owner = record is not None and record.partner_party_id == principal.active_party_id
-        if record is None or (record.status == "DRAFT" and not owner):
+        record = await self.repository.find(opportunity_id, lock=lock_for_pitch)
+        if record is None:
+            raise NotFoundError()
+        owner = record.partner_party_id == principal.active_party_id
+        profile = await self.repository.profile(record.partner_party_id, lock=lock_for_pitch)
+        suspended = await self._hidden_by_suspension(record)
+        if not owner and (record.status == "DRAFT" or suspended):
             raise NotFoundError()
         version = await self.repository.version(record.current_version_id)
         assert version is not None  # noqa: S101 - the pointer always names a stored version
         rows = await self.repository.requirements([version.id])
-        profile = await self.repository.profile(record.partner_party_id)
-        return self._view(record, version, rows[version.id], profile, owner=owner)
+        return self._view(record, version, rows[version.id], profile, owner=owner, suspended=suspended)
 
     async def read_version(self, principal: Principal, opportunity_id: UUID, number: int) -> OpportunityVersionResponse:
         """Read one version as it stood. Others may read only the current version of what they can see.
@@ -754,7 +792,11 @@ class IntakeService:
             raise NotFoundError()
         owner = record.partner_party_id == principal.active_party_id
         version = await self.repository.version_by_number(opportunity_id, number)
-        hidden = not owner and (record.status == "DRAFT" or (version and version.id != record.current_version_id))
+        hidden = not owner and (
+            record.status == "DRAFT"
+            or (version is not None and version.id != record.current_version_id)
+            or await self._hidden_by_suspension(record)
+        )
         if version is None or hidden:
             raise NotFoundError()
         rows = await self.repository.requirements([version.id])
@@ -780,7 +822,13 @@ class IntakeService:
         """
         party_id = partner_party_id or principal.active_party_id
         owner = party_id == principal.active_party_id
+        profile_suspended = await is_suspended(self.session, "PARTNER_PROFILE", party_id)
+        if not owner and profile_suspended:
+            return []
         records = await self.repository.of_partner(party_id, include_drafts=owner, limit=limit)
+        hidden = await suspended_listings(self.session, "OPPORTUNITY", [record.id for record in records])
+        if not owner:
+            records = [record for record in records if record.id not in hidden]
         if not records:
             return []
         version_ids = [record.current_version_id for record in records]
@@ -794,11 +842,21 @@ class IntakeService:
                 rows[record.current_version_id],
                 profile,
                 owner=owner,
+                suspended=profile_suspended or record.id in hidden,
             )
             for record in records
         ]
 
     async def _others_views(self, records: list[OpportunityRecord]) -> list[OpportunityResponse]:
+        if not records:
+            return []
+        hidden = await suspended_listings(self.session, "OPPORTUNITY", [record.id for record in records])
+        hidden_partners = await suspended_listings(
+            self.session, "PARTNER_PROFILE", list({record.partner_party_id for record in records})
+        )
+        records = [
+            record for record in records if record.id not in hidden and record.partner_party_id not in hidden_partners
+        ]
         if not records:
             return []
         version_ids = [record.current_version_id for record in records]
@@ -877,7 +935,23 @@ class IntakeService:
             raise NotFoundError()
         profile = await self.repository.profile(record.partner_party_id)
         status = effective_status(record.status, record.closes_at, clock.now())
+        if await self._hidden_by_suspension(record):
+            return TargetAvailabilityResponse(available=False, reason="SUSPENDED")
         return self._availability(record, profile, status)
+
+    async def withdraw_personal_listings(self, party_id: UUID) -> None:
+        """Withdraw a personal partner profile and close its opportunities."""
+        items = await self.repository.of_partner(party_id, include_drafts=True, limit=None)
+        for item in items:
+            record = await self.repository.find(item.id, lock=True)
+            if record is not None and record.status not in {"CLOSED", "EXPIRED"}:
+                record.status = "CLOSED"
+                record.version += 1
+                await self._changed(record, "closed")
+        profile = await self.repository.profile(party_id, lock=True)
+        if profile is not None:
+            await self.repository.delete_profile(profile)
+            await publish(self.session, "partner.withdrawn", {"party_id": str(party_id)})
 
     async def expire(self, opportunity_id: UUID) -> None:
         """Persist expiry for an opportunity past ``closes_at``. Does nothing when the time moved or it already ended.
@@ -895,3 +969,14 @@ class IntakeService:
         await self.session.flush()
         await self._point_general_intake(record, None)
         await self._changed(record, "expired")
+
+
+async def lock_moderation_target(session: AsyncSession, subject_type: str, subject_id: UUID) -> None:
+    """Serialize moderation with changes to the same intake listing."""
+    repository = SqlAlchemyIntakeRepository(session)
+    if subject_type == "PARTNER_PROFILE":
+        exists = await repository.profile(subject_id, lock=True) is not None
+    else:
+        exists = await repository.find(subject_id, lock=True) is not None
+    if not exists:
+        raise NotFoundError()

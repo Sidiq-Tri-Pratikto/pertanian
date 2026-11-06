@@ -188,8 +188,10 @@ class DiscoveryService:
         query = await self._query(principal, result_type, text, parsed, saved)
         rows = await self.repository.search(query, after=after, limit=limit + 1)
         total = await self.repository.count(query)
-        if not rows and after is None:
-            empty.relaxation = await self._relaxation(principal, result_type, text, parsed, saved) if echoed else None
+        if not rows:
+            empty.total_estimate = total
+            if after is None and echoed:
+                empty.relaxation = await self._relaxation(principal, result_type, text, parsed, saved)
             return empty
         page, more = rows[:limit], len(rows) > limit
         saved_keys = await self.repository.keys_of(SavedItemRecord, principal.active_party_id)

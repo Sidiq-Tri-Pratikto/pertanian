@@ -19,6 +19,8 @@ TABLES = (
     "notifications, tasks, messages, revision_answers, revision_items, revision_rounds, pitch_decisions, "
     "pitch_submission_files, pitch_submissions, pitches, briefs, preflights, "
     "match_results, match_runs, search_documents, saved_items, relevance_feedback, "
+    "operator_file_grants, operator_actions, listing_suspensions, operator_grants, privacy_requests, "
+    "retention_holds, reports, "
     "external_handoffs, requirements, opportunity_versions, opportunities, partner_profiles, "
     "funding_invention_links, funding_request_versions, funding_requests, legal_entities, "
     "project_budget_lines, project_budgets, support_request_versions, support_requests, "

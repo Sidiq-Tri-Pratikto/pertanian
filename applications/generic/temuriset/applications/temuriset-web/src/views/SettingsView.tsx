@@ -7,6 +7,7 @@ import { SummaryList } from '@/components/tr/SummaryList';
 import { AccountForm, CreateOrganizationForm, InviteForm, RevokeButton, SignOutButton } from '@/features/AccountForms';
 import { ContextBar } from '@/features/ContextBar';
 import { capabilityList, formatDateTime, INVITATION_STATUS, type Invitation, type Member } from '@/features/organizations';
+import type { PrivacyRequest, Report, ReportSubject, SectionData } from '@/features/privacy/model';
 import { PERSONA_LABEL, readPersona } from '@/features/persona';
 import type { ProfileSettings } from '@/features/relationships/model';
 import { ProfileForm } from '@/features/relationships/ProfileForm';
@@ -14,6 +15,8 @@ import { FEATURES, type Capabilities } from '@/features/registry';
 import { ServiceStatus } from '@/features/ServiceStatus';
 import { LOCALES } from '@/features/signIn';
 import { FeatureList, PROVENANCE } from '@/views/parts';
+import { PrivacyRequests } from '@/views/settings/PrivacyRequests';
+import { ReportForm } from '@/views/settings/ReportForm';
 
 type SettingsViewProps = {
   me: Me;
@@ -24,13 +27,17 @@ type SettingsViewProps = {
   invitations: Invitation[] | null;
   joined?: boolean;
   profile?: ProfileSettings | null;
+  reports?: SectionData<Report>;
+  privacy?: SectionData<PrivacyRequest>;
+  reportSubject?: ReportSubject | null;
 };
 
 /** S18: the account, its organizations, members and invitations, the service check and every planned feature. */
-export function SettingsView({ me, capabilities, members, invitations, joined, profile }: SettingsViewProps) {
+export function SettingsView({ me, capabilities, members, invitations, joined, profile, reports, privacy, reportSubject }: SettingsViewProps) {
   const persona = readPersona(me.account.persona) ?? 'inovator';
   const organizations = me.organizations ?? [];
   const acting = organizations.find((organization) => organization.party_id === me.active_party_id);
+  const scope = { id: me.active_party_id, label: acting?.name ?? 'Diri sendiri' };
   return (
     <Screen
       persona={persona}
@@ -124,6 +131,8 @@ export function SettingsView({ me, capabilities, members, invitations, joined, p
         <Link className="tr-link" href={`/profiles/${me.active_party_id}`}>Lihat profil publik</Link>
         {profile ? <ProfileForm key={profile.party_id} profile={profile} /> : null}
       </section>
+      {reports ? <ReportForm key={reportSubject?.id ?? 'blank'} scope={scope} subject={reportSubject ?? null} initial={reports} /> : null}
+      {privacy ? <PrivacyRequests scope={scope} initial={privacy} /> : null}
       <section className="tr-stack" aria-labelledby="judul-layanan">
         <h2 id="judul-layanan" className="tr-sys-type-heading-sm">
           Layanan

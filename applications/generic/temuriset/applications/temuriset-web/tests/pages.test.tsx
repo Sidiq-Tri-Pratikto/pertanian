@@ -23,6 +23,7 @@ vi.mock('@/api/server', () => ({
       if (!me) throw new ApiError('UNAUTHENTICATED', 'Anda perlu masuk terlebih dahulu.', { retryable: false });
       return me;
     }
+    if (path === '/api/v1/reports' || path === '/api/v1/privacy-requests') return [];
     if (path === '/api/v1/profiles/me') return { party_id: me?.active_party_id, bio: '', published: false, version: 1 };
     if (path === '/api/v1/inventions') return [];
     if (path === '/api/v1/support-requests') return supportRequests;
@@ -192,16 +193,17 @@ describe('a signed-in inventor', () => {
   });
 
   it('describes a planned feature without creating anything', async () => {
-    render((await ComingSoon.default({ params: Promise.resolve({ feature: 'privasi-laporan' }) })) as ReactElement);
+    render((await ComingSoon.default({ params: Promise.resolve({ feature: 'impor-ekspor' }) })) as ReactElement);
 
-    expect(screen.getByRole('heading', { level: 1, name: 'Privasi dan laporan' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: 'Impor dan ekspor data' })).toBeInTheDocument();
     expect(screen.getByText(/Tidak ada data yang dibuat atau disimpan/)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Kembali' })).toHaveAttribute('href', '/home');
-    expect(await ComingSoon.generateMetadata({ params: Promise.resolve({ feature: 'privasi-laporan' }) })).toEqual({ title: 'Privasi dan laporan' });
+    expect(await ComingSoon.generateMetadata({ params: Promise.resolve({ feature: 'impor-ekspor' }) })).toEqual({ title: 'Impor dan ekspor data' });
   });
 
   it('sends a shipped feature to its screen and says so for an unknown one', async () => {
     expect(await redirectOf(() => ComingSoon.default({ params: Promise.resolve({ feature: 'akun' }) }))).toBe('/settings');
+    expect(await redirectOf(() => ComingSoon.default({ params: Promise.resolve({ feature: 'privasi-laporan' }) }))).toBe('/settings#laporkan');
 
     render((await ComingSoon.default({ params: Promise.resolve({ feature: 'escrow' }) })) as ReactElement);
     expect(screen.getByRole('heading', { level: 1, name: 'Fitur tidak dikenal' })).toBeInTheDocument();
@@ -214,6 +216,10 @@ describe('a signed-in inventor', () => {
     expect(screen.getByText('Asia/Jakarta')).toBeInTheDocument();
     expect(screen.getByText(/Organisasi tidak wajib/)).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Rencana fitur' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Profil publik' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Laporkan masalah' })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /Lihat rencana Privasi dan laporan/ })).toBeNull();
+    expect(screen.getByRole('heading', { name: 'Permintaan privasi' })).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: /Anggota/ })).toBeNull();
     expect(screen.getByRole('button', { name: 'Keluar' })).toBeInTheDocument();
   });

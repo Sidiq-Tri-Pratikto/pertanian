@@ -40,6 +40,10 @@ class StorageAdapter(Protocol):
         """Stream bytes ``start`` to ``end`` inclusive."""
         ...
 
+    async def delete(self, key: str) -> None:
+        """Erase the bytes for a generated key, allowing an already completed erase to retry."""
+        ...
+
     def local_path(self, key: str) -> Path:
         """A path the worker may open for scanning and extraction."""
         ...
@@ -98,6 +102,10 @@ class LocalStorage:
             raise
         await handle.aclose()
         return StoredFile(size, digest.hexdigest())
+
+    async def delete(self, key: str) -> None:
+        """Erase the bytes asynchronously. An absent file is already erased."""
+        await anyio.Path(self.local_path(key)).unlink(missing_ok=True)
 
     async def read(self, key: str, start: int = 0, end: int | None = None) -> AsyncIterator[bytes]:
         """Stream a byte range of a stored file.

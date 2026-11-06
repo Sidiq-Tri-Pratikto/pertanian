@@ -9,6 +9,7 @@ from app.access.model.models import Capability
 from app.access.service.policy import check_context, require
 from app.core.errors.base import FieldsInvalidError, InvalidTransitionError, NotFoundError
 from app.identity.model.models import Principal
+from app.moderation.service.suspension import require_unsuspended
 from app.needs.model.schema import (
     CreateSupportRequest,
     SupportRequestInput,
@@ -274,6 +275,7 @@ class NeedsService:
         if record.status not in allowed:
             raise InvalidTransitionError()
         if target == "ACTIVE":
+            await require_unsuspended(self.session, "INVENTION", record.invention_id)
             missing = []
             if not record.outcome:
                 missing.append(
@@ -306,3 +308,20 @@ class NeedsService:
             actor_party_id=principal.active_party_id,
         )
         return await self.view(record, operation_id)
+
+    async def withdraw_personal_listings(self, party_id: UUID) -> None:
+        """Close the party's open support requests and preserve their version history."""
+        for item in await self.repository.of_party(party_id, None):
+            record = await self.repository.find(item.id, lock=True)
+            if record is None or record.status == "CLOSED":
+                continue
+            record.status = "CLOSED"
+            record.version += 1
+            await self.session.flush()
+            await self._carry_budget(record.id, record.version - 1, record.version)
+            await self.repository.snapshot(record.id, record.version, jsonable_encoder(await self.view(record)))
+            await publish(
+                self.session,
+                "support_request.changed",
+                {"support_request_id": str(record.id), "version": record.version},
+            )

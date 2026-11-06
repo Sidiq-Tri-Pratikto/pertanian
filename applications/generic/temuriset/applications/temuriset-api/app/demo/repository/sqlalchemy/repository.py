@@ -9,6 +9,19 @@ from sqlalchemy.ext.asyncio import AsyncSession
 _DELETES = (
     "UPDATE opportunities SET current_version_id = NULL WHERE partner_party_id = ANY(:parties)",
     "UPDATE partner_profiles SET general_intake_version_id = NULL WHERE party_id = ANY(:parties)",
+    "DELETE FROM listing_suspensions WHERE "
+    "report_id IN (SELECT id FROM reports WHERE reporter_account_id = ANY(:accounts) "
+    "OR reporter_party_id = ANY(:parties)) OR suspended_by_account_id = ANY(:accounts) "
+    "OR (subject_type = 'INVENTION' AND subject_id IN "
+    "(SELECT id FROM inventions WHERE managing_party_id = ANY(:parties))) "
+    "OR (subject_type = 'OPPORTUNITY' AND subject_id IN "
+    "(SELECT id FROM opportunities WHERE partner_party_id = ANY(:parties))) "
+    "OR (subject_type = 'PARTNER_PROFILE' AND subject_id = ANY(:parties))",
+    "DELETE FROM operator_actions WHERE operator_account_id = ANY(:accounts)",
+    "DELETE FROM reports WHERE reporter_account_id = ANY(:accounts) OR reporter_party_id = ANY(:parties)",
+    "DELETE FROM privacy_requests WHERE account_id = ANY(:accounts)",
+    "UPDATE privacy_requests SET fulfilled_by_account_id = NULL WHERE fulfilled_by_account_id = ANY(:accounts)",
+    "DELETE FROM retention_holds WHERE account_id = ANY(:accounts)",
     "DELETE FROM bookings WHERE party_id = ANY(:parties)",
     "DELETE FROM pitches WHERE requester_party_id = ANY(:parties) OR recipient_party_id = ANY(:parties)",
     "DELETE FROM preflights WHERE actor_party_id = ANY(:parties)",

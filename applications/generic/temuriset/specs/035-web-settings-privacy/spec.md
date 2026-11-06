@@ -2,9 +2,9 @@
 
 **Feature Branch**: `035-web-settings-privacy`
 **Created**: 2026-11-05
-**Status**: Seeded, not started
+**Status**: Built, awaiting review
 **Milestone**: M10 Governance
-**Depends on**: 008, 034
+**Depends on**: 008, 026, 034
 **Size**: S
 **Covers**: S18, FR22
 **Flips**: web registry `privasi-laporan` → `available`

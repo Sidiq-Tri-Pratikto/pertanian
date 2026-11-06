@@ -17,6 +17,7 @@ export const MANDATE_STATUS: Record<string, string> = {
 };
 
 export const AVAILABILITY_REASON: Record<string, string> = {
+  SUSPENDED: 'Penerimaan untuk mandat ini ditangguhkan sementara.',
   TARGET_NOT_ACTIVE: 'Mandat ini sedang tidak menerima pitching.',
   EXTERNAL_ROUTE: 'Mitra ini menerima lewat formulirnya sendiri.',
   NO_NEW_APPROACHES: 'Mitra ini sedang tidak menerima pendekatan baru.',

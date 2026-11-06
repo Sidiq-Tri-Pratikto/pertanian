@@ -24,6 +24,7 @@ from app.funding.model.schema import (
 from app.funding.repository.sqlalchemy.models import FundingRequestRecord, LegalEntityRecord
 from app.funding.repository.sqlalchemy.repository import SqlAlchemyFundingRepository
 from app.identity.model.models import Principal
+from app.moderation.service.suspension import require_unsuspended
 from app.needs.model.schema import TransitionRequest
 from app.needs.service.service import TRANSITIONS
 from app.platform.service.audit import record_audit
@@ -365,10 +366,13 @@ class FundingService:
         if record.status not in allowed:
             raise InvalidTransitionError()
         if target == "ACTIVE":
+            links = await self.repository.links(record.id)
+            for link in links:
+                await require_unsuspended(self.session, "INVENTION", link.invention_id)
             missing = []
             if record.target_amount is None:
                 missing.append(_field_error("target_amount", "Isi target pendanaan sebelum mengaktifkan."))
-            if not await self.repository.links(record.id):
+            if not links:
                 missing.append(_field_error("invention_ids", "Tautkan setidaknya satu inovasi yang sudah terbit."))
             if missing:
                 raise FieldsInvalidError(missing)
@@ -385,3 +389,19 @@ class FundingService:
             actor_party_id=principal.active_party_id,
         )
         return await self.view(record, operation_id)
+
+    async def withdraw_personal_listings(self, party_id: UUID) -> None:
+        """Close the party's funding requests while preserving their earlier versions."""
+        for item in await self.repository.of_party(party_id):
+            record = await self.repository.find(item.id, lock=True)
+            if record is None or record.status == "CLOSED":
+                continue
+            record.status = "CLOSED"
+            record.version += 1
+            await self.session.flush()
+            await self._record_version(record)
+            await publish(
+                self.session,
+                "funding_request.changed",
+                {"funding_request_id": str(record.id), "version": record.version},
+            )

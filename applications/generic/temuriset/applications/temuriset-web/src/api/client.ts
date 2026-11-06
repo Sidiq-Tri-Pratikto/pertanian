@@ -10,7 +10,7 @@ type JsonOf<Path extends keyof paths> = paths[Path] extends {
   ? Body
   : never;
 
-async function getJson<Path extends keyof paths>(path: Path): Promise<JsonOf<Path>> {
+export async function getResponse(path: string): Promise<Response> {
   let response: Response;
   try {
     response = await fetch(String(path), { signal: AbortSignal.timeout(TIMEOUT_MS), cache: 'no-store' });
@@ -20,7 +20,11 @@ async function getJson<Path extends keyof paths>(path: Path): Promise<JsonOf<Pat
   if (!response.ok) {
     throw await readFailure(response);
   }
-  return (await response.json()) as JsonOf<Path>;
+  return response;
+}
+
+export async function getJson<Path extends keyof paths>(path: Path): Promise<JsonOf<Path>> {
+  return (await (await getResponse(path)).json()) as JsonOf<Path>;
 }
 
 export type CapabilityManifest = components['schemas']['CapabilityManifestResponse'];

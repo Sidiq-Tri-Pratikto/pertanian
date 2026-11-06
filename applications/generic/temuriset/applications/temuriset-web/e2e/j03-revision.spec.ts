@@ -1,7 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import type { Page } from '@playwright/test';
 
-import { A1_MANDATE, expect, makePartnerProfile, makeSupportRequest, signUp, test, uniqueEmail, WEB_ORIGIN } from './fixtures';
+import { expect, submitTestPitch, test, uniqueEmail, WEB_ORIGIN } from './fixtures';
 
 test.beforeEach(({}, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium-1280', 'Journeys run at one width.');
@@ -36,41 +36,7 @@ test('J03: revision with an honest answer, a new file version, resubmission, ite
   // A page from its own context, so axe can analyze it.
   const partnerContext = await browser.newContext({ baseURL: WEB_ORIGIN });
   const partner = await partnerContext.newPage();
-  await signUp(partner, 'mitra', 'Mitra J03');
-  const partnerParty = await makePartnerProfile(partner);
-  const created = await partner.request.post('/api/v1/opportunities', {
-    data: { acting_party_id: partnerParty, ...A1_MANDATE, title, sectors: ['Air bersih'], keywords: ['air', 'prototipe'] },
-    headers: { ...HEADERS, 'Idempotency-Key': uniqueEmail('op') },
-  });
-  expect(created.status(), await created.text()).toBe(201);
-  const mandate = (await created.json()) as { id: string; version: number };
-  const activated = await partner.request.post(`/api/v1/opportunities/${mandate.id}/activate`, {
-    data: { acting_party_id: partnerParty, expected_version: mandate.version },
-    headers: { ...HEADERS, 'Idempotency-Key': uniqueEmail('oa') },
-  });
-  expect(activated.status(), await activated.text()).toBe(200);
-
-  await signUp(page, 'inovator');
-  const need = await makeSupportRequest(page, { min: '20000', max: '30000', currency: 'USD', period: '6 bulan', scope: 'biaya pilot enam bulan' }, { months: 6 });
-  const me = (await (await page.request.get('/api/v1/me')).json()) as { active_party_id: string };
-  const party = me.active_party_id;
-  const live = await page.request.post(`/api/v1/support-requests/${need}/activate`, {
-    data: { acting_party_id: party, expected_version: 1 },
-    headers: { ...HEADERS, 'Idempotency-Key': uniqueEmail('sa') },
-  });
-  expect(live.status(), await live.text()).toBe(200);
-  const checked = (await (
-    await page.request.post('/api/v1/pitches/preflight', {
-      data: { acting_party_id: party, source_type: 'SUPPORT_REQUEST', source_id: need, opportunity_id: mandate.id },
-      headers: HEADERS,
-    })
-  ).json()) as { token: string; brief: { text: string } };
-  const sent = await page.request.post('/api/v1/pitches', {
-    data: { acting_party_id: party, preflight_token: checked.token, brief: checked.brief.text, files: [] },
-    headers: { ...HEADERS, 'Idempotency-Key': uniqueEmail('p') },
-  });
-  expect(sent.status(), await sent.text()).toBe(201);
-  const pitchId = ((await sent.json()) as { pitch_id: string }).pitch_id;
+  const { pitchId, party } = await submitTestPitch(page, partner, title, 'Mitra J03');
 
   // Mitra J03: the list says it is their turn; the filter survives opening the pitch and coming back.
   await partner.goto('/pitches?box=masuk');

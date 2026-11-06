@@ -3,10 +3,13 @@
 from typing import Any
 
 import pytest
+from httpx import AsyncClient
 from sqlalchemy import text
 
 from app.briefs.service.service import REDACTED, OffSummarizer
 from app.core.database import get_session_factory
+from tests.factories.moderation import grant_operator, suspend_listing
+from tests.integration.conftest import SignUp
 from tests.integration.matching.conftest import World
 from tests.integration.pitches.conftest import client_of, preflight
 
@@ -183,3 +186,43 @@ async def test_export_follows_todays_access_and_redacts_what_depends_on_a_lost_f
     assert after.text.count(REDACTED) == 1
     assert "Saat ini: Kapasitas saring 10 L/jam." in after.text
     assert stranger.status_code == 404
+
+
+@pytest.mark.parametrize("kind", ["INVENTION", "OPPORTUNITY", "PARTNER_PROFILE"])
+async def test_suspended_listings_do_not_prepare_new_pitches_or_matches(
+    world: World, client: AsyncClient, sign_up: SignUp, kind: str
+) -> None:
+    """
+    Condition:
+    - A source invention, target mandate or target partner is suspended.
+
+    Expected:
+    - New preflight is refused. New matching refuses the source or omits suspended targets.
+    """
+    party = await grant_operator(client, sign_up)
+    subject = {
+        "INVENTION": world.inventors.inventions["F01"],
+        "OPPORTUNITY": world.opportunity("A1"),
+        "PARTNER_PROFILE": world.recipients.parties["A"],
+    }[kind]
+    await suspend_listing(client, party, kind, subject)
+    sender, sender_party = client_of(world, "F01")
+    response = await sender.post(
+        "/api/v1/pitches/preflight",
+        json={
+            "acting_party_id": sender_party,
+            "source_type": "SUPPORT_REQUEST",
+            "source_id": world.inventors.support_requests["F01"],
+            "opportunity_id": world.opportunity("A1"),
+        },
+    )
+    code = "LISTING_SUSPENDED" if kind == "INVENTION" else "NOT_FOUND"
+    assert response.json()["error"]["code"] == code, response.text
+    match = await world.match("rani", "SUPPORT_REQUEST", world.inventors.support_requests["F01"])
+    if kind == "INVENTION":
+        assert match.json()["error"]["code"] == code, match.text
+    else:
+        assert match.status_code == 201, match.text
+        shown = {item["opportunity_id"] for item in match.json()["results"] + match.json()["excluded"]}
+        assert world.opportunity("A1") not in shown
+        assert (world.opportunity("A2") in shown) == (kind == "OPPORTUNITY")

@@ -280,7 +280,8 @@ export const FEATURES: Feature[] = [
     ],
     screens: ['S18'],
     specs: ['034', '035'],
-    status: 'coming_soon',
+    status: 'available',
+    home: '/settings#laporkan',
   },
   {
     id: 'impor-ekspor',

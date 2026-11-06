@@ -115,15 +115,21 @@ async def test_reset_twice_keeps_ids_and_versions_and_spares_real_accounts(
 ) -> None:
     """
     Condition:
-    - A real account publishes an invention; the demo is reset, used, then reset again (scenario 3, SC-001).
+    - Real and demo accounts create records; the demo is reset, used, then reset again (scenario 3, SC-001).
 
     Expected:
-    - Both resets yield identical ids and versions, the demo account's own edit is gone, and the real invention stays.
+    - Resets yield identical ids and versions. Demo reports and privacy requests are removed. Real records stay.
     """
     async with new_client() as real:
         me = await sign_up(real, "real@example.com", name="Pengguna Nyata")
         real.headers["X-Acting-Party"] = me["active_party_id"]
         kept = await published_invention(real, "Inovasi pengguna nyata")
+        report = await real.post(
+            "/api/v1/reports",
+            json={"acting_party_id": me["active_party_id"], "expected_version": None, "reason": "Laporan nyata"},
+            headers={"Idempotency-Key": "real-report"},
+        )
+        assert report.status_code == 201, report.text
     await _reset(client)
     first = await _snapshot()
     await _sign_in(client, "rani")
@@ -133,12 +139,28 @@ async def test_reset_twice_keeps_ids_and_versions_and_spares_real_accounts(
         json={"acting_party_id": client.headers["X-Acting-Party"], "expected_version": invention["version"]},
         headers={"Idempotency-Key": "demo-archive"},
     )
+    demo_party = client.headers["X-Acting-Party"]
+    demo_report = await client.post(
+        "/api/v1/reports",
+        json={"acting_party_id": demo_party, "expected_version": None, "reason": "Laporan demo"},
+        headers={"Idempotency-Key": "demo-report"},
+    )
+    demo_export = await client.post(
+        "/api/v1/privacy-requests",
+        json={"acting_party_id": demo_party, "expected_version": None, "kind": "EXPORT"},
+        headers={"Idempotency-Key": "demo-export"},
+    )
+    assert demo_report.status_code == demo_export.status_code == 201
     await _reset(client)
 
     assert await _snapshot() == first
+    await _sign_in(client, "rani")
+    assert (await client.get("/api/v1/reports")).json() == []
+    assert (await client.get("/api/v1/privacy-requests")).json() == []
     async with new_client() as real:
         await sign_up(real, "real@example.com", name="Pengguna Nyata")
         assert (await real.get(f"/api/v1/inventions/{kept['id']}")).status_code == 200
+        assert (await real.get(f"/api/v1/reports/{report.json()['id']}")).status_code == 200
 
 
 @pytest.mark.usefixtures("demo_on")

@@ -117,8 +117,10 @@ class BriefService:
         Raises:
             NotFoundError: For another party's source, a draft target, or one's own opportunity.
         """
-        source, title, version_ids = await MatchingService(self.session).source_of(principal, source_type, source_id)
-        opportunity = await IntakeService(self.session).read(principal, opportunity_id)
+        source, title, version_ids = await MatchingService(self.session).source_of(
+            principal, source_type, source_id, lock_inventions=True
+        )
+        opportunity = await IntakeService(self.session).read(principal, opportunity_id, lock_for_pitch=True)
         if opportunity.partner_party_id == principal.active_party_id:
             raise NotFoundError()
         names = await party_names(self.session, [opportunity.partner_party_id, principal.active_party_id])

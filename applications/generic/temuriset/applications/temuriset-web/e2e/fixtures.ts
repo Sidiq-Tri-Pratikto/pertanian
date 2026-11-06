@@ -158,6 +158,50 @@ export async function makeMandate(page: Page, activate: boolean): Promise<string
   return mandate.id;
 }
 
+/** Creates a real, submitted pitch between the requester and recipient browser contexts. */
+export async function submitTestPitch(
+  page: Page, partner: Page, title: string, partnerName: string,
+): Promise<{ pitchId: string; party: string }> {
+  await signUp(partner, 'mitra', partnerName);
+  const partnerParty = await makePartnerProfile(partner);
+  const headers = { Origin: WEB_ORIGIN };
+  const created = await partner.request.post('/api/v1/opportunities', {
+    data: { acting_party_id: partnerParty, ...A1_MANDATE, title, sectors: ['Air bersih'], keywords: ['air', 'prototipe'] },
+    headers: { ...headers, 'Idempotency-Key': uniqueEmail('op') },
+  });
+  expect(created.status(), await created.text()).toBe(201);
+  const mandate = (await created.json()) as { id: string; version: number };
+  const activated = await partner.request.post(`/api/v1/opportunities/${mandate.id}/activate`, {
+    data: { acting_party_id: partnerParty, expected_version: mandate.version },
+    headers: { ...headers, 'Idempotency-Key': uniqueEmail('oa') },
+  });
+  expect(activated.status(), await activated.text()).toBe(200);
+
+  await signUp(page, 'inovator');
+  const need = await makeSupportRequest(page, { min: '20000', max: '30000', currency: 'USD', period: '6 bulan', scope: 'biaya pilot enam bulan' }, { months: 6 });
+  const me = (await (await page.request.get('/api/v1/me')).json()) as { active_party_id: string };
+  const party = me.active_party_id;
+  const live = await page.request.post(`/api/v1/support-requests/${need}/activate`, {
+    data: { acting_party_id: party, expected_version: 1 },
+    headers: { ...headers, 'Idempotency-Key': uniqueEmail('sa') },
+  });
+  expect(live.status(), await live.text()).toBe(200);
+  const preflight = await page.request.post('/api/v1/pitches/preflight', {
+    data: { acting_party_id: party, source_type: 'SUPPORT_REQUEST', source_id: need, opportunity_id: mandate.id },
+    headers,
+  });
+  expect(preflight.status(), await preflight.text()).toBe(200);
+  const checked = (await preflight.json()) as { token: string; brief: { text: string } };
+  const sent = await page.request.post('/api/v1/pitches', {
+    data: { acting_party_id: party, preflight_token: checked.token, brief: checked.brief.text, files: [] },
+    headers: { ...headers, 'Idempotency-Key': uniqueEmail('p') },
+  });
+  expect(sent.status(), await sent.text()).toBe(201);
+  const pitchId = ((await sent.json()) as { pitch_id: string }).pitch_id;
+
+  return { pitchId, party };
+}
+
 type Fixtures = {
   /** Opens a route as its persona and fails on console errors, failed requests or an unexpected status. */
   visit: (route: Route) => Promise<Page>;

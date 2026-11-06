@@ -166,6 +166,11 @@ PUBLIC_ERROR_BY_CODE: dict[str, PublicError] = {
         409,
         "Ringkasan Kerja Sama diusulkan setelah pertemuan selesai. Catat hasil pertemuan bersama pihak lain dulu.",
     ),
+    codes.APP_LISTING_SUSPENDED: PublicError(
+        "LISTING_SUSPENDED",
+        409,
+        "Daftar ini sedang ditangguhkan. Hubungi pengelola layanan bila Anda merasa ini keliru.",
+    ),
 }
 
 PUBLIC_ERROR_BY_STATUS: dict[int, PublicError] = {

@@ -39,3 +39,7 @@ Decisions (025), web (024).
 3. Grants and notification event.
 4. Idempotency and parallel test.
 5. Lists and detail, contract.
+
+### Moderation integration
+
+Spec 034 stops preflight and submission, including previously issued tokens, when an invention is suspended or the target is hidden by a suspension. The sender receives `LISTING_SUSPENDED` for its own invention and `NOT_FOUND` for a hidden target. The retention policy keeps authorized access to frozen submissions after a personal listing is withdrawn. Every file retrieval still checks live authorization and availability.

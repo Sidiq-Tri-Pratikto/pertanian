@@ -15,7 +15,12 @@ AppliesAt = Literal["SUBMISSION", "DISCUSSION", "PILOT", "COMMERCIALIZATION"]
 VerificationMode = Literal["DECLARATION", "DOCUMENT_PRESENT", "REVIEWER_CONFIRMED"]
 Visibility = Literal["PUBLIC", "PARTNER_ONLY"]
 AvailabilityReason = Literal[
-    "TARGET_NOT_ACTIVE", "EXTERNAL_ROUTE", "NO_NEW_APPROACHES", "DIRECT_INTAKE_CLOSED", "INTAKE_UNCONFIRMED"
+    "SUSPENDED",
+    "TARGET_NOT_ACTIVE",
+    "EXTERNAL_ROUTE",
+    "NO_NEW_APPROACHES",
+    "DIRECT_INTAKE_CLOSED",
+    "INTAKE_UNCONFIRMED",
 ]
 FinancialSubject = Literal["partner", "investorCheck", "license"]
 # One investor's check has no period of its own, so it needs a basis the project budget does not.

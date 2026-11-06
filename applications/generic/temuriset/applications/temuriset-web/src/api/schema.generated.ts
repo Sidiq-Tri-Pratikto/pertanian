@@ -1460,6 +1460,7 @@ export interface paths {
          *         operation_id (UUID): From the response the client may have lost.
          *         session (SessionDep): Database session.
          *         actor_party_id (ActorDep): The acting party.
+         *         principal (PrincipalDep): The account scope for private operations.
          *
          *     Returns:
          *         OperationResponse: ``COMMITTED`` with a result reference, ``PENDING``, or ``UNKNOWN`` for an id the service
@@ -1469,6 +1470,106 @@ export interface paths {
          *         NotFoundError: When the operation belongs to another party.
          */
         get: operations["get_operation_api_v1_operations__operation_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/operator/privacy-requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List pending deletions
+         * @description List pending requests under the live moderation scope.
+         */
+        get: operations["operator_privacy_requests_api_v1_operator_privacy_requests_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/operator/privacy-requests/{request_id}/fulfill": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Begin policy-based deletion
+         * @description Accept an authorized versioned decision and return the current processing state.
+         */
+        post: operations["fulfill_privacy_request_api_v1_operator_privacy_requests__request_id__fulfill_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/operator/reports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List the scoped moderation queue
+         * @description Return the bounded queue to a currently authorized operator.
+         */
+        get: operations["operator_reports_api_v1_operator_reports_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/operator/reports/{report_id}/actions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Apply an audited case action
+         * @description Apply a versioned operator action with a private reason.
+         */
+        post: operations["act_on_report_api_v1_operator_reports__report_id__actions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/operator/reports/{report_id}/documents/{document_id}/versions/{number}/content": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Download an explicitly granted case file
+         * @description Stream a protected version after checking the case and exact file grant.
+         */
+        get: operations["download_case_file_api_v1_operator_reports__report_id__documents__document_id__versions__number__content_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1819,7 +1920,7 @@ export interface paths {
          *
          *     Args:
          *         party_id (UUID): The party.
-         *         _ (PrincipalDep): Any signed-in account.
+         *         principal (PrincipalDep): Any signed-in account.
          *         session (SessionDep): Database session.
          *
          *     Returns:
@@ -2654,6 +2755,70 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/privacy-requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List my privacy requests
+         * @description Return the signed-in account's request receipts.
+         */
+        get: operations["list_privacy_requests_api_v1_privacy_requests_get"];
+        put?: never;
+        /**
+         * Open a privacy request
+         * @description Return an export receipt or a policy-based deletion plan.
+         */
+        post: operations["create_privacy_request_api_v1_privacy_requests_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/privacy-requests/{request_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read my privacy request
+         * @description Return a current receipt for a request the account owns.
+         */
+        get: operations["read_privacy_request_api_v1_privacy_requests__request_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/privacy-requests/{request_id}/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Download my authorized export
+         * @description Produce a fresh, account-authorized JSON export.
+         */
+        get: operations["download_privacy_export_api_v1_privacy_requests__request_id__export_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/profiles/me": {
         parameters: {
             query?: never;
@@ -2713,6 +2878,50 @@ export interface paths {
          *         PublicProfileResponse: The public profile.
          */
         get: operations["read_public_profile_api_v1_profiles__party_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List my private reports
+         * @description Show only the signed-in account's reports.
+         */
+        get: operations["list_reports_api_v1_reports_get"];
+        put?: never;
+        /**
+         * File a private report
+         * @description File a case and return its receipt.
+         */
+        post: operations["create_report_api_v1_reports_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reports/{report_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read my report status
+         * @description Read the reporter's case receipt.
+         */
+        get: operations["read_report_api_v1_reports__report_id__get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3477,6 +3686,30 @@ export interface components {
          */
         CapabilityStatus: "planned" | "simulated" | "available";
         /**
+         * CategoryRetained
+         * @description A category a deletion keeps, with why and for how long.
+         */
+        CategoryRetained: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /** Period */
+            period: string;
+            /** Reason */
+            reason: string;
+        };
+        /**
+         * CategoryToRemove
+         * @description A category a deletion removes.
+         */
+        CategoryToRemove: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+        };
+        /**
          * ChosenFile
          * @description One file version to share with the recipient.
          */
@@ -3805,6 +4038,58 @@ export interface components {
             kind: "company" | "nonprofit" | "community" | "research_group" | "other";
             /** Name */
             name: string;
+        };
+        /**
+         * CreatePrivacyRequest
+         * @description Ask for one's data, or for its deletion.
+         */
+        CreatePrivacyRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /** Expected Version */
+            expected_version: null;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "EXPORT" | "DELETION";
+        };
+        /**
+         * CreateReportRequest
+         * @description Report something privately. The object is named, never checked, so a report cannot probe for what exists.
+         */
+        CreateReportRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /**
+             * Category
+             * @default OTHER
+             * @enum {string}
+             */
+            category?: "IMPERSONATION" | "UNSUPPORTED_CLAIM" | "UNWANTED_CONTACT" | "ABUSE" | "OTHER";
+            /** Expected Version */
+            expected_version: null;
+            /** Reason */
+            reason: string;
+            /** Subject Id */
+            subject_id?: string | null;
+            /**
+             * Subject Label
+             * @default
+             */
+            subject_label?: string;
+            /**
+             * Subject Type
+             * @default OTHER
+             * @enum {string}
+             */
+            subject_type?: "INVENTION" | "OPPORTUNITY" | "PARTNER_PROFILE" | "FUNDING_REQUEST" | "SUPPORT_REQUEST" | "PITCH" | "MESSAGE" | "OTHER";
         };
         /**
          * CreateSupportRequest
@@ -4442,6 +4727,19 @@ export interface components {
             lower: string;
             /** Upper */
             upper: string;
+        };
+        /**
+         * FulfillPrivacyRequest
+         * @description Carry out a deletion against the version the operator saw.
+         */
+        FulfillPrivacyRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /** Expected Version */
+            expected_version: number;
         };
         /**
          * FundingRequestInput
@@ -5228,6 +5526,101 @@ export interface components {
          */
         OperationStatus: "PENDING" | "COMMITTED" | "UNKNOWN";
         /**
+         * OperatorActionRequest
+         * @description Act on a case against the version the operator saw, saying why.
+         */
+        OperatorActionRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /**
+             * Action
+             * @enum {string}
+             */
+            action: "START_REVIEW" | "SUSPEND_LISTING" | "LIFT_SUSPENSION" | "RESOLVE" | "DISMISS";
+            /** Expected Version */
+            expected_version: number;
+            /** Note */
+            note: string;
+        };
+        /**
+         * OperatorActionResponse
+         * @description One thing an operator did.
+         */
+        OperatorActionResponse: {
+            /**
+             * Action
+             * @enum {string}
+             */
+            action: "START_REVIEW" | "SUSPEND_LISTING" | "LIFT_SUSPENSION" | "RESOLVE" | "DISMISS";
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Note */
+            note: string;
+            /**
+             * Operator Account Id
+             * Format: uuid
+             */
+            operator_account_id: string;
+        };
+        /**
+         * OperatorReportResponse
+         * @description A case as an operator with the moderation scope sees it.
+         */
+        OperatorReportResponse: {
+            /** Actions */
+            actions: components["schemas"]["OperatorActionResponse"][];
+            /** Case Number */
+            case_number: string;
+            /**
+             * Category
+             * @enum {string}
+             */
+            category: "IMPERSONATION" | "UNSUPPORTED_CLAIM" | "UNWANTED_CONTACT" | "ABUSE" | "OTHER";
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Operation Id */
+            operation_id?: string | null;
+            /** Reason */
+            reason: string;
+            /**
+             * Reporter Party Id
+             * Format: uuid
+             */
+            reporter_party_id: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "RECEIVED" | "IN_REVIEW" | "RESOLVED" | "DISMISSED";
+            /** Subject Id */
+            subject_id: string | null;
+            /** Subject Label */
+            subject_label: string;
+            /**
+             * Subject Type
+             * @enum {string}
+             */
+            subject_type: "INVENTION" | "OPPORTUNITY" | "PARTNER_PROFILE" | "FUNDING_REQUEST" | "SUPPORT_REQUEST" | "PITCH" | "MESSAGE" | "OTHER";
+            /** Suspended */
+            suspended: boolean;
+            /** Version */
+            version: number;
+        };
+        /**
          * OpportunityResponse
          * @description An opportunity and its current version. ``version`` is for ``expected_version``; ``number`` names the content.
          */
@@ -5562,6 +5955,21 @@ export interface components {
             };
         };
         /**
+         * PersonalDocumentMetadata
+         * @description Requester-owned document metadata without file bytes or other parties' grants.
+         */
+        PersonalDocumentMetadata: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Kind */
+            kind: string;
+            /** Title */
+            title: string;
+        };
+        /**
          * PinnedInvention
          * @description One invention version the source reads.
          */
@@ -5879,6 +6287,80 @@ export interface components {
             source: components["schemas"]["PinnedSource"];
             /** Token */
             token: string;
+        };
+        /**
+         * PrivacyAnswer
+         * @description The generated answer. ``removed`` lists only what has really been removed.
+         */
+        PrivacyAnswer: {
+            /** Notice */
+            notice: string;
+            /** Removed */
+            removed: components["schemas"]["CategoryToRemove"][];
+            /** Retained */
+            retained: components["schemas"]["CategoryRetained"][];
+            /** To Remove */
+            to_remove: components["schemas"]["CategoryToRemove"][];
+        };
+        /**
+         * PrivacyExportResponse
+         * @description Everything the requester may see now. Built on each read, so a lost permission is lost here too.
+         */
+        PrivacyExportResponse: {
+            account: components["schemas"]["AccountResponse"];
+            /** Documents */
+            documents: components["schemas"]["PersonalDocumentMetadata"][];
+            /**
+             * Generated At
+             * Format: date-time
+             */
+            generated_at: string;
+            /** Memberships */
+            memberships: components["schemas"]["MembershipResponse"][];
+            /**
+             * Personal Party Id
+             * Format: uuid
+             */
+            personal_party_id: string;
+            /** Privacy Requests */
+            privacy_requests: components["schemas"]["PrivacyRequestResponse"][];
+            /** Reports */
+            reports: components["schemas"]["ReportResponse"][];
+        };
+        /**
+         * PrivacyRequestResponse
+         * @description A privacy request and its answer.
+         */
+        PrivacyRequestResponse: {
+            answer: components["schemas"]["PrivacyAnswer"];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Fulfilled At */
+            fulfilled_at: string | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "EXPORT" | "DELETION";
+            /** Operation Id */
+            operation_id?: string | null;
+            /** Policy Version */
+            policy_version: string | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "RECEIVED" | "PROCESSING" | "FULFILLED";
+            /** Version */
+            version: number;
         };
         /**
          * ProfileResponse
@@ -6288,6 +6770,26 @@ export interface components {
             acting_party_id: string;
             /** Expected Version */
             expected_version: number;
+        };
+        /**
+         * ReportResponse
+         * @description What a reporter sees: the case and its status, and nothing an operator wrote.
+         */
+        ReportResponse: {
+            /** Case Number */
+            case_number: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Operation Id */
+            operation_id?: string | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "RECEIVED" | "IN_REVIEW" | "RESOLVED" | "DISMISSED";
         };
         /**
          * RequirementInput
@@ -6962,7 +7464,7 @@ export interface components {
             /** Available */
             available: boolean;
             /** Reason */
-            reason: ("TARGET_NOT_ACTIVE" | "EXTERNAL_ROUTE" | "NO_NEW_APPROACHES" | "DIRECT_INTAKE_CLOSED" | "INTAKE_UNCONFIRMED") | null;
+            reason: ("SUSPENDED" | "TARGET_NOT_ACTIVE" | "EXTERNAL_ROUTE" | "NO_NEW_APPROACHES" | "DIRECT_INTAKE_CLOSED" | "INTAKE_UNCONFIRMED") | null;
         };
         /**
          * TaskResponse
@@ -9513,6 +10015,217 @@ export interface operations {
             };
         };
     };
+    operator_privacy_requests_api_v1_operator_privacy_requests_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PrivacyRequestResponse"][];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    fulfill_privacy_request_api_v1_operator_privacy_requests__request_id__fulfill_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FulfillPrivacyRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PrivacyRequestResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    operator_reports_api_v1_operator_reports_get: {
+        parameters: {
+            query?: {
+                status?: ("RECEIVED" | "IN_REVIEW" | "RESOLVED" | "DISMISSED") | null;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OperatorReportResponse"][];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    act_on_report_api_v1_operator_reports__report_id__actions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                report_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OperatorActionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OperatorReportResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    download_case_file_api_v1_operator_reports__report_id__documents__document_id__versions__number__content_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                report_id: string;
+                document_id: string;
+                number: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     list_opportunities_api_v1_opportunities_get: {
         parameters: {
             query?: {
@@ -11388,6 +12101,157 @@ export interface operations {
             };
         };
     };
+    list_privacy_requests_api_v1_privacy_requests_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PrivacyRequestResponse"][];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    create_privacy_request_api_v1_privacy_requests_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreatePrivacyRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PrivacyRequestResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    read_privacy_request_api_v1_privacy_requests__request_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PrivacyRequestResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    download_privacy_export_api_v1_privacy_requests__request_id__export_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PrivacyExportResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     read_my_profile_api_v1_profiles_me_get: {
         parameters: {
             query?: never;
@@ -11477,6 +12341,117 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PublicProfileResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    list_reports_api_v1_reports_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReportResponse"][];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    create_report_api_v1_reports_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateReportRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReportResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    read_report_api_v1_reports__report_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                report_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReportResponse"];
                 };
             };
             /** @description Validation failed */

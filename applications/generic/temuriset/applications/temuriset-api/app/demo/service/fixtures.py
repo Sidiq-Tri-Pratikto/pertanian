@@ -15,6 +15,7 @@ from app.core.database import seeded_ids
 from app.core.settings import Settings
 from app.demo.repository.sqlalchemy.repository import SqlAlchemyDemoRepository
 from app.demo.service import data
+from app.discovery.repository.sqlalchemy.repository import SqlAlchemyDiscoveryRepository
 from app.discovery.service.projection import refresh_funding, refresh_invention, refresh_partner
 from app.discovery.service.service import DiscoveryService
 from app.documents.model.schema import UploadIntentRequest
@@ -308,6 +309,7 @@ async def reset(session: AsyncSession, settings: Settings, variants: Variants | 
     Returns:
         dict[str, UUID]: Invention ids per fixture, and FRaise01's id.
     """
+    await SqlAlchemyDiscoveryRepository(session).lock_updates(exclusive=True)
     await SqlAlchemyDemoRepository(session).remove_namespace()
     await session.flush()
     return await DemoSeeder(session, settings).seed(variants or Variants())

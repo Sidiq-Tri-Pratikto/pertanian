@@ -19,7 +19,7 @@ from app.documents.model.schema import (
     UploadIntentRequest,
     UploadIntentResponse,
 )
-from app.documents.service.service import DocumentService
+from app.documents.service.service import DocumentService, Download
 from app.documents.service.storage_service import LocalStorage
 from app.platform.model.schema import OperationResult
 from app.platform.service.idempotency import Idempotency, idempotent
@@ -162,6 +162,11 @@ async def download(
     """
     byte_range = request.headers.get("range")
     file = await DocumentService(session, get_settings()).authorize_download(principal, document_id, number, byte_range)
+    return stream_download(file, byte_range)
+
+
+def stream_download(file: Download, byte_range: str | None) -> StreamingResponse:
+    """Stream an already authorized document using the shared range and cache policy."""
     start, end, partial = 0, file.size_bytes - 1, False
     match = _RANGE.match(byte_range or "")
     if match and (match[1] or match[2]):

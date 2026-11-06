@@ -23,9 +23,10 @@ from app.matching.engine.inputs import Money, Source, Target
 from app.matching.model.schema import MatchRequest, MatchResultResponse, MatchRunResponse, MatchSource
 from app.matching.repository.sqlalchemy.models import MatchRunRecord
 from app.matching.repository.sqlalchemy.repository import SqlAlchemyMatchingRepository
+from app.moderation.service.suspension import require_unsuspended
 from app.needs.service.service import NeedsService
 from app.portfolio.model.schema import InventionVersionResponse
-from app.portfolio.service.service import version_view
+from app.portfolio.service.service import lock_moderation_target, version_view
 
 
 def _decimal(text: str | None) -> Decimal | None:
@@ -129,8 +130,14 @@ class MatchingService:
         self.session = session
         self.repository = SqlAlchemyMatchingRepository(session)
 
+    async def _guard_inventions(self, invention_ids: list[UUID], *, lock: bool) -> None:
+        for invention_id in sorted(invention_ids):
+            if lock:
+                await lock_moderation_target(self.session, invention_id)
+            await require_unsuspended(self.session, "INVENTION", invention_id)
+
     async def source_of(
-        self, principal: Principal, source_type: str, source_id: UUID
+        self, principal: Principal, source_type: str, source_id: UUID, *, lock_inventions: bool = False
     ) -> tuple[Source, str, list[UUID]]:
         """Build the engine's source from what the acting party owns.
 
@@ -138,6 +145,7 @@ class MatchingService:
             principal (Principal): Who is signed in.
             source_type (str): ``SUPPORT_REQUEST`` or ``FUNDING_REQUEST``.
             source_id (UUID): The source.
+            lock_inventions (bool, optional): Keep the source unsuspended until the pitch transaction finishes.
 
         Returns:
             tuple[Source, str, list[UUID]]: The engine input, a title to show, and the invention versions it reads.
@@ -149,6 +157,7 @@ class MatchingService:
         owner = principal.active_party_id
         if source_type == "SUPPORT_REQUEST":
             request, version_id = await NeedsService(self.session).source(principal, source_id)
+            await self._guard_inventions([request.invention_id], lock=lock_inventions)
             versions = [await version_view(self.session, version_id)]
             budget = request.budget
             money = None
@@ -176,6 +185,7 @@ class MatchingService:
         if "company_funding" not in select_capabilities(settings.composition, settings.composition_overrides):
             raise CapabilityUnavailableError()
         raise_, version_ids = await FundingService(self.session).source(principal, source_id)
+        await self._guard_inventions([link.invention_id for link in raise_.inventions], lock=lock_inventions)
         versions = [await version_view(self.session, version_id) for version_id in version_ids]
         source = Source(
             type=source_type,
