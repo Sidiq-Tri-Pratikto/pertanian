@@ -264,6 +264,112 @@
         ],
         "title": "PolicyResponse",
         "type": "object"
+      },
+      "SiteContext": {
+        "description": "Neutral by default. Context changes examples only, never calculations.",
+        "enum": [
+          "household",
+          "business",
+          "industry",
+          "unspecified"
+        ],
+        "title": "SiteContext",
+        "type": "string"
+      },
+      "SiteKind": {
+        "description": "Demo sites run on a virtual clock; standard sites on the wall clock.",
+        "enum": [
+          "demo",
+          "standard"
+        ],
+        "title": "SiteKind",
+        "type": "string"
+      },
+      "SiteResponse": {
+        "description": "A site as clients see it, with the product time it runs on.",
+        "properties": {
+          "context": {
+            "$ref": "#/components/schemas/SiteContext"
+          },
+          "currency": {
+            "title": "Currency",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/SiteKind"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "now": {
+            "format": "date-time",
+            "title": "Now",
+            "type": "string"
+          },
+          "timezone": {
+            "title": "Timezone",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "kind",
+          "context",
+          "timezone",
+          "currency",
+          "now"
+        ],
+        "title": "SiteResponse",
+        "type": "object"
+      },
+      "UpdateSiteRequest": {
+        "additionalProperties": false,
+        "description": "Fields an owner may change. Stored UTC instants keep their values when the timezone changes.",
+        "properties": {
+          "context": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SiteContext"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "name": {
+            "anyOf": [
+              {
+                "maxLength": 60,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "timezone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Timezone"
+          }
+        },
+        "title": "UpdateSiteRequest",
+        "type": "object"
       }
     }
   },
@@ -302,6 +408,122 @@
         "summary": "Describe this deployment",
         "tags": [
           "capabilities"
+        ]
+      }
+    },
+    "/api/v1/sites/{site_id}": {
+      "get": {
+        "description": "Return an owned site.\n\nArgs:\n    site_id (UUID): The site.\n    principal (PrincipalModel): The acting principal.\n    service (SiteService): Site rules.\n\nReturns:\n    SiteResponse: The site.",
+        "operationId": "get_site_api_v1_sites__site_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "site_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Site Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SiteResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Read a site",
+        "tags": [
+          "sites"
+        ]
+      },
+      "patch": {
+        "description": "Change an owned site's name, context or timezone.\n\nArgs:\n    site_id (UUID): The site.\n    request (UpdateSiteRequest): The changes.\n    principal (PrincipalModel): The acting principal.\n    service (SiteService): Site rules.\n\nReturns:\n    SiteResponse: The updated site.",
+        "operationId": "update_site_api_v1_sites__site_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "site_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Site Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSiteRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SiteResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Change site settings",
+        "tags": [
+          "sites"
         ]
       }
     },

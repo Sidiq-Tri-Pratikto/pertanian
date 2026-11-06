@@ -27,6 +27,47 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/sites/{site_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read a site
+         * @description Return an owned site.
+         *
+         *     Args:
+         *         site_id (UUID): The site.
+         *         principal (PrincipalModel): The acting principal.
+         *         service (SiteService): Site rules.
+         *
+         *     Returns:
+         *         SiteResponse: The site.
+         */
+        get: operations["get_site_api_v1_sites__site_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Change site settings
+         * @description Change an owned site's name, context or timezone.
+         *
+         *     Args:
+         *         site_id (UUID): The site.
+         *         request (UpdateSiteRequest): The changes.
+         *         principal (PrincipalModel): The acting principal.
+         *         service (SiteService): Site rules.
+         *
+         *     Returns:
+         *         SiteResponse: The updated site.
+         */
+        patch: operations["update_site_api_v1_sites__site_id__patch"];
+        trace?: never;
+    };
     "/health/live": {
         parameters: {
             query?: never;
@@ -198,6 +239,53 @@ export interface components {
             /** Version */
             version: number;
         };
+        /**
+         * SiteContext
+         * @description Neutral by default. Context changes examples only, never calculations.
+         * @enum {string}
+         */
+        SiteContext: "household" | "business" | "industry" | "unspecified";
+        /**
+         * SiteKind
+         * @description Demo sites run on a virtual clock; standard sites on the wall clock.
+         * @enum {string}
+         */
+        SiteKind: "demo" | "standard";
+        /**
+         * SiteResponse
+         * @description A site as clients see it, with the product time it runs on.
+         */
+        SiteResponse: {
+            context: components["schemas"]["SiteContext"];
+            /** Currency */
+            currency: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            kind: components["schemas"]["SiteKind"];
+            /** Name */
+            name: string;
+            /**
+             * Now
+             * Format: date-time
+             */
+            now: string;
+            /** Timezone */
+            timezone: string;
+        };
+        /**
+         * UpdateSiteRequest
+         * @description Fields an owner may change. Stored UTC instants keep their values when the timezone changes.
+         */
+        UpdateSiteRequest: {
+            context?: components["schemas"]["SiteContext"] | null;
+            /** Name */
+            name?: string | null;
+            /** Timezone */
+            timezone?: string | null;
+        };
     };
     responses: never;
     parameters: never;
@@ -223,6 +311,90 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CapabilityManifestResponse"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    get_site_api_v1_sites__site_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                site_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SiteResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    update_site_api_v1_sites__site_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                site_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateSiteRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SiteResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
             /** @description Failure */

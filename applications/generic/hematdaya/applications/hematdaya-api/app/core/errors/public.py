@@ -49,6 +49,9 @@ PUBLIC_ERROR_BY_CODE: dict[str, PublicError] = {
         "Layanan data sedang tidak tersedia. Coba lagi beberapa menit lagi.",
         {"retryable": True, "retry_after_seconds": 30, "max_attempts": 3},
     ),
+    codes.APP_AUTH_REQUIRED: PublicError(
+        "UNAUTHORIZED", 401, "Anda perlu masuk terlebih dahulu. Masuk lalu coba lagi."
+    ),
 }
 
 PUBLIC_ERROR_BY_STATUS: dict[int, PublicError] = {
@@ -97,6 +100,7 @@ _FIELD_MESSAGES = {
     "enum": "Pilih salah satu nilai yang tersedia.",
     "literal_error": "Pilih salah satu nilai yang tersedia.",
     "json_invalid": "Isi permintaan bukan JSON yang valid.",
+    "timezone_invalid": "Zona waktu tidak dikenal. Pilih zona waktu IANA, misalnya Asia/Jakarta.",
 }
 
 

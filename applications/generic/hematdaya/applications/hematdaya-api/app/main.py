@@ -16,6 +16,7 @@ from app.core.logging import setup_logging
 from app.core.openapi import install_error_schema
 from app.core.settings import get_settings
 from app.health.router import router as health_router
+from app.sites.router import router as sites_router
 
 API_PREFIX = "/api/v1"
 
@@ -47,6 +48,7 @@ def create_app() -> FastAPI:
     app.add_exception_handler(SQLAlchemyError, handle_database_error)
     app.include_router(health_router)
     app.include_router(capabilities_router, prefix=API_PREFIX)
+    app.include_router(sites_router, prefix=API_PREFIX)
     install_error_schema(app)
     return app
 

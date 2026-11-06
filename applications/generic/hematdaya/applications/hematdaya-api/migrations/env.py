@@ -9,6 +9,8 @@ from sqlalchemy.ext.asyncio import create_async_engine
 
 from app.core.database import Base
 from app.core.settings import get_settings
+from app.identity.repository.sqlalchemy import models as identity_models  # noqa: F401
+from app.sites.repository.sqlalchemy import models as sites_models  # noqa: F401
 
 if context.config.config_file_name is not None:
     fileConfig(context.config.config_file_name)
