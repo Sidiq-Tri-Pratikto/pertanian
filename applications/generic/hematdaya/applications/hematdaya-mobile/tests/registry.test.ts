@@ -23,6 +23,7 @@ describe('feature registry', () => {
       'ringkasan-energi',
       'kontributor',
       'saran',
+      'bukti-saran',
     ]);
   });
 

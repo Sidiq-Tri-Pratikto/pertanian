@@ -10,7 +10,7 @@ from app.energy.service.periods import Preset
 from app.energy.service.summary import PeriodQuery
 from app.identity.dependencies import PrincipalDep
 from app.insights.dependencies import InsightServiceDep
-from app.insights.model.schema import InsightListResponse, InsightResponse
+from app.insights.model.schema import HiddenInsightsResponse, InsightListResponse, InsightResponse
 
 router = APIRouter(tags=["insights"])
 
@@ -38,6 +38,31 @@ async def site_insights(
         InsightListResponse: Observations, notices and counts.
     """
     return await service.site_insights(site_id, principal, PeriodQuery(preset, start_date, end_date))
+
+
+@router.get("/sites/{site_id}/insights/hidden", summary="Hidden and snoozed observations for a period")
+async def hidden_insights(
+    site_id: UUID,
+    principal: PrincipalDep,
+    service: InsightServiceDep,
+    preset: Preset | None = None,
+    start_date: date | None = None,
+    end_date: date | None = None,
+) -> HiddenInsightsResponse:
+    """Return the owner's hidden and still-snoozed observations, so each can be restored.
+
+    Args:
+        site_id (UUID): The site.
+        principal (PrincipalModel): The acting principal.
+        service (InsightService): Insight rules.
+        preset (Preset | None, optional): A named period. Defaults to None.
+        start_date (date | None, optional): First local date. Defaults to None.
+        end_date (date | None, optional): Last local date. Defaults to None.
+
+    Returns:
+        HiddenInsightsResponse: Hidden observations.
+    """
+    return await service.hidden_insights(site_id, principal, PeriodQuery(preset, start_date, end_date))
 
 
 @router.get("/insights/{insight_id}", summary="Read an insight")

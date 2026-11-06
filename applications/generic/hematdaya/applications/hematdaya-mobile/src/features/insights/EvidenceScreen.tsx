@@ -12,6 +12,7 @@ import { HDScreen } from '@/components/hd/HDScreen';
 import { HDText } from '@/components/hd/HDText';
 import { tokens } from '@/design/tokens.generated';
 import { evidenceModel } from '@/features/insights/evidence-model';
+import { FeedbackControls } from '@/features/insights/FeedbackControls';
 import { useInsight } from '@/features/insights/useInsights';
 import { useTabNavigation } from '@/features/navigation';
 import { formatKwh } from '@/lib/format';
@@ -83,6 +84,7 @@ export function EvidenceScreen({ insightId, revision }: { insightId: string | un
         unknown={data.text.unknown}
         guidance={data.text.step}
         metadata={model.calculation}
+        feedback={<FeedbackControls insight={data} timezone={model.timezone} />}
       />
       <HDDisclosure summary="Lihat data pembanding">
         <HDHistoryChart

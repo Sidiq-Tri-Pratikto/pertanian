@@ -180,3 +180,34 @@ export function getInsight(insightId: string, revision: number, token: string): 
     isInsight,
   );
 }
+
+export type FeedbackAction = components['schemas']['FeedbackAction'];
+export type FeedbackResult = components['schemas']['FeedbackResponse'];
+export type HiddenInsights = components['schemas']['HiddenInsightsResponse'];
+
+function isFeedbackResult(value: unknown): value is FeedbackResult {
+  return (
+    isRecord(value) &&
+    typeof value.insight_id === 'string' &&
+    Number.isInteger(value.revision) &&
+    typeof value.visibility === 'string' &&
+    (value.until === null || typeof value.until === 'string')
+  );
+}
+
+function isHiddenInsights(value: unknown): value is HiddenInsights {
+  return isRecord(value) && isRecord(value.window) && Array.isArray(value.observations) && value.observations.every(isInsight);
+}
+
+/** One feedback intent. Retries resend the same key so a lost response never applies twice. */
+export function sendFeedback(insightId: string, revision: number, action: FeedbackAction, key: string, token: string): Promise<FeedbackResult> {
+  return apiRequest(
+    `/api/v1/insights/${encodeURIComponent(insightId)}/feedback`,
+    { method: 'POST', token, body: { action, revision }, headers: { 'Idempotency-Key': key } },
+    isFeedbackResult,
+  );
+}
+
+export function getHiddenInsights(siteId: string, period: PeriodQuery, token: string): Promise<HiddenInsights> {
+  return apiRequest(`/api/v1/sites/${encodeURIComponent(siteId)}/insights/hidden`, { token, query: period }, isHiddenInsights);
+}

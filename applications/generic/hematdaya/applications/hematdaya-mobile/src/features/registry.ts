@@ -86,7 +86,7 @@ export const FEATURES: Feature[] = [
     points: ['Nilai, pembanding, dan batasan terlihat', 'Penyebab yang belum diketahui disebutkan', 'Umpan balik tidak mengubah data'],
     screens: ['S08'],
     specs: ['022', '023'],
-    status: 'coming_soon',
+    status: 'available',
   },
   {
     id: 'impor-data',

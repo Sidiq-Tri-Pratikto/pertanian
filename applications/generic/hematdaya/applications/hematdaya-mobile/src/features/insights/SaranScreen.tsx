@@ -11,6 +11,7 @@ import { tokens } from '@/design/tokens.generated';
 import { evidenceModel } from '@/features/insights/evidence-model';
 import { useInsights } from '@/features/insights/useInsights';
 import { useTabNavigation } from '@/features/navigation';
+import { RestoreNotice } from '@/features/insights/RestoreNotice';
 import { useWorkspace } from '@/features/workspace/WorkspaceProvider';
 import { formatDateRange } from '@/lib/format';
 
@@ -61,7 +62,7 @@ function NoData() {
 }
 
 function SaranList({ data }: { data: InsightList }) {
-  const { openEvidence, openFeature } = useTabNavigation();
+  const { openEvidence, openFeature, openHidden } = useTabNavigation();
   const learningOnly = data.comparable_count === 0 && data.learning_count > 0;
 
   return (
@@ -69,6 +70,7 @@ function SaranList({ data }: { data: InsightList }) {
       <HDText variant="labelStrong">
         {formatDateRange(data.window.start_date, data.window.end_date)} · {data.window.timezone}
       </HDText>
+      <RestoreNotice timezone={data.window.timezone} />
       <View role="list" aria-label="Pengamatan" style={styles.section}>
         {data.observations.map((insight) => {
           const model = evidenceModel(insight);
@@ -85,13 +87,15 @@ function SaranList({ data }: { data: InsightList }) {
           );
         })}
       </View>
-      {data.observations.length === 0 ? (
+      {data.observations.length === 0 && (data.hidden_count ?? 0) > 0 ? (
+        <HDText>Semua pengamatan pada periode ini sedang disembunyikan atau ditunda.</HDText>
+      ) : data.observations.length === 0 ? (
         learningOnly ? (
           <View style={styles.section}>
             <HDText variant="section">Belum cukup periode pembanding</HDText>
             <HDText>
-              Perubahan hanya dihitung bila ada sedikitnya dua minggu sebelumnya dengan data yang cukup pada hari dan jam
-              yang sama. Saran akan muncul setelah riwayatnya cukup.
+              Perubahan hanya dihitung bila ada sedikitnya dua minggu sebelumnya dengan data yang cukup pada hari dan
+              jam yang sama. Saran akan muncul setelah riwayatnya cukup.
             </HDText>
             <HDButton variant="text" onPress={() => openFeature('detail-perangkat')}>
               Tentang riwayat perangkat
@@ -102,7 +106,9 @@ function SaranList({ data }: { data: InsightList }) {
         ) : (
           <View style={styles.section}>
             <HDText variant="section">Belum ada perubahan yang memenuhi kriteria pada periode ini</HDText>
-            <HDText>Ini bukan penilaian efisiensi atau keamanan, hanya berarti tidak ada perubahan yang cukup besar.</HDText>
+            <HDText>
+              Ini bukan penilaian efisiensi atau keamanan, hanya berarti tidak ada perubahan yang cukup besar.
+            </HDText>
           </View>
         )
       ) : null}
@@ -110,6 +116,13 @@ function SaranList({ data }: { data: InsightList }) {
         <HDText variant="label" tone="secondary">
           {`${data.learning_count} perangkat belum punya cukup periode pembanding.`}
         </HDText>
+      ) : null}
+      {(data.hidden_count ?? 0) > 0 ? (
+        <View style={styles.row}>
+          <HDButton variant="text" icon="chevronRight" onPress={openHidden}>
+            {`Saran tersembunyi (${data.hidden_count})`}
+          </HDButton>
+        </View>
       ) : null}
       {data.notices.length ? (
         <View style={styles.section}>
@@ -130,4 +143,7 @@ function SaranList({ data }: { data: InsightList }) {
   );
 }
 
-const styles = StyleSheet.create({ section: { gap: tokens.space.stack } });
+const styles = StyleSheet.create({
+  section: { gap: tokens.space.stack },
+  row: { flexDirection: 'row', flexWrap: 'wrap' },
+});
