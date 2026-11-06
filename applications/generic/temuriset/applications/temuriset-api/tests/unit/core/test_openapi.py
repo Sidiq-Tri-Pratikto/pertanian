@@ -75,3 +75,17 @@ def test_no_cors_when_no_origin_is_configured() -> None:
     response = client.get("/health/live", headers={"Origin": "http://localhost:8081"})
 
     assert "access-control-allow-origin" not in response.headers
+
+
+def test_calendar_redirects_document_see_other() -> None:
+    """
+    Condition:
+    - The browser-facing calendar redirects appear in the generated API contract.
+
+    Expected:
+    - Both document their actual 303 status.
+    """
+    paths = app.openapi()["paths"]
+    for route in ("/api/v1/me/calendar/connect", "/api/v1/me/calendar/callback"):
+        assert "303" in paths[route]["get"]["responses"]
+        assert "307" not in paths[route]["get"]["responses"]

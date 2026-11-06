@@ -13749,7 +13749,7 @@
         "description": "Consume state before the exchange and always redirect without reflecting callback parameters.",
         "operationId": "calendar_callback_api_v1_me_calendar_callback_get",
         "responses": {
-          "307": {
+          "303": {
             "description": "Successful Response"
           },
           "default": {
@@ -13786,7 +13786,7 @@
           }
         ],
         "responses": {
-          "307": {
+          "303": {
             "description": "Successful Response"
           },
           "422": {

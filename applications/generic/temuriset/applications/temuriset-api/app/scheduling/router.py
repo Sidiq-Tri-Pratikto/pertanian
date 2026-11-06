@@ -142,7 +142,12 @@ async def connect_calendar(
     return await operation.respond(result)  # type: ignore[return-value]
 
 
-@router.get("/me/calendar/connect", summary="Open the local calendar consent screen", response_class=RedirectResponse)
+@router.get(
+    "/me/calendar/connect",
+    summary="Open the local calendar consent screen",
+    response_class=RedirectResponse,
+    status_code=status.HTTP_303_SEE_OTHER,
+)
 async def authorize_calendar(
     version: Annotated[int, Query(ge=1)],
     principal: PrincipalDep,
@@ -150,10 +155,15 @@ async def authorize_calendar(
 ) -> RedirectResponse:
     """Redirect the initiating browser session to the fixed loopback provider."""
     url = await CalendarConnectionService(session, get_settings()).authorization(principal, version)
-    return RedirectResponse(url, status_code=303, headers=_CALENDAR_RESPONSE_HEADERS)
+    return RedirectResponse(url, status_code=status.HTTP_303_SEE_OTHER, headers=_CALENDAR_RESPONSE_HEADERS)
 
 
-@router.get("/me/calendar/callback", summary="Finish local calendar consent", response_class=RedirectResponse)
+@router.get(
+    "/me/calendar/callback",
+    summary="Finish local calendar consent",
+    response_class=RedirectResponse,
+    status_code=status.HTTP_303_SEE_OTHER,
+)
 async def calendar_callback(request: Request, session: SessionDep) -> RedirectResponse:
     """Consume state before the exchange and always redirect without reflecting callback parameters."""
     settings = get_settings()
@@ -167,7 +177,7 @@ async def calendar_callback(request: Request, session: SessionDep) -> RedirectRe
         result = {"kalender": "gagal", "ref": error.reference_id}
     return RedirectResponse(
         settings.web_origin + "/settings?" + urlencode(result) + "#kalender",
-        status_code=303,
+        status_code=status.HTTP_303_SEE_OTHER,
         headers=_CALENDAR_RESPONSE_HEADERS,
     )
 
