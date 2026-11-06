@@ -35,7 +35,7 @@ async def _code_deliverable(session: AsyncSession, message: _SecretMessage) -> b
     account = await repository.find_account_by_email(message.to)
     if account is not None and (account.status != "active" or account.kind == "demo"):
         return False
-    code = await repository.latest_open_code(message.to)
+    code = await repository.latest_open_code(message.to, lock=False)
     return (
         code is not None
         and code.id == message.source_id

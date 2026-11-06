@@ -14,14 +14,14 @@ def upgrade() -> None:
     op.add_column("accounts", sa.Column("email_notifications", sa.Boolean(), nullable=False, server_default=sa.false()))
     op.add_column("jobs", sa.Column("input_expires_at", sa.DateTime(timezone=True), nullable=True))
     op.add_column("jobs", sa.Column("dedupe_key", sa.String(64), nullable=True))
-    op.create_unique_constraint("uq_jobs_dedupe_key", "jobs", ["dedupe_key"])
+    op.create_index("uq_jobs_dedupe_key", "jobs", ["dedupe_key"], unique=True)
 
 
 def downgrade() -> None:
     """Remove the preference and job delivery metadata."""
     # Earlier workers cannot consume or scrub email jobs.
     op.execute("DELETE FROM jobs WHERE kind IN ('email.secret_delivery', 'email.notification_delivery')")
-    op.drop_constraint("uq_jobs_dedupe_key", "jobs", type_="unique")
+    op.drop_index("uq_jobs_dedupe_key", table_name="jobs")
     op.drop_column("jobs", "dedupe_key")
     op.drop_column("jobs", "input_expires_at")
     op.drop_column("accounts", "email_notifications")

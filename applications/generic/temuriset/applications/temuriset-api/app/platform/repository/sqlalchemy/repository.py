@@ -181,7 +181,7 @@ class SqlAlchemyPlatformRepository:
             inserted = await self.session.scalar(
                 insert(JobRecord)
                 .values(dedupe_key=dedupe_key, **values)
-                .on_conflict_do_nothing(constraint="uq_jobs_dedupe_key")
+                .on_conflict_do_nothing(index_elements=[JobRecord.dedupe_key])
                 .returning(JobRecord.id)
             )
             if inserted is not None:
