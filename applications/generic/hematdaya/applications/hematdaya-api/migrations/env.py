@@ -13,6 +13,7 @@ from app.core.database import Base
 from app.core.settings import get_settings
 from app.demo.repository.sqlalchemy import models as demo_models  # noqa: F401
 from app.identity.repository.sqlalchemy import models as identity_models  # noqa: F401
+from app.imports.repository.sqlalchemy import models as imports_models  # noqa: F401
 from app.insights.repository.sqlalchemy import models as insights_models  # noqa: F401
 from app.measurements.repository.sqlalchemy import models as measurements_models  # noqa: F401
 from app.sites.repository.sqlalchemy import models as sites_models  # noqa: F401

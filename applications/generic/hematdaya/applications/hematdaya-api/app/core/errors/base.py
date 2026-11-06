@@ -49,20 +49,26 @@ class AppError(Exception):
         debug_info (DebugInfo): Sanitized diagnostics.
         recovery (RecoveryInfo): Retry guidance.
         headers (dict[str, str]): Protocol headers the response must carry.
+        details (list[dict] | None): Safe specifics for the envelope, such as which part of an upload to fix.
     """
 
     code: ClassVar[str] = codes.APP_UNKNOWN
     headers: ClassVar[dict[str, str]] = {}
 
-    def __init__(self, message: str | None = None, *, error: BaseException | None = None) -> None:
+    def __init__(
+        self, message: str | None = None, *, error: BaseException | None = None, details: list[dict] | None = None
+    ) -> None:
         """Initialize a typed failure.
 
         Args:
             message (str | None, optional): Safe message replacing the catalog default. Defaults to None.
             error (BaseException | None, optional): The cause. Defaults to None.
+            details (list[dict] | None, optional): Safe specifics, each with ``loc``, ``msg`` and ``type``. They hold
+                no submitted value, and they go to the response and never to the record. Defaults to None.
         """
         self.error = error
         wrapped = error if isinstance(error, AppError) else None
+        self.details = wrapped.details if details is None and wrapped is not None else details
         if wrapped is not None and type(self).code == codes.APP_UNKNOWN:
             self.code = wrapped.code
 

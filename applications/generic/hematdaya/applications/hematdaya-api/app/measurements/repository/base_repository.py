@@ -15,6 +15,10 @@ class MeasurementRepository(ABC):
         """Return the current revision for each known identity."""
 
     @abstractmethod
+    async def stored_intervals(self, source_id: UUID, start: datetime, end: datetime) -> list[MeasurementRow]:
+        """Return current rows with energy whose interval overlaps ``[start, end)``, by interval start."""
+
+    @abstractmethod
     async def insert(self, source_id: UUID, rows: list[MeasurementRow], received_at: datetime) -> None:
         """Insert rows in bulk."""
 

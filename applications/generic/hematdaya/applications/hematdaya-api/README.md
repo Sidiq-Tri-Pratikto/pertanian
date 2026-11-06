@@ -30,7 +30,8 @@ make check             # lint, format check, all tests, 80% coverage gate
 | `tests/unit/capabilities/` | Manifest and composition | Nothing |
 | `tests/unit/core/` | Errors, database session, OpenAPI document, no actuation routes | Nothing |
 | `tests/unit/health/` | Liveness and readiness | Nothing |
-| `tests/unit/imports/` | CSV parser | Nothing |
+| `tests/unit/imports/` | CSV parser, row classification, assumptions, stream mapping, import errors and contract | Nothing |
+| `tests/integration/test_import_preview.py` | Stored previews through the route: counts, failures, lifecycle, conflicts, identity | Postgres |
 | `tests/integration/` | Real requests against Postgres after migrations | Postgres |
 
 Run one test with `uv run pytest tests/unit/health/test_health.py -v`, or match by name with `uv run pytest tests -k capabilities`. `make test-coverage` also writes an HTML report to `htmlcov/index.html`.
@@ -84,5 +85,8 @@ Run one test with `uv run pytest tests/unit/health/test_health.py -v`, or match 
 | `GET /api/v1/assets/{asset_id}/comparison` | Matched baseline against the same local weekdays and times of the three previous weeks; up to 7 days |
 | `GET /api/v1/sites/{site_id}/insights` | Evaluates the period and returns active observations ranked by additional kWh, plus partial, stale and scope notices |
 | `GET /api/v1/insights/{insight_id}` | The current revision after re-evaluation, or `?revision=` for a frozen one |
+| `POST /api/v1/sites/{site_id}/imports/preview` | Store a preview of a CSV `file` or pasted `text`, with `mapping` as JSON text, without saving any reading. A blocked preview is a 201 with `blocked: true` |
+| `GET /api/v1/imports/{import_id}` | A stored preview: status, counts, assumptions, questions and the first 50 row errors |
+| `GET /api/v1/imports/{import_id}/errors` | Row errors by data row, with `limit` from 1 to 100 and `cursor` |
 
 Every route except health, capabilities and the scenario list needs `Authorization: Bearer <token>`. A resource owned by someone else answers `NOT_FOUND`.

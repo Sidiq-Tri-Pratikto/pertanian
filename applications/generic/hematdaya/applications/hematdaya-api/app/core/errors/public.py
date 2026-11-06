@@ -90,6 +90,17 @@ PUBLIC_ERROR_BY_CODE: dict[str, PublicError] = {
     codes.APP_AUTH_REQUIRED: PublicError(
         "UNAUTHORIZED", 401, "Anda perlu masuk terlebih dahulu. Masuk lalu coba lagi."
     ),
+    codes.APP_IMPORT_TOO_LARGE: PublicError(
+        "IMPORT_TOO_LARGE",
+        413,
+        "Berkas melebihi batas impor. Perkecil menjadi paling besar 10 MiB dan 150.000 baris data lalu coba lagi.",
+    ),
+    codes.APP_IMPORT_STRUCTURE: PublicError(
+        "IMPORT_INVALID", 400, "Struktur berkas belum dapat dibaca. Perbaiki hal yang disebutkan lalu coba lagi."
+    ),
+    codes.APP_IMPORT_BLOCKED: PublicError(
+        "IMPORT_BLOCKED", 409, "Impor ini masih diblokir. Selesaikan alasan pada pratinjau lalu coba lagi."
+    ),
 }
 
 PUBLIC_ERROR_BY_STATUS: dict[int, PublicError] = {

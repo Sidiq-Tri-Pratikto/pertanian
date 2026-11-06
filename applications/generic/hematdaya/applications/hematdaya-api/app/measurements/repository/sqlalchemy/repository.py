@@ -54,6 +54,27 @@ class SqlAlchemyMeasurementRepository(MeasurementRepository):
             found.update({row["identity_key"]: _row(dict(row)) for row in result.mappings()})
         return found
 
+    async def stored_intervals(self, source_id: UUID, start: datetime, end: datetime) -> list[MeasurementRow]:
+        """Return current rows with energy whose interval overlaps a half-open window.
+
+        Args:
+            source_id (UUID): The source.
+            start (datetime): Window start, inclusive.
+            end (datetime): Window end, exclusive.
+
+        Returns:
+            list[MeasurementRow]: Rows by interval start. Adjacent intervals are not included.
+        """
+        result = await self.session.execute(
+            text(
+                f"SELECT {_COLUMNS} FROM current_measurements"
+                " WHERE source_id = :source AND energy_mwh IS NOT NULL"
+                " AND interval_start < :end AND interval_end > :start ORDER BY interval_start"
+            ),
+            {"source": source_id, "start": start, "end": end},
+        )
+        return [_row(dict(row)) for row in result.mappings()]
+
     async def insert(self, source_id: UUID, rows: list[MeasurementRow], received_at: datetime) -> None:
         """Insert rows in one set-based statement batch.
 

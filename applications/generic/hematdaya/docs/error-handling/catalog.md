@@ -20,5 +20,8 @@ One row per error. Keep in sync with `app/core/errors/codes.py` and `public.py`.
 | `APP-RANGE-TOO-LARGE` | `RANGE_TOO_LARGE` | 400 | Rentang waktu terlalu panjang. Pilih rentang yang lebih pendek lalu coba lagi. | Period over 366 days, or a series over 1,000 buckets | false | - | - |
 | `APP-CAPABILITY-DISABLED` | `CAPABILITY_DISABLED` | 403 | Fitur ini tidak aktif pada layanan ini. Gunakan fitur inti atau hubungi pengelola layanan. | Optional capability outside the deployment's composition; the message names the capability | false | - | - |
 | `APP-AUTH-REQUIRED` | `UNAUTHORIZED` | 401 | Anda perlu masuk terlebih dahulu. Masuk lalu coba lagi. | No credential a resolver accepts; sends `WWW-Authenticate: Bearer` | false | - | - |
+| `APP-IMPORT-TOO-LARGE` | `IMPORT_TOO_LARGE` | 413 | Berkas melebihi batas impor. Perkecil menjadi paling besar 10 MiB dan 150.000 baris data lalu coba lagi. | Upload body over the 10 MiB + 64 KiB cap, or a file over 10 MiB or 150,000 data rows; `details` names the limit | false | - | - |
+| `APP-IMPORT-STRUCTURE` | `IMPORT_INVALID` | 400 | Struktur berkas belum dapat dibaca. Perbaiki hal yang disebutkan lalu coba lagi. | Any other structural failure of a CSV file; `details` lists each one | false | - | - |
+| `APP-IMPORT-BLOCKED` | `IMPORT_BLOCKED` | 409 | Impor ini masih diblokir. Selesaikan alasan pada pratinjau lalu coba lagi. | Commit of a blocked preview, raised from `require_committable` and first reached by a route in 026 | false | - | - |
 
 Framework failures use the status map in `public.py`: `UNAUTHORIZED` 401, `FORBIDDEN` 403, `METHOD_NOT_ALLOWED` 405, `VALIDATION_FAILED` 422, `RATE_LIMITED` 429.

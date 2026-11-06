@@ -5,7 +5,7 @@ import secrets
 import subprocess
 import sys
 from collections.abc import AsyncIterator, Callable, Iterator
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
 import pytest
@@ -188,6 +188,37 @@ async def make_binding(site: UUID, asset: UUID, source: UUID, effective_from: st
         source=source,
         asset=asset,
         start=datetime.fromisoformat(effective_from),
+    )
+    return rows[0][0]
+
+
+async def make_import(site: UUID, *, status: str = "previewed", expires_at: datetime | None = None) -> UUID:
+    """Insert one import with reconciled counts and one invalid row.
+
+    Args:
+        site (UUID): Its site.
+        status (str, optional): Its status. Defaults to previewed.
+        expires_at (datetime | None, optional): Its expiry. Defaults to a day after the wall clock.
+
+    Returns:
+        UUID: Its ID.
+    """
+    rows = await execute(
+        "INSERT INTO imports (id, site_id, status, file_name, content_sha256, mapping, total_rows, accepted_rows,"
+        " invalid_rows, duplicate_rows, conflict_rows, pending_rows, blocked, block_reasons, needs_acknowledgment,"
+        " questions, assumptions, measurement_revision, binding_revision, expires_at)"
+        " VALUES (gen_random_uuid(), :site, :status, 'data.csv', :digest, '{}', 1, 0, 1, 0, 0, 0, true,"
+        " '[\"Impor diblokir: 1 dari 1 baris tidak valid.\"]', false, '[]', '[]', 0, 0, :expires_at) RETURNING id",
+        site=site,
+        status=status,
+        digest="0" * 64,
+        expires_at=expires_at or datetime.now(UTC) + timedelta(hours=24),
+    )
+    await execute(
+        "INSERT INTO import_rows (import_id, data_row, file_line, status, reason, field, message)"
+        " VALUES (:id, 1, 2, 'invalid', 'negative', 'energi_wh',"
+        " 'Baris data 1, energi_wh: gunakan angka 0 atau lebih.')",
+        id=rows[0][0],
     )
     return rows[0][0]
 

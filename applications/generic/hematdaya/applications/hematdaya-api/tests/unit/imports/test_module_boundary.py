@@ -34,6 +34,24 @@ FORBIDDEN_IMPORTS = (
 FORBIDDEN_CALLS = ("now", "utcnow", "field_size_limit")
 
 
+def _foreign_repository_imports(source: str) -> list[str]:
+    """Name every import of another module's repository (D2).
+
+    Args:
+        source (str): Python source.
+
+    Returns:
+        list[str]: The dotted import paths found, in source order.
+    """
+    dotted: list[str] = []
+    for node in ast.walk(ast.parse(source)):
+        if isinstance(node, ast.Import):
+            dotted += [alias.name for alias in node.names]
+        elif isinstance(node, ast.ImportFrom) and node.module is not None:
+            dotted += [f"{node.module}.{alias.name}" for alias in node.names]
+    return [path for path in dotted if ".repository" in path and not path.startswith("app.imports.")]
+
+
 def _is_forbidden_import(dotted: str) -> bool:
     return any(dotted == root or dotted.startswith(f"{root}.") for root in FORBIDDEN_IMPORTS)
 
@@ -120,3 +138,44 @@ def test_boundary_helper_allows_ordinary_items(source: str) -> None:
     - The helper flags nothing, including ``datetime.time`` whose name resembles the ``time`` module.
     """
     assert _forbidden(source) == []
+
+
+def test_imports_never_reach_another_modules_repository() -> None:
+    """
+    Condition:
+    - Every Python file under ``app/imports``.
+
+    Expected:
+    - None imports another module's repository; they use its service interface.
+    """
+    found = {
+        str(path.relative_to(API_ROOT)): hits
+        for path in sorted((API_ROOT / "app/imports").rglob("*.py"))
+        if (hits := _foreign_repository_imports(path.read_text(encoding="utf-8")))
+    }
+
+    assert found == {}
+
+
+@pytest.mark.parametrize(
+    ("source", "flagged"),
+    [
+        (
+            "from app.measurements.repository.base_repository import MeasurementRepository",
+            ["app.measurements.repository.base_repository.MeasurementRepository"],
+        ),
+        ("import app.sites.repository.sqlalchemy.repository", ["app.sites.repository.sqlalchemy.repository"]),
+        ("from app.assets import repository", ["app.assets.repository"]),
+        ("from app.imports.repository.base_repository import ImportRepository", []),
+        ("from app.measurements.service.service import IngestService", []),
+    ],
+)
+def test_repository_guard_flags_only_foreign_repositories(source: str, flagged: list[str]) -> None:
+    """
+    Condition:
+    - A sample import of a repository or a service, foreign or the module's own.
+
+    Expected:
+    - Only a foreign repository is flagged, so an empty result above means something.
+    """
+    assert _foreign_repository_imports(source) == flagged

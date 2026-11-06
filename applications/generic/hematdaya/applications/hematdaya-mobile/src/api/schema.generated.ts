@@ -330,6 +330,64 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/imports/{import_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read a stored import preview
+         * @description Return a stored preview with its counts, assumptions and first row errors.
+         *
+         *     Args:
+         *         import_id (UUID): The import.
+         *         principal (PrincipalModel): The acting principal.
+         *         service (ImportPreviewService): Preview rules.
+         *
+         *     Returns:
+         *         ImportPreviewResponse: The stored preview.
+         */
+        get: operations["get_import_api_v1_imports__import_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/imports/{import_id}/errors": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Page through an import preview's row errors
+         * @description Return one page of invalid and conflicting rows, ordered by data row.
+         *
+         *     Args:
+         *         import_id (UUID): The import.
+         *         principal (PrincipalModel): The acting principal.
+         *         service (ImportPreviewService): Preview rules.
+         *         limit (int, optional): Page size. Defaults to 50.
+         *         cursor (str | None, optional): The previous page's ``next_cursor``. Defaults to None.
+         *
+         *     Returns:
+         *         ImportErrorPageResponse: The page.
+         */
+        get: operations["list_import_errors_api_v1_imports__import_id__errors_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/insights/{insight_id}": {
         parameters: {
             query?: never;
@@ -438,6 +496,38 @@ export interface paths {
          *         AssetResponse: The asset.
          */
         post: operations["create_asset_api_v1_sites__site_id__assets_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sites/{site_id}/imports/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Preview a CSV import without saving any reading
+         * @description Store a preview of a file or pasted text. A blocked preview is a 201 with ``blocked`` true.
+         *
+         *     This takes ``Request`` rather than declared form fields, because FastAPI parses those before any dependency. So
+         *     the site is resolved first, and a foreign site answers ``NOT_FOUND`` with nothing read.
+         *
+         *     Args:
+         *         site_id (UUID): The site.
+         *         request (Request): The request, whose body is read only after ownership is known.
+         *         principal (PrincipalModel): The acting principal.
+         *         service (ImportPreviewService): Preview rules.
+         *
+         *     Returns:
+         *         ImportPreviewResponse: The stored preview.
+         */
+        post: operations["preview_import_api_v1_sites__site_id__imports_preview_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -569,6 +659,25 @@ export interface components {
             /** Id */
             id: string;
             status: components["schemas"]["CapabilityStatus"];
+        };
+        /**
+         * AssetCandidateResponse
+         * @description An asset the user may pick for a name shared by several.
+         */
+        AssetCandidateResponse: {
+            /** Category */
+            category: string | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Location */
+            location: string | null;
+            /** Name */
+            name: string;
+            /** Scope Kind */
+            scope_kind: string;
         };
         /**
          * AssetDetailResponse
@@ -1071,6 +1180,133 @@ export interface components {
             resolution_mwh: number | null;
             window: components["schemas"]["WindowResponse"];
         };
+        /**
+         * ImportErrorPageResponse
+         * @description One page of row errors, ordered by data row.
+         */
+        ImportErrorPageResponse: {
+            /** Items */
+            items: components["schemas"]["ImportRowErrorResponse"][];
+            /** Next Cursor */
+            next_cursor: string | null;
+        };
+        /**
+         * ImportPeriodResponse
+         * @description The local dates accepted rows cover.
+         */
+        ImportPeriodResponse: {
+            /**
+             * End Date
+             * Format: date
+             */
+            end_date: string;
+            /**
+             * Start Date
+             * Format: date
+             */
+            start_date: string;
+            /** Timezone */
+            timezone: string;
+        };
+        /**
+         * ImportPreviewResponse
+         * @description A stored preview. Counts always cover the whole file; ``errors`` holds the first 50.
+         */
+        ImportPreviewResponse: {
+            /** Accepted Rows */
+            accepted_rows: number;
+            /** Assumptions */
+            assumptions: string[];
+            /** Block Reasons */
+            block_reasons: string[];
+            /** Blocked */
+            blocked: boolean;
+            /** Conflict Rows */
+            conflict_rows: number;
+            /** Duplicate Rows */
+            duplicate_rows: number;
+            /** Errors */
+            errors: components["schemas"]["ImportRowErrorResponse"][];
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            /** File Name */
+            file_name: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Invalid Rows */
+            invalid_rows: number;
+            /** Mapping */
+            mapping: {
+                [key: string]: unknown;
+            };
+            /** Needs Acknowledgment */
+            needs_acknowledgment: boolean;
+            /** Next Error Cursor */
+            next_error_cursor: string | null;
+            /** Pending Rows */
+            pending_rows: number;
+            period: components["schemas"]["ImportPeriodResponse"] | null;
+            /** Questions */
+            questions: components["schemas"]["ImportQuestionResponse"][];
+            status: components["schemas"]["ImportStatusResponse"];
+            /** Total Rows */
+            total_rows: number;
+        };
+        /**
+         * ImportQuestionKind
+         * @description What a preview asks before it can be committed.
+         * @enum {string}
+         */
+        ImportQuestionKind: "value_kind" | "power_meaning" | "timezone" | "interval_duration" | "scope" | "asset_choice" | "other_source" | "stream_assets" | "asset_streams";
+        /**
+         * ImportQuestionResponse
+         * @description One open question.
+         */
+        ImportQuestionResponse: {
+            /** Asset Name */
+            asset_name?: string | null;
+            /**
+             * Candidates
+             * @default []
+             */
+            candidates?: components["schemas"]["AssetCandidateResponse"][];
+            kind: components["schemas"]["ImportQuestionKind"];
+            /** Message */
+            message: string;
+            /**
+             * Streams
+             * @default []
+             */
+            streams?: string[];
+        };
+        /**
+         * ImportRowErrorResponse
+         * @description One invalid or conflicting row.
+         */
+        ImportRowErrorResponse: {
+            /** Data Row */
+            data_row: number;
+            /** Field */
+            field: string;
+            /** File Line */
+            file_line: number;
+            /** Message */
+            message: string;
+            /** Reason */
+            reason: string;
+        };
+        /**
+         * ImportStatusResponse
+         * @description An import's stored status, or ``expired`` once an uncommitted preview has passed its expiry.
+         * @enum {string}
+         */
+        ImportStatusResponse: "previewed" | "committed" | "rejected" | "expired";
         /**
          * InitialPeriodResponse
          * @description The period a scenario opens on.
@@ -1893,6 +2129,89 @@ export interface operations {
             };
         };
     };
+    get_import_api_v1_imports__import_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                import_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportPreviewResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    list_import_errors_api_v1_imports__import_id__errors_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+                cursor?: string | null;
+            };
+            header?: never;
+            path: {
+                import_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportErrorPageResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     get_insight_api_v1_insights__insight_id__get: {
         parameters: {
             query?: {
@@ -2085,6 +2404,60 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AssetResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    preview_import_api_v1_sites__site_id__imports_preview_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                site_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    /**
+                     * Format: binary
+                     * @description The CSV file. Send this or `text`, not both.
+                     */
+                    file?: string;
+                    /** @description The answers so far, as JSON text: `value_kind`, `power_meaning`, `timezone_confirmed`, `interval_minutes` by stream key, `asset_map` from asset name to asset ID or `"new"`, and `scope`. Omit it when there are no answers yet. */
+                    mapping?: string;
+                    /** @description Pasted CSV text. Send this or `file`, not both. */
+                    text?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportPreviewResponse"];
                 };
             };
             /** @description Validation failed */

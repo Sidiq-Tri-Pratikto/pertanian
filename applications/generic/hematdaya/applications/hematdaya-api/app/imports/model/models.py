@@ -3,6 +3,8 @@
 from datetime import datetime, timedelta
 from decimal import Decimal
 from enum import StrEnum
+from typing import Any
+from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -256,3 +258,98 @@ class ParsedFile(_Frozen):
     def ok(self) -> bool:
         """Whether the file has no structural error."""
         return not self.structural_errors
+
+
+class ImportStatus(StrEnum):
+    """The last confirmed state of an import. 025 writes only ``previewed``; 026 writes the others."""
+
+    PREVIEWED = "previewed"
+    COMMITTED = "committed"
+    REJECTED = "rejected"
+
+
+class ImportRowStatus(StrEnum):
+    """Where one stored row stands. Rows pending an answer are counted, not stored."""
+
+    ACCEPTED = "accepted"
+    INVALID = "invalid"
+    DUPLICATE = "duplicate"
+    CONFLICT = "conflict"
+
+
+class ImportModel(_Frozen):
+    """A stored preview: everything a later commit needs, with no raw file.
+
+    Attributes:
+        id (UUID): Stable identifier.
+        site_id (UUID): The site it belongs to.
+        status (ImportStatus): Last confirmed state.
+        file_name (str): Display name of the upload.
+        content_sha256 (str): Hash of the file bytes.
+        mapping (dict[str, Any]): Answers, columns and resolved streams.
+        total_rows (int): Nonblank data rows.
+        accepted_rows (int): Rows a commit would add.
+        invalid_rows (int): Rows that cannot be read.
+        duplicate_rows (int): Exact repeats, in the file or of stored data.
+        conflict_rows (int): Changed values and overlapping intervals.
+        pending_rows (int): Rows waiting on an answer.
+        blocked (bool): Whether a commit would be refused.
+        block_reasons (list[str]): Why, in fixed order.
+        needs_acknowledgment (bool): Whether invalid rows must be acknowledged before a commit.
+        questions (list[dict[str, Any]]): What must be answered first.
+        assumptions (list[str]): What the preview takes as given.
+        period_start (datetime | None): Earliest accepted instant.
+        period_end (datetime | None): Latest accepted instant.
+        measurement_revision (int): The site's revision before anything else was read.
+        binding_revision (int): The site's revision before anything else was read.
+        idempotency_key (str | None): Set by a commit in 026.
+        expires_at (datetime): Wall-clock end of its life while uncommitted.
+        created_at (datetime | None): When it was stored, once read back.
+    """
+
+    id: UUID
+    site_id: UUID
+    status: ImportStatus
+    file_name: str
+    content_sha256: str
+    mapping: dict[str, Any]
+    total_rows: int
+    accepted_rows: int
+    invalid_rows: int
+    duplicate_rows: int
+    conflict_rows: int
+    pending_rows: int
+    blocked: bool
+    block_reasons: list[str]
+    needs_acknowledgment: bool
+    questions: list[dict[str, Any]]
+    assumptions: list[str]
+    period_start: datetime | None
+    period_end: datetime | None
+    measurement_revision: int
+    binding_revision: int
+    idempotency_key: str | None
+    expires_at: datetime
+    created_at: datetime | None = None
+
+
+class ImportRowModel(_Frozen):
+    """One stored row result. Pending rows have none.
+
+    Attributes:
+        data_row (int): Nonblank data row, from 1.
+        file_line (int): File line the record starts on, from 1.
+        status (ImportRowStatus): The row's result.
+        reason (str | None): Stable reason of an invalid or conflict row.
+        field (str | None): The header it concerns.
+        message (str | None): The full message of an invalid or conflict row, bounded.
+        parsed (dict[str, Any] | None): What a commit needs, for an accepted row only.
+    """
+
+    data_row: int
+    file_line: int
+    status: ImportRowStatus
+    reason: str | None = None
+    field: str | None = None
+    message: str | None = None
+    parsed: dict[str, Any] | None = None

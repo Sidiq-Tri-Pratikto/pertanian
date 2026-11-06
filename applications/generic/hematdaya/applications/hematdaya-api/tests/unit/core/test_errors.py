@@ -55,6 +55,10 @@ def client() -> TestClient:
     async def validated(payload: Payload) -> None:
         return None
 
+    @app.get("/with-details")
+    async def with_details() -> None:
+        raise RequestInvalidError(details=[{"loc": ["file"], "msg": "Perbaiki berkas.", "type": "structure"}])
+
     return TestClient(app)
 
 
@@ -93,6 +97,54 @@ def test_typed_error_returns_envelope_and_one_record(client: TestClient, caplog:
     assert records[0]["reference_id"] == error["request_id"]
     assert records[0]["code"] == "APP-NOT-FOUND"
     assert records[0]["operation"] == "/not-found"
+
+
+def test_typed_error_renders_its_details_in_the_envelope(client: TestClient, caplog: pytest.LogCaptureFixture) -> None:
+    """
+    Condition:
+    - A route raises a typed error carrying details.
+
+    Expected:
+    - The envelope has its public code and message plus the details, and one record shares the request ID.
+    """
+    response = client.get("/with-details")
+
+    assert response.status_code == 400
+    error = response.json()["error"]
+    assert error["code"] == "BAD_REQUEST"
+    assert error["message"] == "Permintaan belum dapat diproses. Periksa isian Anda lalu coba lagi."
+    assert error["details"] == [{"loc": ["file"], "msg": "Perbaiki berkas.", "type": "structure"}]
+    assert error["recovery"] == {"retryable": False}
+    records = _records(caplog)
+    assert len(records) == 1
+    assert records[0]["reference_id"] == error["request_id"]
+    assert "Perbaiki berkas." not in caplog.text
+
+
+def test_typed_error_without_details_has_no_details_key(client: TestClient) -> None:
+    """
+    Condition:
+    - A route raises a typed error with no details.
+
+    Expected:
+    - The envelope has no ``details`` key at all, so other routes keep their shape.
+    """
+    response = client.get("/not-found")
+
+    assert "details" not in response.json()["error"]
+
+
+def test_wrapping_keeps_details() -> None:
+    """
+    Condition:
+    - A typed error with details is wrapped by the base class.
+
+    Expected:
+    - The wrapper carries the same details, as it does the code and reference ID.
+    """
+    details = [{"loc": ["file"], "msg": "Perbaiki berkas.", "type": "structure"}]
+
+    assert AppError(error=RequestInvalidError(details=details)).details == details
 
 
 def test_unexpected_error_is_safe_on_every_surface(client: TestClient, caplog: pytest.LogCaptureFixture) -> None:
