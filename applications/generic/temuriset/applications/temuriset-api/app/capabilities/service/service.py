@@ -102,6 +102,7 @@ def build_manifest(
     *,
     storage_adapter: str = "local",
     scanner_adapter: str = "development-accept",
+    email_relay: bool = False,
 ) -> CapabilityManifestResponse:
     """Build the manifest for one composition.
 
@@ -116,6 +117,11 @@ def build_manifest(
         ValueError: When the composition or the overrides are not supported.
     """
     capability_ids = select_capabilities(composition_id, overrides)
+    email = AdapterResponse(
+        id="email",
+        status=CapabilityStatus.AVAILABLE if email_relay else CapabilityStatus.PLANNED,
+        implementation="loopback-relay" if email_relay else None,
+    )
     return CapabilityManifestResponse(
         schema_version=MANIFEST_SCHEMA_VERSION,
         source_release=SOURCE_RELEASE,
@@ -128,6 +134,7 @@ def build_manifest(
             if (implementation := {"object-storage": storage_adapter, "file-scanner": scanner_adapter}.get(adapter.id))
             else adapter
             for adapter in ADAPTERS
-        ],
+        ]
+        + [email],
         policies=list(POLICIES),
     )

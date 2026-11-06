@@ -101,10 +101,17 @@ async def run_jobs(session_factory: async_sessionmaker[AsyncSession], registry: 
 async def _run_one(
     session: AsyncSession, repository: SqlAlchemyPlatformRepository, registry: Registry, job: JobModel
 ) -> None:
+    deadline = job.input_expires_at
+    terminal_input = {"input": {}} if deadline is not None else {}
+    if deadline is not None and clock.now() >= deadline:
+        await repository.update_job(job.id, status="CANCELLED", **terminal_input)
+        return
     handler = registry.jobs.get(job.kind)
     if handler is None:
         # Nothing can run it until a release registers the kind; an operator decides.
-        await repository.update_job(job.id, status="NEEDS_MANUAL_INPUT", last_error_code="UNKNOWN_JOB_KIND")
+        await repository.update_job(
+            job.id, status="NEEDS_MANUAL_INPUT", last_error_code="UNKNOWN_JOB_KIND", **terminal_input
+        )
         return
     try:
         async with session.begin_nested():
@@ -115,15 +122,21 @@ async def _run_one(
         attempts = job.attempts + 1
         # A refusal such as FORBIDDEN will not change on retry (AC06): stop now instead of trying eight times.
         retry = attempts < MAX_ATTEMPTS and not (isinstance(error, AppError) and not error.recovery["retryable"])
+        now = clock.now()
+        retry = retry and (deadline is None or now < deadline)
+        retry_at = now + backoff(attempts)
         await repository.update_job(
             job.id,
             attempts=attempts,
             status="PENDING" if retry else "FAILED",
-            run_after=clock.now() + backoff(attempts),
+            run_after=min(retry_at, deadline) if deadline is not None else retry_at,
             last_error_code=failure.code,
+            **({} if retry else terminal_input),
         )
         return
-    await repository.update_job(job.id, status="SUCCEEDED", result_ref=result_ref, attempts=job.attempts + 1)
+    await repository.update_job(
+        job.id, status="SUCCEEDED", result_ref=result_ref, attempts=job.attempts + 1, **terminal_input
+    )
 
 
 async def run_forever(

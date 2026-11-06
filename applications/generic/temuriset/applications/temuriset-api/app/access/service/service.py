@@ -26,7 +26,7 @@ from app.identity.model.models import Principal
 from app.identity.model.schema import MembershipResponse
 from app.identity.service.accounts import account_email, display_names
 from app.identity.service.codes import hash_token, new_token
-from app.identity.service.mailbox_service import DisabledMailbox, MailUnavailableError, mailbox_for
+from app.identity.service.mailbox_service import DisabledMailbox, MailReference, MailUnavailableError, mailbox_for
 from app.platform.service.audit import record_audit
 from app.platform.service.versions import StaleVersionError
 
@@ -127,6 +127,19 @@ async def memberships_for(session: AsyncSession, account_id: UUID) -> list[Membe
     return result
 
 
+async def authorized_accounts(session: AsyncSession, party_id: UUID, action: Capability) -> list[UUID]:
+    """List current accounts able to perform an action for a personal or organization party."""
+    party = await find_party(session, party_id)
+    if party is None:
+        return []
+    if party.account_id is not None:
+        return [party.account_id]
+    if party.organization_id is None:
+        return []
+    members = await SqlAlchemyAccessRepository(session).active_memberships(organization_id=party.organization_id)
+    return [member.account_id for member in members if action in member.capabilities]
+
+
 async def assert_can_act(session: AsyncSession, account_id: UUID, party_id: UUID, action: Capability) -> None:
     """Recheck access for work that runs later, such as a job a member started before being removed (AC06).
 
@@ -153,6 +166,12 @@ def _status(invitation: InvitationModel) -> str:
     if invitation.revoked_at is not None:
         return "revoked"
     return "expired" if invitation.expires_at <= clock.now() else "pending"
+
+
+async def invitation_deliverable(session: AsyncSession, invitation_id: UUID, email: str) -> bool:
+    """Recheck that the addressed invitation is pending before the worker delivers it."""
+    invitation = await SqlAlchemyAccessRepository(session).find_invitation(invitation_id=invitation_id)
+    return invitation is not None and invitation.email == email and _status(invitation) == "pending"
 
 
 class AccessService:
@@ -304,6 +323,7 @@ class AccessService:
         await mailbox.send(
             self.session,
             to_email=request.email,
+            reference=MailReference("invitation", invitation.id, invitation.expires_at),
             subject=f"Undangan bergabung dengan {organization.name} di TemuRiset",
             body=(
                 f"Anda diundang bergabung dengan {organization.name}. Buka tautan ini dalam 7 hari:\n\n"

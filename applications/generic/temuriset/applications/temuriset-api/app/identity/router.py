@@ -91,7 +91,7 @@ async def get_me(principal: PrincipalDep, session: SessionDep) -> MeResponse:
 
 @me_router.patch("", summary="Change account preferences")
 async def update_me(body: UpdateMeRequest, principal: PrincipalDep, session: SessionDep) -> MeResponse:
-    """Change display name, locale, time zone or persona against ``expected_version``.
+    """Change profile or notification preferences against ``expected_version``.
 
     Args:
         body (UpdateMeRequest): Changes.

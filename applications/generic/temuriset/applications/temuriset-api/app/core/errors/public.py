@@ -56,6 +56,17 @@ PUBLIC_ERROR_BY_CODE: dict[str, PublicError] = {
         503,
         "Pengiriman email belum tersedia. Hubungi pengelola layanan.",
     ),
+    codes.APP_MAIL_RELAY_RETRY: PublicError(
+        "MAIL_RELAY_RETRY",
+        503,
+        "Pengiriman email tertunda. Tunggu hingga layanan mencoba lagi.",
+        {"retryable": True, "retry_after_seconds": 5, "max_attempts": 8},
+    ),
+    codes.APP_MAIL_RELAY_REJECTED: PublicError(
+        "MAIL_RELAY_REJECTED",
+        503,
+        "Email tidak dapat dikirim. Hubungi pengelola layanan.",
+    ),
     codes.APP_STORAGE_UNAVAILABLE: PublicError(
         "STORAGE_UNAVAILABLE",
         503,

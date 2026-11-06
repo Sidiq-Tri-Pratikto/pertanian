@@ -1,18 +1,23 @@
 """The pitch room through HTTP against Postgres: messages, tasks, whose turn, notifications (spec 027)."""
 
+import asyncio
 from collections.abc import Awaitable, Callable
 from datetime import timedelta
 from typing import Any
 
 import pytest
 from httpx import AsyncClient
-from sqlalchemy import text
+from sqlalchemy import select, text
 
 import app.discussion.service.notifications as notifications
 from app.core import clock
 from app.core.database import get_session_factory
-from app.worker.loop import dispatch_events
+from app.identity.service.mailbox_service import NOTIFICATION_DELIVERY
+from app.platform.repository.sqlalchemy.models import JobRecord, OutboxEventRecord
+from app.platform.service.outbox import publish
+from app.worker.loop import dispatch_events, run_jobs
 from app.worker.registry import Registry, registry
+from tests.integration.mail_relay import LocalRelay
 from tests.integration.matching.conftest import World
 from tests.integration.pitches.conftest import act, client_of, reread, submitted
 
@@ -299,3 +304,135 @@ def test_notification_keys_name_the_event() -> None:
     """
     assert notifications.event_key("pitch.approve", {"pitch_id": "p", "version": 3}) == "pitch.approve:p:3"
     assert notifications.event_key("meeting.confirmed", {"pitch_id": "p", "meeting_id": "m"}) == "meeting.confirmed:p:m"
+
+
+async def _email_preference(client: AsyncClient, enabled: bool) -> dict[str, Any]:
+    account = (await client.get("/api/v1/me")).json()["account"]
+    changed = await client.patch(
+        "/api/v1/me", json={"email_notifications": enabled, "expected_version": account["version"]}
+    )
+    assert changed.status_code == 200
+    saved = changed.json()["account"]
+    assert saved["email_notifications"] == enabled and saved["version"] == account["version"] + 1
+    return saved
+
+
+async def test_decision_email_reuses_the_key_after_acceptance_and_duplicate_event(
+    world: World, local_relay: LocalRelay, caplog: pytest.LogCaptureFixture
+) -> None:
+    """
+    Condition:
+    - An opted-in requester receives a pitch decision. The relay accepts the mail but loses its acknowledgement.
+
+    Expected:
+    - Two workers, an idempotent route replay, and a repeated logical event preserve one decision, one in-app
+      notice, and one accepted email. The relay sees a generic message, and the failure record omits private data.
+    """
+    mitra = world.recipients.clients["A"]
+    rani, _ = client_of(world, "F01")
+    local_relay.enable()
+    saved = await _email_preference(rani, True)
+    stale = await rani.patch(
+        "/api/v1/me", json={"email_notifications": False, "expected_version": saved["version"] - 1}
+    )
+    assert (stale.status_code, stale.json()["error"]["code"]) == (409, "STALE_VERSION")
+    local_relay.outcomes.append(None)
+    with clock.frozen(clock.now()):
+        when = clock.now()
+        pitch = await submitted(world)
+        decision = await act(
+            mitra, pitch, "decisions", "approve-email", submission=1, decision="APPROVE", reason=FAKE_SECRET
+        )
+        repeated = await act(
+            mitra, pitch, "decisions", "approve-email", submission=1, decision="APPROVE", reason=FAKE_SECRET
+        )
+        assert decision.status_code == 200 and repeated.headers["Idempotent-Replayed"] == "true"
+        await _deliver()
+        assert not local_relay.requests
+        assert await run_jobs(get_session_factory(), registry) == 1
+        async with get_session_factory().begin() as session:
+            event = await session.scalar(select(OutboxEventRecord).where(OutboxEventRecord.topic == "pitch.approve"))
+            assert event is not None
+            await publish(session, event.topic, event.payload)
+        await _deliver()
+
+    with clock.frozen(when + timedelta(seconds=5)):
+        counts = await asyncio.gather(*(run_jobs(get_session_factory(), registry) for _ in range(2)))
+        assert sorted(counts) == [0, 1]
+
+    assert len(local_relay.requests) == 2 and len(local_relay.accepted) == 1
+    assert local_relay.requests[0] == local_relay.requests[1]
+    message = local_relay.requests[0][1]
+    assert message["to"] == saved["email"] and message["subject"] == "Pemberitahuan TemuRiset"
+    assert message["body"].endswith("http://localhost:3020/home")
+    assert all(private not in message["body"] for private in (FAKE_SECRET, "ClearSpring", "Validasi prototipe"))
+    assert FAKE_SECRET not in caplog.text and saved["email"] not in caplog.text
+    assert "APP-MAIL-RELAY-RETRY" in caplog.text and "ref_" in caplog.text
+    assert len((await rani.get("/api/v1/notifications")).json()) == 1
+    assert len((await reread(mitra, pitch))["decisions"]) == 1
+
+
+@pytest.mark.parametrize("change", ["opt_out", "remove_member"])
+async def test_organization_email_retry_rechecks_consent_and_membership(
+    world: World,
+    local_relay: LocalRelay,
+    new_client: Callable[[], AsyncClient],
+    sign_up: Callable[..., Awaitable[dict]],
+    change: str,
+) -> None:
+    """
+    Condition:
+    - Two opted-in organization members differ in pitch authority and delivery to the authorized one fails.
+
+    Expected:
+    - Only the authorized member is ever attempted. Opting out or losing membership cancels further mail attempts,
+      while the organization's in-app notice remains.
+    """
+    owner = world.recipients.clients["A"]
+    party_id = world.recipients.parties["A"]
+    org = next(item for item in (await owner.get("/api/v1/me")).json()["organizations"] if item["party_id"] == party_id)
+    organization_id = org["organization_id"]
+
+    async def add_member(client: AsyncClient, email: str, permission: str) -> dict[str, Any]:
+        await sign_up(client, email)
+        invited = await owner.post(
+            f"/api/v1/organizations/{organization_id}/invitations",
+            json={"acting_party_id": party_id, "email": email, "capabilities": [permission]},
+            headers={"Idempotency-Key": permission},
+        )
+        assert invited.status_code == 201
+        messages = (await client.get("/api/v1/dev/mailbox", params={"email": email})).json()
+        token = messages[0]["body"].rsplit("/", 1)[1]
+        assert (await client.post(f"/api/v1/invitations/{token}/accept")).status_code == 200
+        return await _email_preference(client, True)
+
+    async with new_client() as reviewer, new_client() as other:
+        account = await add_member(reviewer, "reviewer@example.test", "decide_pitch")
+        await add_member(other, "other@example.test", "schedule")
+        local_relay.enable()
+        local_relay.outcomes.append(503)
+        with clock.frozen(clock.now()):
+            when = clock.now()
+            await submitted(world)
+            await _deliver()
+            assert await run_jobs(get_session_factory(), registry) == 1
+            if change == "opt_out":
+                await _email_preference(reviewer, False)
+            else:
+                removed = await owner.request(
+                    "DELETE",
+                    f"/api/v1/organizations/{organization_id}/members/{account['id']}",
+                    json={"acting_party_id": party_id, "expected_version": 1},
+                )
+                assert removed.status_code == 204, removed.text
+
+        with clock.frozen(when + timedelta(seconds=5)):
+            assert await run_jobs(get_session_factory(), registry) == 1
+
+    [(_, attempted)] = local_relay.requests
+    assert attempted["to"] == account["email"]
+    assert not local_relay.accepted
+    assert len((await owner.get("/api/v1/notifications")).json()) == 1
+    async with get_session_factory()() as session:
+        jobs = list(await session.scalars(select(JobRecord).where(JobRecord.kind == NOTIFICATION_DELIVERY)))
+        assert len(jobs) == 1 and jobs[0].status == "SUCCEEDED"

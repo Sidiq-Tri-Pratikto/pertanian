@@ -31,7 +31,14 @@ from app.identity.service.codes import (
     new_salt,
     new_token,
 )
-from app.identity.service.mailbox_service import DisabledMailbox, MailboxAdapter, MailUnavailableError, mailbox_for
+from app.identity.service.mailbox_service import (
+    DisabledMailbox,
+    LoopbackMailbox,
+    MailboxAdapter,
+    MailReference,
+    MailUnavailableError,
+    mailbox_for,
+)
 from app.platform.service.versions import StaleVersionError
 
 CODE_LIFETIME = timedelta(minutes=10)
@@ -114,7 +121,7 @@ class IdentityService:
     async def request_code(self, request: CodeRequest, client_address: str) -> None:
         """Send a code. The caller always answers the same way, so existence never leaks.
 
-        Sign-up for an existing email signs in instead; sign-in for an unknown email sends a note instead of a code.
+        Sign-up for an existing email signs in instead. Only the development table records notes for unknown emails.
 
         Args:
             request (CodeRequest): Email, purpose and, for sign-up, the profile.
@@ -132,7 +139,11 @@ class IdentityService:
         if account is not None and (account.kind == "demo" or account.status != "active"):
             return
         if account is None and request.purpose == "sign_in":
-            await self.mailbox.send(self.session, to_email=request.email, subject=_CODE_SUBJECT, body=_NO_ACCOUNT_BODY)
+            # Unknown-address requests do not produce a challenge and therefore cannot use its mail rate limit.
+            if not isinstance(self.mailbox, LoopbackMailbox):
+                await self.mailbox.send(
+                    self.session, to_email=request.email, subject=_CODE_SUBJECT, body=_NO_ACCOUNT_BODY
+                )
             return
         if account is None and not request.display_name:
             # Sign-up without a name cannot create an account; the web form always sends one.
@@ -148,17 +159,22 @@ class IdentityService:
                 "persona": request.persona,
             }
         )
-        await self.repository.add_code(
+        expires_at = clock.now() + CODE_LIFETIME
+        code_id = await self.repository.add_code(
             email=request.email,
             purpose=request.purpose,
             code_sha256=hash_code(code, salt),
             salt=salt,
             profile=profile,
             requester_address_sha256=address,
-            expires_at=clock.now() + CODE_LIFETIME,
+            expires_at=expires_at,
         )
         await self.mailbox.send(
-            self.session, to_email=request.email, subject=_CODE_SUBJECT, body=_CODE_BODY.format(code=code)
+            self.session,
+            to_email=request.email,
+            subject=_CODE_SUBJECT,
+            body=_CODE_BODY.format(code=code),
+            reference=MailReference("code", code_id, expires_at),
         )
 
     async def _enforce_rate_limit(self, *, email: str, address: str) -> None:
@@ -386,6 +402,7 @@ def _me(account: AccountModel, principal: Principal, organizations: list[Members
             time_zone=account.time_zone,
             persona=account.persona,
             kind=account.kind,
+            email_notifications=account.email_notifications,
             version=account.version,
         ),
         personal_party_id=principal.personal_party_id,

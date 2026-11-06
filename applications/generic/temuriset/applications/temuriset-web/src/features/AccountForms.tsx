@@ -22,7 +22,7 @@ const PERSONAS = [
 
 /** One form's failure and success handling: a focused summary on failure, a polite status on success. */
 function useSubmission() {
-  const [failure, setFailure] = useState<{ fieldId?: string; message: string } | null>(null);
+  const [failure, setFailure] = useState<{ fieldId?: string; message: string; requestId?: string | null } | null>(null);
   const [attempt, setAttempt] = useState(0);
   const [done, setDone] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -34,7 +34,8 @@ function useSubmission() {
       setDone(await action());
       setFailure(null);
     } catch (error) {
-      setFailure({ message: ApiError.from(error).message });
+      const { message, requestId } = ApiError.from(error);
+      setFailure({ message, requestId });
       setAttempt((count) => count + 1);
     } finally {
       setBusy(false);
@@ -50,6 +51,7 @@ function useSubmission() {
         {failure ? (
           <ErrorSummary id={`${id}-galat`} errors={failure.fieldId ? [{ fieldId: failure.fieldId, message: failure.message }] : []} focusKey={attempt}>
             {failure.fieldId ? null : failure.message}
+            {failure.requestId ? <span> Referensi {failure.requestId}</span> : null}
           </ErrorSummary>
         ) : null}
         <div aria-live="polite">{done ? <Status tone="success" label={done} /> : null}</div>
@@ -59,26 +61,31 @@ function useSubmission() {
   return { run, invalid, feedback, busy, fieldError: (fieldId: string) => (failure?.fieldId === fieldId ? failure.message : null) };
 }
 
-/** Change name, menu, language and time zone against the version shown. */
-export function AccountForm({ me }: { me: Me }) {
+/** Save account preferences against the version last read or saved. */
+export function AccountForm({ me, emailNotificationsAvailable = false }: { me: Me; emailNotificationsAvailable?: boolean }) {
   const router = useRouter();
   const [name, setName] = useState(me.account.display_name);
   const [persona, setPersona] = useState(me.account.persona);
   const [locale, setLocale] = useState(me.account.locale);
   const [timeZone, setTimeZone] = useState(me.account.time_zone);
+  const [emailNotifications, setEmailNotifications] = useState(me.account.email_notifications);
+  const [version, setVersion] = useState(me.account.version);
   const submission = useSubmission();
 
   function save(event: FormEvent) {
     event.preventDefault();
     if (!name.trim()) return submission.invalid('akun-nama', 'Isi nama tampilan.');
     return submission.run(async () => {
-      await send('PATCH', '/api/v1/me', {
+      const saved = await send<Me>('PATCH', '/api/v1/me', {
         display_name: name.trim(),
         persona,
         locale,
         time_zone: timeZone,
-        expected_version: me.account.version,
+        ...(emailNotificationsAvailable ? { email_notifications: emailNotifications } : {}),
+        expected_version: version,
       });
+      setVersion(saved.account.version);
+      setEmailNotifications(saved.account.email_notifications);
       router.refresh();
       return 'Akun tersimpan';
     });
@@ -92,6 +99,25 @@ export function AccountForm({ me }: { me: Me }) {
       <Select id="akun-tampilan" label="Menu yang ditampilkan" hint="Mengubah tampilan tidak mengubah data atau hak akses." value={persona} onChange={setPersona} options={PERSONAS} emptyLabel={null} />
       <Select id="akun-bahasa" label="Bahasa" value={locale} onChange={setLocale} options={LOCALES} emptyLabel={null} />
       <Select id="akun-zona" label="Zona waktu" value={timeZone} onChange={setTimeZone} options={zones} emptyLabel={null} />
+      {emailNotificationsAvailable ? (
+        <label className="tr-choice" htmlFor="akun-pemberitahuan-email">
+          <input
+            type="checkbox"
+            id="akun-pemberitahuan-email"
+            checked={emailNotifications}
+            disabled={submission.busy}
+            onChange={(event) => setEmailNotifications(event.target.checked)}
+            aria-labelledby="akun-pemberitahuan-email-label"
+            aria-describedby="akun-pemberitahuan-email-petunjuk"
+          />
+          <span className="tr-choice__body">
+            <span id="akun-pemberitahuan-email-label" className="tr-sys-type-label">Pemberitahuan lewat email</span>
+            <span id="akun-pemberitahuan-email-petunjuk" className="tr-sys-type-support">
+              Dapatkan pemberitahuan umum tentang aktivitas pitching. Kode masuk dan undangan tetap dikirim terpisah.
+            </span>
+          </span>
+        </label>
+      ) : null}
       <div className="tr-row">
         <Button type="submit" intent="primary" busy={submission.busy} busyLabel="Menyimpan…">
           Simpan akun

@@ -74,7 +74,10 @@ Run one test with `uv run pytest tests/unit/health/test_health.py -v`, or match 
 | `FILE_SCANNER` | no | `development-accept` | `clamav` or `development-accept`; the second stops startup outside development |
 | `WEB_ORIGIN` | no | `http://localhost:3020` | Origin of the web client; an unsafe request carrying the session cookie from any other origin gets `FORBIDDEN` |
 | `SESSION_COOKIE_SECURE` | no | unset | `Secure` flag on `tr_session`; unset means secure everywhere but development |
-| `MAILBOX_ADAPTER` | no | `development` | Writes email to `mailbox_messages`, readable at `GET /api/v1/dev/mailbox` in development; stops startup elsewhere until spec 042 |
+| `MAILBOX_ADAPTER` | no | `development` | Select `development` for the local mailbox table, `loopback-relay` for a synthetic development relay, or `disabled`. Outside development, use `disabled`. |
+| `EMAIL_RELAY_URL` | relay only | unset | HTTP(S) endpoint on a literal loopback IP, for example `http://127.0.0.1:8090/deliver`. |
+| `EMAIL_RELAY_SENDER` | relay only | unset | Synthetic address supplied to the local relay as the sender. |
+| `EMAIL_ENVELOPE_KEY` | relay only | unset | Independent Fernet key for short-lived code and invitation envelopes. Give the API and worker the same key through their local secret configuration. |
 | `CODE_REQUESTS_PER_EMAIL_PER_HOUR` | no | `5` | Sign-in code requests per email per hour |
 | `CODE_REQUESTS_PER_ADDRESS_PER_HOUR` | no | `20` | Sign-in code requests per client address per hour |
 | `STORAGE_PATH` | no | `.storage` | Private folder for uploaded bytes; downloads always go through the gateway |
@@ -173,7 +176,41 @@ Use `python -m app.moderation --help` from the service for local grant administr
 
 ## Staging and production runtime
 
-Use the [deployment runbook](../../../../../deployment/temuriset/RUNBOOK.md) for the pinned Compose topology and secret-store setup. Configure `STORAGE_ADAPTER=s3` with the private origin, bucket, region and scoped access keys in `.env.example`. Configure `FILE_SCANNER=clamav` and `MAILBOX_ADAPTER=disabled` outside development. The public capability manifest reports storage and scanner implementations. Download and range authorization remain in the API, and storage errors omit provider details.
+Use the [deployment runbook](../../../../../deployment/temuriset/RUNBOOK.md) for the pinned Compose topology and secret-store setup. Configure `STORAGE_ADAPTER=s3` with the private origin, bucket, region and scoped access keys in `.env.example`. Configure `FILE_SCANNER=clamav` and `MAILBOX_ADAPTER=disabled` outside development. The public capability manifest reports storage and scanner implementations and email readiness. Download and range authorization remain in the API, and storage errors omit provider details.
+
+
+### Local email relay
+
+Use synthetic accounts with a local relay double. Set `ENVIRONMENT=development` and
+`MAILBOX_ADAPTER=loopback-relay` for both the API and worker, supply the relay URL and a synthetic
+sender such as `relay@example.test`, and generate a distinct local key:
+
+```bash
+export EMAIL_ENVELOPE_KEY="$(uv run python -c 'from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())')"
+```
+
+Supply the same key to the API and worker through their local secret environment. Start
+the API and worker after migrating the database. The manifest reports the `email` adapter as
+`available` with implementation `loopback-relay` in this profile, and S18 offers optional email.
+
+The worker posts JSON with `from`, `to`, `subject` and `body` as plain text strings and a stable
+`Idempotency-Key` header. The relay must return 2xx for first acceptance and for subsequent requests
+under the same accepted key. It must retain acceptance keys for at least one hour. An attempt is
+bounded by five seconds and the JSON request by 8 KiB. The worker does not follow redirects or
+consume response bodies. Connection failures, timeouts, 429 and 5xx retry with bounded backoff and
+the same key.
+
+Code and invitation material is encrypted in the job and cleared on a terminal attempt or expiry.
+It is usable for at most ten minutes and is rechecked against the current challenge or invitation
+before sending. Unknown-address sign-in requests keep the same public acknowledgement and do not
+queue mail in relay mode. Optional notification delivery is independent of in-app notices, with a
+15-minute attempt window and live opt-in, account eligibility and party access checks on each
+attempt. The notice links to the authenticated home page without including pitch details.
+
+Release deployments keep `MAILBOX_ADAPTER=disabled`. External email needs approved processing terms,
+a sender domain verified for SPF, DKIM and DMARC, and sandbox evidence of delivery and deduplication.
+Erasure outcomes use the independent development or disabled path. A production erasure receipt
+requires its own approved delivery policy.
 
 The same non-root image accepts the `api`, `worker` and `migrate` commands. The deployment runs `migrate` before API or worker startup. Running the image without a command retains the existing development startup behavior. With disabled mail, sign-in code requests and invitations return `MAIL_UNAVAILABLE`. A deletion outcome can be ready even when its email could not be sent.
 

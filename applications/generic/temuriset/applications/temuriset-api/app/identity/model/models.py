@@ -20,6 +20,7 @@ class AccountModel(BaseModel):
     persona: str
     kind: str
     status: str = "active"
+    email_notifications: bool = False
     version: int
 
 

@@ -15,7 +15,7 @@ vi.mock('next/headers', () => ({
   cookies: async () => ({ get: (name: string) => (cookieJar.has(name) ? { value: cookieJar.get(name) } : undefined), delete: vi.fn() }),
 }));
 
-vi.mock('@/features/capabilities', () => ({ readCapabilities: async () => deployed }));
+vi.mock('@/features/capabilities', () => ({ readCapabilities: async () => deployed, readCapabilityManifest: async () => null }));
 
 vi.mock('@/api/server', () => ({
   serverGet: async (path: string) => {

@@ -21,6 +21,7 @@ import { ReportForm } from '@/views/settings/ReportForm';
 type SettingsViewProps = {
   me: Me;
   capabilities: Capabilities;
+  emailNotificationsAvailable?: boolean;
   /** Members of the organization the account acts as; null when it acts as itself. */
   members: Member[] | null;
   /** Its invitations, for members who manage members. */
@@ -33,7 +34,7 @@ type SettingsViewProps = {
 };
 
 /** S18: the account, its organizations, members and invitations, the service check and every planned feature. */
-export function SettingsView({ me, capabilities, members, invitations, joined, profile, reports, privacy, reportSubject }: SettingsViewProps) {
+export function SettingsView({ me, capabilities, members, invitations, joined, profile, reports, privacy, reportSubject, emailNotificationsAvailable }: SettingsViewProps) {
   const persona = readPersona(me.account.persona) ?? 'inovator';
   const organizations = me.organizations ?? [];
   const acting = organizations.find((organization) => organization.party_id === me.active_party_id);
@@ -62,7 +63,7 @@ export function SettingsView({ me, capabilities, members, invitations, joined, p
         />
         <details className="tr-disclosure">
           <summary className="tr-link">Ubah akun</summary>
-          <AccountForm me={me} />
+          <AccountForm me={me} emailNotificationsAvailable={emailNotificationsAvailable} />
         </details>
       </section>
       <section className="tr-panel tr-stack" aria-labelledby="judul-organisasi">

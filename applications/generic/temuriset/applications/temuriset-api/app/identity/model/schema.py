@@ -65,6 +65,7 @@ class AccountResponse(BaseModel):
     time_zone: str
     persona: str
     kind: str
+    email_notifications: bool
     version: int
 
 
@@ -94,6 +95,7 @@ class UpdateMeRequest(BaseModel):
     locale: Locale | None = None
     time_zone: TimeZone | None = None
     persona: Persona | None = None
+    email_notifications: bool | None = None
     expected_version: int
 
 

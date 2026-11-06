@@ -44,3 +44,13 @@ async def display_names(session: AsyncSession, account_ids: list[UUID]) -> dict[
 async def account_is_active(session: AsyncSession, account_id: UUID) -> bool:
     """Recheck a recorded requester without depending on a browser session."""
     return await SqlAlchemyIdentityRepository(session).is_account_active(account_id)
+
+
+async def email_notification_accounts(session: AsyncSession, account_ids: list[UUID]) -> list[UUID]:
+    """Return candidate IDs that opted in and hold verified, active, non-demo accounts."""
+    return await SqlAlchemyIdentityRepository(session).email_notification_accounts(account_ids)
+
+
+async def email_notification_address(session: AsyncSession, account_id: UUID) -> str | None:
+    """Read the address just before send, while the account remains eligible."""
+    return await SqlAlchemyIdentityRepository(session).email_notification_address(account_id)

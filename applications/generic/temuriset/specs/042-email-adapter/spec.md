@@ -2,11 +2,13 @@
 
 - **Feature branch** `042-email-adapter`
 - **Created** 2026-11-05
-- **Status** Local readiness planned. External delivery and activation remain gated.
+- **Status** Local readiness implemented. External delivery and activation remain gated.
 - **Milestone** M12 Gated adapters
-- **Depends on** 027, 037
-- **Covers** FR16, AC46
 - **Flips after provider approval** Manifest adapter `email` and web registry `pemberitahuan-email` become available for an approved deployment.
+
+**Depends on**: 027, 037
+
+**Covers**: FR16, AC46
 
 - **Entry condition for external delivery.** An approved provider, sender domain with SPF, DKIM and DMARC, and accepted processing terms. Local readiness uses synthetic accounts and an explicitly enabled development-only loopback relay. The release profile keeps external email off.
 

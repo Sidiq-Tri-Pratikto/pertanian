@@ -1,14 +1,18 @@
 """Startup validation: unsafe configuration never serves traffic."""
 
 import re
+from ipaddress import ip_address
 from urllib.parse import urlsplit
 
 from app.capabilities.service.service import select_capabilities
 from app.core.errors.sanitize import REDACTED, redact_text
+from app.core.secret_envelope import validated_key
 from app.core.settings import Settings
 
 # A long unbroken run of key characters is how keys and tokens look; composition values are short words.
 _TOKEN_LIKE = re.compile(r"[A-Za-z0-9_+/=-]{32,}")
+_EMAIL_ADDRESS = re.compile(r"[^@\s]+@[^@\s]+\.[^@\s]+")
+_RELAY_PATH = re.compile(r"/[A-Za-z0-9_./-]{0,127}")
 _DEVELOPMENT_ONLY_SCANNERS = ("development-accept",)
 
 
@@ -71,6 +75,8 @@ def validate_configuration(settings: Settings) -> tuple[str, ...]:
             f"MAILBOX_ADAPTER=development is allowed only in development. Configure email delivery for "
             f"{settings.environment} (spec 042)."
         )
+    if settings.mailbox_adapter == "loopback-relay":
+        _validate_email_relay(settings)
     if settings.environment != "development" and settings.storage_adapter != "s3":
         raise ConfigurationError("STORAGE_ADAPTER=s3 is required outside development.")
     if settings.storage_adapter == "s3":
@@ -97,3 +103,35 @@ def validate_configuration(settings: Settings) -> tuple[str, ...]:
         if not valid_endpoint:
             raise ConfigurationError("S3 endpoint must be an HTTP(S) origin without embedded credentials.")
     return capability_ids
+
+
+def _validate_email_relay(settings: Settings) -> None:
+    if settings.environment != "development":
+        raise ConfigurationError("MAILBOX_ADAPTER=loopback-relay is allowed only in development.")
+    endpoint = settings.email_relay_url.get_secret_value() if settings.email_relay_url else ""
+    try:
+        url = urlsplit(endpoint)
+        host = url.hostname or ""
+        literal = f"[{host}]" if ":" in host else host
+        authority = literal if url.port is None else f"{literal}:{url.port}"
+        valid_endpoint = (
+            url.scheme in {"http", "https"}
+            and ip_address(host).is_loopback
+            and (url.port is None or url.port > 0)
+            and url.netloc.lower() == authority
+            and not any(char in endpoint for char in "@?#%")
+            and all(33 <= ord(char) <= 126 for char in endpoint)
+            and (not url.path or _RELAY_PATH.fullmatch(url.path))
+        )
+    except ValueError:
+        valid_endpoint = False
+    if not valid_endpoint:
+        raise ConfigurationError("EMAIL_RELAY_URL must be an HTTP(S) endpoint on a literal loopback address.")
+    sender = settings.email_relay_sender.get_secret_value() if settings.email_relay_sender else ""
+    if len(sender) > 254 or not sender.isprintable() or not _EMAIL_ADDRESS.fullmatch(sender):
+        raise ConfigurationError("EMAIL_RELAY_SENDER must be a single valid sender address.")
+    key = settings.email_envelope_key.get_secret_value() if settings.email_envelope_key else ""
+    try:
+        validated_key(key)
+    except ValueError:
+        raise ConfigurationError("EMAIL_ENVELOPE_KEY must be a valid Fernet key.") from None

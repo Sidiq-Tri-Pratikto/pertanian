@@ -14,6 +14,7 @@ from app.moderation.repository.sqlalchemy.models import OperatorFileGrantRecord,
 from tests.factories.moderation import grant_operator
 from tests.integration.conftest import SignUp
 from tests.integration.documents.test_documents import _run_worker, _version
+from tests.integration.mail_relay import LocalRelay
 from tests.integration.matching.conftest import World, world  # noqa: F401 - shared fixture
 from tests.integration.pitches.conftest import client_of, reread, submitted
 
@@ -70,13 +71,14 @@ async def test_privacy_exports_and_deletion_answers_are_private(
         assert (await stranger.get(f"/api/v1/privacy-requests/{deletion['id']}")).status_code == 404
 
 
-@pytest.mark.parametrize("mail_mode", ["development", "disabled"])
+@pytest.mark.parametrize("mail_mode", ["development", "disabled", "loopback-relay"])
 async def test_deletion_waits_for_the_worker_and_preserves_audit(
     client: AsyncClient,
     sign_up: SignUp,
     new_client: Callable[[], AsyncClient],
     monkeypatch: pytest.MonkeyPatch,
     mail_mode: str,
+    local_relay: LocalRelay,
 ) -> None:
     """
     Condition:
@@ -185,8 +187,12 @@ async def test_deletion_waits_for_the_worker_and_preserves_audit(
             update(JobRecord).where(JobRecord.kind == "documents.erase").values(run_after=clock.now())
         )
 
-    monkeypatch.setattr(get_settings(), "mailbox_adapter", mail_mode)
+    if mail_mode == "loopback-relay":
+        local_relay.enable()
+    else:
+        monkeypatch.setattr(get_settings(), "mailbox_adapter", mail_mode)
     await _run_worker()
+    assert not local_relay.requests
     assert not path.exists()
     assert (await client.get(profile_url)).json()["bio"] is None
     async with get_session_factory()() as session:

@@ -18,11 +18,13 @@ from app.access.service.service import assert_can_act
 from app.core import clock
 from app.core.database import get_session_factory
 from app.core.security import PrincipalDep
+from app.identity.service.mailbox_service import SECRET_DELIVERY
 from app.main import create_app
 from app.platform.repository.sqlalchemy.models import JobRecord
 from app.platform.service.outbox import enqueue_job
 from app.worker.loop import run_jobs
-from app.worker.registry import Registry
+from app.worker.registry import Registry, registry
+from tests.integration.mail_relay import LocalRelay
 
 pytestmark = [pytest.mark.integration, pytest.mark.usefixtures("clean_tables")]
 
@@ -384,3 +386,70 @@ async def test_disabled_mail_rejects_invitation_without_a_record(
             )
             == 0
         )
+
+
+async def test_loopback_invitation_delivers_once_on_idempotent_replay(
+    bima: AsyncClient, local_relay: LocalRelay, new_client: Callable[[], AsyncClient], sign_up: Callable[..., Any]
+) -> None:
+    """
+    Condition:
+    - An organization invites a synthetic account, then replays the same invitation request.
+
+    Expected:
+    - A single queued message delivers the valid invitation link. The route, mailbox, and job input omit the token.
+    """
+    email = "loopback-invite@example.test"
+    organization = await _create_organization(bima)
+    await _act_as(bima, organization["party_id"])
+    async with new_client() as recipient:
+        await sign_up(recipient, email)
+        local_relay.enable()
+        response = await _invite(bima, organization, email, ["schedule"])
+        replay = await _invite(bima, organization, email, ["schedule"])
+        assert response.status_code == 201 and response.json() == replay.json()
+        assert replay.headers["Idempotent-Replayed"] == "true"
+        assert not local_relay.requests
+        async with get_session_factory()() as session:
+            job = await session.scalar(select(JobRecord).where(JobRecord.kind == SECRET_DELIVERY))
+            assert job is not None and email not in str(job.input)
+            envelope = job.input["envelope"]
+        assert await run_jobs(get_session_factory(), registry) == 1
+        [message] = local_relay.accepted.values()
+        token = message["body"].rsplit("/", 1)[1]
+        assert message["to"] == email and token not in response.text and token not in envelope
+        mailbox = (await recipient.get("/api/v1/dev/mailbox", params={"email": email})).json()
+        assert all(token not in message["body"] for message in mailbox)
+        assert (await recipient.post(f"/api/v1/invitations/{token}/accept")).status_code == 200
+        assert await run_jobs(get_session_factory(), registry) == 0
+
+
+async def test_retry_discards_a_revoked_invitation(bima: AsyncClient, local_relay: LocalRelay) -> None:
+    """
+    Condition:
+    - Invitation delivery fails transiently and the organization revokes it before the retry.
+
+    Expected:
+    - The revoked link is never sent again and the queued secret is scrubbed.
+    """
+    organization = await _create_organization(bima)
+    await _act_as(bima, organization["party_id"])
+    local_relay.enable()
+    local_relay.outcomes.append(429)
+    factory = get_session_factory()
+
+    with clock.frozen(clock.now()):
+        now = clock.now()
+        invitation = await _invite(bima, organization, "revoked-invite@example.test", ["schedule"])
+        assert invitation.status_code == 201
+        assert await run_jobs(factory, registry) == 1
+        revoked = await bima.post(
+            f"/api/v1/invitations/{invitation.json()['id']}/revoke", json={"acting_party_id": organization["party_id"]}
+        )
+        assert revoked.status_code == 200
+    with clock.frozen(now + timedelta(seconds=5)):
+        assert await run_jobs(factory, registry) == 1
+
+    assert len(local_relay.requests) == 1 and not local_relay.accepted
+    async with factory() as session:
+        job = await session.scalar(select(JobRecord).where(JobRecord.kind == SECRET_DELIVERY))
+        assert job is not None and (job.status, job.input) == ("SUCCEEDED", {})
