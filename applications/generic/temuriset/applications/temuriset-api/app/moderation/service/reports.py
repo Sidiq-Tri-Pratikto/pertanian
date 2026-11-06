@@ -8,6 +8,8 @@ from app.access.service.policy import check_context, require_account, require_op
 from app.core import clock
 from app.core.errors import codes
 from app.core.errors.base import AppError, NotFoundError
+from app.discovery.repository.sqlalchemy.repository import SqlAlchemyDiscoveryRepository
+from app.discovery.service.projection import refresh_moderated_listing
 from app.identity.model.models import Principal
 from app.intake.service.service import lock_moderation_target as lock_intake_target
 from app.moderation.model.schema import (
@@ -111,9 +113,13 @@ class ReportService:
         """Apply one scoped case transition and record its private note and sanitized audit."""
         await self.authorize_operator(principal)
         check_context(principal, body.acting_party_id)
+        changes_suspension = body.action in {"SUSPEND_LISTING", "LIFT_SUSPENSION"}
+        if changes_suspension:
+            # Reset takes the same lock before touching demo reports and listings.
+            await SqlAlchemyDiscoveryRepository(self.session).lock_updates(exclusive=True)
         report = await self._find(report_id, lock=True)
         check_expected(report.version, body.expected_version)
-        if body.action in {"SUSPEND_LISTING", "LIFT_SUSPENSION"}:
+        if changes_suspension:
             status = await self._set_suspension(report, principal, suspend=body.action == "SUSPEND_LISTING")
         else:
             status = _TRANSITIONS.get(body.action, {}).get(report.status)
@@ -161,6 +167,7 @@ class ReportService:
             if active is None or active.report_id != report.id:
                 raise InvalidReportTransitionError()
             active.lifted_at = clock.now()
+        await refresh_moderated_listing(self.session, report.subject_type, subject_id)
         topic = "listing.suspended" if suspend else "listing.restored"
         await publish(self.session, topic, {"subject_type": report.subject_type, "subject_id": str(subject_id)})
         return "IN_REVIEW" if suspend else report.status

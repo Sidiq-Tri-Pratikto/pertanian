@@ -10,10 +10,13 @@ import app.discovery.service.projection  # noqa: F401 - registers the projection
 from app.core.database import get_session_factory
 from app.core.settings import get_settings
 from app.discovery.service.service import DiscoveryService
+from app.platform.service.outbox import publish
 from app.worker.loop import dispatch_events
 from app.worker.registry import registry
 from tests.factories.inventors import LoadedInventors, load_inventors
+from tests.factories.moderation import change_suspension, grant_operator, suspend_listing
 from tests.factories.recipients import LoadedRecipients, load_recipients, save_profile
+from tests.integration.conftest import SignUp
 
 pytestmark = [pytest.mark.integration, pytest.mark.usefixtures("clean_tables")]
 
@@ -331,3 +334,87 @@ async def test_funding_results_are_empty_without_company_funding(
 
     assert titles(await discover(partner, type="funding")) == []
     assert titles(await discover(partner))
+
+
+async def test_suspending_an_invention_refreshes_direct_and_derived_search_before_dispatch(
+    partner: AsyncClient, inventors: LoadedInventors, new_client: Callable[[], AsyncClient], sign_up: SignUp
+) -> None:
+    """
+    Condition:
+    - A saved invention linked to a raise is suspended, then archived before its suspension is lifted.
+
+    Expected:
+    - Immediately and after dispatch, it contributes no card, counts, filters or keywords. The raise and its
+      other invention stay visible. Late publish events and restoration cannot make the archived invention public.
+    """
+    invention = inventors.inventions["F04"]
+    path = f"/api/v1/saved-items/INVENTION/{invention}"
+    body = {"acting_party_id": partner.headers["X-Acting-Party"]}
+    assert (await partner.put(path, json=body)).status_code == 200
+    assert (await discover(partner, type="funding", q="LoopMaterial"))["total_estimate"] == 1
+    async with new_client() as operator:
+        party = await grant_operator(operator, sign_up)
+        case = await suspend_listing(operator, party, "INVENTION", invention)
+        for _ in range(2):
+            assert "LoopMaterial" not in titles(await discover(partner))
+            assert (await discover(partner, saved=True))["total_estimate"] == 0
+            assert (await partner.get("/api/v1/saved-items")).json() == []
+            assert (await partner.put(path, json=body)).status_code == 404
+            assert (await discover(partner, type="funding", q="LoopMaterial"))["total_estimate"] == 0
+            assert (await discover(partner, type="funding", sector="Material"))["total_estimate"] == 0
+            funding = await discover(partner, type="funding")
+            assert funding["total_estimate"] == 1
+            assert "LoopMaterial" not in str(funding) and "ReFormPress" in str(funding)
+            async with get_session_factory()() as session, session.begin():
+                await publish(session, "invention.published", {"invention_id": invention})
+            await project()
+
+        owner = inventors.clients["bima"]
+        current = (await owner.get(f"/api/v1/inventions/{invention}")).json()
+        archived = await owner.post(
+            f"/api/v1/inventions/{invention}/archive",
+            json={"acting_party_id": inventors.parties["bima"], "expected_version": current["version"]},
+            headers={"Idempotency-Key": "archive-suspended"},
+        )
+        assert archived.status_code == 200, archived.text
+        await change_suspension(operator, party, case, "LIFT_SUSPENSION")
+        await project()
+        assert (await discover(partner, q="LoopMaterial"))["total_estimate"] == 0
+
+
+async def test_partner_and_mandate_suspension_refresh_the_card_without_hiding_other_mandates(
+    inventors: LoadedInventors, new_client: Callable[[], AsyncClient], sign_up: SignUp
+) -> None:
+    """
+    Condition:
+    - A mandate is suspended and restored; then its partner profile is suspended and restored.
+
+    Expected:
+    - Immediately and after dispatch, a suspended mandate leaves no keyword or detail on its partner card.
+      The partner and its other mandates remain visible until the profile itself is suspended.
+    """
+    recipients = await load_recipients(new_client, sign_up)
+    try:
+        await project()
+        rani = inventors.clients["rani"]
+        async with new_client() as operator:
+            party = await grant_operator(operator, sign_up)
+            mandate = await suspend_listing(operator, party, "OPPORTUNITY", recipients.opportunities["A2"])
+            for _ in range(2):
+                page = await discover(rani, type="partners")
+                assert page["total_estimate"] == 5 and "Mitra A" in titles(page)
+                assert "Validasi prototipe enam bulan" in str(page)
+                assert "Fasilitas uji pascapanen" not in str(page)
+                assert (await discover(rani, type="partners", q="pascapanen"))["total_estimate"] == 0
+                await project()
+            await change_suspension(operator, party, mandate, "LIFT_SUSPENSION")
+            assert (await discover(rani, type="partners", q="pascapanen"))["total_estimate"] == 1
+
+            profile = await suspend_listing(operator, party, "PARTNER_PROFILE", recipients.parties["A"])
+            assert (await discover(rani, type="partners"))["total_estimate"] == 4
+            await project()
+            assert "Mitra A" not in titles(await discover(rani, type="partners"))
+            await change_suspension(operator, party, profile, "LIFT_SUSPENSION")
+            assert (await discover(rani, type="partners"))["total_estimate"] == 5
+    finally:
+        await recipients.close()

@@ -87,7 +87,10 @@ flowchart TD
     S023 --> S033[033 organization-review]
     S011 --> S033
     S010 --> S034[034 moderation-privacy-api] --> S035[035 web-settings-privacy]
+    S018 --> S034
+    S023 --> S034
     S008 --> S035
+    S026 --> S035
     S016 --> S036[036 import-export-api]
     S010 --> S036
     B003 --> S037[037 deploy-release] --> S038[038 backup-restore]

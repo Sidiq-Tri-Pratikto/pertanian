@@ -42,4 +42,4 @@ Decisions (025), web (024).
 
 ### Moderation integration
 
-Use the suspended target reason returned by 034. Record a policy-backed retention category for submitted snapshots before a pilot. Preserve the earlier version and its authorization checks when a personal listing is withdrawn.
+Spec 034 stops preflight and submission, including previously issued tokens, when an invention is suspended or the target is hidden by a suspension. The sender receives `LISTING_SUSPENDED` for its own invention and `NOT_FOUND` for a hidden target. The retention policy keeps authorized access to frozen submissions after a personal listing is withdrawn. Every file retrieval still checks live authorization and availability.

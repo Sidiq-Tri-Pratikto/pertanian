@@ -2,11 +2,20 @@
 
 import asyncio
 from collections.abc import Callable
+from datetime import timedelta
+from uuid import UUID
 
 import pytest
 from httpx import AsyncClient
 
+from app.core import clock
+from app.core.database import get_session_factory
+from app.moderation.repository.sqlalchemy.models import OperatorFileGrantRecord, PrivacyRequestRecord
+from tests.factories.moderation import grant_operator
 from tests.integration.conftest import SignUp
+from tests.integration.documents.test_documents import _run_worker, _version
+from tests.integration.matching.conftest import World, world  # noqa: F401 - shared fixture
+from tests.integration.pitches.conftest import client_of, reread, submitted
 
 pytestmark = [pytest.mark.integration, pytest.mark.usefixtures("clean_tables")]
 
@@ -72,20 +81,16 @@ async def test_deletion_waits_for_the_worker_and_preserves_audit(
     - The API reports processing while bytes exist. The worker removes the bytes,
       records an accurate outcome, and leaves the audit trail intact.
     """
-    from uuid import UUID
-
     from sqlalchemy import select, update
 
     from app.core import clock
-    from app.core.database import get_session_factory
     from app.identity.repository.sqlalchemy.models import MailboxMessageRecord
     from app.moderation.repository.sqlalchemy.models import (
         OperatorGrantRecord,
-        PrivacyRequestRecord,
         RetentionHoldRecord,
     )
     from app.platform.repository.sqlalchemy.models import AuditEventRecord, JobRecord
-    from tests.integration.documents.test_documents import _run_worker, _upload, _version, text_pdf
+    from tests.integration.documents.test_documents import _upload, _version, text_pdf
 
     me = await sign_up(client, "to-erase@example.test")
     client.headers["X-Acting-Party"] = me["active_party_id"]
@@ -192,12 +197,9 @@ async def test_export_rechecks_membership_and_never_includes_organization_docume
     Expected:
     - The export contains membership metadata only while authorized and never includes organization documents.
     """
-    from uuid import UUID
-
     from sqlalchemy import update
 
     from app.access.repository.sqlalchemy.models import MembershipRecord
-    from app.core.database import get_session_factory
     from tests.integration.documents.test_documents import _upload, text_pdf
 
     await sign_up(client, "org-owner-for-export@example.test")
@@ -237,3 +239,81 @@ async def test_export_rechecks_membership_and_never_includes_organization_docume
             )
         after = (await requester.get(path)).json()
         assert after["memberships"] == [] and after["documents"] == []
+
+
+async def test_deletion_retains_a_frozen_pitch_but_blocks_its_file_bytes(
+    world: World,  # noqa: F811 - pytest fixture injection
+    client: AsyncClient,
+    sign_up: SignUp,
+) -> None:
+    """
+    Condition:
+    - The personal account behind a submitted pitch requests deletion of its listings and private documents.
+
+    Expected:
+    - The policy explains the retained submission; the authorized recipient still reads the frozen history.
+      Physical erasure denies later file retrieval, and a stranger still cannot see the pitch.
+    """
+    pitch = await submitted(world)
+    sender, sender_party = client_of(world, "F01")
+    recipient = world.recipients.clients["A"]
+    file = pitch["submissions"][0]["files"][0]
+    content = f"/api/v1/documents/{file['document_id']}/versions/{file['version']}/content"
+    assert (await recipient.get(content)).status_code == 200
+    requested = await sender.post(
+        "/api/v1/privacy-requests",
+        json={"acting_party_id": sender_party, "expected_version": None, "kind": "DELETION"},
+        headers={"Idempotency-Key": "delete-pitch-requester"},
+    )
+    assert requested.status_code == 201, requested.text
+    retained = {item["key"]: item for item in requested.json()["answer"]["retained"]}
+    assert retained["pitch_snapshots"]["reason"] and retained["pitch_snapshots"]["period"]
+
+    operator_party = await grant_operator(client, sign_up)
+    operator = (await client.get("/api/v1/me")).json()["account"]["id"]
+    report = await client.post(
+        "/api/v1/reports",
+        json={"acting_party_id": operator_party, "expected_version": None, "reason": "Tinjau bukti"},
+        headers={"Idempotency-Key": "pitch-file-report"},
+    )
+    assert report.status_code == 201, report.text
+    case_id = report.json()["id"]
+    version = await _version(file["document_id"])
+    async with get_session_factory()() as session, session.begin():
+        session.add(
+            OperatorFileGrantRecord(
+                report_id=UUID(case_id),
+                document_version_id=version.id,
+                operator_account_id=UUID(operator),
+                purpose="Tinjau bukti",
+                granted_by="local-admin",
+                expires_at=clock.now() + timedelta(hours=1),
+            )
+        )
+    case_content = (
+        f"/api/v1/operator/reports/{case_id}/documents/{file['document_id']}/versions/{file['version']}/content"
+    )
+    byte_range = {"Range": "bytes=0-4"}
+    assert (await client.get(case_content, headers=byte_range)).status_code == 206
+    request_id = requested.json()["id"]
+    fulfillment = await client.post(
+        f"/api/v1/operator/privacy-requests/{request_id}/fulfill",
+        json={"acting_party_id": operator_party, "expected_version": 1},
+        headers={"Idempotency-Key": "fulfill-pitch-requester"},
+    )
+    assert fulfillment.status_code == 200, fulfillment.text
+    assert (await recipient.get(f"/api/v1/inventions/{world.inventors.inventions['F01']}/public")).status_code == 404
+    revoked = await recipient.get(content, headers=byte_range)
+    assert revoked.json()["error"]["code"] == "GRANT_REVOKED", revoked.text
+    pending = await client.get(case_content, headers=byte_range)
+    assert pending.json()["error"]["code"] == "FILE_NOT_AVAILABLE", pending.text
+
+    await _run_worker()
+    async with get_session_factory()() as session:
+        row = await session.get(PrivacyRequestRecord, UUID(request_id))
+        assert row is not None and row.status == "FULFILLED"
+    assert (await _version(file["document_id"])).file_state == "ERASED"
+    erased = await client.get(case_content, headers=byte_range)
+    assert erased.json()["error"]["code"] == "FILE_NOT_AVAILABLE", erased.text
+    assert (await reread(recipient, pitch))["submissions"] == pitch["submissions"]
+    assert (await client.get(f"/api/v1/pitches/{pitch['id']}")).status_code == 404

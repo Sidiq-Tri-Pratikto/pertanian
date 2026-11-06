@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors.base import NotFoundError
 from app.discovery.repository.sqlalchemy.repository import SqlAlchemyDiscoveryRepository
+from app.funding.repository.sqlalchemy.repository import SqlAlchemyFundingRepository
 from app.funding.service.service import FundingService
 from app.intake.service.service import IntakeService
 from app.portfolio.service.service import PortfolioService
@@ -28,6 +29,7 @@ async def refresh_invention(session: AsyncSession, invention_id: UUID) -> None:
         invention_id (UUID): The invention.
     """
     repository = SqlAlchemyDiscoveryRepository(session)
+    await repository.lock_updates()
     try:
         view = await PortfolioService(session).public_view(invention_id)
     except NotFoundError:
@@ -62,6 +64,7 @@ async def refresh_funding(session: AsyncSession, request_id: UUID) -> None:
         request_id (UUID): The raise.
     """
     repository = SqlAlchemyDiscoveryRepository(session)
+    await repository.lock_updates()
     published = await FundingService(session).published(request_id)
     if published is None:
         await repository.remove("FUNDING_REQUEST", request_id)
@@ -118,6 +121,7 @@ async def refresh_partner(session: AsyncSession, party_id: UUID) -> None:
         party_id (UUID): The partner.
     """
     repository = SqlAlchemyDiscoveryRepository(session)
+    await repository.lock_updates()
     intake = IntakeService(session)
     try:
         profile = await intake.read_profile(party_id)
@@ -176,7 +180,7 @@ async def refresh_partner(session: AsyncSession, party_id: UUID) -> None:
 @registry.consumer("invention.archived", CONSUMER)
 async def on_invention(session: AsyncSession, payload: dict[str, Any]) -> None:
     """Refresh an invention."""
-    await refresh_invention(session, UUID(payload["invention_id"]))
+    await _refresh_invention_and_raises(session, UUID(payload["invention_id"]))
 
 
 @registry.consumer("funding_request.changed", CONSUMER)
@@ -186,6 +190,7 @@ async def on_funding(session: AsyncSession, payload: dict[str, Any]) -> None:
 
 
 @registry.consumer("partner.changed", CONSUMER)
+@registry.consumer("partner.withdrawn", CONSUMER)
 async def on_partner(session: AsyncSession, payload: dict[str, Any]) -> None:
     """Refresh a partner."""
     await refresh_partner(session, UUID(payload["party_id"]))
@@ -197,3 +202,30 @@ async def on_opportunity(session: AsyncSession, payload: dict[str, Any]) -> None
     party_id = await IntakeService(session).partner_of(UUID(payload["opportunity_id"]))
     if party_id is not None:
         await refresh_partner(session, party_id)
+
+
+async def _refresh_invention_and_raises(session: AsyncSession, invention_id: UUID) -> None:
+    await refresh_invention(session, invention_id)
+    linked = await SqlAlchemyFundingRepository(session).linked_requests(invention_id)
+    projected = await SqlAlchemyDiscoveryRepository(session).raises_showing(invention_id)
+    for request_id in sorted(set(linked) | set(projected)):
+        await refresh_funding(session, request_id)
+
+
+async def refresh_moderated_listing(session: AsyncSession, subject_type: str, subject_id: UUID) -> None:
+    """Refresh direct and derived cards from the current state of a moderated listing."""
+    if subject_type == "INVENTION":
+        await _refresh_invention_and_raises(session, subject_id)
+    elif subject_type == "PARTNER_PROFILE":
+        await refresh_partner(session, subject_id)
+    else:
+        party_id = await IntakeService(session).partner_of(subject_id)
+        if party_id is not None:
+            await refresh_partner(session, party_id)
+
+
+@registry.consumer("listing.suspended", CONSUMER)
+@registry.consumer("listing.restored", CONSUMER)
+async def on_moderation(session: AsyncSession, payload: dict[str, Any]) -> None:
+    """Reapply the current decision when an outbox event is delivered."""
+    await refresh_moderated_listing(session, payload["subject_type"], UUID(payload["subject_id"]))

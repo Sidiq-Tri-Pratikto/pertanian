@@ -45,4 +45,4 @@ Matching and ranking by fit (019), dense retrieval (045), trending.
 
 ### Moderation integration
 
-Consume `listing.suspended` and `listing.restored` when building the discovery projection. Test that suspension removes a listing from discovery and restoration returns it only if it still qualifies.
+Spec 034 refreshes discovery in the suspension or restoration transaction and rechecks live publication when its outbox events arrive. Tests cover direct results, saved results, counts, and the invention and mandate details folded into funding and partner cards.

@@ -38,13 +38,13 @@
 ## Phase 3: Browser acceptance and pitch-room entry
 
 - [X] T009 [US1] Add `e2e/privacy.spec.ts` cases for a private report from S08 with prefill, validation and status after reload, deletion with retained reasons, and a downloaded export containing the requester's data. Cover expiry or denied download without leaving S18 or creating a file. Keep the existing `/settings` entries in `e2e/routes.ts`. In the privacy suite, check the new controls at 320 CSS px and 200% text, keyboard open, focus, Escape and return focus for the confirmation dialog, error-summary focus, and announcement of completion.
-- [ ] T010 [US1] Reuse the real pitch setup from 026's J03 browser case through `e2e/fixtures.ts`. In `e2e/privacy.spec.ts`, open that pitch room, click "Laporkan", reach S18 with that pitch's `PITCH` subject ID, and submit a report that shows the case number. Assert the URL omits the pitch title and private form text. Verify an unrelated account sees the no-access view with no reporting link or title.
-- [ ] T011 [US1] After T010 establishes the missing behavior, wire "Laporkan" in `src/views/pitches/WorkspaceView.tsx` for the authorized room using D1, or reuse the matching link if 026 already provides it. Run the room case against the real route and confirm US1 scenario 3 passes.
+- [X] T010 [US1] Reuse the real pitch setup from 026's J03 browser case through `e2e/fixtures.ts`. In `e2e/privacy.spec.ts`, open that pitch room, click "Laporkan", reach S18 with that pitch's `PITCH` subject ID, and submit a report that shows the case number. Assert the URL omits the pitch title and private form text. Verify an unrelated account sees the no-access view with no reporting link or title.
+- [X] T011 [US1] After T010 establishes the missing behavior, wire "Laporkan" in `src/views/pitches/WorkspaceView.tsx` for the authorized room using D1, or reuse the matching link if 026 already provides it. Run the room case against the real route and confirm US1 scenario 3 passes.
 
 ## Phase 4: Availability and closure
 
-- [ ] T012 After T001–T011, run the focused view and axe tests in `tests/privacy.test.tsx` and the browser tests in `e2e/privacy.spec.ts`. Confirm each US1 scenario, including the room case. Until the room case passes, keep `privasi-laporan` at `coming_soon` in `src/features/registry.ts` and 035 open.
-- [ ] T013 After T012 passes, update `tests/registry.test.ts` and `tests/pages.test.tsx` for the new availability and flip `privasi-laporan` to `available` with `home: '/settings#laporkan'` in `src/features/registry.ts`.
+- [X] T012 After T001–T011, run the focused view and axe tests in `tests/privacy.test.tsx` and the browser tests in `e2e/privacy.spec.ts`. Confirm each US1 scenario, including the room case. Until the room case passes, keep `privasi-laporan` at `coming_soon` in `src/features/registry.ts` and 035 open.
+- [X] T013 After T012 passes, update `tests/registry.test.ts` and `tests/pages.test.tsx` for the new availability and flip `privasi-laporan` to `available` with `home: '/settings#laporkan'` in `src/features/registry.ts`.
 - [X] T014 Update the `/settings` row in `README.md`.
 - [ ] T015 From the project folder, run `python3 docs/roadmap/check_traceability.py`, `make check` and `make e2e`. Read the output and record which checks ran, including the required room case. Resolve any failures before closure.
 - [ ] T016 After T015 passes, set **Status** to `Built, awaiting review` in `../../specs/035-web-settings-privacy/spec.md`.
@@ -74,3 +74,9 @@ Preserve the carried S18 and S08 behavior. Finish the real pitch-room case befor
 
 - Web lint, typecheck and the production build passed. Vitest passed 203 tests at 89.06% line coverage with two workers and a 20-second per-test timeout on this host.
 - Chromium passed the three implemented privacy scenarios and the narrow Settings axe and reflow checks. The 026 workspace entry case remains required for closure.
+
+
+## Integrated validation on M7
+
+- The new Chromium case reached an authorized pitch room and failed while waiting for the missing report link before implementation. After wiring the link, all four privacy journeys passed against the production web build, including the private report and unrelated-account cases. Twelve runs were skipped as expected because each journey names its target viewport.
+- The six focused Vitest cases passed, including the privacy view axe checks.

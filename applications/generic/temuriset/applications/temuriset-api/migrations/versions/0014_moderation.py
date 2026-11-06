@@ -39,6 +39,13 @@ POLICY = [
         PERIOD,
     ),
     (
+        "pitch_snapshots",
+        "Kiriman pitching yang sudah dikirim",
+        "RETAIN",
+        "Isi kiriman yang sudah diterima disimpan agar pihak yang berwenang dapat membaca riwayat pitching.",
+        PERIOD,
+    ),
+    (
         "audit_events",
         "Catatan audit",
         "RETAIN",

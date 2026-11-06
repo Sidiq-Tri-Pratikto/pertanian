@@ -744,12 +744,15 @@ class IntakeService:
         rows = [{"mandatory": row.mandatory, "reason": row.reason} for row in stored[version.id]]
         await self._require_ready(record.partner_party_id, columns, rows, record.closes_at)
 
-    async def read(self, principal: Principal, opportunity_id: UUID) -> OpportunityResponse:
+    async def read(
+        self, principal: Principal, opportunity_id: UUID, *, lock_for_pitch: bool = False
+    ) -> OpportunityResponse:
         """Read an opportunity. Others never reach a draft and see only requirements meant for applicants (D4, D9).
 
         Args:
             principal (Principal): Who is signed in.
             opportunity_id (UUID): The opportunity.
+            lock_for_pitch (bool, optional): Serialize a new pitch evaluation with listing changes.
 
         Returns:
             OpportunityResponse: The opportunity with its current version.
@@ -757,17 +760,17 @@ class IntakeService:
         Raises:
             NotFoundError: When it does not exist, or is a draft of another party.
         """
-        record = await self.repository.find(opportunity_id)
+        record = await self.repository.find(opportunity_id, lock=lock_for_pitch)
         if record is None:
             raise NotFoundError()
         owner = record.partner_party_id == principal.active_party_id
+        profile = await self.repository.profile(record.partner_party_id, lock=lock_for_pitch)
         suspended = await self._hidden_by_suspension(record)
         if not owner and (record.status == "DRAFT" or suspended):
             raise NotFoundError()
         version = await self.repository.version(record.current_version_id)
         assert version is not None  # noqa: S101 - the pointer always names a stored version
         rows = await self.repository.requirements([version.id])
-        profile = await self.repository.profile(record.partner_party_id)
         return self._view(record, version, rows[version.id], profile, owner=owner, suspended=suspended)
 
     async def read_version(self, principal: Principal, opportunity_id: UUID, number: int) -> OpportunityVersionResponse:
@@ -845,6 +848,15 @@ class IntakeService:
         ]
 
     async def _others_views(self, records: list[OpportunityRecord]) -> list[OpportunityResponse]:
+        if not records:
+            return []
+        hidden = await suspended_listings(self.session, "OPPORTUNITY", [record.id for record in records])
+        hidden_partners = await suspended_listings(
+            self.session, "PARTNER_PROFILE", list({record.partner_party_id for record in records})
+        )
+        records = [
+            record for record in records if record.id not in hidden and record.partner_party_id not in hidden_partners
+        ]
         if not records:
             return []
         version_ids = [record.current_version_id for record in records]
