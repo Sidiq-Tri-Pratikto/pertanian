@@ -39,6 +39,9 @@ async function serviceWithEmptyWorkspace(input: RequestInfo | URL) {
   if (path === '/api/v1/demo/sessions') {
     return respond(201, emptySession);
   }
+  if (path.endsWith('/insights')) {
+    return respond(200, { window: householdWeek.window, observations: [], notices: [], learning_count: 0, comparable_count: 0 });
+  }
   return path.endsWith('/summary') ? respond(200, emptySummary) : respond(200, manifest);
 }
 

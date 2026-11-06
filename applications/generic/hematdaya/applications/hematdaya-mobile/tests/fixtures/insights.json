@@ -1,0 +1,364 @@
+{
+  "h-change": {
+    "window": {
+      "start": "2026-10-18T17:00:00Z",
+      "end": "2026-10-25T17:00:00Z",
+      "effective_end": "2026-10-25T17:00:00Z",
+      "start_date": "2026-10-19",
+      "end_date": "2026-10-25",
+      "timezone": "Asia/Jakarta",
+      "is_current": false
+    },
+    "observations": [
+      {
+        "id": "ebf0292c-93e1-4709-9dbc-658e42da1470",
+        "revision": 1,
+        "current_revision": 1,
+        "kind": "change",
+        "direction": "increase",
+        "asset_id": "b3d58e16-7358-4fe1-8d73-9727a6e3f189",
+        "active": true,
+        "superseded": false,
+        "generated_at": "2026-11-06T20:11:20.550313Z",
+        "policy": {
+          "id": "change",
+          "version": 1
+        },
+        "evidence": {
+          "kind": "change",
+          "direction": "increase",
+          "asset": {
+            "id": "b3d58e16-7358-4fe1-8d73-9727a6e3f189",
+            "name": "TV",
+            "scope_kind": "device",
+            "expected_use": "intermittent"
+          },
+          "scope": {
+            "type": "asset",
+            "asset_ids": [
+              "b3d58e16-7358-4fe1-8d73-9727a6e3f189"
+            ]
+          },
+          "period": {
+            "start": "2026-10-18T17:00:00Z",
+            "end": "2026-10-25T17:00:00Z",
+            "effective_end": "2026-10-25T17:00:00Z",
+            "start_date": "2026-10-19",
+            "end_date": "2026-10-25",
+            "timezone": "Asia/Jakarta",
+            "is_current": false
+          },
+          "current": {
+            "weeks_before": 0,
+            "start_date": "2026-10-19",
+            "end_date": "2026-10-25",
+            "start": "2026-10-18T17:00:00Z",
+            "end": "2026-10-25T17:00:00Z",
+            "measured_kwh": "3.920",
+            "mask_kwh": "3.920",
+            "coverage": "1.000",
+            "eligible": true
+          },
+          "historical": [
+            {
+              "weeks_before": 1,
+              "start_date": "2026-10-12",
+              "end_date": "2026-10-18",
+              "start": "2026-10-11T17:00:00Z",
+              "end": "2026-10-18T17:00:00Z",
+              "measured_kwh": "2.520",
+              "mask_kwh": "2.520",
+              "coverage": "1.000",
+              "eligible": true
+            },
+            {
+              "weeks_before": 2,
+              "start_date": "2026-10-05",
+              "end_date": "2026-10-11",
+              "start": "2026-10-04T17:00:00Z",
+              "end": "2026-10-11T17:00:00Z",
+              "measured_kwh": "2.520",
+              "mask_kwh": "2.520",
+              "coverage": "1.000",
+              "eligible": true
+            },
+            {
+              "weeks_before": 3,
+              "start_date": "2026-09-28",
+              "end_date": "2026-10-04",
+              "start": "2026-09-27T17:00:00Z",
+              "end": "2026-10-04T17:00:00Z",
+              "measured_kwh": "2.520",
+              "mask_kwh": "2.520",
+              "coverage": "1.000",
+              "eligible": true
+            }
+          ],
+          "skipped": [],
+          "baseline_kwh": "2.520",
+          "mad_kwh": "0.000",
+          "delta_kwh": "1.400",
+          "percent": "55.56",
+          "percent_unavailable_reason": null,
+          "resolution_kwh": "0.168",
+          "threshold_kwh": "0.840",
+          "mask_coverage": "1.000",
+          "common_mask": [
+            {
+              "start": "2026-10-18T17:00:00Z",
+              "end": "2026-10-25T17:00:00Z"
+            }
+          ],
+          "series": [
+            {
+              "local_date": "2026-10-19",
+              "comparison_kwh": "0.560",
+              "reference_kwh": "0.360"
+            },
+            {
+              "local_date": "2026-10-20",
+              "comparison_kwh": "0.560",
+              "reference_kwh": "0.360"
+            },
+            {
+              "local_date": "2026-10-21",
+              "comparison_kwh": "0.560",
+              "reference_kwh": "0.360"
+            },
+            {
+              "local_date": "2026-10-22",
+              "comparison_kwh": "0.560",
+              "reference_kwh": "0.360"
+            },
+            {
+              "local_date": "2026-10-23",
+              "comparison_kwh": "0.560",
+              "reference_kwh": "0.360"
+            },
+            {
+              "local_date": "2026-10-24",
+              "comparison_kwh": "0.560",
+              "reference_kwh": "0.360"
+            },
+            {
+              "local_date": "2026-10-25",
+              "comparison_kwh": "0.560",
+              "reference_kwh": "0.360"
+            }
+          ],
+          "origins": [
+            "simulated"
+          ],
+          "policy": {
+            "id": "change",
+            "version": 1
+          },
+          "rule": "Perubahan dihitung bila |C − B| > 0 dan |C − B| ≥ maks(30% × B; 3 × MAD; 5 × r)."
+        },
+        "text": {
+          "title": "TV naik 1,400 kWh (+55,56%)",
+          "observed": "TV memakai 3,920 kWh pada 19 Oktober 2026 – 25 Oktober 2026. Median 3 minggu pembanding: 2,520 kWh. Kenaikan tercatat 1,400 kWh.",
+          "pct_note": null,
+          "comparison": "Hari dan jam yang sama pada 3 minggu sebelumnya (12 Oktober 2026 – 18 Oktober 2026: 2,520 kWh; 5 Oktober 2026 – 11 Oktober 2026: 2,520 kWh; 28 September 2026 – 4 Oktober 2026: 2,520 kWh).",
+          "unknown": "Penyebab perubahan belum diketahui. Kenaikan ini bukan diagnosis masalah perangkat.",
+          "step": "Periksa apakah waktu atau pola pemakaian berubah."
+        }
+      }
+    ],
+    "notices": [],
+    "learning_count": 0,
+    "comparable_count": 4
+  },
+  "h-change-detail": {
+    "id": "ebf0292c-93e1-4709-9dbc-658e42da1470",
+    "revision": 1,
+    "current_revision": 1,
+    "kind": "change",
+    "direction": "increase",
+    "asset_id": "b3d58e16-7358-4fe1-8d73-9727a6e3f189",
+    "active": true,
+    "superseded": false,
+    "generated_at": "2026-11-06T20:11:20.550313Z",
+    "policy": {
+      "id": "change",
+      "version": 1
+    },
+    "evidence": {
+      "kind": "change",
+      "rule": "Perubahan dihitung bila |C − B| > 0 dan |C − B| ≥ maks(30% × B; 3 × MAD; 5 × r).",
+      "asset": {
+        "id": "b3d58e16-7358-4fe1-8d73-9727a6e3f189",
+        "name": "TV",
+        "scope_kind": "device",
+        "expected_use": "intermittent"
+      },
+      "scope": {
+        "type": "asset",
+        "asset_ids": [
+          "b3d58e16-7358-4fe1-8d73-9727a6e3f189"
+        ]
+      },
+      "period": {
+        "end": "2026-10-25T17:00:00Z",
+        "start": "2026-10-18T17:00:00Z",
+        "end_date": "2026-10-25",
+        "timezone": "Asia/Jakarta",
+        "is_current": false,
+        "start_date": "2026-10-19",
+        "effective_end": "2026-10-25T17:00:00Z"
+      },
+      "policy": {
+        "id": "change",
+        "version": 1
+      },
+      "series": [
+        {
+          "local_date": "2026-10-19",
+          "reference_kwh": "0.360",
+          "comparison_kwh": "0.560"
+        },
+        {
+          "local_date": "2026-10-20",
+          "reference_kwh": "0.360",
+          "comparison_kwh": "0.560"
+        },
+        {
+          "local_date": "2026-10-21",
+          "reference_kwh": "0.360",
+          "comparison_kwh": "0.560"
+        },
+        {
+          "local_date": "2026-10-22",
+          "reference_kwh": "0.360",
+          "comparison_kwh": "0.560"
+        },
+        {
+          "local_date": "2026-10-23",
+          "reference_kwh": "0.360",
+          "comparison_kwh": "0.560"
+        },
+        {
+          "local_date": "2026-10-24",
+          "reference_kwh": "0.360",
+          "comparison_kwh": "0.560"
+        },
+        {
+          "local_date": "2026-10-25",
+          "reference_kwh": "0.360",
+          "comparison_kwh": "0.560"
+        }
+      ],
+      "current": {
+        "end": "2026-10-25T17:00:00Z",
+        "start": "2026-10-18T17:00:00Z",
+        "coverage": "1.000",
+        "eligible": true,
+        "end_date": "2026-10-25",
+        "mask_kwh": "3.920",
+        "start_date": "2026-10-19",
+        "measured_kwh": "3.920",
+        "weeks_before": 0
+      },
+      "mad_kwh": "0.000",
+      "origins": [
+        "simulated"
+      ],
+      "percent": "55.56",
+      "skipped": [],
+      "delta_kwh": "1.400",
+      "direction": "increase",
+      "historical": [
+        {
+          "end": "2026-10-18T17:00:00Z",
+          "start": "2026-10-11T17:00:00Z",
+          "coverage": "1.000",
+          "eligible": true,
+          "end_date": "2026-10-18",
+          "mask_kwh": "2.520",
+          "start_date": "2026-10-12",
+          "measured_kwh": "2.520",
+          "weeks_before": 1
+        },
+        {
+          "end": "2026-10-11T17:00:00Z",
+          "start": "2026-10-04T17:00:00Z",
+          "coverage": "1.000",
+          "eligible": true,
+          "end_date": "2026-10-11",
+          "mask_kwh": "2.520",
+          "start_date": "2026-10-05",
+          "measured_kwh": "2.520",
+          "weeks_before": 2
+        },
+        {
+          "end": "2026-10-04T17:00:00Z",
+          "start": "2026-09-27T17:00:00Z",
+          "coverage": "1.000",
+          "eligible": true,
+          "end_date": "2026-10-04",
+          "mask_kwh": "2.520",
+          "start_date": "2026-09-28",
+          "measured_kwh": "2.520",
+          "weeks_before": 3
+        }
+      ],
+      "common_mask": [
+        {
+          "end": "2026-10-25T17:00:00Z",
+          "start": "2026-10-18T17:00:00Z"
+        }
+      ],
+      "baseline_kwh": "2.520",
+      "mask_coverage": "1.000",
+      "threshold_kwh": "0.840",
+      "resolution_kwh": "0.168",
+      "percent_unavailable_reason": null
+    },
+    "text": {
+      "title": "TV naik 1,400 kWh (+55,56%)",
+      "observed": "TV memakai 3,920 kWh pada 19 Oktober 2026 – 25 Oktober 2026. Median 3 minggu pembanding: 2,520 kWh. Kenaikan tercatat 1,400 kWh.",
+      "pct_note": null,
+      "comparison": "Hari dan jam yang sama pada 3 minggu sebelumnya (12 Oktober 2026 – 18 Oktober 2026: 2,520 kWh; 5 Oktober 2026 – 11 Oktober 2026: 2,520 kWh; 28 September 2026 – 4 Oktober 2026: 2,520 kWh).",
+      "unknown": "Penyebab perubahan belum diketahui. Kenaikan ini bukan diagnosis masalah perangkat.",
+      "step": "Periksa apakah waktu atau pola pemakaian berubah."
+    }
+  },
+  "h-base": {
+    "window": {
+      "start": "2026-10-18T17:00:00Z",
+      "end": "2026-10-25T17:00:00Z",
+      "effective_end": "2026-10-25T17:00:00Z",
+      "start_date": "2026-10-19",
+      "end_date": "2026-10-25",
+      "timezone": "Asia/Jakarta",
+      "is_current": false
+    },
+    "observations": [],
+    "notices": [],
+    "learning_count": 0,
+    "comparable_count": 4
+  },
+  "h-learning-partial": {
+    "window": {
+      "start": "2026-10-18T17:00:00Z",
+      "end": "2026-10-25T17:00:00Z",
+      "effective_end": "2026-10-25T17:00:00Z",
+      "start_date": "2026-10-19",
+      "end_date": "2026-10-25",
+      "timezone": "Asia/Jakarta",
+      "is_current": false
+    },
+    "observations": [],
+    "notices": [
+      {
+        "id": "partial:36648d0f-7189-45c3-b800-cd6952df8a45",
+        "kind": "partial",
+        "asset_id": "36648d0f-7189-45c3-b800-cd6952df8a45",
+        "title": "Sebagian data belum tersedia · Pompa Air",
+        "body": "Kelengkapan data: 71,4% periode. Data 24 Oktober 2026 – 25 Oktober 2026 belum tersedia."
+      }
+    ],
+    "learning_count": 3,
+    "comparable_count": 0
+  }
+}

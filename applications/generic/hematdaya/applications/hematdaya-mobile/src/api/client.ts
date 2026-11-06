@@ -138,3 +138,45 @@ export type PeriodQuery = { preset?: string; start_date?: string; end_date?: str
 export function getSummary(siteId: string, period: PeriodQuery, token: string): Promise<Summary> {
   return apiRequest(`/api/v1/sites/${encodeURIComponent(siteId)}/summary`, { token, query: period }, isSummary);
 }
+
+export type InsightList = components['schemas']['InsightListResponse'];
+export type Insight = components['schemas']['InsightResponse'];
+export type InsightNotice = components['schemas']['NoticeResponse'];
+
+function isInsight(value: unknown): value is Insight {
+  return (
+    isRecord(value) &&
+    typeof value.id === 'string' &&
+    Number.isInteger(value.revision) &&
+    Number.isInteger(value.current_revision) &&
+    typeof value.superseded === 'boolean' &&
+    isRecord(value.evidence) &&
+    isRecord(value.text) &&
+    typeof value.text.title === 'string'
+  );
+}
+
+function isInsightList(value: unknown): value is InsightList {
+  return (
+    isRecord(value) &&
+    isRecord(value.window) &&
+    Array.isArray(value.observations) &&
+    value.observations.every(isInsight) &&
+    Array.isArray(value.notices) &&
+    Number.isInteger(value.learning_count) &&
+    Number.isInteger(value.comparable_count)
+  );
+}
+
+export function getInsights(siteId: string, period: PeriodQuery, token: string): Promise<InsightList> {
+  return apiRequest(`/api/v1/sites/${encodeURIComponent(siteId)}/insights`, { token, query: period }, isInsightList);
+}
+
+/** Always one exact revision: the evidence screen must show what the card showed, even after a correction. */
+export function getInsight(insightId: string, revision: number, token: string): Promise<Insight> {
+  return apiRequest(
+    `/api/v1/insights/${encodeURIComponent(insightId)}`,
+    { token, query: { revision: String(revision) } },
+    isInsight,
+  );
+}

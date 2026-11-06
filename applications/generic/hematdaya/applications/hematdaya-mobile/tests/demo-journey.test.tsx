@@ -84,6 +84,9 @@ function mockApi({ create, summary }: Handlers) {
     if (url.pathname.endsWith('/summary')) {
       return summary ? summary(url) : respond(200, householdWeek);
     }
+    if (url.pathname.endsWith('/insights')) {
+      return respond(200, { window: householdWeek.window, observations: [], notices: [], learning_count: 0, comparable_count: 0 });
+    }
     return respond(200, manifest);
   });
 }
