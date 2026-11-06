@@ -18,6 +18,8 @@ Screens over 021. Beranda gains its featured observation.
 
 ## Mobile
 
+This spec introduces `src/components/hd/HDHistoryChart.tsx` for the aligned current and reference series, with its text summary and data table; 015 extends it for asset history (revised plan, 2026-11-06).
+
 `HDEvidencePanel` follows the design system's ordered steps (see the `design-system-binding` notes in `docs/design/README.md`). Pass the exact revision from Beranda or Saran into the detail route, read it through 021's `?revision=` contract, and include it in the query key. Display supersession status when the service reports it. Reuse 015's `HDHistoryChart` and data alternative with the frozen current/reference series and mask from that revision. Keep mutable asset history out of the evidence panel.
 
 ## Prototype Reference

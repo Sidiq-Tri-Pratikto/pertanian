@@ -12,7 +12,7 @@ src/app/(tabs)/(beranda,perangkat,saran)/impor.tsx
 
 ## Summary
 
-Four-step flow over the import API. Retain file context and mapping across steps, and land on the imported period in the populated Beranda from 013.
+Four-step flow over the import API. Retain file context and mapping across steps, and land on the imported period in Beranda. The entry point is the existing S02 `Impor data` action, so this spec needs no screen from 013; 013 and 027 land in the same round, and the landing on the populated Beranda is verified at MVP sign-off (revised plan, 2026-11-06).
 
 ## Technical Context
 
