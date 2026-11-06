@@ -24,7 +24,7 @@ from app.identity.model.models import Principal
 from app.identity.model.schema import MembershipResponse
 from app.identity.service.accounts import account_email, display_names
 from app.identity.service.codes import hash_token, new_token
-from app.identity.service.mailbox_service import DevelopmentMailbox
+from app.identity.service.mailbox_service import DisabledMailbox, MailUnavailableError, mailbox_for
 from app.platform.service.audit import record_audit
 from app.platform.service.versions import StaleVersionError
 
@@ -279,6 +279,9 @@ class AccessService:
         check_context(principal, request.acting_party_id)
         organization = await self._visible_organization(principal, organization_id)
         require(principal, Capability.MANAGE_MEMBERS, organization.party_id)
+        mailbox = mailbox_for(self.settings)
+        if isinstance(mailbox, DisabledMailbox):
+            raise MailUnavailableError()
         token = new_token()
         invitation = await self.repository.add_invitation(
             organization_id=organization_id,
@@ -288,7 +291,7 @@ class AccessService:
             invited_by_account_id=principal.account_id,
             expires_at=clock.now() + INVITATION_LIFETIME,
         )
-        await DevelopmentMailbox().send(
+        await mailbox.send(
             self.session,
             to_email=request.email,
             subject=f"Undangan bergabung dengan {organization.name} di TemuRiset",

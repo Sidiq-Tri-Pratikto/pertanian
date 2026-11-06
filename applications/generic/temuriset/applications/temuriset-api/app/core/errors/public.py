@@ -51,6 +51,16 @@ PUBLIC_ERROR_BY_CODE: dict[str, PublicError] = {
         "Layanan data sedang tidak tersedia. Coba lagi beberapa menit lagi.",
         {"retryable": True, "retry_after_seconds": 30, "max_attempts": 3},
     ),
+    codes.APP_MAIL_UNAVAILABLE: PublicError(
+        "MAIL_UNAVAILABLE",
+        503,
+        "Pengiriman email belum tersedia. Hubungi pengelola layanan.",
+    ),
+    codes.APP_STORAGE_UNAVAILABLE: PublicError(
+        "STORAGE_UNAVAILABLE",
+        503,
+        "Penyimpanan berkas belum dapat diakses. Coba lagi nanti.",
+    ),
     codes.APP_CAPABILITY_UNAVAILABLE: PublicError(
         "CAPABILITY_UNAVAILABLE",
         403,

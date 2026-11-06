@@ -10,7 +10,7 @@ from app.core.errors.base import ConflictError, InvalidTransitionError, NotFound
 from app.core.settings import get_settings
 from app.documents.service.service import DocumentService
 from app.identity.model.models import Principal
-from app.identity.service.mailbox_service import DevelopmentMailbox
+from app.identity.service.mailbox_service import DisabledMailbox, mailbox_for
 from app.identity.service.service import IdentityService
 from app.moderation.model.schema import (
     CreatePrivacyRequest,
@@ -171,12 +171,20 @@ class PrivacyService:
             detail={"policy_version": row.policy_version},
         )
         await publish(self.session, "privacy.outcome_ready", {"privacy_request_id": str(row.id)})
-        if get_settings().environment == "development":
+        mailbox = mailbox_for(get_settings())
+        if isinstance(mailbox, DisabledMailbox):
+            await record_audit(
+                self.session,
+                action="privacy.notification_unavailable",
+                subject_type="privacy_request",
+                subject_id=str(row.id),
+            )
+        else:
             sections = ["Permintaan penghapusan selesai.", "Dihapus:"]
             sections.extend(f"- {item.label}" for item in answer.removed)
             sections.append("Tetap disimpan:")
             sections.extend(f"- {item.label}. {item.reason} ({item.period})" for item in answer.retained)
             sections.append(answer.notice)
-            await DevelopmentMailbox().send(
+            await mailbox.send(
                 self.session, to_email=address, subject="Hasil permintaan penghapusan", body="\n".join(sections)
             )

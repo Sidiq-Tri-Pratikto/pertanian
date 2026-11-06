@@ -8,7 +8,7 @@
 applications/temuriset-api/Dockerfile          # one image, entrypoints: api, worker, migrate
 applications/temuriset-web/Dockerfile          # next build output standalone
 deployment/temuriset/                          # at the pertanian root, next to existing deployment/
-├── compose.staging.yml                        # api, worker, web, postgres, minio, clamav
+├── compose.staging.yml                        # api, worker, web, postgres, SeaweedFS, ClamAV, HTTPS edge
 ├── release-manifest.schema.json
 └── RUNBOOK.md
 .github/workflows/temuriset-release.yml

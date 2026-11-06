@@ -96,7 +96,13 @@ def select_capabilities(composition_id: str, overrides: dict[str, bool] | None =
     return capability_ids
 
 
-def build_manifest(composition_id: str, overrides: dict[str, bool] | None = None) -> CapabilityManifestResponse:
+def build_manifest(
+    composition_id: str,
+    overrides: dict[str, bool] | None = None,
+    *,
+    storage_adapter: str = "local",
+    scanner_adapter: str = "development-accept",
+) -> CapabilityManifestResponse:
     """Build the manifest for one composition.
 
     Args:
@@ -117,6 +123,11 @@ def build_manifest(composition_id: str, overrides: dict[str, bool] | None = None
         default_locale=DEFAULT_LOCALE,
         supported_currencies=list(SUPPORTED_CURRENCIES),
         capabilities=[CAPABILITIES[capability_id] for capability_id in capability_ids],
-        adapters=list(ADAPTERS),
+        adapters=[
+            adapter.model_copy(update={"implementation": implementation})
+            if (implementation := {"object-storage": storage_adapter, "file-scanner": scanner_adapter}.get(adapter.id))
+            else adapter
+            for adapter in ADAPTERS
+        ],
         policies=list(POLICIES),
     )

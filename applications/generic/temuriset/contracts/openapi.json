@@ -63,6 +63,17 @@
             "title": "Id",
             "type": "string"
           },
+          "implementation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Implementation"
+          },
           "status": {
             "$ref": "#/components/schemas/CapabilityStatus"
           }

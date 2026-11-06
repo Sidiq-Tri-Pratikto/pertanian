@@ -6,6 +6,7 @@ from datetime import timedelta
 from typing import Any
 from uuid import UUID, uuid4
 
+import anyio
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.access.model.models import Capability
@@ -37,7 +38,7 @@ from app.documents.repository.sqlalchemy.models import (
 )
 from app.documents.repository.sqlalchemy.repository import SqlAlchemyDocumentRepository
 from app.documents.service.sniff import LIMIT_TEXT, LIMITS, sniff
-from app.documents.service.storage_service import LocalStorage, StorageAdapter, TooLargeError
+from app.documents.service.storage_service import StorageAdapter, TooLargeError, storage_for
 from app.identity.model.models import Principal
 from app.identity.service.service import IdentityService
 from app.platform.service.audit import record_audit
@@ -200,7 +201,7 @@ class DocumentService:
         """
         self.session = session
         self.identity = IdentityService(session, settings)
-        self.storage = storage or LocalStorage(settings.storage_path)
+        self.storage = storage or storage_for(settings)
         self.repository = SqlAlchemyDocumentRepository(session)
 
     async def _owned(self, principal: Principal, document_id: UUID) -> DocumentRecord:
@@ -282,7 +283,8 @@ class DocumentService:
             stored = await self.storage.write(key, body, intent.size_bytes)
         except TooLargeError as error:
             raise FileTooLargeError(LIMIT_TEXT[intent.media_type]) from error
-        matches = sniff(self.storage.local_path(key)) == intent.media_type
+        async with self.storage.materialize(key, intent.size_bytes) as path:
+            matches = await anyio.to_thread.run_sync(sniff, path) == intent.media_type
         document = (
             await self.repository.document(intent.document_id)
             if intent.document_id

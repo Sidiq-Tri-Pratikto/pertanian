@@ -359,3 +359,28 @@ async def test_stale_membership_version_is_refused(bima: AsyncClient, rani: Asyn
     assert response.status_code == 409
     assert response.json()["error"]["current_version"] == rani_membership["version"]
     assert len((await rani.get("/api/v1/me")).json()["organizations"]) == 1
+
+
+async def test_disabled_mail_rejects_invitation_without_a_record(
+    bima: AsyncClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from app.core.settings import get_settings
+    from app.identity.repository.sqlalchemy.models import MailboxMessageRecord
+
+    organization = await _create_organization(bima, ORGANIZATION)
+    await _act_as(bima, organization["party_id"])
+    monkeypatch.setattr(get_settings(), "mailbox_adapter", "disabled")
+    response = await _invite(bima, organization, "undelivered@example.com", ["schedule"])
+
+    assert response.status_code == 503
+    assert response.json()["error"]["code"] == "MAIL_UNAVAILABLE"
+    async with get_session_factory()() as session:
+        assert await session.scalar(select(func.count()).select_from(InvitationRecord)) == 0
+        assert (
+            await session.scalar(
+                select(func.count())
+                .select_from(MailboxMessageRecord)
+                .where(MailboxMessageRecord.to_email == "undelivered@example.com")
+            )
+            == 0
+        )

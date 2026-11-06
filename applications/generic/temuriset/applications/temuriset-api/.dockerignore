@@ -6,3 +6,7 @@
 htmlcov
 __pycache__
 tests
+
+.env*
+.git
+.storage

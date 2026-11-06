@@ -189,3 +189,43 @@ def test_session_cookie_is_secure_outside_development(environment: str, explicit
     - ``Secure`` unless development, and the explicit setting wins.
     """
     assert _settings(environment=environment, session_cookie_secure=explicit).cookie_secure is secure
+
+
+def test_staging_requires_configured_s3() -> None:
+    """
+    Condition:
+    - A non-development deployment disables mail and uses ClamAV.
+
+    Expected:
+    - Startup accepts an explicitly configured private S3 backend and refuses missing settings.
+    """
+    configuration = {
+        "environment": "staging",
+        "file_scanner": "clamav",
+        "mailbox_adapter": "disabled",
+        "storage_adapter": "s3",
+    }
+    with pytest.raises(ConfigurationError, match="S3"):
+        validate_configuration(_settings(**configuration))
+    assert validate_configuration(
+        _settings(
+            **configuration,
+            s3_endpoint_url="http://minio:9000",
+            s3_bucket="temuriset-documents",
+            s3_access_key="synthetic-key",
+            s3_secret_key="synthetic-secret",
+        )
+    ) == ("core", "company_funding")
+
+
+def test_manifest_reports_storage_implementation() -> None:
+    """
+    Condition:
+    - A deployment configures S3 object storage.
+
+    Expected:
+    - The existing adapter ID reports S3 without configuration or credentials.
+    """
+    manifest = build_manifest("generic-base", storage_adapter="s3")
+    adapter = next(adapter for adapter in manifest.adapters if adapter.id == "object-storage")
+    assert adapter.implementation == "s3"

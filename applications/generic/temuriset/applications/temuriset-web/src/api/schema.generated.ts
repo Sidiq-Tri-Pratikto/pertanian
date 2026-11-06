@@ -2584,6 +2584,8 @@ export interface components {
         AdapterResponse: {
             /** Id */
             id: string;
+            /** Implementation */
+            implementation?: string | null;
             status: components["schemas"]["CapabilityStatus"];
         };
         /**
