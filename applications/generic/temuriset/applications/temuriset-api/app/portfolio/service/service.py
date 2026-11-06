@@ -384,6 +384,19 @@ async def owned_submittable_version(session: AsyncSession, invention_id: UUID, p
     return await submittable_version(session, invention_id)
 
 
+async def published_titles(session: AsyncSession, party_ids: set[UUID]) -> list[tuple[UUID, UUID, str]]:
+    """Read live publication summaries for the public profile.
+
+    Args:
+        session (AsyncSession): The request's database session.
+        party_ids (set[UUID]): Invention managers visible in the profile.
+
+    Returns:
+        list[tuple[UUID, UUID, str]]: Manager, invention and current public title.
+    """
+    return await SqlAlchemyPortfolioRepository(session).published_titles(party_ids)
+
+
 async def invention_ids_of(session: AsyncSession, version_ids: list[UUID]) -> list[UUID]:
     """Return the inventions that versions belong to, once each and in order, for relationships (030).
 

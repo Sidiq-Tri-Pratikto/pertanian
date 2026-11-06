@@ -8,18 +8,18 @@ from fastapi.encoders import jsonable_encoder
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.access.model.models import Capability
-from app.access.service.policy import check_context
+from app.access.service.policy import check_context, require
 from app.access.service.service import party_names
 from app.core.errors import codes
 from app.core.errors.base import (
     AppError,
     ConflictError,
     FieldsInvalidError,
-    ForbiddenError,
     InvalidTransitionError,
     NotFoundError,
 )
 from app.identity.model.models import Principal
+from app.pitches.repository.sqlalchemy.models import PitchRecord
 from app.pitches.service.decisions import visible_pitch
 from app.pitches.service.submission import latest_snapshot
 from app.platform.service.audit import record_audit
@@ -31,10 +31,12 @@ from app.relationships.model.schema import (
     ConfirmRequest,
     CorrectionRequest,
     EffectiveResponse,
+    Kind,
     PartnershipResponse,
     PartnershipValues,
     PartnershipVersionResponse,
     PartyName,
+    ProposalOptionsResponse,
     ProposePartnershipRequest,
     RestrictionResponse,
     RestrictRequest,
@@ -106,8 +108,7 @@ class RelationshipService:
 
     @staticmethod
     def _can(principal: Principal) -> None:
-        if Capability.CONFIRM_RELATIONSHIP not in principal.capabilities:
-            raise ForbiddenError()
+        require(principal, Capability.CONFIRM_RELATIONSHIP, principal.active_party_id)
 
     @staticmethod
     def _values(kind: str, values: PartnershipValues) -> dict[str, Any]:
@@ -136,6 +137,40 @@ class RelationshipService:
             raise FieldsInvalidError(errors)
         return jsonable_encoder(values)
 
+    async def _proposal_source(
+        self, principal: Principal, pitch_id: UUID, *, lock: bool = False
+    ) -> tuple[PitchRecord, dict[str, Any]]:
+        record, _ = await visible_pitch(self.session, principal, pitch_id, lock=lock)
+        self._can(principal)
+        if record.status != "APPROVED_FOR_DISCUSSION":
+            raise InvalidTransitionError()
+        if not await meeting_completed(self.session, record.id):
+            raise MeetingNotCompletedError()
+        if await self.repository.of_pitches([record.id]):
+            raise ConflictError()
+        return record, await latest_snapshot(self.session, record.id)
+
+    @staticmethod
+    def _proposal_types(snapshot: dict[str, Any]) -> list[Kind]:
+        # Only a frozen raise for an existing entity can record equity (AC21).
+        types: list[Kind] = ["PROJECT", "LICENSE"]
+        if (snapshot.get("source") or {}).get("subject_type") == "EXISTING_ENTITY":
+            types.append("EQUITY")
+        return types
+
+    async def proposal_options(self, principal: Principal, pitch_id: UUID) -> ProposalOptionsResponse:
+        """Expose the same eligibility used to create a proposal.
+
+        Args:
+            principal (Principal): The active party.
+            pitch_id (UUID): The pitch to propose from.
+
+        Returns:
+            ProposalOptionsResponse: The available types.
+        """
+        _, snapshot = await self._proposal_source(principal, pitch_id)
+        return ProposalOptionsResponse(types=self._proposal_types(snapshot))
+
     async def propose(
         self, principal: Principal, pitch_id: UUID, request: ProposePartnershipRequest, operation_id: UUID | None = None
     ) -> PartnershipResponse:
@@ -156,18 +191,9 @@ class RelationshipService:
             ConflictError: When the pitch already has a relationship.
         """
         check_context(principal, request.acting_party_id)
-        record, _ = await visible_pitch(self.session, principal, pitch_id)
-        self._can(principal)
-        if record.status != "APPROVED_FOR_DISCUSSION":
-            raise InvalidTransitionError()
-        if not await meeting_completed(self.session, record.id):
-            raise MeetingNotCompletedError()
-        snapshot = await latest_snapshot(self.session, record.id)
-        # Only a raise for a company that already exists has an identified entity (AC21).
-        if request.type == "EQUITY" and (snapshot.get("source") or {}).get("subject_type") != "EXISTING_ENTITY":
+        record, snapshot = await self._proposal_source(principal, pitch_id, lock=True)
+        if request.type not in self._proposal_types(snapshot):
             raise EntityRequiredError()
-        if await self.repository.of_pitches([record.id]):
-            raise ConflictError()
         values = self._values(request.type, request.values)
         inventions = await invention_ids_of(
             self.session, [UUID(item["version_id"]) for item in snapshot.get("inventions", [])]
@@ -444,17 +470,39 @@ class RelationshipService:
         Returns:
             EffectiveResponse: The newest version both confirmed, its public fields and values.
         """
-        versions = await self.repository.versions([partnership.id])
-        confirmed = [version for version in versions if version.status == "CONFIRMED"]
-        if not confirmed:
-            return EffectiveResponse(version=None, fields=[], values={})
-        version = confirmed[-1]
-        subsets = [item.subset for item in await self.repository.confirmations([version.id])]
-        restricted = {item.field for item in await self.repository.restrictions([partnership.id])}
-        fields = effective_fields(version.ceiling, subsets, restricted)
-        return EffectiveResponse(
-            version=version.number, fields=fields, values=public_values(partnership.type, version.values, fields)
-        )
+        return (await self.effective_many([partnership]))[partnership.id]
+
+    async def effective_many(self, partnerships: list[PartnershipRecord]) -> dict[UUID, EffectiveResponse]:
+        """Read the confirmed versions and permissions for a profile in batches.
+
+        Args:
+            partnerships (list[PartnershipRecord]): Relationships whose public projection is needed.
+
+        Returns:
+            dict[UUID, EffectiveResponse]: Public projection by relationship ID.
+        """
+        result = {item.id: EffectiveResponse(version=None, fields=[], values={}) for item in partnerships}
+        visible = {item.id: item for item in partnerships if not item.contested}
+        if not visible:
+            return result
+        latest = {
+            version.partnership_id: version
+            for version in await self.repository.versions(list(visible))
+            if version.status == "CONFIRMED"
+        }
+        if not latest:
+            return result
+        subsets: dict[UUID, list[list[str]]] = defaultdict(list)
+        for item in await self.repository.confirmations([version.id for version in latest.values()]):
+            subsets[item.version_id].append(item.subset)
+        restricted: dict[UUID, set[str]] = defaultdict(set)
+        for item in await self.repository.restrictions(list(latest)):
+            restricted[item.partnership_id].add(item.field)
+        for partnership_id, version in latest.items():
+            fields = effective_fields(version.ceiling, subsets[version.id], restricted[partnership_id])
+            values = public_values(visible[partnership_id].type, version.values, fields)
+            result[partnership_id] = EffectiveResponse(version=version.number, fields=list(values), values=values)
+        return result
 
     async def read_record(
         self, principal: Principal, partnership: PartnershipRecord, operation_id: UUID | None = None

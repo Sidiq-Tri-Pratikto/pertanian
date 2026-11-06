@@ -110,6 +110,20 @@ async def test_one_equity_relationship_over_two_inventions_appears_once(
     assert relationship["fields"]["percent"] == {"percent": "12.5", "effective_date": "2027-01-01"}
     assert len(profile["inventions"]) >= 2
 
+    # Do not dispatch the archive event. S16 must use current publication state even while discovery is stale.
+    archived = relationship["inventions"][0]["id"]
+    private = await bima.get(f"/api/v1/inventions/{archived}")
+    changed = await bima.post(
+        f"/api/v1/inventions/{archived}/archive",
+        json={"acting_party_id": bima_party, "expected_version": private.json()["version"]},
+        headers={"Idempotency-Key": "archive-linked"},
+    )
+    assert changed.status_code == 200, changed.text
+    async with new_client() as visitor:
+        after_archive = (await visitor.get(f"/api/v1/profiles/{bima_party}")).json()
+    assert archived not in {item["id"] for item in after_archive["inventions"]}
+    assert archived not in {item["id"] for item in after_archive["relationships"][0]["inventions"]}
+
 
 async def test_a_contested_claim_is_hidden_publicly_and_kept_privately(
     world: World, new_client: Callable[[], AsyncClient]
@@ -191,3 +205,25 @@ async def test_an_unknown_party_is_not_found_and_an_empty_profile_says_so(
 
     assert missing.status_code == 404
     assert (empty["nothing_published"], empty["bio"], empty["relationships"]) == (True, None, [])
+
+
+async def test_name_permission_controls_counterpart_identity(
+    world: World, new_client: Callable[[], AsyncClient]
+) -> None:
+    """Name narrowing removes the counterpart and their links from the next anonymous response."""
+    rani, rani_party = client_of(world, "F01")
+    _, done = await _confirmed(world, ["name", "scope"])
+    async with new_client() as visitor:
+        path = f"/api/v1/profiles/{rani_party}"
+        before = await visitor.get(path)
+        hidden = await partnership_action(rani, done, "restrictions", "hide-name", field="name")
+        after = await visitor.get(path)
+
+    assert before.headers["Cache-Control"] == "no-store"
+    assert before.json()["relationships"][0]["counterpart_name"] == "Mitra A"
+    assert hidden.status_code == 201, hidden.text
+    [relationship] = after.json()["relationships"]
+    assert relationship["fields"] == {"scope": "Enam bulan"}
+    assert relationship["counterpart_name"] is None
+    assert relationship["counterpart_party_id"] is None
+    assert "Mitra A" not in after.text

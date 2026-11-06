@@ -36,7 +36,9 @@ async def _meetings(state: str = "CONFIRMED") -> int:
 
 async def _bookings() -> list[tuple[str, str]]:
     async with get_session_factory()() as session:
-        rows = await session.execute(text("SELECT party_id::text, lower(during)::text FROM bookings ORDER BY 2"))
+        rows = await session.execute(
+            text("SELECT party_id::text, (lower(during) AT TIME ZONE 'UTC')::text FROM bookings ORDER BY 2")
+        )
         return [(row[0], row[1]) for row in rows]
 
 

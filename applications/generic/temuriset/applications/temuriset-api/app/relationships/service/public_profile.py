@@ -8,10 +8,10 @@ from app.access.model.models import Capability
 from app.access.service.policy import check_context, require
 from app.access.service.service import find_party, party_names
 from app.core.errors.base import NotFoundError
-from app.discovery.service.service import published_inventions
 from app.identity.model.models import Principal
 from app.platform.service.audit import record_audit
 from app.platform.service.versions import check_expected
+from app.portfolio.service.service import published_titles
 from app.relationships.model.schema import (
     ProfileResponse,
     PublicInvention,
@@ -62,36 +62,42 @@ class PublicProfileService:
         party = await find_party(self.session, party_id)
         if party is None:
             raise NotFoundError()
-        inventions = [
-            PublicInvention(id=item["id"], title=item["title"], role=MANAGER)
-            for item in await published_inventions(self.session, [party_id])
-        ]
-        relationships = []
-        service = RelationshipService(self.session)
-        for partnership in await SqlAlchemyRelationshipRepository(self.session).of_party(party_id):
-            if partnership.contested:
-                continue
-            effective = await service.effective(partnership)
-            if effective.version is None or not effective.fields:
+        visible = []
+        counterpart_ids: set[UUID] = set()
+        partnerships = await SqlAlchemyRelationshipRepository(self.session).of_party(party_id)
+        projections = await RelationshipService(self.session).effective_many(partnerships)
+        for partnership in partnerships:
+            effective = projections[partnership.id]
+            if effective.version is None or not effective.values:
                 continue
             side = "requester" if partnership.requester_party_id == party_id else "recipient"
-            other = partnership.recipient_party_id if side == "requester" else partnership.requester_party_id
-            names = await party_names(self.session, [other])
+            counterpart = None
+            if "name" in effective.fields:
+                counterpart = partnership.recipient_party_id if side == "requester" else partnership.requester_party_id
+                counterpart_ids.add(counterpart)
+            visible.append((partnership, effective, side, counterpart))
+
+        names = await party_names(self.session, list(counterpart_ids))
+        public = await published_titles(self.session, {party_id, *counterpart_ids})
+        inventions = [
+            PublicInvention(id=invention_id, title=title, role=MANAGER)
+            for owner, invention_id, title in public
+            if owner == party_id
+        ]
+        relationships = []
+        for partnership, effective, side, counterpart in visible:
             linked = {UUID(item) for item in partnership.invention_ids}
-            public = await published_inventions(
-                self.session, [partnership.requester_party_id, partnership.recipient_party_id]
-            )
             relationships.append(
                 PublicRelationship(
                     id=partnership.id,
                     role=ROLE[(partnership.type, side)] if "type" in effective.fields else "Mitra Kerja Sama",
-                    counterpart_party_id=other,
-                    counterpart_name=names.get(other, ""),
+                    counterpart_party_id=counterpart,
+                    counterpart_name=names.get(counterpart) if counterpart else None,
                     fields=effective.values,
                     inventions=[
-                        PublicInvention(id=item["id"], title=item["title"], role=MANAGER)
-                        for item in public
-                        if item["id"] in linked
+                        PublicInvention(id=invention_id, title=title, role=MANAGER)
+                        for owner, invention_id, title in public
+                        if owner in (party_id, counterpart) and invention_id in linked
                     ],
                 )
             )

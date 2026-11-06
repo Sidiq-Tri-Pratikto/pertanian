@@ -2,7 +2,7 @@
 
 from uuid import UUID
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Response
 
 from app.core.database import SessionDep
 from app.core.security import PrincipalDep
@@ -13,6 +13,7 @@ from app.relationships.model.schema import (
     CorrectionRequest,
     PartnershipResponse,
     ProfileResponse,
+    ProposalOptionsResponse,
     ProposePartnershipRequest,
     PublicProfileResponse,
     RestrictRequest,
@@ -24,6 +25,21 @@ from app.relationships.service.public_profile import PublicProfileService
 from app.relationships.service.service import RelationshipService
 
 router = APIRouter(tags=["relationships"])
+
+
+@router.get("/pitches/{pitch_id}/partnership-options", summary="Read eligible relationship types")
+async def proposal_options(pitch_id: UUID, principal: PrincipalDep, session: SessionDep) -> ProposalOptionsResponse:
+    """Read eligible types for the active party after a completed meeting.
+
+    Args:
+        pitch_id (UUID): The pitch.
+        principal (PrincipalDep): The active party.
+        session (SessionDep): Database session.
+
+    Returns:
+        ProposalOptionsResponse: Types the active party may propose.
+    """
+    return await RelationshipService(session).proposal_options(principal, pitch_id)
 
 
 @router.post("/pitches/{pitch_id}/partnerships", status_code=201, summary="Propose a relationship summary")
@@ -238,14 +254,16 @@ async def save_my_profile(body: SaveProfileRequest, principal: PrincipalDep, ses
 
 
 @router.get("/profiles/{party_id}", summary="Read a public profile")
-async def read_public_profile(party_id: UUID, session: SessionDep) -> PublicProfileResponse:
+async def read_public_profile(party_id: UUID, session: SessionDep, response: Response) -> PublicProfileResponse:
     """Read what anyone may see of a party, with no sign-in: published inventions and consented relationship fields.
 
     Args:
         party_id (UUID): The party.
         session (SessionDep): Database session.
+        response (Response): The response whose cache policy applies.
 
     Returns:
         PublicProfileResponse: The public profile.
     """
+    response.headers["Cache-Control"] = "no-store"
     return await PublicProfileService(session).read(party_id)

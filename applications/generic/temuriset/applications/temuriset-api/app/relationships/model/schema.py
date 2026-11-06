@@ -28,6 +28,12 @@ class PartnershipValues(BaseModel):
     evidence: Annotated[str, StringConstraints(strip_whitespace=True, max_length=500)] = ""
 
 
+class ProposalOptionsResponse(BaseModel):
+    """The relationship types available for a completed pitch."""
+
+    types: list[Kind]
+
+
 class ProposePartnershipRequest(BaseModel):
     """Version 1, its public ceiling, and the proposer's own consent subset."""
 
@@ -185,8 +191,8 @@ class PublicRelationship(BaseModel):
 
     id: UUID
     role: str
-    counterpart_party_id: UUID
-    counterpart_name: str
+    counterpart_party_id: UUID | None
+    counterpart_name: str | None
     fields: dict[str, Any]
     inventions: list[PublicInvention]
 

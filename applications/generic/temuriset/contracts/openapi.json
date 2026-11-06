@@ -1086,6 +1086,80 @@
         "title": "CompositionResponse",
         "type": "object"
       },
+      "ConfirmRequest": {
+        "additionalProperties": false,
+        "description": "Confirm the exact version and checksum the client showed, with this party's public subset.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "checksum": {
+            "maxLength": 64,
+            "minLength": 64,
+            "title": "Checksum",
+            "type": "string"
+          },
+          "subset": {
+            "default": [],
+            "items": {
+              "enum": [
+                "name",
+                "type",
+                "scope",
+                "date",
+                "amount",
+                "percent"
+              ],
+              "type": "string"
+            },
+            "maxItems": 6,
+            "title": "Subset",
+            "type": "array"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "version",
+          "checksum"
+        ],
+        "title": "ConfirmRequest",
+        "type": "object"
+      },
+      "ConfirmationResponse": {
+        "description": "One party's confirmation of a version.",
+        "properties": {
+          "confirmed_at": {
+            "format": "date-time",
+            "title": "Confirmed At",
+            "type": "string"
+          },
+          "party_id": {
+            "format": "uuid",
+            "title": "Party Id",
+            "type": "string"
+          },
+          "subset": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Subset",
+            "type": "array"
+          }
+        },
+        "required": [
+          "party_id",
+          "subset",
+          "confirmed_at"
+        ],
+        "title": "ConfirmationResponse",
+        "type": "object"
+      },
       "ContextRequest": {
         "description": "Act as another party: the personal party or an organization the account belongs to.",
         "properties": {
@@ -1099,6 +1173,61 @@
           "party_id"
         ],
         "title": "ContextRequest",
+        "type": "object"
+      },
+      "CorrectionRequest": {
+        "additionalProperties": false,
+        "description": "Correct or expand the current version; the new version starts with no confirmations.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "ceiling": {
+            "anyOf": [
+              {
+                "items": {
+                  "enum": [
+                    "name",
+                    "type",
+                    "scope",
+                    "date",
+                    "amount",
+                    "percent"
+                  ],
+                  "type": "string"
+                },
+                "maxItems": 6,
+                "minItems": 1,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ceiling"
+          },
+          "note": {
+            "default": "",
+            "maxLength": 1000,
+            "title": "Note",
+            "type": "string"
+          },
+          "values": {
+            "$ref": "#/components/schemas/PartnershipValues"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "version",
+          "values"
+        ],
+        "title": "CorrectionRequest",
         "type": "object"
       },
       "CreateInventionRequest": {
@@ -2008,6 +2137,41 @@
           "expected_version"
         ],
         "title": "DraftRequest",
+        "type": "object"
+      },
+      "EffectiveResponse": {
+        "description": "What may be public now: the newest version both confirmed, cut by subsets and restrictions.",
+        "properties": {
+          "fields": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Fields",
+            "type": "array"
+          },
+          "values": {
+            "additionalProperties": true,
+            "title": "Values",
+            "type": "object"
+          },
+          "version": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Version"
+          }
+        },
+        "required": [
+          "version",
+          "fields",
+          "values"
+        ],
+        "title": "EffectiveResponse",
         "type": "object"
       },
       "ErrorBody": {
@@ -4965,24 +5129,255 @@
         "title": "PartnerProfileResponse",
         "type": "object"
       },
-      "PartyName": {
-        "description": "A party as a name.",
+      "PartnershipResponse": {
+        "description": "A relationship as its two parties see it.",
         "properties": {
+          "allowed_actions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Allowed Actions",
+            "type": "array"
+          },
+          "contested": {
+            "title": "Contested",
+            "type": "boolean"
+          },
+          "current": {
+            "$ref": "#/components/schemas/PartnershipVersionResponse"
+          },
+          "effective": {
+            "$ref": "#/components/schemas/EffectiveResponse"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "invention_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Invention Ids",
+            "type": "array"
+          },
+          "operation_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operation Id"
+          },
+          "parties": {
+            "items": {
+              "$ref": "#/components/schemas/app__relationships__model__schema__PartyName"
+            },
+            "title": "Parties",
+            "type": "array"
+          },
+          "pitch_id": {
+            "format": "uuid",
+            "title": "Pitch Id",
+            "type": "string"
+          },
+          "restrictions": {
+            "items": {
+              "$ref": "#/components/schemas/RestrictionResponse"
+            },
+            "title": "Restrictions",
+            "type": "array"
+          },
+          "type": {
+            "enum": [
+              "PROJECT",
+              "LICENSE",
+              "EQUITY"
+            ],
+            "title": "Type",
+            "type": "string"
+          },
+          "versions": {
+            "items": {
+              "$ref": "#/components/schemas/PartnershipVersionResponse"
+            },
+            "title": "Versions",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "pitch_id",
+          "type",
+          "parties",
+          "invention_ids",
+          "contested",
+          "current",
+          "versions",
+          "restrictions",
+          "effective",
+          "allowed_actions"
+        ],
+        "title": "PartnershipResponse",
+        "type": "object"
+      },
+      "PartnershipValues": {
+        "additionalProperties": false,
+        "description": "The summary both parties confirm. ``evidence`` is private and never public.",
+        "properties": {
+          "amount": {
+            "anyOf": [
+              {
+                "maxLength": 24,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount"
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "pattern": "^[A-Z]{3}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency"
+          },
+          "evidence": {
+            "default": "",
+            "maxLength": 500,
+            "title": "Evidence",
+            "type": "string"
+          },
           "name": {
+            "maxLength": 200,
+            "minLength": 1,
             "title": "Name",
             "type": "string"
           },
-          "party_id": {
-            "format": "uuid",
-            "title": "Party Id",
+          "percent": {
+            "anyOf": [
+              {
+                "pattern": "^(100(\\.0{1,2})?|\\d{1,2}(\\.\\d{1,2})?)$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Equity only, with ``percent_date``.",
+            "title": "Percent"
+          },
+          "percent_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Percent Date"
+          },
+          "scope": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Scope",
+            "type": "string"
+          },
+          "start_date": {
+            "format": "date",
+            "title": "Start Date",
             "type": "string"
           }
         },
         "required": [
-          "party_id",
-          "name"
+          "name",
+          "scope",
+          "start_date"
         ],
-        "title": "PartyName",
+        "title": "PartnershipValues",
+        "type": "object"
+      },
+      "PartnershipVersionResponse": {
+        "description": "One version with its confirmations.",
+        "properties": {
+          "ceiling": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Ceiling",
+            "type": "array"
+          },
+          "checksum": {
+            "title": "Checksum",
+            "type": "string"
+          },
+          "confirmations": {
+            "items": {
+              "$ref": "#/components/schemas/ConfirmationResponse"
+            },
+            "title": "Confirmations",
+            "type": "array"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "note": {
+            "title": "Note",
+            "type": "string"
+          },
+          "number": {
+            "title": "Number",
+            "type": "integer"
+          },
+          "proposed_by_party_id": {
+            "format": "uuid",
+            "title": "Proposed By Party Id",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "PENDING_COUNTERPARTY",
+              "CONFIRMED",
+              "CHANGES_REQUESTED",
+              "DECLINED"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "values": {
+            "additionalProperties": true,
+            "title": "Values",
+            "type": "object"
+          }
+        },
+        "required": [
+          "number",
+          "status",
+          "values",
+          "ceiling",
+          "checksum",
+          "proposed_by_party_id",
+          "note",
+          "created_at",
+          "confirmations"
+        ],
+        "title": "PartnershipVersionResponse",
         "type": "object"
       },
       "PinnedInvention": {
@@ -5558,7 +5953,7 @@
             "type": "string"
           },
           "recipient": {
-            "$ref": "#/components/schemas/PartyName"
+            "$ref": "#/components/schemas/app__briefs__model__schema__PartyName"
           },
           "rows": {
             "items": {
@@ -5568,7 +5963,7 @@
             "type": "array"
           },
           "sender": {
-            "$ref": "#/components/schemas/PartyName"
+            "$ref": "#/components/schemas/app__briefs__model__schema__PartyName"
           },
           "shareable_files": {
             "items": {
@@ -5608,6 +6003,58 @@
           "duplicate_pitch_id"
         ],
         "title": "PreflightResponse",
+        "type": "object"
+      },
+      "ProfileResponse": {
+        "description": "The acting party's own profile settings.",
+        "properties": {
+          "bio": {
+            "title": "Bio",
+            "type": "string"
+          },
+          "party_id": {
+            "format": "uuid",
+            "title": "Party Id",
+            "type": "string"
+          },
+          "published": {
+            "title": "Published",
+            "type": "boolean"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "party_id",
+          "bio",
+          "published",
+          "version"
+        ],
+        "title": "ProfileResponse",
+        "type": "object"
+      },
+      "ProposalOptionsResponse": {
+        "description": "The relationship types available for a completed pitch.",
+        "properties": {
+          "types": {
+            "items": {
+              "enum": [
+                "PROJECT",
+                "LICENSE",
+                "EQUITY"
+              ],
+              "type": "string"
+            },
+            "title": "Types",
+            "type": "array"
+          }
+        },
+        "required": [
+          "types"
+        ],
+        "title": "ProposalOptionsResponse",
         "type": "object"
       },
       "ProposalResponse": {
@@ -5757,6 +6204,71 @@
           "slots"
         ],
         "title": "ProposalResponse",
+        "type": "object"
+      },
+      "ProposePartnershipRequest": {
+        "additionalProperties": false,
+        "description": "Version 1, its public ceiling, and the proposer's own consent subset.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "ceiling": {
+            "items": {
+              "enum": [
+                "name",
+                "type",
+                "scope",
+                "date",
+                "amount",
+                "percent"
+              ],
+              "type": "string"
+            },
+            "maxItems": 6,
+            "minItems": 1,
+            "title": "Ceiling",
+            "type": "array"
+          },
+          "subset": {
+            "default": [],
+            "items": {
+              "enum": [
+                "name",
+                "type",
+                "scope",
+                "date",
+                "amount",
+                "percent"
+              ],
+              "type": "string"
+            },
+            "maxItems": 6,
+            "title": "Subset",
+            "type": "array"
+          },
+          "type": {
+            "enum": [
+              "PROJECT",
+              "LICENSE",
+              "EQUITY"
+            ],
+            "title": "Type",
+            "type": "string"
+          },
+          "values": {
+            "$ref": "#/components/schemas/PartnershipValues"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "type",
+          "values",
+          "ceiling"
+        ],
+        "title": "ProposePartnershipRequest",
         "type": "object"
       },
       "ProposeRequest": {
@@ -5937,6 +6449,31 @@
         "title": "PublicFactResponse",
         "type": "object"
       },
+      "PublicInvention": {
+        "description": "A published invention the party manages.",
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "role"
+        ],
+        "title": "PublicInvention",
+        "type": "object"
+      },
       "PublicInventionResponse": {
         "description": "The published version and nothing private.",
         "properties": {
@@ -6052,6 +6589,118 @@
           "published_at"
         ],
         "title": "PublicInventionResponse",
+        "type": "object"
+      },
+      "PublicProfileResponse": {
+        "description": "What anyone may see of a party, computed now from publication and consent (FR-001).",
+        "properties": {
+          "bio": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bio"
+          },
+          "inventions": {
+            "items": {
+              "$ref": "#/components/schemas/PublicInvention"
+            },
+            "title": "Inventions",
+            "type": "array"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "nothing_published": {
+            "title": "Nothing Published",
+            "type": "boolean"
+          },
+          "party_id": {
+            "format": "uuid",
+            "title": "Party Id",
+            "type": "string"
+          },
+          "relationships": {
+            "items": {
+              "$ref": "#/components/schemas/PublicRelationship"
+            },
+            "title": "Relationships",
+            "type": "array"
+          }
+        },
+        "required": [
+          "party_id",
+          "name",
+          "bio",
+          "inventions",
+          "relationships",
+          "nothing_published"
+        ],
+        "title": "PublicProfileResponse",
+        "type": "object"
+      },
+      "PublicRelationship": {
+        "description": "One confirmed relationship, only its fields both parties allowed (AC55).",
+        "properties": {
+          "counterpart_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Counterpart Name"
+          },
+          "counterpart_party_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Counterpart Party Id"
+          },
+          "fields": {
+            "additionalProperties": true,
+            "title": "Fields",
+            "type": "object"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "inventions": {
+            "items": {
+              "$ref": "#/components/schemas/PublicInvention"
+            },
+            "title": "Inventions",
+            "type": "array"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "role",
+          "counterpart_party_id",
+          "counterpart_name",
+          "fields",
+          "inventions"
+        ],
+        "title": "PublicRelationship",
         "type": "object"
       },
       "PublishResponse": {
@@ -6685,6 +7334,61 @@
         "title": "RequirementRow",
         "type": "object"
       },
+      "RestrictRequest": {
+        "additionalProperties": false,
+        "description": "Hide one public field from now on.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "field": {
+            "enum": [
+              "name",
+              "type",
+              "scope",
+              "date",
+              "amount",
+              "percent"
+            ],
+            "title": "Field",
+            "type": "string"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "field"
+        ],
+        "title": "RestrictRequest",
+        "type": "object"
+      },
+      "RestrictionResponse": {
+        "description": "One restriction.",
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "field": {
+            "title": "Field",
+            "type": "string"
+          },
+          "party_id": {
+            "format": "uuid",
+            "title": "Party Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "field",
+          "party_id",
+          "created_at"
+        ],
+        "title": "RestrictionResponse",
+        "type": "object"
+      },
       "ResubmitRequest": {
         "additionalProperties": false,
         "description": "Send again after answering: the brief as edited and the file versions chosen on purpose.",
@@ -6726,6 +7430,28 @@
           "expected_version"
         ],
         "title": "ResubmitRequest",
+        "type": "object"
+      },
+      "ReviewRequest": {
+        "additionalProperties": false,
+        "description": "Contest the public claim; it is hidden while under review.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "reason": {
+            "default": "",
+            "maxLength": 500,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "acting_party_id"
+        ],
+        "title": "ReviewRequest",
         "type": "object"
       },
       "RevisionItemInput": {
@@ -7312,6 +8038,38 @@
           "acting_party_id"
         ],
         "title": "SavePartnerProfileRequest",
+        "type": "object"
+      },
+      "SaveProfileRequest": {
+        "additionalProperties": false,
+        "description": "Publish or change the acting party's public profile.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "bio": {
+            "default": "",
+            "maxLength": 2000,
+            "title": "Bio",
+            "type": "string"
+          },
+          "expected_version": {
+            "title": "Expected Version",
+            "type": "integer"
+          },
+          "published": {
+            "title": "Published",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "expected_version",
+          "published"
+        ],
+        "title": "SaveProfileRequest",
         "type": "object"
       },
       "ScheduleResponse": {
@@ -8353,6 +9111,27 @@
         "title": "VersionedActionRequest",
         "type": "object"
       },
+      "VersionedPartnershipRequest": {
+        "additionalProperties": false,
+        "description": "Decline the current version, against its number.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "version"
+        ],
+        "title": "VersionedPartnershipRequest",
+        "type": "object"
+      },
       "VersionedRequest": {
         "additionalProperties": false,
         "description": "A change against the version the client saw.",
@@ -8389,6 +9168,26 @@
         "title": "ActingPartyRequest",
         "type": "object"
       },
+      "app__briefs__model__schema__PartyName": {
+        "description": "A party as a name.",
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "party_id": {
+            "format": "uuid",
+            "title": "Party Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "party_id",
+          "name"
+        ],
+        "title": "PartyName",
+        "type": "object"
+      },
       "app__discovery__router__ActingPartyRequest": {
         "description": "The party the client acts as.",
         "properties": {
@@ -8402,6 +9201,26 @@
           "acting_party_id"
         ],
         "title": "ActingPartyRequest",
+        "type": "object"
+      },
+      "app__relationships__model__schema__PartyName": {
+        "description": "A party of the relationship.",
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "party_id": {
+            "format": "uuid",
+            "title": "Party Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "party_id",
+          "name"
+        ],
+        "title": "PartyName",
         "type": "object"
       }
     }
@@ -12566,6 +13385,380 @@
         ]
       }
     },
+    "/api/v1/partnerships/{partnership_id}": {
+      "get": {
+        "description": "Read a relationship as one of its two parties.\n\nArgs:\n    partnership_id (UUID): The relationship.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    PartnershipResponse: Versions, confirmations, restrictions and what may be public.",
+        "operationId": "read_partnership_api_v1_partnerships__partnership_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "partnership_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Partnership Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartnershipResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Read a relationship",
+        "tags": [
+          "relationships"
+        ]
+      }
+    },
+    "/api/v1/partnerships/{partnership_id}/confirmations": {
+      "post": {
+        "description": "Confirm a relationship summary.\n\nArgs:\n    partnership_id (UUID): The relationship.\n    body (ConfirmRequest): The request.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    PartnershipResponse: The relationship as its parties see it.",
+        "operationId": "confirm_api_v1_partnerships__partnership_id__confirmations_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "partnership_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Partnership Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartnershipResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Confirm a relationship summary",
+        "tags": [
+          "relationships"
+        ]
+      }
+    },
+    "/api/v1/partnerships/{partnership_id}/corrections": {
+      "post": {
+        "description": "Correct a relationship summary.\n\nArgs:\n    partnership_id (UUID): The relationship.\n    body (CorrectionRequest): The request.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    PartnershipResponse: The relationship as its parties see it.",
+        "operationId": "correct_api_v1_partnerships__partnership_id__corrections_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "partnership_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Partnership Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CorrectionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartnershipResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Correct a relationship summary",
+        "tags": [
+          "relationships"
+        ]
+      }
+    },
+    "/api/v1/partnerships/{partnership_id}/decline": {
+      "post": {
+        "description": "Decline a relationship summary.\n\nArgs:\n    partnership_id (UUID): The relationship.\n    body (VersionedPartnershipRequest): The request.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    PartnershipResponse: The relationship as its parties see it.",
+        "operationId": "decline_api_v1_partnerships__partnership_id__decline_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "partnership_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Partnership Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VersionedPartnershipRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartnershipResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Decline a relationship summary",
+        "tags": [
+          "relationships"
+        ]
+      }
+    },
+    "/api/v1/partnerships/{partnership_id}/request-review": {
+      "post": {
+        "description": "Contest the public claim.\n\nArgs:\n    partnership_id (UUID): The relationship.\n    body (ReviewRequest): The request.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    PartnershipResponse: The relationship as its parties see it.",
+        "operationId": "request_review_api_v1_partnerships__partnership_id__request_review_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "partnership_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Partnership Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartnershipResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Contest the public claim",
+        "tags": [
+          "relationships"
+        ]
+      }
+    },
+    "/api/v1/partnerships/{partnership_id}/restrictions": {
+      "post": {
+        "description": "Hide a public field.\n\nArgs:\n    partnership_id (UUID): The relationship.\n    body (RestrictRequest): The request.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    PartnershipResponse: The relationship as its parties see it.",
+        "operationId": "restrict_api_v1_partnerships__partnership_id__restrictions_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "partnership_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Partnership Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RestrictRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartnershipResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Hide a public field",
+        "tags": [
+          "relationships"
+        ]
+      }
+    },
     "/api/v1/pitches": {
       "get": {
         "description": "List the acting party's sent or received pitches.\n\nArgs:\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    box (Box, optional): ``outgoing`` or ``incoming``. Defaults to \"outgoing\".\n    limit (int, optional): The most to return. Defaults to 50.\n\nReturns:\n    list[PitchSummary]: Newest first.",
@@ -13191,6 +14384,186 @@
         ]
       }
     },
+    "/api/v1/pitches/{pitch_id}/partnership": {
+      "get": {
+        "description": "Read the relationship that grew out of a pitch, or null before one is proposed.\n\nArgs:\n    pitch_id (UUID): The pitch.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    PartnershipResponse | None: The relationship.",
+        "operationId": "read_pitch_partnership_api_v1_pitches__pitch_id__partnership_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pitch_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Pitch Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/PartnershipResponse"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Response Read Pitch Partnership Api V1 Pitches  Pitch Id  Partnership Get"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Read a pitch's relationship",
+        "tags": [
+          "relationships"
+        ]
+      }
+    },
+    "/api/v1/pitches/{pitch_id}/partnership-options": {
+      "get": {
+        "description": "Read eligible types for the active party after a completed meeting.\n\nArgs:\n    pitch_id (UUID): The pitch.\n    principal (PrincipalDep): The active party.\n    session (SessionDep): Database session.\n\nReturns:\n    ProposalOptionsResponse: Types the active party may propose.",
+        "operationId": "proposal_options_api_v1_pitches__pitch_id__partnership_options_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pitch_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Pitch Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProposalOptionsResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Read eligible relationship types",
+        "tags": [
+          "relationships"
+        ]
+      }
+    },
+    "/api/v1/pitches/{pitch_id}/partnerships": {
+      "post": {
+        "description": "Propose a relationship summary.\n\nArgs:\n    pitch_id (UUID): The pitch.\n    body (ProposePartnershipRequest): The request.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    PartnershipResponse: The relationship as its parties see it.",
+        "operationId": "propose_api_v1_pitches__pitch_id__partnerships_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pitch_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Pitch Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProposePartnershipRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartnershipResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Propose a relationship summary",
+        "tags": [
+          "relationships"
+        ]
+      }
+    },
     "/api/v1/pitches/{pitch_id}/resubmit": {
       "post": {
         "description": "Send the next submission once every required item has an answer.\n\nArgs:\n    pitch_id (UUID): The pitch.\n    body (ResubmitRequest): ``expected_version``, brief and files.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    PitchActionResponse: The pitch and submission number.",
@@ -13766,6 +15139,142 @@
         "summary": "Withdraw a pitch",
         "tags": [
           "pitches"
+        ]
+      }
+    },
+    "/api/v1/profiles/me": {
+      "get": {
+        "description": "Read the acting party's bio and whether it is published.\n\nArgs:\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    ProfileResponse: The settings.",
+        "operationId": "read_my_profile_api_v1_profiles_me_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Read my profile settings",
+        "tags": [
+          "relationships"
+        ]
+      },
+      "put": {
+        "description": "Publish, change or withdraw the acting party's biography, against its version.\n\nArgs:\n    body (SaveProfileRequest): Bio, published flag and ``expected_version``.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    ProfileResponse: The settings.",
+        "operationId": "save_my_profile_api_v1_profiles_me_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveProfileRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Publish my profile",
+        "tags": [
+          "relationships"
+        ]
+      }
+    },
+    "/api/v1/profiles/{party_id}": {
+      "get": {
+        "description": "Read what anyone may see of a party, with no sign-in: published inventions and consented relationship fields.\n\nArgs:\n    party_id (UUID): The party.\n    session (SessionDep): Database session.\n    response (Response): The response whose cache policy applies.\n\nReturns:\n    PublicProfileResponse: The public profile.",
+        "operationId": "read_public_profile_api_v1_profiles__party_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "party_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Party Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicProfileResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Read a public profile",
+        "tags": [
+          "relationships"
         ]
       }
     },

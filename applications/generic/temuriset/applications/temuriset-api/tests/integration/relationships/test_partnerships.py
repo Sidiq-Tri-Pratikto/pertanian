@@ -292,3 +292,17 @@ async def test_a_member_without_confirm_relationship_and_a_stranger(
 
     assert member.json()["error"]["code"] == "FORBIDDEN"
     assert (read.status_code, foreign.status_code) == (404, 404)
+
+
+async def test_concurrent_proposals_share_one_completed_pitch(world: World) -> None:
+    """Two authorized parties racing to propose get one version and one safe conflict."""
+    from asyncio import gather  # noqa: PLC0415
+
+    rani, _ = client_of(world, "F01")
+    mitra = world.recipients.clients["A"]
+    pitch = await met(world)
+    options = await rani.get(f"/api/v1/pitches/{pitch['id']}/partnership-options")
+    assert options.status_code == 200, options.text
+    assert options.json()["types"] == ["PROJECT", "LICENSE"]
+    one, two = await gather(propose_partnership(rani, pitch), propose_partnership(mitra, pitch))
+    assert sorted((one.status_code, two.status_code)) == [201, 409]
