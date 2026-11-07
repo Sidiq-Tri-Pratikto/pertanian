@@ -36,6 +36,12 @@ appId: id.hematdaya.app
           element:
             text: "Pembacaan sumber terakhir: 25 Oktober 2026 18.00.*"
           direction: DOWN
+      - scrollUntilVisible:
+          element:
+            text: "Interval 1 jam.*"
+          direction: DOWN
+          timeout: 45000
+          centerElement: true
       - assertVisible:
           text: "Interval 1 jam.*"
       - takeScreenshot: stale-source
@@ -75,6 +81,12 @@ appId: id.hematdaya.app
           element:
             text: "Pembacaan sumber terakhir: 25 Oktober 2026 18.00.*"
           direction: DOWN
+      - scrollUntilVisible:
+          element:
+            text: "Interval 1 jam.*"
+          direction: DOWN
+          timeout: 45000
+          centerElement: true
       - assertVisible:
           text: "Interval 1 jam.*"
       - takeScreenshot: stale-source
@@ -115,8 +127,23 @@ appId: id.hematdaya.app
       - extendedWaitUntil:
           visible: "Buka draf detail"
           timeout: 45000
+      - scrollUntilVisible:
+          element:
+            text: "Detail perangkat terkini belum tersedia. Anda masih dapat membuka draf tersimpan."
+          direction: UP
+          timeout: 45000
       - assertVisible: "Detail perangkat terkini belum tersedia. Anda masih dapat membuka draf tersimpan."
+      - scrollUntilVisible:
+          element:
+            text: "Buka draf detail"
+          direction: DOWN
+          timeout: 45000
       - tapOn: "Buka draf detail"
+      - scrollUntilVisible:
+          element:
+            text: "Draf offline 034"
+          direction: DOWN
+          timeout: 45000
       - assertVisible: "Draf offline 034"
       - tapOn: "Simpan"
       - scrollUntilVisible:
@@ -135,8 +162,13 @@ appId: id.hematdaya.app
           element: "Detail terkini sudah diperiksa"
           direction: DOWN
           timeout: 45000
-      - assertVisible: "Draf offline 034"
       - takeScreenshot: draft-reconciled
+      - scrollUntilVisible:
+          element:
+            text: "Draf offline 034"
+          direction: UP
+          timeout: 45000
+      - assertVisible: "Draf offline 034"
 - runFlow:
     when:
       'true': ${CASE == 'draft-save'}
@@ -144,6 +176,9 @@ appId: id.hematdaya.app
       - tapOn: "Simpan"
       - extendedWaitUntil:
           visible: "Detail perangkat disimpan."
+          timeout: 45000
+      - extendedWaitUntil:
+          visible: "Draf offline 034"
           timeout: 45000
       - assertVisible: "Draf offline 034"
       - openLink: "hematdaya://beranda"
@@ -235,6 +270,11 @@ appId: id.hematdaya.app
           element: "0,000 kWh"
           direction: DOWN
           timeout: 45000
+      - scrollUntilVisible:
+          element:
+            text: "Nol terukur dengan data lengkap.*"
+          direction: DOWN
+          timeout: 45000
       - assertVisible:
           text: "Nol terukur dengan data lengkap.*"
       - scrollUntilVisible:
@@ -297,6 +337,12 @@ appId: id.hematdaya.app
       - scrollUntilVisible:
           element: "Valid: dua perangkat, interval 1 jam"
           direction: DOWN
+      - scrollUntilVisible:
+          element:
+            text: "Gunakan contoh ini"
+            index: 0
+          direction: DOWN
+          timeout: 45000
       - tapOn:
           text: "Gunakan contoh ini"
           index: 0
@@ -326,9 +372,20 @@ appId: id.hematdaya.app
       - tapOn: "Tanggal mulai"
       - inputText: "2026-10-20"
       - hideKeyboard
+      - scrollUntilVisible:
+          element:
+            text: "Tanggal selesai"
+          direction: DOWN
+          timeout: 45000
       - tapOn: "Tanggal selesai"
       - inputText: "2026-10-20"
       - hideKeyboard
+      - scrollUntilVisible:
+          element:
+            text: "Terapkan"
+          direction: DOWN
+          timeout: 45000
+          centerElement: true
       - tapOn: "Terapkan"
       - extendedWaitUntil:
           visible:
@@ -342,6 +399,12 @@ appId: id.hematdaya.app
           element:
             text: "Data historis · Impor CSV"
           direction: DOWN
+      - scrollUntilVisible:
+          element:
+            text: "Pembacaan historis terakhir: 21 Oktober 2026 00.00.*"
+          direction: DOWN
+          timeout: 45000
+          centerElement: true
       - assertVisible:
           text: "Pembacaan historis terakhir: 21 Oktober 2026 00.00.*"
       - assertNotVisible:
@@ -374,6 +437,12 @@ appId: id.hematdaya.app
           element: "0,330 kWh"
           direction: DOWN
           timeout: 45000
+      - scrollUntilVisible:
+          element:
+            text: "Periode aktif: 20 Oktober 2026 · Asia/Jakarta"
+          direction: UP
+          timeout: 45000
+          centerElement: true
       - assertNotVisible:
           text: "(Info: )?Offline · menampilkan data tersimpan"
 - runFlow:
@@ -384,6 +453,12 @@ appId: id.hematdaya.app
           element:
             text: "(Info: )?Offline · menampilkan data tersimpan"
           direction: UP
+          timeout: 45000
+          centerElement: true
+      - scrollUntilVisible:
+          element:
+            text: "Terakhir dimuat: .*"
+          direction: DOWN
           timeout: 45000
       - assertVisible:
           text: "Terakhir dimuat: .*"
