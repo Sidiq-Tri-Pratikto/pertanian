@@ -83,6 +83,10 @@ appId: id.hematdaya.app
       'true': ${['draft-warm','draft-cold'].includes(CASE)}
     commands:
       - tapOn: "Perangkat"
+      # Perangkat can resume an asset detail retained from the preceding phase.
+      - tapOn:
+          text: "Kembali"
+          optional: true
       - scrollUntilVisible:
           element:
             text: "Kulkas,.*"
@@ -169,6 +173,10 @@ appId: id.hematdaya.app
           timeout: 45000
       - assertNotVisible: "14,640 kWh"
       - tapOn: "Perangkat"
+      # Perangkat can resume an asset detail retained from the preceding phase.
+      - tapOn:
+          text: "Kembali"
+          optional: true
       - scrollUntilVisible:
           element:
             text: "Oven,.*"
@@ -200,6 +208,10 @@ appId: id.hematdaya.app
           timeout: 45000
       - takeScreenshot: learning-insufficient-comparison
       - tapOn: "Perangkat"
+      # Perangkat can resume an asset detail retained from the preceding phase.
+      - tapOn:
+          text: "Kembali"
+          optional: true
       - scrollUntilVisible:
           element:
             text: "Pompa Air,.*"
@@ -246,6 +258,10 @@ appId: id.hematdaya.app
           direction: DOWN
       - takeScreenshot: scope-refused
       - tapOn: "Perangkat"
+      # Perangkat can resume an asset detail retained from the preceding phase.
+      - tapOn:
+          text: "Kembali"
+          optional: true
       - scrollUntilVisible:
           element:
             text: "Meter utama,.*70,000 kWh.*"
