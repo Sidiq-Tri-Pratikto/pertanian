@@ -8,12 +8,12 @@ export const SESSION_ENDED_CODES = new Set(['SESSION_EXPIRED', 'UNAUTHORIZED']);
 /**
  * Retry only what the service says is retryable, and count the first attempt within `max_attempts`.
  *
- * @param failureCount Failures so far, including the one being judged.
+ * @param failureCount Zero-based failure count provided by TanStack.
  * @param error The failure.
  */
 export function shouldRetry(failureCount: number, error: unknown): boolean {
   const { recovery } = ApiError.from(error);
-  return recovery.retryable === true && failureCount < (recovery.max_attempts ?? DEFAULT_MAX_ATTEMPTS);
+  return recovery.retryable === true && failureCount + 1 < (recovery.max_attempts ?? DEFAULT_MAX_ATTEMPTS);
 }
 
 /** Wait as long as the service asks, or one second. */

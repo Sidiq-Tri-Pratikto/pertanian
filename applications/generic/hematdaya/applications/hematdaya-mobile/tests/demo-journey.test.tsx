@@ -1,8 +1,12 @@
 import { fireEvent, renderRouter, screen, waitFor, within } from 'expo-router/testing-library';
 import * as SecureStore from 'expo-secure-store';
+import { seedConfirmedWorkspace } from './fixtures/workspaces';
 
-import householdWeek from '../../../contracts/golden/summary-h-week.json';
-import scopeDay from '../../../contracts/golden/summary-scope.json';
+import householdGolden from '../../../contracts/golden/summary-h-week.json';
+import scopeGolden from '../../../contracts/golden/summary-scope.json';
+
+const householdWeek = { ...householdGolden, revision: 1 };
+const scopeDay = { ...scopeGolden, revision: 1 };
 
 const manifest = {
   schema_version: 1,
@@ -30,6 +34,7 @@ function session(scenario: string) {
 
 const emptySummary = {
   ...householdWeek,
+  source_freshness: [],
   energy_kwh: null,
   energy_unavailable_reason: 'no_data',
   assets: [],
@@ -98,10 +103,7 @@ function createCalls(fetchMock: jest.SpyInstance) {
 }
 
 async function storeWorkspace(token = 'hdd_v1_stored') {
-  await SecureStore.setItemAsync(
-    'hematdaya.workspace.v1',
-    JSON.stringify({ token, siteId: 'site-stored', scenarioId: 'h-base', expiresAt: '2099-01-01T00:00:00Z', initialPeriod: LAST_WEEK }),
-  );
+  await seedConfirmedWorkspace({ token, siteId: 'site-stored', scenarioId: 'h-base', expiresAt: '2099-01-01T00:00:00Z', initialPeriod: LAST_WEEK });
 }
 
 async function openDemo() {

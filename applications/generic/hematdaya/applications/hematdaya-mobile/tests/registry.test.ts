@@ -27,6 +27,7 @@ describe('feature registry', () => {
       'saran',
       'bukti-saran',
       'impor-data',
+      'data-tersimpan',
     ]);
   });
 

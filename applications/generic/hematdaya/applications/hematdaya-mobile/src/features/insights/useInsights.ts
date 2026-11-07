@@ -6,11 +6,11 @@ import { useWorkspace } from '@/features/workspace/WorkspaceProvider';
 
 /** Observations and notices for the shared period. */
 export function useInsights() {
-  const { workspace } = useWorkspace();
+  const { workspace, credential, credentialGeneration, scopeEpoch } = useWorkspace();
   const { period } = useNavigationContext();
   return useQuery({
-    queryKey: ['insights', workspace?.siteId, period],
-    queryFn: () => getInsights(workspace!.siteId, periodQuery(period!), workspace!.token),
+    queryKey: ['insights', workspace?.siteId, credentialGeneration, period, scopeEpoch],
+    queryFn: () => getInsights(workspace!.siteId, periodQuery(period!), credential!),
     enabled: workspace !== null && period !== null,
     placeholderData: keepPreviousData,
   });
@@ -18,10 +18,10 @@ export function useInsights() {
 
 /** One frozen evidence revision; the revision is part of the key so a newer one never replaces it. */
 export function useInsight(insightId: string | undefined, revision: number | undefined) {
-  const { workspace } = useWorkspace();
+  const { workspace, credential, credentialGeneration } = useWorkspace();
   return useQuery({
-    queryKey: ['insight', insightId, revision],
-    queryFn: () => getInsight(insightId!, revision!, workspace!.token),
+    queryKey: ['insight', insightId, revision, credentialGeneration],
+    queryFn: () => getInsight(insightId!, revision!, credential!),
     enabled: workspace !== null && insightId !== undefined && revision !== undefined && revision >= 1,
     staleTime: Infinity,
   });

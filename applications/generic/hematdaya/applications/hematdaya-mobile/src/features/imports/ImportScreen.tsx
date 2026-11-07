@@ -22,7 +22,7 @@ export function ImportScreen({ step }: { step: string | undefined }) {
   const current: ImportStep = isStep(step) ? step : 'berkas';
   const frame = useImportFrame();
 
-  if (status === 'loading') {
+  if (status === 'loading' || !draft.ready) {
     return (
       <ImportFrame step={current} frame={frame}>
         <HDProgressStatus state="loading" label="Memuat ruang kerja…" />

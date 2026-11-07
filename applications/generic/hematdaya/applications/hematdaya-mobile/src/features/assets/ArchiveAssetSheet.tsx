@@ -17,12 +17,13 @@ type ArchiveProps = {
   blocked: boolean;
   onSubmit: (changes: AssetChanges) => void;
   onReview: () => void;
+  onCheck?: () => void;
   onClose: () => void;
   returnFocusTo: RefObject<ComponentRef<typeof View> | null>;
 };
 
 export function ArchiveAssetSheet({
-  open, asset, archive, state, blocked, onSubmit, onReview, onClose, returnFocusTo,
+  open, asset, archive, state, blocked, onSubmit, onReview, onCheck, onClose, returnFocusTo,
 }: ArchiveProps) {
   const action = archive ? 'Arsipkan' : 'Pulihkan';
   const busy = state?.kind === 'saving' || state?.kind === 'checking';
@@ -52,7 +53,7 @@ export function ArchiveAssetSheet({
         </HDText>
       )}
       <AssetWriteFeedback state={archiveWrite || blocked ? state : undefined} onReview={archiveWrite ? onReview : undefined}
-        observedLabel={observedLabel} />
+        onCheck={onCheck} observedLabel={observedLabel} />
     </HDSheetDialog>
   );
 }

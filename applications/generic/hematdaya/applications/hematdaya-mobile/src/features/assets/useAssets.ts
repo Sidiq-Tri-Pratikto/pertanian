@@ -3,6 +3,7 @@ import { CancelledError, isCancelledError, skipToken, useQuery, useQueryClient, 
 import { getArchivedAssets, getAsset, getAssets, type AssetPage, type Summary } from '@/api/client';
 import { ApiError, DEFAULT_MAX_ATTEMPTS } from '@/api/errors';
 import { retryDelay } from '@/api/query-client';
+import { isKnownOffline } from '@/features/offline/useConnectivity';
 import { useWorkspace } from '@/features/workspace/WorkspaceProvider';
 
 export function assetKeys(siteId: string | undefined, credential: number) {
@@ -26,7 +27,9 @@ export async function readAssetWithBudget<T>(
   let limit = Infinity;
   for (let attempt = 1; current(); attempt += 1) {
     try {
-      return await read();
+      const data = await read();
+      if (!current()) throw new CancelledError({ revert: true });
+      return data;
     } catch (error) {
       if (isCancelledError(error)) throw error;
       const failure = ApiError.from(error);
@@ -41,11 +44,11 @@ export async function readAssetWithBudget<T>(
 
 /** The active-only list supplies metadata that the ranked summary does not carry. */
 export function useAssets() {
-  const { workspace, credentialGeneration } = useWorkspace();
+  const { workspace, credential, credentialGeneration } = useWorkspace();
   const keys = assetKeys(workspace?.siteId, credentialGeneration);
   return useQuery({
     queryKey: keys.active,
-    queryFn: () => getAssets(workspace!.siteId, workspace!.token),
+    queryFn: () => getAssets(workspace!.siteId, credential!),
     enabled: workspace !== null,
   });
 }
@@ -63,7 +66,7 @@ export function cancelArchiveRead(client: QueryClient, queryKey: readonly unknow
 
 /** Archive cursor reads are independent of site summaries and keep their terminal budget on reopen. */
 export function useArchivedAssets(open: boolean) {
-  const { workspace, credentialGeneration, isCurrentCredential } = useWorkspace();
+  const { workspace, credential, credentialGeneration, isCurrentCredential } = useWorkspace();
   const queryKey = assetKeys(workspace?.siteId, credentialGeneration).archived;
   const queryClient = useQueryClient();
   const query = useQuery<ArchiveRead, ApiError>({
@@ -86,8 +89,8 @@ export function useArchivedAssets(open: boolean) {
       try {
         return await getArchivedAssets(
           workspace.siteId,
-          workspace.token,
-          (readPage) => readAssetWithBudget(readPage, current, (attempt, failure) =>
+          credential!,
+          (readPage) => readAssetWithBudget(readPage, () => current() && !isKnownOffline(), (attempt, failure) =>
             entry.setState({ fetchFailureCount: attempt, fetchFailureReason: failure }),
           ),
           (page) => { partial = page; },
@@ -113,11 +116,11 @@ export function useArchivedAssets(open: boolean) {
 
 /** One owned asset with its bindings and sources. */
 export function useAsset(assetId: string | undefined) {
-  const { workspace, credentialGeneration } = useWorkspace();
+  const { workspace, credential, credentialGeneration } = useWorkspace();
   const keys = assetKeys(workspace?.siteId, credentialGeneration);
   return useQuery({
     queryKey: keys.detail(assetId),
-    queryFn: () => getAsset(assetId!, workspace!.token),
+    queryFn: () => getAsset(assetId!, credential!),
     enabled: workspace !== null && assetId !== undefined,
   });
 }

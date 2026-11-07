@@ -259,14 +259,10 @@ class InsightService:
         published = await self._publish(site, window, candidates)
         # Additional kWh first, then recency, then stable ID. One read covers one period, so recency ties.
         published.sort(key=lambda item: (-item[1], str(item[0].id)))
-        latest = await self.repository.latest_reading_end([source.id for source in snapshot.sources], site_clock(site))
         return InsightListResponse(
             window=window_response(window),
             observations=[response for response, _ in published],
-            notices=[
-                NoticeResponse(**notice)
-                for notice in notices(summary, snapshot, latest, site_clock(site), site.timezone)
-            ],
+            notices=[NoticeResponse(**notice) for notice in notices(summary, snapshot, site.timezone)],
             learning_count=learning,
             comparable_count=comparable,
         )

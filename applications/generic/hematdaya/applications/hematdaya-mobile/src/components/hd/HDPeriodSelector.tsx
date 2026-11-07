@@ -13,7 +13,7 @@ const PRESETS = [
 ];
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
-type HDPeriodSelectorProps = { value: Period; activeLabel: string; timezone: string; onCommit: (period: Period) => void };
+type HDPeriodSelectorProps = { value: Period; activeLabel: string; timezone?: string; onCommit: (period: Period) => void };
 
 /** Presets commit when chosen; a range commits on Terapkan. The service resolves every boundary in site time. */
 export function HDPeriodSelector({ value, activeLabel, timezone, onCommit }: HDPeriodSelectorProps) {
@@ -61,7 +61,7 @@ export function HDPeriodSelector({ value, activeLabel, timezone, onCommit }: HDP
       </View>
       {error ? <HDText tone="error">{error}</HDText> : null}
       <HDText variant="label" role="status" accessibilityLiveRegion="polite">
-        Periode aktif: {activeLabel} · {timezone}
+        Periode aktif: {activeLabel}{timezone ? ` · ${timezone}` : ''}
       </HDText>
     </View>
   );

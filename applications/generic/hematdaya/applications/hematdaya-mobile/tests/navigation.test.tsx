@@ -5,7 +5,9 @@ import { AccessibilityInfo, Platform, Text, View } from 'react-native';
 import { HDScreen } from '@/components/hd/HDScreen';
 import { moveFocus } from '@/lib/focus';
 
-import householdWeek from '../../../contracts/golden/summary-h-week.json';
+import householdGolden from '../../../contracts/golden/summary-h-week.json';
+
+const householdWeek = { ...householdGolden, revision: 1 };
 
 const manifest = {
   schema_version: 1,
@@ -29,6 +31,7 @@ const emptySession = {
 };
 const emptySummary = {
   ...householdWeek,
+  source_freshness: [],
   energy_kwh: null,
   energy_unavailable_reason: 'no_data',
   assets: [],

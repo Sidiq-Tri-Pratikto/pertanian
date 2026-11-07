@@ -5,6 +5,7 @@ import { Platform } from 'react-native';
 import { ContextPresetProvider } from '@/features/context-preset';
 import { ImportDraftProvider } from '@/features/imports/ImportDraftProvider';
 import { NavigationContextProvider } from '@/features/navigation-context/NavigationContextProvider';
+import { installConnectivity } from '@/features/offline/useConnectivity';
 import { WorkspaceProvider } from '@/features/workspace/WorkspaceProvider';
 
 export default function RootLayout() {
@@ -13,6 +14,8 @@ export default function RootLayout() {
       document.documentElement.lang = 'id';
     }
   }, []);
+
+  useEffect(installConnectivity, []);
 
   return (
     <WorkspaceProvider>

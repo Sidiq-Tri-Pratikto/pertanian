@@ -93,3 +93,21 @@ Run `make openapi` in the service first when the API changed.
 - `expo-document-picker` picks the CSV file on Android, iOS and web (on the web it opens an `<input type="file">`). The picked file is uploaded as it is, never read in JavaScript: the service decodes it, so `expo-file-system` is not needed. It copies the file to the cache so the same file can be sent again for every new preview.
 - `overrides.zod` in `package.json` lifts the Expo CLI's build-time `zod` above a high-severity advisory. Remove it once Expo ships a fixed version.
 - `openapi-typescript` is pinned in the `Makefile`, not installed: it peers on TypeScript 5 while Expo SDK 58 needs TypeScript 6.
+
+## Offline acceptance (Spec 034)
+
+Start a migrated test API and Postgres with `COMPOSITION=core-only`, then start Expo web with `EXPO_PUBLIC_API_URL` pointing to that API. Use synthetic test data because the acceptance flow creates temporary demo workspaces and commits the built-in CSV example.
+
+Run the Chrome matrix from this app directory with Node and installed Chrome. The script expects Playwright to be resolvable from the app or from `HEMATDAYA_PLAYWRIGHT_MODULE`.
+
+```bash
+HEMATDAYA_WEB_URL=http://localhost:8081 \
+HEMATDAYA_API_URL=http://localhost:8000 \
+node e2e/offline-web.mjs
+```
+
+Chrome exercises a loaded tab with browser offline mode, then a same-tab cold reload with the app shell reachable and API traffic blocked. It verifies the previous fetch time, a saved asset draft, separate source freshness, owner isolation and the real CSV commit/recovery path. It also checks the learning, measured-zero and scope-refusal cases.
+
+The **HematDaya Android Offline** pull-request workflow builds one embedded JavaScript APK for the exact candidate commit. It uses a Pixel 6 API 34 emulator, pinned Maestro, a dedicated migrated Postgres, the core-only API and test-only loopback. The flow cuts the ADB route and radios for the cold process launch. The `android-offline-evidence` artifact contains the candidate and APK identity, verdict, sanitized request log, screenshots and JUnit. The separate spec 003 job still runs its API-absent flow.
+
+Release the `data-tersimpan` registry change after Chrome and Android pass for the candidate. iOS runtime, the two spec 019 tariff cases and joint P1/P2 walkthroughs have separate evidence.

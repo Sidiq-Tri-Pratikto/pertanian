@@ -12,7 +12,7 @@ import { counterNotes, mappingLine, mappingOf, rowErrorText, streamRow } from '@
 import { ReadFailure } from '@/features/assets/ReadFailure';
 import { uploadable, useImportDraft } from '@/features/imports/ImportDraftProvider';
 import { ImportFrame, useImportFrame } from '@/features/imports/ImportFrame';
-import { CheckStatus, CommitStatus } from '@/features/imports/ImportStatus';
+import { CheckStatus, ImportLocalStatus, CommitStatus } from '@/features/imports/ImportStatus';
 import { useTabNavigation } from '@/features/navigation';
 
 const OPERATION_SENTENCE = 'Konfirmasi impor membuat satu operasi. Mencoba lagi memakai permintaan yang sama, sehingga data tidak tersimpan dua kali.';
@@ -185,7 +185,8 @@ export function PreviewStep() {
       <View style={styles.section}>
         <HDText variant="label">{OPERATION_SENTENCE}</HDText>
         <CommitStatus commit={commit} />
-        <CheckStatus check={draft.check} onRetry={() => void newPreview()} />
+        <ImportLocalStatus unsent={draft.unsent} failed={draft.persistenceFailed} />
+      <CheckStatus check={draft.check} onRetry={() => void newPreview()} />
       </View>
       {draft.more.kind === 'failed' ? (
         <ReadFailure error={draft.more.error} label="Baris berikutnya belum dapat dimuat" retrying={false} onRetry={() => void draft.loadMoreErrors()} />

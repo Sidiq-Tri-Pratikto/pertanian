@@ -1,7 +1,7 @@
 // Recorded on 2026-11-07 from the merged hematdaya-api at 6563a2f (Alembic head 0009), by real demo sessions.
 import { focusManager } from '@tanstack/react-query';
 import { act, fireEvent, renderRouter, screen, waitFor, within } from 'expo-router/testing-library';
-import * as SecureStore from 'expo-secure-store';
+import { seedConfirmedWorkspace } from './fixtures/workspaces';
 
 import recorded from './fixtures/assets.json';
 import { hourlyHistory, mondayWindow, weeklyHistory, weekWindow } from './fixtures/history';
@@ -133,16 +133,13 @@ function requests(fetchMock: jest.SpyInstance, pattern: RegExp): URL[] {
 }
 
 async function storeWorkspace(scenario: string, scenarioId = scenario) {
-  await SecureStore.setItemAsync(
-    'hematdaya.workspace.v1',
-    JSON.stringify({
+  await seedConfirmedWorkspace({
       token: `hdd_v1_${scenario}`,
       siteId: `site-${scenario}`,
       scenarioId,
       expiresAt: '2099-01-01T00:00:00Z',
       initialPeriod: Recorded[scenario].initial_period,
-    }),
-  );
+    });
 }
 
 async function openPerangkat(scenario: string, scenarioId = scenario) {
@@ -349,13 +346,13 @@ describe('Perangkat failures', () => {
     expect(screen.queryByText(/Dapur/)).toBeNull();
   });
 
-  it('keeps the rows when the freshness check fails, and says so', async () => {
+  it('keeps rows and leaves freshness unknown for a legacy summary', async () => {
     mockApi({ insights: SERVER_FAILED });
 
-    const list = await openPerangkat('h-stale-offline');
+    const list = await openPerangkat('h-base');
 
-    expect(await screen.findByText('Status pembaruan sumber belum dapat diperiksa.')).toBeOnTheScreen();
-    expect(within(rowNamed(list, 'Router')).getByText('1,620 kWh')).toBeOnTheScreen();
+    expect(await screen.findByText('Kesegaran sumber belum diketahui.')).toBeOnTheScreen();
+    expect(within(rowNamed(list, 'Router')).getByText('1,680 kWh')).toBeOnTheScreen();
     expect(screen.queryByText('Data belum diperbarui')).toBeNull();
   });
 });
@@ -669,14 +666,12 @@ describe('asset detail states', () => {
 
     await openAddress('h-stale-offline', 'Router');
 
-    const { body, title } = Recorded['h-stale-offline'].notices[0];
-    expect(await screen.findByText(title)).toBeOnTheScreen();
-    expect(title).toBe('Data belum diperbarui · Router');
-    expect(screen.getByText(body)).toBeOnTheScreen();
+    expect(await screen.findByText('Data belum diperbarui · Router')).toBeOnTheScreen();
+    expect(screen.getByText(/Pembacaan sumber terakhir: 25 Oktober 2026 18.00/)).toBeOnTheScreen();
     expect(screen.getByText('1,620 kWh')).toBeOnTheScreen();
     expect(screen.getByText('Sebagian data belum tersedia · Kelengkapan data: 96,4% periode')).toBeOnTheScreen();
-    expect(screen.getAllByText(/\bmati\b/)).toHaveLength(1);
-    expect(screen.getByText(/Ini bukan tanda perangkat mati\./)).toBeOnTheScreen();
+    expect(screen.getByText('Interval 1 jam. Status perangkat tidak diketahui.')).toBeOnTheScreen();
+    expect(screen.queryByText(/\bmati\b/)).toBeNull();
   });
 
   it('notes an allocated estimate', async () => {
@@ -694,7 +689,7 @@ describe('asset detail states', () => {
     await openAddress('h-base', 'Kulkas');
 
     expect(await screen.findByText('Belum ada sumber untuk perangkat ini.')).toBeOnTheScreen();
-    expect(screen.getByText('Demo · Data simulasi')).toBeOnTheScreen();
+    expect(await screen.findByText('Demo · Data simulasi')).toBeOnTheScreen();
   });
 
   it('keeps imported data apart from simulated data', async () => {
@@ -939,12 +934,12 @@ describe('asset detail failures', () => {
     expect(screen.getByText('Demo · Data simulasi')).toBeOnTheScreen();
   });
 
-  it('keeps everything when only the freshness check fails', async () => {
+  it('keeps the energy and reports freshness as unknown for a legacy summary', async () => {
     mockApi({ insights: SERVER_FAILED });
 
     await openAddress('h-base', 'Kulkas');
 
-    expect(await screen.findByText('Status pembaruan sumber belum dapat diperiksa.')).toBeOnTheScreen();
+    expect(await screen.findByText('Belum diketahui')).toBeOnTheScreen();
     expect(screen.getByText('8,400 kWh')).toBeOnTheScreen();
   });
 });

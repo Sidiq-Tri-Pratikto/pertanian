@@ -919,6 +919,22 @@ export interface components {
          */
         CapabilityStatus: "planned" | "simulated" | "available";
         /**
+         * CaptureRangeResponse
+         * @description The span of recorded data attributable to a historical source in the report.
+         */
+        CaptureRangeResponse: {
+            /**
+             * End
+             * Format: date-time
+             */
+            end: string;
+            /**
+             * Start
+             * Format: date-time
+             */
+            start: string;
+        };
+        /**
          * ComparisonResponse
          * @description A matched-baseline comparison. Full recorded totals stay separate from common-mask totals.
          */
@@ -1854,6 +1870,40 @@ export interface components {
             timezone: string;
         };
         /**
+         * SourceFreshnessResponse
+         * @description The capture and freshness for one effective asset/source pair.
+         */
+        SourceFreshnessResponse: {
+            /**
+             * Asset Id
+             * Format: uuid
+             */
+            asset_id: string;
+            /** Cadence Seconds */
+            cadence_seconds: number | null;
+            historical_range: components["schemas"]["CaptureRangeResponse"] | null;
+            /** Label */
+            label: string;
+            /** Last Capture At */
+            last_capture_at: string | null;
+            origin: components["schemas"]["SourceOrigin"];
+            /**
+             * Policy Version
+             * @constant
+             */
+            policy_version: 1;
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "unknown" | "current" | "stale" | "historical";
+        };
+        /**
          * SourceOrigin
          * @description Where a source's readings come from.
          * @enum {string}
@@ -1898,6 +1948,8 @@ export interface components {
             /** Revision */
             revision: number;
             scope: components["schemas"]["ScopeResponse"];
+            /** Source Freshness */
+            source_freshness?: components["schemas"]["SourceFreshnessResponse"][];
             window: components["schemas"]["WindowResponse"];
         };
         /**

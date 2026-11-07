@@ -125,3 +125,16 @@ export function CommitStatus({ commit }: { commit: CommitState }) {
 const styles = StyleSheet.create({
   lines: { gap: tokens.space.stackTight },
 });
+
+export function ImportLocalStatus({ unsent, failed }: { unsent: ApiError | null; failed: boolean }) {
+  return (
+    <>
+      {unsent ? <HDProgressStatus state="failure" label="Impor belum dikirim" detail={unsent.message} /> : null}
+      {failed ? (
+        <HDNotice tone="attention" title="Pemulihan draf belum terkonfirmasi" live>
+          Isian masih tersedia selama aplikasi terbuka. Periksa penyimpanan perangkat sebelum memulai ulang.
+        </HDNotice>
+      ) : null}
+    </>
+  );
+}

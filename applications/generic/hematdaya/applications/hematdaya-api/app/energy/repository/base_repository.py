@@ -31,6 +31,15 @@ class Straddler:
     quality: str
 
 
+@dataclass(frozen=True)
+class CaptureQuery:
+    """A source and an effective authority span for capture lookup."""
+
+    source_id: UUID
+    span: Span
+    historical: bool
+
+
 class EnergyRepository(ABC):
     """Aggregates current readings for source parts and time buckets."""
 
@@ -39,6 +48,12 @@ class EnergyRepository(ABC):
         self, parts: list[tuple[UUID, Span]], buckets: list[Span], now: datetime
     ) -> tuple[list[WholeAggregate], list[Straddler]]:
         """Aggregate completed readings of each (source, span) part into each bucket."""
+
+    @abstractmethod
+    async def capture_ranges(
+        self, queries: list[CaptureQuery], now: datetime
+    ) -> dict[int, tuple[datetime, datetime, datetime]]:
+        """Return the attributed start, end and actual latest capture by query index."""
 
 
 @dataclass(frozen=True)

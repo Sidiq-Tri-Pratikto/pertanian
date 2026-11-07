@@ -1,8 +1,8 @@
 import { focusManager, onlineManager } from '@tanstack/react-query';
 import { act, fireEvent, render, renderHook, screen, waitFor, within } from '@testing-library/react-native';
-import * as SecureStore from 'expo-secure-store';
 import { createRef, type ComponentRef } from 'react';
 import type { View } from 'react-native';
+import { seedConfirmedWorkspace } from './fixtures/workspaces';
 
 import type { Asset } from '@/api/client';
 import { ArchiveAssetSheet } from '@/features/assets/ArchiveAssetSheet';
@@ -45,7 +45,7 @@ it.each([true, false])('names the affected asset and submits only archived=%s af
 });
 
 it.each([1, 3])('limits a failing archived cursor to %i attempts, including the first', async (maxAttempts) => {
-  await SecureStore.setItemAsync('hematdaya.workspace.v1', JSON.stringify(workspace));
+  await seedConfirmedWorkspace(workspace);
   const fetchMock = jest.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
     const cursor = new URL(String(input)).searchParams.get('cursor');
     if (cursor === null) return response({ items: [{ ...asset, archived: true }], next_cursor: 'cursor-2' });
@@ -75,6 +75,6 @@ it.each([1, 3])('limits a failing archived cursor to %i attempts, including the 
     await result.current.refetch();
     await jest.advanceTimersByTimeAsync(6000);
   });
-  expect(fetchMock).toHaveBeenCalledTimes(maxAttempts + 1);
-  expect(fetchMock.mock.calls.every(([url]) => String(url).includes('include_archived=true'))).toBe(true);
+  const archiveCalls = fetchMock.mock.calls.filter(([url]) => String(url).includes('include_archived=true'));
+  expect(archiveCalls).toHaveLength(maxAttempts + 1);
 });

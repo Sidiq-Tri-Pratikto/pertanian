@@ -213,6 +213,9 @@ async def test_reset_returns_only_this_workspace_to_its_start(client: AsyncClien
 
     assert reset.status_code == 200
     assert reset.json()["site_id"] == first["site_id"]
+    assert reset.json()["expires_at"] == first["expires_at"]
+    assert "token" not in reset.json()
+    assert site["kind"] == "demo"
     assert names == ["Kulkas", "Pompa Air", "Router", "TV"]
     assert site["name"] == "Rumah Bandung (demo)"
     assert await _rows(first["site_id"]) == 2688

@@ -1448,6 +1448,19 @@
       "end_date": "2026-10-25"
     },
     "summary": {
+      "source_freshness": [
+        {
+          "source_id": "d12905f5-2a31-4718-99a0-f466ff29c38c",
+          "asset_id": "f2cc1160-5204-4fed-a9a1-f13580108761",
+          "label": "Simulasi koneksi · colokan Router",
+          "origin": "simulated",
+          "state": "stale",
+          "last_capture_at": "2026-10-25T11:00:00Z",
+          "cadence_seconds": 3600,
+          "policy_version": 1,
+          "historical_range": null
+        }
+      ],
       "window": {
         "start": "2026-10-18T17:00:00Z",
         "end": "2026-10-25T17:00:00Z",
@@ -1821,6 +1834,19 @@
           ]
         },
         "summary": {
+          "source_freshness": [
+            {
+              "source_id": "d12905f5-2a31-4718-99a0-f466ff29c38c",
+              "asset_id": "f2cc1160-5204-4fed-a9a1-f13580108761",
+              "label": "Simulasi koneksi · colokan Router",
+              "origin": "simulated",
+              "state": "stale",
+              "last_capture_at": "2026-10-25T11:00:00Z",
+              "cadence_seconds": 3600,
+              "policy_version": 1,
+              "historical_range": null
+            }
+          ],
           "window": {
             "start": "2026-10-18T17:00:00Z",
             "end": "2026-10-25T17:00:00Z",

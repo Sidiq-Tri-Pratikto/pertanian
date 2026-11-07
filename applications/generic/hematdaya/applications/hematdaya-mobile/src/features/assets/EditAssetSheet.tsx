@@ -9,21 +9,20 @@ import { HDText } from '@/components/hd/HDText';
 import { HDTextField } from '@/components/hd/HDTextField';
 import { tokens } from '@/design/tokens.generated';
 import { AssetWriteFeedback } from '@/features/assets/AssetWriteFeedback';
+import { assetValues, EDITABLE_FIELDS, type AssetDraft, type AssetField, type AssetValues } from '@/features/offline/persist-drafts';
 import type { AssetWriteState } from '@/features/assets/useAssetMutations';
 
-const FIELDS = ['name', 'category', 'location'] as const;
+const FIELDS = EDITABLE_FIELDS;
 const LABEL = { name: 'Nama perangkat', category: 'Kategori', location: 'Lokasi' };
-type Field = typeof FIELDS[number];
-type Values = Record<Field, string>;
-type FieldErrors = Partial<Values>;
-export type AssetDraft = { baseline: Values; values: Values; touched: Partial<Record<Field, true>> };
+type FieldErrors = Partial<AssetValues>;
+export type { AssetDraft };
 
 export function createAssetDraft(asset: Asset): AssetDraft {
-  const values = { name: asset.name, category: asset.category ?? '', location: asset.location ?? '' };
+  const values = assetValues(asset);
   return { baseline: values, values, touched: {} };
 }
 
-function reviewedDraft(draft: AssetDraft, observed: Asset, changes: AssetChanges): AssetDraft {
+export function reviewedDraft(draft: AssetDraft, observed: Asset, changes: AssetChanges): AssetDraft {
   const next = createAssetDraft(observed);
   for (const field of FIELDS) {
     if (changes[field] !== undefined) {
@@ -39,16 +38,18 @@ type EditProps = {
   draft: AssetDraft;
   state: AssetWriteState | undefined;
   blocked: boolean;
+  storageFailed?: boolean;
   onDraft: (draft: AssetDraft) => void;
   onSubmit: (changes: AssetChanges) => void;
   onReview: () => void;
+  onCheck?: () => void;
   onClose: () => void;
   onDiscard: () => void;
   returnFocusTo?: RefObject<ComponentRef<typeof View> | null>;
 };
 
 export function EditAssetSheet({
-  open, draft, state, blocked, onDraft, onSubmit, onReview, onClose, onDiscard, returnFocusTo,
+  open, draft, state, blocked, storageFailed = false, onDraft, onSubmit, onReview, onCheck, onClose, onDiscard, returnFocusTo,
 }: EditProps) {
   const name = useRef<ComponentRef<typeof TextInput>>(null);
   const category = useRef<ComponentRef<typeof TextInput>>(null);
@@ -58,7 +59,7 @@ export function EditAssetSheet({
   const [submits, setSubmits] = useState(0);
   const [noChanges, setNoChanges] = useState(false);
   const edited = state?.changes.archived === undefined;
-  const busy = state?.kind === 'saving' || state?.kind === 'checking';
+  const busy = state?.kind === 'saving' || state?.kind === 'checking' || state?.kind === 'draft-checking';
   const refused = edited && state?.kind === 'refused' && state.error.code === 'VALIDATION_FAILED' ? state : null;
   const errors: FieldErrors = { ...validation };
   for (const detail of refused?.error.details ?? []) {
@@ -70,7 +71,7 @@ export function EditAssetSheet({
   const links = FIELDS.flatMap((field) => errors[field]
     ? [{ key: field, text: `${LABEL[field]}. ${errors[field]}`, target: () => inputs[field].current }] : []);
 
-  function change(field: Field, value: string) {
+  function change(field: AssetField, value: string) {
     onDraft({ ...draft, values: { ...draft.values, [field]: value }, touched: { ...draft.touched, [field]: true } });
     setValidation({ ...validation, [field]: undefined });
     setNoChanges(false);
@@ -94,12 +95,12 @@ export function EditAssetSheet({
   }
 
   function review() {
-    if (state?.kind !== 'diverged' || !edited) return;
+    if ((state?.kind !== 'diverged' && state?.kind !== 'draft-review') || !edited) return;
     onDraft(reviewedDraft(draft, state.observed, state.changes));
     onReview();
   }
 
-  const observedLabel = state?.kind === 'diverged' || state?.kind === 'reviewed'
+  const observedLabel = state?.kind === 'diverged' || state?.kind === 'reviewed' || state?.kind === 'draft-review'
     ? [state.observed.name, `kategori ${state.observed.category || 'kosong'}`, `lokasi ${state.observed.location || 'kosong'}`].join(', ')
     : undefined;
 
@@ -124,9 +125,10 @@ export function EditAssetSheet({
               required={field === 'name'} optional={field !== 'name'} editable={!blocked}
               error={errors[field]} onChange={(value) => change(field, value)} />
           ))}
+          {storageFailed ? <HDText role="status">Draf tersedia selama halaman ini terbuka. Pemulihan setelah aplikasi dimulai ulang belum terkonfirmasi.</HDText> : null}
           {noChanges ? <HDText role="status">Belum ada perubahan untuk disimpan.</HDText> : null}
           <AssetWriteFeedback state={edited || blocked ? state : undefined} onReview={edited ? review : undefined}
-            observedLabel={observedLabel} />
+            onCheck={onCheck} observedLabel={observedLabel} />
         </>
       ) : null}
     </HDSheetDialog>

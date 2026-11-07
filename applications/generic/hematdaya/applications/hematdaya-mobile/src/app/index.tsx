@@ -81,8 +81,10 @@ export default function WelcomeScreen() {
         </HDButton>
       </View>
       <HDProgressStatus
-        state={empty.state.kind === 'failed' ? 'failure' : empty.state.kind === 'unknown' ? 'unknown' : null}
-        detail={empty.state.kind === 'failed' || empty.state.kind === 'unknown' ? empty.state.error.message : null}
+        state={empty.state.kind === 'failed' || empty.state.kind === 'unsent' ? 'failure' : empty.state.kind === 'unknown' ? 'unknown' : null}
+        label={empty.state.kind === 'unsent' ? 'Permintaan belum dikirim' : undefined}
+        detail={empty.state.kind === 'failed' || empty.state.kind === 'unknown' || empty.state.kind === 'unsent'
+          ? empty.state.error.message : null}
         action={
           empty.state.kind === 'failed' && empty.state.canRetry ? (
             <HDButton variant="text" icon="refresh" onPress={async () => (await empty.retry()) && router.replace('/beranda')}>

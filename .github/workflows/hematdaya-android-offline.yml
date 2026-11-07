@@ -1,0 +1,266 @@
+name: HematDaya Android Offline
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/hematdaya-android-offline.yml
+      - applications/generic/hematdaya/contracts/**
+      - applications/generic/hematdaya/applications/hematdaya-api/app/**
+      - applications/generic/hematdaya/applications/hematdaya-api/migrations/**
+      - applications/generic/hematdaya/applications/hematdaya-api/uv.lock
+      - applications/generic/hematdaya/applications/hematdaya-mobile/app.json
+      - applications/generic/hematdaya/applications/hematdaya-mobile/package*.json
+      - applications/generic/hematdaya/applications/hematdaya-mobile/src/api/**
+      - applications/generic/hematdaya/applications/hematdaya-mobile/src/app/**
+      - applications/generic/hematdaya/applications/hematdaya-mobile/src/components/hd/**
+      - applications/generic/hematdaya/applications/hematdaya-mobile/src/features/assets/**
+      - applications/generic/hematdaya/applications/hematdaya-mobile/src/features/energy/**
+      - applications/generic/hematdaya/applications/hematdaya-mobile/src/features/imports/**
+      - applications/generic/hematdaya/applications/hematdaya-mobile/src/features/insights/**
+      - applications/generic/hematdaya/applications/hematdaya-mobile/src/features/navigation-context/**
+      - applications/generic/hematdaya/applications/hematdaya-mobile/src/features/offline/**
+      - applications/generic/hematdaya/applications/hematdaya-mobile/src/features/workspace/**
+      - applications/generic/hematdaya/applications/hematdaya-mobile/e2e/*offline*
+      - applications/generic/hematdaya/specs/034-offline-states/**
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hematdaya-android-offline-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  hematdaya-android-offline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    defaults:
+      run:
+        working-directory: applications/generic/hematdaya/applications/hematdaya-mobile
+    env:
+      API_DIR: applications/generic/hematdaya/applications/hematdaya-api
+      DATABASE_URL: postgresql+asyncpg://app:app@localhost:5432/app
+      COMPOSITION: core-only
+      API_LEVEL: "34"
+      DEVICE_PROFILE: pixel_6
+      EMULATOR_TARGET: default
+      EMULATOR_ARCH: x86_64
+      EMULATOR_BOOT_TIMEOUT: "300"
+      EMULATOR_OPTIONS: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot-save
+      APK_PATH: android/app/build/outputs/apk/release/app-release.apk
+      MAESTRO_CLI_NO_ANALYTICS: "1"
+      EXPO_NO_TELEMETRY: "1"
+      MAESTRO_DRIVER_STARTUP_TIMEOUT: "120000"
+      EXPECTED_HEAD: ${{ github.event.pull_request.head.sha }}
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: app
+          POSTGRES_PASSWORD: app
+          POSTGRES_DB: app
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U app"
+          --health-interval 2s
+          --health-timeout 2s
+          --health-retries 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Prepare evidence and verify candidate
+        env:
+          POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
+        run: |
+          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+          echo "EVIDENCE_DIR=$RUNNER_TEMP/offline" >> "$GITHUB_ENV"
+          echo "OFFLINE_SCENARIO_FILE=$RUNNER_TEMP/offline-scenario.txt" >> "$GITHUB_ENV"
+          echo "OFFLINE_POSTGRES_ID=$POSTGRES_CONTAINER" >> "$GITHUB_ENV"
+          mkdir -p "$RUNNER_TEMP/offline"
+          git rev-parse HEAD > "$RUNNER_TEMP/offline/candidate.txt"
+
+      - name: Make space and enable hardware acceleration
+        run: |
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL /usr/local/share/boost
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          test -r /dev/kvm && test -w /dev/kvm
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: applications/generic/hematdaya/applications/hematdaya-mobile/.nvmrc
+          cache: npm
+          cache-dependency-path: applications/generic/hematdaya/applications/hematdaya-mobile/package-lock.json
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: astral-sh/setup-uv@v5
+
+      - name: Install pinned Maestro
+        env:
+          MAESTRO_VERSION: 2.12.1
+          MAESTRO_SHA256: 54dbb0716425626604973cbb374c585ca30272375d9ce15177a1152765ddd9d7
+        run: |
+          curl -fsSL --retry 3 -o "$RUNNER_TEMP/maestro.zip" \
+            "https://github.com/mobile-dev-inc/maestro/releases/download/cli-${MAESTRO_VERSION}/maestro.zip"
+          echo "$MAESTRO_SHA256  $RUNNER_TEMP/maestro.zip" | sha256sum --check --strict -
+          unzip -q "$RUNNER_TEMP/maestro.zip" -d "$RUNNER_TEMP"
+          rm "$RUNNER_TEMP/maestro.zip"
+          echo "$RUNNER_TEMP/maestro/bin" >> "$GITHUB_PATH"
+
+      - run: npm ci
+
+      - name: Generate Android project with a test-only loopback exception
+        run: |
+          CI=1 npx expo prebuild --platform android --no-install
+          python3 - <<'PY'
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+
+          ns = "http://schemas.android.com/apk/res/android"
+          ET.register_namespace("android", ns)
+          main = Path("android/app/src/main")
+          manifest = ET.parse(main / "AndroidManifest.xml")
+          manifest.find("application").set(f"{{{ns}}}networkSecurityConfig", "@xml/ci_loopback")
+          manifest.write(main / "AndroidManifest.xml", encoding="utf-8", xml_declaration=True)
+          config = main / "res/xml/ci_loopback.xml"
+          config.parent.mkdir(parents=True, exist_ok=True)
+          config.write_text(
+              '<network-security-config><base-config cleartextTrafficPermitted="false"/>'
+              '<domain-config cleartextTrafficPermitted="true"><domain>127.0.0.1</domain>'
+              '</domain-config></network-security-config>\n'
+          )
+          PY
+
+      - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+        with:
+          cache-provider: basic
+          add-job-summary: on-failure
+
+      - name: Build one emulator APK with embedded JavaScript
+        env:
+          EXPO_PUBLIC_API_URL: http://127.0.0.1:8034
+        run: |
+          (cd android; ./gradlew assembleRelease -PreactNativeArchitectures=x86_64; ./gradlew --stop)
+          test -f "$APK_PATH"
+          unzip -Z1 "$APK_PATH" | grep -x 'assets/index.android.bundle'
+
+      - name: Migrate Postgres and start the real core-only API
+        run: |
+          cd "$GITHUB_WORKSPACE/$API_DIR"
+          uv sync --frozen
+          uv run alembic upgrade head
+          nohup setsid uv run uvicorn app.main:app --host 127.0.0.1 --port 8035 --no-access-log \
+            </dev/null >"$RUNNER_TEMP/offline-api.log" 2>&1 &
+          echo "$!" > "$RUNNER_TEMP/offline-api.pid"
+
+      - name: Start fixture proxy and prove API and database readiness
+        run: |
+          printf '%s\n' h-stale-offline > "$OFFLINE_SCENARIO_FILE"
+          nohup setsid node e2e/offline-api-proxy.mjs </dev/null >"$EVIDENCE_DIR/requests.txt" 2>"$RUNNER_TEMP/offline-proxy.log" &
+          echo "$!" > "$RUNNER_TEMP/offline-proxy.pid"
+          for _ in $(seq 1 40); do
+            if curl -fsS --max-time 2 http://127.0.0.1:8034/health/ready > "$EVIDENCE_DIR/readiness.json"; then
+              curl -fsS --max-time 2 http://127.0.0.1:8034/api/v1/capabilities > "$EVIDENCE_DIR/capabilities.json"
+              python3 -c 'import json,sys; assert json.load(open(sys.argv[1]))["composition"]["id"] == "core-only"' \
+                "$EVIDENCE_DIR/capabilities.json"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "::error::The test API did not become ready."
+          exit 1
+
+      - name: Run the live offline matrix
+        id: offline_first
+        continue-on-error: true
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
+        with:
+          api-level: ${{ env.API_LEVEL }}
+          target: ${{ env.EMULATOR_TARGET }}
+          arch: ${{ env.EMULATOR_ARCH }}
+          profile: ${{ env.DEVICE_PROFILE }}
+          emulator-boot-timeout: ${{ env.EMULATOR_BOOT_TIMEOUT }}
+          emulator-options: ${{ env.EMULATOR_OPTIONS }}
+          disable-animations: true
+          working-directory: applications/generic/hematdaya/applications/hematdaya-mobile
+          script: bash e2e/android-offline.sh
+
+      - name: Classify emulator boot
+        id: offline_classify
+        if: steps.offline_first.outcome == 'failure'
+        run: |
+          if test -e "$RUNNER_TEMP/offline-emulator-booted"; then
+            echo "retry=false" >> "$GITHUB_OUTPUT"
+            echo "::error::The emulator started and the live matrix failed."
+          else
+            echo "retry=true" >> "$GITHUB_OUTPUT"
+            echo "::warning::Emulator boot failed. Retrying once."
+            pkill -9 -f qemu-system || true
+          fi
+
+      - name: Retry only an emulator boot failure
+        id: offline_retry
+        if: steps.offline_classify.outputs.retry == 'true'
+        continue-on-error: true
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
+        with:
+          api-level: ${{ env.API_LEVEL }}
+          target: ${{ env.EMULATOR_TARGET }}
+          arch: ${{ env.EMULATOR_ARCH }}
+          profile: ${{ env.DEVICE_PROFILE }}
+          emulator-boot-timeout: ${{ env.EMULATOR_BOOT_TIMEOUT }}
+          emulator-options: ${{ env.EMULATOR_OPTIONS }}
+          disable-animations: true
+          working-directory: applications/generic/hematdaya/applications/hematdaya-mobile
+          script: bash e2e/android-offline.sh
+
+      - name: Stop test services and write evidence verdict
+        id: offline_verdict
+        if: always()
+        env:
+          FIRST_OUTCOME: ${{ steps.offline_first.outcome }}
+          RETRY_OUTCOME: ${{ steps.offline_retry.outcome }}
+        run: |
+          for service in api proxy; do
+            file="$RUNNER_TEMP/offline-$service.pid"
+            if test -e "$file"; then kill -- "-$(cat "$file")" 2>/dev/null || true; fi
+          done
+          mkdir -p "$RUNNER_TEMP/offline"
+          status=failed
+          if { test "$FIRST_OUTCOME" = success || test "$RETRY_OUTCOME" = success; } &&
+             test "$(cat "$RUNNER_TEMP/offline/flow-exit-code" 2>/dev/null)" = 0 &&
+             test "$(cat "$RUNNER_TEMP/offline/candidate.txt" 2>/dev/null)" = "$EXPECTED_HEAD"; then
+            status=passed
+          fi
+          echo "result=$status" >> "$GITHUB_OUTPUT"
+          {
+            echo "## Android live offline matrix"
+            echo
+            echo "Result **$status** for \`$EXPECTED_HEAD\`."
+            echo
+            echo "First run $FIRST_OUTCOME, boot retry $RETRY_OUTCOME."
+            echo "The artifact contains runtime and APK identity, sanitized request and device logs, JUnit and screenshots."
+          } | tee "$RUNNER_TEMP/offline/verdict.md" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload live offline evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-offline-evidence
+          path: ${{ runner.temp }}/offline
+          retention-days: 14
+
+      - name: Require a pass for the pull request head
+        if: ${{ !cancelled() }}
+        env:
+          RESULT: ${{ steps.offline_verdict.outputs.result }}
+        run: |
+          test "$RESULT" = passed || { echo "::error::Android live offline matrix failed or did not run."; exit 1; }

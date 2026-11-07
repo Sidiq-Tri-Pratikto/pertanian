@@ -2,12 +2,15 @@
 import * as DocumentPicker from 'expo-document-picker';
 import { router } from 'expo-router';
 import { act, fireEvent, renderRouter, screen, waitFor, within } from 'expo-router/testing-library';
-import * as SecureStore from 'expo-secure-store';
 import { AccessibilityInfo, Platform, StyleSheet } from 'react-native';
+import { seedConfirmedWorkspace } from './fixtures/workspaces';
 
 import type { ImportCommit, ImportPreview } from '@/api/client';
 import { tokens } from '@/design/tokens.generated';
-import { saveImportDraft } from '@/features/imports/draft-store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { storeDraft, writeRecovery, type CommitIntent, type DraftSnapshot } from '@/features/imports/draft-store';
+import { ownerStorageKey } from '@/features/offline/owner-storage';
+import { saveWorkspace, type Workspace } from '@/features/workspace/workspace-store';
 import { EXAMPLES } from '@/features/imports/examples';
 
 import recorded from './fixtures/imports.json';
@@ -60,10 +63,11 @@ function replay(envelope: Envelope, status: number) {
 
 type Call = { url: URL; init: RequestInit };
 type Handler = (call: Call) => Response | Promise<Response>;
-type Handlers = Partial<Record<'create' | 'summary' | 'insights' | 'assets' | 'preview' | 'errors' | 'commit' | 'get', Handler>>;
+type Handlers = Partial<Record<'create' | 'site' | 'summary' | 'insights' | 'assets' | 'preview' | 'errors' | 'commit' | 'get', Handler>>;
 
 const ROUTES: [keyof Handlers, RegExp][] = [
   ['create', /^\/api\/v1\/demo\/sessions$/],
+  ['site', /^\/api\/v1\/sites\/[^/]+$/],
   ['summary', /^\/api\/v1\/sites\/[^/]+\/summary$/],
   ['insights', /^\/api\/v1\/sites\/[^/]+\/insights$/],
   ['assets', /^\/api\/v1\/sites\/[^/]+\/assets$/],
@@ -84,6 +88,7 @@ function mockImportApi(name: string, overrides: Handlers = {}) {
   const calls: Call[] = [];
   const defaults: Required<Handlers> = {
     create: () => respond(201, Recorded.created),
+    site: ({ url }) => respond(200, { id: url.pathname.split('/').at(-1), kind: 'demo', name: 'Fixture', timezone: 'Asia/Jakarta' }),
     summary: ({ url }) => {
       const period = entry.commit?.period;
       if (committed && period && entry.landing && url.searchParams.get('start_date') === period.start_date && url.searchParams.get('end_date') === period.end_date) {
@@ -130,16 +135,13 @@ const GET_IMPORT = /^\/api\/v1\/imports\/[^/]+$/;
 const IMPORT_CALLS = /\/imports/;
 
 async function storeWorkspace(scenarioId = 'empty') {
-  await SecureStore.setItemAsync(
-    'hematdaya.workspace.v1',
-    JSON.stringify({
+  await seedConfirmedWorkspace({
       token: 'token-recorded',
       siteId: 'site-recorded',
       scenarioId,
       expiresAt: '2099-01-01T00:00:00Z',
       initialPeriod: { preset: 'last_7_days', start_date: '2026-10-19', end_date: '2026-10-25' },
-    }),
-  );
+    });
 }
 
 async function openImport(from = '/beranda', entryButton = 'Impor data') {
@@ -869,7 +871,7 @@ describe('blocked previews', () => {
   });
 
   it('reads the preview again when the service refuses a commit as blocked', async () => {
-    const api = mockImportApi('valid', { commit: () => replay(Recorded.three.blocked_commit!, 409), get: () => respond(200, Recorded.three.answered) });
+    const api = mockImportApi('valid', { commit: () => replay(Recorded.three.blocked_commit!, 409), get: () => respond(200, { ...Recorded.three.answered, id: Recorded.valid.answered!.id }) });
     await openImport();
     await toPreview('Valid: dua perangkat, interval 1 jam', Recorded.valid.first!);
 
@@ -1138,12 +1140,12 @@ describe('refusals', () => {
     expectNoSecret();
   });
 
-  it('ends the workspace on an expired session, and keeps the paste', async () => {
+  it('ends the workspace on an expired session and hides its adopted paste', async () => {
     await checkPaste('valid', () => failure(401, 'SESSION_EXPIRED'));
 
     expect(await screen.findByText('Belum ada ruang kerja')).toBeOnTheScreen();
     expect(screen.getByText('Sesi demo sudah berakhir')).toBeOnTheScreen();
-    expect(screen.getByLabelText('Atau tempel isi CSV').props.value).toBe(EXAMPLE.valid.text);
+    expect(screen.getByLabelText('Atau tempel isi CSV').props.value).toBe('');
     expectNoSecret();
   });
 
@@ -1219,7 +1221,7 @@ describe('refusals', () => {
     await refuseCommit(() => failure(401, 'SESSION_EXPIRED'));
 
     expect(await screen.findByText('Belum ada ruang kerja')).toBeOnTheScreen();
-    expect(screen.getByLabelText('Atau tempel isi CSV').props.value).toBe(EXAMPLE.valid.text);
+    expect(screen.getByLabelText('Atau tempel isi CSV').props.value).toBe('');
     expectNoSecret();
   });
 });
@@ -1294,7 +1296,7 @@ describe('after a reload', () => {
   let storage: Map<string, string>;
 
   /** A web page with a workspace and a draft already in sessionStorage, as a reload finds them. */
-  async function reloadAt(url: string, draft: Parameters<typeof saveImportDraft>[0]) {
+  async function reloadAt(url: string, draft: DraftSnapshot & { siteId: string; intent: CommitIntent | null }, legacy = false) {
     Platform.OS = 'web';
     storage = new Map();
     Object.defineProperty(globalThis, 'sessionStorage', {
@@ -1307,17 +1309,19 @@ describe('after a reload', () => {
       },
     });
     Object.defineProperty(globalThis, 'document', { configurable: true, value: { documentElement: {} } });
-    storage.set(
-      'hematdaya.workspace.v1',
-      JSON.stringify({
-        token: 'token-recorded',
-        siteId: 'site-recorded',
-        scenarioId: 'empty',
-        expiresAt: '2099-01-01T00:00:00Z',
-        initialPeriod: { preset: 'last_7_days', start_date: '2026-10-19', end_date: '2026-10-25' },
-      }),
-    );
-    saveImportDraft(draft);
+    const workspace: Workspace = {
+      token: 'token-recorded', siteId: 'site-recorded', scenarioId: 'empty',
+      expiresAt: '2099-01-01T00:00:00Z',
+      initialPeriod: { preset: 'last_7_days', start_date: '2026-10-19', end_date: '2026-10-25' },
+    };
+    if (legacy) {
+      await saveWorkspace(workspace);
+      storage.set('hematdaya.import-draft.v1', JSON.stringify({ ...draft, textDropped: false }));
+    } else {
+      const { epoch } = await seedConfirmedWorkspace(workspace);
+      await AsyncStorage.setItem(ownerStorageKey(epoch, 'import-draft'), storeDraft(draft));
+      if (draft.intent) writeRecovery(epoch, draft.intent);
+    }
     await renderRouter('./src/app', { initialUrl: url });
   }
 
@@ -1426,6 +1430,34 @@ describe('after a reload', () => {
     expect(await screen.findByText(reselect)).toBeOnTheScreen();
     expect(api.requests(GET_IMPORT)).toHaveLength(1);
     expect(api.requests(COMMIT)).toEqual([]);
+  });
+
+  it('verifies an old import explicitly before moving its original attempt to the confirmed owner', async () => {
+    let lookups = 0;
+    const api = mockImportApi('valid', {
+      get: () => ++lookups === 1
+        ? failure(503, 'DATABASE_UNAVAILABLE')
+        : respond(200, Recorded.valid.answered),
+    });
+    const importId = Recorded.valid.answered!.id;
+    const key = 'l'.repeat(22);
+    await reloadAt('/impor/pratinjau', { ...fileDraft, importId, intent: { importId, key, acknowledge: false } }, true);
+    expect(await screen.findByText('Status impor belum diketahui')).toBeOnTheScreen();
+    expect(api.requests(GET_IMPORT)).toHaveLength(0);
+    expect(api.requests(COMMIT)).toHaveLength(0);
+    await press('Periksa status');
+    expect(await screen.findByText('Status impor belum dapat diperiksa')).toBeOnTheScreen();
+    expect(storage.has('hematdaya.import-draft.v1')).toBe(true);
+    expect(api.requests(COMMIT)).toHaveLength(0);
+
+    await press('Periksa status');
+    expect(await screen.findByText('Impor belum tercatat')).toBeOnTheScreen();
+    expect(storage.has('hematdaya.import-draft.v1')).toBe(false);
+    await press('Kirim lagi');
+    await screen.findByText('Langkah 4 dari 4 · Hasil');
+    const requests = api.requests(COMMIT);
+    expect(requests).toHaveLength(1);
+    expect(commitKey(requests[0])).toBe(key);
   });
 
   it('brings a stored paste back, and says when it was too large to keep', async () => {

@@ -1,0 +1,374 @@
+appId: id.hematdaya.app
+---
+- runFlow:
+    when:
+      'true': ${CASE == 'stale-online'}
+    commands:
+      - launchApp:
+          clearState: true
+      - openLink: "hematdaya://beranda"
+- runFlow:
+    when:
+      'true': ${['stale-online','other-owner','learning','zero','scope'].includes(CASE)}
+    commands:
+      - scrollUntilVisible:
+          element: "Coba demo"
+          direction: DOWN
+          timeout: 45000
+      - tapOn: "Coba demo"
+      - tapOn: "Buka demo"
+- runFlow:
+    when:
+      'true': ${['stale-cold','historical-cold'].includes(CASE)}
+    commands:
+      - launchApp
+- runFlow:
+    when:
+      'true': ${['stale-online','stale-cold'].includes(CASE)}
+    commands:
+      - extendedWaitUntil:
+          visible: "Beranda"
+          timeout: 45000
+      - scrollUntilVisible:
+          element: "14,640 kWh"
+          direction: DOWN
+      - scrollUntilVisible:
+          element:
+            text: "Pembacaan sumber terakhir: 25 Oktober 2026 18.00.*"
+          direction: DOWN
+      - assertVisible:
+          text: "Interval 1 jam.*"
+      - takeScreenshot: stale-source
+- runFlow:
+    when:
+      'true': ${CASE == 'stale-online'}
+    commands:
+      - tapOn: "Perangkat"
+      - scrollUntilVisible:
+          element:
+            text: "Kulkas,.*"
+          direction: DOWN
+          timeout: 45000
+      - tapOn:
+          text: "Kulkas,.*"
+      - extendedWaitUntil:
+          visible: "Ubah detail"
+          timeout: 45000
+      - scrollUntilVisible:
+          element: "8,400 kWh"
+          direction: DOWN
+          timeout: 45000
+      - openLink: "hematdaya://beranda"
+- runFlow:
+    when:
+      'true': ${CASE == 'stale-warm'}
+    commands:
+      - swipe:
+          direction: DOWN
+      - swipe:
+          direction: DOWN
+      - scrollUntilVisible:
+          element: "14,640 kWh"
+          direction: DOWN
+          timeout: 45000
+      - scrollUntilVisible:
+          element:
+            text: "Pembacaan sumber terakhir: 25 Oktober 2026 18.00.*"
+          direction: DOWN
+      - assertVisible:
+          text: "Interval 1 jam.*"
+      - takeScreenshot: stale-source
+- runFlow:
+    when:
+      'true': ${['draft-warm','draft-cold'].includes(CASE)}
+    commands:
+      - tapOn: "Perangkat"
+      - scrollUntilVisible:
+          element:
+            text: "Kulkas,.*"
+          direction: DOWN
+          timeout: 45000
+      - tapOn:
+          text: "Kulkas,.*"
+- runFlow:
+    when:
+      'true': ${CASE == 'draft-warm'}
+    commands:
+      - tapOn: "Ubah detail"
+      - tapOn: "Nama perangkat"
+      - eraseText: 30
+      - inputText: "Draf offline 034"
+      - hideKeyboard
+      - tapOn: "Simpan"
+      - scrollUntilVisible:
+          element: "Perubahan belum dikirim"
+          direction: DOWN
+      - takeScreenshot: edit-unsent
+- runFlow:
+    when:
+      'true': ${CASE == 'draft-cold'}
+    commands:
+      - extendedWaitUntil:
+          visible: "Buka draf detail"
+          timeout: 45000
+      - assertVisible: "Detail perangkat terkini belum tersedia. Anda masih dapat membuka draf tersimpan."
+      - tapOn: "Buka draf detail"
+      - assertVisible: "Draf offline 034"
+      - tapOn: "Simpan"
+      - scrollUntilVisible:
+          element: "Perubahan belum dikirim"
+          direction: DOWN
+      - takeScreenshot: cold-draft-unsent
+- runFlow:
+    when:
+      'true': ${CASE == 'draft-reconnect'}
+    commands:
+      - extendedWaitUntil:
+          visible: "Simpan"
+          timeout: 45000
+      - tapOn: "Simpan"
+      - scrollUntilVisible:
+          element: "Detail terkini sudah diperiksa"
+          direction: DOWN
+          timeout: 45000
+      - assertVisible: "Draf offline 034"
+      - takeScreenshot: draft-reconciled
+- runFlow:
+    when:
+      'true': ${CASE == 'draft-save'}
+    commands:
+      - tapOn: "Simpan"
+      - extendedWaitUntil:
+          visible: "Detail perangkat disimpan."
+          timeout: 45000
+      - assertVisible: "Draf offline 034"
+      - openLink: "hematdaya://beranda"
+- runFlow:
+    when:
+      'true': ${CASE == 'revoke'}
+    commands:
+      - openLink: "hematdaya://beranda"
+      - scrollUntilVisible:
+          element:
+            text: "Perbarui|Periksa sumber|Coba demo"
+          direction: DOWN
+          timeout: 45000
+      - tapOn:
+          text: "Perbarui|Periksa sumber"
+          optional: true
+      - extendedWaitUntil:
+          visible: "Belum ada data energi"
+          timeout: 45000
+- runFlow:
+    when:
+      'true': ${CASE == 'other-owner'}
+    commands:
+      - scrollUntilVisible:
+          element: "144,000 kWh"
+          direction: DOWN
+          timeout: 45000
+      - assertNotVisible: "14,640 kWh"
+      - tapOn: "Perangkat"
+      - scrollUntilVisible:
+          element:
+            text: "Oven,.*"
+          direction: DOWN
+      - assertNotVisible:
+          text: "Draf offline 034.*|Kulkas,.*"
+      - takeScreenshot: owner-isolation
+- runFlow:
+    when:
+      'true': ${CASE == 'learning'}
+    commands:
+      - scrollUntilVisible:
+          element: "14,000 kWh"
+          direction: DOWN
+          timeout: 45000
+      - scrollUntilVisible:
+          element:
+            text: 'Data .* belum tersedia\.'
+          direction: DOWN
+      - scrollUntilVisible:
+          element:
+            text: "(Catatan: )?Estimasi biaya segera hadir"
+          direction: DOWN
+      - takeScreenshot: learning-partial-energy
+      - tapOn: "Saran"
+      - scrollUntilVisible:
+          element: "Belum cukup periode pembanding"
+          direction: DOWN
+          timeout: 45000
+      - takeScreenshot: learning-insufficient-comparison
+      - tapOn: "Perangkat"
+      - scrollUntilVisible:
+          element:
+            text: "Pompa Air,.*"
+          direction: DOWN
+      - tapOn:
+          text: "Pompa Air,.*"
+      - scrollUntilVisible:
+          element: "Lihat riwayat"
+          direction: DOWN
+      - tapOn: "Lihat riwayat"
+      - scrollUntilVisible:
+          element: "Riwayat energi"
+          direction: DOWN
+          timeout: 45000
+      - takeScreenshot: learning-valid-history
+- runFlow:
+    when:
+      'true': ${CASE == 'zero'}
+    commands:
+      - scrollUntilVisible:
+          element: "0,000 kWh"
+          direction: DOWN
+          timeout: 45000
+      - assertVisible:
+          text: "Nol terukur dengan data lengkap.*"
+      - scrollUntilVisible:
+          element:
+            text: "(Catatan: )?Estimasi biaya segera hadir"
+          direction: DOWN
+      - assertNotVisible:
+          text: 'Rp\s*0'
+      - takeScreenshot: measured-zero
+- runFlow:
+    when:
+      'true': ${CASE == 'scope'}
+    commands:
+      - scrollUntilVisible:
+          element: "7 hari lengkap terakhir"
+          direction: DOWN
+          timeout: 45000
+      - tapOn: "7 hari lengkap terakhir"
+      - scrollUntilVisible:
+          element: "Total gabungan belum dapat dihitung"
+          direction: DOWN
+      - takeScreenshot: scope-refused
+      - tapOn: "Perangkat"
+      - scrollUntilVisible:
+          element:
+            text: "Meter utama,.*70,000 kWh.*"
+          direction: DOWN
+          timeout: 45000
+      - tapOn:
+          text: "Meter utama,.*"
+      - scrollUntilVisible:
+          element: "70,000 kWh"
+          direction: DOWN
+      - scrollUntilVisible:
+          element: "Lihat riwayat"
+          direction: DOWN
+      - tapOn: "Lihat riwayat"
+      - scrollUntilVisible:
+          element: "Riwayat energi"
+          direction: DOWN
+          timeout: 45000
+      - takeScreenshot: scope-individual-history
+- runFlow:
+    when:
+      'true': ${CASE == 'historical-online'}
+    commands:
+      - openLink: "hematdaya://impor/berkas"
+      - extendedWaitUntil:
+          visible: "Mulai ruang kerja"
+          timeout: 45000
+      - tapOn: "Mulai ruang kerja"
+      - scrollUntilVisible:
+          element: "Contoh berkas yang dapat disalin"
+          direction: DOWN
+      - tapOn: "Contoh berkas yang dapat disalin"
+      - scrollUntilVisible:
+          element: "Valid: dua perangkat, interval 1 jam"
+          direction: DOWN
+      - tapOn:
+          text: "Gunakan contoh ini"
+          index: 0
+      - tapOn: "Periksa berkas"
+      - scrollUntilVisible:
+          element: "Waktu dalam berkas adalah waktu lokal Asia/Jakarta"
+          direction: DOWN
+          timeout: 45000
+      - tapOn: "Waktu dalam berkas adalah waktu lokal Asia/Jakarta"
+      - scrollUntilVisible:
+          element: "Ya, terpisah satu sama lain dan dari perangkat lain"
+          direction: DOWN
+      - tapOn: "Ya, terpisah satu sama lain dan dari perangkat lain"
+      - tapOn: "Lihat pratinjau"
+      - extendedWaitUntil:
+          visible: "Konfirmasi impor"
+          timeout: 45000
+      - tapOn: "Konfirmasi impor"
+      - extendedWaitUntil:
+          visible: "Lihat periode data"
+          timeout: 45000
+      - tapOn: "Lihat periode data"
+      - scrollUntilVisible:
+          element: "Tanggal mulai"
+          direction: DOWN
+          timeout: 45000
+      - tapOn: "Tanggal mulai"
+      - inputText: "2026-10-20"
+      - hideKeyboard
+      - tapOn: "Tanggal selesai"
+      - inputText: "2026-10-20"
+      - hideKeyboard
+      - tapOn: "Terapkan"
+      - extendedWaitUntil:
+          visible:
+            text: "Periode aktif: 20 Oktober 2026 · Asia/Jakarta"
+          timeout: 45000
+      - scrollUntilVisible:
+          element: "0,330 kWh"
+          direction: DOWN
+          timeout: 45000
+      - scrollUntilVisible:
+          element:
+            text: "Data historis · Impor CSV"
+          direction: DOWN
+      - assertVisible:
+          text: "Pembacaan historis terakhir: 21 Oktober 2026 00.00.*"
+      - assertNotVisible:
+          text: "Data belum diperbarui.*"
+      - takeScreenshot: historical-csv
+      - scrollUntilVisible:
+          element: "0,330 kWh"
+          direction: UP
+- runFlow:
+    when:
+      'true': ${['historical-warm','historical-cold'].includes(CASE)}
+    commands:
+      - scrollUntilVisible:
+          element: "0,330 kWh"
+          direction: DOWN
+          timeout: 45000
+      - scrollUntilVisible:
+          element:
+            text: "Periode aktif: 20 Oktober 2026 · Asia/Jakarta"
+          direction: UP
+      - scrollUntilVisible:
+          element:
+            text: "(Info: )?Offline · menampilkan data tersimpan"
+          direction: DOWN
+- runFlow:
+    when:
+      'true': ${CASE == 'historical-reconnect'}
+    commands:
+      - scrollUntilVisible:
+          element: "0,330 kWh"
+          direction: DOWN
+          timeout: 45000
+      - assertNotVisible:
+          text: "(Info: )?Offline · menampilkan data tersimpan"
+- runFlow:
+    when:
+      'true': ${['stale-warm','stale-cold','historical-warm','historical-cold'].includes(CASE)}
+    commands:
+      - scrollUntilVisible:
+          element:
+            text: "(Info: )?Offline · menampilkan data tersimpan"
+          direction: UP
+          timeout: 45000
+      - assertVisible:
+          text: "Terakhir dimuat: .*"
+      - takeScreenshot: saved-fetch-time

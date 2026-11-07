@@ -1,6 +1,6 @@
 import { CancelledError, isCancelledError, skipToken, useQuery } from '@tanstack/react-query';
 
-import { getAssetHistory, type HistoryResponse, type HistorySelection } from '@/api/client';
+import { getAssetHistory, type HistoryResponse, type HistorySelection, type RequestCredential } from '@/api/client';
 import { ApiError, DEFAULT_MAX_ATTEMPTS } from '@/api/errors';
 import { retryDelay } from '@/api/query-client';
 import type { Workspace } from '@/features/workspace/workspace-store';
@@ -9,6 +9,9 @@ type HistoryRead = {
   open: boolean;
   workspace: Workspace | null;
   credentialGeneration?: number;
+  credential?: RequestCredential | null;
+  scopeEpoch?: number;
+  currentScopeEpoch?: () => number;
   assetId: string;
   /** Pass only the confirmed asset summary window for the selected period. */
   confirmed: HistoryResponse['window'] | null;
@@ -43,14 +46,14 @@ async function readWithBudget(
 }
 
 /** Load one confirmed asset period only on disclosure, with a single bounded retry sequence per read. */
-export function useHistory({ open, workspace, credentialGeneration, assetId, confirmed }: HistoryRead) {
+export function useHistory({ open, workspace, credentialGeneration, credential, scopeEpoch, currentScopeEpoch, assetId, confirmed }: HistoryRead) {
   const selection: HistorySelection | null = confirmed && {
     start_date: confirmed.start_date,
     end_date: confirmed.end_date,
     timezone: confirmed.timezone,
     bucket: confirmed.start_date === confirmed.end_date ? 'hour' : 'day',
   };
-  const queryKey = ['asset-history', workspace?.siteId, credentialGeneration, assetId, selection] as const;
+  const queryKey = ['asset-history', workspace?.siteId, credentialGeneration, assetId, selection, scopeEpoch] as const;
   const ready = workspace !== null && assetId.length > 0 && selection !== null;
   return useQuery<HistoryResponse, ApiError>({
     queryKey,
@@ -65,17 +68,21 @@ export function useHistory({ open, workspace, credentialGeneration, assetId, con
       // A refetch of all cached keys can reach an inactive query. History starts only for an open observer.
       if (!query.isActive()) throw new CancelledError({ revert: true });
 
+      const current = () => (!credential || credential.current()) &&
+        (!currentScopeEpoch || currentScopeEpoch() === scopeEpoch) &&
+        client.getQueryCache().find<HistoryResponse, ApiError>({ queryKey }) === query;
       const operation: Operation = {
         terminal: false,
         result: readWithBudget(
           () => {
-            if (client.getQueryCache().find<HistoryResponse, ApiError>({ queryKey }) !== query) throw new CancelledError({ revert: true });
-            return getAssetHistory(assetId, selection, workspace.token);
+            if (!current()) throw new CancelledError({ revert: true });
+            return getAssetHistory(assetId, selection, credential ?? workspace.token);
           },
           (attempt, failure) => query.setState({ fetchFailureCount: attempt, fetchFailureReason: failure }),
         ).then(
           (data) => {
             operations.delete(query);
+            if (!current()) throw new CancelledError({ revert: true });
             return data;
           },
           (failure: unknown) => {

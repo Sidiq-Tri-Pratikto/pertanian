@@ -1,4 +1,4 @@
-import type { Asset, AssetDetail, AssetEnergy, InsightNotice, ScopeKind, SourceOrigin, Summary, TransportStatus } from '@/api/client';
+import type { Asset, AssetDetail, AssetEnergy, ScopeKind, SourceFreshness, SourceOrigin, Summary, TransportStatus } from '@/api/client';
 import { berandaModel, type BerandaModel } from '@/features/energy/beranda-model';
 import {
   formatAssetMeta,
@@ -75,8 +75,8 @@ export function assetRowModel(row: AssetEnergy, asset: Asset | undefined, staleI
 }
 
 /** Assets the service calls stale. The client never compares a timestamp with a cadence. */
-export function staleAssetIds(notices: InsightNotice[]): Set<string> {
-  return new Set(notices.flatMap((notice) => (notice.kind === 'stale' && notice.asset_id ? [notice.asset_id] : [])));
+export function staleAssetIds(sources: SourceFreshness[] | undefined): Set<string> {
+  return new Set(sources?.filter((source) => source.state === 'stale').map((source) => source.asset_id));
 }
 
 const ORIGIN_LABEL: Record<SourceOrigin, string> = {
@@ -164,17 +164,15 @@ export type AssetDetailModel = Pick<
   sourceRows: SourceRow[];
   /** From the asset's sources, because a summary's `origins` is empty on a no-data period and on a conflict. */
   origins: string[];
-  staleNotices: InsightNotice[];
 };
 
 /**
  * S06 from a one-asset summary. Its row is `assets[0]`. `share_percent` and `scope.excluded` are true for that
  * request and misleading on this screen, so neither is passed on.
  */
-export function assetDetailModel(summary: Summary, asset: AssetDetail | undefined, notices: InsightNotice[]): AssetDetailModel {
+export function assetDetailModel(summary: Summary, asset: AssetDetail | undefined): AssetDetailModel {
   const base = berandaModel(summary);
   const row = summary.assets[0] as AssetEnergy | undefined;
-  const assetId = row?.asset_id ?? asset?.id;
   const kind = KIND_BY_SCOPE[row?.scope_kind ?? asset?.scope_kind ?? 'device'];
   return {
     periodLabel: base.periodLabel,
@@ -194,6 +192,5 @@ export function assetDetailModel(summary: Summary, asset: AssetDetail | undefine
     sources: sourceLines(row),
     sourceRows: assetSourceRows(asset, base.timezone),
     origins: [...new Set((asset?.sources ?? []).map((source) => source.origin))],
-    staleNotices: notices.filter((notice) => notice.kind === 'stale' && notice.asset_id === assetId),
   };
 }

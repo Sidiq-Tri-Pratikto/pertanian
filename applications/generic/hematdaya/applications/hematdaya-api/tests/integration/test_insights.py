@@ -14,7 +14,7 @@ from app.core.database import get_session_factory
 from app.measurements.dependencies import build_ingest_service
 from app.measurements.model.models import ReadingInput
 from app.sites.repository.sqlalchemy.repository import SqlAlchemySiteRepository
-from tests.integration.conftest import execute, start_demo
+from tests.integration.conftest import execute, start_demo, summary
 
 pytestmark = pytest.mark.integration
 
@@ -197,7 +197,9 @@ async def test_notices_for_partial_stale_and_scope(client: AsyncClient) -> None:
       scope notice explains the refused total, and learning assets are counted without observations.
     """
     learning = await _insights(client, await start_demo(client, "h-learning-partial"))
-    stale = await _insights(client, await start_demo(client, "h-stale-offline"))
+    session = await start_demo(client, "h-stale-offline")
+    stale = await _insights(client, session)
+    quality = (await summary(client, session, **WEEK))["source_freshness"]
     scope = await _insights(client, await start_demo(client, "h-scope"), start_date="2026-10-25", end_date="2026-10-25")
 
     partial = {notice["title"]: notice["body"] for notice in learning["notices"] if notice["kind"] == "partial"}
@@ -205,6 +207,9 @@ async def test_notices_for_partial_stale_and_scope(client: AsyncClient) -> None:
     assert "24 Oktober 2026 – 25 Oktober 2026" in partial["Sebagian data belum tersedia · Pompa Air"]
     assert learning["learning_count"] >= 1 and learning["observations"] == []
     router = next(notice for notice in stale["notices"] if notice["kind"] == "stale")
+    assert {n["id"] for n in stale["notices"] if n["kind"] == "stale"} == {
+        f"stale:{source['source_id']}" for source in quality if source["state"] == "stale"
+    }
     assert router["title"] == "Data belum diperbarui · Router"
     assert "25 Oktober 2026 18.00" in router["body"] and "bukan tanda perangkat mati" in router["body"]
     assert [notice["kind"] for notice in scope["notices"]][:1] == ["scope"]
