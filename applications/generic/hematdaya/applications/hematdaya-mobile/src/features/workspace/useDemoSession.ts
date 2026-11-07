@@ -1,9 +1,9 @@
-import { getRandomBytes } from 'expo-crypto';
 import { useCallback, useRef, useState } from 'react';
 
 import { createDemoSession } from '@/api/client';
 import { ApiError } from '@/api/errors';
 import { useWorkspace } from '@/features/workspace/WorkspaceProvider';
+import { randomToken } from '@/lib/random';
 
 /** One intentional creation. Retries resend exactly this; a new start makes a new one. Never logged or drafted. */
 type CreateIntent = { scenarioId: string; operationId: string; replayProof: string; attempts: number };
@@ -13,11 +13,6 @@ export type CreateState =
   | { kind: 'pending' }
   | { kind: 'failed'; error: ApiError; canRetry: boolean }
   | { kind: 'unknown'; error: ApiError };
-
-function randomToken(bytes: number): string {
-  const base64 = btoa(String.fromCharCode(...getRandomBytes(bytes)));
-  return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-}
 
 /** Starts a demo or empty workspace with one operation ID and replay proof per intent (spec 008). */
 export function useDemoSession() {

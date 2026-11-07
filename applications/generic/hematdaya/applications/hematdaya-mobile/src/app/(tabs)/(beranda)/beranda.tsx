@@ -16,6 +16,7 @@ import { tokens } from '@/design/tokens.generated';
 import { CONTEXT_EXAMPLES, useContextPreset } from '@/features/context-preset';
 import { berandaModel } from '@/features/energy/beranda-model';
 import { useSummary } from '@/features/energy/useSummary';
+import { FeaturedInsight } from '@/features/insights/FeaturedInsight';
 import { useNavigationContext } from '@/features/navigation-context/NavigationContextProvider';
 import { useTabNavigation } from '@/features/navigation';
 import { ServiceStatus } from '@/features/ServiceStatus';
@@ -227,6 +228,7 @@ function PopulatedBeranda({ data, refreshing, failed, onRefresh }: PopulatedProp
           />
         </View>
       ) : null}
+      <FeaturedInsight />
       <HDButton variant="text" onPress={openSettings}>
         Pengaturan
       </HDButton>

@@ -1,6 +1,6 @@
 """Insights evaluated on read, published as immutable evidence revisions."""
 
-from datetime import date
+from datetime import date, datetime
 from uuid import UUID, uuid4
 
 from app.assets.service.service import AssetService
@@ -19,6 +19,8 @@ from app.insights.model.models import (
     InsightRevisionModel,
 )
 from app.insights.model.schema import (
+    FeedbackStateResponse,
+    HiddenInsightsResponse,
     InsightCopyResponse,
     InsightListResponse,
     InsightResponse,
@@ -29,6 +31,7 @@ from app.insights.repository.base_repository import InsightRepository
 from app.insights.service.copy import insight_copy
 from app.insights.service.notices import notices
 from app.insights.service.rules import direction, evidence, evidence_hash
+from app.insights.service.visibility import VisibilityReader
 from app.sites.model.models import SiteModel
 from app.sites.service.clock import site_clock
 from app.sites.service.service import SiteService
@@ -62,6 +65,15 @@ def render(insight: InsightModel, revision: InsightRevisionModel) -> InsightResp
     )
 
 
+def _hidden(item: InsightResponse, now: datetime) -> bool:
+    feedback = item.feedback
+    if feedback is None:
+        return False
+    return feedback.visibility == "hidden" or (
+        feedback.visibility == "snoozed" and feedback.until is not None and feedback.until > now
+    )
+
+
 class InsightService:
     """Deterministic rules over the matched baseline. Reads re-evaluate, so corrections publish on the next read."""
 
@@ -73,6 +85,7 @@ class InsightService:
         assets: AssetService,
         energy: EnergyService,
         baseline: BaselineService,
+        visibility: VisibilityReader | None = None,
     ) -> None:
         """Bind to storage and the services evidence comes from.
 
@@ -82,8 +95,10 @@ class InsightService:
             assets (AssetService): Asset model.
             energy (EnergyService): Windows and summaries.
             baseline (BaselineService): Matched baseline.
+            visibility (VisibilityReader | None, optional): The owner's feedback. Defaults to None.
         """
         self.repository = repository
+        self.visibility = visibility
         self.sites = sites
         self.assets = assets
         self.energy = energy
@@ -101,7 +116,70 @@ class InsightService:
             InsightListResponse: Ranked observations, notices and counts.
         """
         site = await self.sites.get_owned(site_id, principal)
-        return await self.evaluate(site, self.energy.window(site, query))
+        result = await self.evaluate(site, self.energy.window(site, query))
+        observations = await self._with_feedback(principal, result.observations)
+        visible = [item for item in observations if not _hidden(item, site_clock(site))]
+        return result.model_copy(update={"observations": visible, "hidden_count": len(observations) - len(visible)})
+
+    async def hidden_insights(
+        self, site_id: UUID, principal: PrincipalModel, query: PeriodQuery
+    ) -> HiddenInsightsResponse:
+        """Return the observations the owner hid or snoozed for a period.
+
+        Args:
+            site_id (UUID): The site.
+            principal (PrincipalModel): The acting principal.
+            query (PeriodQuery): The period.
+
+        Returns:
+            HiddenInsightsResponse: Hidden and snoozed observations.
+        """
+        site = await self.sites.get_owned(site_id, principal)
+        result = await self.evaluate(site, self.energy.window(site, query))
+        observations = await self._with_feedback(principal, result.observations)
+        return HiddenInsightsResponse(
+            window=result.window, observations=[item for item in observations if _hidden(item, site_clock(site))]
+        )
+
+    async def owned_revision(self, insight_id: UUID, principal: PrincipalModel, revision: int) -> SiteModel:
+        """Confirm the principal owns the insight and the revision belongs to it.
+
+        Args:
+            insight_id (UUID): The insight.
+            principal (PrincipalModel): The acting principal.
+            revision (int): The revision.
+
+        Returns:
+            SiteModel: The insight's site.
+
+        Raises:
+            NotFoundError: When the insight, its site or the revision is not the principal's.
+        """
+        insight = await self.repository.get(insight_id)
+        if insight is None:
+            raise NotFoundError()
+        site = await self.sites.get_owned(insight.site_id, principal)
+        if await self.repository.revision(insight_id, revision) is None:
+            raise NotFoundError()
+        return site
+
+    async def _with_feedback(self, principal: PrincipalModel, items: list[InsightResponse]) -> list[InsightResponse]:
+        if self.visibility is None or not items:
+            return items
+        views = await self.visibility.feedback(principal.id, [item.id for item in items])
+        result = []
+        for item in items:
+            mine = views.get(item.id, [])
+            own = next((view for view in mine if view.revision == item.revision), None)
+            result.append(
+                item.model_copy(
+                    update={
+                        "feedback": FeedbackStateResponse(**own.model_dump(exclude={"revision"})) if own else None,
+                        "earlier_feedback": any(view.revision < item.revision for view in mine),
+                    }
+                )
+            )
+        return result
 
     async def get(self, insight_id: UUID, principal: PrincipalModel, revision: int | None) -> InsightResponse:
         """Return an insight: a frozen revision when asked, otherwise its current state after re-evaluation.
@@ -138,7 +216,7 @@ class InsightService:
         frozen = await self.repository.revision(insight.id, revision)
         if frozen is None:
             raise NotFoundError()
-        return render(insight, frozen)
+        return (await self._with_feedback(principal, [render(insight, frozen)]))[0]
 
     async def evaluate(self, site: SiteModel, window: Window) -> InsightListResponse:
         """Apply the rules to every active asset and publish the outcome atomically.

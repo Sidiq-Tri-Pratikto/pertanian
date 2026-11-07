@@ -10,6 +10,9 @@ export function useTabNavigation() {
   return {
     openFeature: (id: string) => router.push(inTab(`segera-hadir/${id}`)),
     openSettings: () => router.push(inTab('pengaturan')),
+    openHidden: () => router.push(inTab('saran/tersembunyi')),
+    openEvidence: (id: string, revision: number) =>
+      router.push(inTab(`saran/${encodeURIComponent(id)}?revision=${revision}`)),
     back: () => (router.canGoBack() ? router.back() : router.replace('/beranda')),
   };
 }

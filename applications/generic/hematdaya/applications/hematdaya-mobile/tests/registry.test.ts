@@ -22,6 +22,8 @@ describe('feature registry', () => {
       'demo',
       'ringkasan-energi',
       'kontributor',
+      'saran',
+      'bukti-saran',
     ]);
   });
 

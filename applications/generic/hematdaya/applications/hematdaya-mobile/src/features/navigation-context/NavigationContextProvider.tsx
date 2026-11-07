@@ -4,9 +4,22 @@ import type { PeriodQuery } from '@/api/client';
 import { useWorkspace } from '@/features/workspace/WorkspaceProvider';
 import type { Period } from '@/features/workspace/workspace-store';
 
-type NavigationContextValue = { period: Period | null; setPeriod: (period: Period) => void };
+/** An observation just hidden from the evidence screen, so the screen it returns to can offer Pulihkan. */
+export type HiddenItem = { id: string; revision: number; title: string };
 
-const NavigationContext = createContext<NavigationContextValue>({ period: null, setPeriod: () => undefined });
+type NavigationContextValue = {
+  period: Period | null;
+  setPeriod: (period: Period) => void;
+  recentlyHidden: HiddenItem | null;
+  setRecentlyHidden: (item: HiddenItem | null) => void;
+};
+
+const NavigationContext = createContext<NavigationContextValue>({
+  period: null,
+  setPeriod: () => undefined,
+  recentlyHidden: null,
+  setRecentlyHidden: () => undefined,
+});
 
 /** Presets the service resolves against site time; anything else is an explicit local range. */
 const SERVICE_PRESETS = new Set(['today', 'this_week', 'last_7_days']);
@@ -21,6 +34,7 @@ export function periodQuery(period: Period): PeriodQuery {
 export function NavigationContextProvider({ children }: { children: ReactNode }) {
   const { workspace } = useWorkspace();
   const [chosen, setChosen] = useState<{ siteId: string; period: Period } | null>(null);
+  const [recentlyHidden, setRecentlyHidden] = useState<HiddenItem | null>(null);
   const period =
     workspace === null ? null : chosen?.siteId === workspace.siteId ? chosen.period : workspace.initialPeriod;
 
@@ -28,8 +42,10 @@ export function NavigationContextProvider({ children }: { children: ReactNode })
     () => ({
       period,
       setPeriod: (next: Period) => workspace && setChosen({ siteId: workspace.siteId, period: next }),
+      recentlyHidden,
+      setRecentlyHidden,
     }),
-    [period, workspace],
+    [period, recentlyHidden, workspace],
   );
   return <NavigationContext.Provider value={value}>{children}</NavigationContext.Provider>;
 }

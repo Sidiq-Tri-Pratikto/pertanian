@@ -8,6 +8,7 @@ from app.assets.dependencies import AssetServiceDep
 from app.baseline.dependencies import BaselineServiceDep
 from app.core.database import SessionDep
 from app.energy.dependencies import EnergyServiceDep
+from app.feedback.service.visibility import FeedbackVisibility
 from app.insights.repository.sqlalchemy.repository import SqlAlchemyInsightRepository
 from app.insights.service.service import InsightService
 from app.sites.dependencies import SiteServiceDep
@@ -33,7 +34,12 @@ def get_insight_service(
         InsightService: The service.
     """
     return InsightService(
-        SqlAlchemyInsightRepository(session), sites=sites, assets=assets, energy=energy, baseline=baseline
+        SqlAlchemyInsightRepository(session),
+        sites=sites,
+        assets=assets,
+        energy=energy,
+        baseline=baseline,
+        visibility=FeedbackVisibility.on(session),
     )
 
 

@@ -77,7 +77,7 @@ export const FEATURES: Feature[] = [
     points: ['Hanya muncul bila datanya cukup', 'Catatan kualitas data dipisahkan', 'Saran umum diberi label jelas'],
     screens: ['S07'],
     specs: ['020', '021', '022'],
-    status: 'coming_soon',
+    status: 'available',
   },
   {
     id: 'bukti-saran',
@@ -86,7 +86,7 @@ export const FEATURES: Feature[] = [
     points: ['Nilai, pembanding, dan batasan terlihat', 'Penyebab yang belum diketahui disebutkan', 'Umpan balik tidak mengubah data'],
     screens: ['S08'],
     specs: ['022', '023'],
-    status: 'coming_soon',
+    status: 'available',
   },
   {
     id: 'impor-data',
