@@ -1,5 +1,5 @@
 import { ApiError, readFailure } from '@/api/errors';
-import type { paths } from '@/api/schema.generated';
+import type { components, paths } from '@/api/schema.generated';
 
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:8000';
 const TIMEOUT_MS = 10_000;
@@ -7,9 +7,59 @@ const CAPABILITIES_PATH = '/api/v1/capabilities';
 
 export type CapabilityManifest =
   paths[typeof CAPABILITIES_PATH]['get']['responses'][200]['content']['application/json'];
+export type DemoSession = components['schemas']['DemoSessionResponse'];
+export type Summary = components['schemas']['SummaryResponse'];
+
+type RequestOptions = {
+  method?: 'GET' | 'POST' | 'DELETE';
+  body?: unknown;
+  token?: string | null;
+  headers?: Record<string, string>;
+  query?: Record<string, string | undefined>;
+};
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+/**
+ * One request path for the whole app: bearer token, timeout, and the service's failure envelope. A body that
+ * is not what the caller expects becomes `UNEXPECTED_RESPONSE`, never raw text on screen.
+ */
+export async function apiRequest<T>(
+  path: string,
+  { method = 'GET', body, token, headers, query }: RequestOptions,
+  isValid: (value: unknown) => value is T,
+): Promise<T> {
+  const search = new URLSearchParams(
+    Object.entries(query ?? {}).filter((entry): entry is [string, string] => entry[1] !== undefined),
+  ).toString();
+  let response: Response;
+  try {
+    response = await fetch(`${BASE_URL}${path}${search ? `?${search}` : ''}`, {
+      method,
+      headers: {
+        ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}),
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...headers,
+      },
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+      signal: AbortSignal.timeout(TIMEOUT_MS),
+    });
+  } catch {
+    throw ApiError.unreachable();
+  }
+  if (!response.ok) {
+    throw await readFailure(response);
+  }
+  if (response.status === 204) {
+    return undefined as T;
+  }
+  const payload: unknown = await response.json().catch(() => null);
+  if (!isValid(payload)) {
+    throw ApiError.unexpected();
+  }
+  return payload;
 }
 
 function isVersionedEntry(value: unknown): boolean {
@@ -40,20 +90,51 @@ function isCapabilityManifest(value: unknown): value is CapabilityManifest {
   );
 }
 
-export async function getCapabilities(): Promise<CapabilityManifest> {
-  let response: Response;
-  try {
-    response = await fetch(`${BASE_URL}${CAPABILITIES_PATH}`, { signal: AbortSignal.timeout(TIMEOUT_MS) });
-  } catch {
-    throw ApiError.unreachable();
-  }
-  if (!response.ok) {
-    throw await readFailure(response);
-  }
+function isPeriod(value: unknown): boolean {
+  return isRecord(value) && typeof value.start_date === 'string' && typeof value.end_date === 'string';
+}
 
-  const manifest: unknown = await response.json().catch(() => null);
-  if (!isCapabilityManifest(manifest)) {
-    throw ApiError.unexpected();
-  }
-  return manifest;
+function isDemoSession(value: unknown): value is DemoSession {
+  return (
+    isRecord(value) &&
+    typeof value.token === 'string' &&
+    typeof value.site_id === 'string' &&
+    typeof value.scenario_id === 'string' &&
+    typeof value.expires_at === 'string' &&
+    isPeriod(value.initial_period)
+  );
+}
+
+function isSummary(value: unknown): value is Summary {
+  return (
+    isRecord(value) &&
+    isRecord(value.window) &&
+    isRecord(value.scope) &&
+    isRecord(value.coverage) &&
+    Array.isArray(value.assets) &&
+    (value.energy_kwh === null || typeof value.energy_kwh === 'string')
+  );
+}
+
+export function getCapabilities(): Promise<CapabilityManifest> {
+  return apiRequest(CAPABILITIES_PATH, {}, isCapabilityManifest);
+}
+
+/** Starts a demo, or recovers the same one: the key, proof and body must stay unchanged across retries. */
+export function createDemoSession(scenarioId: string, operationId: string, replayProof: string): Promise<DemoSession> {
+  return apiRequest(
+    '/api/v1/demo/sessions',
+    {
+      method: 'POST',
+      body: { scenario_id: scenarioId },
+      headers: { 'Idempotency-Key': operationId, 'X-Demo-Replay-Proof': replayProof },
+    },
+    isDemoSession,
+  );
+}
+
+export type PeriodQuery = { preset?: string; start_date?: string; end_date?: string };
+
+export function getSummary(siteId: string, period: PeriodQuery, token: string): Promise<Summary> {
+  return apiRequest(`/api/v1/sites/${encodeURIComponent(siteId)}/summary`, { token, query: period }, isSummary);
 }

@@ -17,8 +17,12 @@ describe('feature registry', () => {
     expect(new Set(FEATURES.map((feature) => feature.id)).size).toBe(FEATURES.length);
   });
 
-  it('claims nothing that has not shipped', () => {
-    expect(FEATURES.filter((feature) => feature.status !== 'coming_soon')).toEqual([]);
+  it('claims only what has shipped', () => {
+    expect(FEATURES.filter((feature) => feature.status === 'available').map((feature) => feature.id)).toEqual([
+      'demo',
+      'ringkasan-energi',
+      'kontributor',
+    ]);
   });
 
   it('keeps spec numbers out of product copy', () => {

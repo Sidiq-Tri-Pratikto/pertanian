@@ -3,6 +3,8 @@ import { useEffect } from 'react';
 import { Platform } from 'react-native';
 
 import { ContextPresetProvider } from '@/features/context-preset';
+import { NavigationContextProvider } from '@/features/navigation-context/NavigationContextProvider';
+import { WorkspaceProvider } from '@/features/workspace/WorkspaceProvider';
 
 export default function RootLayout() {
   useEffect(() => {
@@ -12,8 +14,12 @@ export default function RootLayout() {
   }, []);
 
   return (
-    <ContextPresetProvider>
-      <Stack screenOptions={{ headerShown: false }} />
-    </ContextPresetProvider>
+    <WorkspaceProvider>
+      <NavigationContextProvider>
+        <ContextPresetProvider>
+          <Stack screenOptions={{ headerShown: false }} />
+        </ContextPresetProvider>
+      </NavigationContextProvider>
+    </WorkspaceProvider>
   );
 }

@@ -2,7 +2,7 @@
 
 **Feature Branch**: `013-beranda-s03`
 **Created**: 2026-10-30
-**Status**: Seeded, not started
+**Status**: Implemented on `f/012-013-onboarding-beranda`; Jest tests use the H and scope golden responses, and the web build showed H at 14,700 kWh against a live API, including 320 px
 **Milestone**: M2 Read journey on phone
 **Depends on**: 009, 012
 **Size**: M
