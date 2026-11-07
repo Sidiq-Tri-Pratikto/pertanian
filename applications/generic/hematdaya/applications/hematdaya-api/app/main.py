@@ -20,6 +20,7 @@ from app.core.settings import get_settings
 from app.demo.dependencies import resolve_demo_principal
 from app.demo.router import router as demo_router
 from app.energy.router import router as energy_router
+from app.feedback.router import router as feedback_router
 from app.health.router import router as health_router
 from app.identity.dependencies import register_principal_resolver
 from app.imports.router import router as imports_router
@@ -63,6 +64,7 @@ def create_app() -> FastAPI:
     app.include_router(baseline_router, prefix=API_PREFIX)
     app.include_router(insights_router, prefix=API_PREFIX)
     app.include_router(imports_router, prefix=API_PREFIX)
+    app.include_router(feedback_router, prefix=API_PREFIX)
     register_principal_resolver(resolve_demo_principal)
     install_error_schema(app)
     return app

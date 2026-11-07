@@ -21,7 +21,7 @@
 
 **Acceptance Scenarios**:
 
-1. **Given** a qualifying PR, **When** the Android job runs, **Then** it builds a debug APK, boots an emulator, launches the app with its JavaScript, and passes the welcome → Mulai → three tabs flow.
+1. **Given** a qualifying PR, **When** the Android job runs, **Then** it builds a debug APK, boots an emulator, launches the app with its JavaScript, and passes the welcome → Mulai → three tabs flow. Since 012, Mulai needs the API, which this job does not run: the flow asserts Mulai's honest failure with Coba lagi, then opens the three tabs through `hematdaya://beranda`.
 2. **Given** the app crashes on start, **When** the job runs, **Then** it fails and uploads the log.
 
 ### Edge Cases

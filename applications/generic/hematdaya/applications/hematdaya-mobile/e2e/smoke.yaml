@@ -10,8 +10,18 @@ appId: id.hematdaya.app
     element: "Mulai"
     direction: DOWN
 - tapOn: "Mulai"
+# Mulai opens a temporary workspace through the API (012). The API is absent here, so the honest outcome is a
+# failure with a retry on the welcome screen, never an invented workspace.
+- scrollUntilVisible:
+    element: "Belum berhasil"
+    direction: DOWN
+    timeout: 60000
+- assertVisible: "Coba lagi"
+- takeScreenshot: mulai-service-unreachable
+# Without a workspace, Beranda is the S02 empty state, so the three tabs are still reachable by link.
+- openLink: "hematdaya://beranda"
 - extendedWaitUntil:
-    visible: "Beranda"
+    visible: "Belum ada data energi"
     timeout: 60000
 - assertVisible: "Beranda"
 - assertVisible: "Perangkat"

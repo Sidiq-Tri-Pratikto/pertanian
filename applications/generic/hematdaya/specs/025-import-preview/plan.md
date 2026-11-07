@@ -14,7 +14,7 @@ app/imports/
 app/measurements/service/service.py and repository/   # two read methods
 app/core/errors/{base.py, handlers.py, codes.py, public.py}
 app/main.py, migrations/env.py, pyproject.toml, uv.lock
-migrations/versions/0007_create_imports.py
+migrations/versions/0008_create_imports.py
 docs/error-handling/{catalog.md, deviation.md}
 contracts/openapi.json
 ../hematdaya-mobile/src/api/schema.generated.ts
@@ -44,7 +44,7 @@ Preview response fields include `id`, `status`, `file_name`, `expires_at`, `tota
 
 ## Data Model
 
-`imports` and `import_rows` follow [the architecture](../../docs/roadmap/architecture.md). Migration `0007_create_imports.py`, `down_revision = "0006"`. `tests/unit/core/test_migrations.py` requires a single Alembic head, so a parallel migration that merges first means taking the next number and re-pointing `down_revision`.
+`imports` and `import_rows` follow [the architecture](../../docs/roadmap/architecture.md). Migration `0008_create_imports.py`, `down_revision = "0007"`. `tests/unit/core/test_migrations.py` requires a single Alembic head, so a parallel migration that merges first means taking the next number and re-pointing `down_revision`.
 
 ```sql
 CREATE TABLE imports (

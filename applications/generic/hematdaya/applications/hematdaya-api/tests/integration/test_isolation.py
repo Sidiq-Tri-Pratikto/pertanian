@@ -36,6 +36,7 @@ FOREIGN_ROUTES = [
     ("POST", "/api/v1/sites/{site}/imports/preview", None),
     ("GET", "/api/v1/imports/{import}", None),
     ("GET", "/api/v1/imports/{import}/errors", None),
+    ("GET", "/api/v1/sites/{site}/insights/hidden?preset=last_7_days", None),
 ]
 
 

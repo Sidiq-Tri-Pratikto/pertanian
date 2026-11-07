@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { HDText } from '@/components/hd/HDText';
 import { tokens } from '@/design/tokens.generated';
 
-type Option<Value extends string> = { value: Value; label: string };
+type Option<Value extends string> = { value: Value; label: string; description?: string };
 
 type HDChoiceGroupProps<Value extends string> = {
   legend: string;
@@ -49,7 +49,14 @@ export function HDChoiceGroup<Value extends string>({
             <View style={[styles.mark, selected && styles.markSelected]}>
               {selected ? <View style={styles.markFill} /> : null}
             </View>
-            <HDText variant={selected ? 'bodyStrong' : 'body'}>{option.label}</HDText>
+            <View style={styles.optionText}>
+              <HDText variant={selected ? 'bodyStrong' : 'body'}>{option.label}</HDText>
+              {option.description ? (
+                <HDText variant="label" tone="secondary">
+                  {option.description}
+                </HDText>
+              ) : null}
+            </View>
           </Pressable>
         );
       })}
@@ -59,8 +66,10 @@ export function HDChoiceGroup<Value extends string>({
 
 const MARK = tokens.size.iconSmall;
 
+
 const styles = StyleSheet.create({
   group: { gap: tokens.space.stackTight },
+  optionText: { flexShrink: 1, gap: tokens.space["4"] },
   option: {
     minHeight: tokens.size.targetMinimum,
     flexDirection: 'row',

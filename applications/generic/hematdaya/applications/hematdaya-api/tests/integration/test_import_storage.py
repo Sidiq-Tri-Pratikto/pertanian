@@ -341,9 +341,9 @@ async def test_the_migration_downgrades_and_upgrades() -> None:
     - The schema is at head.
 
     Expected:
-    - Downgrading to 0006 removes both tables, and upgrading restores them.
+    - Downgrading to 0007 removes both tables, and upgrading restores them.
     """
-    downgrade = [sys.executable, "-m", "alembic", "downgrade", "0006"]
+    downgrade = [sys.executable, "-m", "alembic", "downgrade", "0007"]
     upgrade = [sys.executable, "-m", "alembic", "upgrade", "head"]
     query = "SELECT to_regclass('imports') IS NOT NULL, to_regclass('import_rows') IS NOT NULL"
 

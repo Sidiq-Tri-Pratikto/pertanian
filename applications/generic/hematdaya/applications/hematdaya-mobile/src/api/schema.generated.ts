@@ -417,6 +417,39 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/insights/{insight_id}/feedback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Give feedback on an evidence revision
+         * @description Mark useful or not relevant, snooze until the next local midnight, hide or restore one revision.
+         *
+         *     Feedback changes no measurement, asset, source or device. Retry an unknown outcome with the same key; a new
+         *     action needs a new key.
+         *
+         *     Args:
+         *         insight_id (UUID): The insight.
+         *         request (FeedbackRequest): Action and revision.
+         *         principal (PrincipalModel): The acting principal.
+         *         service (FeedbackService): Feedback rules.
+         *         idempotency_key (str): At least 128 random bits, base64url.
+         *
+         *     Returns:
+         *         FeedbackResponse: The confirmed state of that revision.
+         */
+        post: operations["give_feedback_api_v1_insights__insight_id__feedback_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/sites/{site_id}": {
         parameters: {
             query?: never;
@@ -557,6 +590,37 @@ export interface paths {
          *         InsightListResponse: Observations, notices and counts.
          */
         get: operations["site_insights_api_v1_sites__site_id__insights_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sites/{site_id}/insights/hidden": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Hidden and snoozed observations for a period
+         * @description Return the owner's hidden and still-snoozed observations, so each can be restored.
+         *
+         *     Args:
+         *         site_id (UUID): The site.
+         *         principal (PrincipalModel): The acting principal.
+         *         service (InsightService): Insight rules.
+         *         preset (Preset | None, optional): A named period. Defaults to None.
+         *         start_date (date | None, optional): First local date. Defaults to None.
+         *         end_date (date | None, optional): Last local date. Defaults to None.
+         *
+         *     Returns:
+         *         HiddenInsightsResponse: Hidden observations.
+         */
+        get: operations["hidden_insights_api_v1_sites__site_id__insights_hidden_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1093,6 +1157,52 @@ export interface components {
          */
         ExpectedUse: "unknown" | "continuous" | "scheduled" | "intermittent";
         /**
+         * FeedbackAction
+         * @description What the owner said about one evidence revision. None of them touches data or equipment.
+         * @enum {string}
+         */
+        FeedbackAction: "useful" | "not_relevant" | "snooze" | "hide" | "restore";
+        /**
+         * FeedbackRequest
+         * @description One action on one evidence revision.
+         */
+        FeedbackRequest: {
+            action: components["schemas"]["FeedbackAction"];
+            /** Revision */
+            revision: number;
+        };
+        /**
+         * FeedbackResponse
+         * @description The confirmed state of that revision for the owner.
+         */
+        FeedbackResponse: {
+            action: components["schemas"]["FeedbackAction"];
+            /**
+             * Insight Id
+             * Format: uuid
+             */
+            insight_id: string;
+            /** Rating */
+            rating: string | null;
+            /** Revision */
+            revision: number;
+            /** Until */
+            until: string | null;
+            visibility: components["schemas"]["Visibility"];
+        };
+        /**
+         * FeedbackStateResponse
+         * @description The owner's feedback on this revision. A newer revision starts without it.
+         */
+        FeedbackStateResponse: {
+            /** Rating */
+            rating: string | null;
+            /** Until */
+            until: string | null;
+            /** Visibility */
+            visibility: string;
+        };
+        /**
          * GapResponse
          * @description A stretch with no valid reading.
          */
@@ -1114,6 +1224,15 @@ export interface components {
          * @enum {string}
          */
         Granularity: "day" | "hour";
+        /**
+         * HiddenInsightsResponse
+         * @description Observations the owner hid or snoozed for a period, so they can be restored.
+         */
+        HiddenInsightsResponse: {
+            /** Observations */
+            observations: components["schemas"]["InsightResponse"][];
+            window: components["schemas"]["WindowResponse"];
+        };
         /**
          * HighestBucketResponse
          * @description The fully covered measured bucket with the greatest value; earliest start breaks a tie.
@@ -1350,6 +1469,11 @@ export interface components {
         InsightListResponse: {
             /** Comparable Count */
             comparable_count: number;
+            /**
+             * Hidden Count
+             * @default 0
+             */
+            hidden_count?: number;
             /** Learning Count */
             learning_count: number;
             /** Notices */
@@ -1374,10 +1498,16 @@ export interface components {
             current_revision: number;
             /** Direction */
             direction: string;
+            /**
+             * Earlier Feedback
+             * @default false
+             */
+            earlier_feedback?: boolean;
             /** Evidence */
             evidence: {
                 [key: string]: unknown;
             };
+            feedback?: components["schemas"]["FeedbackStateResponse"] | null;
             /**
              * Generated At
              * Format: date-time
@@ -1604,6 +1734,12 @@ export interface components {
             /** Timezone */
             timezone?: string | null;
         };
+        /**
+         * Visibility
+         * @description Whether a revision shows in the owner's list.
+         * @enum {string}
+         */
+        Visibility: "visible" | "hidden" | "snoozed";
         /**
          * WindowResponse
          * @description The resolved period in local dates and UTC instants.
@@ -2254,6 +2390,52 @@ export interface operations {
             };
         };
     };
+    give_feedback_api_v1_insights__insight_id__feedback_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                insight_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FeedbackRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeedbackResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     get_site_api_v1_sites__site_id__get: {
         parameters: {
             query?: never;
@@ -2502,6 +2684,50 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["InsightListResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    hidden_insights_api_v1_sites__site_id__insights_hidden_get: {
+        parameters: {
+            query?: {
+                preset?: components["schemas"]["Preset"] | null;
+                start_date?: string | null;
+                end_date?: string | null;
+            };
+            header?: never;
+            path: {
+                site_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HiddenInsightsResponse"];
                 };
             };
             /** @description Validation failed */

@@ -2,7 +2,7 @@
 
 **Feature Branch**: `023-feedback`
 **Created**: 2026-10-30
-**Status**: Seeded, not started
+**Status**: Implemented on `f/022-023-saran-feedback`; API integration tests on Postgres (AT-39, idempotency, revisions, isolation), Jest feedback flows, web checked against the live API; Android not run
 **Milestone**: M4 Evidence
 **Depends on**: 022
 **Size**: M

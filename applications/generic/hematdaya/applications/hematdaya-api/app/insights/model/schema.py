@@ -27,6 +27,14 @@ class InsightCopyResponse(BaseModel):
     step: str
 
 
+class FeedbackStateResponse(BaseModel):
+    """The owner's feedback on this revision. A newer revision starts without it."""
+
+    rating: str | None
+    visibility: str
+    until: datetime | None
+
+
 class InsightResponse(BaseModel):
     """One observation at one revision. A superseded revision stays readable."""
 
@@ -42,6 +50,8 @@ class InsightResponse(BaseModel):
     policy: PolicyResponse
     evidence: dict[str, Any]
     text: InsightCopyResponse
+    feedback: FeedbackStateResponse | None = None
+    earlier_feedback: bool = False
 
 
 class NoticeResponse(BaseModel):
@@ -62,3 +72,11 @@ class InsightListResponse(BaseModel):
     notices: list[NoticeResponse]
     learning_count: int
     comparable_count: int
+    hidden_count: int = 0
+
+
+class HiddenInsightsResponse(BaseModel):
+    """Observations the owner hid or snoozed for a period, so they can be restored."""
+
+    window: WindowResponse
+    observations: list[InsightResponse]

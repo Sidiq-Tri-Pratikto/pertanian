@@ -1094,6 +1094,129 @@
         "title": "ExpectedUse",
         "type": "string"
       },
+      "FeedbackAction": {
+        "description": "What the owner said about one evidence revision. None of them touches data or equipment.",
+        "enum": [
+          "useful",
+          "not_relevant",
+          "snooze",
+          "hide",
+          "restore"
+        ],
+        "title": "FeedbackAction",
+        "type": "string"
+      },
+      "FeedbackRequest": {
+        "description": "One action on one evidence revision.",
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/FeedbackAction"
+          },
+          "revision": {
+            "minimum": 1.0,
+            "title": "Revision",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "action",
+          "revision"
+        ],
+        "title": "FeedbackRequest",
+        "type": "object"
+      },
+      "FeedbackResponse": {
+        "description": "The confirmed state of that revision for the owner.",
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/FeedbackAction"
+          },
+          "insight_id": {
+            "format": "uuid",
+            "title": "Insight Id",
+            "type": "string"
+          },
+          "rating": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rating"
+          },
+          "revision": {
+            "title": "Revision",
+            "type": "integer"
+          },
+          "until": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Until"
+          },
+          "visibility": {
+            "$ref": "#/components/schemas/Visibility"
+          }
+        },
+        "required": [
+          "insight_id",
+          "revision",
+          "action",
+          "rating",
+          "visibility",
+          "until"
+        ],
+        "title": "FeedbackResponse",
+        "type": "object"
+      },
+      "FeedbackStateResponse": {
+        "description": "The owner's feedback on this revision. A newer revision starts without it.",
+        "properties": {
+          "rating": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rating"
+          },
+          "until": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Until"
+          },
+          "visibility": {
+            "title": "Visibility",
+            "type": "string"
+          }
+        },
+        "required": [
+          "rating",
+          "visibility",
+          "until"
+        ],
+        "title": "FeedbackStateResponse",
+        "type": "object"
+      },
       "GapResponse": {
         "description": "A stretch with no valid reading.",
         "properties": {
@@ -1123,6 +1246,27 @@
         ],
         "title": "Granularity",
         "type": "string"
+      },
+      "HiddenInsightsResponse": {
+        "description": "Observations the owner hid or snoozed for a period, so they can be restored.",
+        "properties": {
+          "observations": {
+            "items": {
+              "$ref": "#/components/schemas/InsightResponse"
+            },
+            "title": "Observations",
+            "type": "array"
+          },
+          "window": {
+            "$ref": "#/components/schemas/WindowResponse"
+          }
+        },
+        "required": [
+          "window",
+          "observations"
+        ],
+        "title": "HiddenInsightsResponse",
+        "type": "object"
       },
       "HighestBucketResponse": {
         "description": "The fully covered measured bucket with the greatest value; earliest start breaks a tie.",
@@ -1686,6 +1830,11 @@
             "title": "Comparable Count",
             "type": "integer"
           },
+          "hidden_count": {
+            "default": 0,
+            "title": "Hidden Count",
+            "type": "integer"
+          },
           "learning_count": {
             "title": "Learning Count",
             "type": "integer"
@@ -1738,10 +1887,25 @@
             "title": "Direction",
             "type": "string"
           },
+          "earlier_feedback": {
+            "default": false,
+            "title": "Earlier Feedback",
+            "type": "boolean"
+          },
           "evidence": {
             "additionalProperties": true,
             "title": "Evidence",
             "type": "object"
+          },
+          "feedback": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FeedbackStateResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "generated_at": {
             "format": "date-time",
@@ -2315,6 +2479,16 @@
         },
         "title": "UpdateSiteRequest",
         "type": "object"
+      },
+      "Visibility": {
+        "description": "Whether a revision shows in the owner's list.",
+        "enum": [
+          "visible",
+          "hidden",
+          "snoozed"
+        ],
+        "title": "Visibility",
+        "type": "string"
       },
       "WindowResponse": {
         "description": "The resolved period in local dates and UTC instants.",
@@ -3383,6 +3557,80 @@
         ]
       }
     },
+    "/api/v1/insights/{insight_id}/feedback": {
+      "post": {
+        "description": "Mark useful or not relevant, snooze until the next local midnight, hide or restore one revision.\n\nFeedback changes no measurement, asset, source or device. Retry an unknown outcome with the same key; a new\naction needs a new key.\n\nArgs:\n    insight_id (UUID): The insight.\n    request (FeedbackRequest): Action and revision.\n    principal (PrincipalModel): The acting principal.\n    service (FeedbackService): Feedback rules.\n    idempotency_key (str): At least 128 random bits, base64url.\n\nReturns:\n    FeedbackResponse: The confirmed state of that revision.",
+        "operationId": "give_feedback_api_v1_insights__insight_id__feedback_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "insight_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Insight Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "pattern": "^[A-Za-z0-9_-]{22,128}$",
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FeedbackRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeedbackResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Give feedback on an evidence revision",
+        "tags": [
+          "feedback"
+        ]
+      }
+    },
     "/api/v1/sites/{site_id}": {
       "get": {
         "description": "Return an owned site.\n\nArgs:\n    site_id (UUID): The site.\n    principal (PrincipalModel): The acting principal.\n    service (SiteService): Site rules.\n\nReturns:\n    SiteResponse: The site.",
@@ -3832,6 +4080,110 @@
           }
         },
         "summary": "Observations and notices for a period",
+        "tags": [
+          "insights"
+        ]
+      }
+    },
+    "/api/v1/sites/{site_id}/insights/hidden": {
+      "get": {
+        "description": "Return the owner's hidden and still-snoozed observations, so each can be restored.\n\nArgs:\n    site_id (UUID): The site.\n    principal (PrincipalModel): The acting principal.\n    service (InsightService): Insight rules.\n    preset (Preset | None, optional): A named period. Defaults to None.\n    start_date (date | None, optional): First local date. Defaults to None.\n    end_date (date | None, optional): Last local date. Defaults to None.\n\nReturns:\n    HiddenInsightsResponse: Hidden observations.",
+        "operationId": "hidden_insights_api_v1_sites__site_id__insights_hidden_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "site_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Site Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "preset",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/Preset"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Preset"
+            }
+          },
+          {
+            "in": "query",
+            "name": "start_date",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Start Date"
+            }
+          },
+          {
+            "in": "query",
+            "name": "end_date",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "End Date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HiddenInsightsResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Hidden and snoozed observations for a period",
         "tags": [
           "insights"
         ]

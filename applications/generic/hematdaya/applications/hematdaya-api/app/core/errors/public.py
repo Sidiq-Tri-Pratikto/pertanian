@@ -87,6 +87,11 @@ PUBLIC_ERROR_BY_CODE: dict[str, PublicError] = {
         403,
         "Fitur ini tidak aktif pada layanan ini. Gunakan fitur inti atau hubungi pengelola layanan.",
     ),
+    codes.APP_FEEDBACK_KEY_CONFLICT: PublicError(
+        "CONFLICT",
+        409,
+        "Permintaan ini sudah dipakai untuk umpan balik lain. Pilih tindakannya lagi untuk mengirim umpan balik baru.",
+    ),
     codes.APP_AUTH_REQUIRED: PublicError(
         "UNAUTHORIZED", 401, "Anda perlu masuk terlebih dahulu. Masuk lalu coba lagi."
     ),

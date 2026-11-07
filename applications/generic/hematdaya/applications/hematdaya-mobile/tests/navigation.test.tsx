@@ -1,4 +1,7 @@
+import { router } from 'expo-router';
 import { act, fireEvent, renderRouter, screen } from 'expo-router/testing-library';
+
+import householdWeek from '../../../contracts/golden/summary-h-week.json';
 
 const manifest = {
   schema_version: 1,
@@ -13,6 +16,36 @@ function respond(status: number, body: unknown) {
   return new Response(JSON.stringify(body), { status });
 }
 
+const emptySession = {
+  token: 'hdd_v1_empty',
+  site_id: 'site-empty',
+  scenario_id: 'empty',
+  expires_at: '2099-01-01T00:00:00Z',
+  initial_period: { preset: 'last_7_days', start_date: '2026-10-19', end_date: '2026-10-25' },
+};
+const emptySummary = {
+  ...householdWeek,
+  energy_kwh: null,
+  energy_unavailable_reason: 'no_data',
+  assets: [],
+  scope: { valid: true, issues: [], included: [], excluded: [] },
+  coverage: { minimum: null, concurrent: null, allocated_estimate: false },
+  latest_measurement_at: null,
+  origins: [],
+};
+
+/** Mulai and Lewati open an empty workspace through the service; everything else reads the manifest. */
+async function serviceWithEmptyWorkspace(input: RequestInfo | URL) {
+  const path = new URL(String(input)).pathname;
+  if (path === '/api/v1/demo/sessions') {
+    return respond(201, emptySession);
+  }
+  if (path.endsWith('/insights')) {
+    return respond(200, { window: householdWeek.window, observations: [], notices: [], learning_count: 0, comparable_count: 0 });
+  }
+  return path.endsWith('/summary') ? respond(200, emptySummary) : respond(200, manifest);
+}
+
 async function startAtBeranda() {
   await renderRouter('./src/app', { initialUrl: '/beranda' });
   await screen.findByText('Layanan tersedia');
@@ -20,7 +53,7 @@ async function startAtBeranda() {
 
 describe('navigation', () => {
   beforeEach(() => {
-    jest.spyOn(globalThis, 'fetch').mockImplementation(async () => respond(200, manifest));
+    jest.spyOn(globalThis, 'fetch').mockImplementation(serviceWithEmptyWorkspace);
   });
 
   afterEach(() => {
@@ -192,5 +225,24 @@ describe('service status', () => {
     expect(await screen.findByText('Permintaan belum dapat diselesaikan.')).toBeOnTheScreen();
     expect(screen.getByText('ID referensi: ref_1')).toBeOnTheScreen();
     expect(screen.queryByRole('button', { name: 'Coba lagi' })).toBeNull();
+  });
+
+  it('follows the Android smoke flow with no service: Mulai fails honestly, Beranda is still reachable', async () => {
+    jest.spyOn(globalThis, 'fetch').mockRejectedValue(new TypeError('Network request failed'));
+    // Mirrors e2e/smoke.yaml: every string it asserts must appear here too.
+    await renderRouter('./src/app', { initialUrl: '/' });
+    expect(await screen.findByText('Selamat datang')).toBeOnTheScreen();
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Mulai' }));
+    expect(await screen.findByText('Belum berhasil')).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: 'Coba lagi' })).toBeOnTheScreen();
+    expect(screen.queryByText('Belum ada data energi')).toBeNull();
+
+    await act(() => router.push('/beranda'));
+    expect(await screen.findByText('Belum ada data energi')).toBeOnTheScreen();
+    expect(screen.getByRole('tab', { name: 'Saran' })).toBeOnTheScreen();
+    expect(await screen.findByText('Layanan belum tersedia')).toBeOnTheScreen();
+    await fireEvent.press(screen.getByRole('tab', { name: 'Perangkat' }));
+    expect(await screen.findByText('Belum ada perangkat')).toBeOnTheScreen();
   });
 });

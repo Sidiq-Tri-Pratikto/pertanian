@@ -23,7 +23,7 @@ export const FEATURES: Feature[] = [
     points: ['Pilih contoh rumah tangga atau industri', 'Data simulasi diberi label jelas', 'Dapat diatur ulang kapan saja'],
     screens: ['S01', 'S02'],
     specs: ['007', '008', '012'],
-    status: 'coming_soon',
+    status: 'available',
   },
   {
     id: 'ringkasan-energi',
@@ -32,7 +32,7 @@ export const FEATURES: Feature[] = [
     points: ['Pilih hari ini, tujuh hari terakhir, atau rentang tanggal', 'Cakupan pengukuran tampil di dekat angka', 'Kelengkapan data dan kesegaran sumber terlihat'],
     screens: ['S03'],
     specs: ['009', '013'],
-    status: 'coming_soon',
+    status: 'available',
   },
   {
     id: 'kontributor',
@@ -41,7 +41,7 @@ export const FEATURES: Feature[] = [
     points: ['Urutan berdasarkan energi tercatat', 'Tersedia juga sebagai tabel data', 'Urutan bukan penilaian boros atau hemat'],
     screens: ['S03'],
     specs: ['009', '013'],
-    status: 'coming_soon',
+    status: 'available',
   },
   {
     id: 'estimasi-biaya',
@@ -77,7 +77,7 @@ export const FEATURES: Feature[] = [
     points: ['Hanya muncul bila datanya cukup', 'Catatan kualitas data dipisahkan', 'Saran umum diberi label jelas'],
     screens: ['S07'],
     specs: ['020', '021', '022'],
-    status: 'coming_soon',
+    status: 'available',
   },
   {
     id: 'bukti-saran',
@@ -86,7 +86,7 @@ export const FEATURES: Feature[] = [
     points: ['Nilai, pembanding, dan batasan terlihat', 'Penyebab yang belum diketahui disebutkan', 'Umpan balik tidak mengubah data'],
     screens: ['S08'],
     specs: ['022', '023'],
-    status: 'coming_soon',
+    status: 'available',
   },
   {
     id: 'impor-data',
