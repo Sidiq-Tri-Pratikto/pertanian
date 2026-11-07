@@ -9,6 +9,7 @@ from httpx import AsyncClient
 
 from tests.integration.conftest import (
     execute,
+    failure_records,
     make_asset,
     make_binding,
     make_import,
@@ -24,9 +25,9 @@ FOREIGN_ROUTES = [
     ("GET", "/api/v1/sites/{site}", None),
     ("PATCH", "/api/v1/sites/{site}", {"name": "Diambil alih"}),
     ("GET", "/api/v1/sites/{site}/assets", None),
+    ("GET", "/api/v1/sites/{site}/assets?include_archived=true", None),
     ("POST", "/api/v1/sites/{site}/assets", {"name": "Penyusup", "scope_kind": "device"}),
     ("GET", "/api/v1/assets/{asset}", None),
-    ("PATCH", "/api/v1/assets/{asset}", {"name": "Diambil alih"}),
     ("POST", "/api/v1/assets/{asset}/bindings", {"source_id": "{source}", "effective_from": "2026-10-01T00:00:00Z"}),
     ("DELETE", "/api/v1/assets/{asset}/bindings/{binding}", None),
     ("GET", "/api/v1/sites/{site}/summary?preset=last_7_days", None),
@@ -77,6 +78,43 @@ async def test_foreign_resources_look_missing(
     assert (await execute("SELECT effective_to FROM bindings WHERE id = :id", id=binding))[0][0] is None
     assert (await execute("SELECT count(*) FROM audit_events WHERE site_id = :id", id=site))[0][0] == 0
     assert (await execute("SELECT count(*) FROM imports WHERE site_id = :id", id=site))[0][0] == 1
+
+
+@pytest.mark.usefixtures("capture_app_logs")
+@pytest.mark.parametrize("change", [{"name": "FAKE_FOREIGN_EDIT_PASSWORD"}, {"archived": True}, {"archived": False}])
+async def test_foreign_patch_cannot_edit_archive_or_restore(
+    client: AsyncClient, acting: Callable[[UUID], dict], caplog: pytest.LogCaptureFixture, change: dict
+) -> None:
+    """
+    Condition:
+    - An intruder attempts a metadata edit, archive, or restore of another owner's asset.
+
+    Expected:
+    - One sanitized not-found failure is recorded. The owned detail, bindings and audit remain unchanged.
+    """
+    owner, intruder = await make_principal(), await make_principal()
+    site = await make_site(owner)
+    asset = await make_asset(site)
+    await make_binding(site, asset, await make_source(site))
+    if change.get("archived") is False:
+        await execute("UPDATE assets SET archived_at = now() WHERE id = :id", id=asset)
+    path = f"/api/v1/assets/{asset}"
+    before = (await client.get(path, headers=acting(owner))).json()
+
+    response = await client.patch(path, json=change, headers=acting(intruder))
+
+    assert response.status_code == 404
+    error = response.json()["error"]
+    assert error["code"] == "NOT_FOUND"
+    assert error["message"] == "Data yang diminta tidak ditemukan. Periksa alamatnya lalu coba lagi."
+    assert error["recovery"] == {"retryable": False}
+    records = failure_records(caplog)
+    assert len(records) == 1
+    assert records[0]["reference_id"] == error["request_id"]
+    assert "FAKE_FOREIGN_EDIT_PASSWORD" not in response.text
+    assert "FAKE_FOREIGN_EDIT_PASSWORD" not in caplog.text
+    assert (await client.get(path, headers=acting(owner))).json() == before
+    assert (await execute("SELECT count(*) FROM audit_events WHERE site_id = :id", id=site))[0][0] == 0
 
 
 async def test_a_foreign_preview_answers_before_its_body_is_read(

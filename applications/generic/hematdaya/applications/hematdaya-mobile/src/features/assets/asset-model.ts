@@ -63,7 +63,7 @@ function rowQuality(row: AssetEnergy): Pick<AssetRowModel, 'quality' | 'qualityL
 export function assetRowModel(row: AssetEnergy, asset: Asset | undefined, staleIds: ReadonlySet<string>): AssetRowModel {
   return {
     assetId: row.asset_id,
-    name: row.name,
+    name: asset?.name ?? row.name,
     kind: KIND_BY_SCOPE[row.scope_kind],
     location: asset?.location ?? null,
     category: asset?.category ?? null,
@@ -98,6 +98,20 @@ const DETAIL_SCOPE_LABEL: Record<AssetKind, string> = {
   group: 'Cakupan pengukuran: 1 grup',
   circuit: 'Cakupan pengukuran: 1 sirkuit',
 };
+
+export function assetScopeLabel(scope: ScopeKind): string {
+  return DETAIL_SCOPE_LABEL[KIND_BY_SCOPE[scope]];
+}
+
+/** Reachable even without a period summary. Only metadata is known. */
+export function unrankedAssetRow(asset: Asset, archived: boolean): AssetRowModel {
+  return {
+    assetId: asset.id, name: asset.name, kind: KIND_BY_SCOPE[asset.scope_kind],
+    location: asset.location, category: asset.category, kwh: null, quality: 'unavailable',
+    qualityLabel: archived ? 'Diarsipkan · riwayat tetap tersimpan' : 'Nilai periode ini belum tersedia',
+    sources: [], stale: false,
+  };
+}
 
 export function originLabel(origin: string): string {
   return ORIGIN_LABEL[origin as SourceOrigin] ?? origin;
@@ -175,7 +189,7 @@ export function assetDetailModel(summary: Summary, asset: AssetDetail | undefine
     scopeLabel: DETAIL_SCOPE_LABEL[kind],
     gaps: (row?.gaps ?? []).map((gap) => formatGap(gap.start, gap.end, base.timezone)),
     issues: base.issues,
-    name: row?.name ?? asset?.name ?? '',
+    name: asset?.name ?? row?.name ?? '',
     meta: formatAssetMeta(kind, asset?.location ?? null, asset?.category ?? null),
     sources: sourceLines(row),
     sourceRows: assetSourceRows(asset, base.timezone),

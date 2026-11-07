@@ -20,7 +20,17 @@ from app.core.errors.base import NotFoundError
 from app.identity.model.models import PrincipalKind, PrincipalModel
 from app.sites.repository.sqlalchemy.repository import SqlAlchemySiteRepository
 from app.sites.service.service import SiteService
-from tests.integration.conftest import execute, make_asset, make_binding, make_principal, make_site, make_source
+from tests.integration.conftest import (
+    execute,
+    failure_records,
+    make_asset,
+    make_binding,
+    make_principal,
+    make_site,
+    make_source,
+    start_demo,
+    summary,
+)
 
 pytestmark = pytest.mark.integration
 
@@ -77,6 +87,39 @@ async def test_rename_keeps_identity_and_bindings(client: AsyncClient, acting: C
     assert await _audit_count(site) == 4
 
 
+@pytest.mark.usefixtures("capture_app_logs")
+async def test_invalid_edit_is_sanitized_and_leaves_asset_unchanged(
+    client: AsyncClient, acting: Callable[[UUID], dict], caplog: pytest.LogCaptureFixture
+) -> None:
+    """
+    Condition:
+    - The owner sends an oversized name containing a fake secret with a valid category change.
+
+    Expected:
+    - A safe validation error points to one sanitized record, and no metadata or audit event is written.
+    """
+    owner, site = await _owned_site()
+    asset = await make_asset(site)
+    headers = acting(owner)
+    path = f"/api/v1/assets/{asset}"
+    before = (await client.get(path, headers=headers)).json()
+    fake_secret = "FAKE_ASSET_EDIT_PASSWORD"
+    response = await client.patch(path, json={"name": fake_secret * 4, "category": "Baru"}, headers=headers)
+
+    assert response.status_code == 422
+    error = response.json()["error"]
+    assert error["code"] == "VALIDATION_FAILED"
+    assert error["message"] == "Ada isian yang belum valid. Perbaiki isian tersebut lalu coba lagi."
+    assert error["recovery"] == {"retryable": False}
+    assert error["details"][0]["loc"] == ["body", "name"]
+    records = failure_records(caplog)
+    assert len(records) == 1
+    assert records[0]["reference_id"] == error["request_id"]
+    assert fake_secret not in response.text and fake_secret not in caplog.text
+    assert (await client.get(path, headers=headers)).json() == before
+    assert await _audit_count(site) == 0
+
+
 async def test_unchanged_patch_writes_nothing(client: AsyncClient, acting: Callable[[UUID], dict]) -> None:
     """
     Condition:
@@ -127,6 +170,61 @@ async def test_list_pages_and_archive_is_reversible(client: AsyncClient, acting:
     assert [item["archived"] for item in with_archived["items"]] == [False, False, True]
     assert [item["name"] for item in restored["items"]] == ["Kulkas", "Router", "TV"]
     assert bad_cursor.status_code == 400
+
+
+async def test_archive_and_restore_keep_bindings_and_exact_history(client: AsyncClient) -> None:
+    """
+    Condition:
+    - Kulkas is archived and restored in the household demo for the same fixed week.
+
+    Expected:
+    - Only default site scope membership and its total change. The device, readings and bindings stay intact.
+    """
+    session = await start_demo(client)
+    headers = session["auth"]
+    list_path = f"/api/v1/sites/{session['site_id']}/assets"
+    week = {"start_date": "2026-10-19", "end_date": "2026-10-25"}
+
+    async def assets(*, include_archived: bool = False) -> list[dict]:
+        response = await client.get(list_path, headers=headers, params={"include_archived": include_archived})
+        assert response.status_code == 200
+        return response.json()["items"]
+
+    asset = next(row["id"] for row in await assets() if row["name"] == "Kulkas")
+    path = f"/api/v1/assets/{asset}"
+
+    async def preserved() -> tuple[dict, dict, list]:
+        detail = await client.get(path, headers=headers)
+        history = await client.get(f"{path}/measurements", headers=headers, params=week | {"bucket": "day"})
+        assert detail.status_code == history.status_code == 200
+        assert detail.json()["id"] == asset
+        rows = await execute(
+            "SELECT id, source_id, identity_key, energy_mwh, revision FROM measurements"
+            " WHERE source_id IN (SELECT source_id FROM bindings WHERE asset_id = :asset) ORDER BY id",
+            asset=UUID(asset),
+        )
+        return detail.json(), history.json(), rows
+
+    before_detail, before_history, before_rows = await preserved()
+    before = await summary(client, session, **week)
+    assert len(before_history["buckets"]) == 7 and before_rows and before_detail["bindings"]
+
+    for archived, total in ((True, "6.300"), (False, "14.700")):
+        response = await client.patch(path, headers=headers, json={"archived": archived})
+        assert response.status_code == 200
+        assert (response.json()["id"], response.json()["archived"]) == (asset, archived)
+        assert (asset in {row["id"] for row in await assets()}) is not archived
+        assert next(row for row in await assets(include_archived=True) if row["id"] == asset)["archived"] is archived
+        site = await summary(client, session, **week)
+        assert site["energy_kwh"] == total
+        assert (asset in {row["asset_id"] for row in site["scope"]["included"]}) is not archived
+        detail, history, rows = await preserved()
+        assert detail == before_detail | {"archived": archived}
+        assert history["buckets"] == before_history["buckets"]
+        assert rows == before_rows
+
+    assert site["energy_kwh"] == before["energy_kwh"] == "14.700"
+    assert site["scope"] == before["scope"]
 
 
 async def test_parent_must_be_in_the_same_site(client: AsyncClient, acting: Callable[[UUID], dict]) -> None:

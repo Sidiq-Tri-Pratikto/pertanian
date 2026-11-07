@@ -155,7 +155,7 @@ describe('navigation', () => {
     expect(screen.queryByRole('link', { name: 'Daftar perangkat, segera hadir' })).toBeNull();
     expect(screen.queryByRole('link', { name: 'Data demo, segera hadir' })).toBeNull();
     expect(screen.queryByRole('link', { name: 'Impor data CSV, segera hadir' })).toBeNull();
-    expect(screen.getByRole('link', { name: 'Riwayat perangkat, segera hadir' })).toBeOnTheScreen();
+    expect(screen.queryByRole('link', { name: 'Riwayat perangkat, segera hadir' })).toBeNull();
     expect(screen.getByRole('link', { name: 'Jadwal pemakaian, segera hadir' })).toBeOnTheScreen();
   });
 

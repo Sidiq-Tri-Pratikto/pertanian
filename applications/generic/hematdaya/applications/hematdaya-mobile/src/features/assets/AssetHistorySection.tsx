@@ -46,8 +46,8 @@ type AssetHistoryProps = {
 /** S06 History stays in the current detail and keeps the prior response only within that site and asset. */
 export function AssetHistorySection({ assetId, assetName, scopeLabel, confirmed, summaryError }: AssetHistoryProps) {
   const [open, setOpen] = useState(false);
-  const { workspace } = useWorkspace();
-  const query = useHistory({ open, workspace, assetId, confirmed });
+  const { workspace, credentialGeneration } = useWorkspace();
+  const query = useHistory({ open, workspace, credentialGeneration, assetId, confirmed });
   const history = useLastConfirmed(query);
   const retained = history !== undefined && (query.isFetching || query.isPaused || query.isError || query.data === undefined);
 

@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useState, type ComponentRef, type ReactNode, type Ref } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 
 import { HDIcon, type HDIconName } from '@/components/hd/HDIcon';
@@ -7,6 +7,7 @@ import { tokens } from '@/design/tokens.generated';
 
 type HDButtonProps = {
   children: ReactNode;
+  ref?: Ref<ComponentRef<typeof View>>;
   variant?: 'primary' | 'secondary' | 'text' | 'destructive';
   onPress?: () => void;
   icon?: HDIconName;
@@ -16,6 +17,7 @@ type HDButtonProps = {
   /** Non-empty means disabled. The control stays focusable and the reason stays visible. */
   disabledReason?: string | null;
   fullWidth?: boolean;
+  expanded?: boolean;
 };
 
 const { color, component } = tokens;
@@ -46,6 +48,7 @@ function background(variant: NonNullable<HDButtonProps['variant']>, pressed: boo
 /** One labelled action. At most one primary per task step. */
 export function HDButton({
   children,
+  ref,
   variant = 'secondary',
   onPress,
   icon,
@@ -53,6 +56,7 @@ export function HDButton({
   loadingLabel = 'Memproses…',
   disabledReason,
   fullWidth = false,
+  expanded,
 }: HDButtonProps) {
   const [focused, setFocused] = useState(false);
   const disabled = Boolean(disabledReason);
@@ -61,9 +65,11 @@ export function HDButton({
   return (
     <View style={[styles.wrapper, fullWidth && styles.fullWidth]}>
       <Pressable
+        ref={ref}
         role="button"
         aria-disabled={disabled}
         aria-busy={loading}
+        aria-expanded={expanded}
         accessibilityHint={disabledReason ?? undefined}
         onPress={() => {
           if (!disabled && !loading) {

@@ -13,6 +13,7 @@ import { HDProgressStatus } from '@/components/hd/HDProgressStatus';
 import { HDScreen } from '@/components/hd/HDScreen';
 import { HDText } from '@/components/hd/HDText';
 import { tokens } from '@/design/tokens.generated';
+import { usePreviousAssetScope } from '@/features/assets/useAssets';
 import { CONTEXT_EXAMPLES, useContextPreset } from '@/features/context-preset';
 import { berandaModel, shownOrigins } from '@/features/energy/beranda-model';
 import { useSummary } from '@/features/energy/useSummary';
@@ -27,7 +28,7 @@ import { formatDate, formatPercent, localParts } from '@/lib/format';
 
 /** S02 or S03: empty until a workspace has data, then the populated summary in UX-17 reading order. */
 export default function BerandaScreen() {
-  const { status, workspace } = useWorkspace();
+  const { status, workspace, credentialGeneration } = useWorkspace();
   if (status === 'loading') {
     return (
       <HDScreen title="Beranda">
@@ -35,7 +36,7 @@ export default function BerandaScreen() {
       </HDScreen>
     );
   }
-  return workspace ? <WorkspaceBeranda /> : <EmptyBeranda />;
+  return workspace ? <WorkspaceBeranda key={`${workspace.siteId}:${credentialGeneration}`} /> : <EmptyBeranda />;
 }
 
 /** S02: no axes, no Rp0, no giant zero. There is simply no data yet. */
@@ -84,6 +85,7 @@ function EmptyBeranda({ expiresAt, timezone = 'Asia/Jakarta' }: { expiresAt?: st
 function WorkspaceBeranda() {
   const { workspace } = useWorkspace();
   const summary = useSummary();
+  const previousScope = usePreviousAssetScope();
 
   if (summary.data === undefined) {
     return (
@@ -106,13 +108,13 @@ function WorkspaceBeranda() {
   if (summary.data.scope.included.length === 0 && summary.data.scope.excluded.length === 0) {
     return <EmptyBeranda expiresAt={workspace?.expiresAt} timezone={summary.data.window.timezone} />;
   }
-  return <PopulatedBeranda data={summary.data} refreshing={summary.isFetching} failed={summary.isError ? summary.error.message : null} onRefresh={() => void summary.refetch()} />;
+  return <PopulatedBeranda previousSelection={Boolean(previousScope?.summaries.has(summary.data))} data={summary.data} refreshing={summary.isFetching} failed={summary.isError ? summary.error.message : null} onRefresh={() => void summary.refetch()} />;
 }
 
-type PopulatedProps = { data: Summary; refreshing: boolean; failed: string | null; onRefresh: () => void };
+type PopulatedProps = { previousSelection: boolean; data: Summary; refreshing: boolean; failed: string | null; onRefresh: () => void };
 
 /** S03: period and scope, recorded kWh, cost, completeness and freshness, then contributors. */
-function PopulatedBeranda({ data, refreshing, failed, onRefresh }: PopulatedProps) {
+function PopulatedBeranda({ previousSelection, data, refreshing, failed, onRefresh }: PopulatedProps) {
   const { workspace } = useWorkspace();
   const { period, setPeriod } = useNavigationContext();
   const { openAsset, openFeature, openSettings } = useTabNavigation();
@@ -131,6 +133,11 @@ function PopulatedBeranda({ data, refreshing, failed, onRefresh }: PopulatedProp
           {data.scope.excluded.length ? ` Tidak termasuk: ${data.scope.excluded.map((asset) => asset.name).join(', ')}.` : ''}
         </HDText>
       </View>
+      {previousSelection ? (
+        <HDNotice tone="info" title="Ringkasan masih memakai cakupan sebelumnya">
+          Total yang tampil berasal dari ringkasan terakhir. Tunggu ringkasan cakupan terkini.
+        </HDNotice>
+      ) : null}
       <HDEnergyMetric
         state={model.state}
         kwh={model.kwh}
