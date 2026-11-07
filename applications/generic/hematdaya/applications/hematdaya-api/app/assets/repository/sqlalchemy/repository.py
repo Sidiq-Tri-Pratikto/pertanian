@@ -226,7 +226,14 @@ class SqlAlchemyAssetRepository(AssetRepository):
         return _binding(record) if record is not None and record.asset_id == asset_id else None
 
     async def add_binding(
-        self, *, site_id: UUID, source_id: UUID, asset_id: UUID, effective_from: datetime, authoritative: bool
+        self,
+        *,
+        site_id: UUID,
+        source_id: UUID,
+        asset_id: UUID,
+        effective_from: datetime,
+        authoritative: bool,
+        effective_to: datetime | None = None,
     ) -> BindingModel:
         """Create a binding.
 
@@ -236,6 +243,7 @@ class SqlAlchemyAssetRepository(AssetRepository):
             asset_id (UUID): The asset.
             effective_from (datetime): Start of the range.
             authoritative (bool): Whether it is the asset's reference source.
+            effective_to (datetime | None, optional): End of the range; None leaves it open. Defaults to None.
 
         Returns:
             BindingModel: The stored binding.
@@ -248,6 +256,7 @@ class SqlAlchemyAssetRepository(AssetRepository):
             source_id=source_id,
             asset_id=asset_id,
             effective_from=effective_from,
+            effective_to=effective_to,
             authoritative=authoritative,
         )
         self.session.add(record)

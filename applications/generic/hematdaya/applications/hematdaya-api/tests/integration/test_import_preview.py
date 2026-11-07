@@ -1843,3 +1843,29 @@ async def test_identity_two_streams_on_one_asset_block(client: AsyncClient, owne
     assert [question["kind"] for question in body["questions"]] == ["asset_streams"]
     assert body["questions"][0]["streams"] == ["meter-1", "meter-2"]
     assert body["blocked"] is True
+
+
+def _names_csv(count: int) -> str:
+    lines = [f"2026-10-20T00:00:00+07:00,2026-10-20T01:00:00+07:00,Perangkat {index},1" for index in range(count)]
+    return INTERVAL_HEADER + "\n" + "\n".join(lines) + "\n"
+
+
+async def test_streams_over_the_limit_are_blocked(client: AsyncClient, owner: tuple[UUID, dict]) -> None:
+    """
+    Condition:
+    - One file names 101 assets, and another 100, each with ``scope`` answered (D15).
+
+    Expected:
+    - 201 for both. The first is blocked with the exact reason, and the second is not.
+    """
+    site, headers = owner
+
+    status_over, over = await _post(client, site, headers, _names_csv(101), SCOPE)
+    status_at, at_limit = await _post(client, site, headers, _names_csv(100), SCOPE)
+
+    assert (status_over, status_at) == (201, 201)
+    assert over["blocked"] is True
+    assert over["block_reasons"] == [
+        "Berkas ini memuat 101 perangkat, melebihi batas 100 perangkat per impor. Pisahkan berkasnya lalu coba lagi."
+    ]
+    assert (at_limit["blocked"], at_limit["block_reasons"]) == (False, [])

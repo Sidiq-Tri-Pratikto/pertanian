@@ -106,6 +106,19 @@ PUBLIC_ERROR_BY_CODE: dict[str, PublicError] = {
     codes.APP_IMPORT_BLOCKED: PublicError(
         "IMPORT_BLOCKED", 409, "Impor ini masih diblokir. Selesaikan alasan pada pratinjau lalu coba lagi."
     ),
+    codes.APP_IMPORT_STALE: PublicError(
+        "IMPORT_STALE", 409, "Pratinjau ini sudah tidak berlaku. Buat pratinjau baru lalu coba lagi."
+    ),
+    codes.APP_IMPORT_ACK_REQUIRED: PublicError(
+        "IMPORT_ACK_REQUIRED",
+        409,
+        "Ada baris yang akan dilewati dan belum disetujui. Setujui baris yang dilewati lalu coba lagi.",
+    ),
+    codes.APP_IMPORT_KEY_CONFLICT: PublicError(
+        "CONFLICT",
+        409,
+        "Permintaan ini sudah dipakai untuk impor lain. Konfirmasi impornya lagi untuk mengirim permintaan baru.",
+    ),
 }
 
 PUBLIC_ERROR_BY_STATUS: dict[int, PublicError] = {

@@ -5,8 +5,10 @@ from typing import Annotated
 from fastapi import Depends
 
 from app.assets.dependencies import AssetServiceDep
+from app.audit.dependencies import build_audit_service
 from app.core.database import SessionDep
 from app.imports.repository.sqlalchemy.repository import SqlAlchemyImportRepository
+from app.imports.service.commit import ImportCommitService
 from app.imports.service.preview import ImportPreviewService
 from app.measurements.dependencies import build_ingest_service
 from app.sites.dependencies import SiteServiceDep
@@ -29,3 +31,24 @@ def get_import_preview_service(
 
 
 ImportPreviewServiceDep = Annotated[ImportPreviewService, Depends(get_import_preview_service)]
+
+
+def get_import_commit_service(
+    session: SessionDep, sites: SiteServiceDep, assets: AssetServiceDep
+) -> ImportCommitService:
+    """Build the commit service on the request session, so a commit is one transaction.
+
+    Args:
+        session (AsyncSession): The request's session.
+        sites (SiteService): Site ownership, lock and revisions.
+        assets (AssetService): The site's assets, sources, bindings and relations.
+
+    Returns:
+        ImportCommitService: The service.
+    """
+    return ImportCommitService(
+        SqlAlchemyImportRepository(session), sites, assets, build_ingest_service(session), build_audit_service(session)
+    )
+
+
+ImportCommitServiceDep = Annotated[ImportCommitService, Depends(get_import_commit_service)]

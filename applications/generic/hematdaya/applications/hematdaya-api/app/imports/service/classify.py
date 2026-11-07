@@ -26,6 +26,8 @@ from app.measurements.service.normalize import normalize
 
 MAX_ENERGY_MWH = 2**63 - 1
 """``measurements.energy_mwh`` is a BIGINT, and ``normalize`` has no bound for W × seconds."""
+MAX_IMPORT_STREAMS = 100
+"""PRD §18's working scale is 20 sources. One relation per pair costs three round trips under the site lock."""
 MAX_MESSAGE_LENGTH = 500
 """Row messages may echo a cell of up to 128 KiB, and they are stored and returned for every invalid row."""
 _CONFLICT_TEXT = "nilai berbeda untuk sumber dan interval yang sama."
@@ -373,12 +375,13 @@ class PreviewSummary:
     needs_acknowledgment: bool
 
 
-def summarize(counts: RowCounts, *, open_questions: int) -> PreviewSummary:
+def summarize(counts: RowCounts, *, open_questions: int, streams: int = 0) -> PreviewSummary:
     """Decide whether a preview is blocked. Skipped rows never waive a question or a conflict.
 
     Args:
         counts (RowCounts): The reconciled counts.
         open_questions (int): How many questions are open.
+        streams (int, optional): How many streams hold staged rows. Defaults to 0.
 
     Returns:
         PreviewSummary: The decision.
@@ -392,6 +395,11 @@ def summarize(counts: RowCounts, *, open_questions: int) -> PreviewSummary:
         reasons.append(
             "Nilai berbeda ditemukan untuk sumber dan interval yang sama. "
             "Pilih sumber atau perbaiki data sebelum melanjutkan."
+        )
+    if streams > MAX_IMPORT_STREAMS:
+        reasons.append(
+            f"Berkas ini memuat {streams} perangkat, melebihi batas {MAX_IMPORT_STREAMS} perangkat per impor. "
+            "Pisahkan berkasnya lalu coba lagi."
         )
     if not counts.accepted and not counts.duplicate and not reasons:
         reasons.append("Tidak ada baris valid yang dapat diimpor.")

@@ -32,6 +32,7 @@ make check             # lint, format check, all tests, 80% coverage gate
 | `tests/unit/health/` | Liveness and readiness | Nothing |
 | `tests/unit/imports/` | CSV parser, row classification, assumptions, stream mapping, import errors and contract | Nothing |
 | `tests/integration/test_import_preview.py` | Stored previews through the route: counts, failures, lifecycle, conflicts, identity | Postgres |
+| `tests/integration/test_import_commit.py` | Commits through the route: atomicity, replay, refusals, keys, real races, exact results, insights | Postgres |
 | `tests/integration/` | Real requests against Postgres after migrations | Postgres |
 
 Run one test with `uv run pytest tests/unit/health/test_health.py -v`, or match by name with `uv run pytest tests -k capabilities`. `make test-coverage` also writes an HTML report to `htmlcov/index.html`.
@@ -86,7 +87,8 @@ Run one test with `uv run pytest tests/unit/health/test_health.py -v`, or match 
 | `GET /api/v1/sites/{site_id}/insights` | Evaluates the period and returns active observations ranked by additional kWh, plus partial, stale and scope notices |
 | `GET /api/v1/insights/{insight_id}` | The current revision after re-evaluation, or `?revision=` for a frozen one |
 | `POST /api/v1/sites/{site_id}/imports/preview` | Store a preview of a CSV `file` or pasted `text`, with `mapping` as JSON text, without saving any reading. A blocked preview is a 201 with `blocked: true` |
-| `GET /api/v1/imports/{import_id}` | A stored preview: status, counts, assumptions, questions and the first 50 row errors |
+| `GET /api/v1/imports/{import_id}` | A stored preview: status, counts, assumptions, questions, the first 50 row errors, and `result`, which is null until committed. It takes no lock |
 | `GET /api/v1/imports/{import_id}/errors` | Row errors by data row, with `limit` from 1 to 100 and `cursor` |
+| `POST /api/v1/imports/{import_id}/commit` | Store a preview's accepted rows, assets, sources, bindings and relations in one transaction. Requires `Idempotency-Key`. A repeat answers the first result with `replayed: true` |
 
 Every route except health, capabilities and the scenario list needs `Authorization: Bearer <token>`. A resource owned by someone else answers `NOT_FOUND`.

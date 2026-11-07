@@ -1,5 +1,6 @@
 """AT-41 owner isolation. Every data route joins this table in the spec that adds it."""
 
+import secrets
 from collections.abc import AsyncIterator, Callable
 from uuid import UUID
 
@@ -36,6 +37,7 @@ FOREIGN_ROUTES = [
     ("POST", "/api/v1/sites/{site}/imports/preview", None),
     ("GET", "/api/v1/imports/{import}", None),
     ("GET", "/api/v1/imports/{import}/errors", None),
+    ("POST", "/api/v1/imports/{import}/commit", {"acknowledge_skipped": False}),
     ("GET", "/api/v1/sites/{site}/insights/hidden?preset=last_7_days", None),
 ]
 
@@ -61,10 +63,14 @@ async def test_foreign_resources_look_missing(
     if body is not None:
         body = {key: value.format(**ids) if isinstance(value, str) else value for key, value in body.items()}
 
-    response = await client.request(method, path.format(**ids), json=body, headers=acting(intruder))
+    # The commit route checks this header before ownership, and it answers the same for any import.
+    headers = acting(intruder) | {"Idempotency-Key": secrets.token_urlsafe(16)}
+
+    response = await client.request(method, path.format(**ids), json=body, headers=headers)
 
     assert response.status_code == 404
     assert response.json()["error"]["code"] == "NOT_FOUND"
+    assert (await execute("SELECT status FROM imports WHERE id = :id", id=import_id))[0][0] == "previewed"
     assert (await execute("SELECT name FROM sites WHERE id = :id", id=site))[0][0] == "Rumah"
     assert (await execute("SELECT name FROM assets WHERE id = :id", id=asset))[0][0] == "Kulkas"
     assert (await execute("SELECT count(*) FROM assets WHERE site_id = :id", id=site))[0][0] == 1

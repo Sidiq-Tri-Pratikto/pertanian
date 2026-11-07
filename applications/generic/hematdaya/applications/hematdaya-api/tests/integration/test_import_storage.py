@@ -1,17 +1,22 @@
 """Import storage over real Postgres: constraints, cascade, paging, purge and the migration."""
 
+import asyncio
+import secrets
 import subprocess
 import sys
+import time
 from datetime import UTC, datetime, timedelta
 from uuid import UUID, uuid4
 
 import pytest
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
 from app.core.database import get_session_factory
 from app.imports.model.models import ImportModel, ImportRowModel, ImportRowStatus, ImportStatus
+from app.imports.repository.sqlalchemy.models import ImportRecord
 from app.imports.repository.sqlalchemy.repository import SqlAlchemyImportRepository
-from tests.integration.conftest import execute, make_principal, make_site
+from tests.integration.conftest import COMMITTED_RESULT, execute, make_principal, make_site
 
 pytestmark = pytest.mark.integration
 
@@ -45,6 +50,8 @@ def _import(site: UUID, **overrides: object) -> ImportModel:
         "idempotency_key": None,
         "expires_at": NOW + timedelta(hours=24),
     }
+    if overrides.get("status") is ImportStatus.COMMITTED:
+        values |= {"idempotency_key": secrets.token_urlsafe(16), "commit_result": COMMITTED_RESULT}
     return ImportModel(**(values | overrides))
 
 
@@ -354,3 +361,254 @@ async def test_the_migration_downgrades_and_upgrades() -> None:
         subprocess.run(upgrade, check=True)
 
     assert (await execute(query))[0] == (True, True)
+
+
+async def test_mark_committed_round_trip() -> None:
+    """
+    Condition:
+    - A preview is marked committed once, and then a second time.
+
+    Expected:
+    - The first call answers True and stores the status, key and result. The second answers False and changes nothing.
+    """
+    site = await _site()
+    model = _import(site)
+    await _store(model)
+    first_result = {"import_id": str(model.id), "rows_added": 1}
+
+    async with get_session_factory()() as session:
+        repository = SqlAlchemyImportRepository(session)
+        assert await repository.mark_committed(model.id, "kunci-pertama", first_result) is True
+        assert await repository.mark_committed(model.id, "kunci-kedua", {"rows_added": 9}) is False
+        await session.commit()
+
+    async with get_session_factory()() as session:
+        stored = await SqlAlchemyImportRepository(session).get_import(model.id)
+    assert stored is not None
+    assert (stored.status, stored.idempotency_key, stored.commit_result) == (
+        ImportStatus.COMMITTED,
+        "kunci-pertama",
+        first_result,
+    )
+
+
+@pytest.mark.parametrize(
+    ("assignments", "constraint"),
+    [
+        ("status = 'committed', idempotency_key = 'kunci'", "imports_commit_result"),
+        ("status = 'committed', commit_result = '{}'", "imports_commit_key"),
+        ("commit_result = '{}'", "imports_commit_result"),
+    ],
+    ids=["committed_with_no_result", "result_with_no_key", "result_on_a_preview"],
+)
+async def test_a_committed_row_needs_its_result_and_key(assignments: str, constraint: str) -> None:
+    """
+    Condition:
+    - A raw update breaking the rule that ``committed`` goes with a result and a key.
+
+    Expected:
+    - The database refuses it, naming the constraint.
+    """
+    site = await _site()
+    model = _import(site)
+    await _store(model)
+
+    with pytest.raises(IntegrityError, match=constraint):
+        await execute(f"UPDATE imports SET {assignments} WHERE id = :id", id=model.id)
+
+
+async def test_a_preview_stores_sql_null_as_its_result() -> None:
+    """
+    Condition:
+    - A preview with no result, written through the ORM.
+
+    Expected:
+    - The column holds SQL NULL, not JSON null, which the CHECK would take for a result.
+    """
+    site = await _site()
+    model = _import(site)
+    await _store(model)
+
+    rows = await execute("SELECT commit_result IS NULL FROM imports WHERE id = :id", id=model.id)
+
+    assert rows[0][0] is True
+
+
+async def test_get_import_locked_sees_what_another_session_committed() -> None:
+    """
+    Condition:
+    - A session holds the loaded ORM row, another commits it, then the first locks it.
+
+    Expected:
+    - The locked read returns ``committed``, not the state the identity map holds (D3). The record is kept referenced,
+      because the map is weak: a dropped record is read afresh with or without ``populate_existing``.
+    """
+    site = await _site()
+    model = _import(site)
+    await _store(model)
+
+    async with get_session_factory()() as session:
+        held = await session.scalar(select(ImportRecord).where(ImportRecord.id == model.id))
+        assert held is not None
+        assert held.status == ImportStatus.PREVIEWED.value
+        async with get_session_factory()() as other:
+            assert await SqlAlchemyImportRepository(other).mark_committed(model.id, "kunci", {"rows_added": 1})
+            await other.commit()
+
+        locked = await SqlAlchemyImportRepository(session).get_import_locked(model.id)
+
+        assert held.status == ImportStatus.COMMITTED.value
+    assert locked is not None
+    assert (locked.status, locked.commit_result) == (ImportStatus.COMMITTED, {"rows_added": 1})
+
+
+async def test_get_import_locked_waits_and_then_sees_the_commit() -> None:
+    """
+    Condition:
+    - A session holds the loaded ORM row, and another has committed it in a transaction still open when the first locks.
+
+    Expected:
+    - The lock waits on real Postgres, and once the other transaction ends it returns ``committed``, so a second
+      concurrent commit can never write everything again.
+    """
+    site = await _site()
+    model = _import(site)
+    await _store(model)
+
+    async with get_session_factory()() as session, get_session_factory()() as other:
+        held = await session.scalar(select(ImportRecord).where(ImportRecord.id == model.id))
+        assert held is not None
+        assert await SqlAlchemyImportRepository(other).mark_committed(model.id, "kunci", {"rows_added": 1})
+        locking = asyncio.create_task(SqlAlchemyImportRepository(session).get_import_locked(model.id))
+        deadline = time.monotonic() + 5
+        query = "SELECT count(*) FROM pg_stat_activity WHERE datname = current_database() AND wait_event_type = 'Lock'"
+        while (await execute(query))[0][0] < 1:
+            assert time.monotonic() < deadline, "The locked read never waited."
+            await asyncio.sleep(0.01)
+        assert not locking.done()
+        await other.commit()
+
+        locked = await asyncio.wait_for(locking, 10)
+
+    assert locked is not None
+    assert locked.status is ImportStatus.COMMITTED
+
+
+async def test_get_import_locked_answers_none_for_an_unknown_id() -> None:
+    """
+    Condition:
+    - No import has this ID.
+
+    Expected:
+    - The repository answers None.
+    """
+    async with get_session_factory()() as session:
+        assert await SqlAlchemyImportRepository(session).get_import_locked(uuid4()) is None
+
+
+async def test_find_by_key_stays_within_its_site() -> None:
+    """
+    Condition:
+    - A key stored on an import of one site.
+
+    Expected:
+    - It is found there, and not found for the same key in another site or for an unused key.
+    """
+    site, other = await _site(), await _site()
+    model = _import(site, idempotency_key="kunci")
+    await _store(model)
+
+    async with get_session_factory()() as session:
+        repository = SqlAlchemyImportRepository(session)
+        assert await repository.find_by_key(site, "kunci") == model.id
+        assert await repository.find_by_key(other, "kunci") is None
+        assert await repository.find_by_key(site, "lain") is None
+
+
+async def test_accepted_page_returns_accepted_rows_in_order() -> None:
+    """
+    Condition:
+    - Accepted rows stored out of order, beside an invalid and a duplicate row.
+
+    Expected:
+    - Only accepted rows, with ``parsed``, by data row, after the given row and up to the limit.
+    """
+    site = await _site()
+    model = _import(site, total_rows=5, accepted_rows=3, invalid_rows=1, duplicate_rows=1)
+
+    def accepted(data_row: int) -> ImportRowModel:
+        return ImportRowModel(
+            data_row=data_row,
+            file_line=data_row + 1,
+            status=ImportRowStatus.ACCEPTED,
+            parsed={"value": f"{data_row}.000"},
+        )
+
+    duplicate = ImportRowModel(data_row=2, file_line=3, status=ImportRowStatus.DUPLICATE)
+    await _store(model, [accepted(5), _invalid(1), duplicate, accepted(3), accepted(4)])
+
+    async with get_session_factory()() as session:
+        repository = SqlAlchemyImportRepository(session)
+        first = await repository.accepted_page(model.id, 0, 2)
+        second = await repository.accepted_page(model.id, first[-1].data_row, 2)
+
+    assert [(row.data_row, row.parsed) for row in first] == [(3, {"value": "3.000"}), (4, {"value": "4.000"})]
+    assert [row.data_row for row in second] == [5]
+    assert second[0].status is ImportRowStatus.ACCEPTED
+
+
+async def test_keep_newest_uncommitted_never_removes_the_excluded_import() -> None:
+    """
+    Condition:
+    - Five previews, and a new one that sorts oldest, as a tied or inverted ``created_at`` can make it.
+
+    Expected:
+    - The new one stays beside the newest four others, so a preview never purges itself (D4).
+    """
+    site = await _site()
+    others = [_import(site) for _ in range(5)]
+    for index, model in enumerate(others):
+        await _store(model)
+        await _set_created(model.id, NOW + timedelta(minutes=index))
+    new = _import(site)
+    await _store(new)
+    await _set_created(new.id, NOW - timedelta(days=1))
+
+    async with get_session_factory()() as session:
+        removed = await SqlAlchemyImportRepository(session).keep_newest_uncommitted(site, 4, excluding=new.id)
+        await session.commit()
+
+    assert removed == 1
+    assert await _ids(site) == {model.id for model in others[1:]} | {new.id}
+
+
+async def test_the_commit_migration_downgrades_and_upgrades() -> None:
+    """
+    Condition:
+    - A ``committed`` row exists, and the schema goes down to 0008 and back to head.
+
+    Expected:
+    - The downgrade removes ``commit_result`` and both CHECKs. The upgrade succeeds over that row, whose result is now
+      gone, because both CHECKs are ``NOT VALID``, and it restores the column (D9).
+    """
+    site = await _site()
+    committed = _import(site, status=ImportStatus.COMMITTED)
+    await _store(committed)
+    downgrade = [sys.executable, "-m", "alembic", "downgrade", "0008"]
+    upgrade = [sys.executable, "-m", "alembic", "upgrade", "head"]
+    column = (
+        "SELECT count(*) FROM information_schema.columns WHERE table_name = 'imports' AND column_name = 'commit_result'"
+    )
+    constraints = "SELECT count(*) FROM pg_constraint WHERE conname IN ('imports_commit_result', 'imports_commit_key')"
+
+    subprocess.run(downgrade, check=True)
+    try:
+        assert (await execute(column))[0][0] == 0
+        assert (await execute(constraints))[0][0] == 0
+    finally:
+        subprocess.run(upgrade, check=True)
+
+    assert (await execute(column))[0][0] == 1
+    assert (await execute(constraints))[0][0] == 2
+    assert (await execute("SELECT status FROM imports WHERE id = :id", id=committed.id))[0][0] == "committed"
+    await execute("DELETE FROM sites WHERE id = :site", site=site)

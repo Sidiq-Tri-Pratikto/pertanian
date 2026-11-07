@@ -2,6 +2,7 @@
 
 import asyncio
 from collections.abc import Callable
+from datetime import UTC, datetime
 from uuid import UUID
 
 import pytest
@@ -10,7 +11,7 @@ from sqlalchemy.exc import DBAPIError
 
 from app.assets.model.models import RelationKind
 from app.assets.repository.sqlalchemy.repository import SqlAlchemyAssetRepository
-from app.assets.service.errors import AssetCycleError
+from app.assets.service.errors import AssetCycleError, BindingOverlapError
 from app.assets.service.service import AssetService
 from app.audit.repository.sqlalchemy.repository import SqlAlchemyAuditRepository
 from app.audit.service.service import AuditService
@@ -332,3 +333,79 @@ async def test_site_settings_change_is_audited(client: AsyncClient, acting: Call
     await client.patch(f"/api/v1/sites/{site}", json={"name": "Rumah Bandung"}, headers=acting(owner))
 
     assert (await execute("SELECT action FROM audit_events WHERE site_id = :id", id=site))[0][0] == "site.updated"
+
+
+async def test_add_binding_stores_a_bounded_range() -> None:
+    """
+    Condition:
+    - ``add_binding`` with an end, then one starting exactly there, then one overlapping the first.
+
+    Expected:
+    - The range is stored with its end, the adjacent one is accepted, and the overlap raises ``BindingOverlapError``.
+    """
+    _, site_id = await _owned_site()
+    asset = await make_asset(site_id)
+    first, second, third = (
+        await make_source(site_id),
+        await make_source(site_id, "Dua"),
+        await make_source(site_id, "3"),
+    )
+    start, end = datetime(2026, 9, 1, tzinfo=UTC), datetime(2026, 10, 1, tzinfo=UTC)
+
+    async with get_session_factory()() as session:
+        sites = SiteService(SqlAlchemySiteRepository(session))
+        assets = AssetService(
+            SqlAlchemyAssetRepository(session), sites, AuditService(SqlAlchemyAuditRepository(session))
+        )
+        site = await sites.lock(site_id)
+        bounded = await assets.add_binding(
+            site, asset_id=asset, source_id=first, effective_from=start, effective_to=end, authoritative=True
+        )
+        adjacent = await assets.add_binding(
+            site, asset_id=asset, source_id=second, effective_from=end, effective_to=None, authoritative=True
+        )
+        await session.commit()
+
+    assert (bounded.effective_from, bounded.effective_to) == (start, end)
+    assert adjacent.effective_to is None
+
+    async with get_session_factory()() as session:
+        sites = SiteService(SqlAlchemySiteRepository(session))
+        assets = AssetService(
+            SqlAlchemyAssetRepository(session), sites, AuditService(SqlAlchemyAuditRepository(session))
+        )
+        site = await sites.lock(site_id)
+        with pytest.raises(BindingOverlapError):
+            await assets.add_binding(
+                site,
+                asset_id=asset,
+                source_id=third,
+                effective_from=datetime(2026, 9, 15, tzinfo=UTC),
+                effective_to=datetime(2026, 9, 20, tzinfo=UTC),
+                authoritative=True,
+            )
+
+
+async def test_add_binding_without_an_end_stays_open() -> None:
+    """
+    Condition:
+    - ``add_binding`` called as every existing caller calls it, with no ``effective_to``.
+
+    Expected:
+    - The binding is open.
+    """
+    _, site_id = await _owned_site()
+    asset, source = await make_asset(site_id), await make_source(site_id)
+
+    async with get_session_factory()() as session:
+        sites = SiteService(SqlAlchemySiteRepository(session))
+        assets = AssetService(
+            SqlAlchemyAssetRepository(session), sites, AuditService(SqlAlchemyAuditRepository(session))
+        )
+        site = await sites.lock(site_id)
+        binding = await assets.add_binding(
+            site, asset_id=asset, source_id=source, effective_from=datetime(2026, 9, 1, tzinfo=UTC), authoritative=True
+        )
+        await session.commit()
+
+    assert binding.effective_to is None

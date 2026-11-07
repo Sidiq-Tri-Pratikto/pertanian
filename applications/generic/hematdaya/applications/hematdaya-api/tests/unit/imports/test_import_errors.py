@@ -14,7 +14,14 @@ from fastapi.testclient import TestClient
 from app.core.errors.base import AppError
 from app.core.errors.handlers import ErrorBoundaryMiddleware, register_exception_handlers
 from app.imports.model.models import ImportModel, ImportStatus
-from app.imports.service.errors import ImportBlockedError, ImportStructureError, ImportTooLargeError
+from app.imports.service.errors import (
+    ImportAckRequiredError,
+    ImportBlockedError,
+    ImportKeyConflictError,
+    ImportStaleError,
+    ImportStructureError,
+    ImportTooLargeError,
+)
 
 CATALOG = Path(__file__).resolve().parents[5] / "docs/error-handling/catalog.md"
 FAKE_TOKEN = "Bearer RAHASIA-PALSU-123"
@@ -41,6 +48,27 @@ ERRORS = [
         "IMPORT_BLOCKED",
         409,
         "Impor ini masih diblokir. Selesaikan alasan pada pratinjau lalu coba lagi.",
+    ),
+    (
+        ImportStaleError,
+        "APP-IMPORT-STALE",
+        "IMPORT_STALE",
+        409,
+        "Pratinjau ini sudah tidak berlaku. Buat pratinjau baru lalu coba lagi.",
+    ),
+    (
+        ImportAckRequiredError,
+        "APP-IMPORT-ACK-REQUIRED",
+        "IMPORT_ACK_REQUIRED",
+        409,
+        "Ada baris yang akan dilewati dan belum disetujui. Setujui baris yang dilewati lalu coba lagi.",
+    ),
+    (
+        ImportKeyConflictError,
+        "APP-IMPORT-KEY-CONFLICT",
+        "CONFLICT",
+        409,
+        "Permintaan ini sudah dipakai untuk impor lain. Konfirmasi impornya lagi untuk mengirim permintaan baru.",
     ),
 ]
 

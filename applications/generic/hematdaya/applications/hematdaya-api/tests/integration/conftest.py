@@ -1,6 +1,7 @@
 """Full-stack fixtures over real Postgres. Start it with ``make run-dependencies``."""
 
 import asyncio
+import json
 import secrets
 import subprocess
 import sys
@@ -21,6 +22,22 @@ from app.identity.model.models import PrincipalKind, PrincipalModel
 from app.main import app
 
 TEST_PRINCIPAL_HEADER = "x-test-principal"
+COMMITTED_RESULT = {
+    "import_id": "00000000-0000-0000-0000-000000000000",
+    "status": "committed",
+    "rows_added": 0,
+    "rows_skipped": 1,
+    "rows_duplicate": 0,
+    "assets_created": [],
+    "assets_mapped": [],
+    "period": None,
+    "affected_from": None,
+    "affected_to": None,
+    "rows_after_site_clock": 0,
+    "acknowledge_skipped": True,
+    "committed_at": "2026-11-07T00:00:00Z",
+}
+"""A valid stored result, because a committed import must carry one."""
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -203,16 +220,20 @@ async def make_import(site: UUID, *, status: str = "previewed", expires_at: date
     Returns:
         UUID: Its ID.
     """
+    committed = status == "committed"
     rows = await execute(
         "INSERT INTO imports (id, site_id, status, file_name, content_sha256, mapping, total_rows, accepted_rows,"
         " invalid_rows, duplicate_rows, conflict_rows, pending_rows, blocked, block_reasons, needs_acknowledgment,"
-        " questions, assumptions, measurement_revision, binding_revision, expires_at)"
+        " questions, assumptions, measurement_revision, binding_revision, expires_at, idempotency_key, commit_result)"
         " VALUES (gen_random_uuid(), :site, :status, 'data.csv', :digest, '{}', 1, 0, 1, 0, 0, 0, true,"
-        " '[\"Impor diblokir: 1 dari 1 baris tidak valid.\"]', false, '[]', '[]', 0, 0, :expires_at) RETURNING id",
+        " '[\"Impor diblokir: 1 dari 1 baris tidak valid.\"]', false, '[]', '[]', 0, 0, :expires_at, :key,"
+        " CAST(:result AS jsonb)) RETURNING id",
         site=site,
         status=status,
         digest="0" * 64,
         expires_at=expires_at or datetime.now(UTC) + timedelta(hours=24),
+        key=secrets.token_urlsafe(16) if committed else None,
+        result=json.dumps(COMMITTED_RESULT) if committed else None,
     )
     await execute(
         "INSERT INTO import_rows (import_id, data_row, file_line, status, reason, field, message)"

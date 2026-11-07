@@ -1459,6 +1459,268 @@
         "title": "HistoryResponse",
         "type": "object"
       },
+      "ImportCommitAssetResponse": {
+        "description": "An asset a commit created or mapped to.",
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "ImportCommitAssetResponse",
+        "type": "object"
+      },
+      "ImportCommitRequest": {
+        "additionalProperties": false,
+        "description": "What a commit needs beyond its key.",
+        "properties": {
+          "acknowledge_skipped": {
+            "default": false,
+            "description": "The user accepts that invalid rows will be skipped",
+            "title": "Acknowledge Skipped",
+            "type": "boolean"
+          }
+        },
+        "title": "ImportCommitRequest",
+        "type": "object"
+      },
+      "ImportCommitResponse": {
+        "description": "A commit's answer: the first result, and whether this request only repeated it.",
+        "properties": {
+          "acknowledge_skipped": {
+            "description": "What the first request sent",
+            "title": "Acknowledge Skipped",
+            "type": "boolean"
+          },
+          "affected_from": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Start of the changed data, in UTC",
+            "title": "Affected From"
+          },
+          "affected_to": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "End of the changed data, in UTC",
+            "title": "Affected To"
+          },
+          "assets_created": {
+            "default": [],
+            "description": "In stream order",
+            "items": {
+              "$ref": "#/components/schemas/ImportCommitAssetResponse"
+            },
+            "title": "Assets Created",
+            "type": "array"
+          },
+          "assets_mapped": {
+            "default": [],
+            "description": "In stream order",
+            "items": {
+              "$ref": "#/components/schemas/ImportCommitAssetResponse"
+            },
+            "title": "Assets Mapped",
+            "type": "array"
+          },
+          "committed_at": {
+            "description": "Wall-clock time of the commit",
+            "format": "date-time",
+            "title": "Committed At",
+            "type": "string"
+          },
+          "import_id": {
+            "format": "uuid",
+            "title": "Import Id",
+            "type": "string"
+          },
+          "period": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ImportPeriodResponse"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Local dates changed; null when none were"
+          },
+          "replayed": {
+            "description": "False for the first result, true for a repeat",
+            "title": "Replayed",
+            "type": "boolean"
+          },
+          "rows_added": {
+            "description": "Rows stored",
+            "title": "Rows Added",
+            "type": "integer"
+          },
+          "rows_after_site_clock": {
+            "default": 0,
+            "description": "Accepted rows ending after the site's clock at commit",
+            "title": "Rows After Site Clock",
+            "type": "integer"
+          },
+          "rows_duplicate": {
+            "description": "Exact repeats",
+            "title": "Rows Duplicate",
+            "type": "integer"
+          },
+          "rows_skipped": {
+            "description": "Invalid rows acknowledged",
+            "title": "Rows Skipped",
+            "type": "integer"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ImportStatusResponse"
+          }
+        },
+        "required": [
+          "import_id",
+          "status",
+          "rows_added",
+          "rows_skipped",
+          "rows_duplicate",
+          "acknowledge_skipped",
+          "committed_at",
+          "replayed"
+        ],
+        "title": "ImportCommitResponse",
+        "type": "object"
+      },
+      "ImportCommitResultResponse": {
+        "description": "What a commit did, stored once and returned unchanged by every later read.",
+        "properties": {
+          "acknowledge_skipped": {
+            "description": "What the first request sent",
+            "title": "Acknowledge Skipped",
+            "type": "boolean"
+          },
+          "affected_from": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Start of the changed data, in UTC",
+            "title": "Affected From"
+          },
+          "affected_to": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "End of the changed data, in UTC",
+            "title": "Affected To"
+          },
+          "assets_created": {
+            "default": [],
+            "description": "In stream order",
+            "items": {
+              "$ref": "#/components/schemas/ImportCommitAssetResponse"
+            },
+            "title": "Assets Created",
+            "type": "array"
+          },
+          "assets_mapped": {
+            "default": [],
+            "description": "In stream order",
+            "items": {
+              "$ref": "#/components/schemas/ImportCommitAssetResponse"
+            },
+            "title": "Assets Mapped",
+            "type": "array"
+          },
+          "committed_at": {
+            "description": "Wall-clock time of the commit",
+            "format": "date-time",
+            "title": "Committed At",
+            "type": "string"
+          },
+          "import_id": {
+            "format": "uuid",
+            "title": "Import Id",
+            "type": "string"
+          },
+          "period": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ImportPeriodResponse"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Local dates changed; null when none were"
+          },
+          "rows_added": {
+            "description": "Rows stored",
+            "title": "Rows Added",
+            "type": "integer"
+          },
+          "rows_after_site_clock": {
+            "default": 0,
+            "description": "Accepted rows ending after the site's clock at commit",
+            "title": "Rows After Site Clock",
+            "type": "integer"
+          },
+          "rows_duplicate": {
+            "description": "Exact repeats",
+            "title": "Rows Duplicate",
+            "type": "integer"
+          },
+          "rows_skipped": {
+            "description": "Invalid rows acknowledged",
+            "title": "Rows Skipped",
+            "type": "integer"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ImportStatusResponse"
+          }
+        },
+        "required": [
+          "import_id",
+          "status",
+          "rows_added",
+          "rows_skipped",
+          "rows_duplicate",
+          "acknowledge_skipped",
+          "committed_at"
+        ],
+        "title": "ImportCommitResultResponse",
+        "type": "object"
+      },
       "ImportErrorPageResponse": {
         "description": "One page of row errors, ordered by data row.",
         "properties": {
@@ -1612,6 +1874,17 @@
             },
             "title": "Questions",
             "type": "array"
+          },
+          "result": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ImportCommitResultResponse"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The first result, once committed"
           },
           "status": {
             "$ref": "#/components/schemas/ImportStatusResponse"
@@ -3398,6 +3671,80 @@
           }
         },
         "summary": "Read a stored import preview",
+        "tags": [
+          "imports"
+        ]
+      }
+    },
+    "/api/v1/imports/{import_id}/commit": {
+      "post": {
+        "description": "Store every accepted row, or nothing. A repeat answers the first result with ``replayed`` true.\n\nArgs:\n    import_id (UUID): The import.\n    request (ImportCommitRequest): Whether invalid rows may be skipped.\n    principal (PrincipalModel): The acting principal.\n    service (ImportCommitService): Commit rules.\n    idempotency_key (str): Names this attempt. A failed attempt stores nothing, so it stays free.\n\nReturns:\n    ImportCommitResponse: The first result.",
+        "operationId": "commit_import_api_v1_imports__import_id__commit_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "import_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Import Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "pattern": "^[A-Za-z0-9_-]{22,128}$",
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImportCommitRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportCommitResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Commit a previewed import in one transaction",
         "tags": [
           "imports"
         ]

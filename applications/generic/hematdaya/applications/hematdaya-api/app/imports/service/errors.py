@@ -20,3 +20,21 @@ class ImportBlockedError(AppError):
     """A commit of a preview that is still blocked."""
 
     code = codes.APP_IMPORT_BLOCKED
+
+
+class ImportStaleError(AppError):
+    """A commit of a preview that has expired, or whose site changed after it was made."""
+
+    code = codes.APP_IMPORT_STALE
+
+
+class ImportAckRequiredError(AppError):
+    """A commit that would skip invalid rows the user has not acknowledged."""
+
+    code = codes.APP_IMPORT_ACK_REQUIRED
+
+
+class ImportKeyConflictError(AppError):
+    """A key already used for another import of the site, or with a different acknowledgment."""
+
+    code = codes.APP_IMPORT_KEY_CONFLICT

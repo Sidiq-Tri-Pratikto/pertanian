@@ -342,7 +342,14 @@ class AssetService:
         )
 
     async def add_binding(
-        self, site: SiteModel, *, asset_id: UUID, source_id: UUID, effective_from: datetime, authoritative: bool
+        self,
+        site: SiteModel,
+        *,
+        asset_id: UUID,
+        source_id: UUID,
+        effective_from: datetime,
+        authoritative: bool,
+        effective_to: datetime | None = None,
     ) -> BindingModel:
         """Bind within a site the caller has locked, without an audit event. Seeding calls this.
 
@@ -352,6 +359,7 @@ class AssetService:
             source_id (UUID): Source of that site.
             effective_from (datetime): Start of the range.
             authoritative (bool): Reference source or candidate.
+            effective_to (datetime | None, optional): End of the range; None leaves it open. Defaults to None.
 
         Returns:
             BindingModel: The binding.
@@ -362,6 +370,7 @@ class AssetService:
             asset_id=asset_id,
             effective_from=effective_from,
             authoritative=authoritative,
+            effective_to=effective_to,
         )
 
     async def relate(self, site: SiteModel, from_asset_id: UUID, to_asset_id: UUID, kind: RelationKind) -> None:
