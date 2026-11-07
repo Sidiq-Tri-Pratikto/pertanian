@@ -31,7 +31,7 @@ jobs:
       DEVICE_PROFILE: pixel_6
       EMULATOR_TARGET: default
       EMULATOR_ARCH: x86_64
-      EMULATOR_BOOT_TIMEOUT: "300"
+      EMULATOR_BOOT_TIMEOUT: "1"
       EMULATOR_OPTIONS: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot-save
       APK_PATH: android/app/build/outputs/apk/debug/app-debug.apk
       METRO_BUNDLE_URL: http://localhost:8081/.expo/.virtual-metro-entry.bundle?platform=android&dev=true
