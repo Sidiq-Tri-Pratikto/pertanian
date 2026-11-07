@@ -1,7 +1,8 @@
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import * as SecureStore from 'expo-secure-store';
 import { useRef, type ComponentRef } from 'react';
-import { AccessibilityInfo, Platform, View } from 'react-native';
+import { AccessibilityInfo, Platform, StyleSheet, View } from 'react-native';
+import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 
 import {
   commitImport,
@@ -19,6 +20,7 @@ import {
 import { ApiError } from '@/api/errors';
 import { endsSession, retryDelay, shouldRetry } from '@/api/query-client';
 import { HDSheetDialog } from '@/components/hd/HDSheetDialog';
+import { tokens } from '@/design/tokens.generated';
 import { clearWorkspace, loadWorkspace, saveWorkspace, type Workspace } from '@/features/workspace/workspace-store';
 
 import assetFixtures from './fixtures/assets.json';
@@ -433,6 +435,25 @@ function SheetHarness({ open, onClose }: { open: boolean; onClose: (reason: stri
 }
 
 describe('sheet dialog', () => {
+  it.each([['android', 48], ['ios', 0]] as const)('keeps footer actions above the Android bottom inset on %s', async (os, extra) => {
+    const previousOS = Platform.OS;
+    Platform.OS = os;
+    try {
+      await render(
+        <SafeAreaInsetsContext.Provider value={{ top: 24, right: 0, bottom: 48, left: 0 }}>
+          <HDSheetDialog open title="Ubah detail perangkat" onClose={jest.fn()} footer={<View />}>
+            <View />
+          </HDSheetDialog>
+        </SafeAreaInsetsContext.Provider>,
+      );
+
+      const padding = StyleSheet.flatten(screen.getByLabelText('Ubah detail perangkat').props.style);
+      expect(padding.paddingBottom ?? padding.padding).toBe(tokens.space.pageGutter + extra);
+    } finally {
+      Platform.OS = previousOS;
+    }
+  });
+
   it('closes from its Tutup control and returns focus to the opener', async () => {
     const focusSpy = jest.spyOn(AccessibilityInfo, 'sendAccessibilityEvent').mockImplementation(() => undefined);
     const onClose = jest.fn();
