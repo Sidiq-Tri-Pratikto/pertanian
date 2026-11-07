@@ -156,6 +156,34 @@ describe('Saran and evidence', () => {
     expect(within(table).getByText('19 Oktober 2026')).toBeOnTheScreen();
   });
 
+  it('keeps a frozen masked gap, the aligned reference and exact values at the requested revision', async () => {
+    const series = detail.evidence.series.map((day, index) => index === 0
+      ? { ...day, comparison_kwh: null, reference_kwh: null }
+      : index === 1 ? { ...day, comparison_kwh: '0.562', reference_kwh: '0.361' } : day);
+    const fetchMock = mockApi({ insight: () => respond(200, {
+      ...detail, evidence: { ...detail.evidence, series },
+    }) });
+    await renderRouter('./src/app', { initialUrl: '/saran' });
+    await fireEvent.press(await screen.findByRole('button', { name: 'Lihat dasar saran' }));
+    await fireEvent.press(await screen.findByRole('button', { name: 'Lihat data pembanding' }));
+
+    expect(screen.getAllByRole('img', { name: /TV: periode ini dan pembanding/ })).toHaveLength(1);
+    expect(screen.getByText('Kolom bergaris titik berarti data belum tersedia, bukan 0 kWh.')).toBeOnTheScreen();
+    expect(screen.getByText('Periode ini')).toBeOnTheScreen();
+    expect(screen.getByText('Pembanding (median)')).toBeOnTheScreen();
+    expect(screen.getByTestId('chart-gap', { includeHiddenElements: true })).toBeOnTheScreen();
+    expect(screen.getAllByTestId('chart-current', { includeHiddenElements: true })).toHaveLength(6);
+    expect(screen.getAllByTestId('chart-reference', { includeHiddenElements: true })).toHaveLength(6);
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Lihat data' }));
+    const table = screen.getByLabelText('Energi harian TV, 19–25 Oktober 2026, Asia/Jakarta');
+    expect(within(table).getAllByText('Tidak ada data')).toHaveLength(2);
+    expect(within(table).getByText('0,562 kWh')).toBeOnTheScreen();
+    expect(within(table).getByText('0,361 kWh')).toBeOnTheScreen();
+    expect(detailCalls(fetchMock).map((url) => url.searchParams.get('revision'))).toEqual(['1']);
+    expect(fetchMock.mock.calls.some(([input]) => String(input).includes('/measurements'))).toBe(false);
+  });
+
   it('keeps the revision the card showed after the data is corrected, marked as superseded', async () => {
     const fetchMock = mockApi({
       insight: () => respond(200, { ...detail, superseded: true, current_revision: 2 }),

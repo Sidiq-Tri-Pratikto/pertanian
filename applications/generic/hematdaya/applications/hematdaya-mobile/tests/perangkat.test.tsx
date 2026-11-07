@@ -1,8 +1,10 @@
 // Recorded on 2026-11-07 from the merged hematdaya-api at 6563a2f (Alembic head 0009), by real demo sessions.
+import { focusManager } from '@tanstack/react-query';
 import { act, fireEvent, renderRouter, screen, waitFor, within } from 'expo-router/testing-library';
 import * as SecureStore from 'expo-secure-store';
 
 import recorded from './fixtures/assets.json';
+import { hourlyHistory, mondayWindow, weeklyHistory, weekWindow } from './fixtures/history';
 
 type Row = { asset_id: string; name: string };
 type Detail = { asset: { id: string; name: string; bindings: unknown[]; sources: unknown[] }; summary: Record<string, unknown> & { assets: Row[]; coverage: object; origins: string[] } };
@@ -66,7 +68,7 @@ function isToday(url: URL) {
 }
 
 type Handler = (url: URL, init: RequestInit) => Response | Promise<Response>;
-type Api = { summary?: Handler; assets?: Handler; insights?: Handler; asset?: Handler; assetSummary?: Handler; create?: Handler };
+type Api = { summary?: Handler; assets?: Handler; insights?: Handler; asset?: Handler; assetSummary?: Handler; history?: Handler; create?: Handler };
 
 const defaults: Required<Api> = {
   create: (_url, init) => {
@@ -93,6 +95,7 @@ const defaults: Required<Api> = {
     return respond(200, isToday(url) && scenario.today_asset ? scenario.today_asset : entry.summary);
   },
   asset: (url) => respond(200, detailOf(url).entry.asset),
+  history: () => respond(200, weeklyHistory()),
 };
 
 function mockApi(api: Api = {}) {
@@ -114,6 +117,9 @@ function mockApi(api: Api = {}) {
     }
     if (/^\/api\/v1\/assets\/[^/]+\/summary$/.test(path)) {
       return handlers.assetSummary(url, init);
+    }
+    if (/^\/api\/v1\/assets\/[^/]+\/measurements$/.test(path)) {
+      return handlers.history(url, init);
     }
     if (/^\/api\/v1\/assets\/[^/]+$/.test(path)) {
       return handlers.asset(url, init);
@@ -563,7 +569,7 @@ describe('asset detail', () => {
     expect(assetCalls).toEqual(expect.arrayContaining([`/api/v1/assets/${id}/summary?preset=last_7_days`, `/api/v1/assets/${id}`]));
     expect(assetCalls.some((call) => call.includes('/measurements'))).toBe(false);
     expect(screen.queryByText(/100,00%/)).toBeNull();
-    for (const absent of ['Lihat riwayat', 'Ubah detail', 'Arsipkan', 'Pilih sumber acuan']) {
+    for (const absent of ['Ubah detail', 'Arsipkan', 'Pilih sumber acuan']) {
       expect(screen.queryByRole('button', { name: absent })).toBeNull();
     }
   });
@@ -940,5 +946,302 @@ describe('asset detail failures', () => {
 
     expect(await screen.findByText('Status pembaruan sumber belum dapat diperiksa.')).toBeOnTheScreen();
     expect(screen.getByText('8,400 kWh')).toBeOnTheScreen();
+  });
+});
+
+
+const HISTORY_PATH = /\/assets\/[^/]+\/measurements$/;
+const WEEK_HIGHEST = 'Energi tercatat tertinggi: 19 Oktober 2026, 1,200 kWh.';
+const WEEK_TABLE = 'Riwayat Kulkas, 19–25 Oktober 2026 · Asia/Jakarta';
+
+function deferReply() {
+  let finish!: (value: Response) => void;
+  const reply = new Promise<Response>((resolve) => { finish = resolve; });
+  return { reply, finish };
+}
+
+async function showHistory() {
+  await fireEvent.press(await screen.findByRole('button', { name: 'Lihat riwayat' }));
+}
+
+async function showHistoryData() {
+  await fireEvent.press(await screen.findByRole('button', { name: 'Lihat data' }));
+}
+
+describe('asset history disclosure', () => {
+  it.each(['Beranda', 'Perangkat'])('reads lazily from %s, shows parity and goes back within that tab', async (tab) => {
+    const response = deferReply();
+    const fetchMock = mockApi({ history: () => response.reply });
+    if (tab === 'Beranda') {
+      await storeWorkspace('h-base');
+      await renderRouter('./src/app', { initialUrl: '/beranda' });
+      await fireEvent.press(await screen.findByRole('button', { name: 'Lihat perangkat terbesar' }));
+      await screen.findByRole('heading', { name: 'Kulkas' });
+    } else {
+      await pressRow('h-base', 'Kulkas');
+    }
+    expect(requests(fetchMock, HISTORY_PATH)).toHaveLength(0);
+    expect(screen.getByRole('tab', { name: tab, selected: true })).toBeOnTheScreen();
+
+    await showHistory();
+    expect(screen.getByRole('button', { name: 'Lihat riwayat', expanded: true })).toBeOnTheScreen();
+    expect(statusRegionOf('Memuat riwayat…')).toBeOnTheScreen();
+    expect(screen.queryByRole('img', { name: /Riwayat energi/ })).toBeNull();
+
+    await act(async () => response.finish(respond(200, weeklyHistory())));
+    expect(await screen.findByText(WEEK_HIGHEST)).toBeOnTheScreen();
+    expect(screen.getByRole('img', { name: /Riwayat energi.*1,200 kWh/ })).toBeOnTheScreen();
+    await showHistoryData();
+    const table = screen.getByLabelText(WEEK_TABLE);
+    expect(within(table).getAllByText('1,200 kWh')).toHaveLength(7);
+    expect(within(table).getAllByText('100%')).toHaveLength(7);
+    expect(within(table).getByText('19 Oktober 2026')).toBeOnTheScreen();
+    expect(requests(fetchMock, HISTORY_PATH).map((url) => Object.fromEntries(url.searchParams))).toEqual([
+      { start_date: '2026-10-19', end_date: '2026-10-25', bucket: 'day' },
+    ]);
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Kembali' }));
+    expect(await screen.findByRole('heading', { name: tab })).toBeOnTheScreen();
+    expect(screen.getByRole('tab', { name: tab, selected: true })).toBeOnTheScreen();
+  });
+
+  it('waits for the newly selected summary and ignores a late history result from the former period', async () => {
+    const newSummary = deferReply();
+    const previousSummary = deferReply();
+    const previousHistory = deferReply();
+    const fetchMock = mockApi({
+      assetSummary: (url, init) => {
+        if (url.searchParams.get('preset') === 'this_week') return previousSummary.reply;
+        return isToday(url) ? newSummary.reply : defaults.assetSummary(url, init);
+      },
+      history: (url) => url.searchParams.get('bucket') === 'day' ? previousHistory.reply : respond(200, hourlyHistory()),
+    });
+    await openAddress('h-base', 'Kulkas');
+    await showHistory();
+    await waitFor(() => expect(requests(fetchMock, HISTORY_PATH)).toHaveLength(1));
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Minggu ini' }));
+    await waitFor(() => expect(requests(fetchMock, /\/assets\/[^/]+\/summary$/)
+      .some((url) => url.searchParams.get('preset') === 'this_week')).toBe(true));
+    await fireEvent.press(screen.getByRole('button', { name: 'Hari ini' }));
+    await act(async () => previousSummary.finish(respond(200, {
+      ...Recorded['h-base'].details.Kulkas.summary, window: mondayWindow,
+    })));
+    expect(statusRegionOf('Menunggu periode terpilih…')).toBeOnTheScreen();
+    expect(requests(fetchMock, HISTORY_PATH)).toHaveLength(1);
+
+    await act(async () => newSummary.finish(respond(200, {
+      ...Recorded['h-base'].details.Kulkas.summary, window: mondayWindow,
+    })));
+    expect(await screen.findByText(/Energi tercatat tertinggi: 19 Oktober 2026 00.00/)).toBeOnTheScreen();
+
+    await act(async () => previousHistory.finish(respond(200, weeklyHistory())));
+    await waitFor(() => expect(requests(fetchMock, HISTORY_PATH).map((url) => url.searchParams.get('bucket'))).toEqual(['day', 'hour']));
+    expect(screen.queryByText(WEEK_HIGHEST)).toBeNull();
+    await showHistoryData();
+    const table = screen.getByLabelText('Riwayat Kulkas, 19 Oktober 2026 · Asia/Jakarta');
+    expect(within(table).getAllByText('1,200 kWh')).toHaveLength(24);
+    expect(within(table).getByText(/19 Oktober 2026 01.00.*19 Oktober 2026 02.00/)).toBeOnTheScreen();
+  });
+
+  it('keeps confirmed History when an explicit summary echoes a different date range', async () => {
+    const fetchMock = mockApi();
+    await openAddress('h-base', 'Kulkas');
+    await showHistory();
+    expect(await screen.findByText(WEEK_HIGHEST)).toBeOnTheScreen();
+
+    await fireEvent.changeText(screen.getByLabelText('Tanggal mulai'), '2026-10-22');
+    await fireEvent.changeText(screen.getByLabelText('Tanggal selesai'), '2026-10-22');
+    await fireEvent.press(screen.getByRole('button', { name: 'Terapkan' }));
+
+    expect(await screen.findByText('Riwayat belum dapat dimuat')).toBeOnTheScreen();
+    expect(screen.getByText(/pembacaan terakhir yang terkonfirmasi/)).toBeOnTheScreen();
+    expect(screen.getByText(WEEK_HIGHEST)).toBeOnTheScreen();
+    expect(requests(fetchMock, HISTORY_PATH)).toHaveLength(1);
+  });
+
+  it('keeps confirmed context when a background refresh of the same History fails', async () => {
+    const old = weeklyHistory();
+    old.window = { ...weekWindow, is_current: true, effective_end: '2026-10-25T10:00:00Z' };
+    old.highest_bucket = { start: old.buckets.at(-1)!.start };
+    let historyCalls = 0;
+    const fetchMock = mockApi({
+      history: () => historyCalls++ === 0 ? respond(200, old) : SERVER_FAILED(),
+    });
+    await openAddress('h-base', 'Kulkas');
+    await showHistory();
+    await showHistoryData();
+    const context = '19–25 Oktober 2026 · Asia/Jakarta · hingga 25 Oktober 2026 17.00 (UTC+07:00)';
+    const clock = jest.spyOn(Date, 'now').mockReturnValue(Date.now() + 31_000);
+    try {
+      await act(async () => {
+        focusManager.setFocused(false);
+        focusManager.setFocused(true);
+      });
+      await screen.findByText('Riwayat belum dapat dimuat');
+      expect(screen.getByText(/pembacaan terakhir yang terkonfirmasi/)).toBeOnTheScreen();
+      expect(screen.getByLabelText(`Riwayat Kulkas, ${context}`)).toBeOnTheScreen();
+      expect(requests(fetchMock, HISTORY_PATH)).toHaveLength(2);
+    } finally {
+      focusManager.setFocused(undefined);
+      clock.mockRestore();
+    }
+  });
+
+  it('keeps the prior period, timezone and cutoff during a retry wait and terminal failure', async () => {
+    const old = weeklyHistory();
+    old.window = { ...weekWindow, is_current: true, effective_end: '2026-10-25T10:00:00Z' };
+    old.highest_bucket = { start: old.buckets.at(-1)!.start };
+    const nextSummary = deferReply();
+    let hourCalls = 0;
+    const fetchMock = mockApi({
+      assetSummary: (url, init) => isToday(url) ? nextSummary.reply : defaults.assetSummary(url, init),
+      history: (url) => {
+        if (url.searchParams.get('bucket') === 'day') return respond(200, old);
+        hourCalls += 1;
+        return failure(503, 'DATABASE_UNAVAILABLE', { retryable: true, retry_after_seconds: 1, max_attempts: 2 }, 'ref-history');
+      },
+    });
+    await openAddress('h-base', 'Kulkas');
+    await showHistory();
+    const context = '19–25 Oktober 2026 · Asia/Jakarta · hingga 25 Oktober 2026 17.00 (UTC+07:00)';
+    const highest = 'Energi tercatat tertinggi: 25 Oktober 2026, 1,200 kWh hingga 25 Oktober 2026 17.00 (UTC+07:00).';
+    expect(await screen.findByText(highest)).toBeOnTheScreen();
+    await showHistoryData();
+    expect(screen.getByLabelText(`Riwayat Kulkas, ${context}`)).toBeOnTheScreen();
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Hari ini' }));
+    expect(statusRegionOf('Menunggu periode terpilih…')).toBeOnTheScreen();
+    expect(screen.getByText(highest)).toBeOnTheScreen();
+
+    await act(async () => nextSummary.finish(respond(200, {
+      ...Recorded['h-base'].details.Kulkas.summary, window: mondayWindow,
+    })));
+    const waiting = await screen.findByText('Menunggu percobaan otomatis riwayat…');
+    expect(statusRegionOf(String(waiting.props.children))).toBeOnTheScreen();
+    expect(screen.getByText(/dalam 1 detik/)).toBeOnTheScreen();
+    expect(screen.queryByRole('button', { name: 'Coba lagi' })).toBeNull();
+    expect(hourCalls).toBe(1);
+
+    const stopped = await screen.findByText('Riwayat belum dapat dimuat', {}, { timeout: 3000 });
+    expect(statusRegionOf(String(stopped.props.children))).toBeOnTheScreen();
+    expect(screen.getByText(/Percobaan riwayat telah dihentikan/)).toBeOnTheScreen();
+    expect(screen.getByText(/ID referensi: ref-history/)).toBeOnTheScreen();
+    expect(screen.queryByText(new RegExp(FAKE_SECRET))).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Coba lagi' })).toBeNull();
+    expect(screen.getByText(highest)).toBeOnTheScreen();
+    expect(screen.getByLabelText(`Riwayat Kulkas, ${context}`)).toBeOnTheScreen();
+
+    await showHistory();
+    await showHistory();
+    expect(await screen.findByText('Riwayat belum dapat dimuat')).toBeOnTheScreen();
+    expect(requests(fetchMock, HISTORY_PATH)).toHaveLength(3);
+  });
+});
+
+describe('history bucket states', () => {
+  it('keeps measured, partial, missing, future and unavailable distinct and ignores comparison data', async () => {
+    const history = hourlyHistory();
+    history.window = { ...history.window, is_current: true, effective_end: '2026-10-19T02:30:00Z' };
+    history.buckets = history.buckets.map((bucket, index) => {
+      if (index >= 10) return { ...bucket, state: 'future', energy_kwh: null, coverage: null };
+      return {
+        ...bucket,
+        ...([
+          { energy_kwh: '1.200', comparison_kwh: '0.200' },
+          { energy_kwh: '0.000' },
+          { state: 'partial', energy_kwh: '1.300', coverage: '0.916' },
+          { state: 'partial', energy_kwh: '0.001', coverage: '0.010' },
+          { state: 'partial', energy_kwh: '0.000', coverage: '0.000' },
+          { state: 'missing', energy_kwh: null, coverage: '0.000' },
+          { state: 'unavailable', energy_kwh: null, coverage: null, unavailable_reason: 'source_conflict' },
+          { state: 'unavailable', energy_kwh: null, coverage: null, unavailable_reason: 'insufficient_resolution' },
+          { state: 'unavailable', energy_kwh: null, coverage: null, unavailable_reason: FAKE_SECRET },
+          { energy_kwh: '1.200' },
+        ][index]),
+      };
+    });
+    history.highest_bucket = { start: history.buckets[9].start };
+    mockApi({
+      assetSummary: () => respond(200, { ...Recorded['h-base'].details.Kulkas.summary, window: mondayWindow }),
+      history: () => respond(200, history),
+    });
+    await openAddress('h-base', 'Kulkas');
+    await showHistory();
+
+    const cutoff = 'hingga 19 Oktober 2026 09.30 (UTC+07:00)';
+    expect(await screen.findByText(`Energi tercatat tertinggi: 19 Oktober 2026 09.00 (UTC+07:00), 1,200 kWh ${cutoff}.`)).toBeOnTheScreen();
+    expect(screen.getByText(/^Tidak ada data: 19 Oktober 2026 05.00/)).toBeOnTheScreen();
+    await showHistoryData();
+    const table = screen.getByLabelText(`Riwayat Kulkas, 19 Oktober 2026 · Asia/Jakarta · ${cutoff}`);
+    function rowAt(hour: string) {
+      let row = within(table).getByText(new RegExp(`^19 Oktober 2026 ${hour}\\.00.* – `));
+      while (row.props.role !== 'row') row = row.parent as typeof row;
+      return within(row);
+    }
+
+    expect(rowAt('00').getByText('1,200 kWh')).toBeOnTheScreen();
+    expect(rowAt('00').getByText('Terukur')).toBeOnTheScreen();
+    expect(rowAt('01').getByText('0,000 kWh')).toBeOnTheScreen();
+    expect(rowAt('01').getByText('Terukur')).toBeOnTheScreen();
+    expect(rowAt('02').getByText('1,300 kWh')).toBeOnTheScreen();
+    expect(rowAt('02').getByText('91,6%')).toBeOnTheScreen();
+    expect(rowAt('03').getByText('0,001 kWh')).toBeOnTheScreen();
+    expect(rowAt('03').getByText('1%')).toBeOnTheScreen();
+    expect(rowAt('04').getByText('0,000 kWh')).toBeOnTheScreen();
+    expect(rowAt('04').getByText('0%')).toBeOnTheScreen();
+    expect(rowAt('04').getByText(/^Data sebagian\./)).toBeOnTheScreen();
+    expect(rowAt('05').getByText('Tidak ada data')).toBeOnTheScreen();
+    expect(rowAt('06').getByText(/^Sumber data bertentangan/)).toBeOnTheScreen();
+    expect(rowAt('07').getByText(/^Resolusi pengukuran belum memadai/)).toBeOnTheScreen();
+    expect(rowAt('08').getByText('Data tidak tersedia untuk interval ini.')).toBeOnTheScreen();
+    expect(rowAt('09').getByText(`100% ${cutoff}`)).toBeOnTheScreen();
+    expect(rowAt('10').getByText('Belum terjadi')).toBeOnTheScreen();
+    expect(within(table).queryByText('0,200 kWh')).toBeNull();
+    expect(screen.queryByText(new RegExp(FAKE_SECRET))).toBeNull();
+  });
+
+  it.each([
+    ['missing', 'Tidak ada data'],
+    ['future', 'Belum terjadi'],
+    ['unavailable', 'Resolusi pengukuran belum memadai untuk interval ini.'],
+  ])('replaces retained numeric history with a confirmed all-%s series', async (state, quality) => {
+    const later = hourlyHistory();
+    later.highest_bucket = null;
+    if (state === 'future') later.window = { ...later.window, effective_end: later.window.start, is_current: true };
+    later.buckets = later.buckets.map((bucket) => ({
+      ...bucket, state, energy_kwh: null, coverage: state === 'missing' ? '0.000' : null,
+      unavailable_reason: state === 'unavailable' ? 'insufficient_resolution' : null,
+    }));
+    const response = deferReply();
+    mockApi({
+      assetSummary: (url, init) => isToday(url)
+        ? respond(200, { ...Recorded['h-base'].details.Kulkas.summary, window: mondayWindow })
+        : defaults.assetSummary(url, init),
+      history: (url) => url.searchParams.get('bucket') === 'hour' ? response.reply : respond(200, weeklyHistory()),
+    });
+    await openAddress('h-base', 'Kulkas');
+    await showHistory();
+    expect(await screen.findByText(WEEK_HIGHEST)).toBeOnTheScreen();
+    await showHistoryData();
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Hari ini' }));
+    expect(screen.getByText(WEEK_HIGHEST)).toBeOnTheScreen();
+    await act(async () => response.finish(respond(200, later)));
+    expect(await screen.findByText('Belum ada interval terukur lengkap untuk menentukan energi tertinggi.')).toBeOnTheScreen();
+    expect(screen.queryByText(WEEK_HIGHEST)).toBeNull();
+    expect(screen.queryByText(/pembacaan terakhir yang terkonfirmasi/)).toBeNull();
+    const table = screen.getByLabelText(/^Riwayat Kulkas, 19 Oktober 2026 · Asia\/Jakarta/);
+    expect(within(table).getAllByText(quality)).toHaveLength(24);
+    expect(within(table).queryByText(/kWh/)).toBeNull();
+  });
+
+  it('shows an explicit state when the service confirms an empty series', async () => {
+    mockApi({ history: () => respond(200, { ...weeklyHistory(), highest_bucket: null, buckets: [] }) });
+    await openAddress('h-base', 'Kulkas');
+    await showHistory();
+
+    expect(await screen.findByText('Riwayat belum memiliki interval untuk periode ini.')).toBeOnTheScreen();
+    expect(screen.queryByRole('img', { name: /Riwayat energi/ })).toBeNull();
   });
 });

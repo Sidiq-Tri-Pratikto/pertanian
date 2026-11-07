@@ -6,6 +6,7 @@ import { AccessibilityInfo, Platform, View } from 'react-native';
 import {
   commitImport,
   getAsset,
+  getAssetHistory,
   getAssets,
   getAssetSummary,
   getImport,
@@ -21,6 +22,7 @@ import { HDSheetDialog } from '@/components/hd/HDSheetDialog';
 import { clearImportDraft, loadImportDraft, saveImportDraft } from '@/features/imports/draft-store';
 import { clearWorkspace, loadWorkspace, saveWorkspace, type Workspace } from '@/features/workspace/workspace-store';
 
+import { hourlyHistory, weeklyHistory } from './fixtures/history';
 import recordedImports from './fixtures/imports.json';
 
 const workspace: Workspace = {
@@ -173,6 +175,133 @@ describe('asset reads', () => {
 
     fetchMock.mockImplementation(async () => new Response(JSON.stringify(notFound), { status: 404 }));
     await expect(read()).rejects.toMatchObject({ name: 'ApiError', code: 'NOT_FOUND', requestId: 'ref_404' });
+  });
+});
+
+describe('asset history client', () => {
+  afterEach(() => jest.restoreAllMocks());
+
+  function read(history = weeklyHistory()) {
+    const { start_date, end_date, timezone } = history.window;
+    return getAssetHistory('asset / 1', { start_date, end_date, timezone, bucket: history.bucket === 'hour' ? 'hour' : 'day' }, 'demo-token');
+  }
+
+  it.each([weeklyHistory(), hourlyHistory()])('requests the resolved $bucket selection with the bearer', async (history) => {
+    const last = history.buckets.length - 1;
+    history.buckets[0] = { ...history.buckets[0], comparison_kwh: '0.100', reference_kwh: '0.200' };
+    history.buckets[last] = { ...history.buckets[last], state: 'unavailable', unavailable_reason: 'new_reason', energy_kwh: null, coverage: null };
+    const fetchMock = jest.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify(history)));
+
+    await expect(read(history)).resolves.toEqual(history);
+
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(new URL(String(url)).pathname).toBe('/api/v1/assets/asset%20%2F%201/measurements');
+    expect(Object.fromEntries(new URL(String(url)).searchParams)).toEqual({
+      start_date: history.window.start_date,
+      end_date: history.window.end_date,
+      bucket: history.bucket,
+    });
+    expect(init?.headers).toEqual({ Authorization: 'Bearer demo-token' });
+  });
+
+  it.each([
+    ['wrong dates', { window: { ...weeklyHistory().window, end_date: '2026-10-26' } }],
+    ['wrong timezone', { window: { ...weeklyHistory().window, timezone: 'UTC' } }],
+    ['wrong granularity', { bucket: 'hour' }],
+    ['invalid cutoff', { window: { ...weeklyHistory().window, effective_end: '2026-10-26T00:00:00Z' } }],
+    ['wrong current flag', { window: { ...weeklyHistory().window, is_current: true } }],
+    ['nonexistent calendar day', { window: { ...weeklyHistory().window, start: '2026-09-31T17:00:00Z' } }],
+    ['invalid provenance', { origins: [123] }],
+    ['invalid resolution', { resolution_mwh: -1 }],
+    ['dangling highest', { highest_bucket: { start: '2026-10-21T00:00:00Z' } }],
+  ])('rejects %s with safe normalized recovery', async (_condition, patch) => {
+    jest.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({ ...weeklyHistory(), ...patch, secret: 'fake-history-secret' })));
+
+    const error: unknown = await read().catch((failure: unknown) => failure);
+    expect(error).toMatchObject({
+      code: 'UNEXPECTED_RESPONSE',
+      message: 'Layanan mengirim jawaban yang tidak dikenali. Coba lagi nanti.',
+      requestId: null,
+      recovery: { retryable: false },
+    });
+    expect(JSON.stringify(error)).not.toContain('fake-history-secret');
+  });
+
+  it.each([
+    ['inverted bound', { end: weeklyHistory().buckets[0].start }],
+    ['overlapping bounds', { end: weeklyHistory().buckets[2].end }],
+    ['bad offset', { utc_offset: '+33:00' }],
+    ['bad local time', { local_time: '28:01' }],
+    ['unknown state', { state: 'maybe' }],
+    ['measured without energy', { energy_kwh: null }],
+    ['negative energy', { energy_kwh: '-1.000' }],
+    ['measured without full coverage', { coverage: '0.999' }],
+    ['partial with full coverage', { state: 'partial', coverage: '1.000' }],
+    ['partial pointed to as highest', { state: 'partial', coverage: '0.999' }],
+    ['missing with energy', { state: 'missing', coverage: '0.000' }],
+    ['missing with coverage', { state: 'missing', energy_kwh: null, coverage: '0.100' }],
+    ['future in elapsed period', { state: 'future', energy_kwh: null, coverage: null }],
+    ['unavailable with no reason', { state: 'unavailable', energy_kwh: null, coverage: null }],
+    ['measured with an unavailable reason', { unavailable_reason: 'source_conflict' }],
+  ])('rejects a bucket with %s', async (_condition, patch) => {
+    const history = weeklyHistory();
+    const index = 'state' in patch && 'coverage' in patch && patch.state === 'partial' && patch.coverage === '0.999' ? 0 : 1;
+    history.buckets[index] = { ...history.buckets[index], ...patch };
+    jest.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify(history)));
+    await expect(read()).rejects.toMatchObject({ code: 'UNEXPECTED_RESPONSE' });
+  });
+
+  it('matches a highest pointer by instant and accepts partial energy and coverage reported as zero', async () => {
+    const history = weeklyHistory();
+    history.highest_bucket = { start: '2026-10-19T00:00:00+07:00' };
+    history.buckets[1] = { ...history.buckets[1], state: 'partial', energy_kwh: '0.000', coverage: '0.000' };
+    jest.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify(history)));
+
+    await expect(read()).resolves.toEqual(history);
+  });
+
+  it('accepts daily bounds where a midnight timezone change advances the local clock', async () => {
+    const history = weeklyHistory();
+    history.window = {
+      timezone: 'America/Sao_Paulo',
+      start_date: '2018-11-04', end_date: '2018-11-05',
+      start: '2018-11-04T03:00:00Z', end: '2018-11-06T02:00:00Z',
+      effective_end: '2018-11-06T02:00:00Z', is_current: false,
+    };
+    history.buckets = history.buckets.slice(0, 2).map((bucket, index) => ({
+      ...bucket, utc_offset: '-02:00',
+      local_date: index === 0 ? '2018-11-04' : '2018-11-05',
+      start: index === 0 ? history.window.start : '2018-11-05T02:00:00Z',
+      end: index === 0 ? '2018-11-05T02:00:00Z' : history.window.end,
+    }));
+    history.highest_bucket = { start: history.window.start };
+    jest.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify(history)));
+
+    await expect(read(history)).resolves.toEqual(history);
+  });
+
+  it('refuses a 204 and preserves the safe service failure and reference', async () => {
+    const fetchMock = jest.spyOn(globalThis, 'fetch').mockResolvedValueOnce(new Response(null, { status: 204 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        error: {
+          code: 'DATABASE_UNAVAILABLE',
+          message: 'Layanan sedang sibuk. Tunggu sebentar.',
+          request_id: 'ref-history',
+          recovery: { retryable: true, retry_after_seconds: 2, max_attempts: 3 },
+          debug_info: { raw: 'fake-history-secret' },
+        },
+      }), { status: 503 }));
+
+    await expect(read()).rejects.toMatchObject({ code: 'UNEXPECTED_RESPONSE' });
+    const error: unknown = await read().catch((failure: unknown) => failure);
+    expect(error).toMatchObject({
+      code: 'DATABASE_UNAVAILABLE',
+      message: 'Layanan sedang sibuk. Tunggu sebentar.',
+      requestId: 'ref-history',
+      recovery: { retryable: true, retry_after_seconds: 2, max_attempts: 3 },
+    });
+    expect(JSON.stringify(error)).not.toContain('fake-history-secret');
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 });
 

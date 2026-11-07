@@ -14,6 +14,7 @@ import { HDScreen } from '@/components/hd/HDScreen';
 import { HDText } from '@/components/hd/HDText';
 import { tokens } from '@/design/tokens.generated';
 import { assetDetailModel, assetSourceRows, originLabel, type SourceRow } from '@/features/assets/asset-model';
+import { AssetHistorySection } from '@/features/assets/AssetHistorySection';
 import { ReadFailure } from '@/features/assets/ReadFailure';
 import { useAsset } from '@/features/assets/useAssets';
 import { useAssetSummary } from '@/features/assets/useAssetSummary';
@@ -66,6 +67,7 @@ function notFoundIn(...errors: unknown[]): ApiError | undefined {
 
 function AssetDetail({ assetId }: { assetId: string }) {
   const { back } = useTabNavigation();
+  const { period } = useNavigationContext();
   const summaryQuery = useAssetSummary(assetId);
   const assetQuery = useAsset(assetId);
   const insightsQuery = useInsights();
@@ -99,9 +101,17 @@ function AssetDetail({ assetId }: { assetId: string }) {
       </HDScreen>
     );
   }
+  const selected = period && periodQuery(period);
+  const window = summaryQuery.isPlaceholderData ? undefined : summaryQuery.data?.window;
+  const confirmedWindow = window && selected && (selected.preset ||
+    (selected.start_date === window.start_date && selected.end_date === window.end_date)) ? window : null;
+  const historyWindowError = window && !confirmedWindow ? ApiError.unexpected() : summaryQuery.error;
   return (
     <PopulatedDetail
+      assetId={assetId}
       summary={summary}
+      confirmedWindow={confirmedWindow}
+      historyWindowError={historyWindowError}
       asset={asset}
       notices={insights?.notices ?? []}
       failure={summaryQuery.error}
@@ -118,7 +128,10 @@ function samePeriod(one: Period, other: Period) {
 }
 
 type PopulatedProps = {
+  assetId: string;
   summary: Summary;
+  confirmedWindow: Summary['window'] | null;
+  historyWindowError: ApiError | Error | null;
   asset: AssetDetailData | undefined;
   notices: InsightNotice[];
   failure: unknown;
@@ -128,7 +141,7 @@ type PopulatedProps = {
   sources: ReactNode;
 };
 
-function PopulatedDetail({ summary, asset, notices, failure, retrying, onRetry, staleCheckFailed, sources }: PopulatedProps) {
+function PopulatedDetail({ assetId, summary, confirmedWindow, historyWindowError, asset, notices, failure, retrying, onRetry, staleCheckFailed, sources }: PopulatedProps) {
   const { workspace } = useWorkspace();
   const { period, setPeriod } = useNavigationContext();
   const { back } = useTabNavigation();
@@ -200,7 +213,13 @@ function PopulatedDetail({ summary, asset, notices, failure, retrying, onRetry, 
               : []),
         ]}
       />
-      {/* 015 adds Lihat riwayat here, before Sumber data. */}
+      <AssetHistorySection
+        assetId={assetId}
+        assetName={model.name}
+        scopeLabel={model.scopeLabel}
+        confirmed={confirmedWindow}
+        summaryError={historyWindowError}
+      />
       {sources}
     </HDScreen>
   );
