@@ -3,11 +3,25 @@ import * as SecureStore from 'expo-secure-store';
 import { useRef, type ComponentRef } from 'react';
 import { AccessibilityInfo, Platform, View } from 'react-native';
 
-import { getAsset, getAssets, getAssetSummary, getSummary } from '@/api/client';
+import {
+  commitImport,
+  getAsset,
+  getAssets,
+  getAssetSummary,
+  getImport,
+  getImportErrors,
+  getSummary,
+  IMPORT_COMMIT_TIMEOUT_MS,
+  IMPORT_PREVIEW_TIMEOUT_MS,
+  previewImport,
+} from '@/api/client';
 import { ApiError } from '@/api/errors';
 import { endsSession, retryDelay, shouldRetry } from '@/api/query-client';
 import { HDSheetDialog } from '@/components/hd/HDSheetDialog';
+import { clearImportDraft, loadImportDraft, saveImportDraft } from '@/features/imports/draft-store';
 import { clearWorkspace, loadWorkspace, saveWorkspace, type Workspace } from '@/features/workspace/workspace-store';
+
+import recordedImports from './fixtures/imports.json';
 
 const workspace: Workspace = {
   token: 'hdd_v1_fake',
@@ -159,6 +173,207 @@ describe('asset reads', () => {
 
     fetchMock.mockImplementation(async () => new Response(JSON.stringify(notFound), { status: 404 }));
     await expect(read()).rejects.toMatchObject({ name: 'ApiError', code: 'NOT_FOUND', requestId: 'ref_404' });
+  });
+});
+
+describe('import client', () => {
+  const realOS = Platform.OS;
+  const Recorded = recordedImports as unknown as Record<string, Record<string, unknown>>;
+  const reply = (body: unknown, status = 200) => async () => new Response(JSON.stringify(body), { status });
+
+  afterEach(() => {
+    Platform.OS = realOS;
+    jest.restoreAllMocks();
+  });
+
+  function call(fetchMock: jest.SpyInstance, index = 0) {
+    const [url, init] = fetchMock.mock.calls[index] as [string, RequestInit];
+    return { url: String(url), init, headers: (init.headers ?? {}) as Record<string, string> };
+  }
+
+  it('posts a paste as form text with the answers as JSON text, the bearer token and the long preview timeout', async () => {
+    const timeout = jest.spyOn(AbortSignal, 'timeout');
+    const fetchMock = jest.spyOn(globalThis, 'fetch').mockImplementation(reply(Recorded.valid.first, 201));
+
+    await expect(previewImport('site 1', { kind: 'paste', text: 'a' }, { timezone_confirmed: true }, 'tok')).resolves.toMatchObject({
+      id: (Recorded.valid.first as { id: string }).id,
+    });
+
+    const { url, init, headers } = call(fetchMock);
+    expect(url).toContain('/api/v1/sites/site%201/imports/preview');
+    expect(init.method).toBe('POST');
+    expect(headers.Authorization).toBe('Bearer tok');
+    expect(Object.keys(headers).map((name) => name.toLowerCase())).not.toContain('content-type');
+    const body = init.body as FormData;
+    expect(body).toBeInstanceOf(FormData);
+    expect(body.get('text')).toBe('a');
+    expect(body.get('mapping')).toBe(JSON.stringify({ timezone_confirmed: true }));
+    expect(body.get('file')).toBeNull();
+    expect(IMPORT_PREVIEW_TIMEOUT_MS).toBe(120_000);
+    expect(timeout).toHaveBeenCalledWith(120_000);
+  });
+
+  it('uploads a web File as it is, with no text', async () => {
+    Platform.OS = 'web';
+    const append = jest.spyOn(FormData.prototype, 'append');
+    const fetchMock = jest.spyOn(globalThis, 'fetch').mockImplementation(reply(Recorded.valid.first, 201));
+    const file = new File(['x'], 'a.csv');
+
+    await previewImport('s', { kind: 'file', file }, {}, 'tok');
+
+    expect(append).toHaveBeenCalledWith('file', file);
+    expect(append.mock.calls.map(([name]) => name)).not.toContain('text');
+    expect((call(fetchMock).init.body as FormData).get('mapping')).toBe('{}');
+  });
+
+  it('uploads a native file by its URI, name and type, falling back to text/csv', async () => {
+    const append = jest.spyOn(FormData.prototype, 'append');
+    jest.spyOn(globalThis, 'fetch').mockImplementation(reply(Recorded.valid.first, 201));
+
+    await previewImport('s', { kind: 'file', uri: 'file:///c/a.csv', name: 'a.csv', mimeType: 'text/csv' }, {}, 'tok');
+    expect(append).toHaveBeenCalledWith('file', { uri: 'file:///c/a.csv', name: 'a.csv', type: 'text/csv' });
+
+    append.mockClear();
+    await previewImport('s', { kind: 'file', uri: 'file:///c/b.csv', name: 'b.csv' }, {}, 'tok');
+    expect(append).toHaveBeenCalledWith('file', { uri: 'file:///c/b.csv', name: 'b.csv', type: 'text/csv' });
+    expect(append.mock.calls.map(([name]) => name)).not.toContain('text');
+  });
+
+  it('reads one import with the default timeout, encoding its ID', async () => {
+    const timeout = jest.spyOn(AbortSignal, 'timeout');
+    const fetchMock = jest.spyOn(globalThis, 'fetch').mockImplementation(reply(Recorded.valid.get));
+
+    await expect(getImport('i/1', 'tok')).resolves.toMatchObject({ status: 'committed' });
+
+    expect(call(fetchMock).url).toContain('/api/v1/imports/i%2F1');
+    expect(call(fetchMock).headers.Authorization).toBe('Bearer tok');
+    expect(timeout).toHaveBeenCalledWith(10_000);
+  });
+
+  it('reads the next page of row errors by cursor', async () => {
+    const fetchMock = jest.spyOn(globalThis, 'fetch').mockImplementation(reply((Recorded.pages as Record<string, unknown>).page));
+
+    await expect(getImportErrors('i', 'c1', 'tok')).resolves.toMatchObject({ next_cursor: null });
+
+    expect(call(fetchMock).url).toContain('/api/v1/imports/i/errors?limit=50&cursor=c1');
+  });
+
+  it('commits with the operation key, the acknowledgment as JSON and the commit timeout', async () => {
+    const timeout = jest.spyOn(AbortSignal, 'timeout');
+    const fetchMock = jest.spyOn(globalThis, 'fetch').mockImplementation(reply(Recorded.valid.commit));
+    const key = 'k'.repeat(22);
+
+    await expect(commitImport('i', true, key, 'tok')).resolves.toMatchObject({ rows_added: 12, replayed: false });
+
+    const { url, init, headers } = call(fetchMock);
+    expect(url).toContain('/api/v1/imports/i/commit');
+    expect(init.method).toBe('POST');
+    expect(init.body).toBe('{"acknowledge_skipped":true}');
+    expect(headers['Idempotency-Key']).toBe(key);
+    expect(headers['Content-Type']).toBe('application/json');
+    expect(IMPORT_COMMIT_TIMEOUT_MS).toBe(60_000);
+    expect(timeout).toHaveBeenCalledWith(60_000);
+  });
+
+  it.each([
+    ['previewImport', () => previewImport('s', { kind: 'paste', text: 'a' }, {}, 'tok')],
+    ['getImport', () => getImport('i', 'tok')],
+    ['getImportErrors', () => getImportErrors('i', 'c', 'tok')],
+    ['commitImport', () => commitImport('i', false, 'k'.repeat(22), 'tok')],
+  ])('%s refuses an unexpected body and reports a lost connection', async (_name, send) => {
+    const fetchMock = jest.spyOn(globalThis, 'fetch').mockImplementation(reply({ secret: 'x' }));
+    await expect(send()).rejects.toMatchObject({ code: 'UNEXPECTED_RESPONSE' });
+
+    fetchMock.mockRejectedValue(new TypeError('Network request failed'));
+    await expect(send()).rejects.toMatchObject({ code: 'NETWORK_UNREACHABLE' });
+  });
+});
+
+describe('import draft store', () => {
+  const realOS = Platform.OS;
+  let storage: Map<string, string>;
+  const KEY = 'hematdaya.import-draft.v1';
+  const answers = { timezone_confirmed: true, scope: 'disjoint' as const };
+  const base = { siteId: 'site-1', answers, intervalText: {}, importId: 'imp-1', intent: { importId: 'imp-1', key: 'k'.repeat(22), acknowledge: false } };
+
+  function useWebStorage(setItem?: (key: string, value: string) => void) {
+    Platform.OS = 'web';
+    storage = new Map();
+    Object.defineProperty(globalThis, 'sessionStorage', {
+      configurable: true,
+      value: {
+        getItem: (key: string) => storage.get(key) ?? null,
+        setItem: setItem ?? ((key: string, value: string) => storage.set(key, value)),
+        removeItem: (key: string) => storage.delete(key),
+        clear: () => storage.clear(),
+      },
+    });
+  }
+
+  afterEach(() => {
+    Platform.OS = realOS;
+  });
+
+  it('brings a paste back with its text on the web', () => {
+    useWebStorage();
+
+    saveImportDraft({ ...base, source: { kind: 'paste', text: 'timestamp,perangkat,energi_wh\n' } });
+
+    expect(loadImportDraft()).toEqual({
+      ...base,
+      source: { kind: 'paste', text: 'timestamp,perangkat,energi_wh\n' },
+      needsReselect: false,
+      textDropped: false,
+    });
+  });
+
+  it('brings a file back by its name only, to be picked again', () => {
+    useWebStorage();
+
+    saveImportDraft({ ...base, source: { kind: 'file', file: new File(['x'], 'contoh-valid.csv') } });
+
+    expect(storage.get(KEY)).not.toContain('"x"');
+    expect(loadImportDraft()).toMatchObject({ source: { kind: 'file', name: 'contoh-valid.csv' }, needsReselect: true, textDropped: false });
+  });
+
+  it('stores a paste too large for the quota without its text, and says so', () => {
+    let calls = 0;
+    useWebStorage((key, value) => {
+      calls += 1;
+      if (calls === 1) {
+        throw Object.assign(new Error('full'), { name: 'QuotaExceededError' });
+      }
+      storage.set(key, value);
+    });
+
+    saveImportDraft({ ...base, source: { kind: 'paste', text: 'besar' } });
+
+    expect(storage.get(KEY)).not.toContain('besar');
+    expect(loadImportDraft()).toMatchObject({ source: null, textDropped: true, answers, importId: 'imp-1' });
+  });
+
+  it('ignores a damaged entry, and clears', () => {
+    useWebStorage();
+    storage.set(KEY, '{not json');
+    expect(loadImportDraft()).toBeNull();
+
+    storage.set(KEY, JSON.stringify({ siteId: 1 }));
+    expect(loadImportDraft()).toBeNull();
+
+    saveImportDraft({ ...base, source: null });
+    clearImportDraft();
+    expect(loadImportDraft()).toBeNull();
+  });
+
+  it('keeps nothing on native, and never touches the secure store', () => {
+    (SecureStore.setItemAsync as jest.Mock).mockClear();
+    (SecureStore.getItemAsync as jest.Mock).mockClear();
+    saveImportDraft({ ...base, source: { kind: 'paste', text: 'a' } });
+
+    expect(loadImportDraft()).toBeNull();
+    clearImportDraft();
+    expect(SecureStore.setItemAsync).not.toHaveBeenCalled();
+    expect(SecureStore.getItemAsync).not.toHaveBeenCalled();
   });
 });
 

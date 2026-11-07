@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { Platform } from 'react-native';
 
 import { ContextPresetProvider } from '@/features/context-preset';
+import { ImportDraftProvider } from '@/features/imports/ImportDraftProvider';
 import { NavigationContextProvider } from '@/features/navigation-context/NavigationContextProvider';
 import { WorkspaceProvider } from '@/features/workspace/WorkspaceProvider';
 
@@ -16,9 +17,11 @@ export default function RootLayout() {
   return (
     <WorkspaceProvider>
       <NavigationContextProvider>
-        <ContextPresetProvider>
-          <Stack screenOptions={{ headerShown: false }} />
-        </ContextPresetProvider>
+        <ImportDraftProvider>
+          <ContextPresetProvider>
+            <Stack screenOptions={{ headerShown: false }} />
+          </ContextPresetProvider>
+        </ImportDraftProvider>
       </NavigationContextProvider>
     </WorkspaceProvider>
   );

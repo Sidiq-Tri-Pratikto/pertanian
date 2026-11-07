@@ -25,6 +25,7 @@ describe('feature registry', () => {
       'daftar-perangkat',
       'saran',
       'bukti-saran',
+      'impor-data',
     ]);
   });
 

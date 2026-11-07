@@ -41,7 +41,7 @@ export default function BerandaScreen() {
 /** S02: no axes, no Rp0, no giant zero. There is simply no data yet. */
 function EmptyBeranda({ expiresAt, timezone = 'Asia/Jakarta' }: { expiresAt?: string; timezone?: string }) {
   const { preset } = useContextPreset();
-  const { openFeature, openSettings } = useTabNavigation();
+  const { openFeature, openImport, openSettings } = useTabNavigation();
   const [sheetOpen, setSheetOpen] = useState(false);
   const demoButton = useRef<ComponentRef<typeof View>>(null);
 
@@ -52,7 +52,7 @@ function EmptyBeranda({ expiresAt, timezone = 'Asia/Jakarta' }: { expiresAt?: st
         <HDText variant="section">Belum ada data energi</HDText>
         <HDText>HematDaya membaca energi dari berkas CSV atau dari sumber pengukuran yang didukung.</HDText>
         <HDText tone="secondary">{CONTEXT_EXAMPLES[preset]}</HDText>
-        <HDButton variant="primary" icon="chevronRight" onPress={() => openFeature('impor-data')}>
+        <HDButton variant="primary" icon="chevronRight" onPress={() => openImport()}>
           Impor data
         </HDButton>
         <View ref={demoButton}>

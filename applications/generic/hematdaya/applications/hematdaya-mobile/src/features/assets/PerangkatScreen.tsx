@@ -43,7 +43,7 @@ export function PerangkatScreen() {
 
 /** No workspace or no asset: no number and no date, and every way data will arrive. */
 function EmptyPerangkat() {
-  const { openFeature, openSettings } = useTabNavigation();
+  const { openFeature, openImport, openSettings } = useTabNavigation();
   const [sheetOpen, setSheetOpen] = useState(false);
   const demoButton = useRef<ComponentRef<typeof View>>(null);
 
@@ -56,7 +56,7 @@ function EmptyPerangkat() {
         <HDButton variant="primary" onPress={() => openFeature('sumber-meter')}>
           Tambah sumber
         </HDButton>
-        <HDButton onPress={() => openFeature('impor-data')}>Impor data</HDButton>
+        <HDButton onPress={() => openImport()}>Impor data</HDButton>
         <View ref={demoButton}>
           <HDButton onPress={() => setSheetOpen(true)}>Coba demo</HDButton>
         </View>
@@ -122,7 +122,7 @@ type PopulatedProps = {
 function PopulatedPerangkat({ summary, assets, staleIds, failure, retrying, onRetry, assetsFailed, staleCheckFailed }: PopulatedProps) {
   const { workspace } = useWorkspace();
   const { period, setPeriod } = useNavigationContext();
-  const { openAsset, openFeature, openSettings } = useTabNavigation();
+  const { openAsset, openFeature, openImport, openSettings } = useTabNavigation();
   const model = berandaModel(summary);
   const { excluded, issues, valid } = summary.scope;
 
@@ -149,7 +149,7 @@ function PopulatedPerangkat({ summary, assets, staleIds, failure, retrying, onRe
         <HDButton variant="primary" onPress={() => openFeature('sumber-meter')}>
           Tambah sumber
         </HDButton>
-        <HDButton onPress={() => openFeature('impor-data')}>Impor data</HDButton>
+        <HDButton onPress={() => openImport()}>Impor data</HDButton>
       </View>
       {assetsFailed ? <HDText variant="label">Lokasi dan kategori belum dapat dimuat.</HDText> : null}
       {staleCheckFailed ? <HDText variant="label">Status pembaruan sumber belum dapat diperiksa.</HDText> : null}

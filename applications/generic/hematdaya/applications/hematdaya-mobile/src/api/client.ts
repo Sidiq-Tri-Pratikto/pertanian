@@ -3,6 +3,10 @@ import type { components, paths } from '@/api/schema.generated';
 
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:8000';
 const TIMEOUT_MS = 10_000;
+/** A preview of a file at the limits took 8.94 s over local HTTP before any upload; this leaves room for a slow link. */
+export const IMPORT_PREVIEW_TIMEOUT_MS = 120_000;
+/** A commit at the limits took 9.12 s, and a counter commit 20.62 s; PRD §18 allows 60 s. A timeout is an unknown result. */
+export const IMPORT_COMMIT_TIMEOUT_MS = 60_000;
 const CAPABILITIES_PATH = '/api/v1/capabilities';
 
 export type CapabilityManifest =
@@ -16,6 +20,9 @@ type RequestOptions = {
   token?: string | null;
   headers?: Record<string, string>;
   query?: Record<string, string | undefined>;
+  /** Sent as the body. The platform sets the multipart `Content-Type` with its boundary, so the client sets none. */
+  form?: FormData;
+  timeoutMs?: number;
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -28,7 +35,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
  */
 export async function apiRequest<T>(
   path: string,
-  { method = 'GET', body, token, headers, query }: RequestOptions,
+  { method = 'GET', body, token, headers, query, form, timeoutMs = TIMEOUT_MS }: RequestOptions,
   isValid: (value: unknown) => value is T,
 ): Promise<T> {
   const search = new URLSearchParams(
@@ -43,8 +50,8 @@ export async function apiRequest<T>(
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...headers,
       },
-      body: body !== undefined ? JSON.stringify(body) : undefined,
-      signal: AbortSignal.timeout(TIMEOUT_MS),
+      body: form ?? (body !== undefined ? JSON.stringify(body) : undefined),
+      signal: AbortSignal.timeout(timeoutMs),
     });
   } catch {
     throw ApiError.unreachable();
@@ -269,4 +276,119 @@ export function getAsset(assetId: string, token: string): Promise<AssetDetail> {
 
 export function getAssetSummary(assetId: string, period: PeriodQuery, token: string): Promise<Summary> {
   return apiRequest(`/api/v1/assets/${encodeURIComponent(assetId)}/summary`, { token, query: period }, isSummary);
+}
+
+export type ImportPreview = components['schemas']['ImportPreviewResponse'];
+export type ImportCommit = components['schemas']['ImportCommitResponse'];
+export type ImportResult = components['schemas']['ImportCommitResultResponse'];
+export type ImportQuestion = components['schemas']['ImportQuestionResponse'];
+export type ImportRowError = components['schemas']['ImportRowErrorResponse'];
+export type ImportErrorPage = components['schemas']['ImportErrorPageResponse'];
+export type ImportPeriod = components['schemas']['ImportPeriodResponse'];
+export type AssetCandidate = components['schemas']['AssetCandidateResponse'];
+
+/**
+ * The user's answers, sent as the `mapping` form part. Hand-written because the multipart body documents
+ * `mapping` as a string: this mirrors the service's `ImportMappingRequest`.
+ */
+export type ImportAnswers = {
+  value_kind?: 'interval_energy' | 'average_power' | 'counter';
+  power_meaning?: 'average' | 'instantaneous';
+  timezone_confirmed?: boolean;
+  interval_minutes?: Record<string, number>;
+  asset_map?: Record<string, string>;
+  scope?: 'disjoint' | 'unknown_overlap';
+};
+
+/** What is checked: pasted text, a web `File`, or a native file the picker copied to the cache. */
+export type ImportSource =
+  | { kind: 'paste'; text: string }
+  | { kind: 'file'; file: File }
+  | { kind: 'file'; uri: string; name: string; mimeType?: string };
+
+const IMPORT_ERROR_PAGE_SIZE = '50';
+const IMPORT_COUNTS = ['total_rows', 'accepted_rows', 'invalid_rows', 'duplicate_rows', 'conflict_rows', 'pending_rows'] as const;
+
+function isImportPreview(value: unknown): value is ImportPreview {
+  return (
+    isRecord(value) &&
+    typeof value.id === 'string' &&
+    typeof value.file_name === 'string' &&
+    IMPORT_COUNTS.every((count) => Number.isInteger(value[count])) &&
+    typeof value.blocked === 'boolean' &&
+    typeof value.needs_acknowledgment === 'boolean' &&
+    Array.isArray(value.questions) &&
+    Array.isArray(value.errors) &&
+    Array.isArray(value.assumptions) &&
+    Array.isArray(value.block_reasons) &&
+    isRecord(value.mapping)
+  );
+}
+
+function isImportCommit(value: unknown): value is ImportCommit {
+  return (
+    isRecord(value) &&
+    typeof value.import_id === 'string' &&
+    Number.isInteger(value.rows_added) &&
+    Number.isInteger(value.rows_skipped) &&
+    Number.isInteger(value.rows_duplicate) &&
+    Number.isInteger(value.rows_after_site_clock) &&
+    typeof value.replayed === 'boolean'
+  );
+}
+
+function isImportErrorPage(value: unknown): value is ImportErrorPage {
+  return isRecord(value) && Array.isArray(value.items) && (value.next_cursor === null || typeof value.next_cursor === 'string');
+}
+
+/** The file part: a web `File` as it is, or a native `{ uri, name, type }` part that the platform uploads. */
+function appendSource(form: FormData, source: ImportSource) {
+  if (source.kind === 'paste') {
+    form.append('text', source.text);
+  } else if ('file' in source) {
+    form.append('file', source.file);
+  } else {
+    // React Native's FormData takes this shape and streams the file; its types only know Blob.
+    form.append('file', { uri: source.uri, name: source.name, type: source.mimeType ?? 'text/csv' } as unknown as Blob);
+  }
+}
+
+/** Stores a preview. It saves no reading and carries no key, so a lost answer is simply sent again (027 D4). */
+export function previewImport(siteId: string, source: ImportSource, answers: ImportAnswers, token: string): Promise<ImportPreview> {
+  const form = new FormData();
+  appendSource(form, source);
+  form.append('mapping', JSON.stringify(answers));
+  return apiRequest(
+    `/api/v1/sites/${encodeURIComponent(siteId)}/imports/preview`,
+    { method: 'POST', token, form, timeoutMs: IMPORT_PREVIEW_TIMEOUT_MS },
+    isImportPreview,
+  );
+}
+
+/** Reads a stored preview, including its result once committed. Checked before any commit is sent again. */
+export function getImport(importId: string, token: string): Promise<ImportPreview> {
+  return apiRequest(`/api/v1/imports/${encodeURIComponent(importId)}`, { token }, isImportPreview);
+}
+
+export function getImportErrors(importId: string, cursor: string, token: string): Promise<ImportErrorPage> {
+  return apiRequest(
+    `/api/v1/imports/${encodeURIComponent(importId)}/errors`,
+    { token, query: { limit: IMPORT_ERROR_PAGE_SIZE, cursor } },
+    isImportErrorPage,
+  );
+}
+
+/** One commit intent: a resend keeps the key and the acknowledgment, so the service replays instead of importing twice. */
+export function commitImport(importId: string, acknowledge: boolean, key: string, token: string): Promise<ImportCommit> {
+  return apiRequest(
+    `/api/v1/imports/${encodeURIComponent(importId)}/commit`,
+    {
+      method: 'POST',
+      token,
+      body: { acknowledge_skipped: acknowledge },
+      headers: { 'Idempotency-Key': key },
+      timeoutMs: IMPORT_COMMIT_TIMEOUT_MS,
+    },
+    isImportCommit,
+  );
 }

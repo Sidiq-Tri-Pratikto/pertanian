@@ -15,4 +15,9 @@ jest.mock('expo-crypto', () => ({
   getRandomBytes: (count: number) => new Uint8Array(jest.requireActual('node:crypto').randomBytes(count)),
 }));
 
+// The system file picker cannot open in Jest; tests that pick a file resolve it with an asset.
+jest.mock('expo-document-picker', () => ({
+  getDocumentAsync: jest.fn(async () => ({ canceled: true, assets: null })),
+}));
+
 beforeEach(() => mockSecureStore.clear());

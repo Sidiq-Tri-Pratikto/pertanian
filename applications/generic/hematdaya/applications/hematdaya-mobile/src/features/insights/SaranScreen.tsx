@@ -49,12 +49,12 @@ export function SaranScreen() {
 }
 
 function NoData() {
-  const { openFeature } = useTabNavigation();
+  const { openImport } = useTabNavigation();
   return (
     <View style={styles.section}>
       <HDText variant="section">Belum ada saran</HDText>
       <HDText>Saran hanya muncul dari data yang tercatat. Ini bukan penilaian efisiensi atau keamanan.</HDText>
-      <HDButton variant="text" onPress={() => openFeature('impor-data')}>
+      <HDButton variant="text" onPress={() => openImport()}>
         Tentang impor data
       </HDButton>
     </View>
