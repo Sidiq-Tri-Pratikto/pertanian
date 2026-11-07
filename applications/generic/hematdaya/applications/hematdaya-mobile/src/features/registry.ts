@@ -95,7 +95,7 @@ export const FEATURES: Feature[] = [
     points: ['Periksa arti kolom, zona waktu, dan interval', 'Baris bermasalah dijelaskan satu per satu', 'Mencoba lagi tidak menggandakan data'],
     screens: ['S10'],
     specs: ['024', '025', '026', '027'],
-    status: 'coming_soon',
+    status: 'available',
   },
   {
     id: 'cakupan-sumber',

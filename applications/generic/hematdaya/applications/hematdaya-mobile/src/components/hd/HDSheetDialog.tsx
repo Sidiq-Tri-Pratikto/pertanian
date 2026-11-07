@@ -1,9 +1,10 @@
 import { useEffect, useRef, type ComponentRef, type ReactNode, type RefObject } from 'react';
-import { AccessibilityInfo, Modal, Platform, Pressable, StyleSheet, View, type TextInstance } from 'react-native';
+import { Modal, Pressable, StyleSheet, View, type TextInstance } from 'react-native';
 
 import { HDButton } from '@/components/hd/HDButton';
 import { HDText } from '@/components/hd/HDText';
 import { tokens } from '@/design/tokens.generated';
+import { moveFocus } from '@/lib/focus';
 
 type CloseReason = 'close' | 'escape' | 'backdrop';
 
@@ -20,17 +21,6 @@ type HDSheetDialogProps = {
 // Web only: receives programmatic focus without joining the tab order.
 const FOCUSABLE_BY_SCRIPT = { tabIndex: -1 } as object;
 
-function focus(target: unknown) {
-  if (!target) {
-    return;
-  }
-  if (Platform.OS === 'web') {
-    (target as HTMLElement).focus?.();
-  } else {
-    AccessibilityInfo.sendAccessibilityEvent(target as TextInstance, 'focus');
-  }
-}
-
 /** Non-destructive sheet on RN `Modal`: focus to the title on open, Escape or back closes, focus returns to the opener. */
 export function HDSheetDialog({ open, title, onClose, children, footer, returnFocusTo }: HDSheetDialogProps) {
   const heading = useRef<TextInstance>(null);
@@ -38,13 +28,13 @@ export function HDSheetDialog({ open, title, onClose, children, footer, returnFo
 
   useEffect(() => {
     if (wasOpen.current && !open) {
-      focus(returnFocusTo?.current);
+      moveFocus(returnFocusTo?.current);
     }
     wasOpen.current = open;
   }, [open, returnFocusTo]);
 
   return (
-    <Modal visible={open} transparent animationType="slide" onRequestClose={() => onClose('escape')} onShow={() => focus(heading.current)}>
+    <Modal visible={open} transparent animationType="slide" onRequestClose={() => onClose('escape')} onShow={() => moveFocus(heading.current)}>
       <View style={styles.root}>
         <Pressable accessibilityLabel="Tutup" style={StyleSheet.absoluteFill} onPress={() => onClose('backdrop')} />
         <View role="dialog" aria-modal aria-label={title} style={styles.sheet}>

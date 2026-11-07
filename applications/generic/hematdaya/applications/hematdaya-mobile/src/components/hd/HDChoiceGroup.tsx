@@ -1,53 +1,96 @@
-import { Pressable, StyleSheet, View } from 'react-native';
+import type { ComponentRef, Ref } from 'react';
+import { Platform, Pressable, StyleSheet, View } from 'react-native';
 
 import { HDText } from '@/components/hd/HDText';
 import { tokens } from '@/design/tokens.generated';
 
-type Option<Value extends string> = { value: Value; label: string; description?: string };
+type Option<Value extends string> = {
+  value: Value;
+  label: string;
+  description?: string;
+  ref?: Ref<ComponentRef<typeof View>>;
+};
 
-type HDChoiceGroupProps<Value extends string> = {
+type Common<Value extends string> = {
   legend: string;
   help?: string;
   optional?: boolean;
+  /** Shows "(wajib)" beside the legend. */
+  required?: boolean;
+  /** Shown above the options, in the same words as the error summary. */
+  error?: string | null;
+  /** Locks every option, for example while a request that depends on the choice is in flight. */
+  disabled?: boolean;
   options: Option<Value>[];
-  value: Value;
+  /** The group, so an error summary can move focus to it. */
+  groupRef?: Ref<ComponentRef<typeof View>>;
+};
+
+type RadioProps<Value extends string> = Common<Value> & {
+  type?: 'radio';
+  value: Value | null;
   onChange: (value: Value) => void;
 };
 
+type CheckboxProps<Value extends string> = Common<Value> & {
+  type: 'checkbox';
+  value: Value[];
+  onChange: (value: Value[]) => void;
+};
+
+type HDChoiceGroupProps<Value extends string> = RadioProps<Value> | CheckboxProps<Value>;
+
 const { color } = tokens;
 
-/** Single-choice setting. Selection shows beyond colour: thicker border, semibold label and a filled mark. */
-export function HDChoiceGroup<Value extends string>({
-  legend,
-  help,
-  optional = false,
-  options,
-  value,
-  onChange,
-}: HDChoiceGroupProps<Value>) {
+/**
+ * Single choice (radio) or independent ticks (checkbox). Selection shows beyond colour: thicker border, semibold
+ * label and a filled mark, round for a radio and square for a checkbox.
+ */
+export function HDChoiceGroup<Value extends string>(props: HDChoiceGroupProps<Value>) {
+  const { legend, help, optional = false, required = false, error, disabled = false, options, groupRef } = props;
+  const checkbox = props.type === 'checkbox';
+  const isSelected = (value: Value) => (props.type === 'checkbox' ? props.value.includes(value) : props.value === value);
+  const choose = (value: Value) => {
+    if (disabled) {
+      return;
+    }
+    if (props.type === 'checkbox') {
+      props.onChange(props.value.includes(value) ? props.value.filter((item) => item !== value) : [...props.value, value]);
+    } else {
+      props.onChange(value);
+    }
+  };
+
   return (
-    <View role="radiogroup" aria-label={legend} style={styles.group}>
+    <View ref={groupRef} role={checkbox ? 'group' : 'radiogroup'} aria-label={legend} style={styles.group} {...FOCUSABLE_BY_SCRIPT}>
       <HDText variant="labelStrong">
         {legend}
         {optional ? <HDText variant="label"> (opsional)</HDText> : null}
+        {required ? <HDText variant="label"> (wajib)</HDText> : null}
       </HDText>
       {help ? (
         <HDText variant="label" tone="secondary">
           {help}
         </HDText>
       ) : null}
+      {error ? <HDText tone="error">{error}</HDText> : null}
       {options.map((option) => {
-        const selected = option.value === value;
+        const selected = isSelected(option.value);
         return (
           <Pressable
             key={option.value}
-            role="radio"
+            ref={option.ref}
+            role={checkbox ? 'checkbox' : 'radio'}
             aria-checked={selected}
+            aria-disabled={disabled || undefined}
             aria-label={option.label}
-            onPress={() => onChange(option.value)}
-            style={[styles.option, selected && styles.selected]}>
-            <View style={[styles.mark, selected && styles.markSelected]}>
-              {selected ? <View style={styles.markFill} /> : null}
+            accessibilityHint={error ?? undefined}
+            disabled={disabled}
+            onPress={() => choose(option.value)}
+            {...spaceSelect(() => choose(option.value))}
+            style={[styles.option, selected && styles.selected, disabled && styles.disabled]}>
+            <View style={[styles.mark, checkbox && styles.square, selected && styles.markSelected]}>
+              {selected ? <View style={[styles.markFill, checkbox && styles.squareFill]} /> : null}
             </View>
             <View style={styles.optionText}>
               <HDText variant={selected ? 'bodyStrong' : 'body'}>{option.label}</HDText>
@@ -64,12 +107,30 @@ export function HDChoiceGroup<Value extends string>({
   );
 }
 
-const MARK = tokens.size.iconSmall;
+// React Native Web handles Enter for Pressable, but handles Space only for button roles.
+function spaceSelect(select: () => void): object {
+  if (Platform.OS !== 'web') {
+    return {};
+  }
+  return {
+    onKeyDown: (event: { key: string; repeat: boolean; preventDefault: () => void }) => {
+      if (event.key === ' ') {
+        event.preventDefault();
+        if (!event.repeat) {
+          select();
+        }
+      }
+    },
+  };
+}
 
+// Web only: an error summary can move focus to the group without adding it to the tab order.
+const FOCUSABLE_BY_SCRIPT = { tabIndex: -1 } as object;
+const MARK = tokens.size.iconSmall;
 
 const styles = StyleSheet.create({
   group: { gap: tokens.space.stackTight },
-  optionText: { flexShrink: 1, gap: tokens.space["4"] },
+  optionText: { flexShrink: 1, gap: tokens.space['4'] },
   option: {
     minHeight: tokens.size.targetMinimum,
     flexDirection: 'row',
@@ -87,6 +148,7 @@ const styles = StyleSheet.create({
     borderColor: color.selectionIndicator,
     backgroundColor: color.selectionBackground,
   },
+  disabled: { borderStyle: 'dashed' },
   mark: {
     width: MARK,
     height: MARK,
@@ -96,6 +158,8 @@ const styles = StyleSheet.create({
     borderWidth: tokens.size.strokeChart,
     borderColor: color.borderControl,
   },
+  square: { borderRadius: tokens.radius['0'] },
   markSelected: { borderColor: color.selectionIndicator },
   markFill: { width: MARK / 2, height: MARK / 2, borderRadius: MARK / 4, backgroundColor: color.selectionIndicator },
+  squareFill: { borderRadius: tokens.radius['0'] },
 });

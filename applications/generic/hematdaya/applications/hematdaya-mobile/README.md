@@ -33,6 +33,8 @@ make check          # lint, typecheck, tests, 80% coverage gate
 | `tests/components.test.tsx` | `HD` components |
 | `tests/perangkat.test.tsx` | Perangkat list and asset detail, from responses recorded from the service in `tests/fixtures/assets.json` |
 | `tests/asset-model.test.ts` | What a list row and asset detail show, from the same recorded responses |
+| `tests/import.test.tsx` | S10 import steps, from file or paste to the Beranda landing, every failure code, unknown commits and web reloads, from responses recorded from the service in `tests/fixtures/imports.json` |
+| `tests/import-model.test.ts` | What each import step shows: controls per question, answers, landing period, result, failure outcomes, examples |
 | `tests/tokens.test.ts` | Generated tokens match `design/tokens.json` |
 | `src/api/errors.test.ts` | Failure envelope parsing |
 
@@ -69,6 +71,7 @@ Where the app needs to reach the service:
 | `src/app/(tabs)/(beranda,perangkat,saran)/` | Detail routes shared by the three tabs, so back stays in the tab |
 | `src/components/hd/` | Native HematDaya Design System components, same names and meaning as `window.HD` |
 | `src/features/assets/` | Perangkat list and asset detail: reads, row and detail models, screens |
+| `src/features/imports/` | S10 CSV import: the draft above the tabs, the four step screens (`impor/[step]`), the pure model and the examples |
 | `src/features/registry.ts` | Every planned feature. A feature's pull request flips its `status` |
 | `design/tokens.json` | Copy of the design system tokens; `src/design/tokens.generated.ts` is built from it |
 | `src/api/` | API client, failure parsing, generated contract |
@@ -87,5 +90,6 @@ Run `make openapi` in the service first when the API changed.
 
 ## Dependency notes
 
+- `expo-document-picker` picks the CSV file on Android, iOS and web (on the web it opens an `<input type="file">`). The picked file is uploaded as it is, never read in JavaScript: the service decodes it, so `expo-file-system` is not needed. It copies the file to the cache so the same file can be sent again for every new preview.
 - `overrides.zod` in `package.json` lifts the Expo CLI's build-time `zod` above a high-severity advisory. Remove it once Expo ships a fixed version.
 - `openapi-typescript` is pinned in the `Makefile`, not installed: it peers on TypeScript 5 while Expo SDK 58 needs TypeScript 6.

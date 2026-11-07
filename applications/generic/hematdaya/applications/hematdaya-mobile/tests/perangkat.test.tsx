@@ -497,7 +497,7 @@ describe('Perangkat quality', () => {
       expect(within(row).getByText('Perangkat')).toBeOnTheScreen();
       expect(within(row).getByText('Kelengkapan data: 1,1% periode')).toBeOnTheScreen();
     }
-    expect(screen.getByText('Data impor')).toBeOnTheScreen();
+    expect(screen.getByText('Data historis · Impor CSV')).toBeOnTheScreen();
     expect(screen.queryByText('Demo · Data simulasi')).toBeNull();
   });
 
@@ -696,7 +696,7 @@ describe('asset detail states', () => {
 
     await openAddress('imported', 'Kulkas', 'empty');
 
-    expect(await screen.findByText('Data impor')).toBeOnTheScreen();
+    expect(await screen.findByText('Data historis · Impor CSV')).toBeOnTheScreen();
     expect(screen.queryByText('Demo · Data simulasi')).toBeNull();
     expect(await screen.findByText('Impor CSV · Data historis')).toBeOnTheScreen();
     expect(screen.getByText('interval tidak diketahui · resolusi tidak diketahui')).toBeOnTheScreen();

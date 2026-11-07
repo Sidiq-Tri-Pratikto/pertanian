@@ -2,6 +2,7 @@ import type { components } from '@/api/schema.generated';
 
 type ErrorBody = components['schemas']['ErrorBody'];
 export type Recovery = components['schemas']['ErrorRecovery'];
+export type ErrorDetail = components['schemas']['ErrorFieldDetail'];
 export const DEFAULT_MAX_ATTEMPTS = 3;
 
 const UNREACHABLE_MESSAGE = 'Layanan belum dapat dihubungi. Periksa koneksi Anda lalu coba lagi.';
@@ -12,13 +13,16 @@ export class ApiError extends Error {
   readonly code: string;
   readonly requestId: string | null;
   readonly recovery: Recovery;
+  /** The specifics a refusal carries, such as each problem in a file. Shown as sent, never parsed. */
+  readonly details: ErrorDetail[];
 
-  constructor(code: string, message: string, recovery: Recovery, requestId: string | null = null) {
+  constructor(code: string, message: string, recovery: Recovery, requestId: string | null = null, details: ErrorDetail[] = []) {
     super(message);
     this.name = 'ApiError';
     this.code = code;
     this.recovery = recovery;
     this.requestId = requestId;
+    this.details = details;
   }
 
   static unreachable(): ApiError {
@@ -43,6 +47,16 @@ function isErrorBody(value: unknown): value is ErrorBody {
   return typeof body?.code === 'string' && typeof body.message === 'string' && typeof body.recovery === 'object';
 }
 
+function isErrorDetail(value: unknown): value is ErrorDetail {
+  const detail = value as Partial<ErrorDetail> | null;
+  return Array.isArray(detail?.loc) && typeof detail.msg === 'string' && typeof detail.type === 'string';
+}
+
+/** Keep only details of the documented shape; anything else is dropped rather than shown. */
+function readDetails(value: unknown): ErrorDetail[] {
+  return Array.isArray(value) ? value.filter(isErrorDetail) : [];
+}
+
 /** Read the service's failure envelope. A body that is not the envelope never leaks to the user. */
 export async function readFailure(response: Response): Promise<ApiError> {
   const payload: unknown = await response.json().catch(() => null);
@@ -50,5 +64,5 @@ export async function readFailure(response: Response): Promise<ApiError> {
   if (!isErrorBody(body)) {
     return ApiError.unexpected();
   }
-  return new ApiError(body.code, body.message, body.recovery ?? { retryable: false }, body.request_id);
+  return new ApiError(body.code, body.message, body.recovery ?? { retryable: false }, body.request_id, readDetails(body.details));
 }

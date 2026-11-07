@@ -1,8 +1,9 @@
 import { router } from 'expo-router';
 import { act, fireEvent, renderRouter, screen } from 'expo-router/testing-library';
-import { Platform, Text, View } from 'react-native';
+import { AccessibilityInfo, Platform, Text, View } from 'react-native';
 
 import { HDScreen } from '@/components/hd/HDScreen';
+import { moveFocus } from '@/lib/focus';
 
 import householdWeek from '../../../contracts/golden/summary-h-week.json';
 
@@ -123,9 +124,9 @@ describe('navigation', () => {
   it('opens a planned feature inside the tab and returns to it', async () => {
     await startAtBeranda();
 
-    await fireEvent.press(screen.getByRole('button', { name: 'Impor data' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Lihat meter yang didukung' }));
 
-    expect(await screen.findByRole('heading', { name: 'Impor data CSV' })).toBeOnTheScreen();
+    expect(await screen.findByRole('heading', { name: 'Sumber dan meter' })).toBeOnTheScreen();
     expect(screen.getByText('Segera hadir')).toBeOnTheScreen();
     expect(screen.getByRole('tab', { name: 'Beranda', selected: true })).toBeOnTheScreen();
 
@@ -153,6 +154,7 @@ describe('navigation', () => {
 
     expect(screen.queryByRole('link', { name: 'Daftar perangkat, segera hadir' })).toBeNull();
     expect(screen.queryByRole('link', { name: 'Data demo, segera hadir' })).toBeNull();
+    expect(screen.queryByRole('link', { name: 'Impor data CSV, segera hadir' })).toBeNull();
     expect(screen.getByRole('link', { name: 'Riwayat perangkat, segera hadir' })).toBeOnTheScreen();
     expect(screen.getByRole('link', { name: 'Jadwal pemakaian, segera hadir' })).toBeOnTheScreen();
   });
@@ -188,6 +190,47 @@ describe('screen focus', () => {
     );
 
     expect(focus).toHaveBeenLastCalledWith({ preventScroll: true });
+  });
+});
+
+describe('moveFocus', () => {
+  const realOS = Platform.OS;
+
+  afterEach(() => {
+    Platform.OS = realOS;
+    jest.restoreAllMocks();
+  });
+
+  it('asks the screen reader to focus the target on native', () => {
+    const send = jest.spyOn(AccessibilityInfo, 'sendAccessibilityEvent').mockImplementation(() => undefined);
+    send.mockClear();
+    const target = {};
+
+    moveFocus(target);
+
+    expect(send).toHaveBeenCalledWith(target, 'focus');
+  });
+
+  it('focuses the element on the web', () => {
+    Platform.OS = 'web';
+    const send = jest.spyOn(AccessibilityInfo, 'sendAccessibilityEvent').mockImplementation(() => undefined);
+    send.mockClear();
+    const target = { focus: jest.fn() };
+
+    moveFocus(target);
+
+    expect(target.focus).toHaveBeenCalledTimes(1);
+    expect(send).not.toHaveBeenCalled();
+  });
+
+  it('does nothing without a target', () => {
+    const send = jest.spyOn(AccessibilityInfo, 'sendAccessibilityEvent').mockImplementation(() => undefined);
+    send.mockClear();
+
+    moveFocus(null);
+    moveFocus(undefined);
+
+    expect(send).not.toHaveBeenCalled();
   });
 });
 
