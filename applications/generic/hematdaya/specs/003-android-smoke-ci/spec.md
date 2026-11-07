@@ -2,7 +2,7 @@
 
 **Feature Branch**: `m0/android-smoke-ci`
 **Created**: 2026-10-30
-**Status**: Built, awaiting review
+**Status**: Merged in PR #24. Android emulator startup, failure capture, boot retry, and path filters verified. iOS evidence remains in 042.
 **Milestone**: M0 Foundations
 **Depends on**: 002
 **Size**: S

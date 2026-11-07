@@ -36,11 +36,11 @@ Rounds show handoffs. Start each lane when its inputs are ready.
 | Round | P1 | P2 | Prerequisites |
 | --- | --- | --- | --- |
 | 1 | **M1** (004–006) Data foundation for sites, assets, bindings and measurements | **M0** (003) Android smoke | Done and merged: M1 in PR #25, M0 in PR #24. P1 used the base API and P2 the base mobile shell from PR #3. |
-| 2 | **M1** (007–011) Demo fixtures, sessions, summary, history and composition guard, then **M4** (020–021) matched baseline and insight evidence | **M5** (024–025) CSV parser and preview | P1's work is merged in PR #25 and PR #26. P2's M5 work is done but not yet in a PR: push it, then merge it before round 3 starts. |
-| 3 | **M2** (012) Demo onboarding and workspace data layer | **M5** (026) Atomic import commit | P1 needs M1 demo sessions and M0 Android smoke from rounds 1–2. P2 needs M5 preview and M4 insight evidence from round 2. |
-| 4 | **M2** (013) Populated Beranda | **M5** (027) Import screens | P1 needs M2 onboarding from round 3. P2 needs the M2 data layer and M5 commit from round 3, and enters from the existing S02 import action. |
-| 5 | **M4** (022) Saran and evidence detail, introducing the shared history chart | **M2** (014) Perangkat list and asset detail | P1 needs M2 Beranda from round 4 and M4 insight evidence from round 2. P2 needs M1 history and M2 Beranda from round 4. |
-| 6 | **M4** (023) Feedback, then **M6** (028) scope API | **M2** (015) History chart | P1 needs M4 Saran from round 5; the scope API needs only M1 summary. P2 needs M2 Perangkat and the shared chart from round 5. |
+| 2 | **M1** (007–011) Demo fixtures, sessions, summary, history and composition guard, then **M4** (020–021) matched baseline and insight evidence | **M5** (024–025) CSV parser and preview | P1's work merged in PR #25 and PR #26. The CSV parser and preview merged in PR #30. |
+| 3 | **M2** (012) Demo onboarding and workspace data layer | **M5** (026) Atomic import commit | The onboarding and workspace data layer merged in PR #28. Atomic import commit merged in PR #31. |
+| 4 | **M2** (013) Populated Beranda | **M5** (027) Import screens | Populated Beranda merged in PR #28. The import screens merged in PR #33. |
+| 5 | **M4** (022) Saran and evidence detail, introducing the shared history chart | **M2** (014) Perangkat list and asset detail | Saran and evidence detail merged in PR #29. Perangkat list and asset detail merged in PR #32. |
+| 6 | **M4** (023) Feedback, then **M6** (028) scope API | **M2** (015) History chart | Feedback merged in PR #29. Scope API needs M1 summary. History needs M2 Perangkat and the shared chart from round 5. |
 | 7 | **M6** (029) Scope screen | **M2** (016) Asset editing, then **M8** (034) offline and combined-state recovery | P1 needs M2 Beranda and Perangkat from rounds 4–5 and the M6 API from round 6. P2 needs M2 Perangkat and M4 Saran from round 5 and the M5 import flow from round 4. |
 | 8 | Verify backend H/I totals, scope refusal and import replay | Finish **M8** (034) recovery | Every MVP input is merged by round 7. |
 | MVP sign-off | Review the numbers and failure evidence with P2 | Record both walkthroughs with P1 | M0, M1, M2, M4, M5 and M6 are complete, and M8 recovery has passed. |
@@ -65,7 +65,7 @@ The prerequisite column lists direct cross-milestone inputs from the spec header
 
 | Milestone | Specs | P1 | P2 | Direct prerequisites | MVP and release gate |
 | --- | --- | --- | --- | --- | --- |
-| **M0 Foundations** | 001–003 | Base API and contract | Mobile shell and Android smoke | None | Required. Base is in PR #3 and Android smoke in PR #24. G0 → G1 evidence. |
+| **M0 Foundations** | 001–003 | Base API and contract | Mobile shell and Android smoke | None | Complete. Base merged in PR #3 and Android smoke in PR #24. G0 → G1 evidence. |
 | **M1 Energy core** | 004–011 | Ownership, ingest, fixtures, demo sessions, exact totals and history | Review fixture oracles and the client contract | M0 base API | Required. Core calculation evidence for G1. |
 | **M2 Read journey** | 012–016 | Data layer, Beranda | Perangkat, history chart, asset editing | M0 Android smoke and mobile shell, M1 demo, summaries and history | Required for the G2 journey. |
 | **M3 Settings and cost** | 017–019 | Tariff and cost API, tariff editor and cost display | Site settings | M1 composition guard, M2 Beranda and asset detail | Follow-up for the G2 journey. |
@@ -198,4 +198,4 @@ python3 docs/roadmap/check_traceability.py --write  # rewrites traceability.md
 
 ## What is proven today
 
-Base: API and mobile checks, JavaScript bundles for Android, iOS and web, and the web build against a live API. M1 (004–011, branch `f/m1-energy-core`): the API's ownership, asset model, ingestion, fixtures, demo sessions, summary, history and composition guard pass unit and Postgres integration tests, with golden summaries for the H, I and scope fixtures. M4 API (020–021, branch `f/m4-evidence`): matched baseline and insight evidence revisions pass, including the AT-17 numbers. No mobile screen uses them yet. No native build has run. No field or participant result exists. Each spec starts **not run**, as PRD §20 requires.
+Base: API and mobile checks, JavaScript bundles for Android, iOS and web, and the web build against a live API. M1 (004–011, branch `f/m1-energy-core`): the API's ownership, asset model, ingestion, fixtures, demo sessions, summary, history and composition guard pass unit and Postgres integration tests, with golden summaries for the H, I and scope fixtures. M4 API (020–021, branch `f/m4-evidence`): matched baseline and insight evidence revisions pass, including the AT-17 numbers. Saran, evidence detail, and feedback are available from PR #29. M5 CSV import, including the web flow against the live API, is available from PR #33. The first successful Android debug APK and Maestro smoke run on `main` completed on 7 November 2026 WIB with API 34 and the `pixel_6` profile. AT-48 has Android emulator evidence. iOS remains **not run** until 042. No field or participant result exists. [First successful Android smoke run](https://github.com/Sidiq-Tri-Pratikto/pertanian/actions/runs/42255936265)
