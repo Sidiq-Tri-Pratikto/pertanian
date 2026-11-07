@@ -38,6 +38,8 @@ class ImportRecord(Base):
     measurement_revision: Mapped[int] = mapped_column(BigInteger)
     binding_revision: Mapped[int] = mapped_column(BigInteger)
     idempotency_key: Mapped[str | None] = mapped_column(Text)
+    # A preview holds SQL NULL, because JSON null would pass the CHECK as a result.
+    commit_result: Mapped[dict[str, Any] | None] = mapped_column(JSONB(none_as_null=True))
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 

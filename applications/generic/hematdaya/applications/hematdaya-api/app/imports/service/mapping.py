@@ -1,5 +1,6 @@
 """Maps a file's streams to assets and sources by identity, never by name alone."""
 
+import hashlib
 from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import datetime
@@ -20,19 +21,29 @@ from app.imports.service.classify import StreamFacts, bound_text
 from app.imports.service.parser import MAX_INTERVAL_MINUTES, MIN_INTERVAL_MINUTES
 
 _NEW = "new"
+_MAX_SOURCE_LABEL = 120
+_LABEL_KEPT = 103
+_LABEL_HASH = 16
 _SECOND_SOURCE_NEXT_STEP = 'pilih "Buat perangkat baru" lalu tentukan sumber acuan di Cakupan & sumber.'
 
 
 def source_label(stream_key: str) -> str:
     """Return the fixed label that ties a stream to its stored source. ``sources`` has no stream column.
 
+    A label that fits ``sources.label`` must never change its format, or reimports of stored sources stop matching.
+    ``lower()`` can double a name, so a longer one keeps its start and a hash of the key, which keeps two keys apart.
+
     Args:
         stream_key (str): The stream.
 
     Returns:
-        str: The label. Keep this format, or reimports stop matching.
+        str: The label, at most 120 characters.
     """
-    return f"Impor CSV · {stream_key}"
+    label = f"Impor CSV · {stream_key}"
+    if len(label) <= _MAX_SOURCE_LABEL:
+        return label
+    digest = hashlib.sha256(stream_key.encode()).hexdigest()[:_LABEL_HASH]
+    return f"{label[:_LABEL_KEPT]}·{digest}"
 
 
 def resolve_source(asset_id: UUID, stream_key: str, kind: ValueKind, snapshot: SiteSnapshot) -> SourceModel | None:

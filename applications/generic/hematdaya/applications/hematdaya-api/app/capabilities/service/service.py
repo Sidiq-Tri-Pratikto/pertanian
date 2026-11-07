@@ -22,7 +22,7 @@ CAPABILITIES = {
 }
 ADAPTERS = (
     AdapterResponse(id="demo", status=CapabilityStatus.SIMULATED),
-    AdapterResponse(id="csv", status=CapabilityStatus.PLANNED),
+    AdapterResponse(id="csv", status=CapabilityStatus.AVAILABLE),
     AdapterResponse(id="shelly-plug-pm-gen3", status=CapabilityStatus.PLANNED),
     AdapterResponse(id="tp-link", status=CapabilityStatus.PLANNED),
 )

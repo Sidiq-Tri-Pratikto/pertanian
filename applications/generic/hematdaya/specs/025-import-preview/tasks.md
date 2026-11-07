@@ -332,6 +332,10 @@ Through the route with Postgres 17 in local Docker, on an Apple M3 with 16 GiB, 
 | Prototype `inferCadence` on 0, 3601, 7199, 10800, … seconds | Cadence 3600, and 3 of 10 neighbouring intervals overlap | D21 |
 | `app/scope/service/validity.py` | Missing relation gives `UNCONFIRMED`, so a total is refused | Plan, Handoff |
 
+### Merge with PR #29 (2026-11-07)
+
+PR #29 merged `0007_create_insight_feedback.py` first, so D15 applied: this migration became `0008_create_imports.py` with `down_revision = "0007"`, and the downgrade test now targets `0007`. Earlier Notes that say `0007` or `0006 (head)` record what was true when they were written. A local database that ran the old `0007` must drop `imports` and `import_rows` and set `alembic_version` back to `0006` before migrating. After merging `origin/main` (`fd50a7a`): API `make check` 896 passed, 2 skipped, coverage 99.01%; mobile `make check` 102 tests; `COMPOSITION=core-only` 656 passed; one head, `0008`; a downgrade to `0007` removes `imports` and keeps `insight_feedback`; `make openapi` and `make generate-api` show no drift.
+
 ## Open questions
 
 Each needs a decision outside this spec. The tasks implement the safe default, so none blocks 025.
@@ -339,7 +343,3 @@ Each needs a decision outside this spec. The tasks implement the safe default, s
 1. **Clock of the `empty` workspace.** Real CSV dated after 2026-10-26 commits but never shows on a demo-kind site (D20). Should the `empty` scenario follow the wall clock, advance to the imported range, or stay fixed? Owner and P1, since 008 owns it.
 2. **Jitter tolerance.** PRD §10.2 infers cadence within ±1 second, but the same jitter makes `[t, t + cadence)` overlap, and 025 blocks overlap (D21). Keep blocking, or end each inferred interval at the next timestamp? Owner.
 3. **Custom error messages.** `handle_app_error` drops every custom `AppError.message` today, so `_BINDING_NOT_STARTED`, `_CURSOR_INVALID`, `_PERIOD_REQUIRED` and the capability name never reach clients, and the catalog row for `APP-CAPABILITY-DISABLED` is wrong. This is out of scope here, and 025 does not depend on it. P1.
-
-### Merge with PR #29 (2026-11-07)
-
-PR #29 merged `0007_create_insight_feedback.py` first, so D15 applied: this migration became `0008_create_imports.py` with `down_revision = "0007"`, and the downgrade test now targets `0007`. Earlier Notes that say `0007` or `0006 (head)` record what was true when they were written. A local database that ran the old `0007` must drop `imports` and `import_rows` and set `alembic_version` back to `0006` before migrating. After merging `origin/main` (`fd50a7a`): API `make check` 896 passed, 2 skipped, coverage 99.01%; mobile `make check` 102 tests; `COMPOSITION=core-only` 656 passed; one head, `0008`; a downgrade to `0007` removes `imports` and keeps `insight_feedback`; `make openapi` and `make generate-api` show no drift.

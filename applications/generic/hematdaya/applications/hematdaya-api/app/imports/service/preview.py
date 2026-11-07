@@ -304,7 +304,8 @@ class ImportPreviewService:
             conflict=sum(item.status is ImportRowStatus.CONFLICT for item in classified),
             pending=staged_file.pending,
         )
-        summary = summarize(counts, open_questions=len(questions))
+        streams = sum(facts.period_start is not None for facts in staged_file.streams)
+        summary = summarize(counts, open_questions=len(questions), streams=streams)
         spans = [row_span(row) for row in accepted]
         now = wall_now()
         model = ImportModel(
@@ -332,9 +333,11 @@ class ImportPreviewService:
             idempotency_key=None,
             expires_at=now + PREVIEW_TTL,
         )
-        await self.repository.delete_expired(now, PURGE_BATCH)
-        await self.repository.keep_newest_uncommitted(site.id, MAX_UNCOMMITTED_PER_SITE - 1)
+        # The insert goes first. Its foreign key check waits on a commit's site lock, and at that point this preview
+        # must hold nothing: purged rows it had deleted would be what that commit waits on next, which is a deadlock.
         await self.repository.add_import(model)
+        await self.repository.delete_expired(now, PURGE_BATCH)
+        await self.repository.keep_newest_uncommitted(site.id, MAX_UNCOMMITTED_PER_SITE - 1, excluding=model.id)
         await self.repository.add_rows(model.id, self._rows(classified, staged_file.errors))
         return await self._stored(model)
 

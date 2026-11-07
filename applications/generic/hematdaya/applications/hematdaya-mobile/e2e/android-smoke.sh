@@ -18,6 +18,9 @@ mkdir -p "$evidence_dir/maestro-output" "$evidence_dir/maestro-debug"
   echo "display_density=$(adb shell wm density | tr -d '\r' | sed -n '1s/.*: //p')"
 } >"$evidence_dir/device.txt"
 
+# A slow emulator can raise "Quickstep isn't responding" over the app, which hides its window from Maestro.
+# Without the dialog Android kills whatever stopped responding, so an app that hangs still fails the flow.
+adb shell settings put global hide_error_dialogs 1
 adb reverse tcp:8081 tcp:8081
 adb install -r "$apk_path"
 

@@ -261,7 +261,7 @@ class ParsedFile(_Frozen):
 
 
 class ImportStatus(StrEnum):
-    """The last confirmed state of an import. 025 writes only ``previewed``; 026 writes the others."""
+    """The last confirmed state of an import. 025 writes ``previewed`` and 026 writes ``committed``."""
 
     PREVIEWED = "previewed"
     COMMITTED = "committed"
@@ -302,9 +302,10 @@ class ImportModel(_Frozen):
         period_end (datetime | None): Latest accepted instant.
         measurement_revision (int): The site's revision before anything else was read.
         binding_revision (int): The site's revision before anything else was read.
-        idempotency_key (str | None): Set by a commit in 026.
+        idempotency_key (str | None): Set by the commit that succeeded.
         expires_at (datetime): Wall-clock end of its life while uncommitted.
         created_at (datetime | None): When it was stored, once read back.
+        commit_result (dict[str, Any] | None): The first result, once committed.
     """
 
     id: UUID
@@ -331,6 +332,7 @@ class ImportModel(_Frozen):
     idempotency_key: str | None
     expires_at: datetime
     created_at: datetime | None = None
+    commit_result: dict[str, Any] | None = None
 
 
 class ImportRowModel(_Frozen):

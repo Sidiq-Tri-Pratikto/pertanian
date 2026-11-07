@@ -358,6 +358,36 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/imports/{import_id}/commit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Commit a previewed import in one transaction
+         * @description Store every accepted row, or nothing. A repeat answers the first result with ``replayed`` true.
+         *
+         *     Args:
+         *         import_id (UUID): The import.
+         *         request (ImportCommitRequest): Whether invalid rows may be skipped.
+         *         principal (PrincipalModel): The acting principal.
+         *         service (ImportCommitService): Commit rules.
+         *         idempotency_key (str): Names this attempt. A failed attempt stores nothing, so it stays free.
+         *
+         *     Returns:
+         *         ImportCommitResponse: The first result.
+         */
+        post: operations["commit_import_api_v1_imports__import_id__commit_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/imports/{import_id}/errors": {
         parameters: {
             query?: never;
@@ -1300,6 +1330,172 @@ export interface components {
             window: components["schemas"]["WindowResponse"];
         };
         /**
+         * ImportCommitAssetResponse
+         * @description An asset a commit created or mapped to.
+         */
+        ImportCommitAssetResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+        };
+        /**
+         * ImportCommitRequest
+         * @description What a commit needs beyond its key.
+         */
+        ImportCommitRequest: {
+            /**
+             * Acknowledge Skipped
+             * @description The user accepts that invalid rows will be skipped
+             * @default false
+             */
+            acknowledge_skipped?: boolean;
+        };
+        /**
+         * ImportCommitResponse
+         * @description A commit's answer: the first result, and whether this request only repeated it.
+         */
+        ImportCommitResponse: {
+            /**
+             * Acknowledge Skipped
+             * @description What the first request sent
+             */
+            acknowledge_skipped: boolean;
+            /**
+             * Affected From
+             * @description Start of the changed data, in UTC
+             */
+            affected_from?: string | null;
+            /**
+             * Affected To
+             * @description End of the changed data, in UTC
+             */
+            affected_to?: string | null;
+            /**
+             * Assets Created
+             * @description In stream order
+             * @default []
+             */
+            assets_created?: components["schemas"]["ImportCommitAssetResponse"][];
+            /**
+             * Assets Mapped
+             * @description In stream order
+             * @default []
+             */
+            assets_mapped?: components["schemas"]["ImportCommitAssetResponse"][];
+            /**
+             * Committed At
+             * Format: date-time
+             * @description Wall-clock time of the commit
+             */
+            committed_at: string;
+            /**
+             * Import Id
+             * Format: uuid
+             */
+            import_id: string;
+            /** @description Local dates changed; null when none were */
+            period?: components["schemas"]["ImportPeriodResponse"] | null;
+            /**
+             * Replayed
+             * @description False for the first result, true for a repeat
+             */
+            replayed: boolean;
+            /**
+             * Rows Added
+             * @description Rows stored
+             */
+            rows_added: number;
+            /**
+             * Rows After Site Clock
+             * @description Accepted rows ending after the site's clock at commit
+             * @default 0
+             */
+            rows_after_site_clock?: number;
+            /**
+             * Rows Duplicate
+             * @description Exact repeats
+             */
+            rows_duplicate: number;
+            /**
+             * Rows Skipped
+             * @description Invalid rows acknowledged
+             */
+            rows_skipped: number;
+            status: components["schemas"]["ImportStatusResponse"];
+        };
+        /**
+         * ImportCommitResultResponse
+         * @description What a commit did, stored once and returned unchanged by every later read.
+         */
+        ImportCommitResultResponse: {
+            /**
+             * Acknowledge Skipped
+             * @description What the first request sent
+             */
+            acknowledge_skipped: boolean;
+            /**
+             * Affected From
+             * @description Start of the changed data, in UTC
+             */
+            affected_from?: string | null;
+            /**
+             * Affected To
+             * @description End of the changed data, in UTC
+             */
+            affected_to?: string | null;
+            /**
+             * Assets Created
+             * @description In stream order
+             * @default []
+             */
+            assets_created?: components["schemas"]["ImportCommitAssetResponse"][];
+            /**
+             * Assets Mapped
+             * @description In stream order
+             * @default []
+             */
+            assets_mapped?: components["schemas"]["ImportCommitAssetResponse"][];
+            /**
+             * Committed At
+             * Format: date-time
+             * @description Wall-clock time of the commit
+             */
+            committed_at: string;
+            /**
+             * Import Id
+             * Format: uuid
+             */
+            import_id: string;
+            /** @description Local dates changed; null when none were */
+            period?: components["schemas"]["ImportPeriodResponse"] | null;
+            /**
+             * Rows Added
+             * @description Rows stored
+             */
+            rows_added: number;
+            /**
+             * Rows After Site Clock
+             * @description Accepted rows ending after the site's clock at commit
+             * @default 0
+             */
+            rows_after_site_clock?: number;
+            /**
+             * Rows Duplicate
+             * @description Exact repeats
+             */
+            rows_duplicate: number;
+            /**
+             * Rows Skipped
+             * @description Invalid rows acknowledged
+             */
+            rows_skipped: number;
+            status: components["schemas"]["ImportStatusResponse"];
+        };
+        /**
          * ImportErrorPageResponse
          * @description One page of row errors, ordered by data row.
          */
@@ -1373,6 +1569,8 @@ export interface components {
             period: components["schemas"]["ImportPeriodResponse"] | null;
             /** Questions */
             questions: components["schemas"]["ImportQuestionResponse"][];
+            /** @description The first result, once committed */
+            result?: components["schemas"]["ImportCommitResultResponse"] | null;
             status: components["schemas"]["ImportStatusResponse"];
             /** Total Rows */
             total_rows: number;
@@ -2283,6 +2481,52 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ImportPreviewResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    commit_import_api_v1_imports__import_id__commit_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                import_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ImportCommitRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportCommitResponse"];
                 };
             };
             /** @description Validation failed */

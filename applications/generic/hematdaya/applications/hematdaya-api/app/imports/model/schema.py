@@ -110,6 +110,45 @@ class ImportPeriodResponse(BaseModel):
     timezone: str
 
 
+class ImportCommitRequest(BaseModel):
+    """What a commit needs beyond its key."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    acknowledge_skipped: bool = Field(default=False, description="The user accepts that invalid rows will be skipped")
+
+
+class ImportCommitAssetResponse(BaseModel):
+    """An asset a commit created or mapped to."""
+
+    id: UUID
+    name: str
+
+
+class ImportCommitResultResponse(BaseModel):
+    """What a commit did, stored once and returned unchanged by every later read."""
+
+    import_id: UUID
+    status: ImportStatusResponse
+    rows_added: int = Field(description="Rows stored")
+    rows_skipped: int = Field(description="Invalid rows acknowledged")
+    rows_duplicate: int = Field(description="Exact repeats")
+    assets_created: list[ImportCommitAssetResponse] = Field(default=[], description="In stream order")
+    assets_mapped: list[ImportCommitAssetResponse] = Field(default=[], description="In stream order")
+    period: ImportPeriodResponse | None = Field(default=None, description="Local dates changed; null when none were")
+    affected_from: datetime | None = Field(default=None, description="Start of the changed data, in UTC")
+    affected_to: datetime | None = Field(default=None, description="End of the changed data, in UTC")
+    rows_after_site_clock: int = Field(default=0, description="Accepted rows ending after the site's clock at commit")
+    acknowledge_skipped: bool = Field(description="What the first request sent")
+    committed_at: datetime = Field(description="Wall-clock time of the commit")
+
+
+class ImportCommitResponse(ImportCommitResultResponse):
+    """A commit's answer: the first result, and whether this request only repeated it."""
+
+    replayed: bool = Field(description="False for the first result, true for a repeat")
+
+
 class ImportPreviewResponse(BaseModel):
     """A stored preview. Counts always cover the whole file; ``errors`` holds the first 50."""
 
@@ -132,3 +171,4 @@ class ImportPreviewResponse(BaseModel):
     period: ImportPeriodResponse | None
     errors: list[ImportRowErrorResponse]
     next_error_cursor: str | None
+    result: ImportCommitResultResponse | None = Field(default=None, description="The first result, once committed")

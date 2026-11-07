@@ -6,7 +6,7 @@ from typing import Annotated, BinaryIO
 from uuid import UUID
 from zoneinfo import ZoneInfo
 
-from fastapi import APIRouter, Query, Request, status
+from fastapi import APIRouter, Header, Query, Request, status
 from fastapi.exceptions import RequestValidationError
 from pydantic import ValidationError
 from starlette.datastructures import FormData, UploadFile
@@ -14,9 +14,12 @@ from starlette.types import Message
 
 from app.core.errors.base import RequestInvalidError
 from app.identity.dependencies import PrincipalDep
-from app.imports.dependencies import ImportPreviewServiceDep
+from app.imports.dependencies import ImportCommitServiceDep, ImportPreviewServiceDep
 from app.imports.model.models import ImportRowModel, ValueKind
 from app.imports.model.schema import (
+    ImportCommitRequest,
+    ImportCommitResponse,
+    ImportCommitResultResponse,
     ImportErrorPageResponse,
     ImportMappingRequest,
     ImportPeriodResponse,
@@ -153,6 +156,7 @@ def _to_response(stored: StoredPreview) -> ImportPreviewResponse:
         period=_period(stored),
         errors=[_row_error(row) for row in stored.errors],
         next_error_cursor=stored.next_error_cursor,
+        result=None if model.commit_result is None else ImportCommitResultResponse(**model.commit_result),
     )
 
 
@@ -229,3 +233,27 @@ async def list_import_errors(
     """
     page = await service.errors(import_id, principal, cursor, limit)
     return ImportErrorPageResponse(items=[_row_error(row) for row in page.items], next_cursor=page.next_cursor)
+
+
+@router.post("/imports/{import_id}/commit", summary="Commit a previewed import in one transaction")
+async def commit_import(
+    import_id: UUID,
+    request: ImportCommitRequest,
+    principal: PrincipalDep,
+    service: ImportCommitServiceDep,
+    idempotency_key: Annotated[str, Header(alias="Idempotency-Key", pattern=r"^[A-Za-z0-9_-]{22,128}$")],
+) -> ImportCommitResponse:
+    """Store every accepted row, or nothing. A repeat answers the first result with ``replayed`` true.
+
+    Args:
+        import_id (UUID): The import.
+        request (ImportCommitRequest): Whether invalid rows may be skipped.
+        principal (PrincipalModel): The acting principal.
+        service (ImportCommitService): Commit rules.
+        idempotency_key (str): Names this attempt. A failed attempt stores nothing, so it stays free.
+
+    Returns:
+        ImportCommitResponse: The first result.
+    """
+    outcome = await service.commit(import_id, principal, idempotency_key, request.acknowledge_skipped)
+    return ImportCommitResponse(**outcome.result, replayed=outcome.replayed)

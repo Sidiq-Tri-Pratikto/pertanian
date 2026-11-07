@@ -29,19 +29,24 @@ def test_manifest_describes_the_deployment() -> None:
     assert {policy["id"] for policy in body["policies"]} == {"baseline", "change", "stale"}
 
 
-def test_nothing_claims_more_than_exists() -> None:
+@pytest.mark.parametrize("composition", ["core-plus-optional", "core-only"])
+def test_nothing_claims_more_than_exists(composition: str) -> None:
     """
     Condition:
-    - The core shipped with evidence-based insights; only the demo adapter shipped, with simulated data.
+    - The core shipped with evidence-based insights, demo shipped with simulated data, and CSV import shipped in 026.
 
     Expected:
-    - Core is available and demo simulated; optional capabilities and other adapters stay planned.
+    - Core and CSV are available and demo simulated. Optional capabilities and other adapters stay planned.
     """
-    manifest = build_manifest("core-plus-optional")
+    manifest = build_manifest(composition)
     adapters = {adapter.id: adapter.status for adapter in manifest.adapters}
     capabilities = {capability.id: capability.status for capability in manifest.capabilities}
 
-    assert (capabilities.pop("core"), adapters.pop("demo")) == ("available", "simulated")
+    assert (capabilities.pop("core"), adapters.pop("demo"), adapters.pop("csv")) == (
+        "available",
+        "simulated",
+        "available",
+    )
     assert set(capabilities.values()) | set(adapters.values()) == {"planned"}
 
 

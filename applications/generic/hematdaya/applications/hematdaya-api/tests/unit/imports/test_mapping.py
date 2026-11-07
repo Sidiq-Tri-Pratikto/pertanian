@@ -575,3 +575,62 @@ def test_a_resolved_stream_renders_every_stored_field() -> None:
         "period_end": "2026-10-21T00:00:00Z",
         "interval_basis": "inferred",
     }
+
+
+def test_source_label_keeps_short_keys_unchanged() -> None:
+    """
+    Condition:
+    - A key of 108 characters, whose label just fits 120.
+
+    Expected:
+    - Today's format, because stored sources must keep matching on reimport.
+    """
+    key = "k" * 108
+
+    assert source_label(key) == f"Impor CSV · {key}"
+    assert len(source_label(key)) == 120
+
+
+def test_source_label_fits_a_name_that_lengthens_when_lower_cased() -> None:
+    """
+    Condition:
+    - 60 × ``İ``, valid as a name, lower-cases to a 120-character key (D16).
+
+    Expected:
+    - A label of at most 120 characters, the same on every call.
+    """
+    key = ("İ" * 60).lower()
+
+    assert len(key) == 120
+    assert len(source_label(key)) <= 120
+    assert source_label(key) == source_label(key)
+
+
+def test_source_label_keeps_long_keys_distinct() -> None:
+    """
+    Condition:
+    - Two 120-character keys sharing the first 103 characters of their label.
+
+    Expected:
+    - Different labels, so two streams never share a source.
+    """
+    first, second = "k" * 119 + "a", "k" * 119 + "b"
+
+    assert len(source_label(first)) == len(source_label(second)) == 120
+    assert source_label(first)[:103] == source_label(second)[:103]
+    assert source_label(first) != source_label(second)
+
+
+def test_resolve_source_matches_a_stored_long_label() -> None:
+    """
+    Condition:
+    - A stored source carrying the shortened label of a long key.
+
+    Expected:
+    - The stream resolves to it, so a reimport finds its data.
+    """
+    key = ("İ" * 60).lower()
+    asset, source = _asset(), _source(source_label(key))
+    snapshot = _snapshot([asset], [source], [_binding(asset, source)])
+
+    assert mapping_module.resolve_source(asset.id, key, ValueKind.INTERVAL_ENERGY, snapshot) == source

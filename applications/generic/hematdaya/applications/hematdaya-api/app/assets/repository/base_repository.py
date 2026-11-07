@@ -55,7 +55,14 @@ class AssetRepository(ABC):
 
     @abstractmethod
     async def add_binding(
-        self, *, site_id: UUID, source_id: UUID, asset_id: UUID, effective_from: datetime, authoritative: bool
+        self,
+        *,
+        site_id: UUID,
+        source_id: UUID,
+        asset_id: UUID,
+        effective_from: datetime,
+        authoritative: bool,
+        effective_to: datetime | None = None,
     ) -> BindingModel:
         """Create a binding; raise ``BindingOverlapError`` when authoritative ranges overlap."""
 

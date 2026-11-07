@@ -697,3 +697,52 @@ def test_rows_jitter_from_d21_is_an_overlap(parse_text: Callable) -> None:
 
     assert parsed.cadences["a"] == timedelta(hours=1)
     assert results == [ACCEPTED, OVERLAP, OVERLAP, *[ACCEPTED] * 17]
+
+
+STREAMS_REASON = (
+    "Berkas ini memuat 101 perangkat, melebihi batas 100 perangkat per impor. Pisahkan berkasnya lalu coba lagi."
+)
+
+
+def test_counts_more_than_100_streams_block() -> None:
+    """
+    Condition:
+    - A file holding 101 streams with staged rows, and one holding exactly 100 (D15).
+
+    Expected:
+    - 101 is blocked with the exact reason, and 100 is not.
+    """
+    over = summarize(_counts(accepted=101), open_questions=0, streams=101)
+    at_limit = summarize(_counts(accepted=100), open_questions=0, streams=100)
+
+    assert (over.blocked, over.block_reasons) == (True, [STREAMS_REASON])
+    assert (at_limit.blocked, at_limit.block_reasons) == (False, [])
+
+
+def test_counts_stream_reason_sits_after_conflict_and_before_nothing_usable() -> None:
+    """
+    Condition:
+    - Too many streams with a conflict, and too many streams with no usable row.
+
+    Expected:
+    - The reason follows the conflict reason, and the generic reason stays silent because another one speaks.
+    """
+    with_conflict = summarize(_counts(accepted=100, conflict=1), open_questions=0, streams=101)
+    nothing_usable = summarize(_counts(accepted=0, invalid=0), open_questions=0, streams=101)
+
+    assert with_conflict.block_reasons == [BERBEDA, STREAMS_REASON]
+    assert nothing_usable.block_reasons == [STREAMS_REASON]
+    assert KOSONG not in nothing_usable.block_reasons
+
+
+def test_counts_omitting_streams_changes_nothing() -> None:
+    """
+    Condition:
+    - ``summarize`` called as 025 called it.
+
+    Expected:
+    - The same decision, because the parameter defaults to no streams.
+    """
+    assert summarize(_counts(accepted=10), open_questions=0) == summarize(
+        _counts(accepted=10), open_questions=0, streams=0
+    )
