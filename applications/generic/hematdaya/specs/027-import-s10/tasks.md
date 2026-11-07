@@ -423,6 +423,7 @@ Chrome 156.0.8078.80, Expo web at 320 × 640 with the real FastAPI service and d
 ### Final checks
 
 - Mobile lint, TypeScript and coverage passed on Node 24.8.0. The final `make check` passed all 405 tests across 14 suites with 94.71% line coverage. One earlier parallel run lost a Jest worker to SIGSEGV. A serial run passed before the final parallel run.
+- The first GitHub Mobile run hit the five-second default on the first journey test while loading the Expo route tree under coverage. That test alone now has a 20-second budget. A clean-cache coverage run with two workers passed all 405 tests at 94.71% line coverage.
 - Expo Doctor passed all 20 checks. Expo exported web, Android and iOS bundles. Contract and token regeneration produced no diff. The production npm audit passed the high-severity gate and reported 21 moderate and one low finding. Roadmap traceability mapped 123 requirements across 46 specs.
 - Chrome exercised the real API. Android and iOS file picking, keyboard avoidance and screen readers were not exercised on a device. The disposable Postgres container and both local test servers were stopped.
 

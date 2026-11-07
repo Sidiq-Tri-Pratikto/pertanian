@@ -220,6 +220,7 @@ afterEach(() => {
 });
 
 describe('first import from a paste', () => {
+  // The first render loads the entire Expo route tree under Jest coverage on a cold runner.
   it('goes from an empty Beranda through the four steps and lands on the imported day', async () => {
     const api = mockImportApi('valid');
     await storeWorkspace();
@@ -292,7 +293,7 @@ describe('first import from a paste', () => {
     await fireEvent.press(await screen.findByRole('button', { name: 'Impor data' }));
     expect(await screen.findByText('Langkah 1 dari 4 · Berkas')).toBeOnTheScreen();
     expect(screen.getByLabelText('Atau tempel isi CSV').props.value).toBe('');
-  });
+  }, 20_000);
 });
 
 describe('first import from a file', () => {
