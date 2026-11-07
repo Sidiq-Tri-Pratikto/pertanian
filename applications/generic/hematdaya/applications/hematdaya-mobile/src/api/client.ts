@@ -225,6 +225,11 @@ export type AssetDetail = components['schemas']['AssetDetailResponse'];
 export type AssetSource = components['schemas']['SourceResponse'];
 export type AssetBinding = components['schemas']['BindingResponse'];
 export type AssetEnergy = components['schemas']['AssetEnergyResponse'];
+export type HistoryResponse = components['schemas']['HistoryResponse'];
+export type HistoryGranularity = components['schemas']['Granularity'];
+export type HistorySelection = Pick<HistoryResponse['window'], 'start_date' | 'end_date' | 'timezone'> & {
+  bucket: HistoryGranularity;
+};
 export type ScopeKind = components['schemas']['ScopeKind'];
 export type SourceOrigin = components['schemas']['SourceOrigin'];
 export type TransportStatus = components['schemas']['TransportStatus'];
@@ -276,6 +281,123 @@ export function getAsset(assetId: string, token: string): Promise<AssetDetail> {
 
 export function getAssetSummary(assetId: string, period: PeriodQuery, token: string): Promise<Summary> {
   return apiRequest(`/api/v1/assets/${encodeURIComponent(assetId)}/summary`, { token, query: period }, isSummary);
+}
+
+const LOCAL_DATE = /^\d{4}-\d{2}-\d{2}$/;
+const LOCAL_TIME = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
+const OFFSET = /^[+-](?:[01]\d|2[0-3]):[0-5]\d$/;
+const INSTANT = /^(\d{4}-\d{2}-\d{2})T((?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d)(?:\.(\d{1,6}))?(Z|[+-](?:[01]\d|2[0-3]):[0-5]\d)$/;
+const DECIMAL = /^(?:0|[1-9]\d*)(?:\.\d+)?$/;
+const ZERO = /^0(?:\.0+)?$/;
+const ONE = /^1(?:\.0+)?$/;
+const PARTIAL_RATIO = /^0(?:\.\d+)?$/;
+const HISTORY_ORIGINS = new Set<unknown>(['live', 'import', 'dataset_replay', 'simulated'] satisfies SourceOrigin[]);
+
+function isLocalDate(value: unknown): value is string {
+  if (typeof value !== 'string' || !LOCAL_DATE.test(value) || value.startsWith('0000')) return false;
+  const date = new Date(`${value}T00:00:00Z`);
+  return Number.isFinite(date.getTime()) && date.toISOString().startsWith(value);
+}
+
+/** Read an RFC 3339 instant at the service's microsecond precision, including non-Z offsets. */
+export function historyInstant(value: unknown): number {
+  const match = typeof value === 'string' ? INSTANT.exec(value) : null;
+  if (match === null || !isLocalDate(match[1])) return NaN;
+  // Parse whole seconds first so every engine handles the wire's fractional precision the same way.
+  return Date.parse(`${match[1]}T${match[2]}${match[4]}`) + Number((match[3] ?? '').padEnd(6, '0')) / 1000;
+}
+
+function isTimezone(value: unknown): value is string {
+  if (typeof value !== 'string' || value.length === 0) return false;
+  try {
+    new Intl.DateTimeFormat('en-GB', { timeZone: value });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function isHistoryWindow(value: unknown, selection: HistorySelection): value is HistoryResponse['window'] {
+  if (!isRecord(value) || value.timezone !== selection.timezone || !isTimezone(value.timezone) || !isLocalDate(value.start_date) ||
+      !isLocalDate(value.end_date) || value.start_date !== selection.start_date ||
+      value.end_date !== selection.end_date || value.start_date > value.end_date) return false;
+
+  const start = historyInstant(value.start);
+  const end = historyInstant(value.end);
+  const cutoff = historyInstant(value.effective_end);
+  return start < end && start <= cutoff && cutoff <= end && value.is_current === (cutoff < end);
+}
+
+function isEnergy(value: unknown): value is string {
+  return typeof value === 'string' && DECIMAL.test(value);
+}
+
+function hasValidHistoryState(bucket: Record<string, unknown>, elapsed: boolean): boolean {
+  const { state, energy_kwh, coverage, unavailable_reason } = bucket;
+  if (state === 'unavailable') {
+    return elapsed && energy_kwh === null && coverage === null &&
+      typeof unavailable_reason === 'string' && unavailable_reason.trim().length > 0;
+  }
+  if (unavailable_reason !== null) return false;
+  if (state === 'future') return !elapsed && energy_kwh === null && coverage === null;
+  if (!elapsed || typeof coverage !== 'string') return false;
+  if (state === 'missing') return energy_kwh === null && ZERO.test(coverage);
+  if (state === 'measured') return isEnergy(energy_kwh) && ONE.test(coverage);
+  return state === 'partial' && isEnergy(energy_kwh) && PARTIAL_RATIO.test(coverage);
+}
+
+function isHistoryBucket(
+  value: unknown, start: number, window: HistoryResponse['window'], granularity: HistoryGranularity,
+): value is HistoryResponse['buckets'][number] {
+  if (!isRecord(value) || !isLocalDate(value.local_date) || value.local_date < window.start_date ||
+      value.local_date > window.end_date || typeof value.utc_offset !== 'string' || !OFFSET.test(value.utc_offset)) return false;
+
+  const localTime = value.local_time;
+  if (granularity === 'day' ? localTime !== null : typeof localTime !== 'string' || !LOCAL_TIME.test(localTime)) return false;
+
+  const actualStart = historyInstant(value.start);
+  const actualEnd = historyInstant(value.end);
+  return actualStart === start && actualEnd > actualStart &&
+    actualEnd <= historyInstant(window.end) &&
+    (granularity === 'day' || actualEnd - actualStart <= 3_600_000) &&
+    hasValidHistoryState(value, actualStart < historyInstant(window.effective_end)) &&
+    (value.comparison_kwh == null || isEnergy(value.comparison_kwh)) &&
+    (value.reference_kwh == null || isEnergy(value.reference_kwh));
+}
+
+function isHistoryResponse(value: unknown, selection: HistorySelection): value is HistoryResponse {
+  if (!isRecord(value) || value.bucket !== selection.bucket || !isHistoryWindow(value.window, selection) ||
+      !Array.isArray(value.buckets) || value.buckets.length > 1_000 || !Array.isArray(value.origins) ||
+      !value.origins.every((origin: unknown) => HISTORY_ORIGINS.has(origin)) ||
+      (value.resolution_mwh !== null &&
+        (typeof value.resolution_mwh !== 'number' || !Number.isSafeInteger(value.resolution_mwh) || value.resolution_mwh < 0)) ||
+      (value.comparison_state != null && typeof value.comparison_state !== 'string')) return false;
+
+  const { window, highest_bucket } = value;
+  let nextStart = historyInstant(window.start);
+  let highestMatched = false;
+  const highestStart = isRecord(highest_bucket) ? historyInstant(highest_bucket.start) : NaN;
+  for (const bucket of value.buckets as unknown[]) {
+    if (!isHistoryBucket(bucket, nextStart, window, selection.bucket)) return false;
+    if (nextStart === highestStart && bucket.state === 'measured') highestMatched = true;
+    nextStart = historyInstant(bucket.end);
+  }
+  return (value.buckets.length === 0 || nextStart === historyInstant(window.end)) &&
+    (highest_bucket === null || highestMatched);
+}
+
+/** Read the selected asset's recorded series, with the service's own bucket states and highest pointer. */
+export async function getAssetHistory(
+  assetId: string, selection: HistorySelection, token: string,
+): Promise<HistoryResponse> {
+  const { start_date, end_date, bucket } = selection;
+  const history = await apiRequest(
+    `/api/v1/assets/${encodeURIComponent(assetId)}/measurements`,
+    { token, query: { start_date, end_date, bucket } },
+    (value): value is HistoryResponse => isHistoryResponse(value, selection),
+  );
+  if (history === undefined) throw ApiError.unexpected();
+  return history;
 }
 
 export type ImportPreview = components['schemas']['ImportPreviewResponse'];
