@@ -9,6 +9,11 @@ RUN uv sync --frozen --no-dev --no-install-project
 
 FROM python:3.13-slim AS runtime
 
+# Pick up DSA-6613-1 while the slim image still carries the older zlib.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends --only-upgrade zlib1g \
+    && rm -rf /var/lib/apt/lists/*
+
 # The app runs from .venv and never needs pip, whose vendored packages fail the image scan.
 RUN python -m pip uninstall --yes pip
 RUN useradd --system --uid 1000 --no-create-home appuser
