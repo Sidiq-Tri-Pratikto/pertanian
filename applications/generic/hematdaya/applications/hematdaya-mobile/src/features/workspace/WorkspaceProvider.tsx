@@ -1,5 +1,5 @@
 import { QueryClientProvider } from '@tanstack/react-query';
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 
 import { createQueryClient, endsSession } from '@/api/query-client';
 import { clearWorkspace, loadWorkspace, saveWorkspace, type Workspace } from '@/features/workspace/workspace-store';
@@ -7,6 +7,9 @@ import { clearWorkspace, loadWorkspace, saveWorkspace, type Workspace } from '@/
 type WorkspaceValue = {
   status: 'loading' | 'ready';
   workspace: Workspace | null;
+  /** Opaque cache identity. It changes even when a replacement credential opens the same site. */
+  credentialGeneration: number;
+  isCurrentCredential: (generation: number) => boolean;
   /** Set when a stored workspace stopped working, so the app can explain it once. */
   ended: 'expired' | null;
   open: (workspace: Workspace) => Promise<void>;
@@ -21,9 +24,13 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const [workspace, setWorkspace] = useState<Workspace | null>(null);
   const [ended, setEnded] = useState<'expired' | null>(null);
   const [queryClient] = useState(createQueryClient);
+  const currentGeneration = useRef(0);
+  const [credentialGeneration, setCredentialGeneration] = useState(0);
+  const isCurrentCredential = useCallback((generation: number) => currentGeneration.current === generation, []);
 
   const end = useCallback(
     async (reason: 'expired' | null) => {
+      setCredentialGeneration(++currentGeneration.current);
       setWorkspace(null);
       setEnded(reason);
       queryClient.clear();
@@ -63,15 +70,26 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
 
   const open = useCallback(
     async (next: Workspace) => {
+      const generation = ++currentGeneration.current;
       queryClient.clear();
-      await saveWorkspace(next);
+      try {
+        await saveWorkspace(next);
+      } catch (error) {
+        if (isCurrentCredential(generation)) setCredentialGeneration(generation);
+        throw error;
+      }
+      if (!isCurrentCredential(generation)) return;
+      setCredentialGeneration(generation);
       setEnded(null);
       setWorkspace(next);
     },
-    [queryClient],
+    [queryClient, isCurrentCredential],
   );
 
-  const value = useMemo(() => ({ status, workspace, ended, open, end }), [status, workspace, ended, open, end]);
+  const value = useMemo(
+    () => ({ status, workspace, credentialGeneration, isCurrentCredential, ended, open, end }),
+    [status, workspace, credentialGeneration, isCurrentCredential, ended, open, end],
+  );
   return (
     <QueryClientProvider client={queryClient}>
       <WorkspaceContext.Provider value={value}>{children}</WorkspaceContext.Provider>

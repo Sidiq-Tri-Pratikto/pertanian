@@ -15,7 +15,8 @@ export type DemoSession = components['schemas']['DemoSessionResponse'];
 export type Summary = components['schemas']['SummaryResponse'];
 
 type RequestOptions = {
-  method?: 'GET' | 'POST' | 'DELETE';
+  method?: 'GET' | 'POST' | 'PATCH' | 'DELETE';
+  expectedStatus?: number;
   body?: unknown;
   token?: string | null;
   headers?: Record<string, string>;
@@ -35,7 +36,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
  */
 export async function apiRequest<T>(
   path: string,
-  { method = 'GET', body, token, headers, query, form, timeoutMs = TIMEOUT_MS }: RequestOptions,
+  { method = 'GET', body, token, headers, query, form, timeoutMs = TIMEOUT_MS, expectedStatus }: RequestOptions,
   isValid: (value: unknown) => value is T,
 ): Promise<T> {
   const search = new URLSearchParams(
@@ -58,6 +59,9 @@ export async function apiRequest<T>(
   }
   if (!response.ok) {
     throw await readFailure(response);
+  }
+  if (expectedStatus !== undefined && response.status !== expectedStatus) {
+    throw ApiError.unexpected();
   }
   if (response.status === 204) {
     return undefined as T;
@@ -237,46 +241,122 @@ export type TransportStatus = components['schemas']['TransportStatus'];
 const ASSET_PAGE_SIZE = '100';
 const MAX_ASSET_PAGES = 20;
 
-function isAssetPage(value: unknown): value is AssetPage {
+type UpdateAssetRequest = components['schemas']['UpdateAssetRequest'];
+export type AssetChanges = {
+  [Field in 'name' | 'category' | 'location' | 'archived']?: NonNullable<UpdateAssetRequest[Field]>;
+};
+
+/** Pydantic strips Unicode White_Space, including NEL and excluding a leading BOM. */
+export function normalizeAssetText(value: string): string {
+  return value.replace(/^\p{White_Space}+|\p{White_Space}+$/gu, '');
+}
+
+function nullableText(value: unknown): boolean {
+  return value === null || typeof value === 'string';
+}
+
+function isAsset(value: unknown): value is Asset {
   return (
-    isRecord(value) &&
-    Array.isArray(value.items) &&
-    value.items.every((item: unknown) => isRecord(item) && typeof item.id === 'string') &&
-    (value.next_cursor === null || typeof value.next_cursor === 'string')
+    isRecord(value) && typeof value.id === 'string' && value.id.length > 0 &&
+    typeof value.name === 'string' && normalizeAssetText(value.name).length > 0 &&
+    nullableText(value.category) && nullableText(value.location) && nullableText(value.parent_asset_id) &&
+    typeof value.archived === 'boolean' &&
+    (value.scope_kind === 'device' || value.scope_kind === 'group' || value.scope_kind === 'circuit' || value.scope_kind === 'site_total') &&
+    (value.expected_use === 'unknown' || value.expected_use === 'continuous' ||
+      value.expected_use === 'scheduled' || value.expected_use === 'intermittent')
   );
+}
+
+function isAssetPage(value: unknown): value is AssetPage {
+  return isRecord(value) && Array.isArray(value.items) && value.items.every(isAsset) && nullableText(value.next_cursor);
+}
+
+function isBinding(value: unknown): boolean {
+  return isRecord(value) && typeof value.id === 'string' && typeof value.source_id === 'string' &&
+    typeof value.effective_from === 'string' && Number.isFinite(Date.parse(value.effective_from)) &&
+    (value.effective_to === null || (typeof value.effective_to === 'string' && Number.isFinite(Date.parse(value.effective_to)))) &&
+    typeof value.authoritative === 'boolean';
+}
+
+function isSource(value: unknown): boolean {
+  return isRecord(value) && typeof value.id === 'string' && typeof value.label === 'string' &&
+    (value.origin === 'live' || value.origin === 'import' || value.origin === 'dataset_replay' || value.origin === 'simulated') &&
+    (value.measurement_kind === 'interval_energy' || value.measurement_kind === 'average_power' ||
+      value.measurement_kind === 'instantaneous_power' || value.measurement_kind === 'counter') &&
+    (value.transport_status === 'none' || value.transport_status === 'simulated_live' || value.transport_status === 'historical') &&
+    (value.cadence_seconds === null || Number.isInteger(value.cadence_seconds)) &&
+    (value.resolution_mwh === null || Number.isInteger(value.resolution_mwh));
 }
 
 function isAssetDetail(value: unknown): value is AssetDetail {
   return (
     isRecord(value) &&
-    typeof value.id === 'string' &&
-    typeof value.name === 'string' &&
-    Array.isArray(value.bindings) &&
-    Array.isArray(value.sources)
+    Array.isArray(value.bindings) && value.bindings.every(isBinding) &&
+    Array.isArray(value.sources) && value.sources.every(isSource) && isAsset(value)
   );
 }
 
-/** Every asset of a site, following the cursor. The page limit stops a cursor that never ends. */
-export async function getAssets(siteId: string, token: string): Promise<Asset[]> {
+type ReadAssetPage = (read: () => Promise<AssetPage>) => Promise<AssetPage>;
+
+async function listAssets(
+  siteId: string, token: string, includeArchived: boolean, readPage: ReadAssetPage, onPage?: (page: AssetPage) => void,
+): Promise<AssetPage> {
   const assets: Asset[] = [];
-  let cursor: string | undefined;
+  const collected = () => includeArchived ? [...new Map(assets.map((asset) => [asset.id, asset])).values()] : assets;
+  let cursor: string | null = null;
   for (let page = 0; page < MAX_ASSET_PAGES; page += 1) {
-    const { items, next_cursor: next }: AssetPage = await apiRequest(
+    const { items, next_cursor: next }: AssetPage = await readPage(() => apiRequest(
       `/api/v1/sites/${encodeURIComponent(siteId)}/assets`,
-      { token, query: { limit: ASSET_PAGE_SIZE, cursor } },
+      { token, query: { limit: ASSET_PAGE_SIZE, cursor: cursor ?? undefined, include_archived: includeArchived ? 'true' : undefined }, expectedStatus: 200 },
       isAssetPage,
-    );
+    ));
     assets.push(...items);
-    if (next === null) {
-      break;
-    }
     cursor = next;
+    if (cursor === null) break;
+    onPage?.({ items: collected(), next_cursor: cursor });
   }
-  return assets;
+  return { items: collected(), next_cursor: cursor };
+}
+
+/** Active assets in service order. */
+export async function getAssets(siteId: string, token: string): Promise<Asset[]> {
+  return (await listAssets(siteId, token, false, (read) => read())).items;
+}
+
+/** Includes archived assets on every cursor and reports if the client stops with pages still unread. */
+export function getArchivedAssets(
+  siteId: string, token: string, readPage: ReadAssetPage = (read) => read(), onPage?: (page: AssetPage) => void,
+): Promise<AssetPage> {
+  return listAssets(siteId, token, true, readPage, onPage);
 }
 
 export function getAsset(assetId: string, token: string): Promise<AssetDetail> {
-  return apiRequest(`/api/v1/assets/${encodeURIComponent(assetId)}`, { token }, isAssetDetail);
+  return apiRequest(
+    `/api/v1/assets/${encodeURIComponent(assetId)}`,
+    { token, expectedStatus: 200 },
+    (value): value is AssetDetail => isAssetDetail(value) && value.id === assetId,
+  );
+}
+
+export function matchesAssetChanges(asset: Asset, changes: AssetChanges): boolean {
+  return (Object.keys(changes) as (keyof AssetChanges)[]).every((field) => asset[field] === changes[field]);
+}
+
+/** Only a matching HTTP 200 asset can acknowledge this intent. */
+export function patchAsset(assetId: string, changes: AssetChanges, token: string): Promise<Asset> {
+  return apiRequest(
+    `/api/v1/assets/${encodeURIComponent(assetId)}`,
+    { method: 'PATCH', body: changes, token, expectedStatus: 200 },
+    (value): value is Asset => isAsset(value) && value.id === assetId && matchesAssetChanges(value, changes),
+  );
+}
+
+/** Status and public code pairs that the asset route can return before it makes a write. */
+export function isAssetPatchRefusal(failure: ApiError): boolean {
+  if (failure.recovery.retryable) return false;
+  return (failure.status === 401 && (failure.code === 'UNAUTHORIZED' || failure.code === 'SESSION_EXPIRED')) ||
+    (failure.status === 404 && failure.code === 'NOT_FOUND') ||
+    (failure.status === 422 && failure.code === 'VALIDATION_FAILED');
 }
 
 export function getAssetSummary(assetId: string, period: PeriodQuery, token: string): Promise<Summary> {

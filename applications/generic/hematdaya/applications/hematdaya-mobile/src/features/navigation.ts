@@ -23,6 +23,7 @@ export function useTabNavigation() {
     openHidden: () => router.push(inTab('saran/tersembunyi')),
     openEvidence: (id: string, revision: number) =>
       router.push(inTab(`saran/${encodeURIComponent(id)}?revision=${revision}`)),
+    openAssetHistoryChooser: () => router.push(inTab('perangkat/riwayat')),
     openAsset: (id: string) => router.push(inTab(`asset/${encodeURIComponent(id)}`)),
     back: () => (router.canGoBack() ? router.back() : router.replace('/beranda')),
     /** S10 from any entry point. A draft whose result was already shown is done, so a new import starts empty. */

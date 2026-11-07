@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, View } from 'react-native';
 
 import { HDIcon } from '@/components/hd/HDIcon';
 import { HDText } from '@/components/hd/HDText';
@@ -20,6 +20,18 @@ type HDAssetRowProps = {
   stale: boolean;
   onOpen: () => void;
 };
+
+// A React Native Web pressable with link semantics has no native anchor to handle Enter.
+function enterOpens(onOpen: () => void): object {
+  if (Platform.OS !== 'web') return {};
+  return {
+    onKeyDown: (event: { key: string; repeat: boolean; preventDefault: () => void }) => {
+      if (event.key !== 'Enter') return;
+      event.preventDefault();
+      if (!event.repeat) onOpen();
+    },
+  };
+}
 
 const STALE_LABEL = 'Data belum diperbarui';
 
@@ -44,6 +56,7 @@ export function HDAssetRow({ name, kind, location, category, kwh, quality, quali
       role="link"
       aria-label={label}
       onPress={onOpen}
+      {...enterOpens(onOpen)}
       onFocus={() => setFocused(true)}
       onBlur={() => setFocused(false)}
       style={[styles.row, focused && styles.focused]}>

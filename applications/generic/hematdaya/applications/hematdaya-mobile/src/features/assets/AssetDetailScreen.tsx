@@ -1,8 +1,8 @@
-import type { ReactNode } from 'react';
+import { useRef, useState, type ComponentRef } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { ApiError } from '@/api/errors';
-import type { AssetDetail as AssetDetailData, InsightNotice, Summary } from '@/api/client';
+import type { AssetDetail as AssetDetailData, Summary } from '@/api/client';
 import { HDButton } from '@/components/hd/HDButton';
 import { HDDataQuality } from '@/components/hd/HDDataQuality';
 import { HDEnergyMetric } from '@/components/hd/HDEnergyMetric';
@@ -13,7 +13,11 @@ import { HDProvenanceTag } from '@/components/hd/HDProvenanceTag';
 import { HDScreen } from '@/components/hd/HDScreen';
 import { HDText } from '@/components/hd/HDText';
 import { tokens } from '@/design/tokens.generated';
-import { assetDetailModel, assetSourceRows, originLabel, type SourceRow } from '@/features/assets/asset-model';
+import { assetDetailModel, assetSourceRows, originLabel, type AssetDetailModel, type SourceRow } from '@/features/assets/asset-model';
+import { ArchiveAssetSheet } from '@/features/assets/ArchiveAssetSheet';
+import { AssetWriteFeedback } from '@/features/assets/AssetWriteFeedback';
+import { createAssetDraft, EditAssetSheet, type AssetDraft } from '@/features/assets/EditAssetSheet';
+import { useAssetMutations } from '@/features/assets/useAssetMutations';
 import { AssetHistorySection } from '@/features/assets/AssetHistorySection';
 import { ReadFailure } from '@/features/assets/ReadFailure';
 import { useAsset } from '@/features/assets/useAssets';
@@ -32,7 +36,7 @@ const LOADING = 'Memuat perangkat…';
 
 /** S06: one asset for the shared period, with its quality and where its data comes from. */
 export function AssetDetailScreen({ assetId }: { assetId: string | undefined }) {
-  const { status, workspace } = useWorkspace();
+  const { status, workspace, credentialGeneration } = useWorkspace();
   const { back } = useTabNavigation();
   if (status === 'loading') {
     return (
@@ -45,7 +49,7 @@ export function AssetDetailScreen({ assetId }: { assetId: string | undefined }) 
   if (workspace === null || assetId === undefined) {
     return <NotAvailable />;
   }
-  return <AssetDetail key={`${workspace.siteId}:${assetId}`} assetId={assetId} />;
+  return <AssetDetail key={`${workspace.siteId}:${credentialGeneration}:${assetId}`} assetId={assetId} />;
 }
 
 function NotAvailable({ requestId = null }: { requestId?: string | null }) {
@@ -92,34 +96,79 @@ function AssetDetail({ assetId }: { assetId: string }) {
     />
   );
 
-  if (summary === undefined) {
-    return (
-      <HDScreen title={asset?.name ?? TITLE} onBack={back}>
-        <HDProgressStatus state={summaryQuery.isError ? null : 'loading'} label={LOADING} />
-        <ReadFailure error={summaryQuery.error} label="Perangkat belum dapat dimuat" retrying={summaryQuery.isFetching} onRetry={retrySummary} />
-        {asset ? sourceSection(null) : null}
-      </HDScreen>
-    );
-  }
   const selected = period && periodQuery(period);
   const window = summaryQuery.isPlaceholderData ? undefined : summaryQuery.data?.window;
   const confirmedWindow = window && selected && (selected.preset ||
     (selected.start_date === window.start_date && selected.end_date === window.end_date)) ? window : null;
   const historyWindowError = window && !confirmedWindow ? ApiError.unexpected() : summaryQuery.error;
+  const model = summary ? assetDetailModel(summary, asset, insights?.notices ?? []) : undefined;
   return (
-    <PopulatedDetail
-      assetId={assetId}
-      summary={summary}
-      confirmedWindow={confirmedWindow}
-      historyWindowError={historyWindowError}
-      asset={asset}
-      notices={insights?.notices ?? []}
-      failure={summaryQuery.error}
-      retrying={summaryQuery.isFetching}
-      onRetry={retrySummary}
-      staleCheckFailed={insightsQuery.isError}
-      sources={sourceSection(summary.window.timezone)}
-    />
+    <HDScreen title={model?.name || asset?.name || TITLE} subtitle={model?.meta} onBack={back}>
+      {asset ? <AssetActions asset={asset} /> : null}
+      {summary && model ? (
+        <PopulatedDetail assetId={assetId} summary={summary} model={model}
+          confirmedWindow={confirmedWindow} historyWindowError={historyWindowError}
+          failure={summaryQuery.error} retrying={summaryQuery.isFetching} onRetry={retrySummary}
+          staleCheckFailed={insightsQuery.isError} />
+      ) : (
+        <>
+          <HDProgressStatus state={summaryQuery.isError ? null : 'loading'} label={LOADING} />
+          <ReadFailure error={summaryQuery.error} label="Perangkat belum dapat dimuat"
+            retrying={summaryQuery.isFetching} onRetry={retrySummary} />
+        </>
+      )}
+      {asset || summary ? sourceSection(summary?.window.timezone ?? null) : null}
+    </HDScreen>
+  );
+}
+
+function AssetActions({ asset }: { asset: AssetDetailData }) {
+  const [sheet, setSheet] = useState<'edit' | 'archive' | null>(null);
+  const [draft, setDraft] = useState<AssetDraft | null>(null);
+  const [archive, setArchive] = useState(false);
+  const editButton = useRef<ComponentRef<typeof View>>(null);
+  const archiveButton = useRef<ComponentRef<typeof View>>(null);
+  const { state, submit, review, dismiss, blocked } = useAssetMutations(asset.id);
+  const close = () => setSheet(null);
+  const edit = state?.changes.archived === undefined;
+  const pendingReview = state?.kind === 'diverged';
+
+  const [handled, setHandled] = useState(state);
+  if ((state?.kind === 'acknowledged' || state?.kind === 'observed') && state !== handled) {
+    setHandled(state);
+    if (edit) setDraft(null);
+    if (sheet === (edit ? 'edit' : 'archive')) setSheet(null);
+  }
+
+  function discardDraft() {
+    if (edit) dismiss();
+    setDraft(null);
+    close();
+  }
+
+  let announcement = asset.archived ? 'Diarsipkan. Pulihkan dari Perangkat, di bagian Diarsipkan.' : null;
+  if (state?.kind === 'observed') {
+    announcement = edit ? 'Data saat diperiksa sesuai dengan draf.' : `Status saat diperiksa: ${announcement ?? 'aktif.'}`;
+  } else if (state?.kind === 'acknowledged') {
+    announcement = edit ? 'Detail perangkat disimpan.' : (announcement ?? 'Perangkat dipulihkan ke daftar aktif.');
+  }
+
+  return (
+    <View style={styles.section}>
+      <View role="status" accessibilityLiveRegion="polite">{announcement ? <HDText>{announcement}</HDText> : null}</View>
+      <View style={styles.actions}>
+        <HDButton ref={editButton} disabledReason={pendingReview && !edit ? 'Tinjau status arsip dahulu.' : undefined}
+          onPress={() => { setDraft((previous) => previous ?? createAssetDraft(asset)); setSheet('edit'); }}>Ubah detail</HDButton>
+        <HDButton ref={archiveButton} disabledReason={pendingReview && edit ? 'Tinjau draf detail dahulu.' : undefined}
+          onPress={() => { setArchive(!asset.archived); setSheet('archive'); }}>{asset.archived ? 'Pulihkan' : 'Arsipkan'}</HDButton>
+      </View>
+      {sheet === null && blocked ? <AssetWriteFeedback state={state} /> : null}
+      <EditAssetSheet open={sheet === 'edit'} draft={draft ?? createAssetDraft(asset)} onDraft={setDraft}
+        onSubmit={(changes) => void submit(changes)} onReview={review} state={state} blocked={blocked}
+        onClose={close} onDiscard={discardDraft} returnFocusTo={editButton} />
+      <ArchiveAssetSheet open={sheet === 'archive'} asset={asset} archive={archive} state={state} blocked={blocked}
+        onSubmit={(changes) => void submit(changes)} onReview={review} onClose={close} returnFocusTo={archiveButton} />
+    </View>
   );
 }
 
@@ -132,20 +181,16 @@ type PopulatedProps = {
   summary: Summary;
   confirmedWindow: Summary['window'] | null;
   historyWindowError: ApiError | Error | null;
-  asset: AssetDetailData | undefined;
-  notices: InsightNotice[];
+  model: AssetDetailModel;
   failure: unknown;
   retrying: boolean;
   onRetry: () => void;
   staleCheckFailed: boolean;
-  sources: ReactNode;
 };
 
-function PopulatedDetail({ assetId, summary, confirmedWindow, historyWindowError, asset, notices, failure, retrying, onRetry, staleCheckFailed, sources }: PopulatedProps) {
+function PopulatedDetail({ assetId, summary, confirmedWindow, historyWindowError, model, failure, retrying, onRetry, staleCheckFailed }: PopulatedProps) {
   const { workspace } = useWorkspace();
   const { period, setPeriod } = useNavigationContext();
-  const { back } = useTabNavigation();
-  const model = assetDetailModel(summary, asset, notices);
   // A summary's origins are empty on a no-data period and on a conflict, so sources speak first.
   const origins = model.origins.length ? model.origins : shownOrigins(summary.origins, workspace?.scenarioId);
   const simulated = origins.includes('simulated');
@@ -153,7 +198,7 @@ function PopulatedDetail({ assetId, summary, confirmedWindow, historyWindowError
   const canShowDataPeriod = model.state === 'none' && workspace && period && !samePeriod(period, workspace.initialPeriod);
 
   return (
-    <HDScreen title={model.name || TITLE} subtitle={model.meta} onBack={back}>
+    <>
       {period ? (
         <HDPeriodSelector value={period} activeLabel={model.periodLabel} timezone={model.timezone} onCommit={setPeriod} />
       ) : null}
@@ -220,8 +265,7 @@ function PopulatedDetail({ assetId, summary, confirmedWindow, historyWindowError
         confirmed={confirmedWindow}
         summaryError={historyWindowError}
       />
-      {sources}
-    </HDScreen>
+    </>
   );
 }
 
@@ -268,4 +312,5 @@ function SourceTerm({ term, value }: { term: string; value: string }) {
 const styles = StyleSheet.create({
   section: { gap: tokens.space.stack },
   tight: { gap: tokens.space.stackTight },
+  actions: { flexDirection: 'row', flexWrap: 'wrap', gap: tokens.space.stackTight },
 });

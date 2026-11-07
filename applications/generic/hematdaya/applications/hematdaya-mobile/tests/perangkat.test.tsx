@@ -569,9 +569,9 @@ describe('asset detail', () => {
     expect(assetCalls).toEqual(expect.arrayContaining([`/api/v1/assets/${id}/summary?preset=last_7_days`, `/api/v1/assets/${id}`]));
     expect(assetCalls.some((call) => call.includes('/measurements'))).toBe(false);
     expect(screen.queryByText(/100,00%/)).toBeNull();
-    for (const absent of ['Ubah detail', 'Arsipkan', 'Pilih sumber acuan']) {
-      expect(screen.queryByRole('button', { name: absent })).toBeNull();
-    }
+    expect(screen.getByRole('button', { name: 'Ubah detail' })).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: 'Arsipkan' })).toBeOnTheScreen();
+    expect(screen.queryByRole('button', { name: 'Pilih sumber acuan' })).toBeNull();
   });
 
   it('opens by address', async () => {
@@ -1244,4 +1244,179 @@ describe('history bucket states', () => {
     expect(await screen.findByText('Riwayat belum memiliki interval untuk periode ini.')).toBeOnTheScreen();
     expect(screen.queryByRole('img', { name: /Riwayat energi/ })).toBeNull();
   });
+});
+
+describe('asset edit and archive', () => {
+  it('keeps the S04 name and detail confirmed until a PATCH acknowledgment', async () => {
+    let name = 'Kulkas';
+    let finish!: () => void;
+    const fetchMock = mockApi({
+      asset: (url, init) => {
+        const original = detailOf(url).entry.asset;
+        if (init.method === 'PATCH') {
+          return new Promise<Response>((resolve) => {
+            finish = () => {
+              name = JSON.parse(String(init.body)).name;
+              resolve(respond(200, { ...original, name }));
+            };
+          });
+        }
+        return respond(200, { ...original, name });
+      },
+      assets: (url) => {
+        const page = scenarioOf(url).assets;
+        return respond(200, { ...page, items: page.items.map((item) => item.name === 'Kulkas' ? { ...item, name } : item) });
+      },
+    });
+    const list = await openPerangkat('h-base');
+    await fireEvent.press(rowNamed(list, 'Kulkas'));
+    await fireEvent.press(await screen.findByRole('button', { name: 'Ubah detail' }));
+    await fireEvent.changeText(screen.getByLabelText('Nama perangkat'), ' Kulkas baru ');
+    await fireEvent.press(screen.getByRole('button', { name: 'Simpan' }));
+    expect(screen.getByRole('heading', { name: 'Kulkas', includeHiddenElements: true })).toBeOnTheScreen();
+    await act(() => finish());
+    expect(await screen.findByRole('heading', { name: 'Kulkas baru' })).toBeOnTheScreen();
+    expect(screen.getByText('Sumber data')).toBeOnTheScreen();
+    await fireEvent.press(screen.getByRole('button', { name: 'Kembali' }));
+    expect(await within(await findList()).findByRole('link', { name: /^Kulkas baru,/ })).toBeOnTheScreen();
+    expect(fetchMock.mock.calls.filter(([, init]) => init?.method === 'PATCH')).toHaveLength(1);
+  });
+
+  it('retains an explicitly rejected draft on sheet dismissal and reopen', async () => {
+    mockApi({
+      asset: (url, init) => init.method === 'PATCH'
+        ? failure(422, 'VALIDATION_FAILED', { retryable: false }, 'ref-rename') : defaults.asset(url, init),
+    });
+    await fireEvent.press(rowNamed(await openPerangkat('h-base'), 'Kulkas'));
+    await fireEvent.press(await screen.findByRole('button', { name: 'Ubah detail' }));
+    await fireEvent.changeText(screen.getByLabelText('Nama perangkat'), 'Draf disimpan di lembar');
+    await fireEvent.press(screen.getByRole('button', { name: 'Simpan' }));
+    expect(await screen.findByText(/ref-rename/)).toBeOnTheScreen();
+    await fireEvent.press(screen.getByRole('button', { name: 'Batal' }));
+    expect(await screen.findByRole('heading', { name: 'Kulkas' })).toBeOnTheScreen();
+    await fireEvent.press(screen.getByRole('button', { name: 'Ubah detail' }));
+    expect(screen.getByLabelText('Nama perangkat').props.value).toBe('Draf disimpan di lembar');
+    await fireEvent.press(screen.getByRole('button', { name: 'Buang draf' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Ubah detail' }));
+    expect(screen.getByLabelText('Nama perangkat').props.value).toBe('Kulkas');
+  });
+
+  it('keeps archived access when the active summary fails', async () => {
+    const entry = Recorded['h-base'].details.Kulkas;
+    mockApi({
+      summary: SERVER_FAILED,
+      assets: (url) => respond(200, {
+        items: url.searchParams.get('include_archived') === 'true' ? [{ ...entry.asset, archived: true }] : [],
+        next_cursor: null,
+      }),
+      asset: () => respond(200, { ...entry.asset, archived: true }),
+    });
+    await storeWorkspace('h-base');
+    await renderRouter('./src/app', { initialUrl: '/perangkat' });
+    await fireEvent.press(await screen.findByRole('button', { name: 'Diarsipkan' }));
+    await fireEvent.press(await screen.findByRole('link', { name: /^Kulkas,/ }));
+    expect(await screen.findByRole('button', { name: 'Pulihkan' })).toBeOnTheScreen();
+    expect(await screen.findByRole('button', { name: 'Lihat riwayat' })).toBeOnTheScreen();
+  });
+
+  it('takes S07 learning through the device chooser and returns through the Saran tab', async () => {
+    mockApi({
+      insights: (url) => respond(200, {
+        window: scenarioOf(url).summary.window, observations: [], notices: [], learning_count: 4, comparable_count: 0,
+      }),
+    });
+    await storeWorkspace('h-base');
+    await renderRouter('./src/app', { initialUrl: '/saran' });
+    await fireEvent.press(await screen.findByRole('button', { name: 'Tentang riwayat perangkat' }));
+    expect(await screen.findByRole('heading', { name: 'Riwayat perangkat' })).toBeOnTheScreen();
+    await fireEvent.press(rowNamed(await findList(), 'Kulkas'));
+    await fireEvent.press(await screen.findByRole('button', { name: 'Lihat riwayat' }));
+    await fireEvent.press(await screen.findByRole('button', { name: 'Lihat data' }));
+    expect(await screen.findByLabelText(/Riwayat Kulkas, 19–25 Oktober 2026/)).toBeOnTheScreen();
+    await fireEvent.press(screen.getByRole('button', { name: 'Kembali' }));
+    expect(await screen.findByRole('heading', { name: 'Riwayat perangkat' })).toBeOnTheScreen();
+    await fireEvent.press(screen.getByRole('button', { name: 'Kembali' }));
+    expect(await screen.findByRole('heading', { name: 'Saran' })).toBeOnTheScreen();
+    expect(screen.getByText('19–25 Oktober 2026 · Asia/Jakarta')).toBeOnTheScreen();
+  });
+});
+
+it('changes active/archive membership on acknowledgment while preserving previous service scope', async () => {
+  let archived = false;
+  let currentSummary = Recorded['h-base'].summary;
+  let refreshHeld = false;
+  let finishRefresh!: (response: Response) => void;
+  const id = assetIdOf('h-base', 'Kulkas');
+  const fetchMock = mockApi({
+    summary: () => refreshHeld ? new Promise<Response>((resolve) => { finishRefresh = resolve; }) : respond(200, currentSummary),
+    assets: (url) => {
+      const page = Recorded['h-base'].assets;
+      const items = page.items.map((asset) => asset.id === id ? { ...asset, archived } : asset);
+      return respond(200, { ...page, items: url.searchParams.has('include_archived') ? items : items.filter((asset) => asset.id !== id || !archived) });
+    },
+    asset: (url, init) => {
+      if (init.method === 'PATCH') {
+        archived = JSON.parse(String(init.body)).archived;
+        refreshHeld = true;
+      }
+      return respond(200, { ...detailOf(url).entry.asset, archived });
+    },
+  });
+  await fireEvent.press(rowNamed(await openPerangkat('h-base'), 'Kulkas'));
+  await fireEvent.press(await screen.findByRole('button', { name: 'Arsipkan' }));
+  const dialog = screen.getByLabelText('Arsipkan Kulkas?');
+  await fireEvent.press(within(dialog).getByRole('button', { name: 'Batal' }));
+  expect(fetchMock.mock.calls.filter(([, init]) => init?.method === 'PATCH')).toHaveLength(0);
+
+  await fireEvent.press(screen.getByRole('button', { name: 'Arsipkan' }));
+  await fireEvent.press(within(screen.getByLabelText('Arsipkan Kulkas?')).getByRole('button', { name: 'Arsipkan' }));
+  expect(await screen.findByRole('button', { name: 'Pulihkan' })).toBeOnTheScreen();
+  await fireEvent.press(screen.getByRole('button', { name: 'Kembali' }));
+  expect(within(await findList()).queryByRole('link', { name: /^Kulkas,/ })).toBeNull();
+  expect(await screen.findByText('Ringkasan masih memakai cakupan sebelumnya')).toBeOnTheScreen();
+  expect(screen.getByText('Cakupan pengukuran: 4 perangkat')).toBeOnTheScreen();
+  currentSummary = { ...currentSummary, assets: currentSummary.assets.filter((row) => row.asset_id !== id) };
+  refreshHeld = false;
+  await act(() => finishRefresh(respond(200, currentSummary)));
+  await waitFor(() => expect(screen.queryByText('Ringkasan masih memakai cakupan sebelumnya')).toBeNull());
+  await fireEvent.press(screen.getByRole('button', { name: 'Diarsipkan' }));
+  await fireEvent.press(await within(await screen.findByLabelText('Perangkat diarsipkan')).findByRole('link', { name: /^Kulkas,/ }));
+
+  await fireEvent.press(await screen.findByRole('button', { name: 'Pulihkan' }));
+  await fireEvent.press(within(screen.getByLabelText('Pulihkan Kulkas?')).getByRole('button', { name: 'Pulihkan' }));
+  expect(await screen.findByRole('button', { name: 'Arsipkan' })).toBeOnTheScreen();
+  await fireEvent.press(screen.getByRole('button', { name: 'Kembali' }));
+  const unranked = await screen.findByLabelText('Perangkat aktif tanpa ringkasan');
+  const restored = within(unranked).getByRole('link', { name: /^Kulkas,/ });
+  expect(within(restored).getByText('— kWh')).toBeOnTheScreen();
+  expect(screen.queryByLabelText('Perangkat diarsipkan')).toBeNull();
+  expect(fetchMock.mock.calls.filter(([, init]) => init?.method === 'PATCH').map(([, init]) => init?.body))
+    .toEqual([JSON.stringify({ archived: true }), JSON.stringify({ archived: false })]);
+});
+
+it('keeps acknowledged detail and history from S03 when the summary refresh fails', async () => {
+  let changed = false;
+  mockApi({
+    asset: (url, init) => {
+      if (init.method === 'PATCH') {
+        changed = true;
+        return respond(200, { ...detailOf(url).entry.asset, name: 'Kulkas S03' });
+      }
+      return defaults.asset(url, init);
+    },
+    assetSummary: (url, init) => changed ? SERVER_FAILED() : defaults.assetSummary(url, init),
+  });
+  await storeWorkspace('h-base');
+  await renderRouter('./src/app', { initialUrl: '/beranda' });
+  await fireEvent.press(await screen.findByRole('button', { name: 'Lihat perangkat terbesar' }));
+  await fireEvent.press(await screen.findByRole('button', { name: 'Lihat riwayat' }));
+  await screen.findByRole('button', { name: 'Lihat data' });
+  await fireEvent.press(await screen.findByRole('button', { name: 'Ubah detail' }));
+  await fireEvent.changeText(screen.getByLabelText('Nama perangkat'), 'Kulkas S03');
+  await fireEvent.press(screen.getByRole('button', { name: 'Simpan' }));
+  expect(await screen.findByRole('heading', { name: 'Kulkas S03' })).toBeOnTheScreen();
+  expect(await screen.findByText('Data perangkat belum dapat diperbarui')).toBeOnTheScreen();
+  expect(screen.getByRole('button', { name: 'Lihat data' })).toBeOnTheScreen();
+  expect(screen.getByText('Sumber demo (simulasi)')).toBeOnTheScreen();
+  expect(screen.getByText('8,400 kWh')).toBeOnTheScreen();
 });

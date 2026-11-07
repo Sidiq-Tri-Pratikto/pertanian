@@ -62,7 +62,7 @@ function NoData() {
 }
 
 function SaranList({ data }: { data: InsightList }) {
-  const { openEvidence, openFeature, openHidden } = useTabNavigation();
+  const { openEvidence, openAssetHistoryChooser, openHidden } = useTabNavigation();
   const learningOnly = data.comparable_count === 0 && data.learning_count > 0;
 
   return (
@@ -97,7 +97,7 @@ function SaranList({ data }: { data: InsightList }) {
               Perubahan hanya dihitung bila ada sedikitnya dua minggu sebelumnya dengan data yang cukup pada hari dan
               jam yang sama. Saran akan muncul setelah riwayatnya cukup.
             </HDText>
-            <HDButton variant="text" onPress={() => openFeature('detail-perangkat')}>
+            <HDButton variant="text" onPress={openAssetHistoryChooser}>
               Tentang riwayat perangkat
             </HDButton>
           </View>

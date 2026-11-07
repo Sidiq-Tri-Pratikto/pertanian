@@ -8,6 +8,7 @@ import type { Workspace } from '@/features/workspace/workspace-store';
 type HistoryRead = {
   open: boolean;
   workspace: Workspace | null;
+  credentialGeneration?: number;
   assetId: string;
   /** Pass only the confirmed asset summary window for the selected period. */
   confirmed: HistoryResponse['window'] | null;
@@ -42,14 +43,14 @@ async function readWithBudget(
 }
 
 /** Load one confirmed asset period only on disclosure, with a single bounded retry sequence per read. */
-export function useHistory({ open, workspace, assetId, confirmed }: HistoryRead) {
+export function useHistory({ open, workspace, credentialGeneration, assetId, confirmed }: HistoryRead) {
   const selection: HistorySelection | null = confirmed && {
     start_date: confirmed.start_date,
     end_date: confirmed.end_date,
     timezone: confirmed.timezone,
     bucket: confirmed.start_date === confirmed.end_date ? 'hour' : 'day',
   };
-  const queryKey = ['asset-history', workspace?.siteId, assetId, selection] as const;
+  const queryKey = ['asset-history', workspace?.siteId, credentialGeneration, assetId, selection] as const;
   const ready = workspace !== null && assetId.length > 0 && selection !== null;
   return useQuery<HistoryResponse, ApiError>({
     queryKey,

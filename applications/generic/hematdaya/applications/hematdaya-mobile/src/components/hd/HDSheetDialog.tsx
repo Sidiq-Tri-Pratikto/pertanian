@@ -1,5 +1,5 @@
 import { useEffect, useRef, type ComponentRef, type ReactNode, type RefObject } from 'react';
-import { Modal, Pressable, StyleSheet, View, type TextInstance } from 'react-native';
+import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, View, type TextInstance } from 'react-native';
 
 import { HDButton } from '@/components/hd/HDButton';
 import { HDText } from '@/components/hd/HDText';
@@ -14,6 +14,7 @@ type HDSheetDialogProps = {
   onClose: (reason: CloseReason) => void;
   children: ReactNode;
   footer?: ReactNode;
+  scrollable?: boolean;
   /** The control that opened the sheet; focus returns to it on close. */
   returnFocusTo?: RefObject<ComponentRef<typeof View> | null>;
 };
@@ -22,22 +23,31 @@ type HDSheetDialogProps = {
 const FOCUSABLE_BY_SCRIPT = { tabIndex: -1 } as object;
 
 /** Non-destructive sheet on RN `Modal`: focus to the title on open, Escape or back closes, focus returns to the opener. */
-export function HDSheetDialog({ open, title, onClose, children, footer, returnFocusTo }: HDSheetDialogProps) {
+export function HDSheetDialog({ open, title, onClose, children, footer, returnFocusTo, scrollable = false }: HDSheetDialogProps) {
   const heading = useRef<TextInstance>(null);
   const wasOpen = useRef(open);
+  const web = Platform.OS === 'web';
+  const modalLabel = web ? { 'aria-label': title } : {};
+  const nativeDialog = web ? {} : { role: 'dialog' as const, 'aria-modal': true, 'aria-label': title };
 
   useEffect(() => {
-    if (wasOpen.current && !open) {
+    if (!web && wasOpen.current && !open) {
       moveFocus(returnFocusTo?.current);
     }
     wasOpen.current = open;
-  }, [open, returnFocusTo]);
+  }, [open, returnFocusTo, web]);
+
+  const returnWebFocus = web ? () => {
+    requestAnimationFrame(() => {
+      if (!wasOpen.current) moveFocus(returnFocusTo?.current);
+    });
+  } : undefined;
 
   return (
-    <Modal visible={open} transparent animationType="slide" onRequestClose={() => onClose('escape')} onShow={() => moveFocus(heading.current)}>
-      <View style={styles.root}>
+    <Modal {...modalLabel} visible={open} transparent animationType="slide" onDismiss={returnWebFocus} onRequestClose={() => onClose('escape')} onShow={() => moveFocus(heading.current)}>
+      <KeyboardAvoidingView style={styles.root} behavior={scrollable && Platform.OS === 'ios' ? 'padding' : undefined}>
         <Pressable accessibilityLabel="Tutup" style={StyleSheet.absoluteFill} onPress={() => onClose('backdrop')} />
-        <View role="dialog" aria-modal aria-label={title} style={styles.sheet}>
+        <View {...nativeDialog} style={styles.sheet}>
           <View style={styles.header}>
             <HDText ref={heading} variant="section" role="heading" style={styles.title} {...FOCUSABLE_BY_SCRIPT}>
               {title}
@@ -46,10 +56,14 @@ export function HDSheetDialog({ open, title, onClose, children, footer, returnFo
               Tutup
             </HDButton>
           </View>
-          <View style={styles.body}>{children}</View>
+          {scrollable ? (
+            <ScrollView style={styles.scrollBody} contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
+              {children}
+            </ScrollView>
+          ) : <View style={styles.body}>{children}</View>}
           {footer ? <View style={styles.footer}>{footer}</View> : null}
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
@@ -58,6 +72,7 @@ const styles = StyleSheet.create({
   root: { flex: 1, justifyContent: 'flex-end', alignItems: 'center', backgroundColor: tokens.color.overlayBackdrop },
   sheet: {
     width: '100%',
+    maxHeight: '100%',
     maxWidth: tokens.size.sheetMaxWidth,
     backgroundColor: tokens.color.backgroundSurface,
     borderTopLeftRadius: tokens.radius.sheet,
@@ -67,6 +82,7 @@ const styles = StyleSheet.create({
   },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: tokens.space.stackTight },
   title: { flexShrink: 1 },
+  scrollBody: { flexGrow: 0, flexShrink: 1 },
   body: { gap: tokens.space.stack },
   footer: { gap: tokens.space.stackTight },
 });

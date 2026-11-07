@@ -68,7 +68,7 @@ export const FEATURES: Feature[] = [
     points: ['Grafik dengan ringkasan teks dan tabel', 'Data kosong berbeda dari 0 kWh', 'Ubah nama atau arsipkan tanpa menghapus riwayat'],
     screens: ['S06'],
     specs: ['010', '014', '015', '016'],
-    status: 'coming_soon',
+    status: 'available',
   },
   {
     id: 'saran',

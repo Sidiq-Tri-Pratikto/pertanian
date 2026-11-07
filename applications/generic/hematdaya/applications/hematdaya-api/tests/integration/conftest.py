@@ -2,6 +2,7 @@
 
 import asyncio
 import json
+import logging
 import secrets
 import subprocess
 import sys
@@ -67,6 +68,30 @@ def roomy_demo_limits(monkeypatch: pytest.MonkeyPatch) -> None:
     """Sessions persist between runs, so tests lift the demo limits; capacity tests set their own."""
     monkeypatch.setattr(get_settings(), "demo_max_active_sessions", 10**9)
     monkeypatch.setattr(get_settings(), "demo_create_max_per_minute", 10**9)
+
+
+@pytest.fixture
+def capture_app_logs(caplog: pytest.LogCaptureFixture) -> Iterator[None]:
+    """Capture the application logger, which does not propagate once configured."""
+    logger = logging.getLogger("app")
+    original_level = logger.level
+    logger.addHandler(caplog.handler)
+    logger.setLevel(logging.INFO)
+    try:
+        yield
+    finally:
+        logger.removeHandler(caplog.handler)
+        logger.setLevel(original_level)
+
+
+def failure_records(caplog: pytest.LogCaptureFixture) -> list[dict]:
+    """Read the sanitized records written by the application failure recorder."""
+    prefix = "Application failure "
+    return [
+        json.loads(record.getMessage().removeprefix(prefix))
+        for record in caplog.records
+        if record.getMessage().startswith(prefix)
+    ]
 
 
 @pytest.fixture

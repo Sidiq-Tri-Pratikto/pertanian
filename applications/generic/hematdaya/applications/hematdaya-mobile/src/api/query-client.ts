@@ -23,7 +23,7 @@ export function retryDelay(_failureCount: number, error: unknown): number {
 
 /** Whether a failure means the stored credential no longer opens anything. */
 export function endsSession(error: unknown): boolean {
-  return error instanceof ApiError && SESSION_ENDED_CODES.has(error.code);
+  return error instanceof ApiError && (error.status === null || error.status === 401) && SESSION_ENDED_CODES.has(error.code);
 }
 
 /** The one client for server state. */
