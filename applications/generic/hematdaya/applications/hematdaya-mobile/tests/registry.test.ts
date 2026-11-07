@@ -22,6 +22,7 @@ describe('feature registry', () => {
       'demo',
       'ringkasan-energi',
       'kontributor',
+      'daftar-perangkat',
       'saran',
       'bukti-saran',
     ]);

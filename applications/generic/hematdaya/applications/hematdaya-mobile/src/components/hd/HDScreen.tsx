@@ -27,7 +27,8 @@ export function HDScreen({ title, subtitle, onBack, children }: HDScreenProps) {
         return;
       }
       if (Platform.OS === 'web') {
-        (heading.current as unknown as HTMLElement).focus();
+        // A return from a stack screen must keep the reader's place, and plain focus() scrolls to the heading.
+        (heading.current as unknown as HTMLElement).focus({ preventScroll: true });
       } else {
         AccessibilityInfo.sendAccessibilityEvent(heading.current, 'focus');
       }

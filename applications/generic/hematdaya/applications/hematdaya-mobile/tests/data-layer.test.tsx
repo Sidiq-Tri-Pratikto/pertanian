@@ -3,7 +3,7 @@ import * as SecureStore from 'expo-secure-store';
 import { useRef, type ComponentRef } from 'react';
 import { AccessibilityInfo, Platform, View } from 'react-native';
 
-import { getSummary } from '@/api/client';
+import { getAsset, getAssets, getAssetSummary, getSummary } from '@/api/client';
 import { ApiError } from '@/api/errors';
 import { endsSession, retryDelay, shouldRetry } from '@/api/query-client';
 import { HDSheetDialog } from '@/components/hd/HDSheetDialog';
@@ -92,6 +92,73 @@ describe('api client', () => {
     const [url, init] = fetchMock.mock.calls[0];
     expect(String(url)).toContain('/api/v1/sites/site%201/summary?preset=today');
     expect((init?.headers as Record<string, string>).Authorization).toBe('Bearer hdd_v1_fake');
+  });
+});
+
+describe('asset reads', () => {
+  afterEach(() => jest.restoreAllMocks());
+
+  const asset = (id: string) => ({ id, name: id, category: null, location: null, scope_kind: 'device', parent_asset_id: null, expected_use: 'unknown', archived: false });
+  const notFound = {
+    error: { code: 'NOT_FOUND', message: 'Data tidak ditemukan. Periksa kembali pilihan Anda.', request_id: 'ref_404', recovery: { retryable: false } },
+  };
+
+  it('follows every page of assets, in order, with the bearer token', async () => {
+    const fetchMock = jest.spyOn(globalThis, 'fetch').mockImplementation(async (input) =>
+      new URL(String(input)).searchParams.get('cursor')
+        ? new Response(JSON.stringify({ items: [asset('b')], next_cursor: null }))
+        : new Response(JSON.stringify({ items: [asset('a')], next_cursor: 'page 2' })),
+    );
+
+    await expect(getAssets('site 1', 'tok')).resolves.toMatchObject([{ id: 'a' }, { id: 'b' }]);
+
+    const [firstUrl, firstInit] = fetchMock.mock.calls[0];
+    expect(String(firstUrl)).toContain('/api/v1/sites/site%201/assets?limit=100');
+    expect((firstInit?.headers as Record<string, string>).Authorization).toBe('Bearer tok');
+    expect(new URL(String(fetchMock.mock.calls[1][0])).searchParams.get('cursor')).toBe('page 2');
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('stops after 20 pages when a cursor never ends', async () => {
+    const fetchMock = jest
+      .spyOn(globalThis, 'fetch')
+      .mockImplementation(async () => new Response(JSON.stringify({ items: [asset('a')], next_cursor: 'again' })));
+
+    await expect(getAssets('site-1', 'tok')).resolves.toHaveLength(20);
+
+    expect(fetchMock).toHaveBeenCalledTimes(20);
+  });
+
+  it('encodes the asset ID and reads one asset', async () => {
+    const fetchMock = jest
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValue(new Response(JSON.stringify({ ...asset('a/b'), bindings: [], sources: [] })));
+
+    await expect(getAsset('a/b', 'tok')).resolves.toMatchObject({ id: 'a/b' });
+
+    expect(String(fetchMock.mock.calls[0][0])).toContain('/api/v1/assets/a%2Fb');
+  });
+
+  it('reads one asset summary for the period', async () => {
+    const fetchMock = jest.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify({ window: {}, scope: {}, coverage: {}, assets: [], energy_kwh: null })),
+    );
+
+    await getAssetSummary('a 1', { preset: 'today' }, 'tok');
+
+    expect(String(fetchMock.mock.calls[0][0])).toContain('/api/v1/assets/a%201/summary?preset=today');
+  });
+
+  it.each([
+    ['getAssets', () => getAssets('s', 'tok')],
+    ['getAsset', () => getAsset('a', 'tok')],
+    ['getAssetSummary', () => getAssetSummary('a', { preset: 'today' }, 'tok')],
+  ])('%s refuses an unexpected body and passes on a not-found failure', async (_name, read) => {
+    const fetchMock = jest.spyOn(globalThis, 'fetch').mockImplementation(async () => new Response(JSON.stringify({ secret: 'x' })));
+    await expect(read()).rejects.toMatchObject({ code: 'UNEXPECTED_RESPONSE' });
+
+    fetchMock.mockImplementation(async () => new Response(JSON.stringify(notFound), { status: 404 }));
+    await expect(read()).rejects.toMatchObject({ name: 'ApiError', code: 'NOT_FOUND', requestId: 'ref_404' });
   });
 });
 

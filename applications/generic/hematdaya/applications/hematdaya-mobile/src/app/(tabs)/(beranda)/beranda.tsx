@@ -14,7 +14,7 @@ import { HDScreen } from '@/components/hd/HDScreen';
 import { HDText } from '@/components/hd/HDText';
 import { tokens } from '@/design/tokens.generated';
 import { CONTEXT_EXAMPLES, useContextPreset } from '@/features/context-preset';
-import { berandaModel } from '@/features/energy/beranda-model';
+import { berandaModel, shownOrigins } from '@/features/energy/beranda-model';
 import { useSummary } from '@/features/energy/useSummary';
 import { FeaturedInsight } from '@/features/insights/FeaturedInsight';
 import { useNavigationContext } from '@/features/navigation-context/NavigationContextProvider';
@@ -115,7 +115,7 @@ type PopulatedProps = { data: Summary; refreshing: boolean; failed: string | nul
 function PopulatedBeranda({ data, refreshing, failed, onRefresh }: PopulatedProps) {
   const { workspace } = useWorkspace();
   const { period, setPeriod } = useNavigationContext();
-  const { openFeature, openSettings } = useTabNavigation();
+  const { openAsset, openFeature, openSettings } = useTabNavigation();
   const model = berandaModel(data);
   const largest = model.ranking[0];
 
@@ -138,8 +138,7 @@ function PopulatedBeranda({ data, refreshing, failed, onRefresh }: PopulatedProp
         gaps={model.state === 'partial' ? model.gaps : []}
         periodLabel={model.periodLabel}
         scopeLabel={model.scopeLabel}
-        // Every demo workspace is simulated, so its tag stays even for a period without readings.
-        origins={model.origins.length || workspace?.scenarioId === 'empty' ? model.origins : ['simulated']}
+        origins={shownOrigins(model.origins, workspace?.scenarioId)}
         emptyDetail={model.emptyDetail}
         issues={model.issues}
         action={
@@ -201,10 +200,16 @@ function PopulatedBeranda({ data, refreshing, failed, onRefresh }: PopulatedProp
       />
       {model.ranking.length ? (
         <View style={styles.section}>
+          {largest && largest.share !== null ? (
+            <HDButton variant="primary" icon="chevronRight" onPress={() => openAsset(largest.assetId)}>
+              Lihat perangkat terbesar
+            </HDButton>
+          ) : null}
           <HDContributionRanking
             items={model.ranking}
             periodLabel={model.periodLabel}
             denominatorLabel={`${model.ranking.length} perangkat yang dipantau`}
+            onOpen={openAsset}
           />
           <HDChartDataAlternative
             summary={

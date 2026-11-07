@@ -15,12 +15,20 @@ export type BerandaModel = {
   gaps: string[];
   emptyDetail: string | null;
   issues: string[];
-  ranking: { name: string; kwh: string; share: string | null; width: number; coverage: string }[];
+  ranking: { assetId: string; name: string; kwh: string; share: string | null; width: number; coverage: string }[];
   totalLabel: string | null;
   latest: string | null;
   origins: string[];
   allocated: boolean;
 };
+
+/**
+ * The origins a screen names beside its numbers. Every demo workspace is simulated, so its tag stays even for a
+ * period without readings.
+ */
+export function shownOrigins(origins: string[], scenarioId: string | undefined): string[] {
+  return origins.length || scenarioId === 'empty' ? origins : ['simulated'];
+}
 
 /** Turn a summary into what S03 shows, in reading order. Every value comes from the service's strings. */
 export function berandaModel(summary: Summary): BerandaModel {
@@ -76,6 +84,7 @@ export function berandaModel(summary: Summary): BerandaModel {
       state === 'conflict'
         ? []
         : counted.map((asset) => ({
+            assetId: asset.asset_id,
             name: asset.name,
             kwh: formatKwh(asset.energy_kwh!),
             share: asset.share_percent,

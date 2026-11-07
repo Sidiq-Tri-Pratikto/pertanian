@@ -1,5 +1,8 @@
 import { router } from 'expo-router';
 import { act, fireEvent, renderRouter, screen } from 'expo-router/testing-library';
+import { Platform, Text, View } from 'react-native';
+
+import { HDScreen } from '@/components/hd/HDScreen';
 
 import householdWeek from '../../../contracts/golden/summary-h-week.json';
 
@@ -142,10 +145,49 @@ describe('navigation', () => {
     expect(await screen.findByRole('heading', { name: 'Jadwal pemakaian' })).toBeOnTheScreen();
   });
 
+  it('lists only what is still planned in settings', async () => {
+    await startAtBeranda();
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Pengaturan' }));
+    await screen.findByRole('heading', { name: 'Pengaturan' });
+
+    expect(screen.queryByRole('link', { name: 'Daftar perangkat, segera hadir' })).toBeNull();
+    expect(screen.queryByRole('link', { name: 'Data demo, segera hadir' })).toBeNull();
+    expect(screen.getByRole('link', { name: 'Riwayat perangkat, segera hadir' })).toBeOnTheScreen();
+    expect(screen.getByRole('link', { name: 'Jadwal pemakaian, segera hadir' })).toBeOnTheScreen();
+  });
+
   it('handles an unknown feature address honestly', async () => {
     await renderRouter('./src/app', { initialUrl: '/segera-hadir/tidak-ada' });
 
     expect(await screen.findByRole('heading', { name: 'Fitur tidak ditemukan' })).toBeOnTheScreen();
+  });
+});
+
+describe('screen focus', () => {
+  const realOS = Platform.OS;
+
+  afterEach(() => {
+    Platform.OS = realOS;
+  });
+
+  it('moves focus to the heading on web without scrolling to it', async () => {
+    Platform.OS = 'web';
+    const focus = Text.prototype.focus as jest.Mock;
+    focus.mockClear();
+
+    await renderRouter(
+      {
+        index: () => (
+          <HDScreen title="Judul">
+            <View />
+          </HDScreen>
+        ),
+      },
+      { initialUrl: '/' },
+    );
+
+    expect(focus).toHaveBeenLastCalledWith({ preventScroll: true });
   });
 });
 

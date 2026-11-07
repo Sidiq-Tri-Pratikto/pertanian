@@ -1,4 +1,15 @@
-import { formatDate, formatDateRange, formatDateTime, formatGap, formatKwh, formatPercent, formatRatio } from '@/lib/format';
+import {
+  formatAssetMeta,
+  formatCadence,
+  formatDate,
+  formatDateRange,
+  formatDateTime,
+  formatGap,
+  formatKwh,
+  formatPercent,
+  formatRatio,
+  formatResolution,
+} from '@/lib/format';
 
 describe('Indonesian formatting from decimal strings', () => {
   it.each([
@@ -43,5 +54,32 @@ describe('Indonesian formatting from decimal strings', () => {
     expect(formatGap('2026-10-22T07:00:00Z', '2026-10-22T09:00:00Z', 'Asia/Jakarta')).toBe('22 Oktober 2026 14.00–16.00');
     expect(formatGap('2026-10-23T17:00:00Z', '2026-10-25T17:00:00Z', 'Asia/Jakarta')).toBe('24–25 Oktober 2026');
     expect(formatGap('2026-10-24T13:00:00Z', '2026-10-24T17:00:00Z', 'Asia/Jakarta')).toBe('24 Oktober 2026 20.00–24.00');
+  });
+
+  it.each([
+    [3600, '1 jam'],
+    [7200, '2 jam'],
+    [900, '15 menit'],
+    [90, '90 detik'],
+  ])('formats a cadence of %i seconds as %s', (seconds, expected) => {
+    expect(formatCadence(seconds)).toBe(expected);
+  });
+
+  it.each([
+    [1000, '0,001 kWh'],
+    [1500, '0,0015 kWh'],
+    [1, '0,000001 kWh'],
+    [1000000, '1 kWh'],
+  ])('formats a resolution of %i mWh as %s', (mwh, expected) => {
+    expect(formatResolution(mwh)).toBe(expected);
+  });
+
+  it.each([
+    ['device', 'Dapur', 'Pendingin makanan', 'Perangkat · Dapur · Pendingin makanan'],
+    ['meter', 'Teras', null, 'Meter lokasi · Teras'],
+    ['group', null, null, 'Grup'],
+    ['circuit', null, 'Mesin', 'Sirkuit · Mesin'],
+  ] as const)('labels kind %s, location %s, category %s', (kind, location, category, expected) => {
+    expect(formatAssetMeta(kind, location, category)).toBe(expected);
   });
 });

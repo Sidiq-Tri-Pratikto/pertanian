@@ -3,6 +3,10 @@
  * the service is the one calculation authority, and this file only rearranges its digits.
  */
 
+const MINUTE_SECONDS = 60;
+const HOUR_SECONDS = 3600;
+const MWH_DECIMALS = 6;
+
 const MONTHS = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober',
   'November', 'Desember']; // prettier-ignore
 
@@ -31,6 +35,36 @@ export function formatRatio(value: string): string {
   const integer = `${whole}${padded.slice(0, 2)}`.replace(/^0+(?=\d)/, '');
   const rest = padded.slice(2).replace(/0+$/, '');
   return `${integer}${rest ? `,${rest}` : ''}%`;
+}
+
+/** A source's interval: `1 jam`, `15 menit`, or `90 detik` when it is not a whole number of either. */
+export function formatCadence(seconds: number): string {
+  if (seconds % HOUR_SECONDS === 0) {
+    return `${seconds / HOUR_SECONDS} jam`;
+  }
+  return seconds % MINUTE_SECONDS === 0 ? `${seconds / MINUTE_SECONDS} menit` : `${seconds} detik`;
+}
+
+/** A resolution in integer mWh, `1500` → `0,0015 kWh`, by moving the decimal point on the digits. */
+export function formatResolution(mwh: number): string {
+  const digits = String(mwh).padStart(MWH_DECIMALS + 1, '0');
+  const whole = digits.slice(0, -MWH_DECIMALS);
+  const fraction = digits.slice(-MWH_DECIMALS).replace(/0+$/, '');
+  return formatKwh(fraction ? `${whole}.${fraction}` : whole);
+}
+
+export type AssetKind = 'device' | 'circuit' | 'group' | 'meter';
+
+export const KIND_LABEL: Record<AssetKind, string> = {
+  device: 'Perangkat',
+  circuit: 'Sirkuit',
+  group: 'Grup',
+  meter: 'Meter lokasi',
+};
+
+/** What an asset is and where: `Perangkat · Dapur · Pendingin makanan`, leaving out what is absent. */
+export function formatAssetMeta(kind: AssetKind, location: string | null, category: string | null): string {
+  return [KIND_LABEL[kind], location, category].filter(Boolean).join(' · ');
 }
 
 function dateParts(isoDate: string): [number, number, number] {

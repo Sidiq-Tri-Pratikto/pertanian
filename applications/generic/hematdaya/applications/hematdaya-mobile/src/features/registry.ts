@@ -59,7 +59,7 @@ export const FEATURES: Feature[] = [
     points: ['Jenis cakupan tampil di setiap baris', 'Nama panjang tetap utuh', 'Tidak ada tombol nyala atau mati'],
     screens: ['S04'],
     specs: ['014'],
-    status: 'coming_soon',
+    status: 'available',
   },
   {
     id: 'detail-perangkat',

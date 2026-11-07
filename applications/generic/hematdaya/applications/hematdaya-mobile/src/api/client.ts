@@ -211,3 +211,62 @@ export function sendFeedback(insightId: string, revision: number, action: Feedba
 export function getHiddenInsights(siteId: string, period: PeriodQuery, token: string): Promise<HiddenInsights> {
   return apiRequest(`/api/v1/sites/${encodeURIComponent(siteId)}/insights/hidden`, { token, query: period }, isHiddenInsights);
 }
+
+export type Asset = components['schemas']['AssetResponse'];
+export type AssetPage = components['schemas']['AssetPageResponse'];
+export type AssetDetail = components['schemas']['AssetDetailResponse'];
+export type AssetSource = components['schemas']['SourceResponse'];
+export type AssetBinding = components['schemas']['BindingResponse'];
+export type AssetEnergy = components['schemas']['AssetEnergyResponse'];
+export type ScopeKind = components['schemas']['ScopeKind'];
+export type SourceOrigin = components['schemas']['SourceOrigin'];
+export type TransportStatus = components['schemas']['TransportStatus'];
+
+const ASSET_PAGE_SIZE = '100';
+const MAX_ASSET_PAGES = 20;
+
+function isAssetPage(value: unknown): value is AssetPage {
+  return (
+    isRecord(value) &&
+    Array.isArray(value.items) &&
+    value.items.every((item: unknown) => isRecord(item) && typeof item.id === 'string') &&
+    (value.next_cursor === null || typeof value.next_cursor === 'string')
+  );
+}
+
+function isAssetDetail(value: unknown): value is AssetDetail {
+  return (
+    isRecord(value) &&
+    typeof value.id === 'string' &&
+    typeof value.name === 'string' &&
+    Array.isArray(value.bindings) &&
+    Array.isArray(value.sources)
+  );
+}
+
+/** Every asset of a site, following the cursor. The page limit stops a cursor that never ends. */
+export async function getAssets(siteId: string, token: string): Promise<Asset[]> {
+  const assets: Asset[] = [];
+  let cursor: string | undefined;
+  for (let page = 0; page < MAX_ASSET_PAGES; page += 1) {
+    const { items, next_cursor: next }: AssetPage = await apiRequest(
+      `/api/v1/sites/${encodeURIComponent(siteId)}/assets`,
+      { token, query: { limit: ASSET_PAGE_SIZE, cursor } },
+      isAssetPage,
+    );
+    assets.push(...items);
+    if (next === null) {
+      break;
+    }
+    cursor = next;
+  }
+  return assets;
+}
+
+export function getAsset(assetId: string, token: string): Promise<AssetDetail> {
+  return apiRequest(`/api/v1/assets/${encodeURIComponent(assetId)}`, { token }, isAssetDetail);
+}
+
+export function getAssetSummary(assetId: string, period: PeriodQuery, token: string): Promise<Summary> {
+  return apiRequest(`/api/v1/assets/${encodeURIComponent(assetId)}/summary`, { token, query: period }, isSummary);
+}
