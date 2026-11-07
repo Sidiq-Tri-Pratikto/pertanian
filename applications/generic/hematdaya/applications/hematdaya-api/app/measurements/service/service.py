@@ -2,6 +2,7 @@
 
 from datetime import datetime
 from typing import Any
+from uuid import UUID
 
 from app.assets.model.models import SourceModel
 from app.measurements.model.models import IngestResult, MeasurementRow, ReadingInput, Rejection, StoredKind
@@ -91,6 +92,31 @@ class IngestService:
             result.affected_from = min(start for start, _ in spans)
             result.affected_to = max(end for _, end in spans)
         return result
+
+    async def current_rows(self, source_id: UUID, identity_keys: list[str]) -> dict[str, MeasurementRow]:
+        """Read the current revision of known identities. Takes no lock, so a concurrent write may land after it.
+
+        Args:
+            source_id (UUID): The source.
+            identity_keys (list[str]): Identities to look up.
+
+        Returns:
+            dict[str, MeasurementRow]: Current rows by identity; unknown identities are absent.
+        """
+        return await self.repository.current_rows(source_id, identity_keys)
+
+    async def stored_intervals(self, source_id: UUID, start: datetime, end: datetime) -> list[MeasurementRow]:
+        """Read current rows with energy overlapping a half-open window. Takes no lock.
+
+        Args:
+            source_id (UUID): The source.
+            start (datetime): Window start, inclusive.
+            end (datetime): Window end, exclusive.
+
+        Returns:
+            list[MeasurementRow]: Rows by interval start. Adjacent intervals are not included.
+        """
+        return await self.repository.stored_intervals(source_id, start, end)
 
     async def _rederive_counter(self, source: SourceModel, received_at: datetime) -> list[tuple[datetime, datetime]]:
         # ponytail: re-derives all of one source's deltas per counter batch; window it by neighbouring readings

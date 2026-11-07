@@ -1,6 +1,6 @@
 """AT-41 owner isolation. Every data route joins this table in the spec that adds it."""
 
-from collections.abc import Callable
+from collections.abc import AsyncIterator, Callable
 from uuid import UUID
 
 import pytest
@@ -10,6 +10,7 @@ from tests.integration.conftest import (
     execute,
     make_asset,
     make_binding,
+    make_import,
     make_principal,
     make_site,
     make_source,
@@ -32,6 +33,9 @@ FOREIGN_ROUTES = [
     ("GET", "/api/v1/assets/{asset}/measurements?preset=last_7_days", None),
     ("GET", "/api/v1/assets/{asset}/comparison?preset=last_7_days", None),
     ("GET", "/api/v1/sites/{site}/insights?preset=last_7_days", None),
+    ("POST", "/api/v1/sites/{site}/imports/preview", None),
+    ("GET", "/api/v1/imports/{import}", None),
+    ("GET", "/api/v1/imports/{import}/errors", None),
     ("GET", "/api/v1/sites/{site}/insights/hidden?preset=last_7_days", None),
 ]
 
@@ -52,7 +56,8 @@ async def test_foreign_resources_look_missing(
     asset = await make_asset(site)
     source = await make_source(site)
     binding = await make_binding(site, asset, source)
-    ids = {"site": site, "asset": asset, "source": source, "binding": binding}
+    import_id = await make_import(site)
+    ids = {"site": site, "asset": asset, "source": source, "binding": binding, "import": import_id}
     if body is not None:
         body = {key: value.format(**ids) if isinstance(value, str) else value for key, value in body.items()}
 
@@ -65,3 +70,34 @@ async def test_foreign_resources_look_missing(
     assert (await execute("SELECT count(*) FROM assets WHERE site_id = :id", id=site))[0][0] == 1
     assert (await execute("SELECT effective_to FROM bindings WHERE id = :id", id=binding))[0][0] is None
     assert (await execute("SELECT count(*) FROM audit_events WHERE site_id = :id", id=site))[0][0] == 0
+    assert (await execute("SELECT count(*) FROM imports WHERE site_id = :id", id=site))[0][0] == 1
+
+
+async def test_a_foreign_preview_answers_before_its_body_is_read(
+    client: AsyncClient, acting: Callable[[UUID], dict]
+) -> None:
+    """
+    Condition:
+    - Principal B streams an upload to principal A's site.
+
+    Expected:
+    - NOT_FOUND, with no part of the body consumed, so a foreign upload costs nothing.
+    """
+    owner, intruder = await make_principal(), await make_principal()
+    site = await make_site(owner)
+    consumed = {"chunks": 0}
+
+    async def body_stream() -> AsyncIterator[bytes]:
+        consumed["chunks"] += 1
+        yield b"--limit\r\n"
+
+    response = await client.post(
+        f"/api/v1/sites/{site}/imports/preview",
+        content=body_stream(),
+        headers=acting(intruder) | {"Content-Type": "multipart/form-data; boundary=limit"},
+    )
+
+    assert response.status_code == 404
+    assert response.json()["error"]["code"] == "NOT_FOUND"
+    assert consumed["chunks"] == 0
+    assert (await execute("SELECT count(*) FROM imports WHERE site_id = :id", id=site))[0][0] == 0

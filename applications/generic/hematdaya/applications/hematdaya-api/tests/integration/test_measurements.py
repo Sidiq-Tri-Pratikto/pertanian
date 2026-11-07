@@ -11,7 +11,8 @@ import pytest
 from app.assets.model.models import MeasurementKind, SourceModel, SourceOrigin, TransportStatus
 from app.core.database import get_session_factory
 from app.measurements.dependencies import build_ingest_service
-from app.measurements.model.models import IngestResult, ReadingInput
+from app.measurements.model.models import IngestResult, ReadingInput, StoredKind
+from app.measurements.service.normalize import normalize
 from app.sites.repository.sqlalchemy.repository import SqlAlchemySiteRepository
 from tests.integration.conftest import execute, make_principal, make_site
 
@@ -216,3 +217,116 @@ async def test_ten_thousand_rows_ingest_in_one_batch() -> None:
 
     print(f"10,000-row ingest took {took:.2f}s")
     assert (first.added, replay.repeated) == (10_000, 10_000)
+
+
+async def test_current_rows_returns_current_revisions_through_the_service() -> None:
+    """
+    Condition:
+    - Two stored hours, one corrected to a second revision, and one identity never stored.
+
+    Expected:
+    - The service returns the current revision for each known identity and omits the unknown one.
+    """
+    source = await _source()
+    await _ingest(source, _hourly(2))
+    await _ingest(source, _hourly(1, wh="60"))
+    known = [normalize(reading, MeasurementKind.INTERVAL_ENERGY).identity_key for reading in _hourly(3)]
+
+    async with get_session_factory()() as session:
+        rows = await build_ingest_service(session).current_rows(source.id, known)
+
+    assert set(rows) == set(known[:2])
+    assert (rows[known[0]].revision, rows[known[0]].raw_value) == (2, "60")
+    assert (rows[known[1]].revision, rows[known[1]].raw_value) == (1, "50")
+
+
+async def test_stored_intervals_overlap_the_half_open_window_only() -> None:
+    """
+    Condition:
+    - Hours 0, 1 and 2 are stored, and the window is exactly hour 1.
+
+    Expected:
+    - Only hour 1 returns: both neighbours are adjacent, and adjacent half-open intervals do not overlap.
+    """
+    source = await _source()
+    await _ingest(source, _hourly(3))
+
+    async with get_session_factory()() as session:
+        rows = await build_ingest_service(session).stored_intervals(
+            source.id, T0 + timedelta(hours=1), T0 + timedelta(hours=2)
+        )
+
+    assert [row.interval_start for row in rows] == [T0 + timedelta(hours=1)]
+
+
+async def test_stored_intervals_are_ordered_and_include_partial_overlaps() -> None:
+    """
+    Condition:
+    - Hours 0, 1 and 2 are stored, and the window reaches into hours 0 and 2 by a minute each.
+
+    Expected:
+    - All three return in time order.
+    """
+    source = await _source()
+    await _ingest(source, list(reversed(_hourly(3))))
+
+    async with get_session_factory()() as session:
+        rows = await build_ingest_service(session).stored_intervals(
+            source.id, T0 + timedelta(minutes=59), T0 + timedelta(hours=2, minutes=1)
+        )
+
+    assert [row.interval_start for row in rows] == [T0 + timedelta(hours=hour) for hour in range(3)]
+
+
+async def test_stored_intervals_exclude_points_and_keep_counter_deltas() -> None:
+    """
+    Condition:
+    - A counter source with three readings: its points have no energy, and its derived deltas do.
+
+    Expected:
+    - Only the deltas return, because a point has no interval and no energy.
+    """
+    source = await _source(MeasurementKind.COUNTER)
+    await _ingest(source, _counter((0, "100"), (1, "130"), (2, "150")))
+
+    async with get_session_factory()() as session:
+        rows = await build_ingest_service(session).stored_intervals(source.id, T0, T0 + timedelta(hours=2))
+
+    assert [row.kind for row in rows] == [StoredKind.COUNTER_DELTA, StoredKind.COUNTER_DELTA]
+    assert all(row.energy_mwh is not None for row in rows)
+
+
+async def test_stored_intervals_use_the_current_revision_only() -> None:
+    """
+    Condition:
+    - One hour stored, then corrected.
+
+    Expected:
+    - One row returns, holding the correction.
+    """
+    source = await _source()
+    await _ingest(source, _hourly(1))
+    await _ingest(source, _hourly(1, wh="60"))
+
+    async with get_session_factory()() as session:
+        rows = await build_ingest_service(session).stored_intervals(source.id, T0, T0 + timedelta(hours=1))
+
+    assert [(row.revision, row.energy_mwh) for row in rows] == [(2, 60_000)]
+
+
+async def test_stored_intervals_are_scoped_to_one_source() -> None:
+    """
+    Condition:
+    - Two sources store the same hour.
+
+    Expected:
+    - A read of one returns only its own row.
+    """
+    first, second = await _source(), await _source()
+    await _ingest(first, _hourly(1))
+    await _ingest(second, _hourly(1, wh="60"))
+
+    async with get_session_factory()() as session:
+        rows = await build_ingest_service(session).stored_intervals(first.id, T0, T0 + timedelta(hours=1))
+
+    assert [row.energy_mwh for row in rows] == [50_000]

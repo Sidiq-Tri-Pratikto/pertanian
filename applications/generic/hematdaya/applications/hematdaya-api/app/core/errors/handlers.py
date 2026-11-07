@@ -73,7 +73,7 @@ async def handle_app_error(request: Request, error: AppError) -> JSONResponse:
     """
     public = replace(public_error_for_code(error.code), recovery=dict(error.recovery))
     _record(request, error, public.http_status)
-    return respond(public, error.reference_id, headers=error.headers)
+    return respond(public, error.reference_id, details=error.details, headers=error.headers)
 
 
 async def handle_http_error(request: Request, error: StarletteHTTPException) -> JSONResponse:

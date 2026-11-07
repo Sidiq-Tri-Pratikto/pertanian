@@ -1,8 +1,8 @@
 # Feature Specification: Import preview
 
-**Feature Branch**: `025-import-preview`
+**Feature Branch**: `m5/csv-parser`
 **Created**: 2026-10-30
-**Status**: Seeded, not started
+**Status**: Built, awaiting review
 **Milestone**: M5 CSV
 **Depends on**: 024
 **Size**: M
@@ -19,7 +19,7 @@
 
 **Acceptance Scenarios**:
 
-1. **Given** a parsed file and mapping, **When** previewed, **Then** counts reconcile: accepted unique + invalid + exact duplicate + conflicting = all nonblank data rows.
+1. **Given** a parsed file and mapping, **When** previewed, **Then** counts reconcile: accepted unique + invalid + exact duplicate + conflicting + pending = all nonblank data rows. Rows are pending only while a question is open, and a preview with pending rows is blocked.
 2. **Given** 2 of 10 rows invalid, **When** previewed, **Then** eight rows can import only after explicit acknowledgment.
 3. **Given** 3 of 10 invalid, **When** previewed, **Then** commit is blocked with `Impor diblokir: 3 dari 10 baris tidak valid.`
 
@@ -45,14 +45,18 @@
 **Acceptance Scenarios**:
 
 1. **Given** two assets with one name, **When** mapped, **Then** the user must pick with location, type and ID context.
-2. **Given** a target asset with another source, **When** mapped, **Then** preview requires an explicit choice and never adds them.
-3. **Given** unknown overlap with existing loads, **When** confirmed as unknown, **Then** the import proceeds and totals are refused until scope is resolved.
+2. **Given** a target asset with another source over the file's period, **When** mapped, **Then** preview requires an explicit choice of a new asset and never adds them. Source authority is then chosen in 028.
+3. **Given** unknown overlap with existing loads, **When** confirmed as unknown, **Then** the preview is not blocked and stores that answer. 026 records the relation, and totals stay refused until scope is resolved.
 
 ### Edge Cases
 
 - A preview survives a restart: it lives in Postgres.
 - Skipped invalid rows cannot waive structural, meaning or scope conflicts.
 - Stale previews are rejected at commit if stored data changed.
+- An uncommitted preview expires after 24 hours of wall-clock time. A site keeps at most 5 uncommitted previews.
+- One stream maps to one asset. A source used by two asset names, or two sources on one asset, must be resolved before commit.
+- Rows ending after the workspace's product time are listed as an assumption, because reads exclude them until that time arrives.
+- A preview on an expiring demo workspace ends with that workspace.
 
 ## Requirements
 
@@ -60,10 +64,13 @@
 
 - **FR-001**: Previews MUST be stored with mapping, counts, assumptions and row results.
 - **FR-002**: The invalid share MUST use all nonblank data rows as denominator; up to and including 20% may proceed.
-- **FR-003**: Limits MUST be enforced server-side.
-- **FR-004**: Preview MUST NOT change measurements.
+- **FR-003**: Limits MUST be enforced server-side, including a cap that stops an oversized upload before it is read in full.
+- **FR-004**: Preview MUST NOT change measurements, assets, sources, bindings, relations, audit events or site revisions.
 - **FR-005**: Assumptions MUST be listed before confirmation.
-- **FR-006**: Preview MUST classify interval overlaps after resolving source identity and MUST limit inline row errors, with remaining errors available by cursor.
+- **FR-006**: Preview MUST classify interval overlaps after resolving source identity and MUST limit inline row errors, with remaining errors available by cursor. Exact duplicates and changed values MUST use 006's identity and comparison, so the preview and a later commit agree.
+- **FR-007**: A foreign site or import MUST return `NOT_FOUND` before any upload is read, and so MUST an asset ID outside the site. Import is core: it MUST work under the `core-only` composition with no capability guard.
+- **FR-008**: Structural and limit failures MUST use `APP-IMPORT-STRUCTURE` and `APP-IMPORT-TOO-LARGE`, with row or limit details, and `APP-IMPORT-BLOCKED` MUST be registered for commit. All follow rule 008, including the catalog. A blocked preview is a stored result, not an error.
+- **FR-009**: The routes MUST appear in `contracts/openapi.json` and the generated mobile client.
 
 ### Key Entities
 
