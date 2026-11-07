@@ -391,3 +391,24 @@ async def test_invalid_periods_are_refused(client: AsyncClient, params: dict, co
     response = await client.get(f"/api/v1/sites/{session['site_id']}/summary", params=params, headers=session["auth"])
 
     assert (response.status_code, response.json()["error"]["code"]) == (400, code)
+
+
+@pytest.mark.parametrize("scenario", ["h-base", "h-scope", "h-learning-partial"])
+async def test_asset_summary_row_matches_the_site_summary_row(client: AsyncClient, scenario: str) -> None:
+    """
+    Condition:
+    - One seeded demo workspace at its initial period, read through both summary routes.
+
+    Expected:
+    - Every asset's row from its own summary equals its row from the site summary, apart from ``share_percent``.
+    """
+    session = await start_demo(client, scenario)
+    initial = session["initial_period"]
+    period = {"start_date": initial["start_date"], "end_date": initial["end_date"]}
+    site = await summary(client, session, **period)
+
+    assert site["assets"]
+    for row in site["assets"]:
+        own = await summary(client, session, f"/api/v1/assets/{row['asset_id']}/summary", **period)
+        assert len(own["assets"]) == 1
+        assert {**own["assets"][0], "share_percent": None} == {**row, "share_percent": None}

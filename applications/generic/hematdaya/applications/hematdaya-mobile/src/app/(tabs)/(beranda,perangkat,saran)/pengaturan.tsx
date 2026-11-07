@@ -15,7 +15,7 @@ export default function PengaturanScreen() {
     <HDScreen title="Pengaturan" onBack={back}>
       <View>
         <HDText variant="section">Rencana fitur</HDText>
-        {FEATURES.map((feature) => (
+        {FEATURES.filter((feature) => feature.status === 'coming_soon').map((feature) => (
           <FeatureRow key={feature.id} feature={feature} onPress={() => openFeature(feature.id)} />
         ))}
       </View>

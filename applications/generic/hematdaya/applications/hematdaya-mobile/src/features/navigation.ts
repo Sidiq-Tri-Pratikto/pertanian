@@ -13,6 +13,7 @@ export function useTabNavigation() {
     openHidden: () => router.push(inTab('saran/tersembunyi')),
     openEvidence: (id: string, revision: number) =>
       router.push(inTab(`saran/${encodeURIComponent(id)}?revision=${revision}`)),
+    openAsset: (id: string) => router.push(inTab(`asset/${encodeURIComponent(id)}`)),
     back: () => (router.canGoBack() ? router.back() : router.replace('/beranda')),
   };
 }

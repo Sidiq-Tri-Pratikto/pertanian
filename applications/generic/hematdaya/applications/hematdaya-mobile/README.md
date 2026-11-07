@@ -31,6 +31,8 @@ make check          # lint, typecheck, tests, 80% coverage gate
 | `tests/navigation.test.tsx` | Welcome, exactly three tabs, Segera hadir, service status states |
 | `tests/registry.test.ts` | Every planned screen has an entry, and each entry has a spec folder |
 | `tests/components.test.tsx` | `HD` components |
+| `tests/perangkat.test.tsx` | Perangkat list and asset detail, from responses recorded from the service in `tests/fixtures/assets.json` |
+| `tests/asset-model.test.ts` | What a list row and asset detail show, from the same recorded responses |
 | `tests/tokens.test.ts` | Generated tokens match `design/tokens.json` |
 | `src/api/errors.test.ts` | Failure envelope parsing |
 
@@ -66,6 +68,7 @@ Where the app needs to reach the service:
 | `src/app/` | Expo Router routes. `(tabs)/` holds exactly Beranda, Perangkat and Saran |
 | `src/app/(tabs)/(beranda,perangkat,saran)/` | Detail routes shared by the three tabs, so back stays in the tab |
 | `src/components/hd/` | Native HematDaya Design System components, same names and meaning as `window.HD` |
+| `src/features/assets/` | Perangkat list and asset detail: reads, row and detail models, screens |
 | `src/features/registry.ts` | Every planned feature. A feature's pull request flips its `status` |
 | `design/tokens.json` | Copy of the design system tokens; `src/design/tokens.generated.ts` is built from it |
 | `src/api/` | API client, failure parsing, generated contract |

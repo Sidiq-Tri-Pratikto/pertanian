@@ -1,0 +1,3957 @@
+{
+  "h-base": {
+    "initial_period": {
+      "preset": "last_7_days",
+      "start_date": "2026-10-19",
+      "end_date": "2026-10-25"
+    },
+    "summary": {
+      "window": {
+        "start": "2026-10-18T17:00:00Z",
+        "end": "2026-10-25T17:00:00Z",
+        "effective_end": "2026-10-25T17:00:00Z",
+        "start_date": "2026-10-19",
+        "end_date": "2026-10-25",
+        "timezone": "Asia/Jakarta",
+        "is_current": false
+      },
+      "scope": {
+        "valid": true,
+        "issues": [],
+        "included": [
+          {
+            "asset_id": "a7da58ee-ce58-48ab-8658-37f9292017a9",
+            "name": "Kulkas"
+          },
+          {
+            "asset_id": "813bf1a8-f073-4f54-9038-6a6c14dbf2fa",
+            "name": "Pompa Air"
+          },
+          {
+            "asset_id": "c6323f64-26f3-4a4e-83e9-8dac758bb714",
+            "name": "Router"
+          },
+          {
+            "asset_id": "73ff97b0-1e23-474c-ad76-0e5c58b86a72",
+            "name": "TV"
+          }
+        ],
+        "excluded": []
+      },
+      "energy_kwh": "14.700",
+      "energy_unavailable_reason": null,
+      "coverage": {
+        "minimum": "1.000",
+        "concurrent": "1.000",
+        "allocated_estimate": false
+      },
+      "assets": [
+        {
+          "asset_id": "a7da58ee-ce58-48ab-8658-37f9292017a9",
+          "name": "Kulkas",
+          "scope_kind": "device",
+          "energy_kwh": "8.400",
+          "energy_unavailable_reason": null,
+          "share_percent": "57.14",
+          "coverage": "1.000",
+          "gaps": [],
+          "conflict_sources": null
+        },
+        {
+          "asset_id": "73ff97b0-1e23-474c-ad76-0e5c58b86a72",
+          "name": "TV",
+          "scope_kind": "device",
+          "energy_kwh": "2.520",
+          "energy_unavailable_reason": null,
+          "share_percent": "17.14",
+          "coverage": "1.000",
+          "gaps": [],
+          "conflict_sources": null
+        },
+        {
+          "asset_id": "813bf1a8-f073-4f54-9038-6a6c14dbf2fa",
+          "name": "Pompa Air",
+          "scope_kind": "device",
+          "energy_kwh": "2.100",
+          "energy_unavailable_reason": null,
+          "share_percent": "14.29",
+          "coverage": "1.000",
+          "gaps": [],
+          "conflict_sources": null
+        },
+        {
+          "asset_id": "c6323f64-26f3-4a4e-83e9-8dac758bb714",
+          "name": "Router",
+          "scope_kind": "device",
+          "energy_kwh": "1.680",
+          "energy_unavailable_reason": null,
+          "share_percent": "11.43",
+          "coverage": "1.000",
+          "gaps": [],
+          "conflict_sources": null
+        }
+      ],
+      "latest_measurement_at": "2026-10-25T17:00:00Z",
+      "origins": [
+        "simulated"
+      ],
+      "revision": 5
+    },
+    "assets": {
+      "items": [
+        {
+          "id": "a7da58ee-ce58-48ab-8658-37f9292017a9",
+          "name": "Kulkas",
+          "category": "Pendingin makanan",
+          "location": "Dapur",
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "continuous",
+          "archived": false
+        },
+        {
+          "id": "813bf1a8-f073-4f54-9038-6a6c14dbf2fa",
+          "name": "Pompa Air",
+          "category": "Pompa",
+          "location": "Halaman belakang",
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "intermittent",
+          "archived": false
+        },
+        {
+          "id": "c6323f64-26f3-4a4e-83e9-8dac758bb714",
+          "name": "Router",
+          "category": "Elektronik/TI",
+          "location": "Ruang tengah",
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "continuous",
+          "archived": false
+        },
+        {
+          "id": "73ff97b0-1e23-474c-ad76-0e5c58b86a72",
+          "name": "TV",
+          "category": "Elektronik/TI",
+          "location": "Ruang tengah",
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "intermittent",
+          "archived": false
+        }
+      ],
+      "next_cursor": null
+    },
+    "notices": [],
+    "details": {
+      "Kulkas": {
+        "asset": {
+          "id": "a7da58ee-ce58-48ab-8658-37f9292017a9",
+          "name": "Kulkas",
+          "category": "Pendingin makanan",
+          "location": "Dapur",
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "continuous",
+          "archived": false,
+          "bindings": [
+            {
+              "id": "6c969c2a-3e69-42e8-81a2-95d829720d42",
+              "source_id": "57017e21-3851-4989-ba05-b0756a0a87e8",
+              "effective_from": "2026-09-27T17:00:00Z",
+              "effective_to": null,
+              "authoritative": true
+            }
+          ],
+          "sources": [
+            {
+              "id": "57017e21-3851-4989-ba05-b0756a0a87e8",
+              "label": "Sumber demo (simulasi)",
+              "origin": "simulated",
+              "measurement_kind": "interval_energy",
+              "cadence_seconds": 3600,
+              "resolution_mwh": 1000,
+              "transport_status": "none"
+            }
+          ]
+        },
+        "summary": {
+          "window": {
+            "start": "2026-10-18T17:00:00Z",
+            "end": "2026-10-25T17:00:00Z",
+            "effective_end": "2026-10-25T17:00:00Z",
+            "start_date": "2026-10-19",
+            "end_date": "2026-10-25",
+            "timezone": "Asia/Jakarta",
+            "is_current": false
+          },
+          "scope": {
+            "valid": true,
+            "issues": [],
+            "included": [
+              {
+                "asset_id": "a7da58ee-ce58-48ab-8658-37f9292017a9",
+                "name": "Kulkas"
+              }
+            ],
+            "excluded": [
+              {
+                "asset_id": "813bf1a8-f073-4f54-9038-6a6c14dbf2fa",
+                "name": "Pompa Air",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "c6323f64-26f3-4a4e-83e9-8dac758bb714",
+                "name": "Router",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "73ff97b0-1e23-474c-ad76-0e5c58b86a72",
+                "name": "TV",
+                "reason": "not_selected"
+              }
+            ]
+          },
+          "energy_kwh": "8.400",
+          "energy_unavailable_reason": null,
+          "coverage": {
+            "minimum": "1.000",
+            "concurrent": "1.000",
+            "allocated_estimate": false
+          },
+          "assets": [
+            {
+              "asset_id": "a7da58ee-ce58-48ab-8658-37f9292017a9",
+              "name": "Kulkas",
+              "scope_kind": "device",
+              "energy_kwh": "8.400",
+              "energy_unavailable_reason": null,
+              "share_percent": "100.00",
+              "coverage": "1.000",
+              "gaps": [],
+              "conflict_sources": null
+            }
+          ],
+          "latest_measurement_at": "2026-10-25T17:00:00Z",
+          "origins": [
+            "simulated"
+          ],
+          "revision": 5
+        }
+      },
+      "Pompa Air": {
+        "asset": {
+          "id": "813bf1a8-f073-4f54-9038-6a6c14dbf2fa",
+          "name": "Pompa Air",
+          "category": "Pompa",
+          "location": "Halaman belakang",
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "intermittent",
+          "archived": false,
+          "bindings": [
+            {
+              "id": "799eec1f-9790-47dc-87ec-2cbb1727bf7e",
+              "source_id": "1681612e-8bbf-4273-b027-a6d8bfcc69f0",
+              "effective_from": "2026-09-27T17:00:00Z",
+              "effective_to": null,
+              "authoritative": true
+            }
+          ],
+          "sources": [
+            {
+              "id": "1681612e-8bbf-4273-b027-a6d8bfcc69f0",
+              "label": "Sumber demo (simulasi)",
+              "origin": "simulated",
+              "measurement_kind": "interval_energy",
+              "cadence_seconds": 3600,
+              "resolution_mwh": 1000,
+              "transport_status": "none"
+            }
+          ]
+        },
+        "summary": {
+          "window": {
+            "start": "2026-10-18T17:00:00Z",
+            "end": "2026-10-25T17:00:00Z",
+            "effective_end": "2026-10-25T17:00:00Z",
+            "start_date": "2026-10-19",
+            "end_date": "2026-10-25",
+            "timezone": "Asia/Jakarta",
+            "is_current": false
+          },
+          "scope": {
+            "valid": true,
+            "issues": [],
+            "included": [
+              {
+                "asset_id": "813bf1a8-f073-4f54-9038-6a6c14dbf2fa",
+                "name": "Pompa Air"
+              }
+            ],
+            "excluded": [
+              {
+                "asset_id": "a7da58ee-ce58-48ab-8658-37f9292017a9",
+                "name": "Kulkas",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "c6323f64-26f3-4a4e-83e9-8dac758bb714",
+                "name": "Router",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "73ff97b0-1e23-474c-ad76-0e5c58b86a72",
+                "name": "TV",
+                "reason": "not_selected"
+              }
+            ]
+          },
+          "energy_kwh": "2.100",
+          "energy_unavailable_reason": null,
+          "coverage": {
+            "minimum": "1.000",
+            "concurrent": "1.000",
+            "allocated_estimate": false
+          },
+          "assets": [
+            {
+              "asset_id": "813bf1a8-f073-4f54-9038-6a6c14dbf2fa",
+              "name": "Pompa Air",
+              "scope_kind": "device",
+              "energy_kwh": "2.100",
+              "energy_unavailable_reason": null,
+              "share_percent": "100.00",
+              "coverage": "1.000",
+              "gaps": [],
+              "conflict_sources": null
+            }
+          ],
+          "latest_measurement_at": "2026-10-25T17:00:00Z",
+          "origins": [
+            "simulated"
+          ],
+          "revision": 5
+        }
+      },
+      "Router": {
+        "asset": {
+          "id": "c6323f64-26f3-4a4e-83e9-8dac758bb714",
+          "name": "Router",
+          "category": "Elektronik/TI",
+          "location": "Ruang tengah",
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "continuous",
+          "archived": false,
+          "bindings": [
+            {
+              "id": "77aa8892-cf53-4f4b-bc90-bf025457fa4b",
+              "source_id": "ed25ba5c-aefc-421d-9b18-1f74faf015cf",
+              "effective_from": "2026-09-27T17:00:00Z",
+              "effective_to": null,
+              "authoritative": true
+            }
+          ],
+          "sources": [
+            {
+              "id": "ed25ba5c-aefc-421d-9b18-1f74faf015cf",
+              "label": "Sumber demo (simulasi)",
+              "origin": "simulated",
+              "measurement_kind": "interval_energy",
+              "cadence_seconds": 3600,
+              "resolution_mwh": 1000,
+              "transport_status": "none"
+            }
+          ]
+        },
+        "summary": {
+          "window": {
+            "start": "2026-10-18T17:00:00Z",
+            "end": "2026-10-25T17:00:00Z",
+            "effective_end": "2026-10-25T17:00:00Z",
+            "start_date": "2026-10-19",
+            "end_date": "2026-10-25",
+            "timezone": "Asia/Jakarta",
+            "is_current": false
+          },
+          "scope": {
+            "valid": true,
+            "issues": [],
+            "included": [
+              {
+                "asset_id": "c6323f64-26f3-4a4e-83e9-8dac758bb714",
+                "name": "Router"
+              }
+            ],
+            "excluded": [
+              {
+                "asset_id": "a7da58ee-ce58-48ab-8658-37f9292017a9",
+                "name": "Kulkas",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "813bf1a8-f073-4f54-9038-6a6c14dbf2fa",
+                "name": "Pompa Air",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "73ff97b0-1e23-474c-ad76-0e5c58b86a72",
+                "name": "TV",
+                "reason": "not_selected"
+              }
+            ]
+          },
+          "energy_kwh": "1.680",
+          "energy_unavailable_reason": null,
+          "coverage": {
+            "minimum": "1.000",
+            "concurrent": "1.000",
+            "allocated_estimate": false
+          },
+          "assets": [
+            {
+              "asset_id": "c6323f64-26f3-4a4e-83e9-8dac758bb714",
+              "name": "Router",
+              "scope_kind": "device",
+              "energy_kwh": "1.680",
+              "energy_unavailable_reason": null,
+              "share_percent": "100.00",
+              "coverage": "1.000",
+              "gaps": [],
+              "conflict_sources": null
+            }
+          ],
+          "latest_measurement_at": "2026-10-25T17:00:00Z",
+          "origins": [
+            "simulated"
+          ],
+          "revision": 5
+        }
+      },
+      "TV": {
+        "asset": {
+          "id": "73ff97b0-1e23-474c-ad76-0e5c58b86a72",
+          "name": "TV",
+          "category": "Elektronik/TI",
+          "location": "Ruang tengah",
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "intermittent",
+          "archived": false,
+          "bindings": [
+            {
+              "id": "ae39c698-8c47-4c0d-8878-f7fb1030261b",
+              "source_id": "017ce9bc-7769-4e1d-84ca-79ca35cb6672",
+              "effective_from": "2026-09-27T17:00:00Z",
+              "effective_to": null,
+              "authoritative": true
+            }
+          ],
+          "sources": [
+            {
+              "id": "017ce9bc-7769-4e1d-84ca-79ca35cb6672",
+              "label": "Sumber demo (simulasi)",
+              "origin": "simulated",
+              "measurement_kind": "interval_energy",
+              "cadence_seconds": 3600,
+              "resolution_mwh": 1000,
+              "transport_status": "none"
+            }
+          ]
+        },
+        "summary": {
+          "window": {
+            "start": "2026-10-18T17:00:00Z",
+            "end": "2026-10-25T17:00:00Z",
+            "effective_end": "2026-10-25T17:00:00Z",
+            "start_date": "2026-10-19",
+            "end_date": "2026-10-25",
+            "timezone": "Asia/Jakarta",
+            "is_current": false
+          },
+          "scope": {
+            "valid": true,
+            "issues": [],
+            "included": [
+              {
+                "asset_id": "73ff97b0-1e23-474c-ad76-0e5c58b86a72",
+                "name": "TV"
+              }
+            ],
+            "excluded": [
+              {
+                "asset_id": "a7da58ee-ce58-48ab-8658-37f9292017a9",
+                "name": "Kulkas",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "813bf1a8-f073-4f54-9038-6a6c14dbf2fa",
+                "name": "Pompa Air",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "c6323f64-26f3-4a4e-83e9-8dac758bb714",
+                "name": "Router",
+                "reason": "not_selected"
+              }
+            ]
+          },
+          "energy_kwh": "2.520",
+          "energy_unavailable_reason": null,
+          "coverage": {
+            "minimum": "1.000",
+            "concurrent": "1.000",
+            "allocated_estimate": false
+          },
+          "assets": [
+            {
+              "asset_id": "73ff97b0-1e23-474c-ad76-0e5c58b86a72",
+              "name": "TV",
+              "scope_kind": "device",
+              "energy_kwh": "2.520",
+              "energy_unavailable_reason": null,
+              "share_percent": "100.00",
+              "coverage": "1.000",
+              "gaps": [],
+              "conflict_sources": null
+            }
+          ],
+          "latest_measurement_at": "2026-10-25T17:00:00Z",
+          "origins": [
+            "simulated"
+          ],
+          "revision": 5
+        }
+      }
+    },
+    "today": {
+      "window": {
+        "start": "2026-10-25T17:00:00Z",
+        "end": "2026-10-26T17:00:00Z",
+        "effective_end": "2026-10-25T17:00:00Z",
+        "start_date": "2026-10-26",
+        "end_date": "2026-10-26",
+        "timezone": "Asia/Jakarta",
+        "is_current": true
+      },
+      "scope": {
+        "valid": true,
+        "issues": [],
+        "included": [
+          {
+            "asset_id": "a7da58ee-ce58-48ab-8658-37f9292017a9",
+            "name": "Kulkas"
+          },
+          {
+            "asset_id": "813bf1a8-f073-4f54-9038-6a6c14dbf2fa",
+            "name": "Pompa Air"
+          },
+          {
+            "asset_id": "c6323f64-26f3-4a4e-83e9-8dac758bb714",
+            "name": "Router"
+          },
+          {
+            "asset_id": "73ff97b0-1e23-474c-ad76-0e5c58b86a72",
+            "name": "TV"
+          }
+        ],
+        "excluded": []
+      },
+      "energy_kwh": null,
+      "energy_unavailable_reason": "no_data",
+      "coverage": {
+        "minimum": null,
+        "concurrent": null,
+        "allocated_estimate": false
+      },
+      "assets": [
+        {
+          "asset_id": "a7da58ee-ce58-48ab-8658-37f9292017a9",
+          "name": "Kulkas",
+          "scope_kind": "device",
+          "energy_kwh": null,
+          "energy_unavailable_reason": "no_data",
+          "share_percent": null,
+          "coverage": null,
+          "gaps": [],
+          "conflict_sources": null
+        },
+        {
+          "asset_id": "813bf1a8-f073-4f54-9038-6a6c14dbf2fa",
+          "name": "Pompa Air",
+          "scope_kind": "device",
+          "energy_kwh": null,
+          "energy_unavailable_reason": "no_data",
+          "share_percent": null,
+          "coverage": null,
+          "gaps": [],
+          "conflict_sources": null
+        },
+        {
+          "asset_id": "c6323f64-26f3-4a4e-83e9-8dac758bb714",
+          "name": "Router",
+          "scope_kind": "device",
+          "energy_kwh": null,
+          "energy_unavailable_reason": "no_data",
+          "share_percent": null,
+          "coverage": null,
+          "gaps": [],
+          "conflict_sources": null
+        },
+        {
+          "asset_id": "73ff97b0-1e23-474c-ad76-0e5c58b86a72",
+          "name": "TV",
+          "scope_kind": "device",
+          "energy_kwh": null,
+          "energy_unavailable_reason": "no_data",
+          "share_percent": null,
+          "coverage": null,
+          "gaps": [],
+          "conflict_sources": null
+        }
+      ],
+      "latest_measurement_at": null,
+      "origins": [],
+      "revision": 5
+    },
+    "today_asset": {
+      "window": {
+        "start": "2026-10-25T17:00:00Z",
+        "end": "2026-10-26T17:00:00Z",
+        "effective_end": "2026-10-25T17:00:00Z",
+        "start_date": "2026-10-26",
+        "end_date": "2026-10-26",
+        "timezone": "Asia/Jakarta",
+        "is_current": true
+      },
+      "scope": {
+        "valid": true,
+        "issues": [],
+        "included": [
+          {
+            "asset_id": "a7da58ee-ce58-48ab-8658-37f9292017a9",
+            "name": "Kulkas"
+          }
+        ],
+        "excluded": [
+          {
+            "asset_id": "813bf1a8-f073-4f54-9038-6a6c14dbf2fa",
+            "name": "Pompa Air",
+            "reason": "not_selected"
+          },
+          {
+            "asset_id": "c6323f64-26f3-4a4e-83e9-8dac758bb714",
+            "name": "Router",
+            "reason": "not_selected"
+          },
+          {
+            "asset_id": "73ff97b0-1e23-474c-ad76-0e5c58b86a72",
+            "name": "TV",
+            "reason": "not_selected"
+          }
+        ]
+      },
+      "energy_kwh": null,
+      "energy_unavailable_reason": "no_data",
+      "coverage": {
+        "minimum": null,
+        "concurrent": null,
+        "allocated_estimate": false
+      },
+      "assets": [
+        {
+          "asset_id": "a7da58ee-ce58-48ab-8658-37f9292017a9",
+          "name": "Kulkas",
+          "scope_kind": "device",
+          "energy_kwh": null,
+          "energy_unavailable_reason": "no_data",
+          "share_percent": null,
+          "coverage": null,
+          "gaps": [],
+          "conflict_sources": null
+        }
+      ],
+      "latest_measurement_at": null,
+      "origins": [],
+      "revision": 5
+    }
+  },
+  "h-scope": {
+    "initial_period": {
+      "preset": "range",
+      "start_date": "2026-10-25",
+      "end_date": "2026-10-25"
+    },
+    "summary": {
+      "window": {
+        "start": "2026-10-24T17:00:00Z",
+        "end": "2026-10-25T17:00:00Z",
+        "effective_end": "2026-10-25T17:00:00Z",
+        "start_date": "2026-10-25",
+        "end_date": "2026-10-25",
+        "timezone": "Asia/Jakarta",
+        "is_current": false
+      },
+      "scope": {
+        "valid": false,
+        "issues": [
+          {
+            "type": "parent_child",
+            "asset_ids": [
+              "42b54442-be64-44b1-ae61-bdbf0e7b5f76",
+              "3683b2d2-1f68-47d1-861d-39110b171606"
+            ],
+            "message": "Meter utama sudah mencakup Kulkas. Keduanya tidak dapat dijumlahkan."
+          },
+          {
+            "type": "unknown_overlap",
+            "asset_ids": [
+              "42b54442-be64-44b1-ae61-bdbf0e7b5f76",
+              "081e3c38-1dfd-4cd8-b4e2-02e16b646cce"
+            ],
+            "message": "Belum diketahui apakah Meter utama dan Pompa Air mengukur beban yang terpisah."
+          },
+          {
+            "type": "parent_child",
+            "asset_ids": [
+              "42b54442-be64-44b1-ae61-bdbf0e7b5f76",
+              "7df21eca-bf56-4678-8e05-4b2c89cef1c5"
+            ],
+            "message": "Meter utama sudah mencakup Router. Keduanya tidak dapat dijumlahkan."
+          },
+          {
+            "type": "parent_child",
+            "asset_ids": [
+              "42b54442-be64-44b1-ae61-bdbf0e7b5f76",
+              "6ba17d9b-e25a-4745-92be-370003d14568"
+            ],
+            "message": "Meter utama sudah mencakup TV. Keduanya tidak dapat dijumlahkan."
+          },
+          {
+            "type": "source_conflict",
+            "asset_ids": [
+              "3683b2d2-1f68-47d1-861d-39110b171606"
+            ],
+            "message": "Kulkas memiliki lebih dari satu sumber untuk beban yang sama. Pilih sumber acuan; nilainya tidak dijumlahkan."
+          }
+        ],
+        "included": [
+          {
+            "asset_id": "3683b2d2-1f68-47d1-861d-39110b171606",
+            "name": "Kulkas"
+          },
+          {
+            "asset_id": "42b54442-be64-44b1-ae61-bdbf0e7b5f76",
+            "name": "Meter utama"
+          },
+          {
+            "asset_id": "081e3c38-1dfd-4cd8-b4e2-02e16b646cce",
+            "name": "Pompa Air"
+          },
+          {
+            "asset_id": "7df21eca-bf56-4678-8e05-4b2c89cef1c5",
+            "name": "Router"
+          },
+          {
+            "asset_id": "6ba17d9b-e25a-4745-92be-370003d14568",
+            "name": "TV"
+          }
+        ],
+        "excluded": []
+      },
+      "energy_kwh": null,
+      "energy_unavailable_reason": "scope_conflict",
+      "coverage": {
+        "minimum": "1.000",
+        "concurrent": null,
+        "allocated_estimate": false
+      },
+      "assets": [
+        {
+          "asset_id": "42b54442-be64-44b1-ae61-bdbf0e7b5f76",
+          "name": "Meter utama",
+          "scope_kind": "site_total",
+          "energy_kwh": "10.000",
+          "energy_unavailable_reason": null,
+          "share_percent": null,
+          "coverage": "1.000",
+          "gaps": [],
+          "conflict_sources": null
+        },
+        {
+          "asset_id": "6ba17d9b-e25a-4745-92be-370003d14568",
+          "name": "TV",
+          "scope_kind": "device",
+          "energy_kwh": "0.360",
+          "energy_unavailable_reason": null,
+          "share_percent": null,
+          "coverage": "1.000",
+          "gaps": [],
+          "conflict_sources": null
+        },
+        {
+          "asset_id": "081e3c38-1dfd-4cd8-b4e2-02e16b646cce",
+          "name": "Pompa Air",
+          "scope_kind": "device",
+          "energy_kwh": "0.300",
+          "energy_unavailable_reason": null,
+          "share_percent": null,
+          "coverage": "1.000",
+          "gaps": [],
+          "conflict_sources": null
+        },
+        {
+          "asset_id": "7df21eca-bf56-4678-8e05-4b2c89cef1c5",
+          "name": "Router",
+          "scope_kind": "device",
+          "energy_kwh": "0.240",
+          "energy_unavailable_reason": null,
+          "share_percent": null,
+          "coverage": "1.000",
+          "gaps": [],
+          "conflict_sources": null
+        },
+        {
+          "asset_id": "3683b2d2-1f68-47d1-861d-39110b171606",
+          "name": "Kulkas",
+          "scope_kind": "device",
+          "energy_kwh": null,
+          "energy_unavailable_reason": "source_conflict",
+          "share_percent": null,
+          "coverage": null,
+          "gaps": [],
+          "conflict_sources": [
+            {
+              "source_id": "e801fed2-e2af-4903-9f5a-81187a2c4d61",
+              "label": "Colokan simulasi Kulkas (sumber kedua)",
+              "energy_kwh": "1.000"
+            },
+            {
+              "source_id": "bd1b49ae-6950-492b-bd22-570c2706530c",
+              "label": "Sumber demo (simulasi)",
+              "energy_kwh": "1.000"
+            }
+          ]
+        }
+      ],
+      "latest_measurement_at": "2026-10-25T17:00:00Z",
+      "origins": [
+        "simulated"
+      ],
+      "revision": 7
+    },
+    "assets": {
+      "items": [
+        {
+          "id": "3683b2d2-1f68-47d1-861d-39110b171606",
+          "name": "Kulkas",
+          "category": "Pendingin makanan",
+          "location": "Dapur",
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "continuous",
+          "archived": false
+        },
+        {
+          "id": "42b54442-be64-44b1-ae61-bdbf0e7b5f76",
+          "name": "Meter utama",
+          "category": "Meter rumah",
+          "location": "Teras",
+          "scope_kind": "site_total",
+          "parent_asset_id": null,
+          "expected_use": "unknown",
+          "archived": false
+        },
+        {
+          "id": "081e3c38-1dfd-4cd8-b4e2-02e16b646cce",
+          "name": "Pompa Air",
+          "category": "Pompa",
+          "location": "Halaman belakang",
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "intermittent",
+          "archived": false
+        },
+        {
+          "id": "7df21eca-bf56-4678-8e05-4b2c89cef1c5",
+          "name": "Router",
+          "category": "Elektronik/TI",
+          "location": "Ruang tengah",
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "continuous",
+          "archived": false
+        },
+        {
+          "id": "6ba17d9b-e25a-4745-92be-370003d14568",
+          "name": "TV",
+          "category": "Elektronik/TI",
+          "location": "Ruang tengah",
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "intermittent",
+          "archived": false
+        }
+      ],
+      "next_cursor": null
+    },
+    "notices": [
+      {
+        "id": "scope",
+        "kind": "scope",
+        "asset_id": null,
+        "title": "Total gabungan belum dapat dihitung",
+        "body": "Meter utama sudah mencakup Kulkas. Keduanya tidak dapat dijumlahkan. Belum diketahui apakah Meter utama dan Pompa Air mengukur beban yang terpisah. Meter utama sudah mencakup Router. Keduanya tidak dapat dijumlahkan. Meter utama sudah mencakup TV. Keduanya tidak dapat dijumlahkan. Kulkas memiliki lebih dari satu sumber untuk beban yang sama. Pilih sumber acuan; nilainya tidak dijumlahkan."
+      }
+    ],
+    "details": {
+      "Kulkas": {
+        "asset": {
+          "id": "3683b2d2-1f68-47d1-861d-39110b171606",
+          "name": "Kulkas",
+          "category": "Pendingin makanan",
+          "location": "Dapur",
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "continuous",
+          "archived": false,
+          "bindings": [
+            {
+              "id": "0f02c196-37d2-47e6-881c-68478f60a975",
+              "source_id": "e801fed2-e2af-4903-9f5a-81187a2c4d61",
+              "effective_from": "2026-09-27T17:00:00Z",
+              "effective_to": null,
+              "authoritative": false
+            },
+            {
+              "id": "f0b697ad-15f2-4f6d-baf8-7f1b1409cb8c",
+              "source_id": "bd1b49ae-6950-492b-bd22-570c2706530c",
+              "effective_from": "2026-09-27T17:00:00Z",
+              "effective_to": null,
+              "authoritative": false
+            }
+          ],
+          "sources": [
+            {
+              "id": "e801fed2-e2af-4903-9f5a-81187a2c4d61",
+              "label": "Colokan simulasi Kulkas (sumber kedua)",
+              "origin": "simulated",
+              "measurement_kind": "interval_energy",
+              "cadence_seconds": 3600,
+              "resolution_mwh": 1000,
+              "transport_status": "none"
+            },
+            {
+              "id": "bd1b49ae-6950-492b-bd22-570c2706530c",
+              "label": "Sumber demo (simulasi)",
+              "origin": "simulated",
+              "measurement_kind": "interval_energy",
+              "cadence_seconds": 3600,
+              "resolution_mwh": 1000,
+              "transport_status": "none"
+            }
+          ]
+        },
+        "summary": {
+          "window": {
+            "start": "2026-10-24T17:00:00Z",
+            "end": "2026-10-25T17:00:00Z",
+            "effective_end": "2026-10-25T17:00:00Z",
+            "start_date": "2026-10-25",
+            "end_date": "2026-10-25",
+            "timezone": "Asia/Jakarta",
+            "is_current": false
+          },
+          "scope": {
+            "valid": false,
+            "issues": [
+              {
+                "type": "source_conflict",
+                "asset_ids": [
+                  "3683b2d2-1f68-47d1-861d-39110b171606"
+                ],
+                "message": "Kulkas memiliki lebih dari satu sumber untuk beban yang sama. Pilih sumber acuan; nilainya tidak dijumlahkan."
+              }
+            ],
+            "included": [
+              {
+                "asset_id": "3683b2d2-1f68-47d1-861d-39110b171606",
+                "name": "Kulkas"
+              }
+            ],
+            "excluded": [
+              {
+                "asset_id": "42b54442-be64-44b1-ae61-bdbf0e7b5f76",
+                "name": "Meter utama",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "081e3c38-1dfd-4cd8-b4e2-02e16b646cce",
+                "name": "Pompa Air",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "7df21eca-bf56-4678-8e05-4b2c89cef1c5",
+                "name": "Router",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "6ba17d9b-e25a-4745-92be-370003d14568",
+                "name": "TV",
+                "reason": "not_selected"
+              }
+            ]
+          },
+          "energy_kwh": null,
+          "energy_unavailable_reason": "scope_conflict",
+          "coverage": {
+            "minimum": null,
+            "concurrent": null,
+            "allocated_estimate": false
+          },
+          "assets": [
+            {
+              "asset_id": "3683b2d2-1f68-47d1-861d-39110b171606",
+              "name": "Kulkas",
+              "scope_kind": "device",
+              "energy_kwh": null,
+              "energy_unavailable_reason": "source_conflict",
+              "share_percent": null,
+              "coverage": null,
+              "gaps": [],
+              "conflict_sources": [
+                {
+                  "source_id": "e801fed2-e2af-4903-9f5a-81187a2c4d61",
+                  "label": "Colokan simulasi Kulkas (sumber kedua)",
+                  "energy_kwh": "1.000"
+                },
+                {
+                  "source_id": "bd1b49ae-6950-492b-bd22-570c2706530c",
+                  "label": "Sumber demo (simulasi)",
+                  "energy_kwh": "1.000"
+                }
+              ]
+            }
+          ],
+          "latest_measurement_at": null,
+          "origins": [],
+          "revision": 7
+        }
+      },
+      "Meter utama": {
+        "asset": {
+          "id": "42b54442-be64-44b1-ae61-bdbf0e7b5f76",
+          "name": "Meter utama",
+          "category": "Meter rumah",
+          "location": "Teras",
+          "scope_kind": "site_total",
+          "parent_asset_id": null,
+          "expected_use": "unknown",
+          "archived": false,
+          "bindings": [
+            {
+              "id": "2a2277cc-a894-41c5-9ffe-94af93ee7bc2",
+              "source_id": "7c9ea708-3ae5-4565-8b35-326e3104b383",
+              "effective_from": "2026-09-27T17:00:00Z",
+              "effective_to": null,
+              "authoritative": true
+            }
+          ],
+          "sources": [
+            {
+              "id": "7c9ea708-3ae5-4565-8b35-326e3104b383",
+              "label": "Sumber demo (simulasi)",
+              "origin": "simulated",
+              "measurement_kind": "interval_energy",
+              "cadence_seconds": 3600,
+              "resolution_mwh": 1000,
+              "transport_status": "none"
+            }
+          ]
+        },
+        "summary": {
+          "window": {
+            "start": "2026-10-24T17:00:00Z",
+            "end": "2026-10-25T17:00:00Z",
+            "effective_end": "2026-10-25T17:00:00Z",
+            "start_date": "2026-10-25",
+            "end_date": "2026-10-25",
+            "timezone": "Asia/Jakarta",
+            "is_current": false
+          },
+          "scope": {
+            "valid": true,
+            "issues": [],
+            "included": [
+              {
+                "asset_id": "42b54442-be64-44b1-ae61-bdbf0e7b5f76",
+                "name": "Meter utama"
+              }
+            ],
+            "excluded": [
+              {
+                "asset_id": "3683b2d2-1f68-47d1-861d-39110b171606",
+                "name": "Kulkas",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "081e3c38-1dfd-4cd8-b4e2-02e16b646cce",
+                "name": "Pompa Air",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "7df21eca-bf56-4678-8e05-4b2c89cef1c5",
+                "name": "Router",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "6ba17d9b-e25a-4745-92be-370003d14568",
+                "name": "TV",
+                "reason": "not_selected"
+              }
+            ]
+          },
+          "energy_kwh": "10.000",
+          "energy_unavailable_reason": null,
+          "coverage": {
+            "minimum": "1.000",
+            "concurrent": "1.000",
+            "allocated_estimate": false
+          },
+          "assets": [
+            {
+              "asset_id": "42b54442-be64-44b1-ae61-bdbf0e7b5f76",
+              "name": "Meter utama",
+              "scope_kind": "site_total",
+              "energy_kwh": "10.000",
+              "energy_unavailable_reason": null,
+              "share_percent": "100.00",
+              "coverage": "1.000",
+              "gaps": [],
+              "conflict_sources": null
+            }
+          ],
+          "latest_measurement_at": "2026-10-25T17:00:00Z",
+          "origins": [
+            "simulated"
+          ],
+          "revision": 7
+        }
+      },
+      "Pompa Air": {
+        "asset": {
+          "id": "081e3c38-1dfd-4cd8-b4e2-02e16b646cce",
+          "name": "Pompa Air",
+          "category": "Pompa",
+          "location": "Halaman belakang",
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "intermittent",
+          "archived": false,
+          "bindings": [
+            {
+              "id": "af9ae208-4f69-4e3c-af1d-53fbf1420652",
+              "source_id": "587e7f2a-00f1-4e18-b525-35c0d4cfbf77",
+              "effective_from": "2026-09-27T17:00:00Z",
+              "effective_to": null,
+              "authoritative": true
+            }
+          ],
+          "sources": [
+            {
+              "id": "587e7f2a-00f1-4e18-b525-35c0d4cfbf77",
+              "label": "Sumber demo (simulasi)",
+              "origin": "simulated",
+              "measurement_kind": "interval_energy",
+              "cadence_seconds": 3600,
+              "resolution_mwh": 1000,
+              "transport_status": "none"
+            }
+          ]
+        },
+        "summary": {
+          "window": {
+            "start": "2026-10-24T17:00:00Z",
+            "end": "2026-10-25T17:00:00Z",
+            "effective_end": "2026-10-25T17:00:00Z",
+            "start_date": "2026-10-25",
+            "end_date": "2026-10-25",
+            "timezone": "Asia/Jakarta",
+            "is_current": false
+          },
+          "scope": {
+            "valid": true,
+            "issues": [],
+            "included": [
+              {
+                "asset_id": "081e3c38-1dfd-4cd8-b4e2-02e16b646cce",
+                "name": "Pompa Air"
+              }
+            ],
+            "excluded": [
+              {
+                "asset_id": "3683b2d2-1f68-47d1-861d-39110b171606",
+                "name": "Kulkas",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "42b54442-be64-44b1-ae61-bdbf0e7b5f76",
+                "name": "Meter utama",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "7df21eca-bf56-4678-8e05-4b2c89cef1c5",
+                "name": "Router",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "6ba17d9b-e25a-4745-92be-370003d14568",
+                "name": "TV",
+                "reason": "not_selected"
+              }
+            ]
+          },
+          "energy_kwh": "0.300",
+          "energy_unavailable_reason": null,
+          "coverage": {
+            "minimum": "1.000",
+            "concurrent": "1.000",
+            "allocated_estimate": false
+          },
+          "assets": [
+            {
+              "asset_id": "081e3c38-1dfd-4cd8-b4e2-02e16b646cce",
+              "name": "Pompa Air",
+              "scope_kind": "device",
+              "energy_kwh": "0.300",
+              "energy_unavailable_reason": null,
+              "share_percent": "100.00",
+              "coverage": "1.000",
+              "gaps": [],
+              "conflict_sources": null
+            }
+          ],
+          "latest_measurement_at": "2026-10-25T17:00:00Z",
+          "origins": [
+            "simulated"
+          ],
+          "revision": 7
+        }
+      },
+      "Router": {
+        "asset": {
+          "id": "7df21eca-bf56-4678-8e05-4b2c89cef1c5",
+          "name": "Router",
+          "category": "Elektronik/TI",
+          "location": "Ruang tengah",
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "continuous",
+          "archived": false,
+          "bindings": [
+            {
+              "id": "5fb089d5-6cac-4fe8-8994-ed9b141e40f2",
+              "source_id": "0f3a1d38-78f0-4d8c-82bb-620d59a5b669",
+              "effective_from": "2026-09-27T17:00:00Z",
+              "effective_to": null,
+              "authoritative": true
+            }
+          ],
+          "sources": [
+            {
+              "id": "0f3a1d38-78f0-4d8c-82bb-620d59a5b669",
+              "label": "Sumber demo (simulasi)",
+              "origin": "simulated",
+              "measurement_kind": "interval_energy",
+              "cadence_seconds": 3600,
+              "resolution_mwh": 1000,
+              "transport_status": "none"
+            }
+          ]
+        },
+        "summary": {
+          "window": {
+            "start": "2026-10-24T17:00:00Z",
+            "end": "2026-10-25T17:00:00Z",
+            "effective_end": "2026-10-25T17:00:00Z",
+            "start_date": "2026-10-25",
+            "end_date": "2026-10-25",
+            "timezone": "Asia/Jakarta",
+            "is_current": false
+          },
+          "scope": {
+            "valid": true,
+            "issues": [],
+            "included": [
+              {
+                "asset_id": "7df21eca-bf56-4678-8e05-4b2c89cef1c5",
+                "name": "Router"
+              }
+            ],
+            "excluded": [
+              {
+                "asset_id": "3683b2d2-1f68-47d1-861d-39110b171606",
+                "name": "Kulkas",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "42b54442-be64-44b1-ae61-bdbf0e7b5f76",
+                "name": "Meter utama",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "081e3c38-1dfd-4cd8-b4e2-02e16b646cce",
+                "name": "Pompa Air",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "6ba17d9b-e25a-4745-92be-370003d14568",
+                "name": "TV",
+                "reason": "not_selected"
+              }
+            ]
+          },
+          "energy_kwh": "0.240",
+          "energy_unavailable_reason": null,
+          "coverage": {
+            "minimum": "1.000",
+            "concurrent": "1.000",
+            "allocated_estimate": false
+          },
+          "assets": [
+            {
+              "asset_id": "7df21eca-bf56-4678-8e05-4b2c89cef1c5",
+              "name": "Router",
+              "scope_kind": "device",
+              "energy_kwh": "0.240",
+              "energy_unavailable_reason": null,
+              "share_percent": "100.00",
+              "coverage": "1.000",
+              "gaps": [],
+              "conflict_sources": null
+            }
+          ],
+          "latest_measurement_at": "2026-10-25T17:00:00Z",
+          "origins": [
+            "simulated"
+          ],
+          "revision": 7
+        }
+      },
+      "TV": {
+        "asset": {
+          "id": "6ba17d9b-e25a-4745-92be-370003d14568",
+          "name": "TV",
+          "category": "Elektronik/TI",
+          "location": "Ruang tengah",
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "intermittent",
+          "archived": false,
+          "bindings": [
+            {
+              "id": "22d0dab3-f4f1-43f5-9aa0-758db3cf7543",
+              "source_id": "db456240-dd67-4a82-ac87-318e3ea651d7",
+              "effective_from": "2026-09-27T17:00:00Z",
+              "effective_to": null,
+              "authoritative": true
+            }
+          ],
+          "sources": [
+            {
+              "id": "db456240-dd67-4a82-ac87-318e3ea651d7",
+              "label": "Sumber demo (simulasi)",
+              "origin": "simulated",
+              "measurement_kind": "interval_energy",
+              "cadence_seconds": 3600,
+              "resolution_mwh": 1000,
+              "transport_status": "none"
+            }
+          ]
+        },
+        "summary": {
+          "window": {
+            "start": "2026-10-24T17:00:00Z",
+            "end": "2026-10-25T17:00:00Z",
+            "effective_end": "2026-10-25T17:00:00Z",
+            "start_date": "2026-10-25",
+            "end_date": "2026-10-25",
+            "timezone": "Asia/Jakarta",
+            "is_current": false
+          },
+          "scope": {
+            "valid": true,
+            "issues": [],
+            "included": [
+              {
+                "asset_id": "6ba17d9b-e25a-4745-92be-370003d14568",
+                "name": "TV"
+              }
+            ],
+            "excluded": [
+              {
+                "asset_id": "3683b2d2-1f68-47d1-861d-39110b171606",
+                "name": "Kulkas",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "42b54442-be64-44b1-ae61-bdbf0e7b5f76",
+                "name": "Meter utama",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "081e3c38-1dfd-4cd8-b4e2-02e16b646cce",
+                "name": "Pompa Air",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "7df21eca-bf56-4678-8e05-4b2c89cef1c5",
+                "name": "Router",
+                "reason": "not_selected"
+              }
+            ]
+          },
+          "energy_kwh": "0.360",
+          "energy_unavailable_reason": null,
+          "coverage": {
+            "minimum": "1.000",
+            "concurrent": "1.000",
+            "allocated_estimate": false
+          },
+          "assets": [
+            {
+              "asset_id": "6ba17d9b-e25a-4745-92be-370003d14568",
+              "name": "TV",
+              "scope_kind": "device",
+              "energy_kwh": "0.360",
+              "energy_unavailable_reason": null,
+              "share_percent": "100.00",
+              "coverage": "1.000",
+              "gaps": [],
+              "conflict_sources": null
+            }
+          ],
+          "latest_measurement_at": "2026-10-25T17:00:00Z",
+          "origins": [
+            "simulated"
+          ],
+          "revision": 7
+        }
+      }
+    }
+  },
+  "h-stale-offline": {
+    "initial_period": {
+      "preset": "last_7_days",
+      "start_date": "2026-10-19",
+      "end_date": "2026-10-25"
+    },
+    "summary": {
+      "window": {
+        "start": "2026-10-18T17:00:00Z",
+        "end": "2026-10-25T17:00:00Z",
+        "effective_end": "2026-10-25T17:00:00Z",
+        "start_date": "2026-10-19",
+        "end_date": "2026-10-25",
+        "timezone": "Asia/Jakarta",
+        "is_current": false
+      },
+      "scope": {
+        "valid": true,
+        "issues": [],
+        "included": [
+          {
+            "asset_id": "16ab845f-729e-400e-b33b-12c35720f267",
+            "name": "Kulkas"
+          },
+          {
+            "asset_id": "c6512df0-8015-4977-9d89-9350f696a91c",
+            "name": "Pompa Air"
+          },
+          {
+            "asset_id": "f2cc1160-5204-4fed-a9a1-f13580108761",
+            "name": "Router"
+          },
+          {
+            "asset_id": "63cd81c7-5e0b-4554-988a-66bb3cbcd860",
+            "name": "TV"
+          }
+        ],
+        "excluded": []
+      },
+      "energy_kwh": "14.640",
+      "energy_unavailable_reason": null,
+      "coverage": {
+        "minimum": "0.964",
+        "concurrent": "0.964",
+        "allocated_estimate": false
+      },
+      "assets": [
+        {
+          "asset_id": "16ab845f-729e-400e-b33b-12c35720f267",
+          "name": "Kulkas",
+          "scope_kind": "device",
+          "energy_kwh": "8.400",
+          "energy_unavailable_reason": null,
+          "share_percent": "57.38",
+          "coverage": "1.000",
+          "gaps": [],
+          "conflict_sources": null
+        },
+        {
+          "asset_id": "63cd81c7-5e0b-4554-988a-66bb3cbcd860",
+          "name": "TV",
+          "scope_kind": "device",
+          "energy_kwh": "2.520",
+          "energy_unavailable_reason": null,
+          "share_percent": "17.21",
+          "coverage": "1.000",
+          "gaps": [],
+          "conflict_sources": null
+        },
+        {
+          "asset_id": "c6512df0-8015-4977-9d89-9350f696a91c",
+          "name": "Pompa Air",
+          "scope_kind": "device",
+          "energy_kwh": "2.100",
+          "energy_unavailable_reason": null,
+          "share_percent": "14.34",
+          "coverage": "1.000",
+          "gaps": [],
+          "conflict_sources": null
+        },
+        {
+          "asset_id": "f2cc1160-5204-4fed-a9a1-f13580108761",
+          "name": "Router",
+          "scope_kind": "device",
+          "energy_kwh": "1.620",
+          "energy_unavailable_reason": null,
+          "share_percent": "11.07",
+          "coverage": "0.964",
+          "gaps": [
+            {
+              "start": "2026-10-25T11:00:00Z",
+              "end": "2026-10-25T17:00:00Z"
+            }
+          ],
+          "conflict_sources": null
+        }
+      ],
+      "latest_measurement_at": "2026-10-25T17:00:00Z",
+      "origins": [
+        "simulated"
+      ],
+      "revision": 5
+    },
+    "assets": {
+      "items": [
+        {
+          "id": "16ab845f-729e-400e-b33b-12c35720f267",
+          "name": "Kulkas",
+          "category": "Pendingin makanan",
+          "location": "Dapur",
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "continuous",
+          "archived": false
+        },
+        {
+          "id": "c6512df0-8015-4977-9d89-9350f696a91c",
+          "name": "Pompa Air",
+          "category": "Pompa",
+          "location": "Halaman belakang",
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "intermittent",
+          "archived": false
+        },
+        {
+          "id": "f2cc1160-5204-4fed-a9a1-f13580108761",
+          "name": "Router",
+          "category": "Elektronik/TI",
+          "location": "Ruang tengah",
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "continuous",
+          "archived": false
+        },
+        {
+          "id": "63cd81c7-5e0b-4554-988a-66bb3cbcd860",
+          "name": "TV",
+          "category": "Elektronik/TI",
+          "location": "Ruang tengah",
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "intermittent",
+          "archived": false
+        }
+      ],
+      "next_cursor": null
+    },
+    "notices": [
+      {
+        "id": "stale:d12905f5-2a31-4718-99a0-f466ff29c38c",
+        "kind": "stale",
+        "asset_id": "f2cc1160-5204-4fed-a9a1-f13580108761",
+        "title": "Data belum diperbarui · Router",
+        "body": "Pembacaan terakhir 25 Oktober 2026 18.00 (interval 1 jam). Ini bukan tanda perangkat mati."
+      }
+    ],
+    "details": {
+      "Kulkas": {
+        "asset": {
+          "id": "16ab845f-729e-400e-b33b-12c35720f267",
+          "name": "Kulkas",
+          "category": "Pendingin makanan",
+          "location": "Dapur",
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "continuous",
+          "archived": false,
+          "bindings": [
+            {
+              "id": "a2b9641c-c49b-4554-b9df-38b3cd94dd07",
+              "source_id": "fcdc7e69-3691-4e68-9049-ba936eace199",
+              "effective_from": "2026-09-27T17:00:00Z",
+              "effective_to": null,
+              "authoritative": true
+            }
+          ],
+          "sources": [
+            {
+              "id": "fcdc7e69-3691-4e68-9049-ba936eace199",
+              "label": "Sumber demo (simulasi)",
+              "origin": "simulated",
+              "measurement_kind": "interval_energy",
+              "cadence_seconds": 3600,
+              "resolution_mwh": 1000,
+              "transport_status": "none"
+            }
+          ]
+        },
+        "summary": {
+          "window": {
+            "start": "2026-10-18T17:00:00Z",
+            "end": "2026-10-25T17:00:00Z",
+            "effective_end": "2026-10-25T17:00:00Z",
+            "start_date": "2026-10-19",
+            "end_date": "2026-10-25",
+            "timezone": "Asia/Jakarta",
+            "is_current": false
+          },
+          "scope": {
+            "valid": true,
+            "issues": [],
+            "included": [
+              {
+                "asset_id": "16ab845f-729e-400e-b33b-12c35720f267",
+                "name": "Kulkas"
+              }
+            ],
+            "excluded": [
+              {
+                "asset_id": "c6512df0-8015-4977-9d89-9350f696a91c",
+                "name": "Pompa Air",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "f2cc1160-5204-4fed-a9a1-f13580108761",
+                "name": "Router",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "63cd81c7-5e0b-4554-988a-66bb3cbcd860",
+                "name": "TV",
+                "reason": "not_selected"
+              }
+            ]
+          },
+          "energy_kwh": "8.400",
+          "energy_unavailable_reason": null,
+          "coverage": {
+            "minimum": "1.000",
+            "concurrent": "1.000",
+            "allocated_estimate": false
+          },
+          "assets": [
+            {
+              "asset_id": "16ab845f-729e-400e-b33b-12c35720f267",
+              "name": "Kulkas",
+              "scope_kind": "device",
+              "energy_kwh": "8.400",
+              "energy_unavailable_reason": null,
+              "share_percent": "100.00",
+              "coverage": "1.000",
+              "gaps": [],
+              "conflict_sources": null
+            }
+          ],
+          "latest_measurement_at": "2026-10-25T17:00:00Z",
+          "origins": [
+            "simulated"
+          ],
+          "revision": 5
+        }
+      },
+      "Pompa Air": {
+        "asset": {
+          "id": "c6512df0-8015-4977-9d89-9350f696a91c",
+          "name": "Pompa Air",
+          "category": "Pompa",
+          "location": "Halaman belakang",
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "intermittent",
+          "archived": false,
+          "bindings": [
+            {
+              "id": "f78c6e1a-2aa9-4bb8-8723-5bd026ab09cd",
+              "source_id": "50c8c4c0-9c1a-4321-971c-fdfd297c4529",
+              "effective_from": "2026-09-27T17:00:00Z",
+              "effective_to": null,
+              "authoritative": true
+            }
+          ],
+          "sources": [
+            {
+              "id": "50c8c4c0-9c1a-4321-971c-fdfd297c4529",
+              "label": "Sumber demo (simulasi)",
+              "origin": "simulated",
+              "measurement_kind": "interval_energy",
+              "cadence_seconds": 3600,
+              "resolution_mwh": 1000,
+              "transport_status": "none"
+            }
+          ]
+        },
+        "summary": {
+          "window": {
+            "start": "2026-10-18T17:00:00Z",
+            "end": "2026-10-25T17:00:00Z",
+            "effective_end": "2026-10-25T17:00:00Z",
+            "start_date": "2026-10-19",
+            "end_date": "2026-10-25",
+            "timezone": "Asia/Jakarta",
+            "is_current": false
+          },
+          "scope": {
+            "valid": true,
+            "issues": [],
+            "included": [
+              {
+                "asset_id": "c6512df0-8015-4977-9d89-9350f696a91c",
+                "name": "Pompa Air"
+              }
+            ],
+            "excluded": [
+              {
+                "asset_id": "16ab845f-729e-400e-b33b-12c35720f267",
+                "name": "Kulkas",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "f2cc1160-5204-4fed-a9a1-f13580108761",
+                "name": "Router",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "63cd81c7-5e0b-4554-988a-66bb3cbcd860",
+                "name": "TV",
+                "reason": "not_selected"
+              }
+            ]
+          },
+          "energy_kwh": "2.100",
+          "energy_unavailable_reason": null,
+          "coverage": {
+            "minimum": "1.000",
+            "concurrent": "1.000",
+            "allocated_estimate": false
+          },
+          "assets": [
+            {
+              "asset_id": "c6512df0-8015-4977-9d89-9350f696a91c",
+              "name": "Pompa Air",
+              "scope_kind": "device",
+              "energy_kwh": "2.100",
+              "energy_unavailable_reason": null,
+              "share_percent": "100.00",
+              "coverage": "1.000",
+              "gaps": [],
+              "conflict_sources": null
+            }
+          ],
+          "latest_measurement_at": "2026-10-25T17:00:00Z",
+          "origins": [
+            "simulated"
+          ],
+          "revision": 5
+        }
+      },
+      "Router": {
+        "asset": {
+          "id": "f2cc1160-5204-4fed-a9a1-f13580108761",
+          "name": "Router",
+          "category": "Elektronik/TI",
+          "location": "Ruang tengah",
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "continuous",
+          "archived": false,
+          "bindings": [
+            {
+              "id": "ad5ad4bc-9688-41b9-88df-3bc53d260e13",
+              "source_id": "d12905f5-2a31-4718-99a0-f466ff29c38c",
+              "effective_from": "2026-09-27T17:00:00Z",
+              "effective_to": null,
+              "authoritative": true
+            }
+          ],
+          "sources": [
+            {
+              "id": "d12905f5-2a31-4718-99a0-f466ff29c38c",
+              "label": "Simulasi koneksi · colokan Router",
+              "origin": "simulated",
+              "measurement_kind": "interval_energy",
+              "cadence_seconds": 3600,
+              "resolution_mwh": 1000,
+              "transport_status": "simulated_live"
+            }
+          ]
+        },
+        "summary": {
+          "window": {
+            "start": "2026-10-18T17:00:00Z",
+            "end": "2026-10-25T17:00:00Z",
+            "effective_end": "2026-10-25T17:00:00Z",
+            "start_date": "2026-10-19",
+            "end_date": "2026-10-25",
+            "timezone": "Asia/Jakarta",
+            "is_current": false
+          },
+          "scope": {
+            "valid": true,
+            "issues": [],
+            "included": [
+              {
+                "asset_id": "f2cc1160-5204-4fed-a9a1-f13580108761",
+                "name": "Router"
+              }
+            ],
+            "excluded": [
+              {
+                "asset_id": "16ab845f-729e-400e-b33b-12c35720f267",
+                "name": "Kulkas",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "c6512df0-8015-4977-9d89-9350f696a91c",
+                "name": "Pompa Air",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "63cd81c7-5e0b-4554-988a-66bb3cbcd860",
+                "name": "TV",
+                "reason": "not_selected"
+              }
+            ]
+          },
+          "energy_kwh": "1.620",
+          "energy_unavailable_reason": null,
+          "coverage": {
+            "minimum": "0.964",
+            "concurrent": "0.964",
+            "allocated_estimate": false
+          },
+          "assets": [
+            {
+              "asset_id": "f2cc1160-5204-4fed-a9a1-f13580108761",
+              "name": "Router",
+              "scope_kind": "device",
+              "energy_kwh": "1.620",
+              "energy_unavailable_reason": null,
+              "share_percent": "100.00",
+              "coverage": "0.964",
+              "gaps": [
+                {
+                  "start": "2026-10-25T11:00:00Z",
+                  "end": "2026-10-25T17:00:00Z"
+                }
+              ],
+              "conflict_sources": null
+            }
+          ],
+          "latest_measurement_at": "2026-10-25T11:00:00Z",
+          "origins": [
+            "simulated"
+          ],
+          "revision": 5
+        }
+      },
+      "TV": {
+        "asset": {
+          "id": "63cd81c7-5e0b-4554-988a-66bb3cbcd860",
+          "name": "TV",
+          "category": "Elektronik/TI",
+          "location": "Ruang tengah",
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "intermittent",
+          "archived": false,
+          "bindings": [
+            {
+              "id": "66b63621-de52-48d3-82d4-37e70efd9736",
+              "source_id": "a7329a38-1878-4a03-951e-a0f3e389b741",
+              "effective_from": "2026-09-27T17:00:00Z",
+              "effective_to": null,
+              "authoritative": true
+            }
+          ],
+          "sources": [
+            {
+              "id": "a7329a38-1878-4a03-951e-a0f3e389b741",
+              "label": "Sumber demo (simulasi)",
+              "origin": "simulated",
+              "measurement_kind": "interval_energy",
+              "cadence_seconds": 3600,
+              "resolution_mwh": 1000,
+              "transport_status": "none"
+            }
+          ]
+        },
+        "summary": {
+          "window": {
+            "start": "2026-10-18T17:00:00Z",
+            "end": "2026-10-25T17:00:00Z",
+            "effective_end": "2026-10-25T17:00:00Z",
+            "start_date": "2026-10-19",
+            "end_date": "2026-10-25",
+            "timezone": "Asia/Jakarta",
+            "is_current": false
+          },
+          "scope": {
+            "valid": true,
+            "issues": [],
+            "included": [
+              {
+                "asset_id": "63cd81c7-5e0b-4554-988a-66bb3cbcd860",
+                "name": "TV"
+              }
+            ],
+            "excluded": [
+              {
+                "asset_id": "16ab845f-729e-400e-b33b-12c35720f267",
+                "name": "Kulkas",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "c6512df0-8015-4977-9d89-9350f696a91c",
+                "name": "Pompa Air",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "f2cc1160-5204-4fed-a9a1-f13580108761",
+                "name": "Router",
+                "reason": "not_selected"
+              }
+            ]
+          },
+          "energy_kwh": "2.520",
+          "energy_unavailable_reason": null,
+          "coverage": {
+            "minimum": "1.000",
+            "concurrent": "1.000",
+            "allocated_estimate": false
+          },
+          "assets": [
+            {
+              "asset_id": "63cd81c7-5e0b-4554-988a-66bb3cbcd860",
+              "name": "TV",
+              "scope_kind": "device",
+              "energy_kwh": "2.520",
+              "energy_unavailable_reason": null,
+              "share_percent": "100.00",
+              "coverage": "1.000",
+              "gaps": [],
+              "conflict_sources": null
+            }
+          ],
+          "latest_measurement_at": "2026-10-25T17:00:00Z",
+          "origins": [
+            "simulated"
+          ],
+          "revision": 5
+        }
+      }
+    }
+  },
+  "h-learning-partial": {
+    "initial_period": {
+      "preset": "last_7_days",
+      "start_date": "2026-10-19",
+      "end_date": "2026-10-25"
+    },
+    "summary": {
+      "window": {
+        "start": "2026-10-18T17:00:00Z",
+        "end": "2026-10-25T17:00:00Z",
+        "effective_end": "2026-10-25T17:00:00Z",
+        "start_date": "2026-10-19",
+        "end_date": "2026-10-25",
+        "timezone": "Asia/Jakarta",
+        "is_current": false
+      },
+      "scope": {
+        "valid": true,
+        "issues": [],
+        "included": [
+          {
+            "asset_id": "3b17091b-9468-4f09-b564-b143eb5ec22c",
+            "name": "Kulkas"
+          },
+          {
+            "asset_id": "275ced3f-399e-47c3-ace7-7d6a12a93a43",
+            "name": "Pompa Air"
+          },
+          {
+            "asset_id": "b35145e0-ee59-4473-a502-4fe039790474",
+            "name": "Router"
+          },
+          {
+            "asset_id": "92fe94fb-a37f-4834-ae1f-93170530ec43",
+            "name": "TV"
+          }
+        ],
+        "excluded": []
+      },
+      "energy_kwh": "14.000",
+      "energy_unavailable_reason": null,
+      "coverage": {
+        "minimum": "0.714",
+        "concurrent": "0.702",
+        "allocated_estimate": false
+      },
+      "assets": [
+        {
+          "asset_id": "3b17091b-9468-4f09-b564-b143eb5ec22c",
+          "name": "Kulkas",
+          "scope_kind": "device",
+          "energy_kwh": "8.300",
+          "energy_unavailable_reason": null,
+          "share_percent": "59.29",
+          "coverage": "0.988",
+          "gaps": [
+            {
+              "start": "2026-10-22T07:00:00Z",
+              "end": "2026-10-22T09:00:00Z"
+            }
+          ],
+          "conflict_sources": null
+        },
+        {
+          "asset_id": "92fe94fb-a37f-4834-ae1f-93170530ec43",
+          "name": "TV",
+          "scope_kind": "device",
+          "energy_kwh": "2.520",
+          "energy_unavailable_reason": null,
+          "share_percent": "18.00",
+          "coverage": "1.000",
+          "gaps": [],
+          "conflict_sources": null
+        },
+        {
+          "asset_id": "b35145e0-ee59-4473-a502-4fe039790474",
+          "name": "Router",
+          "scope_kind": "device",
+          "energy_kwh": "1.680",
+          "energy_unavailable_reason": null,
+          "share_percent": "12.00",
+          "coverage": "1.000",
+          "gaps": [],
+          "conflict_sources": null
+        },
+        {
+          "asset_id": "275ced3f-399e-47c3-ace7-7d6a12a93a43",
+          "name": "Pompa Air",
+          "scope_kind": "device",
+          "energy_kwh": "1.500",
+          "energy_unavailable_reason": null,
+          "share_percent": "10.71",
+          "coverage": "0.714",
+          "gaps": [
+            {
+              "start": "2026-10-23T17:00:00Z",
+              "end": "2026-10-25T17:00:00Z"
+            }
+          ],
+          "conflict_sources": null
+        }
+      ],
+      "latest_measurement_at": "2026-10-25T17:00:00Z",
+      "origins": [
+        "simulated"
+      ],
+      "revision": 5
+    },
+    "assets": {
+      "items": [
+        {
+          "id": "3b17091b-9468-4f09-b564-b143eb5ec22c",
+          "name": "Kulkas",
+          "category": "Pendingin makanan",
+          "location": "Dapur",
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "continuous",
+          "archived": false
+        },
+        {
+          "id": "275ced3f-399e-47c3-ace7-7d6a12a93a43",
+          "name": "Pompa Air",
+          "category": "Pompa",
+          "location": "Halaman belakang",
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "intermittent",
+          "archived": false
+        },
+        {
+          "id": "b35145e0-ee59-4473-a502-4fe039790474",
+          "name": "Router",
+          "category": "Elektronik/TI",
+          "location": "Ruang tengah",
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "continuous",
+          "archived": false
+        },
+        {
+          "id": "92fe94fb-a37f-4834-ae1f-93170530ec43",
+          "name": "TV",
+          "category": "Elektronik/TI",
+          "location": "Ruang tengah",
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "intermittent",
+          "archived": false
+        }
+      ],
+      "next_cursor": null
+    },
+    "notices": [
+      {
+        "id": "partial:275ced3f-399e-47c3-ace7-7d6a12a93a43",
+        "kind": "partial",
+        "asset_id": "275ced3f-399e-47c3-ace7-7d6a12a93a43",
+        "title": "Sebagian data belum tersedia · Pompa Air",
+        "body": "Kelengkapan data: 71,4% periode. Data 24 Oktober 2026 – 25 Oktober 2026 belum tersedia."
+      }
+    ],
+    "details": {
+      "Kulkas": {
+        "asset": {
+          "id": "3b17091b-9468-4f09-b564-b143eb5ec22c",
+          "name": "Kulkas",
+          "category": "Pendingin makanan",
+          "location": "Dapur",
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "continuous",
+          "archived": false,
+          "bindings": [
+            {
+              "id": "4ba199ee-a9be-401b-b39b-92653adf2089",
+              "source_id": "d09b9970-95c6-45c2-8e9b-002e9f349113",
+              "effective_from": "2026-09-27T17:00:00Z",
+              "effective_to": null,
+              "authoritative": true
+            }
+          ],
+          "sources": [
+            {
+              "id": "d09b9970-95c6-45c2-8e9b-002e9f349113",
+              "label": "Sumber demo (simulasi)",
+              "origin": "simulated",
+              "measurement_kind": "interval_energy",
+              "cadence_seconds": 3600,
+              "resolution_mwh": 1000,
+              "transport_status": "none"
+            }
+          ]
+        },
+        "summary": {
+          "window": {
+            "start": "2026-10-18T17:00:00Z",
+            "end": "2026-10-25T17:00:00Z",
+            "effective_end": "2026-10-25T17:00:00Z",
+            "start_date": "2026-10-19",
+            "end_date": "2026-10-25",
+            "timezone": "Asia/Jakarta",
+            "is_current": false
+          },
+          "scope": {
+            "valid": true,
+            "issues": [],
+            "included": [
+              {
+                "asset_id": "3b17091b-9468-4f09-b564-b143eb5ec22c",
+                "name": "Kulkas"
+              }
+            ],
+            "excluded": [
+              {
+                "asset_id": "275ced3f-399e-47c3-ace7-7d6a12a93a43",
+                "name": "Pompa Air",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "b35145e0-ee59-4473-a502-4fe039790474",
+                "name": "Router",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "92fe94fb-a37f-4834-ae1f-93170530ec43",
+                "name": "TV",
+                "reason": "not_selected"
+              }
+            ]
+          },
+          "energy_kwh": "8.300",
+          "energy_unavailable_reason": null,
+          "coverage": {
+            "minimum": "0.988",
+            "concurrent": "0.988",
+            "allocated_estimate": false
+          },
+          "assets": [
+            {
+              "asset_id": "3b17091b-9468-4f09-b564-b143eb5ec22c",
+              "name": "Kulkas",
+              "scope_kind": "device",
+              "energy_kwh": "8.300",
+              "energy_unavailable_reason": null,
+              "share_percent": "100.00",
+              "coverage": "0.988",
+              "gaps": [
+                {
+                  "start": "2026-10-22T07:00:00Z",
+                  "end": "2026-10-22T09:00:00Z"
+                }
+              ],
+              "conflict_sources": null
+            }
+          ],
+          "latest_measurement_at": "2026-10-25T17:00:00Z",
+          "origins": [
+            "simulated"
+          ],
+          "revision": 5
+        }
+      },
+      "Pompa Air": {
+        "asset": {
+          "id": "275ced3f-399e-47c3-ace7-7d6a12a93a43",
+          "name": "Pompa Air",
+          "category": "Pompa",
+          "location": "Halaman belakang",
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "intermittent",
+          "archived": false,
+          "bindings": [
+            {
+              "id": "20c0ab87-f3de-47a8-8eab-8b4acb37f440",
+              "source_id": "0da09391-bd72-4043-9303-4009413c83c7",
+              "effective_from": "2026-09-27T17:00:00Z",
+              "effective_to": null,
+              "authoritative": true
+            }
+          ],
+          "sources": [
+            {
+              "id": "0da09391-bd72-4043-9303-4009413c83c7",
+              "label": "Sumber demo (simulasi)",
+              "origin": "simulated",
+              "measurement_kind": "interval_energy",
+              "cadence_seconds": 3600,
+              "resolution_mwh": 1000,
+              "transport_status": "none"
+            }
+          ]
+        },
+        "summary": {
+          "window": {
+            "start": "2026-10-18T17:00:00Z",
+            "end": "2026-10-25T17:00:00Z",
+            "effective_end": "2026-10-25T17:00:00Z",
+            "start_date": "2026-10-19",
+            "end_date": "2026-10-25",
+            "timezone": "Asia/Jakarta",
+            "is_current": false
+          },
+          "scope": {
+            "valid": true,
+            "issues": [],
+            "included": [
+              {
+                "asset_id": "275ced3f-399e-47c3-ace7-7d6a12a93a43",
+                "name": "Pompa Air"
+              }
+            ],
+            "excluded": [
+              {
+                "asset_id": "3b17091b-9468-4f09-b564-b143eb5ec22c",
+                "name": "Kulkas",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "b35145e0-ee59-4473-a502-4fe039790474",
+                "name": "Router",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "92fe94fb-a37f-4834-ae1f-93170530ec43",
+                "name": "TV",
+                "reason": "not_selected"
+              }
+            ]
+          },
+          "energy_kwh": "1.500",
+          "energy_unavailable_reason": null,
+          "coverage": {
+            "minimum": "0.714",
+            "concurrent": "0.714",
+            "allocated_estimate": false
+          },
+          "assets": [
+            {
+              "asset_id": "275ced3f-399e-47c3-ace7-7d6a12a93a43",
+              "name": "Pompa Air",
+              "scope_kind": "device",
+              "energy_kwh": "1.500",
+              "energy_unavailable_reason": null,
+              "share_percent": "100.00",
+              "coverage": "0.714",
+              "gaps": [
+                {
+                  "start": "2026-10-23T17:00:00Z",
+                  "end": "2026-10-25T17:00:00Z"
+                }
+              ],
+              "conflict_sources": null
+            }
+          ],
+          "latest_measurement_at": "2026-10-23T17:00:00Z",
+          "origins": [
+            "simulated"
+          ],
+          "revision": 5
+        }
+      },
+      "Router": {
+        "asset": {
+          "id": "b35145e0-ee59-4473-a502-4fe039790474",
+          "name": "Router",
+          "category": "Elektronik/TI",
+          "location": "Ruang tengah",
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "continuous",
+          "archived": false,
+          "bindings": [
+            {
+              "id": "dd2a830a-5c41-480b-9963-f23c1e2908b2",
+              "source_id": "01eb97bb-f1a5-43d7-afab-bb23f3eee5ab",
+              "effective_from": "2026-09-27T17:00:00Z",
+              "effective_to": null,
+              "authoritative": true
+            }
+          ],
+          "sources": [
+            {
+              "id": "01eb97bb-f1a5-43d7-afab-bb23f3eee5ab",
+              "label": "Sumber demo (simulasi)",
+              "origin": "simulated",
+              "measurement_kind": "interval_energy",
+              "cadence_seconds": 3600,
+              "resolution_mwh": 1000,
+              "transport_status": "none"
+            }
+          ]
+        },
+        "summary": {
+          "window": {
+            "start": "2026-10-18T17:00:00Z",
+            "end": "2026-10-25T17:00:00Z",
+            "effective_end": "2026-10-25T17:00:00Z",
+            "start_date": "2026-10-19",
+            "end_date": "2026-10-25",
+            "timezone": "Asia/Jakarta",
+            "is_current": false
+          },
+          "scope": {
+            "valid": true,
+            "issues": [],
+            "included": [
+              {
+                "asset_id": "b35145e0-ee59-4473-a502-4fe039790474",
+                "name": "Router"
+              }
+            ],
+            "excluded": [
+              {
+                "asset_id": "3b17091b-9468-4f09-b564-b143eb5ec22c",
+                "name": "Kulkas",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "275ced3f-399e-47c3-ace7-7d6a12a93a43",
+                "name": "Pompa Air",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "92fe94fb-a37f-4834-ae1f-93170530ec43",
+                "name": "TV",
+                "reason": "not_selected"
+              }
+            ]
+          },
+          "energy_kwh": "1.680",
+          "energy_unavailable_reason": null,
+          "coverage": {
+            "minimum": "1.000",
+            "concurrent": "1.000",
+            "allocated_estimate": false
+          },
+          "assets": [
+            {
+              "asset_id": "b35145e0-ee59-4473-a502-4fe039790474",
+              "name": "Router",
+              "scope_kind": "device",
+              "energy_kwh": "1.680",
+              "energy_unavailable_reason": null,
+              "share_percent": "100.00",
+              "coverage": "1.000",
+              "gaps": [],
+              "conflict_sources": null
+            }
+          ],
+          "latest_measurement_at": "2026-10-25T17:00:00Z",
+          "origins": [
+            "simulated"
+          ],
+          "revision": 5
+        }
+      },
+      "TV": {
+        "asset": {
+          "id": "92fe94fb-a37f-4834-ae1f-93170530ec43",
+          "name": "TV",
+          "category": "Elektronik/TI",
+          "location": "Ruang tengah",
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "intermittent",
+          "archived": false,
+          "bindings": [
+            {
+              "id": "3beca1e5-4c33-427d-8d01-4047557eb3d7",
+              "source_id": "fbbb3aa2-be87-449a-afda-25e4b6624a73",
+              "effective_from": "2026-09-27T17:00:00Z",
+              "effective_to": null,
+              "authoritative": true
+            }
+          ],
+          "sources": [
+            {
+              "id": "fbbb3aa2-be87-449a-afda-25e4b6624a73",
+              "label": "Sumber demo (simulasi)",
+              "origin": "simulated",
+              "measurement_kind": "interval_energy",
+              "cadence_seconds": 3600,
+              "resolution_mwh": 1000,
+              "transport_status": "none"
+            }
+          ]
+        },
+        "summary": {
+          "window": {
+            "start": "2026-10-18T17:00:00Z",
+            "end": "2026-10-25T17:00:00Z",
+            "effective_end": "2026-10-25T17:00:00Z",
+            "start_date": "2026-10-19",
+            "end_date": "2026-10-25",
+            "timezone": "Asia/Jakarta",
+            "is_current": false
+          },
+          "scope": {
+            "valid": true,
+            "issues": [],
+            "included": [
+              {
+                "asset_id": "92fe94fb-a37f-4834-ae1f-93170530ec43",
+                "name": "TV"
+              }
+            ],
+            "excluded": [
+              {
+                "asset_id": "3b17091b-9468-4f09-b564-b143eb5ec22c",
+                "name": "Kulkas",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "275ced3f-399e-47c3-ace7-7d6a12a93a43",
+                "name": "Pompa Air",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "b35145e0-ee59-4473-a502-4fe039790474",
+                "name": "Router",
+                "reason": "not_selected"
+              }
+            ]
+          },
+          "energy_kwh": "2.520",
+          "energy_unavailable_reason": null,
+          "coverage": {
+            "minimum": "1.000",
+            "concurrent": "1.000",
+            "allocated_estimate": false
+          },
+          "assets": [
+            {
+              "asset_id": "92fe94fb-a37f-4834-ae1f-93170530ec43",
+              "name": "TV",
+              "scope_kind": "device",
+              "energy_kwh": "2.520",
+              "energy_unavailable_reason": null,
+              "share_percent": "100.00",
+              "coverage": "1.000",
+              "gaps": [],
+              "conflict_sources": null
+            }
+          ],
+          "latest_measurement_at": "2026-10-25T17:00:00Z",
+          "origins": [
+            "simulated"
+          ],
+          "revision": 5
+        }
+      }
+    }
+  },
+  "h-zero": {
+    "initial_period": {
+      "preset": "last_7_days",
+      "start_date": "2026-10-19",
+      "end_date": "2026-10-25"
+    },
+    "summary": {
+      "window": {
+        "start": "2026-10-18T17:00:00Z",
+        "end": "2026-10-25T17:00:00Z",
+        "effective_end": "2026-10-25T17:00:00Z",
+        "start_date": "2026-10-19",
+        "end_date": "2026-10-25",
+        "timezone": "Asia/Jakarta",
+        "is_current": false
+      },
+      "scope": {
+        "valid": true,
+        "issues": [],
+        "included": [
+          {
+            "asset_id": "5dd654df-9cee-4c8c-a48e-8cf9e2212d9f",
+            "name": "Kulkas"
+          },
+          {
+            "asset_id": "9de0a8ae-692a-4bd5-8143-289b5fa1ff56",
+            "name": "Pompa Air"
+          },
+          {
+            "asset_id": "764c975e-3fc1-4f22-a48d-d2800aebcb97",
+            "name": "Router"
+          },
+          {
+            "asset_id": "b582eb91-dad8-4af8-8df1-e30f9b80db4d",
+            "name": "TV"
+          }
+        ],
+        "excluded": []
+      },
+      "energy_kwh": "0.000",
+      "energy_unavailable_reason": null,
+      "coverage": {
+        "minimum": "1.000",
+        "concurrent": "1.000",
+        "allocated_estimate": false
+      },
+      "assets": [
+        {
+          "asset_id": "5dd654df-9cee-4c8c-a48e-8cf9e2212d9f",
+          "name": "Kulkas",
+          "scope_kind": "device",
+          "energy_kwh": "0.000",
+          "energy_unavailable_reason": null,
+          "share_percent": null,
+          "coverage": "1.000",
+          "gaps": [],
+          "conflict_sources": null
+        },
+        {
+          "asset_id": "9de0a8ae-692a-4bd5-8143-289b5fa1ff56",
+          "name": "Pompa Air",
+          "scope_kind": "device",
+          "energy_kwh": "0.000",
+          "energy_unavailable_reason": null,
+          "share_percent": null,
+          "coverage": "1.000",
+          "gaps": [],
+          "conflict_sources": null
+        },
+        {
+          "asset_id": "764c975e-3fc1-4f22-a48d-d2800aebcb97",
+          "name": "Router",
+          "scope_kind": "device",
+          "energy_kwh": "0.000",
+          "energy_unavailable_reason": null,
+          "share_percent": null,
+          "coverage": "1.000",
+          "gaps": [],
+          "conflict_sources": null
+        },
+        {
+          "asset_id": "b582eb91-dad8-4af8-8df1-e30f9b80db4d",
+          "name": "TV",
+          "scope_kind": "device",
+          "energy_kwh": "0.000",
+          "energy_unavailable_reason": null,
+          "share_percent": null,
+          "coverage": "1.000",
+          "gaps": [],
+          "conflict_sources": null
+        }
+      ],
+      "latest_measurement_at": "2026-10-25T17:00:00Z",
+      "origins": [
+        "simulated"
+      ],
+      "revision": 5
+    },
+    "assets": {
+      "items": [
+        {
+          "id": "5dd654df-9cee-4c8c-a48e-8cf9e2212d9f",
+          "name": "Kulkas",
+          "category": "Pendingin makanan",
+          "location": "Dapur",
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "continuous",
+          "archived": false
+        },
+        {
+          "id": "9de0a8ae-692a-4bd5-8143-289b5fa1ff56",
+          "name": "Pompa Air",
+          "category": "Pompa",
+          "location": "Halaman belakang",
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "intermittent",
+          "archived": false
+        },
+        {
+          "id": "764c975e-3fc1-4f22-a48d-d2800aebcb97",
+          "name": "Router",
+          "category": "Elektronik/TI",
+          "location": "Ruang tengah",
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "continuous",
+          "archived": false
+        },
+        {
+          "id": "b582eb91-dad8-4af8-8df1-e30f9b80db4d",
+          "name": "TV",
+          "category": "Elektronik/TI",
+          "location": "Ruang tengah",
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "intermittent",
+          "archived": false
+        }
+      ],
+      "next_cursor": null
+    },
+    "notices": [],
+    "details": {
+      "Kulkas": {
+        "asset": {
+          "id": "5dd654df-9cee-4c8c-a48e-8cf9e2212d9f",
+          "name": "Kulkas",
+          "category": "Pendingin makanan",
+          "location": "Dapur",
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "continuous",
+          "archived": false,
+          "bindings": [
+            {
+              "id": "13fa19d5-90c2-45a6-921b-47e11778ea10",
+              "source_id": "96e89201-3c38-49b3-a2fd-ce1040ce4ca3",
+              "effective_from": "2026-09-27T17:00:00Z",
+              "effective_to": null,
+              "authoritative": true
+            }
+          ],
+          "sources": [
+            {
+              "id": "96e89201-3c38-49b3-a2fd-ce1040ce4ca3",
+              "label": "Sumber demo (simulasi)",
+              "origin": "simulated",
+              "measurement_kind": "interval_energy",
+              "cadence_seconds": 3600,
+              "resolution_mwh": 1000,
+              "transport_status": "none"
+            }
+          ]
+        },
+        "summary": {
+          "window": {
+            "start": "2026-10-18T17:00:00Z",
+            "end": "2026-10-25T17:00:00Z",
+            "effective_end": "2026-10-25T17:00:00Z",
+            "start_date": "2026-10-19",
+            "end_date": "2026-10-25",
+            "timezone": "Asia/Jakarta",
+            "is_current": false
+          },
+          "scope": {
+            "valid": true,
+            "issues": [],
+            "included": [
+              {
+                "asset_id": "5dd654df-9cee-4c8c-a48e-8cf9e2212d9f",
+                "name": "Kulkas"
+              }
+            ],
+            "excluded": [
+              {
+                "asset_id": "9de0a8ae-692a-4bd5-8143-289b5fa1ff56",
+                "name": "Pompa Air",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "764c975e-3fc1-4f22-a48d-d2800aebcb97",
+                "name": "Router",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "b582eb91-dad8-4af8-8df1-e30f9b80db4d",
+                "name": "TV",
+                "reason": "not_selected"
+              }
+            ]
+          },
+          "energy_kwh": "0.000",
+          "energy_unavailable_reason": null,
+          "coverage": {
+            "minimum": "1.000",
+            "concurrent": "1.000",
+            "allocated_estimate": false
+          },
+          "assets": [
+            {
+              "asset_id": "5dd654df-9cee-4c8c-a48e-8cf9e2212d9f",
+              "name": "Kulkas",
+              "scope_kind": "device",
+              "energy_kwh": "0.000",
+              "energy_unavailable_reason": null,
+              "share_percent": null,
+              "coverage": "1.000",
+              "gaps": [],
+              "conflict_sources": null
+            }
+          ],
+          "latest_measurement_at": "2026-10-25T17:00:00Z",
+          "origins": [
+            "simulated"
+          ],
+          "revision": 5
+        }
+      },
+      "Pompa Air": {
+        "asset": {
+          "id": "9de0a8ae-692a-4bd5-8143-289b5fa1ff56",
+          "name": "Pompa Air",
+          "category": "Pompa",
+          "location": "Halaman belakang",
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "intermittent",
+          "archived": false,
+          "bindings": [
+            {
+              "id": "70415331-6547-48e1-b592-21c5ccd69df9",
+              "source_id": "ad9bf706-9d4e-4fb6-95ef-c5a0d5d27810",
+              "effective_from": "2026-09-27T17:00:00Z",
+              "effective_to": null,
+              "authoritative": true
+            }
+          ],
+          "sources": [
+            {
+              "id": "ad9bf706-9d4e-4fb6-95ef-c5a0d5d27810",
+              "label": "Sumber demo (simulasi)",
+              "origin": "simulated",
+              "measurement_kind": "interval_energy",
+              "cadence_seconds": 3600,
+              "resolution_mwh": 1000,
+              "transport_status": "none"
+            }
+          ]
+        },
+        "summary": {
+          "window": {
+            "start": "2026-10-18T17:00:00Z",
+            "end": "2026-10-25T17:00:00Z",
+            "effective_end": "2026-10-25T17:00:00Z",
+            "start_date": "2026-10-19",
+            "end_date": "2026-10-25",
+            "timezone": "Asia/Jakarta",
+            "is_current": false
+          },
+          "scope": {
+            "valid": true,
+            "issues": [],
+            "included": [
+              {
+                "asset_id": "9de0a8ae-692a-4bd5-8143-289b5fa1ff56",
+                "name": "Pompa Air"
+              }
+            ],
+            "excluded": [
+              {
+                "asset_id": "5dd654df-9cee-4c8c-a48e-8cf9e2212d9f",
+                "name": "Kulkas",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "764c975e-3fc1-4f22-a48d-d2800aebcb97",
+                "name": "Router",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "b582eb91-dad8-4af8-8df1-e30f9b80db4d",
+                "name": "TV",
+                "reason": "not_selected"
+              }
+            ]
+          },
+          "energy_kwh": "0.000",
+          "energy_unavailable_reason": null,
+          "coverage": {
+            "minimum": "1.000",
+            "concurrent": "1.000",
+            "allocated_estimate": false
+          },
+          "assets": [
+            {
+              "asset_id": "9de0a8ae-692a-4bd5-8143-289b5fa1ff56",
+              "name": "Pompa Air",
+              "scope_kind": "device",
+              "energy_kwh": "0.000",
+              "energy_unavailable_reason": null,
+              "share_percent": null,
+              "coverage": "1.000",
+              "gaps": [],
+              "conflict_sources": null
+            }
+          ],
+          "latest_measurement_at": "2026-10-25T17:00:00Z",
+          "origins": [
+            "simulated"
+          ],
+          "revision": 5
+        }
+      },
+      "Router": {
+        "asset": {
+          "id": "764c975e-3fc1-4f22-a48d-d2800aebcb97",
+          "name": "Router",
+          "category": "Elektronik/TI",
+          "location": "Ruang tengah",
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "continuous",
+          "archived": false,
+          "bindings": [
+            {
+              "id": "d750edf0-fecd-4095-88e3-c691fd8efc19",
+              "source_id": "445c6af5-ffc5-46a3-af82-f6cac9e20496",
+              "effective_from": "2026-09-27T17:00:00Z",
+              "effective_to": null,
+              "authoritative": true
+            }
+          ],
+          "sources": [
+            {
+              "id": "445c6af5-ffc5-46a3-af82-f6cac9e20496",
+              "label": "Sumber demo (simulasi)",
+              "origin": "simulated",
+              "measurement_kind": "interval_energy",
+              "cadence_seconds": 3600,
+              "resolution_mwh": 1000,
+              "transport_status": "none"
+            }
+          ]
+        },
+        "summary": {
+          "window": {
+            "start": "2026-10-18T17:00:00Z",
+            "end": "2026-10-25T17:00:00Z",
+            "effective_end": "2026-10-25T17:00:00Z",
+            "start_date": "2026-10-19",
+            "end_date": "2026-10-25",
+            "timezone": "Asia/Jakarta",
+            "is_current": false
+          },
+          "scope": {
+            "valid": true,
+            "issues": [],
+            "included": [
+              {
+                "asset_id": "764c975e-3fc1-4f22-a48d-d2800aebcb97",
+                "name": "Router"
+              }
+            ],
+            "excluded": [
+              {
+                "asset_id": "5dd654df-9cee-4c8c-a48e-8cf9e2212d9f",
+                "name": "Kulkas",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "9de0a8ae-692a-4bd5-8143-289b5fa1ff56",
+                "name": "Pompa Air",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "b582eb91-dad8-4af8-8df1-e30f9b80db4d",
+                "name": "TV",
+                "reason": "not_selected"
+              }
+            ]
+          },
+          "energy_kwh": "0.000",
+          "energy_unavailable_reason": null,
+          "coverage": {
+            "minimum": "1.000",
+            "concurrent": "1.000",
+            "allocated_estimate": false
+          },
+          "assets": [
+            {
+              "asset_id": "764c975e-3fc1-4f22-a48d-d2800aebcb97",
+              "name": "Router",
+              "scope_kind": "device",
+              "energy_kwh": "0.000",
+              "energy_unavailable_reason": null,
+              "share_percent": null,
+              "coverage": "1.000",
+              "gaps": [],
+              "conflict_sources": null
+            }
+          ],
+          "latest_measurement_at": "2026-10-25T17:00:00Z",
+          "origins": [
+            "simulated"
+          ],
+          "revision": 5
+        }
+      },
+      "TV": {
+        "asset": {
+          "id": "b582eb91-dad8-4af8-8df1-e30f9b80db4d",
+          "name": "TV",
+          "category": "Elektronik/TI",
+          "location": "Ruang tengah",
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "intermittent",
+          "archived": false,
+          "bindings": [
+            {
+              "id": "c8c37425-1c3c-4356-bd11-3a303ce7c076",
+              "source_id": "0748066d-8f30-4021-bedd-681d8f21ae2c",
+              "effective_from": "2026-09-27T17:00:00Z",
+              "effective_to": null,
+              "authoritative": true
+            }
+          ],
+          "sources": [
+            {
+              "id": "0748066d-8f30-4021-bedd-681d8f21ae2c",
+              "label": "Sumber demo (simulasi)",
+              "origin": "simulated",
+              "measurement_kind": "interval_energy",
+              "cadence_seconds": 3600,
+              "resolution_mwh": 1000,
+              "transport_status": "none"
+            }
+          ]
+        },
+        "summary": {
+          "window": {
+            "start": "2026-10-18T17:00:00Z",
+            "end": "2026-10-25T17:00:00Z",
+            "effective_end": "2026-10-25T17:00:00Z",
+            "start_date": "2026-10-19",
+            "end_date": "2026-10-25",
+            "timezone": "Asia/Jakarta",
+            "is_current": false
+          },
+          "scope": {
+            "valid": true,
+            "issues": [],
+            "included": [
+              {
+                "asset_id": "b582eb91-dad8-4af8-8df1-e30f9b80db4d",
+                "name": "TV"
+              }
+            ],
+            "excluded": [
+              {
+                "asset_id": "5dd654df-9cee-4c8c-a48e-8cf9e2212d9f",
+                "name": "Kulkas",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "9de0a8ae-692a-4bd5-8143-289b5fa1ff56",
+                "name": "Pompa Air",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "764c975e-3fc1-4f22-a48d-d2800aebcb97",
+                "name": "Router",
+                "reason": "not_selected"
+              }
+            ]
+          },
+          "energy_kwh": "0.000",
+          "energy_unavailable_reason": null,
+          "coverage": {
+            "minimum": "1.000",
+            "concurrent": "1.000",
+            "allocated_estimate": false
+          },
+          "assets": [
+            {
+              "asset_id": "b582eb91-dad8-4af8-8df1-e30f9b80db4d",
+              "name": "TV",
+              "scope_kind": "device",
+              "energy_kwh": "0.000",
+              "energy_unavailable_reason": null,
+              "share_percent": null,
+              "coverage": "1.000",
+              "gaps": [],
+              "conflict_sources": null
+            }
+          ],
+          "latest_measurement_at": "2026-10-25T17:00:00Z",
+          "origins": [
+            "simulated"
+          ],
+          "revision": 5
+        }
+      }
+    }
+  },
+  "empty": {
+    "initial_period": {
+      "preset": "last_7_days",
+      "start_date": "2026-10-19",
+      "end_date": "2026-10-25"
+    },
+    "summary": {
+      "window": {
+        "start": "2026-10-18T17:00:00Z",
+        "end": "2026-10-25T17:00:00Z",
+        "effective_end": "2026-10-25T17:00:00Z",
+        "start_date": "2026-10-19",
+        "end_date": "2026-10-25",
+        "timezone": "Asia/Jakarta",
+        "is_current": false
+      },
+      "scope": {
+        "valid": true,
+        "issues": [],
+        "included": [],
+        "excluded": []
+      },
+      "energy_kwh": null,
+      "energy_unavailable_reason": "no_data",
+      "coverage": {
+        "minimum": null,
+        "concurrent": null,
+        "allocated_estimate": false
+      },
+      "assets": [],
+      "latest_measurement_at": null,
+      "origins": [],
+      "revision": 0
+    },
+    "assets": {
+      "items": [],
+      "next_cursor": null
+    },
+    "notices": [],
+    "details": {}
+  },
+  "i-base": {
+    "initial_period": {
+      "preset": "last_7_days",
+      "start_date": "2026-10-19",
+      "end_date": "2026-10-25"
+    },
+    "summary": {
+      "window": {
+        "start": "2026-10-18T17:00:00Z",
+        "end": "2026-10-25T17:00:00Z",
+        "effective_end": "2026-10-25T17:00:00Z",
+        "start_date": "2026-10-19",
+        "end_date": "2026-10-25",
+        "timezone": "Asia/Jakarta",
+        "is_current": false
+      },
+      "scope": {
+        "valid": true,
+        "issues": [],
+        "included": [
+          {
+            "asset_id": "53492327-4ffc-40fc-bfdb-0a2176b1e1c4",
+            "name": "Kompresor"
+          },
+          {
+            "asset_id": "a896e06a-ba84-4a93-8158-8390ff2f2505",
+            "name": "Lampu Area"
+          },
+          {
+            "asset_id": "58e2e3ca-8322-4134-bd55-9bf3d8bf6b16",
+            "name": "Mesin Press"
+          },
+          {
+            "asset_id": "9f09902e-e02b-4d49-9556-5f7bc2b46052",
+            "name": "Oven"
+          }
+        ],
+        "excluded": []
+      },
+      "energy_kwh": "144.000",
+      "energy_unavailable_reason": null,
+      "coverage": {
+        "minimum": "1.000",
+        "concurrent": "1.000",
+        "allocated_estimate": false
+      },
+      "assets": [
+        {
+          "asset_id": "9f09902e-e02b-4d49-9556-5f7bc2b46052",
+          "name": "Oven",
+          "scope_kind": "device",
+          "energy_kwh": "72.000",
+          "energy_unavailable_reason": null,
+          "share_percent": "50.00",
+          "coverage": "1.000",
+          "gaps": [],
+          "conflict_sources": null
+        },
+        {
+          "asset_id": "53492327-4ffc-40fc-bfdb-0a2176b1e1c4",
+          "name": "Kompresor",
+          "scope_kind": "device",
+          "energy_kwh": "36.000",
+          "energy_unavailable_reason": null,
+          "share_percent": "25.00",
+          "coverage": "1.000",
+          "gaps": [],
+          "conflict_sources": null
+        },
+        {
+          "asset_id": "58e2e3ca-8322-4134-bd55-9bf3d8bf6b16",
+          "name": "Mesin Press",
+          "scope_kind": "device",
+          "energy_kwh": "24.000",
+          "energy_unavailable_reason": null,
+          "share_percent": "16.67",
+          "coverage": "1.000",
+          "gaps": [],
+          "conflict_sources": null
+        },
+        {
+          "asset_id": "a896e06a-ba84-4a93-8158-8390ff2f2505",
+          "name": "Lampu Area",
+          "scope_kind": "device",
+          "energy_kwh": "12.000",
+          "energy_unavailable_reason": null,
+          "share_percent": "8.33",
+          "coverage": "1.000",
+          "gaps": [],
+          "conflict_sources": null
+        }
+      ],
+      "latest_measurement_at": "2026-10-25T17:00:00Z",
+      "origins": [
+        "simulated"
+      ],
+      "revision": 5
+    },
+    "assets": {
+      "items": [
+        {
+          "id": "53492327-4ffc-40fc-bfdb-0a2176b1e1c4",
+          "name": "Kompresor",
+          "category": "Motor/proses",
+          "location": "Area produksi",
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "unknown",
+          "archived": false
+        },
+        {
+          "id": "a896e06a-ba84-4a93-8158-8390ff2f2505",
+          "name": "Lampu Area",
+          "category": "Penerangan",
+          "location": "Area produksi",
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "unknown",
+          "archived": false
+        },
+        {
+          "id": "58e2e3ca-8322-4134-bd55-9bf3d8bf6b16",
+          "name": "Mesin Press",
+          "category": "Motor/proses",
+          "location": "Area produksi",
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "unknown",
+          "archived": false
+        },
+        {
+          "id": "9f09902e-e02b-4d49-9556-5f7bc2b46052",
+          "name": "Oven",
+          "category": "Pemanas/memasak",
+          "location": "Area produksi",
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "unknown",
+          "archived": false
+        }
+      ],
+      "next_cursor": null
+    },
+    "notices": [],
+    "details": {
+      "Kompresor": {
+        "asset": {
+          "id": "53492327-4ffc-40fc-bfdb-0a2176b1e1c4",
+          "name": "Kompresor",
+          "category": "Motor/proses",
+          "location": "Area produksi",
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "unknown",
+          "archived": false,
+          "bindings": [
+            {
+              "id": "92aaf6f4-37e2-4f60-90c2-c6f7bdc4c83e",
+              "source_id": "ec1c2bbf-cd38-47ac-9781-5992abf0de43",
+              "effective_from": "2026-09-27T17:00:00Z",
+              "effective_to": null,
+              "authoritative": true
+            }
+          ],
+          "sources": [
+            {
+              "id": "ec1c2bbf-cd38-47ac-9781-5992abf0de43",
+              "label": "Sumber demo (simulasi)",
+              "origin": "simulated",
+              "measurement_kind": "interval_energy",
+              "cadence_seconds": 3600,
+              "resolution_mwh": 1000,
+              "transport_status": "none"
+            }
+          ]
+        },
+        "summary": {
+          "window": {
+            "start": "2026-10-18T17:00:00Z",
+            "end": "2026-10-25T17:00:00Z",
+            "effective_end": "2026-10-25T17:00:00Z",
+            "start_date": "2026-10-19",
+            "end_date": "2026-10-25",
+            "timezone": "Asia/Jakarta",
+            "is_current": false
+          },
+          "scope": {
+            "valid": true,
+            "issues": [],
+            "included": [
+              {
+                "asset_id": "53492327-4ffc-40fc-bfdb-0a2176b1e1c4",
+                "name": "Kompresor"
+              }
+            ],
+            "excluded": [
+              {
+                "asset_id": "a896e06a-ba84-4a93-8158-8390ff2f2505",
+                "name": "Lampu Area",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "58e2e3ca-8322-4134-bd55-9bf3d8bf6b16",
+                "name": "Mesin Press",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "9f09902e-e02b-4d49-9556-5f7bc2b46052",
+                "name": "Oven",
+                "reason": "not_selected"
+              }
+            ]
+          },
+          "energy_kwh": "36.000",
+          "energy_unavailable_reason": null,
+          "coverage": {
+            "minimum": "1.000",
+            "concurrent": "1.000",
+            "allocated_estimate": false
+          },
+          "assets": [
+            {
+              "asset_id": "53492327-4ffc-40fc-bfdb-0a2176b1e1c4",
+              "name": "Kompresor",
+              "scope_kind": "device",
+              "energy_kwh": "36.000",
+              "energy_unavailable_reason": null,
+              "share_percent": "100.00",
+              "coverage": "1.000",
+              "gaps": [],
+              "conflict_sources": null
+            }
+          ],
+          "latest_measurement_at": "2026-10-25T17:00:00Z",
+          "origins": [
+            "simulated"
+          ],
+          "revision": 5
+        }
+      },
+      "Lampu Area": {
+        "asset": {
+          "id": "a896e06a-ba84-4a93-8158-8390ff2f2505",
+          "name": "Lampu Area",
+          "category": "Penerangan",
+          "location": "Area produksi",
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "unknown",
+          "archived": false,
+          "bindings": [
+            {
+              "id": "98f45405-bf0b-41ef-ac0b-ee6778e704f1",
+              "source_id": "911b17c6-3361-4b68-a1f1-2d33f28bc1f6",
+              "effective_from": "2026-09-27T17:00:00Z",
+              "effective_to": null,
+              "authoritative": true
+            }
+          ],
+          "sources": [
+            {
+              "id": "911b17c6-3361-4b68-a1f1-2d33f28bc1f6",
+              "label": "Sumber demo (simulasi)",
+              "origin": "simulated",
+              "measurement_kind": "interval_energy",
+              "cadence_seconds": 3600,
+              "resolution_mwh": 1000,
+              "transport_status": "none"
+            }
+          ]
+        },
+        "summary": {
+          "window": {
+            "start": "2026-10-18T17:00:00Z",
+            "end": "2026-10-25T17:00:00Z",
+            "effective_end": "2026-10-25T17:00:00Z",
+            "start_date": "2026-10-19",
+            "end_date": "2026-10-25",
+            "timezone": "Asia/Jakarta",
+            "is_current": false
+          },
+          "scope": {
+            "valid": true,
+            "issues": [],
+            "included": [
+              {
+                "asset_id": "a896e06a-ba84-4a93-8158-8390ff2f2505",
+                "name": "Lampu Area"
+              }
+            ],
+            "excluded": [
+              {
+                "asset_id": "53492327-4ffc-40fc-bfdb-0a2176b1e1c4",
+                "name": "Kompresor",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "58e2e3ca-8322-4134-bd55-9bf3d8bf6b16",
+                "name": "Mesin Press",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "9f09902e-e02b-4d49-9556-5f7bc2b46052",
+                "name": "Oven",
+                "reason": "not_selected"
+              }
+            ]
+          },
+          "energy_kwh": "12.000",
+          "energy_unavailable_reason": null,
+          "coverage": {
+            "minimum": "1.000",
+            "concurrent": "1.000",
+            "allocated_estimate": false
+          },
+          "assets": [
+            {
+              "asset_id": "a896e06a-ba84-4a93-8158-8390ff2f2505",
+              "name": "Lampu Area",
+              "scope_kind": "device",
+              "energy_kwh": "12.000",
+              "energy_unavailable_reason": null,
+              "share_percent": "100.00",
+              "coverage": "1.000",
+              "gaps": [],
+              "conflict_sources": null
+            }
+          ],
+          "latest_measurement_at": "2026-10-25T17:00:00Z",
+          "origins": [
+            "simulated"
+          ],
+          "revision": 5
+        }
+      },
+      "Mesin Press": {
+        "asset": {
+          "id": "58e2e3ca-8322-4134-bd55-9bf3d8bf6b16",
+          "name": "Mesin Press",
+          "category": "Motor/proses",
+          "location": "Area produksi",
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "unknown",
+          "archived": false,
+          "bindings": [
+            {
+              "id": "04927835-0f98-44f3-ba15-03fe7d842096",
+              "source_id": "60d725ad-657a-4ae0-a9ca-457c9e4276b3",
+              "effective_from": "2026-09-27T17:00:00Z",
+              "effective_to": null,
+              "authoritative": true
+            }
+          ],
+          "sources": [
+            {
+              "id": "60d725ad-657a-4ae0-a9ca-457c9e4276b3",
+              "label": "Sumber demo (simulasi)",
+              "origin": "simulated",
+              "measurement_kind": "interval_energy",
+              "cadence_seconds": 3600,
+              "resolution_mwh": 1000,
+              "transport_status": "none"
+            }
+          ]
+        },
+        "summary": {
+          "window": {
+            "start": "2026-10-18T17:00:00Z",
+            "end": "2026-10-25T17:00:00Z",
+            "effective_end": "2026-10-25T17:00:00Z",
+            "start_date": "2026-10-19",
+            "end_date": "2026-10-25",
+            "timezone": "Asia/Jakarta",
+            "is_current": false
+          },
+          "scope": {
+            "valid": true,
+            "issues": [],
+            "included": [
+              {
+                "asset_id": "58e2e3ca-8322-4134-bd55-9bf3d8bf6b16",
+                "name": "Mesin Press"
+              }
+            ],
+            "excluded": [
+              {
+                "asset_id": "53492327-4ffc-40fc-bfdb-0a2176b1e1c4",
+                "name": "Kompresor",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "a896e06a-ba84-4a93-8158-8390ff2f2505",
+                "name": "Lampu Area",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "9f09902e-e02b-4d49-9556-5f7bc2b46052",
+                "name": "Oven",
+                "reason": "not_selected"
+              }
+            ]
+          },
+          "energy_kwh": "24.000",
+          "energy_unavailable_reason": null,
+          "coverage": {
+            "minimum": "1.000",
+            "concurrent": "1.000",
+            "allocated_estimate": false
+          },
+          "assets": [
+            {
+              "asset_id": "58e2e3ca-8322-4134-bd55-9bf3d8bf6b16",
+              "name": "Mesin Press",
+              "scope_kind": "device",
+              "energy_kwh": "24.000",
+              "energy_unavailable_reason": null,
+              "share_percent": "100.00",
+              "coverage": "1.000",
+              "gaps": [],
+              "conflict_sources": null
+            }
+          ],
+          "latest_measurement_at": "2026-10-25T17:00:00Z",
+          "origins": [
+            "simulated"
+          ],
+          "revision": 5
+        }
+      },
+      "Oven": {
+        "asset": {
+          "id": "9f09902e-e02b-4d49-9556-5f7bc2b46052",
+          "name": "Oven",
+          "category": "Pemanas/memasak",
+          "location": "Area produksi",
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "unknown",
+          "archived": false,
+          "bindings": [
+            {
+              "id": "77e2a195-954f-4995-b368-0d5a48485e15",
+              "source_id": "c5f28f91-7ef6-45ee-9004-b469304caeb1",
+              "effective_from": "2026-09-27T17:00:00Z",
+              "effective_to": null,
+              "authoritative": true
+            }
+          ],
+          "sources": [
+            {
+              "id": "c5f28f91-7ef6-45ee-9004-b469304caeb1",
+              "label": "Sumber demo (simulasi)",
+              "origin": "simulated",
+              "measurement_kind": "interval_energy",
+              "cadence_seconds": 3600,
+              "resolution_mwh": 1000,
+              "transport_status": "none"
+            }
+          ]
+        },
+        "summary": {
+          "window": {
+            "start": "2026-10-18T17:00:00Z",
+            "end": "2026-10-25T17:00:00Z",
+            "effective_end": "2026-10-25T17:00:00Z",
+            "start_date": "2026-10-19",
+            "end_date": "2026-10-25",
+            "timezone": "Asia/Jakarta",
+            "is_current": false
+          },
+          "scope": {
+            "valid": true,
+            "issues": [],
+            "included": [
+              {
+                "asset_id": "9f09902e-e02b-4d49-9556-5f7bc2b46052",
+                "name": "Oven"
+              }
+            ],
+            "excluded": [
+              {
+                "asset_id": "53492327-4ffc-40fc-bfdb-0a2176b1e1c4",
+                "name": "Kompresor",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "a896e06a-ba84-4a93-8158-8390ff2f2505",
+                "name": "Lampu Area",
+                "reason": "not_selected"
+              },
+              {
+                "asset_id": "58e2e3ca-8322-4134-bd55-9bf3d8bf6b16",
+                "name": "Mesin Press",
+                "reason": "not_selected"
+              }
+            ]
+          },
+          "energy_kwh": "72.000",
+          "energy_unavailable_reason": null,
+          "coverage": {
+            "minimum": "1.000",
+            "concurrent": "1.000",
+            "allocated_estimate": false
+          },
+          "assets": [
+            {
+              "asset_id": "9f09902e-e02b-4d49-9556-5f7bc2b46052",
+              "name": "Oven",
+              "scope_kind": "device",
+              "energy_kwh": "72.000",
+              "energy_unavailable_reason": null,
+              "share_percent": "100.00",
+              "coverage": "1.000",
+              "gaps": [],
+              "conflict_sources": null
+            }
+          ],
+          "latest_measurement_at": "2026-10-25T17:00:00Z",
+          "origins": [
+            "simulated"
+          ],
+          "revision": 5
+        }
+      }
+    }
+  },
+  "imported": {
+    "initial_period": {
+      "preset": "last_7_days",
+      "start_date": "2026-10-19",
+      "end_date": "2026-10-25"
+    },
+    "summary": {
+      "window": {
+        "start": "2026-10-18T17:00:00Z",
+        "end": "2026-10-25T17:00:00Z",
+        "effective_end": "2026-10-25T17:00:00Z",
+        "start_date": "2026-10-19",
+        "end_date": "2026-10-25",
+        "timezone": "Asia/Jakarta",
+        "is_current": false
+      },
+      "scope": {
+        "valid": true,
+        "issues": [],
+        "included": [
+          {
+            "asset_id": "f01bef58-953f-4a67-bac3-7323960e8ef5",
+            "name": "Kulkas"
+          },
+          {
+            "asset_id": "e8b7d7cf-f044-4d18-9852-28e9bd53ddd6",
+            "name": "Router"
+          }
+        ],
+        "excluded": []
+      },
+      "energy_kwh": "0.122",
+      "energy_unavailable_reason": null,
+      "coverage": {
+        "minimum": "0.011",
+        "concurrent": "0.011",
+        "allocated_estimate": false
+      },
+      "assets": [
+        {
+          "asset_id": "f01bef58-953f-4a67-bac3-7323960e8ef5",
+          "name": "Kulkas",
+          "scope_kind": "device",
+          "energy_kwh": "0.100",
+          "energy_unavailable_reason": null,
+          "share_percent": "81.97",
+          "coverage": "0.011",
+          "gaps": [
+            {
+              "start": "2026-10-18T17:00:00Z",
+              "end": "2026-10-19T17:00:00Z"
+            },
+            {
+              "start": "2026-10-19T19:00:00Z",
+              "end": "2026-10-25T17:00:00Z"
+            }
+          ],
+          "conflict_sources": null
+        },
+        {
+          "asset_id": "e8b7d7cf-f044-4d18-9852-28e9bd53ddd6",
+          "name": "Router",
+          "scope_kind": "device",
+          "energy_kwh": "0.022",
+          "energy_unavailable_reason": null,
+          "share_percent": "18.03",
+          "coverage": "0.011",
+          "gaps": [
+            {
+              "start": "2026-10-18T17:00:00Z",
+              "end": "2026-10-19T17:00:00Z"
+            },
+            {
+              "start": "2026-10-19T19:00:00Z",
+              "end": "2026-10-25T17:00:00Z"
+            }
+          ],
+          "conflict_sources": null
+        }
+      ],
+      "latest_measurement_at": "2026-10-19T19:00:00Z",
+      "origins": [
+        "import"
+      ],
+      "revision": 3
+    },
+    "assets": {
+      "items": [
+        {
+          "id": "f01bef58-953f-4a67-bac3-7323960e8ef5",
+          "name": "Kulkas",
+          "category": null,
+          "location": null,
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "unknown",
+          "archived": false
+        },
+        {
+          "id": "e8b7d7cf-f044-4d18-9852-28e9bd53ddd6",
+          "name": "Router",
+          "category": null,
+          "location": null,
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "unknown",
+          "archived": false
+        }
+      ],
+      "next_cursor": null
+    },
+    "notices": [
+      {
+        "id": "partial:f01bef58-953f-4a67-bac3-7323960e8ef5",
+        "kind": "partial",
+        "asset_id": "f01bef58-953f-4a67-bac3-7323960e8ef5",
+        "title": "Sebagian data belum tersedia · Kulkas",
+        "body": "Kelengkapan data: 1,1% periode. Data 19 Oktober 2026 00.00–00.00 belum tersedia. Data 20 Oktober 2026 – 25 Oktober 2026 belum tersedia."
+      },
+      {
+        "id": "partial:e8b7d7cf-f044-4d18-9852-28e9bd53ddd6",
+        "kind": "partial",
+        "asset_id": "e8b7d7cf-f044-4d18-9852-28e9bd53ddd6",
+        "title": "Sebagian data belum tersedia · Router",
+        "body": "Kelengkapan data: 1,1% periode. Data 19 Oktober 2026 00.00–00.00 belum tersedia. Data 20 Oktober 2026 – 25 Oktober 2026 belum tersedia."
+      }
+    ],
+    "details": {
+      "Kulkas": {
+        "asset": {
+          "id": "f01bef58-953f-4a67-bac3-7323960e8ef5",
+          "name": "Kulkas",
+          "category": null,
+          "location": null,
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "unknown",
+          "archived": false,
+          "bindings": [
+            {
+              "id": "182d23a1-53cf-47c5-890c-1114c3d22307",
+              "source_id": "7d519822-5c4b-4168-a96d-da410b09a01d",
+              "effective_from": "2026-10-19T17:00:00Z",
+              "effective_to": null,
+              "authoritative": true
+            }
+          ],
+          "sources": [
+            {
+              "id": "7d519822-5c4b-4168-a96d-da410b09a01d",
+              "label": "Impor CSV · kulkas",
+              "origin": "import",
+              "measurement_kind": "interval_energy",
+              "cadence_seconds": null,
+              "resolution_mwh": null,
+              "transport_status": "historical"
+            }
+          ]
+        },
+        "summary": {
+          "window": {
+            "start": "2026-10-18T17:00:00Z",
+            "end": "2026-10-25T17:00:00Z",
+            "effective_end": "2026-10-25T17:00:00Z",
+            "start_date": "2026-10-19",
+            "end_date": "2026-10-25",
+            "timezone": "Asia/Jakarta",
+            "is_current": false
+          },
+          "scope": {
+            "valid": true,
+            "issues": [],
+            "included": [
+              {
+                "asset_id": "f01bef58-953f-4a67-bac3-7323960e8ef5",
+                "name": "Kulkas"
+              }
+            ],
+            "excluded": [
+              {
+                "asset_id": "e8b7d7cf-f044-4d18-9852-28e9bd53ddd6",
+                "name": "Router",
+                "reason": "not_selected"
+              }
+            ]
+          },
+          "energy_kwh": "0.100",
+          "energy_unavailable_reason": null,
+          "coverage": {
+            "minimum": "0.011",
+            "concurrent": "0.011",
+            "allocated_estimate": false
+          },
+          "assets": [
+            {
+              "asset_id": "f01bef58-953f-4a67-bac3-7323960e8ef5",
+              "name": "Kulkas",
+              "scope_kind": "device",
+              "energy_kwh": "0.100",
+              "energy_unavailable_reason": null,
+              "share_percent": "100.00",
+              "coverage": "0.011",
+              "gaps": [
+                {
+                  "start": "2026-10-18T17:00:00Z",
+                  "end": "2026-10-19T17:00:00Z"
+                },
+                {
+                  "start": "2026-10-19T19:00:00Z",
+                  "end": "2026-10-25T17:00:00Z"
+                }
+              ],
+              "conflict_sources": null
+            }
+          ],
+          "latest_measurement_at": "2026-10-19T19:00:00Z",
+          "origins": [
+            "import"
+          ],
+          "revision": 3
+        }
+      },
+      "Router": {
+        "asset": {
+          "id": "e8b7d7cf-f044-4d18-9852-28e9bd53ddd6",
+          "name": "Router",
+          "category": null,
+          "location": null,
+          "scope_kind": "device",
+          "parent_asset_id": null,
+          "expected_use": "unknown",
+          "archived": false,
+          "bindings": [
+            {
+              "id": "422beaf1-dc77-467b-bb07-3c83e43ec4a8",
+              "source_id": "6ca27975-0ebe-4730-b122-0ef472a4ac4f",
+              "effective_from": "2026-10-19T17:00:00Z",
+              "effective_to": null,
+              "authoritative": true
+            }
+          ],
+          "sources": [
+            {
+              "id": "6ca27975-0ebe-4730-b122-0ef472a4ac4f",
+              "label": "Impor CSV · router",
+              "origin": "import",
+              "measurement_kind": "interval_energy",
+              "cadence_seconds": null,
+              "resolution_mwh": null,
+              "transport_status": "historical"
+            }
+          ]
+        },
+        "summary": {
+          "window": {
+            "start": "2026-10-18T17:00:00Z",
+            "end": "2026-10-25T17:00:00Z",
+            "effective_end": "2026-10-25T17:00:00Z",
+            "start_date": "2026-10-19",
+            "end_date": "2026-10-25",
+            "timezone": "Asia/Jakarta",
+            "is_current": false
+          },
+          "scope": {
+            "valid": true,
+            "issues": [],
+            "included": [
+              {
+                "asset_id": "e8b7d7cf-f044-4d18-9852-28e9bd53ddd6",
+                "name": "Router"
+              }
+            ],
+            "excluded": [
+              {
+                "asset_id": "f01bef58-953f-4a67-bac3-7323960e8ef5",
+                "name": "Kulkas",
+                "reason": "not_selected"
+              }
+            ]
+          },
+          "energy_kwh": "0.022",
+          "energy_unavailable_reason": null,
+          "coverage": {
+            "minimum": "0.011",
+            "concurrent": "0.011",
+            "allocated_estimate": false
+          },
+          "assets": [
+            {
+              "asset_id": "e8b7d7cf-f044-4d18-9852-28e9bd53ddd6",
+              "name": "Router",
+              "scope_kind": "device",
+              "energy_kwh": "0.022",
+              "energy_unavailable_reason": null,
+              "share_percent": "100.00",
+              "coverage": "0.011",
+              "gaps": [
+                {
+                  "start": "2026-10-18T17:00:00Z",
+                  "end": "2026-10-19T17:00:00Z"
+                },
+                {
+                  "start": "2026-10-19T19:00:00Z",
+                  "end": "2026-10-25T17:00:00Z"
+                }
+              ],
+              "conflict_sources": null
+            }
+          ],
+          "latest_measurement_at": "2026-10-19T19:00:00Z",
+          "origins": [
+            "import"
+          ],
+          "revision": 3
+        }
+      }
+    }
+  }
+}
