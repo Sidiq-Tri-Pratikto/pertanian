@@ -81,10 +81,14 @@ jobs:
       - name: Install Maestro
         env:
           MAESTRO_VERSION: 2.12.1
+          MAESTRO_ASSET_ID: "700989346" # maestro.zip from the same pinned release
           MAESTRO_SHA256: 54dbb0716425626604973cbb374c585ca30272375d9ce15177a1152765ddd9d7
         run: |
-          curl -fsSL --retry 3 -o "$RUNNER_TEMP/maestro.zip" \
-            "https://github.com/mobile-dev-inc/maestro/releases/download/cli-${MAESTRO_VERSION}/maestro.zip"
+          if ! curl -fsSL --retry 3 -o "$RUNNER_TEMP/maestro.zip" \
+            "https://github.com/mobile-dev-inc/maestro/releases/download/cli-${MAESTRO_VERSION}/maestro.zip"; then
+            curl -fsSL --retry 3 -H 'Accept: application/octet-stream' -o "$RUNNER_TEMP/maestro.zip" \
+              "https://api.github.com/repos/mobile-dev-inc/maestro/releases/assets/${MAESTRO_ASSET_ID}"
+          fi
           echo "$MAESTRO_SHA256  $RUNNER_TEMP/maestro.zip" | sha256sum --check --strict -
           unzip -q "$RUNNER_TEMP/maestro.zip" -d "$RUNNER_TEMP"
           rm "$RUNNER_TEMP/maestro.zip"
