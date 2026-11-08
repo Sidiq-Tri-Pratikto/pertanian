@@ -17,3 +17,11 @@
 .hd-app .hd-errlist li:focus { box-shadow: var(--hd-ring); }
 @media (min-width: 768px) { .hd-app .hd-kv { grid-template-columns: minmax(10rem, 14rem) minmax(0, 1fr); } .hd-app .hd-kv dd { margin: 0; } }
 html.hd-large-text { font-size: 200%; }
+
+.hd-app .hd-screen__body,
+.hd-app .hd-screen__main,
+.hd-app .hd-screen__aside { gap: var(--space-24); }
+.hd-app .hd-screen:not(.hd-screen--aside) .hd-screen__body { max-width: var(--size-content-readingWidth); }
+@media (min-width: 768px) {
+  .hd-app .hd-screen--aside .hd-screen__body { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
+}

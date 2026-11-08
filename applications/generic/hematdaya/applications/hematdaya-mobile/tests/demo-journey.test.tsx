@@ -127,7 +127,7 @@ describe('demo onboarding', () => {
     expect(screen.getByText('Demo · Data simulasi')).toBeOnTheScreen();
     expect(screen.getAllByText('Kelengkapan data: 100% periode').length).toBeGreaterThan(0);
     expect(screen.getByText('Periode aktif: 19–25 Oktober 2026 · Asia/Jakarta')).toBeOnTheScreen();
-    expect(screen.getAllByText('Cakupan pengukuran: 4 perangkat').length).toBeGreaterThan(0);
+    expect(screen.getByText(/19–25 Oktober 2026 · Cakupan pengukuran: 4 perangkat/)).toBeOnTheScreen();
     expect(screen.getByText('8,400 kWh · 57,14%')).toBeOnTheScreen();
     expect(createCalls(fetchMock)).toHaveLength(1);
     const [call] = createCalls(fetchMock);
