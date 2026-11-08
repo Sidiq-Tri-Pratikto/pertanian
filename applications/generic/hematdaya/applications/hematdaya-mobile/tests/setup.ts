@@ -1,3 +1,5 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 /* Native modules Jest cannot load: an in-memory secure store and Node's random bytes. */
 const mockSecureStore = new Map<string, string>();
 
@@ -31,4 +33,7 @@ jest.mock('expo-document-picker', () => ({
   getDocumentAsync: jest.fn(async () => ({ canceled: true, assets: null })),
 }));
 
-beforeEach(() => mockSecureStore.clear());
+beforeEach(async () => {
+  mockSecureStore.clear();
+  await AsyncStorage.removeItem('hematdaya.welcome.explored.v1');
+});

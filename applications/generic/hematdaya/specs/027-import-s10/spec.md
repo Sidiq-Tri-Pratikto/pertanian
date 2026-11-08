@@ -96,3 +96,7 @@ Import from 025 and 026. The client adds an import draft (source, answers, previ
 - **SC-001**: Every import example from the prototype passes by keyboard on web and by touch on Android. The Android half needs a device or emulator run, which this spec's CI job cannot reach, so it stays recorded as not run until one is made.
 - **SC-002**: UX-20 check is recorded with row and file-line evidence.
 - **SC-003**: AT-03's evidence names its file dates and the workspace clock, and the after-clock path is recorded separately.
+
+## Onboarding refresh
+
+[Spec 047](../047-explore-first-onboarding/spec.md) supersedes the original Welcome and first import entry behavior. Its verification is tracked separately.

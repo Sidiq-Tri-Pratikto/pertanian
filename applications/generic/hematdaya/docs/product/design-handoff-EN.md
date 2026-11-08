@@ -1,6 +1,6 @@
 # HematDaya — Self-Contained Claude Design Handoff
 
-Version: 1.2.1. Workflow updated October 24, 2026, Asia/Jakarta. Canonical product PRD: Generic 1.2, October 21, 2026. Specification language: English. Product interface: Indonesian. Currency: IDR.
+Version: 1.3.0. Updated November 8, 2026, Asia/Jakarta. Canonical product PRD: Generic 1.3. Specification language: English. Product interface: Indonesian by default, with English selectable. Currency: IDR.
 
 **This file contains the complete product context, ready prompt, and canonical English PRD.** Use the agreed design-system-first sequence: create HematDaya Design System, then attach this application handoff and select/import that actual system or its exported reference. No repository access or earlier chat is needed to understand the product. If the system is unavailable, establish a clearly labelled local draft system from the seed guidance before composing screens and record the missing binding; do not claim inheritance. Preparing this handoff does not create, register, or publish a system or application.
 
@@ -36,7 +36,7 @@ Use exactly three persistent labelled primary destinations: **Beranda**, **Peran
 
 Prioritize complete paths in this order:
 
-1. **Hardware-free start:** S01 → optional context or Lewati → demo selection → S03. Opening household demo must immediately show useful measured energy without a setup wizard.
+1. **Hardware-free start:** S01 → Coba demo → demo selection → S03. Opening household demo must immediately show useful measured energy without a setup wizard.
 2. **Interpretation:** S03 → choose period → largest contributor → S06 history; the contributor and featured evidence are each reachable within three deliberate taps from populated Beranda. Count taps separately from whether the user understands the result.
 3. **Evidence:** S03 featured observation or S07 list → S08 → inspect comparison, limitations, and harmless feedback. Return preserves the period and list position.
 4. **CSV first use:** S02 → S10 input → mapping/semantics → preview → explicit commit → S03 for the imported range. Repair and retry are complete parts of this path.
@@ -90,13 +90,13 @@ On web, focus the screen heading after route change, place focus inside an opene
 
 The common pending/error/draft/focus rules above apply to every screen. The named actions below are required, not decorative affordances. Any additional visible control receives an equally explicit contract in the final route map.
 
-### S01 — Welcome and optional context
+### S01 — Explore-first welcome
 
-Purpose: explain “Pahami energi yang dipantau, lalu periksa perubahan berdasarkan data.” Show primary **Mulai**, secondary **Coba demo**, and skippable context options Rumah tangga/Usaha/Industri/Belum memilih with **Lewati**. No required form. Mulai enters S02 for an empty local demo workspace or the honestly labelled saved-service boundary. Coba demo opens household/industry choice and then S03. Context selection changes introductory examples only. Back from context returns welcome; cancelling demo choice returns its invoker. Preserve the choice as a draft until continued. Loading a fixture announces “Menyiapkan data demo…”, with retry on actual failure. There is no permission prompt, account pretense, or onboarding checklist blocking reading.
+Purpose: show one short explanation, primary **Coba demo**, and secondary **Lanjut tanpa data**. Continue opens empty Beranda without creating a server workspace. Offer optional usage context in Settings and the language selector on Welcome and in Settings once the MVP is bilingual.
 
 ### S02 — Empty Beranda
 
-Show “Belum ada data energi”, a concise source explanation, primary **Impor data** → S10, and secondary **Coba demo** → scenario choice → S03. **Lihat meter yang didukung** opens S05 catalog with implemented/planned labels. No empty chart axes, Rp0, warning about missing appliances, production panel, or giant zero. Settings remains secondary. Back follows the current entry stack; tab navigation remains usable. Import cancel returns here without losing draft or existing data in another isolated mode. If loading saved resources fails, show “Data belum dapat dimuat” plus **Coba lagi** and retain any last confirmed cache with age.
+Lead with **Coba demo**. **Tambah data** opens the CSV screen. File selection remains an explicit action on that screen. Use a compact hierarchy. Populated dashboards and lists may use a supporting column from 768 logical pixels, while forms stay single-column.
 
 ### S03 — Populated Beranda
 
@@ -144,7 +144,7 @@ Use one application state, one virtual clock, and one accepted-reading store. Al
 
 Suggested state responsibilities: session/demo mode; site/timezone/context; assets/sources/bindings; normalized readings; aggregation selection; tariffs; schedules/profiles; optional output definition/inputs; evidence snapshots and revisions; feedback; navigation; form/import drafts; operation status; client-network flag; virtual now. Numeric unavailable values are `null` with a reason, not `0`. Keep source origin (`simulated`, `import`, `dataset_replay`, `live`) separate from status (planned/unavailable/connected/stale). `simulated` is provenance, not a test result.
 
-For a browser-only prototype, a local domain/mock module may implement the contract faithfully. Label it “Backend simulasi” in the demo information and delivery report. Its main operations are preview import, commit import, get operation status, calculate summary/history/contribution, resolve scope, save settings, evaluate insights, and save/restore feedback. Each returns confirmed revision or structured Indonesian errors; no screen mutates an unrelated chart directly. Summary includes UTC/local window, timezone, included/excluded assets, unrounded energy, cost availability/covered energy, per-asset and combined coverage, latest measurement, origin, schedule/metric applicability, and revision. Evidence retains its own snapshot/version.
+For a browser-only prototype, a local domain/mock module may implement the contract faithfully. Label it “Backend simulasi” in the demo information and delivery report. Its main operations are preview import, commit import, get operation status, calculate summary/history/contribution, resolve scope, save settings, evaluate insights, and save/restore feedback. Each returns confirmed revision or structured errors in the selected language; no screen mutates an unrelated chart directly. Summary includes UTC/local window, timezone, included/excluded assets, unrounded energy, cost availability/covered energy, per-asset and combined coverage, latest measurement, origin, schedule/metric applicability, and revision. Evidence retains its own snapshot/version.
 
 | Maintained responsibility | Prototype behavior and future boundary |
 |---|---|
@@ -299,7 +299,7 @@ Limitations must remain concrete: native execution, real server ownership/securi
 Copy the marked block exactly. Attach this application handoff and select/import the HematDaya system created in the preceding stage. The canonical appendix contains the complete product authority. If the system is unavailable, follow the explicit local-draft fallback and report the missing binding.
 
 <!-- BEGIN READY PROMPT -->
-Build HematDaya as a working, stateful, mobile-first interactive application prototype using the attached self-contained handoff. Read the full brief and embedded canonical English PRD before building. All product UI must be natural Indonesian, with exactly three labelled primary destinations: Beranda, Perangkat, Saran. Serve household, business, and industrial users through the same product and reusable rules. This is electricity monitoring and evidence-based advice only.
+Build HematDaya as a working, stateful, mobile-first interactive application prototype using the attached self-contained handoff. Read the full brief and embedded canonical English PRD before building. Provide plain Indonesian and equivalent English with exactly three primary destinations. Default to Beranda, Perangkat and Saran. Serve household, business, and industrial users through the same product and reusable rules. This is electricity monitoring and evidence-based advice only.
 
 Use the HematDaya Design System created in the preceding stage. Record its version and actual attachment/import method; reuse its tokens and HD components. If unavailable, establish a labelled local draft system before screens and record the missing binding. Do not silently mix another default or reinterpret an old seed palette as an approved system.
 
@@ -317,13 +317,13 @@ Continue through the complete agreed prototype. Run fixture and interaction chec
 
 ## 17. Complete canonical English PRD snapshot
 
-The complete English PRD below is included verbatim. Snapshot version: Generic 1.2, October 21, 2026. SHA-256 of the canonical UTF-8 file at freeze: `8939667cb5f5ee6296d8c108607f98765c3ef8ff76d292513fe905d236567baa`. This fingerprint identifies the included specification, not an implementation or test result. All canonical sections 0–23, FR-01–FR-22, UX-01–UX-20, and AT-01–AT-58 are retained.
+The complete English PRD below is included verbatim. Snapshot version: Generic 1.3, November 8, 2026. SHA-256 of the canonical UTF-8 file: `49a23ab6848f4ea2eb8b1e7004a150c43f570dfff75799f8507d866ac4ada5d8`.
 
-<!-- BEGIN CANONICAL PRD EN v1.2 -->
+<!-- BEGIN CANONICAL PRD EN v1.3 -->
 # HematDaya — Product Requirements Document
 
-Version: Generic 1.2. Date: October 21, 2026 (Asia/Jakarta).
-Document language: English. Product interface: Indonesian. Initial currency: IDR.
+Version: Generic 1.3. Date: November 8, 2026 (Asia/Jakarta).
+Document language: English. Product interface: Indonesian by default, with English selectable. Initial currency: IDR.
 Status: accepted product and modular-architecture direction; development specification, implementation verification and field validation are pending.
 
 ## 0. Document authority and evidence status
@@ -398,7 +398,7 @@ Proposed research targets must be evaluated separately for household and busines
 - Optional output-normalized energy metric for users who need it.
 - Evidence-bearing observations, conservative advice, and optional feedback.
 - Empty, learning, partial, stale, offline, conflicting-source, unsupported-capability, and invalid-import recovery.
-- Shared Android, iOS, and web implementation with Indonesian UI and accessibility requirements.
+- Shared Android, iOS, and web implementation with a bilingual interface and accessibility requirements.
 - Deterministic household and industrial demo fixtures, using the production calculation path.
 - Concrete shared-domain, optional-capability and adapter boundaries; validated product composition and a shared-source release/upgrade process as defined in FR-21–22 and section 15.
 
@@ -477,7 +477,7 @@ No integration may advertise switching merely because the hardware includes a re
 
 | ID | Journey | Acceptance outcome |
 |---|---|---|
-| P01 | Welcome → choose or skip context → household demo | Useful data with no AC, schedule, production, tariff, or credentials required |
+| P01 | Welcome → Try demo → household demo | Useful data with no AC, schedule, production, tariff, or credentials required |
 | P02 | Empty site → import CSV → review mapping and errors → confirm | Clear scope and totals; failed import preserves input and existing data |
 | P03 | Beranda → period → largest contributor → history | At most 3 deliberate taps; values and scope reconcile |
 | P04 | Saran → change observation → evidence | User can identify observed value, comparison, quality, and unknown cause |
@@ -489,6 +489,8 @@ No integration may advertise switching merely because the hardware includes a re
 | P10 | Insight feedback → snooze/hide → restore | Feedback persists, never deletes measurements or sends a hardware action |
 | P11 | Household preset → industry or unspecified | Existing measurements and optional settings remain intact; only examples change |
 
+Continue without data opens empty Home without creating a server workspace. Settings holds optional usage context. The MVP uses a compact layout with a supporting column on populated screens from 768 logical pixels and single-column forms. Indonesian remains the default. The English selector becomes available when all MVP flows, accessibility labels, and recovery copy are ready. Changing language preserves the current context and never dispatches or retries a server mutation or re-evaluates Insights.
+
 P01–P04, P08–P10 must be complete with schedule and output metric absent. Industry must also be usable without output data. No persona is forced to fill an inapplicable field.
 
 ## 8. Information architecture and screen contract
@@ -497,8 +499,8 @@ Three persistent labelled tabs: **Beranda**, **Perangkat**, **Saran**. “Perang
 
 | ID | Screen | Content and working actions |
 |---|---|---|
-| S01 | Welcome | One-sentence value, start, demo; optional context choice with “Lewati” |
-| S02 | Empty Beranda | Explain source options; “Impor data”, “Coba demo”, supported meter entry |
+| S01 | Welcome | Short value statement, primary Try demo, secondary Continue without data, language selector once bilingual coverage ships |
+| S02 | Empty Beranda | Lead with Try demo. Add data opens the CSV screen, where Choose file opens the picker. |
 | S03 | Populated Beranda | Period, scope, kWh, optional estimated cost, coverage/freshness, contribution, one observation |
 | S04 | Perangkat | Asset name, category/scope, energy, quality; add/import and open detail |
 | S05 | Source setup | Provider → model → connection/first reading → name/scope/binding; drafts retained |
@@ -528,7 +530,7 @@ Create, rename, categorize and archive arbitrary assets. Preserve stable IDs and
 
 ### FR-04 Catalog and enrollment
 
-Show implemented versus planned adapters. Enrollment is expiring and single-use, verifies source identity server-side, and requires a valid first reading. Retry is idempotent. A provider error uses actionable Indonesian text and preserves setup input. Unsupported models return to the catalog without fake success.
+Show implemented versus planned adapters. Enrollment is expiring and single-use, verifies source identity server-side, and requires a valid first reading. Retry is idempotent. A provider error uses actionable text in the selected language and preserves setup input. Unsupported models return to the catalog without fake success.
 
 ### FR-05 Data ingestion
 
@@ -800,14 +802,14 @@ These states are independent flags. A site can simultaneously be learning, witho
 
 | ID | Required check |
 |---|---|
-| UX-01 | Exactly three primary destinations with Indonesian text and selected state independent of colour |
+| UX-01 | Exactly three primary destinations labeled in the selected language and selected state independent of colour |
 | UX-02 | One obvious primary action per task screen; optional setup has a visible skip/cancel path |
 | UX-03 | Neutral default labels: Perangkat, Lokasi, Energi; no mandatory factory, AC, occupancy or production wording |
 | UX-04 | Largest contributor and featured evidence reachable within 3 deliberate taps from populated Beranda |
 | UX-05 | Back/retry retains form input, selected period, scope and navigation context |
 | UX-06 | Source origin, estimation, freshness and coverage visible where they change interpretation |
 | UX-07 | Internal minimum 48×48 logical-unit mobile hit areas, measured in each runtime; web mobile controls use 48×48 CSS px, Android uses 48×48 dp, iOS uses declared point/logical units. Normal text contrast ≥4.5:1 and required non-text control/chart information ≥3:1, with applicable WCAG exceptions; verify actual states |
-| UX-08 | Text resized to 200% without lost content/function; long Indonesian names wrap; controls expose meaningful Indonesian names, roles, selected states and values; charts have a readable summary and structured data alternative |
+| UX-08 | Text resized to 200% without lost content/function; long Indonesian names wrap; controls expose meaningful names in the selected language, roles, selected states and values; charts have a readable summary and structured data alternative |
 | UX-09 | Verify 320 CSS px web reflow, plus 360, 390, 430, 768, 1280 and 1440 CSS px responsive widths; small-height phone, safe areas and keyboard avoidance. No horizontal page scrolling or lost controls; use stacked data rows where needed. Record text resize and reflow separately |
 | UX-10 | Complete web tasks by keyboard without a trap; visible logical focus remains unobscured, overlays manage focus, Escape dismisses sheets and focus returns to the invoking action; announce save/import status to assistive technology |
 | UX-11 | Loading/pressed/saving/error states for every primary action; failed save never looks confirmed |
@@ -819,7 +821,7 @@ These states are independent flags. A site can simultaneously be learning, witho
 | UX-17 | Beranda reading order: period and measurement scope → recorded kWh → qualified optional cost → completeness/freshness → largest contributors → eligible observation. Keep meaning-changing qualifications visible; reveal comparison, calculation and provenance progressively through clearly labelled detail actions |
 | UX-18 | Contributor ranking uses directly labelled horizontal bars/list with a shared zero baseline; comparison graphics use aligned periods and comparable scales. Every chart has period, unit, scope, exact-value text/data alternative and quality; no hover, colour or precise dragging is required to answer the core task |
 | UX-19 | Label physical measurement scope separately from temporal completeness, for example “Cakupan pengukuran: 4 perangkat” and “Kelengkapan data: 92% periode”. Annotate gaps with unavailable periods; measured zero, learning, no eligible change, stale source, historical import and client offline remain independently understandable, never “92% akurat” |
-| UX-20 | CSV flow exposes file/paste → semantics/mapping → preview → explicit confirmation → result. Provide a focusable error summary linked to row/field details where actionable; consistent Indonesian messages state the correction and whether commit is blocked. Define data-row versus file-line numbering; retain input/mapping and confirmed data on back/error/retry |
+| UX-20 | CSV flow exposes file/paste → semantics/mapping → preview → explicit confirmation → result. Provide a focusable error summary linked to row/field details where actionable; consistent messages in the selected language state the correction and whether commit is blocked. Define data-row versus file-line numbering; retain input/mapping and confirmed data on back/error/retry |
 
 Approved copy patterns: “Hanya mencakup sumber yang dipilih”; “Data belum diperbarui”; “Sebagian data belum tersedia”; “Tidak ada jadwal yang diatur”; “Estimasi ini tidak sama dengan tagihan listrik”; “Penyebab perubahan belum diketahui”. Do not shame users for continuous operation, skipped setup, rejected advice, or dismissed notifications.
 
@@ -917,7 +919,7 @@ Enforce deployed capabilities and per-request prerequisites on optional analysis
 
 Summary response contract includes selected UTC/local window, timezone, source origins, asset selection/exclusions, unrounded recorded energy, display rounding policy, cost availability/covered energy, per-asset and combined quality, latest measurement time, schedule/metric applicability and revision. Unavailable values use `null` plus a reason such as `missing_tariff`, `no_schedule`, `no_output`, `insufficient_history`, `partial_coverage` or `scope_conflict`; never overload numeric zero as an error.
 
-Validation errors contain a stable diagnostic code and actionable Indonesian message, with row/field details where appropriate. Source credentials, internal tracebacks and other users' resource existence are not returned. Bound all range queries and history pages; no endpoint returns unbounded raw years of samples.
+Validation errors contain a stable diagnostic code and actionable message in the selected language, with row/field details where appropriate. Source credentials, internal tracebacks and other users' resource existence are not returned. Bound all range queries and history pages; no endpoint returns unbounded raw years of samples.
 
 UI-facing records use `asset`, not `machine`. If an integrating application already exposes `/machines` routes or equivalent machine-specific contracts, preserve supported callers through an explicit compatibility adapter and verified migration. Do not silently rename or remove a supported interface.
 
@@ -1115,7 +1117,7 @@ Final deliverables for implementation: runnable shared app/server as applicable;
 
 ### 22.1 Product and calculation contract
 
-Implement electricity monitoring and evidence-based advice through the three-tab Indonesian interface and shared mobile/web target. The complete CSV/demo path, optional tariff, statistical baseline, missing-data semantics, provenance, scope-safe aggregation, secure ownership checks, retry-safe operations and exclusion of physical control are required parts of the handoff. No delivery may omit a safeguard because another context does not display its setup screen.
+Implement electricity monitoring and evidence-based advice through the three-tab bilingual interface and shared mobile/web target. The complete CSV/demo path, optional tariff, statistical baseline, missing-data semantics, provenance, scope-safe aggregation, secure ownership checks, retry-safe operations and exclusion of physical control are required parts of the handoff. No delivery may omit a safeguard because another context does not display its setup screen.
 
 ### 22.2 Compatibility and data preservation
 
@@ -1149,4 +1151,4 @@ Keep secrets out of code, fixtures, exports and runbooks. Document deployment, b
 Generic v1 is complete only when the implemented release satisfies its required functional, UX, data-integrity, security and reusable-delivery checks; both H/I core journeys are evidenced without AC; households work without schedules or output inputs; supported scopes never double count; arithmetic and import oracles pass; unavailable values remain honest; and runtime/field status is explicitly reported. A documented failed or not-run gate is not a pass.
 
 The specification is generic across **measured electricity-consuming assets and user contexts**. It does not promise that every electrical device can use the same hardware, that every connected appliance can be identified separately, or that monitoring alone can prove avoidable waste. This boundary is part of the product contract.
-<!-- END CANONICAL PRD EN v1.2 -->
+<!-- END CANONICAL PRD EN v1.3 -->

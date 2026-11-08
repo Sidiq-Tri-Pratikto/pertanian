@@ -60,13 +60,11 @@ function EmptyPerangkat({ title, onBack, children }: { title: string; onBack?: (
       <View style={styles.section}>
         <HDText variant="section">Belum ada perangkat</HDText>
         <HDText>Perangkat muncul di sini setelah ada data energi. HematDaya tidak mengendalikan perangkat.</HDText>
-        <HDButton variant="primary" onPress={() => openFeature('sumber-meter')}>
-          Tambah sumber
-        </HDButton>
-        <HDButton onPress={() => openImport()}>Impor data</HDButton>
         <View ref={demoButton}>
-          <HDButton onPress={() => setSheetOpen(true)}>Coba demo</HDButton>
+          <HDButton variant="primary" onPress={() => setSheetOpen(true)}>Coba demo</HDButton>
         </View>
+        <HDButton onPress={openImport}>Tambah data</HDButton>
+        <HDButton variant="text" onPress={() => openFeature('sumber-meter')}>Tambah sumber</HDButton>
       </View>
       {children}
       <HDButton variant="text" onPress={openSettings}>
@@ -197,7 +195,7 @@ function PopulatedPerangkat({
         <HDButton variant="primary" onPress={() => openFeature('sumber-meter')}>
           Tambah sumber
         </HDButton>
-        <HDButton onPress={() => openImport()}>Impor data</HDButton>
+        <HDButton onPress={() => openImport()}>Tambah data</HDButton>
       </View>
       {assetsFailed ? <HDText variant="label">Lokasi dan kategori belum dapat dimuat.</HDText> : null}
       {summary.source_freshness === undefined ? <HDText variant="label">Kesegaran sumber belum diketahui.</HDText> : null}

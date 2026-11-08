@@ -1,8 +1,9 @@
 <!--
 Sync Impact Report
-Version: 1.2.0
+Version: 2.0.0
 Ratified: 2026-10-30
-Changes: 1.2.0 adds the HematDaya product principles and prohibitions; 1.1.0 adds TypeScript mobile applications; 1.0.0 is the initial constitution from the starter template.
+Amended: 2026-11-08
+Changes: 2.0.0 adds English alongside default Indonesian; 1.2.0 adds the HematDaya product principles and prohibitions; 1.1.0 adds TypeScript mobile applications; 1.0.0 is the initial constitution from the starter template.
 -->
 
 # Constitution
@@ -17,7 +18,7 @@ Authoritative engineering standards for `hematdaya`. This document says WHAT app
 
 ## Project Overview
 
-**Product:** HematDaya helps people understand how electricity is used within a declared measurement scope and decide what to investigate. The same product serves households, businesses and industrial sites, on Android, iOS and web, with an Indonesian interface.
+**Product:** HematDaya helps people understand how electricity is used within a declared measurement scope and decide what to investigate. The same product serves households, businesses and industrial sites, on Android, iOS and web, with Indonesian as the default and English as a selectable language.
 
 **Main features:**
 
@@ -40,7 +41,7 @@ Authoritative engineering standards for `hematdaya`. This document says WHAT app
 7. **Unknown is never zero.** A missing value is `null` with a reason. A gap is a gap, measured zero is a real value, and missing tariff is not Rp0.
 8. **One calculation authority.** The service computes energy, cost, coverage and evidence. Clients format what they receive and never recalculate it.
 9. **Honest scope and provenance.** Every number states its period, measurement scope and origin. Simulated, imported and live data stay distinct, and combined totals are refused when loads may overlap.
-10. **Natural Indonesian product interface.** Product copy is Indonesian. Code, specs and documentation are English.
+10. **Natural bilingual product interface.** Use plain Indonesian by default and provide equivalent English across the MVP. Code, specs and documentation are English.
 
 ## Standards
 

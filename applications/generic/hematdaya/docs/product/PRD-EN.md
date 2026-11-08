@@ -1,7 +1,7 @@
 # HematDaya — Product Requirements Document
 
-Version: Generic 1.2. Date: October 21, 2026 (Asia/Jakarta).
-Document language: English. Product interface: Indonesian. Initial currency: IDR.
+Version: Generic 1.3. Date: November 8, 2026 (Asia/Jakarta).
+Document language: English. Product interface: Indonesian by default, with English selectable. Initial currency: IDR.
 Status: accepted product and modular-architecture direction; development specification, implementation verification and field validation are pending.
 
 ## 0. Document authority and evidence status
@@ -76,7 +76,7 @@ Proposed research targets must be evaluated separately for household and busines
 - Optional output-normalized energy metric for users who need it.
 - Evidence-bearing observations, conservative advice, and optional feedback.
 - Empty, learning, partial, stale, offline, conflicting-source, unsupported-capability, and invalid-import recovery.
-- Shared Android, iOS, and web implementation with Indonesian UI and accessibility requirements.
+- Shared Android, iOS, and web implementation with a bilingual interface and accessibility requirements.
 - Deterministic household and industrial demo fixtures, using the production calculation path.
 - Concrete shared-domain, optional-capability and adapter boundaries; validated product composition and a shared-source release/upgrade process as defined in FR-21–22 and section 15.
 
@@ -155,7 +155,7 @@ No integration may advertise switching merely because the hardware includes a re
 
 | ID | Journey | Acceptance outcome |
 |---|---|---|
-| P01 | Welcome → choose or skip context → household demo | Useful data with no AC, schedule, production, tariff, or credentials required |
+| P01 | Welcome → Try demo → household demo | Useful data with no AC, schedule, production, tariff, or credentials required |
 | P02 | Empty site → import CSV → review mapping and errors → confirm | Clear scope and totals; failed import preserves input and existing data |
 | P03 | Beranda → period → largest contributor → history | At most 3 deliberate taps; values and scope reconcile |
 | P04 | Saran → change observation → evidence | User can identify observed value, comparison, quality, and unknown cause |
@@ -167,6 +167,8 @@ No integration may advertise switching merely because the hardware includes a re
 | P10 | Insight feedback → snooze/hide → restore | Feedback persists, never deletes measurements or sends a hardware action |
 | P11 | Household preset → industry or unspecified | Existing measurements and optional settings remain intact; only examples change |
 
+Continue without data opens empty Home without creating a server workspace. Settings holds optional usage context. The MVP uses a compact layout with a supporting column on populated screens from 768 logical pixels and single-column forms. Indonesian remains the default. The English selector becomes available when all MVP flows, accessibility labels, and recovery copy are ready. Changing language preserves the current context and never dispatches or retries a server mutation or re-evaluates Insights.
+
 P01–P04, P08–P10 must be complete with schedule and output metric absent. Industry must also be usable without output data. No persona is forced to fill an inapplicable field.
 
 ## 8. Information architecture and screen contract
@@ -175,8 +177,8 @@ Three persistent labelled tabs: **Beranda**, **Perangkat**, **Saran**. “Perang
 
 | ID | Screen | Content and working actions |
 |---|---|---|
-| S01 | Welcome | One-sentence value, start, demo; optional context choice with “Lewati” |
-| S02 | Empty Beranda | Explain source options; “Impor data”, “Coba demo”, supported meter entry |
+| S01 | Welcome | Short value statement, primary Try demo, secondary Continue without data, language selector once bilingual coverage ships |
+| S02 | Empty Beranda | Lead with Try demo. Add data opens the CSV screen, where Choose file opens the picker. |
 | S03 | Populated Beranda | Period, scope, kWh, optional estimated cost, coverage/freshness, contribution, one observation |
 | S04 | Perangkat | Asset name, category/scope, energy, quality; add/import and open detail |
 | S05 | Source setup | Provider → model → connection/first reading → name/scope/binding; drafts retained |
@@ -206,7 +208,7 @@ Create, rename, categorize and archive arbitrary assets. Preserve stable IDs and
 
 ### FR-04 Catalog and enrollment
 
-Show implemented versus planned adapters. Enrollment is expiring and single-use, verifies source identity server-side, and requires a valid first reading. Retry is idempotent. A provider error uses actionable Indonesian text and preserves setup input. Unsupported models return to the catalog without fake success.
+Show implemented versus planned adapters. Enrollment is expiring and single-use, verifies source identity server-side, and requires a valid first reading. Retry is idempotent. A provider error uses actionable text in the selected language and preserves setup input. Unsupported models return to the catalog without fake success.
 
 ### FR-05 Data ingestion
 
@@ -478,14 +480,14 @@ These states are independent flags. A site can simultaneously be learning, witho
 
 | ID | Required check |
 |---|---|
-| UX-01 | Exactly three primary destinations with Indonesian text and selected state independent of colour |
+| UX-01 | Exactly three primary destinations labeled in the selected language and selected state independent of colour |
 | UX-02 | One obvious primary action per task screen; optional setup has a visible skip/cancel path |
 | UX-03 | Neutral default labels: Perangkat, Lokasi, Energi; no mandatory factory, AC, occupancy or production wording |
 | UX-04 | Largest contributor and featured evidence reachable within 3 deliberate taps from populated Beranda |
 | UX-05 | Back/retry retains form input, selected period, scope and navigation context |
 | UX-06 | Source origin, estimation, freshness and coverage visible where they change interpretation |
 | UX-07 | Internal minimum 48×48 logical-unit mobile hit areas, measured in each runtime; web mobile controls use 48×48 CSS px, Android uses 48×48 dp, iOS uses declared point/logical units. Normal text contrast ≥4.5:1 and required non-text control/chart information ≥3:1, with applicable WCAG exceptions; verify actual states |
-| UX-08 | Text resized to 200% without lost content/function; long Indonesian names wrap; controls expose meaningful Indonesian names, roles, selected states and values; charts have a readable summary and structured data alternative |
+| UX-08 | Text resized to 200% without lost content/function; long Indonesian names wrap; controls expose meaningful names in the selected language, roles, selected states and values; charts have a readable summary and structured data alternative |
 | UX-09 | Verify 320 CSS px web reflow, plus 360, 390, 430, 768, 1280 and 1440 CSS px responsive widths; small-height phone, safe areas and keyboard avoidance. No horizontal page scrolling or lost controls; use stacked data rows where needed. Record text resize and reflow separately |
 | UX-10 | Complete web tasks by keyboard without a trap; visible logical focus remains unobscured, overlays manage focus, Escape dismisses sheets and focus returns to the invoking action; announce save/import status to assistive technology |
 | UX-11 | Loading/pressed/saving/error states for every primary action; failed save never looks confirmed |
@@ -497,7 +499,7 @@ These states are independent flags. A site can simultaneously be learning, witho
 | UX-17 | Beranda reading order: period and measurement scope → recorded kWh → qualified optional cost → completeness/freshness → largest contributors → eligible observation. Keep meaning-changing qualifications visible; reveal comparison, calculation and provenance progressively through clearly labelled detail actions |
 | UX-18 | Contributor ranking uses directly labelled horizontal bars/list with a shared zero baseline; comparison graphics use aligned periods and comparable scales. Every chart has period, unit, scope, exact-value text/data alternative and quality; no hover, colour or precise dragging is required to answer the core task |
 | UX-19 | Label physical measurement scope separately from temporal completeness, for example “Cakupan pengukuran: 4 perangkat” and “Kelengkapan data: 92% periode”. Annotate gaps with unavailable periods; measured zero, learning, no eligible change, stale source, historical import and client offline remain independently understandable, never “92% akurat” |
-| UX-20 | CSV flow exposes file/paste → semantics/mapping → preview → explicit confirmation → result. Provide a focusable error summary linked to row/field details where actionable; consistent Indonesian messages state the correction and whether commit is blocked. Define data-row versus file-line numbering; retain input/mapping and confirmed data on back/error/retry |
+| UX-20 | CSV flow exposes file/paste → semantics/mapping → preview → explicit confirmation → result. Provide a focusable error summary linked to row/field details where actionable; consistent messages in the selected language state the correction and whether commit is blocked. Define data-row versus file-line numbering; retain input/mapping and confirmed data on back/error/retry |
 
 Approved copy patterns: “Hanya mencakup sumber yang dipilih”; “Data belum diperbarui”; “Sebagian data belum tersedia”; “Tidak ada jadwal yang diatur”; “Estimasi ini tidak sama dengan tagihan listrik”; “Penyebab perubahan belum diketahui”. Do not shame users for continuous operation, skipped setup, rejected advice, or dismissed notifications.
 
@@ -595,7 +597,7 @@ Enforce deployed capabilities and per-request prerequisites on optional analysis
 
 Summary response contract includes selected UTC/local window, timezone, source origins, asset selection/exclusions, unrounded recorded energy, display rounding policy, cost availability/covered energy, per-asset and combined quality, latest measurement time, schedule/metric applicability and revision. Unavailable values use `null` plus a reason such as `missing_tariff`, `no_schedule`, `no_output`, `insufficient_history`, `partial_coverage` or `scope_conflict`; never overload numeric zero as an error.
 
-Validation errors contain a stable diagnostic code and actionable Indonesian message, with row/field details where appropriate. Source credentials, internal tracebacks and other users' resource existence are not returned. Bound all range queries and history pages; no endpoint returns unbounded raw years of samples.
+Validation errors contain a stable diagnostic code and actionable message in the selected language, with row/field details where appropriate. Source credentials, internal tracebacks and other users' resource existence are not returned. Bound all range queries and history pages; no endpoint returns unbounded raw years of samples.
 
 UI-facing records use `asset`, not `machine`. If an integrating application already exposes `/machines` routes or equivalent machine-specific contracts, preserve supported callers through an explicit compatibility adapter and verified migration. Do not silently rename or remove a supported interface.
 
@@ -793,7 +795,7 @@ Final deliverables for implementation: runnable shared app/server as applicable;
 
 ### 22.1 Product and calculation contract
 
-Implement electricity monitoring and evidence-based advice through the three-tab Indonesian interface and shared mobile/web target. The complete CSV/demo path, optional tariff, statistical baseline, missing-data semantics, provenance, scope-safe aggregation, secure ownership checks, retry-safe operations and exclusion of physical control are required parts of the handoff. No delivery may omit a safeguard because another context does not display its setup screen.
+Implement electricity monitoring and evidence-based advice through the three-tab bilingual interface and shared mobile/web target. The complete CSV/demo path, optional tariff, statistical baseline, missing-data semantics, provenance, scope-safe aggregation, secure ownership checks, retry-safe operations and exclusion of physical control are required parts of the handoff. No delivery may omit a safeguard because another context does not display its setup screen.
 
 ### 22.2 Compatibility and data preservation
 

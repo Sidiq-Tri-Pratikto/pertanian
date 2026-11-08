@@ -45,6 +45,19 @@ Rounds show handoffs. Start each lane when its inputs are ready.
 | 8 | Verify backend H/I totals, scope refusal and import replay | Finish **M8** (034) recovery | Every MVP input is merged by round 7. |
 | MVP sign-off | Review the numbers and failure evidence with P2 | Record both walkthroughs with P1 | M0, M1, M2, M4, M5 and M6 are complete, and M8 recovery has passed. |
 
+### MVP refresh
+
+Deliver the approved refresh in sequence from the merged predecessor.
+
+| Spec | Scope | Status |
+| --- | --- | --- |
+| 047 | Explore-first onboarding and explicit CSV entry | Implemented and verified locally |
+| 048 | Compact app and prototype layout | Planned |
+| 049 | Localization foundation and API copy | Planned |
+| 050 | Bilingual MVP app and prototype | Planned |
+
+Record both joint walkthroughs on the refreshed build after 050.
+
 #### After MVP
 
 | Round | P1 | P2 | Prerequisites |
