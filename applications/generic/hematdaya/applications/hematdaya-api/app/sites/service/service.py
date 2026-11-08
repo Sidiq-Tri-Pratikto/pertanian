@@ -24,12 +24,13 @@ class SiteService:
         self.repository = repository
         self.audit = audit
 
-    async def get_owned(self, site_id: UUID, principal: PrincipalModel) -> SiteModel:
+    async def get_owned(self, site_id: UUID, principal: PrincipalModel, *, for_share: bool = False) -> SiteModel:
         """Return a site the principal owns.
 
         Args:
             site_id (UUID): The site.
             principal (PrincipalModel): The acting principal.
+            for_share (bool): Lock the site against writers until the request ends.
 
         Returns:
             SiteModel: The site.
@@ -37,7 +38,7 @@ class SiteService:
         Raises:
             NotFoundError: When it does not exist or belongs to someone else.
         """
-        site = await self.repository.get_owned(site_id, principal.id)
+        site = await self.repository.get_owned(site_id, principal.id, lock="share" if for_share else False)
         if site is None:
             raise NotFoundError()
         return site

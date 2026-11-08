@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import Any
+from typing import Any, Literal
 from uuid import UUID
 
 from app.sites.model.models import SiteContext, SiteKind, SiteModel
@@ -12,8 +12,10 @@ class SiteRepository(ABC):
     """Stores sites. Every read is scoped to an owner unless it is an internal lock."""
 
     @abstractmethod
-    async def get_owned(self, site_id: UUID, owner_id: UUID, *, lock: bool = False) -> SiteModel | None:
-        """Return the owner's site, optionally taking the shared site write lock."""
+    async def get_owned(
+        self, site_id: UUID, owner_id: UUID, *, lock: bool | Literal["share"] = False
+    ) -> SiteModel | None:
+        """Return the owner's site, optionally locking it against site writes."""
 
     @abstractmethod
     async def lock(self, site_id: UUID) -> SiteModel | None:

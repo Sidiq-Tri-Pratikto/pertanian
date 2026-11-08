@@ -1,11 +1,20 @@
 """History buckets over seeded demo workspaces: reconciliation, states, DST and limits."""
 
+from collections.abc import Callable
 from decimal import Decimal
+from uuid import UUID
 
 import pytest
 from httpx import AsyncClient
 
-from tests.integration.conftest import start_demo, summary
+from tests.integration.conftest import (
+    execute,
+    make_switchable_scope_site,
+    scope_confirmation,
+    scope_path,
+    start_demo,
+    summary,
+)
 
 pytestmark = pytest.mark.integration
 
@@ -175,3 +184,70 @@ async def test_bucket_limit_is_enforced_before_reading(client: AsyncClient) -> N
 
     assert (too_many.status_code, too_many.json()["error"]["code"]) == (400, "RANGE_TOO_LARGE")
     assert allowed.status_code == 200 and len(allowed.json()["buckets"]) == 984
+
+
+@pytest.mark.parametrize("long_counter", [False, True])
+async def test_scope_cutover_preserves_prior_history_and_respects_resolution(
+    client: AsyncClient, acting: Callable[[UUID], dict], long_counter: bool
+) -> None:
+    """A mid-reading source switch allocates supported intervals and refuses long counter fragments."""
+    owner, site, asset, old, candidate = await make_switchable_scope_site()
+    await execute("UPDATE bindings SET effective_from = '2026-10-23T17:00:00Z' WHERE source_id = :old", old=old)
+    await execute(
+        "INSERT INTO measurements (source_id, identity_key, kind, interval_start, interval_end, "
+        "energy_mwh, quality, received_at) VALUES "
+        "(:old, 'earlier', 'interval_energy', '2026-10-23T17:00:00Z', '2026-10-23T18:00:00Z', "
+        "3000000, 'valid', now())",
+        old=old,
+    )
+    await execute(
+        "UPDATE bindings SET effective_to = '2026-10-24T18:00:00Z' WHERE source_id = :candidate",
+        candidate=candidate,
+    )
+    if long_counter:
+        await execute(
+            "UPDATE measurements SET kind = 'counter_delta', quality = 'long_gap' WHERE source_id = :candidate",
+            candidate=candidate,
+        )
+    auth = acting(owner)
+    site_id, asset_id = str(site), str(asset)
+    session = {"site_id": site_id, "auth": auth}
+    path = scope_path(site_id)
+    period = {"start_date": "2026-10-24", "end_date": "2026-10-25"}
+    before = await _history(client, session, asset_id, **period)
+    proposal = {
+        "selected_asset_ids": [asset_id],
+        "period": period,
+        "authority_actions": [
+            {
+                "action": "choose",
+                "asset_id": asset_id,
+                "source_id": str(candidate),
+                "effective_from": "2026-10-24T17:30:00Z",
+            }
+        ],
+    }
+    preview = await client.post(f"{path}/preview", headers=auth, json=proposal)
+    assert preview.status_code == 200, preview.text
+    candidates = preview.json()["candidates"]
+    historical = next(row for row in candidates if row["source_id"] == str(candidate))
+    assert historical["effective_to"] == "2026-10-24T18:00:00Z"
+    assert str(candidate) not in {
+        row["source_id"] for row in (await client.get(path, headers=auth)).json()["candidates"]
+    }
+
+    saved = await client.put(path, headers=auth, json=scope_confirmation(proposal, preview.json()))
+    assert saved.status_code == 200, saved.text
+    after = await _history(client, session, asset_id, **period)
+    assert before["buckets"][0]["energy_kwh"] == after["buckets"][0]["energy_kwh"] == "3.000"
+    assert before["buckets"][1]["energy_kwh"] == "1.000"
+    bucket = after["buckets"][1]
+    if long_counter:
+        assert (bucket["energy_kwh"], bucket["unavailable_reason"]) == (None, "insufficient_resolution")
+    else:
+        assert bucket["energy_kwh"] == "1.500"
+        assert preview.json()["summary"]["coverage"]["allocated_estimate"]
+    readings = await execute(
+        "SELECT count(*) FROM measurements WHERE source_id IN (:old, :new)", old=old, new=candidate
+    )
+    assert readings[0][0] == 3

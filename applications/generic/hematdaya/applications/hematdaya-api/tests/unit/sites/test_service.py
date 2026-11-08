@@ -1,7 +1,7 @@
 """Site rules with an in-memory repository."""
 
 from datetime import UTC, datetime
-from typing import Any
+from typing import Any, Literal
 from uuid import UUID, uuid4
 
 import pytest
@@ -22,7 +22,9 @@ class FakeSiteRepository(SiteRepository):
         self.sites: dict[UUID, SiteModel] = {}
         self.updates = 0
 
-    async def get_owned(self, site_id: UUID, owner_id: UUID, *, lock: bool = False) -> SiteModel | None:
+    async def get_owned(
+        self, site_id: UUID, owner_id: UUID, *, lock: bool | Literal["share"] = False
+    ) -> SiteModel | None:
         site = self.sites.get(site_id)
         return site if site is not None and site.owner_principal_id == owner_id else None
 

@@ -21,9 +21,19 @@ from app.energy.service.summary import EnergyService
 from app.measurements.dependencies import build_ingest_service
 from app.measurements.model.models import ReadingInput
 from app.sites.repository.sqlalchemy.repository import SqlAlchemySiteRepository
-from tests.integration.conftest import execute, make_asset, make_binding, make_source, start_demo, summary
+from tests.integration.conftest import (
+    execute,
+    make_asset,
+    make_binding,
+    make_source,
+    scope_confirmation,
+    scope_path,
+    start_demo,
+    summary,
+)
 
 pytestmark = pytest.mark.integration
+DAY = {"start_date": "2026-10-25", "end_date": "2026-10-25"}
 
 GOLDEN = Path(__file__).resolve().parents[4] / "contracts" / "golden"
 WEEK = {"start_date": "2026-10-19", "end_date": "2026-10-25"}
@@ -39,7 +49,7 @@ async def _selection(site_id: str, names: list[str], start: date, end: date) -> 
         demo = build_demo_service(session)
         site = await SqlAlchemySiteRepository(session).lock(UUID(site_id))
         assert site is not None
-        service = EnergyService(SqlAlchemyEnergyRepository(session), demo.sites, demo.assets)
+        service = EnergyService(SqlAlchemyEnergyRepository(session), demo.sites, demo.assets, demo.selections)
         snapshot = await demo.assets.snapshot(site)
         ids = [asset.id for asset in snapshot.assets if asset.name in names]
         window = resolve_window(site.timezone, site.virtual_now, start_date=start, end_date=end)
@@ -486,3 +496,81 @@ async def test_current_binding_excludes_old_future_and_long_gap_captures(client:
     assert len(router_rows) == 1
     assert router_rows[0]["source_id"] == str(replacement)
     assert router_rows[0]["state"] == "unknown" and router_rows[0]["last_capture_at"] is None
+
+
+async def test_saved_scope_preserves_archived_ids_and_never_substitutes_new_assets(client: AsyncClient) -> None:
+    """Archiving excludes a stored member from totals without rewriting confirmed membership."""
+    demo = await start_demo(client, "h-scope")
+    path, auth = scope_path(demo["site_id"]), demo["auth"]
+    original = await summary(client, demo, **DAY)
+    meter = _by_name(original)["Meter utama"]["asset_id"]
+    child = _by_name(original)["TV"]["asset_id"]
+    proposal = {"selected_asset_ids": [meter], "period": DAY}
+    preview = (await client.post(f"{path}/preview", headers=auth, json=proposal)).json()
+    saved = await client.put(path, headers=auth, json=scope_confirmation(proposal, preview))
+    assert saved.status_code == 200, saved.text
+
+    asset_path = f"/api/v1/assets/{meter}"
+    archive = await client.patch(asset_path, headers=auth, json={"archived": True})
+    assert archive.status_code == 200, archive.text
+    new_asset = str(await make_asset(UUID(demo["site_id"]), "Baru"))
+    archived = await summary(client, demo, **DAY)
+    reasons = {row["asset_id"]: row["reason"] for row in archived["scope"]["excluded"]}
+    assert archived["energy_kwh"] is None and not archived["scope"]["included"]
+    assert archived["selection_revision"] == 1
+    assert reasons[meter] == "archived" and reasons[new_asset] == reasons[child] == "not_selected"
+    confirmed = (await client.get(path, headers=auth)).json()
+    assert confirmed["selected_asset_ids"] == [meter] and confirmed["binding_revision"] == archived["binding_revision"]
+    preview = (await client.post(f"{path}/preview", headers=auth, json=proposal)).json()
+    repeated = await client.put(path, headers=auth, json=scope_confirmation(proposal, preview))
+    assert repeated.status_code == 200 and repeated.json() == confirmed
+
+    assert (await client.patch(f"/api/v1/assets/{child}", headers=auth, json={"archived": True})).status_code == 200
+    rejected = await client.post(
+        f"{path}/preview", headers=auth, json=proposal | {"selected_asset_ids": [meter, child]}
+    )
+    assert rejected.status_code == 400 and rejected.json()["error"]["code"] == "BAD_REQUEST"
+
+    restored = await client.patch(asset_path, headers=auth, json={"archived": False})
+    assert restored.status_code == 200, restored.text
+    result = await summary(client, demo, **DAY)
+    assert result["energy_kwh"] == "10.000" and result["selection_revision"] == 1
+    assert [row["asset_id"] for row in result["scope"]["included"]] == [meter]
+    assert {row["name"] for row in result["assets"]} == {"Meter utama"}
+
+
+async def test_stale_saved_parent_keeps_scope_window_and_missing_state(client: AsyncClient) -> None:
+    """A stale main meter keeps its historical total and has no fallback in a missing current period."""
+    demo = await start_demo(client, "h-scope")
+    path, auth = scope_path(demo["site_id"]), demo["auth"]
+    original = await summary(client, demo, **DAY)
+    meter = _by_name(original)["Meter utama"]["asset_id"]
+    proposal = {"selected_asset_ids": [meter], "period": DAY}
+    preview = (await client.post(f"{path}/preview", headers=auth, json=proposal)).json()
+    saved = await client.put(path, headers=auth, json=scope_confirmation(proposal, preview))
+    assert saved.status_code == 200, saved.text
+    await execute(
+        "UPDATE sources SET transport_status = 'simulated_live' WHERE id IN "
+        "(SELECT source_id FROM bindings WHERE asset_id = CAST(:meter AS uuid))",
+        meter=meter,
+    )
+    await execute(
+        "UPDATE sites SET virtual_now = virtual_now + interval '6 hours' WHERE id = :id", id=UUID(demo["site_id"])
+    )
+
+    past = await summary(client, demo, **DAY)
+    current = await summary(client, demo, preset="today")
+    assert past["energy_kwh"] == "10.000" and past["coverage"]["minimum"] == "1.000"
+    assert past["window"] == preview["summary"]["window"]
+    assert current["window"]["start_date"] == "2026-10-26"
+    assert current["window"]["timezone"] == "Asia/Jakarta"
+    assert current["window"]["effective_end"] == "2026-10-25T23:00:00Z"
+    assert current["energy_kwh"] is None and current["energy_unavailable_reason"] == "no_data"
+    assert current["coverage"]["minimum"] == "0.000"
+    for body in (past, current):
+        assert [row["asset_id"] for row in body["scope"]["included"]] == [meter]
+        assert [row["name"] for row in body["assets"]] == ["Meter utama"]
+        (freshness,) = body["source_freshness"]
+        assert freshness["state"] == "stale" and freshness["asset_id"] == meter
+        assert freshness["last_capture_at"] == "2026-10-25T17:00:00Z"
+    assert current["assets"][0]["share_percent"] is None

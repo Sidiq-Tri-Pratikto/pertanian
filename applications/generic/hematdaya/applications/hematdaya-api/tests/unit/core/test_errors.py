@@ -332,3 +332,22 @@ def test_sanitize_filters_sensitive_keys_and_unknown_types() -> None:
     result = sanitize({"api_key": "abc", "nested": [{"count": 1, "obj": object()}]})
 
     assert result == {"api_key": REDACTED, "nested": [{"count": 1, "obj": REDACTED}]}
+
+
+def test_scope_failures_have_distinct_public_recovery() -> None:
+    """Scope conflict details use field errors, while a stale write asks for a new preview."""
+    from app.core.errors.public import error_response, public_error_for_code
+
+    conflict = public_error_for_code("APP-SCOPE-OVERLAP")
+    stale = public_error_for_code("APP-SCOPE-STALE")
+    detail = {
+        "loc": ["body", "selected_asset_ids"],
+        "msg": "Dua meter memakai sumber yang sama.",
+        "type": "shared_source",
+    }
+    assert conflict.code == "SCOPE_CONFLICT" and conflict.http_status == 409
+    assert stale.code == "SCOPE_STALE" and stale.http_status == 409
+    assert conflict.recovery == stale.recovery == {"retryable": False}
+    assert ". " in conflict.message and ". " in stale.message
+    assert "Buat pratinjau baru" in stale.message
+    assert error_response(conflict, "ref_test", details=[detail])["error"]["details"] == [detail]

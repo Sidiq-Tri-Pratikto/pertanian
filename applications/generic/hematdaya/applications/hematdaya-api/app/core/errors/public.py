@@ -95,6 +95,14 @@ PUBLIC_ERROR_BY_CODE: dict[str, PublicError] = {
     codes.APP_AUTH_REQUIRED: PublicError(
         "UNAUTHORIZED", 401, "Anda perlu masuk terlebih dahulu. Masuk lalu coba lagi."
     ),
+    codes.APP_SCOPE_OVERLAP: PublicError(
+        "SCOPE_CONFLICT",
+        409,
+        "Cakupan ini belum dapat dijumlahkan. Tinjau aset dan sumbernya, lalu buat pratinjau baru.",
+    ),
+    codes.APP_SCOPE_STALE: PublicError(
+        "SCOPE_STALE", 409, "Cakupan atau periode yang ditinjau sudah berubah. Buat pratinjau baru sebelum menyimpan."
+    ),
     codes.APP_IMPORT_TOO_LARGE: PublicError(
         "IMPORT_TOO_LARGE",
         413,

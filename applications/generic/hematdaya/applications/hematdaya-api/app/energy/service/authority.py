@@ -1,5 +1,6 @@
 """Which source speaks for an asset at each instant, from its effective bindings."""
 
+from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime
 from uuid import UUID
@@ -31,6 +32,11 @@ def _extend(target: list[AuthorityPart], source_id: UUID, start: datetime, end: 
         target.append(AuthorityPart(source_id, start, end))
 
 
+def binding_active_at(binding: BindingModel, at: datetime) -> bool:
+    """Whether the instant lies inside this binding's half-open range."""
+    return binding.effective_from <= at and (binding.effective_to is None or at < binding.effective_to)
+
+
 def resolve_authority(bindings: list[BindingModel], start: datetime, end: datetime) -> AssetAuthority:
     """Resolve an asset's sources over ``[start, end)``.
 
@@ -60,3 +66,30 @@ def resolve_authority(bindings: list[BindingModel], start: datetime, end: dateti
             for binding in sorted(leaders, key=lambda item: str(item.source_id)):
                 authority.conflicts.append(AuthorityPart(binding.source_id, lo, hi))
     return authority
+
+
+def resolve_asset_authorities(
+    asset_ids: list[UUID], bindings: list[BindingModel], start: datetime, end: datetime
+) -> dict[UUID, AssetAuthority]:
+    """Resolve selected assets independently against one elapsed window."""
+    by_asset: dict[UUID, list[BindingModel]] = defaultdict(list)
+    for binding in bindings:
+        by_asset[binding.asset_id].append(binding)
+    return {asset_id: resolve_authority(by_asset[asset_id], start, end) for asset_id in asset_ids}
+
+
+def shared_source_pairs(authorities: dict[UUID, AssetAuthority]) -> set[frozenset[UUID]]:
+    """Find distinct assets with intersecting resolved authority over a common source."""
+    by_source: dict[UUID, list[tuple[datetime, datetime, UUID]]] = defaultdict(list)
+    for asset_id, authority in authorities.items():
+        for part in authority.parts:
+            by_source[part.source_id].append((part.start, part.end, asset_id))
+
+    pairs: set[frozenset[UUID]] = set()
+    for parts in by_source.values():
+        latest_ends: dict[UUID, datetime] = {}
+        for start, end, asset_id in sorted(parts):
+            latest_ends = {other: until for other, until in latest_ends.items() if start < until}
+            pairs.update(frozenset((asset_id, other)) for other in latest_ends if other != asset_id)
+            latest_ends[asset_id] = end
+    return pairs

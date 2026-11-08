@@ -17,6 +17,7 @@ class IssueType(StrEnum):
     UNKNOWN_OVERLAP = "unknown_overlap"
     UNCONFIRMED = "unconfirmed"
     SOURCE_CONFLICT = "source_conflict"
+    SHARED_SOURCE = "shared_source"
 
 
 class ScopeIssue(BaseModel):
@@ -26,7 +27,8 @@ class ScopeIssue(BaseModel):
     asset_ids: list[UUID]
 
 
-def _closure(containment: list[tuple[UUID, UUID]]) -> set[tuple[UUID, UUID]]:
+def containment_closure(containment: list[tuple[UUID, UUID]]) -> set[tuple[UUID, UUID]]:
+    """Return all directed containment pairs, including transitive relationships."""
     children: dict[UUID, set[UUID]] = defaultdict(set)
     for parent, child in containment:
         children[parent].add(child)
@@ -48,6 +50,7 @@ def scope_issues(
     containment: list[tuple[UUID, UUID]],
     relations: list[RelationModel],
     conflicted: set[UUID],
+    shared_sources: set[frozenset[UUID]] | None = None,
 ) -> list[ScopeIssue]:
     """List every reason the selected assets cannot be added together.
 
@@ -60,23 +63,27 @@ def scope_issues(
         containment (list[tuple[UUID, UUID]]): (container, contained) pairs.
         relations (list[RelationModel]): The site's relations.
         conflicted (set[UUID]): Assets with unresolved alternative sources in the window.
+        shared_sources (set[frozenset[UUID]] | None): Asset pairs whose effective source authority overlaps.
 
     Returns:
         list[ScopeIssue]: Issues; empty when the total is valid.
     """
-    contains = _closure(containment)
+    contains = containment_closure(containment)
     known: dict[frozenset[UUID], set[RelationKind]] = defaultdict(set)
     for relation in relations:
         known[frozenset((relation.from_asset_id, relation.to_asset_id))].add(relation.kind)
     issues: list[ScopeIssue] = []
     for first, second in combinations(selected, 2):
+        pair = frozenset((first, second))
+        if shared_sources and pair in shared_sources:
+            issues.append(ScopeIssue(type=IssueType.SHARED_SOURCE, asset_ids=[first, second]))
         if (second, first) in contains:
             first, second = second, first  # Container first.
         if (first, second) in contains:
             issue = IssueType.PARENT_CHILD
-        elif RelationKind.UNKNOWN_OVERLAP in known[frozenset((first, second))]:
+        elif RelationKind.UNKNOWN_OVERLAP in known[pair]:
             issue = IssueType.UNKNOWN_OVERLAP
-        elif RelationKind.DISJOINT in known[frozenset((first, second))]:
+        elif RelationKind.DISJOINT in known[pair]:
             continue
         else:
             issue = IssueType.UNCONFIRMED

@@ -1,7 +1,7 @@
 """Site repository over SQLAlchemy."""
 
 from datetime import datetime
-from typing import Any
+from typing import Any, Literal
 from uuid import UUID
 
 from sqlalchemy import delete, select, update
@@ -38,26 +38,24 @@ class SqlAlchemySiteRepository(SiteRepository):
         """
         self.session = session
 
-    async def get_owned(self, site_id: UUID, owner_id: UUID, *, lock: bool = False) -> SiteModel | None:
+    async def get_owned(
+        self, site_id: UUID, owner_id: UUID, *, lock: bool | Literal["share"] = False
+    ) -> SiteModel | None:
         """Return the owner's site.
 
         Args:
             site_id (UUID): The site.
             owner_id (UUID): The acting principal.
-            lock (bool, optional): Take ``FOR UPDATE``, the shared site write lock. Defaults to False.
+            lock (bool | Literal['share'], optional): True for ``FOR UPDATE``, or 'share' for ``FOR SHARE``.
 
         Returns:
             SiteModel | None: The site, or None when it does not exist or belongs to someone else.
         """
         query = select(SiteRecord).where(SiteRecord.id == site_id, SiteRecord.owner_principal_id == owner_id)
         if lock:
-            query = query.with_for_update()
+            query = query.with_for_update(read=lock == "share").execution_options(populate_existing=True)
         record = (await self.session.execute(query)).scalar_one_or_none()
-        if record is None:
-            return None
-        if lock:
-            await self.session.refresh(record)
-        return _to_model(record)
+        return None if record is None else _to_model(record)
 
     async def lock(self, site_id: UUID) -> SiteModel | None:
         """Take the shared site write lock without an owner check, for callers that already resolved the site.

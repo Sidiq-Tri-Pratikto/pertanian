@@ -67,6 +67,7 @@
       "share_percent": null
     }
   ],
+  "binding_revision": 1,
   "coverage": {
     "allocated_estimate": false,
     "concurrent": null,
@@ -146,6 +147,7 @@
     ],
     "valid": false
   },
+  "selection_revision": null,
   "source_freshness": [
     {
       "asset_id": "id-4",

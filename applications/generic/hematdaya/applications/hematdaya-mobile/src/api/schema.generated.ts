@@ -521,6 +521,50 @@ export interface paths {
         patch: operations["update_site_api_v1_sites__site_id__patch"];
         trace?: never;
     };
+    "/api/v1/sites/{site_id}/aggregation-selection": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Selection
+         * @description Return raw membership, scope revisions, and current authority and validity.
+         */
+        get: operations["get_selection_api_v1_sites__site_id__aggregation_selection_get"];
+        /**
+         * Confirm Selection
+         * @description Revalidate and atomically apply a proposal with the preview period and revisions.
+         */
+        put: operations["confirm_selection_api_v1_sites__site_id__aggregation_selection_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sites/{site_id}/aggregation-selection/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Preview Selection
+         * @description Calculate a draft with its resolved period and base revisions without persisting it.
+         */
+        post: operations["preview_selection_api_v1_sites__site_id__aggregation_selection_preview_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/sites/{site_id}/assets": {
         parameters: {
             query?: never;
@@ -668,7 +712,7 @@ export interface paths {
         };
         /**
          * Recorded energy for a site
-         * @description Return recorded energy for every active asset, with coverage and any reason the total is withheld.
+         * @description Return recorded energy for the confirmed site scope, with coverage and any reason the total is withheld.
          *
          *     Pass ``preset`` or both ``start_date`` and ``end_date`` (inclusive local dates, at most 366 days).
          *
@@ -935,6 +979,32 @@ export interface components {
             start: string;
         };
         /**
+         * ChooseAuthorityRequest
+         * @description Select an effective candidate as the source of truth.
+         */
+        ChooseAuthorityRequest: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            action: "choose";
+            /**
+             * Asset Id
+             * Format: uuid
+             */
+            asset_id: string;
+            /**
+             * Effective From
+             * Format: date-time
+             */
+            effective_from: string;
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+        };
+        /**
          * ComparisonResponse
          * @description A matched-baseline comparison. Full recorded totals stay separate from common-mask totals.
          */
@@ -1012,6 +1082,24 @@ export interface components {
             id: string;
             /** Version */
             version: number;
+        };
+        /**
+         * ConfirmScopeRequest
+         * @description The reviewed proposal together with its resolved local period and both revision fences.
+         */
+        ConfirmScopeRequest: {
+            /** Authority Actions */
+            authority_actions?: (components["schemas"]["ChooseAuthorityRequest"] | components["schemas"]["SkipAuthorityRequest"])[];
+            /** Disjoint Confirmations */
+            disjoint_confirmations?: components["schemas"]["ScopeAssetPair"][];
+            /** Expected Binding Revision */
+            expected_binding_revision: number;
+            /** Expected Selection Revision */
+            expected_selection_revision: number;
+            period: components["schemas"]["ScopePeriodRequest"];
+            resolved_period: components["schemas"]["ResolvedScopePeriod"];
+            /** Selected Asset Ids */
+            selected_asset_ids: string[];
         };
         /**
          * ConflictSourceResponse
@@ -1746,7 +1834,7 @@ export interface components {
          * @description Why a combined total is refused.
          * @enum {string}
          */
-        IssueType: "parent_child" | "unknown_overlap" | "unconfirmed" | "source_conflict";
+        IssueType: "parent_child" | "unknown_overlap" | "unconfirmed" | "source_conflict" | "shared_source";
         /**
          * MeasurementKind
          * @description What a source's raw values mean.
@@ -1776,6 +1864,30 @@ export interface components {
          */
         Preset: "today" | "this_week" | "last_7_days";
         /**
+         * RelationKind
+         * @description What is known about two assets' physical loads.
+         * @enum {string}
+         */
+        RelationKind: "contains" | "unknown_overlap" | "disjoint";
+        /**
+         * ResolvedScopePeriod
+         * @description The local dates and timezone shown to the user in preview.
+         */
+        ResolvedScopePeriod: {
+            /**
+             * End Date
+             * Format: date
+             */
+            end_date: string;
+            /**
+             * Start Date
+             * Format: date
+             */
+            start_date: string;
+            /** Timezone */
+            timezone: string;
+        };
+        /**
          * ScenarioResponse
          * @description A scenario clients can start.
          */
@@ -1790,6 +1902,22 @@ export interface components {
             segment: string;
         };
         /**
+         * ScopeAssetPair
+         * @description Two distinct assets. A disjoint confirmation ignores their order.
+         */
+        ScopeAssetPair: {
+            /**
+             * First Asset Id
+             * Format: uuid
+             */
+            first_asset_id: string;
+            /**
+             * Second Asset Id
+             * Format: uuid
+             */
+            second_asset_id: string;
+        };
+        /**
          * ScopeAssetResponse
          * @description An asset considered for the total.
          */
@@ -1801,6 +1929,38 @@ export interface components {
             asset_id: string;
             /** Name */
             name: string;
+        };
+        /**
+         * ScopeBindingResponse
+         * @description One stored candidate, with its original half-open range and explicit authority flag.
+         */
+        ScopeBindingResponse: {
+            /**
+             * Asset Id
+             * Format: uuid
+             */
+            asset_id: string;
+            /** Authoritative */
+            authoritative: boolean;
+            /**
+             * Binding Id
+             * Format: uuid
+             */
+            binding_id: string;
+            /**
+             * Effective From
+             * Format: date-time
+             */
+            effective_from: string;
+            /** Effective To */
+            effective_to: string | null;
+            /** Label */
+            label: string;
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
         };
         /**
          * ScopeIssueResponse
@@ -1820,6 +1980,60 @@ export interface components {
          */
         ScopeKind: "device" | "group" | "circuit" | "site_total";
         /**
+         * ScopePeriodRequest
+         * @description A preset or two inclusive local dates, resolved under the site lock.
+         */
+        ScopePeriodRequest: {
+            /** End Date */
+            end_date?: string | null;
+            preset?: components["schemas"]["Preset"] | null;
+            /** Start Date */
+            start_date?: string | null;
+        };
+        /**
+         * ScopePreviewResponse
+         * @description The computed proposal, both base revisions, and candidates relevant to the period.
+         */
+        ScopePreviewResponse: {
+            /** Binding Revision */
+            binding_revision: number;
+            /** Candidates */
+            candidates: components["schemas"]["ScopeBindingResponse"][];
+            /** Selection Revision */
+            selection_revision: number;
+            summary: components["schemas"]["SummaryResponse"];
+        };
+        /**
+         * ScopeProposalRequest
+         * @description The complete proposal considered by preview and confirmation.
+         */
+        ScopeProposalRequest: {
+            /** Authority Actions */
+            authority_actions?: (components["schemas"]["ChooseAuthorityRequest"] | components["schemas"]["SkipAuthorityRequest"])[];
+            /** Disjoint Confirmations */
+            disjoint_confirmations?: components["schemas"]["ScopeAssetPair"][];
+            period: components["schemas"]["ScopePeriodRequest"];
+            /** Selected Asset Ids */
+            selected_asset_ids: string[];
+        };
+        /**
+         * ScopeRelationResponse
+         * @description One relation between site assets, including directed containment.
+         */
+        ScopeRelationResponse: {
+            /**
+             * From Asset Id
+             * Format: uuid
+             */
+            from_asset_id: string;
+            kind: components["schemas"]["RelationKind"];
+            /**
+             * To Asset Id
+             * Format: uuid
+             */
+            to_asset_id: string;
+        };
+        /**
          * ScopeResponse
          * @description Which assets were considered and whether they may be added together.
          */
@@ -1832,6 +2046,26 @@ export interface components {
             issues: components["schemas"]["ScopeIssueResponse"][];
             /** Valid */
             valid: boolean;
+        };
+        /**
+         * ScopeSelectionResponse
+         * @description Confirmed membership and its validity at current site time.
+         */
+        ScopeSelectionResponse: {
+            /** Authority */
+            authority: components["schemas"]["ScopeBindingResponse"][];
+            /** Binding Revision */
+            binding_revision: number;
+            /** Candidates */
+            candidates: components["schemas"]["ScopeBindingResponse"][];
+            /** Issues */
+            issues: components["schemas"]["ScopeIssueResponse"][];
+            /** Relations */
+            relations: components["schemas"]["ScopeRelationResponse"][];
+            /** Selected Asset Ids */
+            selected_asset_ids: string[];
+            /** Selection Revision */
+            selection_revision: number;
         };
         /**
          * SiteContext
@@ -1868,6 +2102,22 @@ export interface components {
             now: string;
             /** Timezone */
             timezone: string;
+        };
+        /**
+         * SkipAuthorityRequest
+         * @description Leave the asset's current authority unchanged.
+         */
+        SkipAuthorityRequest: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            action: "skip";
+            /**
+             * Asset Id
+             * Format: uuid
+             */
+            asset_id: string;
         };
         /**
          * SourceFreshnessResponse
@@ -1936,6 +2186,8 @@ export interface components {
         SummaryResponse: {
             /** Assets */
             assets: components["schemas"]["AssetEnergyResponse"][];
+            /** Binding Revision */
+            binding_revision?: number | null;
             coverage: components["schemas"]["CoverageResponse"];
             /** Energy Kwh */
             energy_kwh: string | null;
@@ -1948,6 +2200,8 @@ export interface components {
             /** Revision */
             revision: number;
             scope: components["schemas"]["ScopeResponse"];
+            /** Selection Revision */
+            selection_revision?: number | null;
             /** Source Freshness */
             source_freshness?: components["schemas"]["SourceFreshnessResponse"][];
             window: components["schemas"]["WindowResponse"];
@@ -2794,6 +3048,152 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SiteResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    get_selection_api_v1_sites__site_id__aggregation_selection_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                site_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScopeSelectionResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    confirm_selection_api_v1_sites__site_id__aggregation_selection_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                site_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConfirmScopeRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScopeSelectionResponse"];
+                };
+            };
+            /** @description SCOPE_CONFLICT or SCOPE_STALE */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    preview_selection_api_v1_sites__site_id__aggregation_selection_preview_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                site_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ScopeProposalRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScopePreviewResponse"];
+                };
+            };
+            /** @description SCOPE_CONFLICT */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
             /** @description Validation failed */

@@ -25,6 +25,7 @@ from app.demo.service.tokens import OPERATION_ID, REPLAY_PROOF, derive_token, di
 from app.identity.model.models import PrincipalKind, PrincipalModel
 from app.identity.service.service import PrincipalService
 from app.measurements.service.service import IngestService
+from app.scope.service.selection import SelectionService
 from app.sites.model.models import SiteKind
 from app.sites.service.service import SiteService
 
@@ -58,6 +59,7 @@ class DemoService:
         principals: PrincipalService,
         assets: AssetService,
         ingest: IngestService,
+        selections: SelectionService,
         settings: Settings,
     ) -> None:
         """Bind to storage and the services a workspace spans.
@@ -68,6 +70,7 @@ class DemoService:
             principals (PrincipalService): Principal lifecycle.
             assets (AssetService): Asset model.
             ingest (IngestService): Shared ingestion.
+            selections (SelectionService): Confirmed scope.
             settings (Settings): Limits, TTL and keys.
         """
         self.repository = repository
@@ -75,6 +78,7 @@ class DemoService:
         self.principals = principals
         self.assets = assets
         self.ingest = ingest
+        self.selections = selections
         self.settings = settings
 
     @staticmethod
@@ -192,6 +196,7 @@ class DemoService:
         site = await self.sites.lock_owned(session.site_id, principal)
         session = await self.current(principal)  # Revalidate under the lock.
         plan = _scenario(session.scenario_id)
+        await self.selections.clear(site.id)
         await self.assets.clear(site)
         site = await self.sites.restore(
             site, name=plan.site_name, context=plan.context.value, timezone=plan.timezone, virtual_now=plan.virtual_now

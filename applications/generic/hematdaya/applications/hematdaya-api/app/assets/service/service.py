@@ -395,6 +395,16 @@ class AssetService:
             raise AssetCycleError()
         await self.repository.add_relation(site.id, from_asset_id, to_asset_id, kind)
 
+    async def apply_binding_edits(
+        self, site: SiteModel, updated: list[BindingModel], inserted: list[BindingModel]
+    ) -> None:
+        """Apply validated effective-range edits to a locked site."""
+        await self.repository.apply_binding_edits(site.id, updated, inserted)
+
+    async def apply_relation_edits(self, site: SiteModel, removed: list[UUID], added: list[RelationModel]) -> None:
+        """Apply validated disjoint evidence to a locked site."""
+        await self.repository.apply_relation_edits(site.id, removed, added)
+
     async def snapshot(self, site: SiteModel) -> SiteSnapshot:
         """Return a resolved site's assets, bindings, sources, relations and containment.
 

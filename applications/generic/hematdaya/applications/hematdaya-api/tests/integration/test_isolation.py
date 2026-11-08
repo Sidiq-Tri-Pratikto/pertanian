@@ -16,9 +16,13 @@ from tests.integration.conftest import (
     make_principal,
     make_site,
     make_source,
+    scope_confirmation,
+    scope_path,
+    scope_state,
 )
 
 pytestmark = pytest.mark.integration
+DAY = {"start_date": "2026-10-25", "end_date": "2026-10-25"}
 
 # (method, path template, JSON body). Placeholders name the other owner's site, asset, source and binding.
 FOREIGN_ROUTES = [
@@ -145,3 +149,83 @@ async def test_a_foreign_preview_answers_before_its_body_is_read(
     assert response.json()["error"]["code"] == "NOT_FOUND"
     assert consumed["chunks"] == 0
     assert (await execute("SELECT count(*) FROM imports WHERE site_id = :id", id=site))[0][0] == 0
+
+
+async def test_scope_owner_and_nested_site_isolation(client: AsyncClient, acting: Callable[[UUID], dict]) -> None:
+    """Another owner or site cannot be addressed through any part of a proposal."""
+    owner, intruder = await make_principal(), await make_principal()
+    site, other_site, same_owner_site = await make_site(owner), await make_site(intruder), await make_site(owner)
+    first, wrong_asset = await make_asset(site), await make_asset(site, "Utara")
+    other, same_owner_other = await make_asset(other_site), await make_asset(same_owner_site)
+    other_source, wrong_source = await make_source(other_site), await make_source(site)
+    await make_binding(site, wrong_asset, wrong_source)
+    first, other, same_owner_other = str(first), str(other), str(same_owner_other)
+    path, auth = scope_path(str(site)), acting(owner)
+    proposal = {"selected_asset_ids": [first], "period": DAY}
+    preview = (await client.post(f"{path}/preview", headers=auth, json=proposal)).json()
+    confirm = scope_confirmation(proposal, preview)
+    before = await scope_state(str(site))
+
+    for method, route, body in (
+        ("GET", path, None),
+        ("POST", f"{path}/preview", proposal),
+        ("PUT", path, confirm),
+    ):
+        response = await client.request(method, route, json=body, headers=acting(intruder))
+        assert response.status_code == 404 and response.json()["error"]["code"] == "NOT_FOUND"
+
+    for changes in (
+        {"selected_asset_ids": [other]},
+        {"selected_asset_ids": [same_owner_other]},
+        {"disjoint_confirmations": [{"first_asset_id": first, "second_asset_id": other}]},
+        {"authority_actions": [{"action": "skip", "asset_id": same_owner_other}]},
+        *(
+            {
+                "authority_actions": [
+                    {
+                        "action": "choose",
+                        "asset_id": first,
+                        "source_id": str(source),
+                        "effective_from": "2026-10-24T17:00:00Z",
+                    }
+                ]
+            }
+            for source in (other_source, wrong_source)
+        ),
+    ):
+        proposed = await client.post(f"{path}/preview", headers=auth, json=proposal | changes)
+        saved = await client.put(path, headers=auth, json=confirm | changes)
+        for response in (proposed, saved):
+            assert response.status_code == 404 and response.json()["error"]["code"] == "NOT_FOUND"
+    assert await scope_state(str(site)) == before
+
+
+@pytest.mark.usefixtures("capture_app_logs")
+async def test_scope_overlap_reports_safe_labels_and_correlates_one_generic_record(
+    client: AsyncClient, acting: Callable[[UUID], dict], caplog: pytest.LogCaptureFixture
+) -> None:
+    """Conflict details identify owned labels while keeping fake credentials and emails out of the record."""
+    fake_key, fake_email = "sk-fakeScopeToken12345", "scope@example.com"
+    owner = await make_principal()
+    site = await make_site(owner)
+    meter = await make_asset(site, "Meter utama", "site_total")
+    child = await make_asset(site, f"Kulkas {fake_key} {fake_email}")
+    await execute("UPDATE assets SET parent_asset_id = :parent WHERE id = :child", parent=meter, child=child)
+    path, auth = scope_path(str(site)), acting(owner)
+    proposal = {"selected_asset_ids": [str(meter), str(child)], "period": DAY}
+    preview = (await client.post(f"{path}/preview", headers=auth, json=proposal)).json()
+    before = await scope_state(str(site))
+    response = await client.put(path, headers=auth, json=scope_confirmation(proposal, preview))
+    assert response.status_code == 409
+    error = response.json()["error"]
+    assert error["code"] == "SCOPE_CONFLICT" and error["recovery"] == {"retryable": False}
+    (detail,) = error["details"]
+    assert detail["type"] == "parent_child" and detail["loc"] == ["body", "selected_asset_ids"]
+    assert "Meter utama" in detail["msg"] and "Kulkas [Filtered] [Filtered]" in detail["msg"]
+    records = failure_records(caplog)
+    assert len(records) == 1 and records[0]["reference_id"] == error["request_id"]
+    assert records[0]["code"] == "APP-SCOPE-OVERLAP"
+    assert "Meter utama" not in caplog.text and "Kulkas" not in caplog.text
+    for private in (fake_key, fake_email):
+        assert private not in response.text and private not in caplog.text
+    assert await scope_state(str(site)) == before

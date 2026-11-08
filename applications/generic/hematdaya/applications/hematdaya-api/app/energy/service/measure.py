@@ -7,7 +7,7 @@ from uuid import UUID
 
 from app.assets.model.models import AssetModel, BindingModel, SourceModel
 from app.energy.repository.base_repository import EnergyRepository, Span
-from app.energy.service.authority import resolve_authority
+from app.energy.service.authority import AssetAuthority, resolve_asset_authorities
 from app.energy.service.intervals import allocate, union
 from app.measurements.model.models import Quality
 
@@ -33,6 +33,8 @@ async def measure(
     sources: list[SourceModel],
     buckets: list[Span],
     now: datetime,
+    *,
+    authorities: dict[UUID, AssetAuthority] | None = None,
 ) -> dict[tuple[UUID, int], AssetBucket]:
     """Measure each asset in each bucket from its effective authority.
 
@@ -47,6 +49,7 @@ async def measure(
         sources (list[SourceModel]): The site's sources.
         buckets (list[Span]): Half-open buckets in order.
         now (datetime): Site time.
+        authorities (dict[UUID, AssetAuthority] | None): Authority already resolved for the bucket window.
 
     Returns:
         dict[tuple[UUID, int], AssetBucket]: Results keyed by (asset ID, bucket index).
@@ -54,23 +57,21 @@ async def measure(
     results: dict[tuple[UUID, int], AssetBucket] = defaultdict(AssetBucket)
     if not buckets:
         return results
-    by_asset: dict[UUID, list[BindingModel]] = defaultdict(list)
-    for binding in bindings:
-        by_asset[binding.asset_id].append(binding)
+    if authorities is None:
+        authorities = resolve_asset_authorities([asset.id for asset in assets], bindings, buckets[0][0], buckets[-1][1])
     source_by_id = {source.id: source for source in sources}
     parts: list[tuple[UUID, Span]] = []
     meta: list[tuple[UUID, bool]] = []  # (asset, counts toward the asset value)
-    for asset in assets:
-        authority = resolve_authority(by_asset[asset.id], buckets[0][0], buckets[-1][1])
+    for asset_id, authority in authorities.items():
         for part in authority.parts:
             parts.append((part.source_id, (part.start, part.end)))
-            meta.append((asset.id, True))
+            meta.append((asset_id, True))
         for candidate in authority.conflicts:
             parts.append((candidate.source_id, (candidate.start, candidate.end)))
-            meta.append((asset.id, False))
+            meta.append((asset_id, False))
             for index, (lo, hi) in enumerate(buckets):
                 if candidate.start < hi and lo < candidate.end:
-                    results[(asset.id, index)].conflict = results[(asset.id, index)].conflict or {}
+                    results[(asset_id, index)].conflict = results[(asset_id, index)].conflict or {}
 
     whole, straddlers = await repository.aggregate(parts, buckets, now)
     contributions = [(item.part, item.bucket, item.energy_mwh, item.covered, item.latest_end, False) for item in whole]

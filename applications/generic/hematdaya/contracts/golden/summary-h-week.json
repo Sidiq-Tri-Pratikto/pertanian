@@ -45,6 +45,7 @@
       "share_percent": "11.43"
     }
   ],
+  "binding_revision": 1,
   "coverage": {
     "allocated_estimate": false,
     "concurrent": "1.000",
@@ -80,6 +81,7 @@
     "issues": [],
     "valid": true
   },
+  "selection_revision": null,
   "source_freshness": [
     {
       "asset_id": "id-0",

@@ -10,21 +10,25 @@ from app.core.database import SessionDep
 from app.energy.repository.sqlalchemy.repository import SqlAlchemyEnergyRepository, SqlAlchemySlotRepository
 from app.energy.service.history import HistoryService
 from app.energy.service.summary import EnergyService
+from app.scope.selection_dependencies import SelectionServiceDep
 from app.sites.dependencies import SiteServiceDep
 
 
-def get_energy_service(session: SessionDep, sites: SiteServiceDep, assets: AssetServiceDep) -> EnergyService:
+def get_energy_service(
+    session: SessionDep, sites: SiteServiceDep, assets: AssetServiceDep, selections: SelectionServiceDep
+) -> EnergyService:
     """Build the energy service on the request session.
 
     Args:
         session (AsyncSession): The request's session.
         sites (SiteService): Site rules.
         assets (AssetService): Asset model.
+        selections (SelectionService): Confirmed membership.
 
     Returns:
         EnergyService: The service.
     """
-    return EnergyService(SqlAlchemyEnergyRepository(session), sites, assets)
+    return EnergyService(SqlAlchemyEnergyRepository(session), sites, assets, selections)
 
 
 EnergyServiceDep = Annotated[EnergyService, Depends(get_energy_service)]

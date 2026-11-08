@@ -125,6 +125,8 @@ class SummaryResponse(BaseModel):
     latest_measurement_at: datetime | None
     origins: list[str]
     revision: int
+    selection_revision: int | None = None
+    binding_revision: int | None = None
     source_freshness: list[SourceFreshnessResponse] = Field(default_factory=list)
 
 
