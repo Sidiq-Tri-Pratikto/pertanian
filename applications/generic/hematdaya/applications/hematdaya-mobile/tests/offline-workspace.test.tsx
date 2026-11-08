@@ -157,3 +157,80 @@ it('keeps a logout terminal even when deleting the credential-control key fails'
   await expect(loadWorkspaceRecord()).resolves.toBeNull();
   expect(await SecureStore.getItemAsync('hematdaya.workspace.v1')).not.toContain(workspace.token);
 });
+
+it('blocks dispatch when the attempt marker cannot be saved, and reloads a marker without a proposal', async () => {
+  const prior = await seedConfirmedWorkspace(workspace);
+  const marker = ownerStorageKey(prior.epoch, 'scope-attempt');
+  const pair = { selection: 0, binding: 1 };
+  const first = await renderHook(useWorkspace, { wrapper: WorkspaceProvider });
+  await waitFor(() => expect(first.result.current.storage).not.toBeNull());
+  await act(async () => { await first.result.current.observeScope(pair, {})?.durable; });
+  jest.spyOn(AsyncStorage, 'setItem').mockRejectedValueOnce(new Error('write protected'));
+  await act(async () => {
+    await expect(first.result.current.beginScopeWrite(pair, 0)).rejects.toMatchObject({ code: 'LOCAL_STORAGE' });
+  });
+  expect(await AsyncStorage.getItem(marker)).toBeNull();
+  await act(async () => { await first.result.current.beginScopeWrite(pair, 0); });
+  expect(JSON.parse((await AsyncStorage.getItem(marker))!)).toEqual({ id: expect.any(String), base: pair });
+  await first.unmount();
+  const second = await renderHook(useWorkspace, { wrapper: WorkspaceProvider });
+  await waitFor(() => expect(second.result.current.scopeAttempt?.base).toEqual(pair));
+});
+
+it('advances once per trusted scope pair and retains its attempt through a failed fence write', async () => {
+  const prior = await seedConfirmedWorkspace(workspace);
+  const marker = ownerStorageKey(prior.epoch, 'scope-attempt');
+  const first = await renderHook(useWorkspace, { wrapper: WorkspaceProvider });
+  await waitFor(() => expect(first.result.current.storage).not.toBeNull());
+  const base = { selection: 1, binding: 1 };
+  const next = { selection: 0, binding: 2 };
+  await act(async () => { await first.result.current.observeScope(base, {})?.durable; });
+  await act(async () => { await first.result.current.beginScopeWrite(base, 0); });
+  jest.spyOn(AsyncStorage, 'setItem').mockRejectedValueOnce(new Error('write protected'));
+  await act(async () => { expect(await first.result.current.observeScope(next, {})?.durable).toBe(false); });
+  expect(first.result.current.scopeEpoch).toBe(1);
+  expect(first.result.current.scopePair).toEqual(next);
+  expect(first.result.current.observeScope(base, {})).toBeNull();
+  expect(first.result.current.observeScope(next, {})?.epoch).toBe(1);
+  expect(JSON.parse((await AsyncStorage.getItem(marker))!)).toMatchObject({ base });
+});
+
+it('fences an external observation in memory even when every durable update fails', async () => {
+  await seedConfirmedWorkspace(workspace);
+  const hook = await renderHook(useWorkspace, { wrapper: WorkspaceProvider });
+  await waitFor(() => expect(hook.result.current.storage).not.toBeNull());
+  await act(async () => { await hook.result.current.observeScope({ selection: 0, binding: 1 }, {})?.durable; });
+  jest.spyOn(AsyncStorage, 'setItem').mockRejectedValueOnce(new Error('write protected'));
+  jest.spyOn(SecureStore, 'setItemAsync').mockRejectedValueOnce(new Error('revocation unavailable'));
+  jest.spyOn(SecureStore, 'deleteItemAsync').mockRejectedValueOnce(new Error('deletion unavailable'));
+  await act(async () => { expect(await hook.result.current.observeScope({ selection: 0, binding: 2 }, {})?.durable).toBe(false); });
+  expect(hook.result.current.scopeEpoch).toBe(1);
+  expect(hook.result.current.scopePair).toEqual({ selection: 0, binding: 2 });
+  expect(hook.result.current.storage).toBeNull();
+  expect((await loadWorkspaceRecord())?.kind).toBe('confirmed');
+});
+
+it('preserves a durable marker after cleanup fails and ignores superseded owner completions', async () => {
+  const prior = await seedConfirmedWorkspace(workspace);
+  const key = ownerStorageKey(prior.epoch, 'scope-attempt');
+  const hook = await renderHook(useWorkspace, { wrapper: WorkspaceProvider });
+  await waitFor(() => expect(hook.result.current.storage).not.toBeNull());
+  const base = { selection: 0, binding: 1 };
+  const next = { selection: 1, binding: 1 };
+  await act(async () => { await hook.result.current.observeScope(base, {})?.durable; });
+  await act(async () => { await hook.result.current.beginScopeWrite(base, 0); });
+  const setItem = AsyncStorage.setItem;
+  jest.spyOn(AsyncStorage, 'setItem').mockImplementationOnce((key, value) => setItem(key, value))
+    .mockRejectedValueOnce(new Error('marker cleanup unavailable'));
+  await act(async () => { expect(await hook.result.current.observeScope(next, {})?.durable).toBe(false); });
+  expect(hook.result.current.scopePair).toEqual(next);
+  expect(JSON.parse((await AsyncStorage.getItem(key))!)).toMatchObject({ base });
+
+  const old = hook.result.current;
+  const replacement = { ...workspace, token: 'fresh-scope-owner' };
+  await act(() => old.open(replacement, attestedResponse(replacement)));
+  expect(old.observeScope({ selection: 9, binding: 9 }, {})).toBeNull();
+  expect(hook.result.current.scopePair).toBeNull();
+  expect(hook.result.current.scopeAttempt).toBeNull();
+  expect(await AsyncStorage.getItem(key)).toBeNull();
+});

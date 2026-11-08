@@ -297,6 +297,37 @@ appId: id.hematdaya.app
           element: "Total gabungan belum dapat dihitung"
           direction: DOWN
       - takeScreenshot: scope-refused
+      - scrollUntilVisible:
+          element: "Selesaikan cakupan"
+          direction: DOWN
+          timeout: 45000
+      - tapOn: "Selesaikan cakupan"
+      - extendedWaitUntil:
+          visible: "Cakupan dan sumber"
+          timeout: 45000
+      - scrollUntilVisible:
+          element:
+            id: "scope-view-parent"
+          direction: DOWN
+          timeout: 45000
+      - tapOn:
+          id: "scope-view-parent"
+      - scrollUntilVisible:
+          element: "Pratinjau cakupan"
+          direction: DOWN
+          timeout: 45000
+      - tapOn: "Pratinjau cakupan"
+      - extendedWaitUntil:
+          visible: "Periode yang ditinjau"
+          timeout: 45000
+      - scrollUntilVisible:
+          element: "Batal"
+          direction: DOWN
+          timeout: 45000
+      - tapOn: "Batal"
+      - extendedWaitUntil:
+          visible: "Beranda"
+          timeout: 45000
       - tapOn: "Perangkat"
       # Perangkat can resume an asset detail retained from the preceding phase.
       - tapOn:

@@ -26,7 +26,7 @@ import { useLastConfirmed } from '@/features/assets/useLastConfirmed';
 import { shownOrigins } from '@/features/energy/beranda-model';
 import { useAssetDraft } from '@/features/offline/persist-drafts';
 import { periodQuery, useNavigationContext } from '@/features/navigation-context/NavigationContextProvider';
-import { useTabNavigation } from '@/features/navigation';
+import { useScopeInvoker, useTabNavigation } from '@/features/navigation';
 import { SessionEndedNotice } from '@/features/workspace/SessionEndedNotice';
 import { useWorkspace } from '@/features/workspace/WorkspaceProvider';
 import type { Period } from '@/features/workspace/workspace-store';
@@ -210,6 +210,7 @@ type PopulatedProps = {
 
 function PopulatedDetail({ assetId, summary, confirmedWindow, historyWindowError, model, failure, retrying, onRetry, offline, fetchedAt, previousSelection }: PopulatedProps) {
   const { workspace } = useWorkspace();
+  const scopeIssue = useScopeInvoker();
   const { period, setPeriod } = useNavigationContext();
   // A summary's origins are empty on a no-data period and on a conflict, so sources speak first.
   const origins = model.origins.length ? model.origins : shownOrigins(summary.origins, workspace?.scenarioId);
@@ -230,7 +231,8 @@ function PopulatedDetail({ assetId, summary, confirmedWindow, historyWindowError
         <View style={styles.section}>
           <HDProvenanceTag origins={origins} />
           <HDText variant="label">{model.scopeLabel}</HDText>
-          <HDNotice tone="attention" title="Lebih dari satu sumber untuk beban yang sama">
+          <HDNotice tone="attention" title="Lebih dari satu sumber untuk beban yang sama"
+            action={<HDButton {...scopeIssue}>Selesaikan cakupan</HDButton>}>
             <View style={styles.tight}>
               {model.sources.map((line, index) => (
                 <HDText key={`${index}-${line}`}>{line}</HDText>

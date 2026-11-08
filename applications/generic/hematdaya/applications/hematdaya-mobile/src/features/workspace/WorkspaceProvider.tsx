@@ -3,11 +3,18 @@ import { focusManager, onlineManager, QueryClientProvider } from '@tanstack/reac
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Platform } from 'react-native';
 
-import { confirmDemoSite, resetDemoSession, type DemoSession, type RequestCredential } from '@/api/client';
+import {
+  compareScopePairs, confirmDemoSite, resetDemoSession, sameScopeIds, summaryMatchesMembership,
+  type DemoSession, type RequestCredential, type ScopePair, type Summary,
+} from '@/api/client';
 import { ApiError } from '@/api/errors';
 import { createQueryClient, endsSession } from '@/api/query-client';
-import { ownerStorageKey, removeOwnerData, type OwnerStorage, type StorageSection } from '@/features/offline/owner-storage';
+import {
+  ownerStorageKey, readScopeAttempt, readScopeFence, removeOwnerData,
+  type OwnerStorage, type ScopeAttempt, type ScopeFence, type StorageSection,
+} from '@/features/offline/owner-storage';
 import { isKnownOffline } from '@/features/offline/useConnectivity';
+import { randomToken } from '@/lib/random';
 import {
   attestWorkspace, clearWorkspace, isUnexpired, loadWorkspaceRecord, revokeWorkspace, saveWorkspace, tombstoneWorkspace,
   type Attestation, type Workspace, type WorkspaceRecord,
@@ -20,6 +27,10 @@ type Active = {
   storage: OwnerStorage | null;
 };
 
+type ScopeEvidence = { rawIds?: string[]; summary?: Summary };
+type ScopeObservation = { epoch: number; durable: Promise<boolean> };
+type ScopeWrite = { id: string; sole: boolean };
+
 type WorkspaceValue = {
   status: 'loading' | 'ready';
   workspace: Workspace | null;
@@ -30,7 +41,15 @@ type WorkspaceValue = {
   isCurrentCredential: (generation: number) => boolean;
   scopeEpoch: number;
   currentScopeEpoch: () => number;
+  currentScopePair: () => ScopePair | null;
   advanceScope: () => Promise<void>;
+  scopePair: ScopePair | null;
+  scopeAttempt: ScopeAttempt | null;
+  scopeWriting: boolean;
+  isScopeCurrent: (epoch: number, pair: ScopePair) => boolean;
+  observeScope: (pair: ScopePair, evidence: ScopeEvidence, publish?: (epoch: number) => void) => ScopeObservation | null;
+  beginScopeWrite: (base: ScopePair, epoch: number) => Promise<ScopeWrite>;
+  finishScopeWrite: (write: ScopeWrite, definite: boolean) => Promise<boolean>;
   ended: 'expired' | null;
   storageError: boolean;
   open: (workspace: Workspace, response?: DemoSession) => Promise<void>;
@@ -56,11 +75,21 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const [credentialGeneration, setCredentialGeneration] = useState(0);
   const scope = useRef(0);
   const [scopeEpoch, setScopeEpoch] = useState(0);
+  const scopeFence = useRef<ScopeFence>({ epoch: 0, pair: null });
+  const [scopePair, setScopePair] = useState<ScopePair | null>(null);
+  const scopeEvidence = useRef<ScopeEvidence>({});
+  const fenceWrite = useRef(Promise.resolve(true));
+  const locallyAdvanced = useRef(false);
+  const attempt = useRef<ScopeAttempt | null>(null);
+  const [scopeAttempt, setScopeAttempt] = useState<ScopeAttempt | null>(null);
+  const inFlight = useRef<string | null>(null);
+  const [scopeWriting, setScopeWriting] = useState(false);
   const control = useRef<WorkspaceRecord | null>(null);
   const controller = useRef(new AbortController());
   const tail = useRef<Promise<unknown>>(Promise.resolve());
   const isCurrentCredential = useCallback((id: number) => generation.current === id, []);
   const currentScopeEpoch = useCallback(() => scope.current, []);
+  const currentScopePair = useCallback(() => scopeFence.current.pair, []);
 
   const serial = useCallback(<T,>(task: () => Promise<T>): Promise<T> => {
     const result = tail.current.then(task, task);
@@ -73,7 +102,16 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     controller.current.abort();
     controller.current = new AbortController();
     scope.current = 0;
+    scopeFence.current = { epoch: 0, pair: null };
+    scopeEvidence.current = {};
+    fenceWrite.current = Promise.resolve(true);
+    locallyAdvanced.current = false;
+    attempt.current = null;
+    inFlight.current = null;
     setScopeEpoch(0);
+    setScopePair(null);
+    setScopeAttempt(null);
+    setScopeWriting(false);
     setCredentialGeneration(next);
     setActive(null);
     queryClient.clear();
@@ -163,12 +201,19 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       update: (section, change) => update(section, change, true),
     };
     try {
-      const raw = await AsyncStorage.getItem(ownerStorageKey(epoch, 'scope'));
-      const persistedScope = raw === null ? 0 : Number(raw);
-      if (!Number.isSafeInteger(persistedScope) || persistedScope < 0) throw ApiError.storage();
+      const [rawFence, rawAttempt] = await Promise.all([
+        AsyncStorage.getItem(ownerStorageKey(epoch, 'scope')),
+        AsyncStorage.getItem(ownerStorageKey(epoch, 'scope-attempt')),
+      ]);
+      const fence = readScopeFence(rawFence);
+      const pending = readScopeAttempt(rawAttempt);
       if (!credential.current()) return;
-      scope.current = persistedScope;
-      setScopeEpoch(persistedScope);
+      scope.current = fence.epoch;
+      scopeFence.current = fence;
+      attempt.current = pending;
+      setScopeEpoch(fence.epoch);
+      setScopePair(fence.pair);
+      setScopeAttempt(pending);
     } catch {
       if (!credential.current()) return;
       setStorageError(true);
@@ -218,17 +263,13 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     if (!isCurrentCredential(id)) throw ApiError.revoked();
   }, [block, install, isCurrentCredential, lease, revokeCurrent, serial]);
 
-  const advanceScope = useCallback(async () => {
-    if (!active?.credential.current()) return;
-    const next = ++scope.current;
-    void queryClient.cancelQueries({
-      predicate: ({ queryKey }) => ['summary', 'asset-summary', 'asset-history', 'insights', 'hidden-insights'].includes(String(queryKey[0])),
-    });
-    setScopeEpoch(next);
-    if (!active.storage || await active.storage.write('scope', String(next)) || !active.credential.current()) return;
-    // An old namespace must not become current again after a failed durable scope update.
+  const persistFence = useCallback(async (fence: ScopeFence) => {
+    if (!active?.credential.current() || !active.storage) return false;
+    if (await active.storage.write('scope', JSON.stringify(fence))) return true;
+    // A durable attempt already protects a reload. External changes without one require namespace revocation.
+    if (!active.credential.current() || attempt.current) return false;
     await serial(async () => {
-      if (!active.credential.current()) return;
+      if (!active.credential.current() || attempt.current) return;
       try {
         await revokeCurrent(credentialGeneration);
       } catch {
@@ -241,7 +282,125 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       }
       if (active.credential.current()) setActive({ ...active, storage: null });
     });
-  }, [active, credentialGeneration, queryClient, revokeCurrent, serial]);
+    return false;
+  }, [active, credentialGeneration, revokeCurrent, serial]);
+
+  const cancelScopedReads = useCallback((epoch: number) => {
+    void queryClient.cancelQueries({
+      predicate: ({ queryKey }) =>
+        ['summary', 'asset-summary', 'asset-history', 'insights', 'hidden-insights', 'scope-selection'].includes(String(queryKey[0])) &&
+        queryKey.at(-1) !== epoch,
+    });
+  }, [queryClient]);
+
+  const advanceScope = useCallback(async () => {
+    if (!active?.credential.current()) return;
+    const epoch = ++scope.current;
+    locallyAdvanced.current = true;
+    scopeEvidence.current = {};
+    const fence = { ...scopeFence.current, epoch };
+    scopeFence.current = fence;
+    cancelScopedReads(epoch);
+    setScopeEpoch(epoch);
+    fenceWrite.current = persistFence(fence);
+    await fenceWrite.current;
+  }, [active, cancelScopedReads, persistFence]);
+
+  const clearAttempt = useCallback(async (marker: ScopeAttempt) => {
+    if (!active?.storage || !active.credential.current()) return false;
+    if (attempt.current !== marker) return attempt.current === null;
+    const cleared = await active.storage.update('scope-attempt', (raw) =>
+      readScopeAttempt(raw)?.id === marker.id ? 'null' : (raw ?? 'null'));
+    if (cleared && attempt.current === marker && active.credential.current()) {
+      attempt.current = null;
+      setScopeAttempt(null);
+    }
+    return cleared;
+  }, [active]);
+
+  const isScopeCurrent = useCallback((epoch: number, pair: ScopePair) => {
+    const fence = scopeFence.current;
+    return epoch === fence.epoch && fence.pair !== null && compareScopePairs(fence.pair, pair) === 0;
+  }, []);
+
+  const observeScope = useCallback((pair: ScopePair, evidence: ScopeEvidence, publish?: (epoch: number) => void) => {
+    if (!active?.credential.current()) return null;
+    const before = scopeFence.current;
+    const order = before.pair === null ? 1 : compareScopePairs(pair, before.pair);
+    if (order < 0) return null;
+    const previous = order === 0 ? scopeEvidence.current : {};
+    const rawIds = evidence.rawIds ?? previous.rawIds;
+    const summary = evidence.summary ?? previous.summary;
+    if ((evidence.rawIds && previous.rawIds && !sameScopeIds(evidence.rawIds, previous.rawIds)) ||
+      (rawIds && summary && !summaryMatchesMembership(summary, rawIds)) ||
+      (evidence.summary && previous.summary && !sameScopeIds(
+        evidence.summary.scope.included.map((asset) => asset.asset_id), previous.summary.scope.included.map((asset) => asset.asset_id),
+      ))) throw ApiError.unexpected();
+
+    scopeEvidence.current = { rawIds, summary };
+    const epoch = before.epoch + Number(order > 0 && before.pair !== null && !locallyAdvanced.current);
+    locallyAdvanced.current = false;
+    if (order > 0) {
+      const fence = { epoch, pair };
+      scopeFence.current = fence;
+      scope.current = epoch;
+      fenceWrite.current = persistFence(fence);
+    }
+    publish?.(epoch);
+    if (order > 0) setScopePair(pair);
+    if (epoch !== before.epoch) {
+      cancelScopedReads(epoch);
+      setScopeEpoch(epoch);
+    }
+    const durable = fenceWrite.current.then(async (stored) => {
+      const pending = attempt.current;
+      if (stored && pending && active.credential.current() && compareScopePairs(pair, pending.base) > 0) {
+        return clearAttempt(pending);
+      }
+      return stored;
+    });
+    return { epoch, durable };
+  }, [active, cancelScopedReads, clearAttempt, persistFence]);
+
+  const beginScopeWrite = useCallback(async (base: ScopePair, epoch: number): Promise<ScopeWrite> => {
+    if (!active?.credential.current()) throw ApiError.revoked();
+    if (!active.storage) throw ApiError.storage();
+    if (isKnownOffline()) throw ApiError.offline();
+    if (inFlight.current || !isScopeCurrent(epoch, base)) throw ApiError.revoked();
+    const id = randomToken(16);
+    inFlight.current = id;
+    setScopeWriting(true);
+    try {
+      const pending = attempt.current;
+      if (pending && compareScopePairs(base, pending.base) <= 0) return { id, sole: false };
+      // A previous marker cannot protect a write at a higher base, where that marker may be reconciled.
+      if (pending && !await fenceWrite.current) throw ApiError.storage();
+      if (!active.credential.current() || !isScopeCurrent(epoch, base)) throw ApiError.revoked();
+      const marker = { id, base };
+      if (!await active.storage.write('scope-attempt', JSON.stringify(marker))) throw ApiError.storage();
+      if (!active.credential.current()) throw ApiError.revoked();
+      attempt.current = marker;
+      setScopeAttempt(marker);
+      return { id, sole: true };
+    } catch (failure) {
+      if (inFlight.current === id) {
+        inFlight.current = null;
+        setScopeWriting(false);
+      }
+      throw failure;
+    }
+  }, [active, isScopeCurrent]);
+
+  const finishScopeWrite = useCallback(async (write: ScopeWrite, definite: boolean) => {
+    if (inFlight.current !== write.id || !active?.credential.current()) return false;
+    const pending = attempt.current;
+    const cleared = definite && write.sole && pending?.id === write.id ? await clearAttempt(pending) : true;
+    if (inFlight.current === write.id) {
+      inFlight.current = null;
+      setScopeWriting(false);
+    }
+    return cleared;
+  }, [active, clearAttempt]);
 
   const resetDemo = useCallback(async () => {
     const record = control.current;
@@ -342,9 +501,11 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const value = useMemo(() => ({
     status, workspace: active?.workspace ?? null, credential: active?.credential ?? null,
     storage: active?.storage ?? null, legacyImport: active?.attestation.legacyImport ?? false,
-    credentialGeneration, isCurrentCredential, scopeEpoch, currentScopeEpoch, advanceScope,
+    credentialGeneration, isCurrentCredential, scopeEpoch, currentScopeEpoch, currentScopePair, advanceScope,
+    scopePair, scopeAttempt, scopeWriting, isScopeCurrent, observeScope, beginScopeWrite, finishScopeWrite,
     ended, storageError, open, end, resetDemo,
-  }), [status, active, credentialGeneration, isCurrentCredential, scopeEpoch, currentScopeEpoch, advanceScope,
+  }), [status, active, credentialGeneration, isCurrentCredential, scopeEpoch, currentScopeEpoch, currentScopePair, advanceScope,
+    scopePair, scopeAttempt, scopeWriting, isScopeCurrent, observeScope, beginScopeWrite, finishScopeWrite,
     ended, storageError, open, end, resetDemo]);
 
   return (

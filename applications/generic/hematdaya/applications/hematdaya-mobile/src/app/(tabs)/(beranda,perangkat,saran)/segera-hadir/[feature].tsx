@@ -1,4 +1,4 @@
-import { useLocalSearchParams } from 'expo-router';
+import { Redirect, useLocalSearchParams } from 'expo-router';
 
 import { HDComingSoon } from '@/components/hd/HDComingSoon';
 import { HDNotice } from '@/components/hd/HDNotice';
@@ -9,7 +9,8 @@ import { findFeature } from '@/features/registry';
 /** One screen for every planned feature, so no route pretends to work before its pull request ships. */
 export default function SegeraHadirScreen() {
   const { feature: featureId } = useLocalSearchParams<{ feature: string }>();
-  const { back } = useTabNavigation();
+  const { back, scopeHref } = useTabNavigation();
+  if (featureId === 'cakupan-sumber') return <Redirect href={scopeHref} />;
   const feature = findFeature(featureId);
 
   if (!feature) {

@@ -27,7 +27,7 @@ export type RequestCredential = {
 type Credential = string | RequestCredential;
 
 type RequestOptions = {
-  method?: 'GET' | 'POST' | 'PATCH' | 'DELETE';
+  method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   expectedStatus?: number;
   body?: unknown;
   token?: Credential | null;
@@ -194,6 +194,17 @@ function isScopeAsset(value: unknown): value is Summary['scope']['included'][num
   return isRecord(value) && typeof value.asset_id === 'string' && typeof value.name === 'string';
 }
 
+function isScopeIssue(value: unknown): value is Summary['scope']['issues'][number] {
+  return isRecord(value) &&
+    typeof value.type === 'string' && ['parent_child', 'unknown_overlap', 'unconfirmed', 'source_conflict', 'shared_source'].includes(value.type) &&
+    Array.isArray(value.asset_ids) && value.asset_ids.length > 0 && value.asset_ids.every(isScopeId) &&
+    typeof value.message === 'string' && value.message.length > 0;
+}
+
+const isScopeId = (value: unknown): value is string => typeof value === 'string' && value.length > 0;
+const isRevision = (value: unknown): value is number => typeof value === 'number' && Number.isSafeInteger(value) && value >= 0;
+const isOptionalRevision = (value: unknown) => value === undefined || value === null || isRevision(value);
+
 export function isSummary(value: unknown): value is Summary {
   if (!isRecord(value) || !isRecord(value.window) || !isRecord(value.scope) || !isRecord(value.coverage)) return false;
   const { window, scope, coverage } = value;
@@ -203,9 +214,9 @@ export function isSummary(value: unknown): value is Summary {
   return start < end && start <= cutoff && cutoff <= end &&
     isLocalDate(window.start_date) && isLocalDate(window.end_date) && window.start_date <= window.end_date &&
     isTimezone(window.timezone) && typeof window.is_current === 'boolean' &&
-    typeof scope.valid === 'boolean' && Array.isArray(scope.issues) && scope.issues.every((issue) =>
-      isRecord(issue) && typeof issue.type === 'string' && Array.isArray(issue.asset_ids) &&
-      issue.asset_ids.every((id: unknown) => typeof id === 'string') && typeof issue.message === 'string') &&
+    typeof scope.valid === 'boolean' && Array.isArray(scope.issues) && scope.issues.every(isScopeIssue) &&
+    scope.valid === (scope.issues.length === 0) && (scope.valid || value.energy_kwh === null) &&
+    isOptionalRevision(value.selection_revision) && isOptionalRevision(value.binding_revision) &&
     Array.isArray(scope.included) && scope.included.every(isScopeAsset) &&
     Array.isArray(scope.excluded) && scope.excluded.every((row) => isRecord(row) && isScopeAsset(row) && 'reason' in row && typeof row.reason === 'string') &&
     nullableEnergy(coverage.minimum) && nullableEnergy(coverage.concurrent) && typeof coverage.allocated_estimate === 'boolean' &&
@@ -244,6 +255,115 @@ export type PeriodQuery = { preset?: string; start_date?: string; end_date?: str
 
 export function getSummary(siteId: string, period: PeriodQuery, token: Credential): Promise<Summary> {
   return apiRequest(`/api/v1/sites/${encodeURIComponent(siteId)}/summary`, { token, query: period, expectedStatus: 200 }, isSummary);
+}
+
+export type ScopeSelection = components['schemas']['ScopeSelectionResponse'];
+export type ScopePreview = components['schemas']['ScopePreviewResponse'];
+export type ScopeProposal = components['schemas']['ScopeProposalRequest'];
+export type ScopeBinding = components['schemas']['ScopeBindingResponse'];
+export type ScopePair = { selection: number; binding: number };
+
+export function selectionScopePair(value: Pick<ScopeSelection, 'selection_revision' | 'binding_revision'>): ScopePair {
+  return { selection: value.selection_revision, binding: value.binding_revision };
+}
+
+export function summaryScopePair(value: Summary): ScopePair | null {
+  return value.binding_revision != null && value.selection_revision !== undefined
+    ? { selection: value.selection_revision ?? 0, binding: value.binding_revision } : null;
+}
+
+/** Reset can clear explicit selection but always advances the binding revision. */
+export function compareScopePairs(a: ScopePair, b: ScopePair): number {
+  return a.binding - b.binding || a.selection - b.selection;
+}
+
+export function sameScopeIds(a: readonly string[], b: readonly string[]): boolean {
+  const sorted = [...b].sort();
+  return a.length === b.length && [...a].sort().every((id, index) => id === sorted[index]);
+}
+
+export function summaryMatchesMembership(summary: Summary, rawIds: readonly string[]): boolean {
+  const archived = new Set(summary.scope.excluded.filter((asset) => asset.reason === 'archived').map((asset) => asset.asset_id));
+  return sameScopeIds(summary.scope.included.map((asset) => asset.asset_id), rawIds.filter((id) => !archived.has(id)));
+}
+
+function isScopeBinding(value: unknown): value is ScopeBinding {
+  if (!isRecord(value)) return false;
+  const start = historyInstant(value.effective_from);
+  return isScopeId(value.binding_id) && isScopeId(value.source_id) && isScopeId(value.asset_id) &&
+    typeof value.label === 'string' && typeof value.authoritative === 'boolean' &&
+    Number.isFinite(start) && (value.effective_to === null || start < historyInstant(value.effective_to));
+}
+
+function isScopeBindings(value: unknown): value is ScopeBinding[] {
+  return Array.isArray(value) && value.every(isScopeBinding) &&
+    new Set(value.map((row) => row.binding_id)).size === value.length;
+}
+
+function isScopeSelection(value: unknown): value is ScopeSelection {
+  return isRecord(value) && isRevision(value.selection_revision) && isRevision(value.binding_revision) &&
+    Array.isArray(value.selected_asset_ids) && value.selected_asset_ids.every(isScopeId) &&
+    new Set(value.selected_asset_ids).size === value.selected_asset_ids.length &&
+    Array.isArray(value.issues) && value.issues.every(isScopeIssue) &&
+    isScopeBindings(value.authority) && isScopeBindings(value.candidates) &&
+    Array.isArray(value.relations) && value.relations.every((row) => isRecord(row) &&
+      isScopeId(row.from_asset_id) && isScopeId(row.to_asset_id) && row.from_asset_id !== row.to_asset_id &&
+      (row.kind === 'contains' || row.kind === 'disjoint' || row.kind === 'unknown_overlap'));
+}
+
+function selectionPath(siteId: string): string {
+  return `/api/v1/sites/${encodeURIComponent(siteId)}/aggregation-selection`;
+}
+
+export function getSelection(siteId: string, token: Credential): Promise<ScopeSelection> {
+  return apiRequest(selectionPath(siteId), { token, expectedStatus: 200 }, isScopeSelection);
+}
+
+/** This POST is a bounded, read-only calculation. Its result cannot publish confirmed figures. */
+export function previewScope(siteId: string, proposal: ScopeProposal, token: Credential): Promise<ScopePreview> {
+  return apiRequest(`${selectionPath(siteId)}/preview`, { method: 'POST', body: proposal, token, expectedStatus: 200 },
+    (value): value is ScopePreview => {
+      if (!isRecord(value) || !isRevision(value.selection_revision) || !isRevision(value.binding_revision) ||
+        !isSummary(value.summary) || !isScopeBindings(value.candidates)) return false;
+      const { summary } = value;
+      const pair = summaryScopePair(summary);
+      const { start, end, start_date, end_date } = summary.window;
+      return pair?.selection === value.selection_revision && pair.binding === value.binding_revision &&
+        (proposal.period.preset != null || (start_date === proposal.period.start_date && end_date === proposal.period.end_date)) &&
+        summaryMatchesMembership(summary, proposal.selected_asset_ids) &&
+        sameScopeIds(summary.assets.map((row) => row.asset_id), summary.scope.included.map((row) => row.asset_id)) &&
+        value.candidates.every((row) => proposal.selected_asset_ids.includes(row.asset_id) &&
+          historyInstant(row.effective_from) < historyInstant(end) &&
+          (row.effective_to === null || historyInstant(start) < historyInstant(row.effective_to)));
+    });
+}
+
+export function confirmScope(
+  siteId: string, proposal: ScopeProposal, preview: ScopePreview, base: ScopeSelection, token: Credential,
+  beforeDispatch?: () => void,
+): Promise<ScopeSelection> {
+  const { start_date, end_date, timezone } = preview.summary.window;
+  const body: components['schemas']['ConfirmScopeRequest'] = {
+    ...proposal,
+    expected_selection_revision: preview.selection_revision,
+    expected_binding_revision: preview.binding_revision,
+    resolved_period: { start_date, end_date, timezone },
+  };
+  const selectionChanges = preview.selection_revision === 0 || !sameScopeIds(base.selected_asset_ids, proposal.selected_asset_ids);
+  const canChangeBindings = proposal.authority_actions?.some((action) => action.action === 'choose') ||
+    Boolean(proposal.disjoint_confirmations?.length);
+  return apiRequest(selectionPath(siteId), { method: 'PUT', body, token, expectedStatus: 200, beforeDispatch },
+    (value): value is ScopeSelection => isScopeSelection(value) &&
+      sameScopeIds(value.selected_asset_ids, proposal.selected_asset_ids) &&
+      value.selection_revision === preview.selection_revision + Number(selectionChanges) &&
+      (value.binding_revision === preview.binding_revision ||
+        (canChangeBindings && value.binding_revision === preview.binding_revision + 1)));
+}
+
+export function isScopeRefusal(failure: ApiError): boolean {
+  return isAssetPatchRefusal(failure) || (!failure.recovery.retryable &&
+    ((failure.status === 409 && (failure.code === 'SCOPE_CONFLICT' || failure.code === 'SCOPE_STALE')) ||
+      (failure.status === 400 && failure.code === 'REQUEST_INVALID')));
 }
 
 export type InsightList = components['schemas']['InsightListResponse'];

@@ -19,9 +19,10 @@ import { useLastConfirmed } from '@/features/assets/useLastConfirmed';
 import { berandaModel, shownOrigins } from '@/features/energy/beranda-model';
 import { useSummary } from '@/features/energy/useSummary';
 import { useNavigationContext } from '@/features/navigation-context/NavigationContextProvider';
-import { useTabNavigation } from '@/features/navigation';
+import { useScopeInvoker, useTabNavigation } from '@/features/navigation';
 import { DemoSheet } from '@/features/workspace/DemoSheet';
 import { SessionEndedNotice } from '@/features/workspace/SessionEndedNotice';
+import { formatDateTime } from '@/lib/format';
 import { useWorkspace } from '@/features/workspace/WorkspaceProvider';
 
 const TITLE = 'Perangkat';
@@ -161,6 +162,7 @@ function PopulatedPerangkat({
   const { period, setPeriod } = useNavigationContext();
   const { openFeature, openImport, openSettings } = useTabNavigation();
   const model = berandaModel(summary);
+  const scopeIssue = useScopeInvoker();
   const { excluded, issues, valid } = summary.scope;
 
   return (
@@ -171,7 +173,9 @@ function PopulatedPerangkat({
       <SavedReadStatus offline={offline} failed={Boolean(failure)} fetchedAt={fetchedAt} timezone={model.timezone} />
       {previousSelection ? (
         <HDNotice tone="info" title="Ringkasan masih memakai cakupan sebelumnya">
-          Daftar perangkat sudah diperbarui. Angka dan cakupan berikut berasal dari ringkasan terakhir.
+          {fetchedAt !== undefined && !offline
+            ? `Terakhir dimuat: ${formatDateTime(new Date(fetchedAt).toISOString(), model.timezone)}. Angka berikut mengikuti cakupan sebelumnya.`
+            : 'Angka dan cakupan berikut berasal dari ringkasan terakhir.'}
         </HDNotice>
       ) : null}
       <View style={styles.section}>
@@ -183,7 +187,8 @@ function PopulatedPerangkat({
         <HDProvenanceTag origins={shownOrigins(model.origins, workspace?.scenarioId)} />
       </View>
       {valid ? null : (
-        <HDNotice tone="attention" title="Total gabungan belum dapat dihitung">
+        <HDNotice tone="attention" title="Total gabungan belum dapat dihitung"
+          action={<HDButton {...scopeIssue}>Selesaikan cakupan</HDButton>}>
           {`${issues.map((issue) => issue.message).join(' ')} Nilai masing-masing tetap ditampilkan.`}
         </HDNotice>
       )}
