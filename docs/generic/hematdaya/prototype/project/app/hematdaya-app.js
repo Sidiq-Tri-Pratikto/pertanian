@@ -177,32 +177,42 @@
       return h(HD.Notice, { tone: f.tone || 'success', title: f.title, live: true, action: f.action ? Btn('text', f.action.label, f.action.onClick) : null }, f.body);
     }
 
+    var exploredKey = 'hematdaya.welcome.explored.v1';
+    function rememberExploration() {
+      try { window.localStorage.setItem(exploredKey, 'true'); } catch (e) { /* continue when browser storage is unavailable */ }
+    }
+    function openEmptyHome() {
+      var local = st.ws.local || D.emptyWorkspace('local');
+      local.nowMs = Date.now();
+      local.site.context = st.welcome.context;
+      var date = D.localDate(local.nowMs, local.site.tz);
+      local.initialPeriod = { preset: 'last7', start: D.addDays(date, -7), end: D.addDays(date, -1) };
+      openWorkspace('local', local);
+    }
+    useEffect(function () {
+      var explored = false;
+      try { explored = window.localStorage.getItem(exploredKey) === 'true'; } catch (e) { /* show Welcome */ }
+      if (explored && !st.wsKey) upd(openEmptyHome);
+    }, []);
+
     /* ======================= S01 Welcome ======================= */
     function Welcome() {
       var w = st.welcome;
       function open(kind) {
         upd(function () { st.ops.demo = { state: 'loading' }; });
         setTimeout(function () {
-          try { var nw = D.buildScenario(kind === 'industry' ? 'i-base' : 'h-base'); upd(function () { st.ops.demo = { state: null }; st.sheet = null; openWorkspace('demo', nw); }); }
+          try { rememberExploration(); var nw = D.buildScenario(kind === 'industry' ? 'i-base' : 'h-base'); upd(function () { st.ops.demo = { state: null }; st.sheet = null; openWorkspace('demo', nw); }); }
           catch (e) { upd(function () { st.ops.demo = { state: 'failure', message: e.message }; }); }
         }, 300);
       }
-      function startLocal() {
-        upd(function () { var lw = st.ws.local || D.emptyWorkspace('local'); lw.nowMs = Date.now(); lw.site.context = w.context; lw.initialPeriod = { preset: 'last7', start: D.addDays(D.localDate(lw.nowMs, lw.site.tz), -7), end: D.addDays(D.localDate(lw.nowMs, lw.site.tz), -1) }; openWorkspace('local', lw); });
-      }
       var demoDefault = w.context === 'industry' || w.context === 'business' ? 'industry' : 'household';
       return h(Fragment, null,
-        h(HD.Screen, { title: 'Selamat datang', subtitle: 'Pemantauan listrik dan saran berbasis data' },
-          P('Pahami energi yang dipantau, lalu periksa perubahan berdasarkan data.', 'type-section'),
-          P('HematDaya hanya membaca dan menjelaskan energi listrik yang tercatat. Aplikasi ini tidak menyalakan atau mematikan perangkat apa pun.', 'type-body'),
-          h(HD.ChoiceGroup, { legend: 'Konteks penggunaan', optional: true, value: w.context, onChange: function (v) { upd(function () { w.context = v; }); },
-            help: 'Hanya mengubah contoh dan pilihan demo awal. Tidak mengubah data, izin, perhitungan, jadwal atau metrik produksi.',
-            options: [{ value: 'household', label: 'Rumah tangga' }, { value: 'business', label: 'Usaha' }, { value: 'industry', label: 'Industri' }, { value: 'unspecified', label: 'Belum memilih' }] }),
+        h(HD.Screen, { title: 'Selamat datang' },
+          P('Lihat pemakaian listrik dan apa yang berubah.', 'type-section'),
+          P('Coba dengan data contoh. HematDaya hanya membaca data, tanpa mengendalikan perangkat.', 'type-body'),
           h('div', { className: 'hd-stack hd-stack--tight' },
-            Btn('primary', 'Mulai', startLocal, { fullWidth: true }),
-            Btn('secondary', 'Coba demo', function () { upd(function () { st.sheet = 'demo'; w.demoChoice = w.demoChoice || demoDefault; }); }, { fullWidth: true }),
-            Btn('text', 'Lewati', function () { upd(function () { w.context = 'unspecified'; }); startLocal(); })),
-          P('"Mulai" membuka ruang kerja lokal kosong di peramban ini. Tidak perlu akun, perangkat keras, AC, tarif, jadwal, data produksi atau izin notifikasi. Prototipe memakai backend simulasi; tidak ada data yang dikirim.', 'type-label hd-secondary')),
+            Btn('primary', 'Coba demo', function () { upd(function () { st.sheet = 'demo'; w.demoChoice = w.demoChoice || demoDefault; }); }, { fullWidth: true }),
+            Btn('secondary', 'Lanjut tanpa data', function () { rememberExploration(); upd(openEmptyHome); }, { fullWidth: true }))),
         DemoSheet(open));
     }
     function DemoSheet(open) {
@@ -233,7 +243,7 @@
         : sum.window.elapsedMs === 0 ? 'Periode ini belum dimulai pada waktu ' + (ws.mode === 'demo' ? 'virtual' : 'perangkat') + ' ' + D.fmtDateTime(ws.nowMs, tz) + '. Tidak ditampilkan sebagai 0 kWh.'
         : 'Belum ada pengukuran pada periode ini. Tidak ditampilkan sebagai 0 kWh.';
       return h(HD.Screen, { title: 'Beranda', subtitle: ws.site.name + ' · ' + tz, provenance: provOf(ws), current: 'beranda', onNavigate: goTab },
-        SettingsLink(), flashBlock(),
+        SettingsLink(), Btn('text', 'Tambah data', function () { push('import'); }), flashBlock(),
         PeriodBlock(false),
         h('div', { className: 'hd-stack hd-stack--tight' },
           h(HD.ScopeSummary, { included: sum.rows.map(function (r) { return r.asset.name; }), excluded: sum.excluded.map(function (x) { return x.name; }), overlap: unknownIssue && !parentIssue ? 'unknown' : 'none',
@@ -286,8 +296,8 @@
         h('section', { className: 'hd-stack', 'aria-labelledby': 'empty-h' },
           h('h2', { id: 'empty-h', className: 'type-section' }, 'Belum ada data energi'),
           P('HematDaya membaca energi dari berkas CSV atau dari sumber pengukuran yang didukung. Ruang kerja ini belum memiliki sumber.'),
-          Btn('primary', 'Impor data', function () { push('import'); }, { icon: 'upload' }),
-          Btn('secondary', 'Coba demo', function () { upd(function () { st.sheet = 'demo'; st.welcome.demoChoice = st.welcome.demoChoice || 'household'; }); }),
+          Btn('primary', 'Coba demo', function () { upd(function () { st.sheet = 'demo'; st.welcome.demoChoice = st.welcome.demoChoice || (st.welcome.context === 'industry' || st.welcome.context === 'business' ? 'industry' : 'household'); }); }),
+          Btn('secondary', 'Tambah data', function () { push('import'); }, { icon: 'upload' }),
           Btn('text', 'Lihat meter yang didukung', function () { push('source'); })),
         load.state === 'failure' && h(HD.ProgressStatus, { state: 'failure', label: 'Data belum dapat dimuat', detail: load.message, onRetry: function () { run('refresh', D.api.refresh(ws)); } })),
         DemoSheet(function (kind) { upd(function () { st.ops.demo = { state: 'loading' }; }); setTimeout(function () { upd(function () { st.sheet = null; st.ops.demo = { state: null }; openWorkspace('demo', D.buildScenario(kind === 'industry' ? 'i-base' : 'h-base')); }); }, 300); }));
@@ -297,7 +307,7 @@
     function Assets() {
       if (!ws.readings.length && !ws.assets.length) return h(HD.Screen, { title: 'Perangkat', current: 'perangkat', onNavigate: goTab },
         SettingsLink(), h(HD.Notice, { tone: 'neutral', title: 'Belum ada perangkat' }, 'Tambahkan data dengan impor CSV atau coba demo.'),
-        Btn('primary', 'Impor data', function () { push('import'); }, { icon: 'upload' }), Btn('secondary', 'Tambah sumber', function () { push('source'); }));
+        Btn('secondary', 'Tambah data', function () { push('import'); }, { icon: 'upload' }), Btn('secondary', 'Tambah sumber', function () { push('source'); }));
       var d = derived(), tz = ws.site.tz;
       var active = ws.assets.filter(function (a) { return !a.archived; }), archived = ws.assets.filter(function (a) { return a.archived; });
       var rows = active.map(function (a) { var s = D.assetSlice(ws, a, d.q.startMs, d.q.endMs); return { a: a, s: s }; })
@@ -306,7 +316,7 @@
       return h(HD.Screen, { title: 'Perangkat', subtitle: 'Perangkat, grup, sirkuit dan meter lokasi', provenance: provOf(ws), current: 'perangkat', onNavigate: goTab },
         SettingsLink(), flashBlock(), PeriodBlock(true),
         !d.sum.scopeValid && h(HD.Notice, { tone: 'attention', title: 'Total gabungan belum dapat dihitung', action: Btn('text', 'Pilih cakupan', function () { push('scope'); }) }, d.sum.issues.map(function (i) { return i.text; }).join(' ') + ' Nilai masing-masing tetap ditampilkan.'),
-        Row(Btn('primary', 'Tambah sumber', function () { push('source'); }), Btn('secondary', 'Impor data', function () { push('import'); }, { icon: 'upload' })),
+        Row(Btn('primary', 'Tambah sumber', function () { push('source'); }), Btn('secondary', 'Tambah data', function () { push('import'); }, { icon: 'upload' })),
         h('ul', { className: 'hd-stack hd-stack--tight', 'aria-label': 'Daftar perangkat, urut energi tercatat' }, rows.map(function (r) {
           var a = r.a, s = r.s, inScope = ws.selection.indexOf(a.id) >= 0;
           var q = s.conflict ? 'unavailable' : stale.indexOf(a.id) >= 0 ? 'stale' : !s.covered.length ? 'unavailable' : s.coverage < 1 ? 'partial' : 'complete';
@@ -628,7 +638,7 @@
         upd(function () { dr.tried = true; dr.submitCount++; });
         var e2 = []; if (!dr.name.trim()) e2.push(1); if (!parsedTariff.empty && (!parsedTariff.valid || parsedTariff.value < 0)) e2.push(1); if (dr.schedOn && (D.validateWindows(dr.windows).length || !dr.windows.length)) e2.push(1);
         if (e2.length) return;
-        run('settings', D.api.saveSettings(ws, buildPatch()), function () { st.drafts.settings = null; st.flash = { title: 'Pengaturan disimpan', body: 'Dikonfirmasi backend simulasi. Pengukuran tidak diubah.' }; popRoute(); });
+        run('settings', D.api.saveSettings(ws, buildPatch()), function () { st.welcome.context = dr.context; st.welcome.demoChoice = null; st.drafts.settings = null; st.flash = { title: 'Pengaturan disimpan', body: 'Dikonfirmasi backend simulasi. Pengukuran tidak diubah.' }; popRoute(); });
       }
       var tzChanged = dr.tz !== ws.site.tz, ctxChanged = dr.context !== ws.site.context;
       var schedPreview = dr.schedOn && !D.validateWindows(dr.windows).length && dr.windows.length ? (function () {

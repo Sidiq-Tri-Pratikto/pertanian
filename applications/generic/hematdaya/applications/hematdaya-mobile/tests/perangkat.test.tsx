@@ -393,7 +393,7 @@ describe('Perangkat empty', () => {
     await fireEvent.press(screen.getByRole('button', { name: 'Kembali' }));
     expect(await screen.findByRole('heading', { name: 'Perangkat' })).toBeOnTheScreen();
 
-    await fireEvent.press(screen.getByRole('button', { name: 'Impor data' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Tambah data' }));
     expect(await screen.findByRole('heading', { name: 'Impor data CSV' })).toBeOnTheScreen();
 
     await fireEvent.press(screen.getByRole('button', { name: 'Kembali' }));

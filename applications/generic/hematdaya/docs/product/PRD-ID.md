@@ -1,7 +1,7 @@
 # HematDaya — Dokumen Kebutuhan Produk
 
-Versi: Generik 1.2. Tanggal: 21 Oktober 2026 (Asia/Jakarta).
-Bahasa dokumen: Indonesia. Antarmuka produk: Indonesia. Mata uang awal: IDR.
+Versi: Generik 1.3. Tanggal: 8 November 2026 (Asia/Jakarta).
+Bahasa dokumen: Indonesia. Antarmuka produk: Bahasa Indonesia sebagai bawaan, dengan pilihan English. Mata uang awal: IDR.
 Status: arah produk dan arsitektur modular diterima; spesifikasi pengembangan, verifikasi implementasi, dan validasi lapangan masih menunggu pelaksanaan.
 
 ## 0. Otoritas dokumen dan status bukti
@@ -76,7 +76,7 @@ Target riset usulan harus dievaluasi secara terpisah untuk peserta rumah tangga 
 - Metrik energi yang dinormalisasi terhadap keluaran, bersifat opsional bagi pengguna yang membutuhkannya.
 - Pengamatan yang menyertakan bukti, saran konservatif, dan umpan balik opsional.
 - Pemulihan untuk keadaan kosong, mempelajari pola, parsial, usang, luring, sumber bertentangan, kemampuan yang tidak didukung, dan impor tidak valid.
-- Implementasi bersama untuk Android, iOS, dan web dengan antarmuka berbahasa Indonesia serta persyaratan aksesibilitas.
+- Implementasi bersama untuk Android, iOS, dan web dengan antarmuka dwibahasa serta persyaratan aksesibilitas.
 - Fixture demo rumah tangga dan industri yang deterministik, menggunakan jalur perhitungan produksi.
 - Batas konkret domain bersama, kemampuan opsional, dan adapter; komposisi produk tervalidasi serta proses rilis/peningkatan versi dari sumber bersama sebagaimana ditetapkan dalam FR-21–22 dan bagian 15.
 
@@ -155,7 +155,7 @@ Tidak ada integrasi yang boleh menawarkan penyalaan/pemadaman hanya karena peran
 
 | ID | Alur | Hasil penerimaan |
 |---|---|---|
-| P01 | Sambutan → pilih atau lewati konteks → demo rumah tangga | Data bermanfaat tanpa mewajibkan AC, jadwal, produksi, tarif, atau kredensial |
+| P01 | Sambutan → Coba demo → demo rumah tangga | Data bermanfaat tanpa mewajibkan AC, jadwal, produksi, tarif, atau kredensial |
 | P02 | Lokasi kosong → impor CSV → tinjau pemetaan dan kesalahan → konfirmasi | Cakupan dan total jelas; impor gagal mempertahankan masukan serta data yang ada |
 | P03 | Beranda → periode → kontributor terbesar → riwayat | Paling banyak 3 ketukan yang disengaja; nilai dan cakupan selaras |
 | P04 | Saran → pengamatan perubahan → bukti | Pengguna dapat mengidentifikasi nilai teramati, perbandingan, kualitas, dan penyebab yang belum diketahui |
@@ -167,6 +167,8 @@ Tidak ada integrasi yang boleh menawarkan penyalaan/pemadaman hanya karena peran
 | P10 | Umpan balik insight → tunda/sembunyikan → pulihkan | Umpan balik tersimpan, tidak pernah menghapus pengukuran atau mengirim tindakan perangkat keras |
 | P11 | Preset rumah tangga → industri atau belum ditentukan | Pengukuran dan pengaturan opsional tetap utuh; hanya contoh yang berubah |
 
+Lanjut tanpa data membuka Beranda kosong tanpa membuat ruang kerja di server. Konteks penggunaan bersifat opsional di Pengaturan. Tampilan MVP ringkas dengan kolom pendukung pada layar berisi data mulai 768 piksel logis. Formulir tetap satu kolom. Bahasa Indonesia adalah bawaan. Pilihan English tersedia setelah semua alur MVP, label aksesibilitas, dan pesan pemulihan siap. Pergantian bahasa menjaga konteks dan tidak mengirim atau mengulangi perubahan di server maupun mengevaluasi ulang Saran.
+
 P01–P04, P08–P10 harus lengkap tanpa jadwal dan metrik keluaran. Industri juga harus dapat digunakan tanpa data keluaran. Tidak ada persona yang dipaksa mengisi kolom yang tidak relevan.
 
 ## 8. Arsitektur informasi dan kontrak layar
@@ -175,8 +177,8 @@ Tiga tab berlabel yang selalu tersedia: **Beranda**, **Perangkat**, **Saran**. �
 
 | ID | Layar | Isi dan tindakan yang berfungsi |
 |---|---|---|
-| S01 | Sambutan | Nilai produk dalam satu kalimat, mulai, demo; pilihan konteks opsional dengan “Lewati” |
-| S02 | Beranda kosong | Penjelasan pilihan sumber; “Impor data”, “Coba demo”, entri meter yang didukung |
+| S01 | Sambutan | Penjelasan singkat, Coba demo sebagai tindakan utama, Lanjut tanpa data, dan pilihan bahasa saat cakupan dwibahasa selesai |
+| S02 | Beranda kosong | Utamakan Coba demo. Tambah data membuka layar CSV, lalu Pilih berkas membuka pemilih berkas. |
 | S03 | Beranda berisi data | Periode, cakupan, kWh, estimasi biaya opsional, cakupan/kemutakhiran, kontribusi, satu pengamatan |
 | S04 | Perangkat | Nama aset, kategori/cakupan, energi, kualitas; tambah/impor dan buka detail |
 | S05 | Penyiapan sumber | Penyedia → model → koneksi/pembacaan pertama → nama/cakupan/pengikatan; draf dipertahankan |
@@ -478,14 +480,14 @@ Keadaan ini merupakan flag yang independen. Sebuah lokasi dapat sekaligus mempel
 
 | ID | Pemeriksaan wajib |
 |---|---|
-| UX-01 | Tepat tiga tujuan utama dengan teks Indonesia dan keadaan terpilih yang tidak bergantung pada warna |
+| UX-01 | Tepat tiga tujuan utama dengan label dalam bahasa yang dipilih dan keadaan terpilih yang tidak bergantung pada warna |
 | UX-02 | Satu tindakan utama yang jelas per layar tugas; penyiapan opsional memiliki jalur lewati/batalkan yang terlihat |
 | UX-03 | Label bawaan netral: Perangkat, Lokasi, Energi; tanpa istilah pabrik, AC, keberadaan penghuni, atau produksi yang wajib |
 | UX-04 | Kontributor terbesar dan bukti unggulan dapat dicapai dalam 3 ketukan yang disengaja dari Beranda berisi data |
 | UX-05 | Kembali/coba lagi mempertahankan masukan formulir, periode terpilih, cakupan, dan konteks navigasi |
 | UX-06 | Asal sumber, estimasi, kemutakhiran, dan cakupan terlihat di tempat yang memengaruhi penafsiran |
 | UX-07 | Minimum internal area sentuh seluler 48×48 satuan logis, diukur pada setiap lingkungan eksekusi; kontrol web seluler menggunakan 48×48 CSS px, Android menggunakan 48×48 dp, iOS menggunakan satuan titik/logis yang dinyatakan. Kontras teks normal ≥4,5:1 dan informasi kontrol/grafik nonteks yang diperlukan ≥3:1, dengan pengecualian WCAG yang berlaku; verifikasi keadaan sebenarnya |
-| UX-08 | Teks diperbesar hingga 200% tanpa kehilangan isi/fungsi; nama Indonesia yang panjang membungkus ke baris berikutnya; kontrol mengekspos nama, peran, keadaan terpilih, dan nilai yang bermakna dalam bahasa Indonesia; grafik memiliki ringkasan yang dapat dibaca dan alternatif data terstruktur |
+| UX-08 | Teks diperbesar hingga 200% tanpa kehilangan isi/fungsi; nama Indonesia yang panjang membungkus ke baris berikutnya; kontrol mengekspos nama, peran, keadaan terpilih, dan nilai yang bermakna dalam bahasa yang dipilih; grafik memiliki ringkasan yang dapat dibaca dan alternatif data terstruktur |
 | UX-09 | Verifikasi penataan ulang web pada 320 CSS px, serta lebar responsif 360, 390, 430, 768, 1280, dan 1440 CSS px; ponsel dengan tinggi layar kecil, area aman, dan penghindaran papan ketik. Tanpa gulir halaman horizontal atau kontrol hilang; gunakan baris data bertumpuk jika diperlukan. Catat pembesaran teks dan penataan ulang secara terpisah |
 | UX-10 | Selesaikan tugas web dengan papan ketik tanpa jebakan; fokus yang terlihat dan logis tetap tidak tertutup, overlay mengelola fokus, Escape menutup lembar, dan fokus kembali ke tindakan pemanggil; umumkan status simpan/impor kepada teknologi bantu |
 | UX-11 | Keadaan memuat/ditekan/menyimpan/kesalahan untuk setiap tindakan utama; penyimpanan gagal tidak pernah tampak terkonfirmasi |
@@ -497,7 +499,7 @@ Keadaan ini merupakan flag yang independen. Sebuah lokasi dapat sekaligus mempel
 | UX-17 | Urutan baca Beranda: periode dan cakupan pengukuran → kWh tercatat → biaya opsional beserta kualifikasinya → kelengkapan/kemutakhiran → kontributor terbesar → pengamatan yang memenuhi syarat. Pertahankan kualifikasi yang mengubah makna agar tetap terlihat; ungkapkan perbandingan, perhitungan, dan asal-usul secara bertahap melalui tindakan detail berlabel jelas |
 | UX-18 | Peringkat kontributor menggunakan batang horizontal/daftar berlabel langsung dengan garis dasar nol bersama; grafik perbandingan menggunakan periode selaras dan skala yang dapat dibandingkan. Setiap grafik memiliki periode, satuan, cakupan, alternatif teks/data nilai eksak, dan kualitas; tugas inti tidak memerlukan hover, warna, atau penyeretan presisi |
 | UX-19 | Beri label cakupan fisik pengukuran secara terpisah dari kelengkapan waktu, misalnya “Cakupan pengukuran: 4 perangkat” dan “Kelengkapan data: 92% periode”. Anotasikan celah dengan periode yang tidak tersedia; nol terukur, mempelajari pola, tidak ada perubahan yang memenuhi syarat, sumber usang, impor historis, dan klien luring tetap dapat dipahami secara independen, tidak pernah “92% akurat” |
-| UX-20 | Alur CSV menampilkan berkas/tempel → semantik/pemetaan → pratinjau → konfirmasi eksplisit → hasil. Sediakan ringkasan kesalahan yang dapat menerima fokus dan tertaut ke detail baris/kolom jika dapat ditindaklanjuti; pesan Indonesia yang konsisten menyatakan koreksi dan apakah komit diblokir. Tetapkan penomoran baris data versus baris berkas; pertahankan masukan/pemetaan dan data terkonfirmasi saat kembali/kesalahan/coba lagi |
+| UX-20 | Alur CSV menampilkan berkas/tempel → semantik/pemetaan → pratinjau → konfirmasi eksplisit → hasil. Sediakan ringkasan kesalahan yang dapat menerima fokus dan tertaut ke detail baris/kolom jika dapat ditindaklanjuti; pesan yang konsisten dalam bahasa yang dipilih menyatakan koreksi dan apakah komit diblokir. Tetapkan penomoran baris data versus baris berkas; pertahankan masukan/pemetaan dan data terkonfirmasi saat kembali/kesalahan/coba lagi |
 
 Pola redaksi yang disetujui: “Hanya mencakup sumber yang dipilih”; “Data belum diperbarui”; “Sebagian data belum tersedia”; “Tidak ada jadwal yang diatur”; “Estimasi ini tidak sama dengan tagihan listrik”; “Penyebab perubahan belum diketahui”. Jangan mempermalukan pengguna karena operasi terus-menerus, penyiapan yang dilewati, saran yang ditolak, atau notifikasi yang diabaikan.
 
@@ -793,7 +795,7 @@ Hasil akhir implementasi: aplikasi/server bersama yang dapat dijalankan sesuai k
 
 ### 22.1 Kontrak produk dan perhitungan
 
-Implementasikan pemantauan listrik dan saran berbasis bukti melalui antarmuka Indonesia tiga tab serta target seluler/web bersama. Jalur CSV/demo lengkap, tarif opsional, baseline statistik, semantik data hilang, asal-usul, agregasi yang menjaga batas cakupan, pemeriksaan kepemilikan aman, operasi yang aman dicoba ulang, dan pengecualian pengendalian fisik merupakan bagian wajib serah-terima. Tidak ada penyampaian yang boleh menghilangkan pengaman karena konteks lain tidak menampilkan layar penyiapannya.
+Implementasikan pemantauan listrik dan saran berbasis bukti melalui antarmuka dwibahasa tiga tab serta target seluler/web bersama. Jalur CSV/demo lengkap, tarif opsional, baseline statistik, semantik data hilang, asal-usul, agregasi yang menjaga batas cakupan, pemeriksaan kepemilikan aman, operasi yang aman dicoba ulang, dan pengecualian pengendalian fisik merupakan bagian wajib serah-terima. Tidak ada penyampaian yang boleh menghilangkan pengaman karena konteks lain tidak menampilkan layar penyiapannya.
 
 ### 22.2 Kompatibilitas dan pelestarian data
 

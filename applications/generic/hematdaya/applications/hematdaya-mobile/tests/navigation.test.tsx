@@ -41,7 +41,7 @@ const emptySummary = {
   origins: [],
 };
 
-/** Mulai and Lewati open an empty workspace through the service; everything else reads the manifest. */
+/** Return the manifest and an empty summary for workspace fixtures. */
 async function serviceWithEmptyWorkspace(input: RequestInfo | URL) {
   const path = new URL(String(input)).pathname;
   if (path === '/api/v1/demo/sessions') {
@@ -71,29 +71,19 @@ describe('navigation', () => {
     await renderRouter('./src/app', { initialUrl: '/' });
 
     expect(screen.getByRole('heading', { name: 'Selamat datang' })).toBeOnTheScreen();
-    expect(screen.getByRole('radio', { name: 'Belum memilih', checked: true })).toBeOnTheScreen();
+    expect(screen.queryByRole('radio')).toBeNull();
 
-    await fireEvent.press(screen.getByRole('button', { name: 'Mulai' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Lanjut tanpa data' }));
 
     expect(await screen.findByRole('heading', { name: 'Beranda' })).toBeOnTheScreen();
   });
 
   it('uses the chosen context for examples only', async () => {
-    await renderRouter('./src/app', { initialUrl: '/' });
-
-    await fireEvent.press(screen.getByRole('radio', { name: 'Industri' }));
-    await fireEvent.press(screen.getByRole('button', { name: 'Mulai' }));
-
+    await startAtBeranda();
+    await fireEvent.press(screen.getByRole('button', { name: 'Pengaturan' }));
+    await fireEvent.press(await screen.findByRole('radio', { name: 'Industri' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Kembali' }));
     expect(await screen.findByText('Misalnya oven, kompresor, atau mesin press.')).toBeOnTheScreen();
-  });
-
-  it('skipping keeps neutral examples', async () => {
-    await renderRouter('./src/app', { initialUrl: '/' });
-
-    await fireEvent.press(screen.getByRole('radio', { name: 'Industri' }));
-    await fireEvent.press(screen.getByRole('button', { name: 'Lewati' }));
-
-    expect(await screen.findByText('Misalnya perangkat, sirkuit, atau meter lokasi.')).toBeOnTheScreen();
   });
 
   it('shows exactly three labelled destinations with the current one selected', async () => {
@@ -315,18 +305,13 @@ describe('service status', () => {
     expect(screen.queryByRole('button', { name: 'Coba lagi' })).toBeNull();
   });
 
-  it('follows the Android smoke flow with no service: Mulai fails honestly, Beranda is still reachable', async () => {
+  it('follows the Android smoke flow with no service: Continue opens Beranda', async () => {
     jest.spyOn(globalThis, 'fetch').mockRejectedValue(new TypeError('Network request failed'));
     // Mirrors e2e/smoke.yaml: every string it asserts must appear here too.
     await renderRouter('./src/app', { initialUrl: '/' });
     expect(await screen.findByText('Selamat datang')).toBeOnTheScreen();
 
-    await fireEvent.press(screen.getByRole('button', { name: 'Mulai' }));
-    expect(await screen.findByText('Belum berhasil')).toBeOnTheScreen();
-    expect(screen.getByRole('button', { name: 'Coba lagi' })).toBeOnTheScreen();
-    expect(screen.queryByText('Belum ada data energi')).toBeNull();
-
-    await act(() => router.push('/beranda'));
+    await fireEvent.press(screen.getByRole('button', { name: 'Lanjut tanpa data' }));
     expect(await screen.findByText('Belum ada data energi')).toBeOnTheScreen();
     expect(screen.getByRole('tab', { name: 'Saran' })).toBeOnTheScreen();
     expect(await screen.findByText('Layanan belum tersedia')).toBeOnTheScreen();

@@ -8,7 +8,7 @@ export function SessionEndedNotice() {
     <>
       {ended === 'expired' ? (
         <HDNotice tone="attention" title="Sesi demo sudah berakhir" live>
-          Data demo sebelumnya tidak dapat dibuka lagi. Mulai sesi demo baru atau ruang kerja kosong untuk melanjutkan.
+          Pilih Coba demo untuk membuka sesi baru, atau lanjutkan dari Beranda.
         </HDNotice>
       ) : null}
       {storageError ? (

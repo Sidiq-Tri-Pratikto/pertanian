@@ -73,3 +73,7 @@ Summary from 009.
 
 - **SC-001**: The ranking and data table identify the largest contributor. Verify one-tap access to its detail in 014 and to featured evidence in 022.
 - **SC-002**: Displayed values equal golden JSON for H and I, including Indonesian formatting.
+
+## Onboarding refresh
+
+[Spec 047](../047-explore-first-onboarding/spec.md) supersedes the original Welcome and first import entry behavior. Its verification is tracked separately.

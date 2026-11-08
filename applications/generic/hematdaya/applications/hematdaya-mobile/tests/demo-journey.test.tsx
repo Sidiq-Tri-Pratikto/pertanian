@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { fireEvent, renderRouter, screen, waitFor, within } from 'expo-router/testing-library';
 import * as SecureStore from 'expo-secure-store';
 import { seedConfirmedWorkspace } from './fixtures/workspaces';
@@ -128,6 +129,7 @@ describe('demo onboarding', () => {
     expect(screen.getByText('Periode aktif: 19–25 Oktober 2026 · Asia/Jakarta')).toBeOnTheScreen();
     expect(screen.getAllByText('Cakupan pengukuran: 4 perangkat').length).toBeGreaterThan(0);
     expect(screen.getByText('8,400 kWh · 57,14%')).toBeOnTheScreen();
+    expect(createCalls(fetchMock)).toHaveLength(1);
     const [call] = createCalls(fetchMock);
     expect(call.body).toEqual({ scenario_id: 'h-base' });
     expect(call.headers['Idempotency-Key'].length).toBeGreaterThanOrEqual(22);
@@ -137,18 +139,15 @@ describe('demo onboarding', () => {
     expect(((summaryCall[1] as RequestInit).headers as Record<string, string>).Authorization).toBe('Bearer hdd_v1_h-base');
   });
 
-  it('preselects the industrial demo when Industri was chosen', async () => {
+  it('opens the industrial demo after selecting Industri', async () => {
     const fetchMock = mockApi({ summary: () => respond(200, householdWeek) });
-    await renderRouter('./src/app', { initialUrl: '/' });
-
-    await fireEvent.press(await screen.findByRole('radio', { name: 'Industri' }));
-    await fireEvent.press(screen.getByRole('button', { name: 'Coba demo' }));
-    await screen.findByRole('heading', { name: 'Pilih data demo' });
-    expect(screen.getAllByRole('radio', { name: 'Industri', checked: true })).toHaveLength(2);
+    await openDemo();
+    await fireEvent.press(screen.getByRole('radio', { name: 'Industri' }));
+    expect(screen.getByRole('radio', { name: 'Industri', checked: true })).toBeOnTheScreen();
     await fireEvent.press(screen.getByRole('button', { name: 'Buka demo' }));
 
     await screen.findByText('14,700 kWh');
-    expect(createCalls(fetchMock)[0].body).toEqual({ scenario_id: 'i-base' });
+    expect(createCalls(fetchMock).map((call) => call.body)).toEqual([{ scenario_id: 'i-base' }]);
   });
 
   it('cancelling creates nothing', async () => {
@@ -215,15 +214,21 @@ describe('demo onboarding', () => {
     expect(second.headers['Idempotency-Key']).not.toBe(first.headers['Idempotency-Key']);
   });
 
-  it('Mulai opens an empty temporary workspace', async () => {
-    const fetchMock = mockApi({ summary: () => respond(200, emptySummary) });
+  it('continues to empty Home without creating a workspace', async () => {
+    const fetchMock = mockApi({});
     await renderRouter('./src/app', { initialUrl: '/' });
+    await fireEvent.press(await screen.findByRole('button', { name: 'Lanjut tanpa data' }));
+    expect(await screen.findByText('Belum ada data energi')).toBeOnTheScreen();
+    expect(createCalls(fetchMock)).toHaveLength(0);
+    expect(await AsyncStorage.getItem('hematdaya.welcome.explored.v1')).toBe('true');
+  });
 
-    await fireEvent.press(await screen.findByRole('button', { name: 'Mulai' }));
-
-    expect(await screen.findByText('Ruang kerja sementara')).toBeOnTheScreen();
-    expect(screen.getByText('Belum ada data energi')).toBeOnTheScreen();
-    expect(createCalls(fetchMock)[0].body).toEqual({ scenario_id: 'empty' });
+  it('restores empty Home after returning without a workspace', async () => {
+    await AsyncStorage.setItem('hematdaya.welcome.explored.v1', 'true');
+    const fetchMock = mockApi({});
+    await renderRouter('./src/app', { initialUrl: '/' });
+    expect(await screen.findByText('Belum ada data energi')).toBeOnTheScreen();
+    expect(createCalls(fetchMock)).toHaveLength(0);
   });
 
   it('resumes a stored workspace on restart', async () => {

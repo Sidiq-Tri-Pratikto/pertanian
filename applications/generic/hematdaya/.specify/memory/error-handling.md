@@ -1,6 +1,8 @@
 # Error Handling Constitution
 
-Policy version 1.0.
+Policy version 1.1.
+
+Render user-facing copy in the selected product language once the bilingual slice ships. Default to Indonesian and preserve error codes, safe details, reference IDs, and recovery rules across languages.
 
 This file states the rules every adopting project follows. It contains no audit procedure and no priority labels; auditing lives in the `robust-error-handling` skill.
 

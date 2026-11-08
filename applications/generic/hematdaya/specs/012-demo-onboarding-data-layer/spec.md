@@ -83,3 +83,7 @@
 
 - **SC-001**: From welcome, a populated demo needs at most three taps and no text entry.
 - **SC-002**: A demo journey test passes on web and Android (003).
+
+## Onboarding refresh
+
+[Spec 047](../047-explore-first-onboarding/spec.md) supersedes the original Welcome and first import entry behavior. Its verification is tracked separately.

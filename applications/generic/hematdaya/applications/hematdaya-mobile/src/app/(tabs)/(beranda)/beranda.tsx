@@ -55,12 +55,10 @@ function EmptyBeranda({ expiresAt, timezone = 'Asia/Jakarta' }: { expiresAt?: st
         <HDText variant="section">Belum ada data energi</HDText>
         <HDText>HematDaya membaca energi dari berkas CSV atau dari sumber pengukuran yang didukung.</HDText>
         <HDText tone="secondary">{CONTEXT_EXAMPLES[preset]}</HDText>
-        <HDButton variant="primary" icon="chevronRight" onPress={() => openImport()}>
-          Impor data
-        </HDButton>
         <View ref={demoButton}>
-          <HDButton onPress={() => setSheetOpen(true)}>Coba demo</HDButton>
+          <HDButton variant="primary" onPress={() => setSheetOpen(true)}>Coba demo</HDButton>
         </View>
+        <HDButton onPress={openImport}>Tambah data</HDButton>
         <HDButton variant="text" onPress={() => openFeature('sumber-meter')}>
           Lihat meter yang didukung
         </HDButton>
@@ -129,7 +127,7 @@ type PopulatedProps = {
 function PopulatedBeranda({ previousSelection, data, refreshing, failure, onRefresh, offline, fetchedAt }: PopulatedProps) {
   const { workspace } = useWorkspace();
   const { period, setPeriod } = useNavigationContext();
-  const { openAsset, openFeature, openSettings } = useTabNavigation();
+  const { openAsset, openFeature, openImport, openSettings } = useTabNavigation();
   const model = berandaModel(data);
   const scopeControl = useScopeInvoker();
   const scopeIssue = useScopeInvoker();
@@ -250,6 +248,7 @@ function PopulatedBeranda({ previousSelection, data, refreshing, failure, onRefr
         </View>
       ) : null}
       <FeaturedInsight />
+      <HDButton variant="text" onPress={openImport}>Tambah data</HDButton>
       <HDButton variant="text" onPress={openSettings}>
         Pengaturan
       </HDButton>

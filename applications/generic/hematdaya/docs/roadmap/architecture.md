@@ -136,7 +136,7 @@ One request is one transaction. `SessionDep` commits before the response is sent
 | Lists | `limit` (max 100) and opaque `cursor` |
 | Idempotency | `Idempotency-Key` for demo creation, tariff writes, import commit, enrollment and feedback. Demo creation also requires the separate replay proof from 008 |
 | Errors | The envelope in `app/core/errors`; new failures get a typed error, a code in `codes.py`, a row in `public.py`, and a row in `docs/error-handling/catalog.md` |
-| Copy | User-facing messages are Indonesian and two clauses: what happened, what to do next |
+| Copy | User-facing messages use Indonesian by default and English when selected after the bilingual slice. Use two clauses: what happened, what to do next |
 
 ## Definition of done for every PR
 

@@ -144,7 +144,7 @@ async function storeWorkspace(scenarioId = 'empty') {
     });
 }
 
-async function openImport(from = '/beranda', entryButton = 'Impor data') {
+async function openImport(from = '/beranda', entryButton = 'Tambah data') {
   await renderRouter('./src/app', { initialUrl: from });
   await fireEvent.press(await screen.findByRole('button', { name: entryButton }));
   return screen.findByText('Langkah 1 dari 4 · Berkas');
@@ -227,7 +227,7 @@ describe('first import from a paste', () => {
     const api = mockImportApi('valid');
     await storeWorkspace();
     await renderRouter('./src/app', { initialUrl: '/beranda' });
-    await fireEvent.press(await screen.findByRole('button', { name: 'Impor data' }));
+    await fireEvent.press(await screen.findByRole('button', { name: 'Tambah data' }));
 
     expect(await screen.findByRole('heading', { name: 'Impor data CSV' })).toBeOnTheScreen();
     expect(screen.getByText('Langkah 1 dari 4 · Berkas')).toBeOnTheScreen();
@@ -239,6 +239,7 @@ describe('first import from a paste', () => {
       ),
     ).toBeOnTheScreen();
     expect(api.requests(IMPORT_CALLS)).toEqual([]);
+    expect(pick).not.toHaveBeenCalled();
 
     await fireEvent.press(screen.getByRole('button', { name: 'Contoh berkas yang dapat disalin' }));
     for (const example of EXAMPLES('unspecified')) {
@@ -289,10 +290,10 @@ describe('first import from a paste', () => {
     expect(screen.getByText('Data historis · Impor CSV')).toBeOnTheScreen();
     const summaries = api.requests(/\/summary$/);
     expect(summaries.at(-1)!.url.search).toBe('?start_date=2026-10-20&end_date=2026-10-20');
-    expect(screen.queryByRole('button', { name: 'Impor data' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Tambah data' })).toBeOnTheScreen();
 
     await fireEvent.press(screen.getByRole('tab', { name: 'Perangkat' }));
-    await fireEvent.press(await screen.findByRole('button', { name: 'Impor data' }));
+    await fireEvent.press(await screen.findByRole('button', { name: 'Tambah data' }));
     expect(await screen.findByText('Langkah 1 dari 4 · Berkas')).toBeOnTheScreen();
     expect(screen.getByLabelText('Atau tempel isi CSV').props.value).toBe('');
   }, 20_000);
@@ -1016,7 +1017,7 @@ describe('unknown commit result', () => {
     await press('Konfirmasi impor');
 
     await fireEvent.press(screen.getByRole('tab', { name: 'Perangkat' }));
-    await fireEvent.press(await screen.findByRole('button', { name: 'Impor data' }));
+    await fireEvent.press(await screen.findByRole('button', { name: 'Tambah data' }));
     expect(await screen.findByText('Ada impor yang belum selesai.')).toBeOnTheScreen();
     expect(screen.getByRole('button', { name: 'Buka pratinjau' })).toBeOnTheScreen();
 
@@ -1253,7 +1254,7 @@ describe('back and replace', () => {
 
     await press('Tutup impor (draf tetap tersimpan)');
     expect(await screen.findByRole('heading', { name: 'Beranda' })).toBeOnTheScreen();
-    await press('Impor data');
+    await press('Tambah data');
     expect(await screen.findByText('Langkah 1 dari 4 · Berkas')).toBeOnTheScreen();
     expect(screen.getByLabelText('Atau tempel isi CSV').props.value).toBe(EXAMPLE.valid.text);
     await press('Periksa berkas');

@@ -95,3 +95,7 @@ Every planned feature opens a "Segera hadir" screen, and Pengaturan lists them a
 - **SC-001**: `make check`, `make doctor` and `make export` pass.
 - **SC-002**: Web build at 320, 390 and 1280 px shows no horizontal overflow, no target under 48 px, and text contrast of at least 4.5:1.
 - **SC-003**: Keyboard: Tab reaches controls with a visible ring, Enter activates, focus lands on the new heading.
+
+## Onboarding refresh
+
+[Spec 047](../047-explore-first-onboarding/spec.md) supersedes the original Welcome and first import entry behavior. Its verification is tracked separately.
