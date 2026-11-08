@@ -18,12 +18,12 @@ import { formatDateRange, formatDateTime } from '@/lib/format';
 
 /** Saran tersembunyi: hidden and still-snoozed observations for the period, each with Pulihkan. */
 export function HiddenScreen() {
-  const { workspace } = useWorkspace();
+  const { workspace, credential, credentialGeneration, scopeEpoch } = useWorkspace();
   const { period } = useNavigationContext();
   const { back } = useTabNavigation();
   const hidden = useQuery({
-    queryKey: ['hidden-insights', workspace?.siteId, period],
-    queryFn: () => getHiddenInsights(workspace!.siteId, periodQuery(period!), workspace!.token),
+    queryKey: ['hidden-insights', workspace?.siteId, credentialGeneration, period, scopeEpoch],
+    queryFn: () => getHiddenInsights(workspace!.siteId, periodQuery(period!), credential!),
     enabled: workspace !== null && period !== null,
   });
 

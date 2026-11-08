@@ -1,11 +1,12 @@
 """Energy response schemas. Energy and ratios are decimal strings; unavailable values are null with a reason."""
 
 from datetime import date, datetime
+from typing import Literal
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
-from app.assets.model.models import ScopeKind
+from app.assets.model.models import ScopeKind, SourceOrigin
 from app.scope.service.validity import IssueType
 
 
@@ -88,6 +89,30 @@ class AssetEnergyResponse(BaseModel):
     conflict_sources: list[ConflictSourceResponse] | None
 
 
+FreshnessState = Literal["unknown", "current", "stale", "historical"]
+
+
+class CaptureRangeResponse(BaseModel):
+    """The span of recorded data attributable to a historical source in the report."""
+
+    start: datetime
+    end: datetime
+
+
+class SourceFreshnessResponse(BaseModel):
+    """The capture and freshness for one effective asset/source pair."""
+
+    source_id: UUID
+    label: str
+    asset_id: UUID
+    origin: SourceOrigin
+    state: FreshnessState
+    last_capture_at: datetime | None
+    cadence_seconds: int | None = Field(gt=0)
+    policy_version: Literal[1]
+    historical_range: CaptureRangeResponse | None
+
+
 class SummaryResponse(BaseModel):
     """Recorded energy for a period and scope."""
 
@@ -100,6 +125,7 @@ class SummaryResponse(BaseModel):
     latest_measurement_at: datetime | None
     origins: list[str]
     revision: int
+    source_freshness: list[SourceFreshnessResponse] = Field(default_factory=list)
 
 
 class HistoryBucketResponse(BaseModel):

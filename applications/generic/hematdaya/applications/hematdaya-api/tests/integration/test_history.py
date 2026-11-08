@@ -119,6 +119,10 @@ async def test_unresolved_sources_make_buckets_unavailable(client: AsyncClient) 
     }
     assert body["highest_bucket"] is None
 
+    meter = await _history(client, session, await _asset(client, session, "Meter utama"), **WEEK)
+    assert meter["window"]["timezone"] == "Asia/Jakarta"
+    assert {(bucket["state"], bucket["energy_kwh"]) for bucket in meter["buckets"]} == {("measured", "10.000")}
+
 
 async def test_daylight_saving_days_have_their_real_hours(client: AsyncClient) -> None:
     """

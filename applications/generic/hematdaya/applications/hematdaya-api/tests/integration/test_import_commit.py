@@ -1953,3 +1953,26 @@ async def test_exact_imported_data_is_historical(client: AsyncClient) -> None:
     assert [notice for notice in notices if "stale" in notice["kind"]] == []
     rows = await execute("SELECT transport_status FROM sources WHERE site_id = :site", site=UUID(site))
     assert rows[0][0] == "historical"
+
+
+async def test_builtin_valid_example_keeps_historical_range_and_gaps(client: AsyncClient) -> None:
+    """Use the two S10 sample streams in an empty demo and verify the full Jakarta calendar day."""
+    session = await start_demo(client, "empty")
+    lines = [f"2026-10-20 {hour:02}:00,Lampu Teras,40" for hour in range(6, 12)]
+    lines.extend(f"2026-10-20 {hour:02}:00,Dispenser,15" for hour in range(18, 24))
+    csv = "timestamp,perangkat,energi_wh\n" + "\n".join(lines) + "\n"
+    result = await _preview_and_commit(client, session["site_id"], session["auth"], csv, ANSWERED)
+    assert result["rows_added"] == 12
+    body = await _summary(client, session["site_id"], session["auth"])
+    assert body["energy_kwh"] == "0.330" and body["origins"] == ["import"]
+    assert body["window"]["timezone"] == "Asia/Jakarta"
+    assert body["coverage"] == {"minimum": "0.250", "concurrent": "0.000", "allocated_estimate": False}
+    assert body["latest_measurement_at"] == "2026-10-20T17:00:00Z"
+    assert all(row["gaps"] for row in body["assets"])
+    assert {source["state"] for source in body["source_freshness"]} == {"historical"}
+    assert {source["origin"] for source in body["source_freshness"]} == {"import"}
+    assert {source["historical_range"]["start"] for source in body["source_freshness"]} == {
+        "2026-10-19T23:00:00Z",
+        "2026-10-20T11:00:00Z",
+    }
+    assert max(source["last_capture_at"] for source in body["source_freshness"]) == body["latest_measurement_at"]

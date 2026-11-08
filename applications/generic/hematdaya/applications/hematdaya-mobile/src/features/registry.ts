@@ -149,7 +149,7 @@ export const FEATURES: Feature[] = [
     points: ['Waktu data tersimpan terlihat', 'Offline berbeda dari sumber yang belum diperbarui', 'Perubahan menunggu konfirmasi layanan'],
     screens: ['S03'],
     specs: ['034'],
-    status: 'coming_soon',
+    status: 'available',
   },
   {
     id: 'akun',

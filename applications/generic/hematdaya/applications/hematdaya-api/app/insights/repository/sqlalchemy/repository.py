@@ -3,7 +3,7 @@
 from datetime import datetime
 from uuid import UUID, uuid4
 
-from sqlalchemy import select, text, update
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.insights.model.models import InsightModel, InsightRevisionModel
@@ -128,24 +128,3 @@ class SqlAlchemyInsightRepository(InsightRepository):
             .where(InsightRecord.id == insight_id)
             .values(current_revision=current_revision, active=active)
         )
-
-    async def latest_reading_end(self, source_ids: list[UUID], now: datetime) -> dict[UUID, datetime]:
-        """Return each source's latest completed reading end.
-
-        Args:
-            source_ids (list[UUID]): Sources.
-            now (datetime): Site time.
-
-        Returns:
-            dict[UUID, datetime]: Latest ends; sources without readings are absent.
-        """
-        if not source_ids:
-            return {}
-        result = await self.session.execute(
-            text(
-                "SELECT source_id, max(interval_end) AS latest FROM current_measurements"
-                " WHERE source_id = ANY(:sources) AND interval_end <= :now GROUP BY source_id"
-            ),
-            {"sources": source_ids, "now": now},
-        )
-        return {row.source_id: row.latest for row in result}

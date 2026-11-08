@@ -13,12 +13,11 @@ import { HDScreen } from '@/components/hd/HDScreen';
 import { HDText } from '@/components/hd/HDText';
 import { tokens } from '@/design/tokens.generated';
 import { assetRowModel, staleAssetIds, unrankedAssetRow, type AssetRowModel } from '@/features/assets/asset-model';
-import { ReadFailure } from '@/features/assets/ReadFailure';
+import { ReadFailure, SavedReadStatus } from '@/features/assets/ReadFailure';
 import { useArchivedAssets, useAssets, usePreviousAssetScope } from '@/features/assets/useAssets';
 import { useLastConfirmed } from '@/features/assets/useLastConfirmed';
 import { berandaModel, shownOrigins } from '@/features/energy/beranda-model';
 import { useSummary } from '@/features/energy/useSummary';
-import { useInsights } from '@/features/insights/useInsights';
 import { useNavigationContext } from '@/features/navigation-context/NavigationContextProvider';
 import { useTabNavigation } from '@/features/navigation';
 import { DemoSheet } from '@/features/workspace/DemoSheet';
@@ -87,12 +86,11 @@ function WorkspacePerangkat({ title, onBack }: { title: string; onBack?: () => v
   const assetsQuery = useAssets();
   const [archiveOpen, setArchiveOpen] = useState(false);
   const archive = useArchivedAssets(archiveOpen);
-  const insightsQuery = useInsights();
-  const summary = useLastConfirmed(summaryQuery);
+  const keptSummary = useLastConfirmed(summaryQuery);
+  const summary = summaryQuery.offline ? summaryQuery.data : keptSummary;
   const assets = useLastConfirmed(assetsQuery);
-  const insights = useLastConfirmed(insightsQuery);
   const previousScope = usePreviousAssetScope();
-  const retry = () => void summaryQuery.refetch();
+  const retry = summaryQuery.refresh;
   const archiveItems = archive.data?.items ?? [];
   const recent = archive.dataUpdatedAt >= assetsQuery.dataUpdatedAt
     ? [...(assets ?? []), ...archiveItems] : [...archiveItems, ...(assets ?? [])];
@@ -102,7 +100,8 @@ function WorkspacePerangkat({ title, onBack }: { title: string; onBack?: () => v
   const active = new Map([...metadata].filter(([, asset]) => !asset.archived));
   const listed = new Set(summary?.assets.map((asset) => asset.asset_id));
   const unranked = [...active.values()].filter((asset) => !listed.has(asset.id));
-  const previousSelection = Boolean(summary && previousScope?.summaries.has(summary));
+  const previousSelection = summaryQuery.previousSelection || summary !== summaryQuery.data ||
+    Boolean(summary && previousScope?.summaries.has(summary));
   const archiveSection = (
     <ArchiveSection open={archiveOpen} toggle={() => setArchiveOpen((wasOpen) => !wasOpen)}
       assets={archived} error={archive.error} loading={archive.isFetching} loaded={archive.data !== undefined}
@@ -114,7 +113,8 @@ function WorkspacePerangkat({ title, onBack }: { title: string; onBack?: () => v
       .map((asset) => unrankedAssetRow(asset, false));
     return (
       <HDScreen title={title} subtitle={SUBTITLE} onBack={onBack}>
-        <HDProgressStatus state={summaryQuery.isError ? null : 'loading'} label="Memuat data perangkat…" />
+        <SavedReadStatus offline={summaryQuery.offline} />
+        <HDProgressStatus state={summaryQuery.isError || summaryQuery.offline ? null : 'loading'} label="Memuat data perangkat…" />
         <ReadFailure error={summaryQuery.error} label="Data perangkat belum dapat dimuat" retrying={summaryQuery.isFetching} onRetry={retry} />
         {restored.length > 0 ? <AssetList label="Perangkat aktif tanpa ringkasan" rows={restored} /> : null}
         {archiveSection}
@@ -124,15 +124,16 @@ function WorkspacePerangkat({ title, onBack }: { title: string; onBack?: () => v
   if (summary.assets.length === 0 && !unranked.length && !previousSelection) {
     return <EmptyPerangkat title={title} onBack={onBack}>{archiveSection}</EmptyPerangkat>;
   }
-  const staleIds = staleAssetIds(insights?.notices ?? []);
+  const staleIds = staleAssetIds(summary.source_freshness);
   const ranked = summary.assets
     .filter((row) => !archivedIds.has(row.asset_id))
     .map((row) => assetRowModel(row, active.get(row.asset_id), staleIds));
   return (
     <PopulatedPerangkat title={title} onBack={onBack} summary={summary}
       ranked={ranked} unranked={unranked} archiveSection={archiveSection} previousSelection={previousSelection}
+      offline={summaryQuery.offline} fetchedAt={summaryQuery.confirmedAtFor(summary)}
       failure={summaryQuery.error} retrying={summaryQuery.isFetching} onRetry={retry}
-      assetsFailed={assetsQuery.isError} staleCheckFailed={insightsQuery.isError} />
+      assetsFailed={assetsQuery.isError} />
   );
 }
 
@@ -144,16 +145,17 @@ type PopulatedProps = {
   unranked: Asset[];
   archiveSection: ReactNode;
   previousSelection: boolean;
+  offline: boolean;
+  fetchedAt?: number;
   failure: unknown;
   retrying: boolean;
   onRetry: () => void;
   assetsFailed: boolean;
-  staleCheckFailed: boolean;
 };
 
 function PopulatedPerangkat({
   title, onBack, summary, ranked, unranked, archiveSection, previousSelection,
-  failure, retrying, onRetry, assetsFailed, staleCheckFailed,
+  failure, retrying, onRetry, assetsFailed, offline, fetchedAt,
 }: PopulatedProps) {
   const { workspace } = useWorkspace();
   const { period, setPeriod } = useNavigationContext();
@@ -166,6 +168,7 @@ function PopulatedPerangkat({
       {period ? (
         <HDPeriodSelector value={period} activeLabel={model.periodLabel} timezone={model.timezone} onCommit={setPeriod} />
       ) : null}
+      <SavedReadStatus offline={offline} failed={Boolean(failure)} fetchedAt={fetchedAt} timezone={model.timezone} />
       {previousSelection ? (
         <HDNotice tone="info" title="Ringkasan masih memakai cakupan sebelumnya">
           Daftar perangkat sudah diperbarui. Angka dan cakupan berikut berasal dari ringkasan terakhir.
@@ -192,7 +195,7 @@ function PopulatedPerangkat({
         <HDButton onPress={() => openImport()}>Impor data</HDButton>
       </View>
       {assetsFailed ? <HDText variant="label">Lokasi dan kategori belum dapat dimuat.</HDText> : null}
-      {staleCheckFailed ? <HDText variant="label">Status pembaruan sumber belum dapat diperiksa.</HDText> : null}
+      {summary.source_freshness === undefined ? <HDText variant="label">Kesegaran sumber belum diketahui.</HDText> : null}
       <AssetList rows={ranked} />
       <HDText variant="label" tone="secondary">
         Urutan berdasarkan energi tercatat pada periode ini. Urutan bukan penilaian boros atau hemat.

@@ -1,5 +1,7 @@
-import { getAsset, getArchivedAssets, getAssets, getCapabilities, isAssetPatchRefusal, patchAsset, type Asset, type CapabilityManifest } from '@/api/client';
+import { getAsset, getArchivedAssets, getAssets, getCapabilities, getSummary, isAssetPatchRefusal, patchAsset, type Asset, type CapabilityManifest } from '@/api/client';
 import { ApiError } from '@/api/errors';
+
+import summaryFixtures from '../../tests/fixtures/assets.json';
 
 const manifest = {
   schema_version: 1,
@@ -152,4 +154,35 @@ describe('asset cursor reads', () => {
     await expect(getArchivedAssets('site', 'bearer')).resolves.toEqual({ items: [asset], next_cursor: 'keeps-going' });
     expect(fetchMock).toHaveBeenCalledTimes(20);
   });
+});
+
+describe('summary freshness boundary', () => {
+  const { summary } = summaryFixtures['h-base'];
+  const router = summary.assets.find((row) => row.name === 'Router')!;
+  const source = {
+    source_id: 'source-router', asset_id: router.asset_id, label: 'Router', origin: 'simulated',
+    state: 'stale', last_capture_at: '2026-10-25T11:00:00Z', cadence_seconds: 3600, policy_version: 1,
+    historical_range: null,
+  };
+  afterEach(() => jest.restoreAllMocks());
+
+  it('accepts legacy absence and one typed source capture without adding other requests', async () => {
+    const fetch = jest.spyOn(globalThis, 'fetch').mockResolvedValueOnce(response(summary))
+      .mockResolvedValueOnce(response({ ...summary, source_freshness: [source] }));
+    await expect(getSummary('site', { preset: 'last_7_days' }, 'token')).resolves.not.toHaveProperty('source_freshness');
+    await expect(getSummary('site', { preset: 'last_7_days' }, 'token')).resolves.toMatchObject({ source_freshness: [source] });
+    expect(fetch.mock.calls.map(([url, init]) => [new URL(String(url)).pathname, init?.method])).toEqual([
+      ['/api/v1/sites/site/summary', 'GET'], ['/api/v1/sites/site/summary', 'GET'],
+    ]);
+  });
+
+  it.each([{ cadence_seconds: 0 }, { last_capture_at: null }, { state: 'historical' }, { asset_id: 'other' }])(
+    'rejects malformed freshness %# without retaining an untrusted field', async (changes) => {
+      jest.spyOn(globalThis, 'fetch').mockResolvedValue(response({
+        ...summary, source_freshness: [{ ...source, ...changes, token: 'fake-summary-token' }],
+      }));
+      await expect(getSummary('site', { preset: 'last_7_days' }, 'token'))
+        .rejects.toMatchObject({ code: 'UNEXPECTED_RESPONSE', recovery: { retryable: false } });
+    },
+  );
 });

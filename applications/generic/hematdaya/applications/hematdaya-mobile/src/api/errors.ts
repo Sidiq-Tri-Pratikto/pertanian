@@ -30,6 +30,22 @@ export class ApiError extends Error {
     this.details = details;
   }
 
+  static offline(): ApiError {
+    return new ApiError('OFFLINE_UNSENT', 'Permintaan belum dikirim. Sambungkan perangkat lalu coba lagi.', { retryable: false });
+  }
+
+  static revoked(): ApiError {
+    return new ApiError('WORKSPACE_CHANGED', 'Ruang kerja telah berubah. Buka ruang kerja aktif lalu coba lagi.', { retryable: false });
+  }
+
+  static storage(): ApiError {
+    return new ApiError('LOCAL_STORAGE', 'Penyimpanan perangkat belum dapat diperbarui. Periksa penyimpanan lalu coba lagi.', { retryable: false });
+  }
+
+  static expired(): ApiError {
+    return new ApiError('SESSION_EXPIRED', 'Sesi demo sudah berakhir. Buka ruang kerja baru untuk melanjutkan.', { retryable: false });
+  }
+
   static unreachable(): ApiError {
     return new ApiError('NETWORK_UNREACHABLE', UNREACHABLE_MESSAGE, {
       retryable: true,

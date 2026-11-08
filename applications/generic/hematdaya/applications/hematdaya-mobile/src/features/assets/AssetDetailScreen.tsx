@@ -1,10 +1,10 @@
-import { useRef, useState, type ComponentRef } from 'react';
+import { useEffect, useRef, useState, type ComponentRef } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { ApiError } from '@/api/errors';
 import type { AssetDetail as AssetDetailData, Summary } from '@/api/client';
 import { HDButton } from '@/components/hd/HDButton';
-import { HDDataQuality } from '@/components/hd/HDDataQuality';
+import { HDDataQuality, freshnessRows } from '@/components/hd/HDDataQuality';
 import { HDEnergyMetric } from '@/components/hd/HDEnergyMetric';
 import { HDNotice } from '@/components/hd/HDNotice';
 import { HDPeriodSelector } from '@/components/hd/HDPeriodSelector';
@@ -16,15 +16,15 @@ import { tokens } from '@/design/tokens.generated';
 import { assetDetailModel, assetSourceRows, originLabel, type AssetDetailModel, type SourceRow } from '@/features/assets/asset-model';
 import { ArchiveAssetSheet } from '@/features/assets/ArchiveAssetSheet';
 import { AssetWriteFeedback } from '@/features/assets/AssetWriteFeedback';
-import { createAssetDraft, EditAssetSheet, type AssetDraft } from '@/features/assets/EditAssetSheet';
+import { createAssetDraft, EditAssetSheet, reviewedDraft } from '@/features/assets/EditAssetSheet';
 import { useAssetMutations } from '@/features/assets/useAssetMutations';
 import { AssetHistorySection } from '@/features/assets/AssetHistorySection';
-import { ReadFailure } from '@/features/assets/ReadFailure';
+import { ReadFailure, SavedReadStatus } from '@/features/assets/ReadFailure';
 import { useAsset } from '@/features/assets/useAssets';
 import { useAssetSummary } from '@/features/assets/useAssetSummary';
 import { useLastConfirmed } from '@/features/assets/useLastConfirmed';
 import { shownOrigins } from '@/features/energy/beranda-model';
-import { useInsights } from '@/features/insights/useInsights';
+import { useAssetDraft } from '@/features/offline/persist-drafts';
 import { periodQuery, useNavigationContext } from '@/features/navigation-context/NavigationContextProvider';
 import { useTabNavigation } from '@/features/navigation';
 import { SessionEndedNotice } from '@/features/workspace/SessionEndedNotice';
@@ -74,15 +74,15 @@ function AssetDetail({ assetId }: { assetId: string }) {
   const { period } = useNavigationContext();
   const summaryQuery = useAssetSummary(assetId);
   const assetQuery = useAsset(assetId);
-  const insightsQuery = useInsights();
-  const summary = useLastConfirmed(summaryQuery);
+  const keptSummary = useLastConfirmed(summaryQuery);
+  const summary = summaryQuery.offline ? summaryQuery.data : keptSummary;
+  const savedDraft = useAssetDraft(assetId);
   const asset = useLastConfirmed(assetQuery);
-  const insights = useLastConfirmed(insightsQuery);
-  const retrySummary = () => void summaryQuery.refetch();
+  const retrySummary = summaryQuery.refresh;
   const retryAsset = () => void assetQuery.refetch();
 
   const notFound = notFoundIn(summaryQuery.error, assetQuery.error);
-  if (notFound) {
+  if (notFound && !savedDraft.draft) {
     return <NotAvailable requestId={notFound.requestId} />;
   }
 
@@ -101,18 +101,20 @@ function AssetDetail({ assetId }: { assetId: string }) {
   const confirmedWindow = window && selected && (selected.preset ||
     (selected.start_date === window.start_date && selected.end_date === window.end_date)) ? window : null;
   const historyWindowError = window && !confirmedWindow ? ApiError.unexpected() : summaryQuery.error;
-  const model = summary ? assetDetailModel(summary, asset, insights?.notices ?? []) : undefined;
+  const model = summary ? assetDetailModel(summary, asset) : undefined;
   return (
-    <HDScreen title={model?.name || asset?.name || TITLE} subtitle={model?.meta} onBack={back}>
-      {asset ? <AssetActions asset={asset} /> : null}
+    <HDScreen title={model?.name || asset?.name || savedDraft.draft?.baseline.name || TITLE} subtitle={model?.meta} onBack={back}>
+      {asset || savedDraft.draft ? <AssetActions assetId={assetId} asset={asset} saved={savedDraft} /> : null}
       {summary && model ? (
         <PopulatedDetail assetId={assetId} summary={summary} model={model}
           confirmedWindow={confirmedWindow} historyWindowError={historyWindowError}
           failure={summaryQuery.error} retrying={summaryQuery.isFetching} onRetry={retrySummary}
-          staleCheckFailed={insightsQuery.isError} />
+          offline={summaryQuery.offline} fetchedAt={summaryQuery.confirmedAtFor(summary)}
+          previousSelection={summaryQuery.previousSelection || summary !== summaryQuery.data} />
       ) : (
         <>
-          <HDProgressStatus state={summaryQuery.isError ? null : 'loading'} label={LOADING} />
+          <SavedReadStatus offline={summaryQuery.offline} />
+          <HDProgressStatus state={summaryQuery.isError || summaryQuery.offline ? null : 'loading'} label={LOADING} />
           <ReadFailure error={summaryQuery.error} label="Perangkat belum dapat dimuat"
             retrying={summaryQuery.isFetching} onRetry={retrySummary} />
         </>
@@ -122,23 +124,34 @@ function AssetDetail({ assetId }: { assetId: string }) {
   );
 }
 
-function AssetActions({ asset }: { asset: AssetDetailData }) {
+function AssetActions({ assetId, asset, saved }: {
+  assetId: string; asset?: AssetDetailData; saved: ReturnType<typeof useAssetDraft>;
+}) {
   const [sheet, setSheet] = useState<'edit' | 'archive' | null>(null);
-  const [draft, setDraft] = useState<AssetDraft | null>(null);
+  const { draft, change: setDraft, restored, reconciled, failed } = saved;
   const [archive, setArchive] = useState(false);
   const editButton = useRef<ComponentRef<typeof View>>(null);
   const archiveButton = useRef<ComponentRef<typeof View>>(null);
-  const { state, submit, review, dismiss, blocked } = useAssetMutations(asset.id);
+  const { state, submit, reconcileDraft, checkOutcome, review, dismiss, blocked } = useAssetMutations(assetId);
   const close = () => setSheet(null);
   const edit = state?.changes.archived === undefined;
   const pendingReview = state?.kind === 'diverged';
 
   const [handled, setHandled] = useState(state);
-  if ((state?.kind === 'acknowledged' || state?.kind === 'observed') && state !== handled) {
+  useEffect(() => {
+    if (state?.kind === 'draft-ready' && restored && draft) {
+      reconciled();
+      setDraft(reviewedDraft(draft, state.observed, state.changes));
+    }
+  }, [draft, reconciled, restored, setDraft, state]);
+  useEffect(() => {
+    if ((state?.kind !== 'acknowledged' && state?.kind !== 'observed') || state === handled) return;
+    // Mutation state comes from the external query cache. Clear the form after its confirmed transition.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setHandled(state);
     if (edit) setDraft(null);
     if (sheet === (edit ? 'edit' : 'archive')) setSheet(null);
-  }
+  }, [edit, handled, setDraft, sheet, state]);
 
   function discardDraft() {
     if (edit) dismiss();
@@ -146,28 +159,33 @@ function AssetActions({ asset }: { asset: AssetDetailData }) {
     close();
   }
 
-  let announcement = asset.archived ? 'Diarsipkan. Pulihkan dari Perangkat, di bagian Diarsipkan.' : null;
+  let announcement = asset?.archived ? 'Diarsipkan. Pulihkan dari Perangkat, di bagian Diarsipkan.' : null;
   if (state?.kind === 'observed') {
     announcement = edit ? 'Data saat diperiksa sesuai dengan draf.' : `Status saat diperiksa: ${announcement ?? 'aktif.'}`;
   } else if (state?.kind === 'acknowledged') {
     announcement = edit ? 'Detail perangkat disimpan.' : (announcement ?? 'Perangkat dipulihkan ke daftar aktif.');
   }
 
+  const editable = draft ?? (asset ? createAssetDraft(asset) : null);
+  if (!asset && !editable && !announcement) return null;
   return (
     <View style={styles.section}>
+      {!asset && draft ? <HDText>Detail perangkat terkini belum tersedia. Anda masih dapat membuka draf tersimpan.</HDText> : null}
       <View role="status" accessibilityLiveRegion="polite">{announcement ? <HDText>{announcement}</HDText> : null}</View>
       <View style={styles.actions}>
         <HDButton ref={editButton} disabledReason={pendingReview && !edit ? 'Tinjau status arsip dahulu.' : undefined}
-          onPress={() => { setDraft((previous) => previous ?? createAssetDraft(asset)); setSheet('edit'); }}>Ubah detail</HDButton>
-        <HDButton ref={archiveButton} disabledReason={pendingReview && edit ? 'Tinjau draf detail dahulu.' : undefined}
-          onPress={() => { setArchive(!asset.archived); setSheet('archive'); }}>{asset.archived ? 'Pulihkan' : 'Arsipkan'}</HDButton>
+          onPress={() => { if (!draft && asset) setDraft(createAssetDraft(asset)); setSheet('edit'); }}>
+          {restored ? 'Buka draf detail' : 'Ubah detail'}</HDButton>
+        {asset ? <HDButton ref={archiveButton} disabledReason={pendingReview && edit ? 'Tinjau draf detail dahulu.' : undefined}
+          onPress={() => { setArchive(!asset.archived); setSheet('archive'); }}>{asset.archived ? 'Pulihkan' : 'Arsipkan'}</HDButton> : null}
       </View>
-      {sheet === null && blocked ? <AssetWriteFeedback state={state} /> : null}
-      <EditAssetSheet open={sheet === 'edit'} draft={draft ?? createAssetDraft(asset)} onDraft={setDraft}
-        onSubmit={(changes) => void submit(changes)} onReview={review} state={state} blocked={blocked}
-        onClose={close} onDiscard={discardDraft} returnFocusTo={editButton} />
-      <ArchiveAssetSheet open={sheet === 'archive'} asset={asset} archive={archive} state={state} blocked={blocked}
-        onSubmit={(changes) => void submit(changes)} onReview={review} onClose={close} returnFocusTo={archiveButton} />
+      {sheet === null && blocked ? <AssetWriteFeedback state={state} onCheck={() => void checkOutcome()} /> : null}
+      {editable ? <EditAssetSheet open={sheet === 'edit'} draft={editable} onDraft={setDraft}
+        onSubmit={(changes) => { void (restored ? reconcileDraft(changes, editable.baseline) : submit(changes)); }}
+        onReview={review} onCheck={() => void checkOutcome()} state={state} blocked={blocked} storageFailed={failed}
+        onClose={close} onDiscard={discardDraft} returnFocusTo={editButton} /> : null}
+      {asset ? <ArchiveAssetSheet open={sheet === 'archive'} asset={asset} archive={archive} state={state} blocked={blocked}
+        onSubmit={(changes) => void submit(changes)} onReview={review} onCheck={() => void checkOutcome()} onClose={close} returnFocusTo={archiveButton} /> : null}
     </View>
   );
 }
@@ -185,10 +203,12 @@ type PopulatedProps = {
   failure: unknown;
   retrying: boolean;
   onRetry: () => void;
-  staleCheckFailed: boolean;
+  offline: boolean;
+  fetchedAt?: number;
+  previousSelection: boolean;
 };
 
-function PopulatedDetail({ assetId, summary, confirmedWindow, historyWindowError, model, failure, retrying, onRetry, staleCheckFailed }: PopulatedProps) {
+function PopulatedDetail({ assetId, summary, confirmedWindow, historyWindowError, model, failure, retrying, onRetry, offline, fetchedAt, previousSelection }: PopulatedProps) {
   const { workspace } = useWorkspace();
   const { period, setPeriod } = useNavigationContext();
   // A summary's origins are empty on a no-data period and on a conflict, so sources speak first.
@@ -202,11 +222,10 @@ function PopulatedDetail({ assetId, summary, confirmedWindow, historyWindowError
       {period ? (
         <HDPeriodSelector value={period} activeLabel={model.periodLabel} timezone={model.timezone} onCommit={setPeriod} />
       ) : null}
-      {model.staleNotices.map((notice) => (
-        <HDNotice key={notice.id} tone="attention" title={notice.title}>
-          {notice.body}
-        </HDNotice>
-      ))}
+      <SavedReadStatus offline={offline} failed={Boolean(failure)} fetchedAt={fetchedAt} timezone={model.timezone} />
+      {previousSelection ? <HDNotice tone="info" title="Ringkasan masih memakai pilihan sebelumnya">
+        Periode dan cakupan berikut mengikuti ringkasan terakhir.
+      </HDNotice> : null}
       {model.state === 'conflict' ? (
         <View style={styles.section}>
           <HDProvenanceTag origins={origins} />
@@ -246,9 +265,12 @@ function PopulatedDetail({ assetId, summary, confirmedWindow, historyWindowError
         <HDText variant="label">Sebagian interval melewati batas periode dan dibagi rata dalam intervalnya (estimasi).</HDText>
       ) : null}
       <ReadFailure error={failure} label="Data perangkat belum dapat diperbarui" retrying={retrying} onRetry={onRetry} kept />
-      {staleCheckFailed ? <HDText variant="label">Status pembaruan sumber belum dapat diperiksa.</HDText> : null}
+      {summary.source_freshness?.some((source) => source.state === 'stale') ? (
+        <HDButton variant="text" icon="refresh" loading={retrying} onPress={onRetry}>Periksa sumber</HDButton>
+      ) : null}
       <HDDataQuality
         rows={[
+          ...freshnessRows(summary.source_freshness, model.timezone, summary.assets),
           ...(model.completeness ? [{ term: 'Kelengkapan data', value: model.completeness }] : []),
           ...(model.latest ? [{ term: 'Pengukuran terakhir', value: `${model.latest}${simulated ? ' (data simulasi)' : ''}` }] : []),
           ...(simulated

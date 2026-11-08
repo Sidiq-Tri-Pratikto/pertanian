@@ -6,6 +6,9 @@ import type { FeedbackState } from '@/features/insights/useFeedback';
 
 /** Pending, failure with retry, unknown with a safe check, or confirmation after the service acknowledged. */
 export function FeedbackStatus({ state, timezone, onRetry }: { state: FeedbackState; timezone: string; onRetry: () => void }) {
+  if (state.kind === 'unsent') {
+    return <HDProgressStatus state="failure" label="Umpan balik belum dikirim" detail={state.error.message} />;
+  }
   if (state.kind === 'confirmed') {
     return <HDNotice tone="success" live title="Umpan balik diterima">{confirmedText(state.result, timezone)}</HDNotice>;
   }
@@ -23,7 +26,8 @@ export function FeedbackStatus({ state, timezone, onRetry }: { state: FeedbackSt
         state.kind === 'failed'
           ? `${state.error.message}${state.error.requestId ? ` ID referensi: ${state.error.requestId}.` : ''} Tidak ada yang berubah.`
           : state.kind === 'unknown'
-            ? 'Jawaban layanan tidak diterima. Memeriksa lagi tidak akan mengirim umpan balik dua kali.'
+            ? [state.unsent ? 'Pemeriksaan belum dikirim. Sambungkan perangkat lalu coba lagi.' : null,
+                'Jawaban layanan tidak diterima. Memeriksa lagi tidak akan mengirim umpan balik dua kali.'].filter(Boolean).join(' ')
             : null
       }
       action={

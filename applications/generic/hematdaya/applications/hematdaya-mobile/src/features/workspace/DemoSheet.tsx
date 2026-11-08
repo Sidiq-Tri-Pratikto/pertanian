@@ -70,9 +70,11 @@ export function DemoSheet({ open, onClose, onOpened, returnFocusTo }: DemoSheetP
         Demo · Data simulasi. Terpisah dari data Anda dan berakhir otomatis; reset hanya memengaruhi demo.
       </HDText>
       <HDProgressStatus
-        state={pending ? 'loading' : state.kind === 'failed' ? 'failure' : state.kind === 'unknown' ? 'unknown' : null}
-        label={pending ? 'Menyiapkan data demo…' : state.kind === 'unknown' ? 'Hasil permintaan sebelumnya belum diketahui' : undefined}
-        detail={state.kind === 'failed' || state.kind === 'unknown' ? state.error.message : null}
+        state={pending ? 'loading' : (state.kind === 'failed' || state.kind === 'unsent') ? 'failure' : state.kind === 'unknown' ? 'unknown' : null}
+        label={pending ? 'Menyiapkan data demo…' : state.kind === 'unknown' ? 'Hasil permintaan sebelumnya belum diketahui' : state.kind === 'unsent' ? 'Permintaan demo belum dikirim' : undefined}
+        detail={state.kind === 'failed' || state.kind === 'unsent' || state.kind === 'unknown'
+          ? `${state.error.message}${state.kind === 'unknown' && state.unsent ? ' Pemeriksaan belum dikirim. Sambungkan perangkat lalu coba lagi.' : ''}`
+          : null}
         action={
           state.kind === 'failed' && state.canRetry ? (
             <HDButton variant="text" icon="refresh" onPress={() => run(retry)}>

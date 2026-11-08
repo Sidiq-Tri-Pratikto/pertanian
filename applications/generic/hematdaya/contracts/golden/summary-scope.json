@@ -146,6 +146,74 @@
     ],
     "valid": false
   },
+  "source_freshness": [
+    {
+      "asset_id": "id-4",
+      "cadence_seconds": 3600,
+      "historical_range": null,
+      "label": "Colokan simulasi Kulkas (sumber kedua)",
+      "last_capture_at": null,
+      "origin": "simulated",
+      "policy_version": 1,
+      "source_id": "id-5",
+      "state": "unknown"
+    },
+    {
+      "asset_id": "id-4",
+      "cadence_seconds": 3600,
+      "historical_range": null,
+      "label": "Sumber demo (simulasi)",
+      "last_capture_at": null,
+      "origin": "simulated",
+      "policy_version": 1,
+      "source_id": "id-6",
+      "state": "unknown"
+    },
+    {
+      "asset_id": "id-0",
+      "cadence_seconds": 3600,
+      "historical_range": null,
+      "label": "Sumber demo (simulasi)",
+      "last_capture_at": null,
+      "origin": "simulated",
+      "policy_version": 1,
+      "source_id": "id-7",
+      "state": "unknown"
+    },
+    {
+      "asset_id": "id-2",
+      "cadence_seconds": 3600,
+      "historical_range": null,
+      "label": "Sumber demo (simulasi)",
+      "last_capture_at": null,
+      "origin": "simulated",
+      "policy_version": 1,
+      "source_id": "id-8",
+      "state": "unknown"
+    },
+    {
+      "asset_id": "id-3",
+      "cadence_seconds": 3600,
+      "historical_range": null,
+      "label": "Sumber demo (simulasi)",
+      "last_capture_at": null,
+      "origin": "simulated",
+      "policy_version": 1,
+      "source_id": "id-9",
+      "state": "unknown"
+    },
+    {
+      "asset_id": "id-1",
+      "cadence_seconds": 3600,
+      "historical_range": null,
+      "label": "Sumber demo (simulasi)",
+      "last_capture_at": null,
+      "origin": "simulated",
+      "policy_version": 1,
+      "source_id": "id-10",
+      "state": "unknown"
+    }
+  ],
   "window": {
     "effective_end": "2026-10-25T17:00:00Z",
     "end": "2026-10-25T17:00:00Z",

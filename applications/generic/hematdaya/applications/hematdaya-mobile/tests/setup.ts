@@ -11,7 +11,18 @@ jest.mock('expo-secure-store', () => ({
   }),
 }));
 
+jest.mock('@react-native-community/netinfo', () => ({
+  addEventListener: jest.fn(() => jest.fn()),
+  refresh: jest.fn(async () => undefined),
+}));
+
+jest.mock('@react-native-async-storage/async-storage', () =>
+  jest.requireActual('@react-native-async-storage/async-storage/jest/async-storage-mock'));
+
 jest.mock('expo-crypto', () => ({
+  CryptoDigestAlgorithm: { SHA256: 'SHA-256' },
+  digestStringAsync: async (_algorithm: string, value: string) =>
+    jest.requireActual('node:crypto').createHash('sha256').update(value).digest('hex'),
   getRandomBytes: (count: number) => new Uint8Array(jest.requireActual('node:crypto').randomBytes(count)),
 }));
 

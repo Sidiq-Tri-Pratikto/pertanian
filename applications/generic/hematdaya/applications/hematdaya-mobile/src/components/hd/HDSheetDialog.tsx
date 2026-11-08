@@ -1,5 +1,6 @@
-import { useEffect, useRef, type ComponentRef, type ReactNode, type RefObject } from 'react';
+import { useContext, useEffect, useRef, type ComponentRef, type ReactNode, type RefObject } from 'react';
 import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, View, type TextInstance } from 'react-native';
+import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 
 import { HDButton } from '@/components/hd/HDButton';
 import { HDText } from '@/components/hd/HDText';
@@ -27,6 +28,10 @@ export function HDSheetDialog({ open, title, onClose, children, footer, returnFo
   const heading = useRef<TextInstance>(null);
   const wasOpen = useRef(open);
   const web = Platform.OS === 'web';
+  const insets = useContext(SafeAreaInsetsContext);
+  // Android's edge-to-edge Modal can extend beneath the system navigation buttons.
+  const bottomInset = Platform.OS === 'android' ? (insets?.bottom ?? 0) : 0;
+  const sheetStyle = bottomInset ? [styles.sheet, { paddingBottom: tokens.space.pageGutter + bottomInset }] : styles.sheet;
   const modalLabel = web ? { 'aria-label': title } : {};
   const nativeDialog = web ? {} : { role: 'dialog' as const, 'aria-modal': true, 'aria-label': title };
 
@@ -47,7 +52,7 @@ export function HDSheetDialog({ open, title, onClose, children, footer, returnFo
     <Modal {...modalLabel} visible={open} transparent animationType="slide" onDismiss={returnWebFocus} onRequestClose={() => onClose('escape')} onShow={() => moveFocus(heading.current)}>
       <KeyboardAvoidingView style={styles.root} behavior={scrollable && Platform.OS === 'ios' ? 'padding' : undefined}>
         <Pressable accessibilityLabel="Tutup" style={StyleSheet.absoluteFill} onPress={() => onClose('backdrop')} />
-        <View {...nativeDialog} style={styles.sheet}>
+        <View {...nativeDialog} style={sheetStyle}>
           <View style={styles.header}>
             <HDText ref={heading} variant="section" role="heading" style={styles.title} {...FOCUSABLE_BY_SCRIPT}>
               {title}

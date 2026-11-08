@@ -1,48 +1,76 @@
 # Implementation Plan: Offline and combined states
 
-**Branch**: `034-offline-states` | **Date**: 2026-10-30 | **Spec**: [spec.md](spec.md)
+**Branch**: `034-offline-states` | **Date**: 2026-10-30 | **Spec**: [spec.md](spec.md) | **Baseline**: `a10ab4b` (merged 016)
 
-## Project Structure
+## Project structure
 
 ```text
-src/features/offline/{useConnectivity.ts, persist-queries.ts, persist-drafts.ts}
-src/components/hd/HDDataQuality.tsx   # all rows
-app/energy/service/freshness.py       # stale from cadence, policy stale v1
+applications/hematdaya-mobile/
+  src/features/offline/{useConnectivity.ts,persist-queries.ts,persist-drafts.ts}
+  src/features/{workspace,navigation-context,energy,assets,imports,insights}/
+  src/components/hd/HDDataQuality.tsx
+  e2e/{offline-web.mjs,android-offline.sh,offline.yaml}
+applications/hematdaya-api/
+  app/energy/{model,repository,service/freshness.py}
+  app/insights/service/{service.py,notices.py}
+contracts/{openapi.json,golden/}
+../../../.github/workflows/hematdaya-android-offline.yml
 ```
 
-## Summary
+## Technical context
 
-Persist confirmed reads and non-secret drafts locally. Test the independent recovery and freshness states against real scenarios.
-
-## Technical Context
-
-**New dependencies**: `@react-native-community/netinfo`, `@tanstack/query-async-storage-persister`, `@react-native-async-storage/async-storage`, through `npx expo install`. `expo-sqlite` stays out.
+Use the existing TanStack Query client for in-memory server state. Add Expo-matched `@react-native-community/netinfo` and `@react-native-async-storage/async-storage` through `npx expo install`. The snapshot store projects specific successful reads, so generic query dehydration and the TanStack async persister are unnecessary. Keep the current credentials in SecureStore on native and session storage on web. API, Postgres, generated OpenAPI and the generated TypeScript client retain their existing roles.
 
 ## Design
 
-Persist successful confirmed reads with fetch time, keyed by principal, workspace, site, period, and selection revision. Persist only allowlisted non-secret draft fields in the same workspace namespace with separate draft keys. Restore neither until the workspace provider confirms the current principal and workspace. Cancel old persistence and clear its stored cache and drafts on workspace change or demo reset. Expose the same cleanup to the logout flow in 037. If storage is unavailable, retain drafts in memory and do not claim restart recovery. Never persist session tokens, pending writes, or selected file bytes through these stores.
+### Confirmed ownership and teardown
 
-The API returns `freshness` per source with `state`, `last_capture_at`, `cadence_seconds`, and `policy_version`. Apply the stale threshold only when the source expects recurring captures and its cadence is known. Historical CSV retains historical provenance. Client offline and source freshness remain separate.
+A demo principal owns exactly one site. A validated demo-create/replay response attests that site and workspace for the credential it returns. Upgrade an old session record online via authenticated `GET /api/v1/sites/{site_id}`, checking the returned owned demo site. A legacy record with only a shape-valid site ID and token has no cache authority before that check. The provider binds the attested site ID to an opaque, domain-separated credential fingerprint and a durable random epoch. It stores the attestation and active epoch with the credential control record. Summary, draft and recovery stores carry only the derived namespace and their allowlisted data. Session tokens, demo replay proofs and auth headers stay in the credential boundary. Never grant API access from a cache key.
 
-## Prototype Reference
+On cold start validate the attestation schema, credential binding, site, active epoch and a finite expiry strictly later than wall time. Wait for that check before mounting hydrated content, enabling the corresponding queries or reading a draft. Invalid, expired or unconfirmed state cannot hydrate. Recheck expiry on foreground and at the expiry boundary. Handle authorization failure only if it belongs to the currently active credential generation.
 
-Scenarios `h-stale-offline`, `h-historical-offline`, `h-learning-partial`, `h-zero`; `qualityBlock`, `api.refresh`, `api.checkSource`.
+On replacement, including a same-site token replacement, expiry, logout or app-initiated reset, first block old dispatch and rendering, then advance the in-memory generation, abort/cancel old reads where supported and fence every completion. Serialize durable writes and owner transitions so that writes already in progress finish before removal or are discarded. A stale success, 401 or finally callback cannot publish, terminate the new session, clear a new lock or revive storage. Verify the old generation at persistence start and completion. Revoke the old durable epoch before installing a replacement or sending `POST /api/v1/demo/sessions/current/reset`. Authorize only the explicit reset call with the still-current transition's credential after revocation. Old feature callbacks cannot use that transition. The reset keeps the credential/site, so activate a new epoch only after a valid result for that reset. An ambiguous reset remains fenced until ownership is revalidated online and a new snapshot is fetched. Wire the reset and logout boundary for 017/037 and exercise it against the real reset contract. Those specs own the user-facing entry points.
 
-## Test Plan
+If deletion fails after revocation, orphaned records are unreachable and are eligible for cleanup. If control storage cannot revoke, block replacement or reset instead of risking rollback to a stale namespace. Logout and expiry hide in-memory data immediately and attempt both revocation and credential removal. Report an unconfirmed durable wipe and avoid promising persistence or erasure when storage is unavailable. External server resets or revocations are unknowable during full disconnection. Resume authoritative checks on reconnection and enforce the known expiry locally.
 
-Test every core-only combination on web and Android, including a real CSV import from 027, learning plus partial data, valid measured zero, and scope conflict. The core-only display never fabricates cost. Cover offline save, refresh failure, same- and different-workspace cold starts, workspace teardown, demo reset, the stale threshold boundary, unknown cadence, and retry without adding readings.
+### Connectivity, reads and scope
 
-After 019 is available, run and record separate integration cases for learning plus partial plus missing tariff and valid zero plus missing tariff. These cases verify the unavailable-cost display and do not block core-only acceptance.
+Subscribe through one web/native connectivity boundary and drive the existing TanStack online/focus managers. Native foreground comes from AppState. A known radio/browser disconnect pauses reads and blocks write dispatch. Unknown reachability allows a normal attempt. A failed HTTP request on an online device remains an API or transport failure. Reconnection and foreground can refresh reads, with one retry owner per request. For TanStack's zero-based failure count, retry only when `failureCount + 1 < max_attempts`. Direct asset/history readers with their own budgets keep query retries disabled. Read-only source checks use the same bounded budget. Retried write recovery remains user-initiated and specific to the original feature contract.
 
-## Out of Scope
+Capture a wall-clock fetch timestamp once when a validated summary GET completes. Persist only allowlisted site/asset summaries and the last resolved chosen selection. Keep the local dates, server UTC start/end and effective cutoff, timezone, canonical selected asset IDs, scope kind, and local scope epoch. Bind a future authoritative 028 selection revision separately when available. Today's `SummaryResponse.revision` combines measurement and binding revisions and cannot identify a selection. Scope keys distinguish combined all-active and single-asset reads, and preserve known selection IDs for both. Hydrate only the exact matching owner, epoch, period and scope. Use the previously confirmed resolved window to restore a cached preset offline. Its bounds and cutoff stay fixed until a successful server response resolves the preset again. A newly selected range without a matching snapshot cannot inherit a prior value. A visible prior-period or prior-scope snapshot carries its original context and a clear previous-selection label.
 
-Offline writes, background sync, saved-account sign-in and explicit retry after login (037).
+Capture the local scope epoch at read dispatch and reject older completions before cache publication or persistence. Advance it when archive/restore is acknowledged or observed to have changed the archive state, and when an import is first confirmed by its commit response or explicit status read for that operation. Do so before invalidation and refetch. Scope changes fence affected summaries, histories and related context-dependent reads, without rekeying for every measurement refresh. Update restored navigation context with the epoch, and clear it with the owner. Keep future 028 selections that lack a matching confirmed revision out of the current view. No generic query dehydration, mutation cache, placeholders, cache edits or previous-scope records can become fresh persisted snapshots.
 
-## Task Outline
+### Drafts and dispatch
 
-1. Freshness in the API.
-2. Connectivity hook.
-3. Confirmed query and non-secret draft persistence.
-4. HDDataQuality complete.
-5. Combination tests.
-6. Flip registry.
+Add a shared synchronous known-offline and active-generation check at the actual mutating dispatch boundary in the API client. Callers check before creating or advancing an intent and handle the boundary refusal as unsent, including if connectivity changes between the UI check and dispatch. S10 preview writes a staged server object and uses this gate too. A race before dispatch spends no attempt or retry budget and leaves no resumable write from an unsent tap. Once a request is dispatched, preserve its ordinary refusal or outcome-unknown rules. Never auto-resume mutations. Keep 027's synchronous web recovery write next to the actual fetch start, after the final offline/generation check, with no awaited storage work between the check and dispatch. Give operation locks ownership tokens so stale finally blocks can release only their own attempt.
+
+Persist an owner-scoped asset draft's asset ID, confirmed baseline, editable name/category/location values and touched fields. Provide a draft-only route state from the draft and its baseline so cold offline can open it even when detail is absent. Do not infer current asset or archive status from that baseline. On reconnect require a successful fresh owned detail GET for a restored draft before accepting a new explicit save. Compare the normalized fields in the proposed changes. Already matching fields represent observed state and never trigger a PATCH or imply that a prior PATCH was acknowledged. A changed baseline with edits still outstanding requires explicit review, rebasing touched fields on the observed values, and a separate Save action. Unavailable or unauthorized reads keep the draft blocked or revoke the owner as appropriate. Preserve 016's single PATCH per explicit intent, no automatic replay, and observational recovery after an ambiguous response in the active generation. Archive confirmations, error state and unresolved PATCHes stay in memory.
+
+S10 has a memory-only pre-workspace input buffer which may be adopted once by the first confirmed workspace. Drop an adopted draft on a confirmed owner transition. Store bounded paste text, mapping inputs, file label/reselection marker and safe preview reference as allowlisted draft fields. Preserve 027's quota fallback and explicit file reselection without restoring file bytes or temporary URIs. On web, allow a prior site-only record to migrate only during the upgrade of the legacy workspace credential that loaded it. Capture that identity before the online check and require the same generation at migration. A new or replacement workspace cannot claim old legacy state, even if its site ID matches. For an existing attempted commit verify the stored import ID and the owned `GET /api/v1/imports/{id}` response before attaching it to the confirmed namespace, using the explicit status-check path. Hold an unverified legacy record out of the view until it can be checked. Do not discard it on a transient failure. Reject malformed or mismatched records and keep the original key and acknowledgment for a verified attempt. Move the accepted record before removing the legacy copy.
+
+Preserve 027's separate web status-first record for a previously attempted dispatch only. It retains the original import ID, key and acknowledgment and enters the unknown state after reload. An explicit GET can show committed, previewed, or expired/refused status. Offer manual resend with the same key only after the owned GET finds the same preview still pending. Separate this recovery metadata from general snapshots and drafts. The native draft store does not introduce durable resend intents. Preserve 023's explicit same-key recovery in memory for previously attempted feedback and 008's explicit replay for demo creation. App restart or connectivity changes cannot call either action on the user's behalf.
+
+### Source freshness and combined states
+
+Define a single policy in the energy service and return typed per-source freshness with source ID, label, attributed asset IDs, origin, state, last capture, cadence seconds and policy version. Use site time. For a selected asset's recurring source, resolve authority at site time using the existing binding rules. Only the current resolved source can produce a stale notice for that asset. Use the latest valid completed reading in its current effective authority segment from `current_measurements`, where `interval_end <= site_clock`. Exclude missing, point-only, invalid/long-gap, future and superseded readings. Unresolved candidates remain separate and produce no stale conclusion for the asset. Keep this source time independent of the selected report period.
+
+For a historical source, resolve the finite effective binding against the selected report window. Preserve imported origin and the actual recorded range and latest capture for that binding in the displayed period. A recorded import with known interval still has historical freshness. Nonrecurring sources, invalid/unknown cadence or missing eligible captures are unknown for staleness. A recurring source with a positive known cadence and eligible capture is stale only when the age is strictly greater than twice the cadence. Format fractional-hour cadence from seconds. There is no inferred cadence default. Old responses without structured freshness may still render valid energy and provenance and show freshness as unknown.
+
+Keep freshness attributed to the effective asset binding when a source appears under more than one asset. Generate the Saran notices from the same structured result, with at most one notice per `stale:<sourceId>`, and preserve unrelated scope and partial notices. The “Periksa sumber” action uses only the scoped site or asset summary GET, and follows the same read budget. It does not refetch the Saran endpoint, whose evaluation can publish insight revisions. Reuse existing period, completeness, gap, historical, learning and scope treatments. Known individual values survive combined refusal. Preserve the 010 missing/unavailable chart states and core-only unavailable-cost treatment.
+
+## Verification and release
+
+Use the exact core-only matrix in [tasks.md](tasks.md), with `COMPOSITION=core-only` and real API/Postgres. Use 19–25 October 2026 in Asia/Jakarta for the weekly seeded cases, explicitly selecting the range because `h-scope` starts on a single day. Import the S10 valid example into an empty workspace and open its exact 20 October report. For the full 24-hour report, Lampu Teras covers 06.00–12.00 and Dispenser covers 18.00–24.00 local time. Minimum individual coverage is 25%, with no overlapping measured interval and concurrent coverage 0%. These are coverage ratios, independent of energy and acceptance counts. Pin them against the service response and keep the gaps.
+
+Chrome verifies real offline mode in a loaded tab and separately verifies a same-tab cold reload with its app shell available and API blocked. The shell has no offline navigation guarantee. Record requests and fail on an offline write or reconnect replay. Preserve old state when switching workspaces in the isolation test.
+
+Run a separate pre-merge live-data Android job alongside 003. Build one emulator APK with embedded JS, a test-only cleartext loopback exception and an ephemeral API reachable via ADB reverse. Bootstrap migrated Postgres/API and scenario setup with synthetic data, bounded startup and readiness checks. Use built-in S10 valid CSV and test-only scenario selection. Airplane mode plus cutting the API route proves real offline even if emulator loopback bypasses the radios. Verify process cold launch without Metro, and test new-owner isolation with the old app storage retained. Preserve 003's API-absent smoke path, boot-only retry and evidence. Record APK identity, runtime, commit, matrix, JUnit, screenshots and sanitized logs.
+
+Run targeted and full checks for affected apps, check contract drift and record actual Chrome and Android results on the 034 PR. Exercise the registry candidate in the same candidate revision. Publish the `data-tersimpan` change only after both runtime gates and checks pass for that revision. A docs-only evidence link need not repeat an identical full run. A missing runtime or blocked job leaves the relevant gate unverified.
+
+The two P1/P2 walkthroughs are a separate joint sign-off after the M6 merge and P1 backend verification. After 019, separately run the two missing-tariff integration cases. Offline writes, background sync, saved-account recovery, new settings screens, the 028/029 selection flow and source enrollment stay outside 034.
+
+## Prototype reference
+
+`h-stale-offline`, `h-historical-offline`, `h-learning-partial`, `h-zero`, `h-scope`, `qualityBlock`, `api.refresh`, and `api.checkSource`. The historical demo seed is simulated and serves only as a UI reference. The real import supplies the provenance proof.

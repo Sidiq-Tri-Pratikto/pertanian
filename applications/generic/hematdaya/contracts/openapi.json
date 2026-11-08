@@ -473,6 +473,27 @@
         "title": "CapabilityStatus",
         "type": "string"
       },
+      "CaptureRangeResponse": {
+        "description": "The span of recorded data attributable to a historical source in the report.",
+        "properties": {
+          "end": {
+            "format": "date-time",
+            "title": "End",
+            "type": "string"
+          },
+          "start": {
+            "format": "date-time",
+            "title": "Start",
+            "type": "string"
+          }
+        },
+        "required": [
+          "start",
+          "end"
+        ],
+        "title": "CaptureRangeResponse",
+        "type": "object"
+      },
       "ComparisonResponse": {
         "description": "A matched-baseline comparison. Full recorded totals stay separate from common-mask totals.",
         "properties": {
@@ -2489,6 +2510,90 @@
         "title": "SiteResponse",
         "type": "object"
       },
+      "SourceFreshnessResponse": {
+        "description": "The capture and freshness for one effective asset/source pair.",
+        "properties": {
+          "asset_id": {
+            "format": "uuid",
+            "title": "Asset Id",
+            "type": "string"
+          },
+          "cadence_seconds": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cadence Seconds"
+          },
+          "historical_range": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CaptureRangeResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "last_capture_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Capture At"
+          },
+          "origin": {
+            "$ref": "#/components/schemas/SourceOrigin"
+          },
+          "policy_version": {
+            "const": 1,
+            "title": "Policy Version",
+            "type": "integer"
+          },
+          "source_id": {
+            "format": "uuid",
+            "title": "Source Id",
+            "type": "string"
+          },
+          "state": {
+            "enum": [
+              "unknown",
+              "current",
+              "stale",
+              "historical"
+            ],
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_id",
+          "label",
+          "asset_id",
+          "origin",
+          "state",
+          "last_capture_at",
+          "cadence_seconds",
+          "policy_version",
+          "historical_range"
+        ],
+        "title": "SourceFreshnessResponse",
+        "type": "object"
+      },
       "SourceOrigin": {
         "description": "Where a source's readings come from.",
         "enum": [
@@ -2616,6 +2721,13 @@
           },
           "scope": {
             "$ref": "#/components/schemas/ScopeResponse"
+          },
+          "source_freshness": {
+            "items": {
+              "$ref": "#/components/schemas/SourceFreshnessResponse"
+            },
+            "title": "Source Freshness",
+            "type": "array"
           },
           "window": {
             "$ref": "#/components/schemas/WindowResponse"

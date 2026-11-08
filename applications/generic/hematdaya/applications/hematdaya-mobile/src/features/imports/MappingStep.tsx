@@ -32,7 +32,7 @@ import {
 import { reselectText, ReselectNotice, useFilePick } from '@/features/imports/FileSource';
 import { useImportDraft } from '@/features/imports/ImportDraftProvider';
 import { ImportFrame, useImportFrame } from '@/features/imports/ImportFrame';
-import { CheckStatus, UnfinishedImportNotice } from '@/features/imports/ImportStatus';
+import { CheckStatus, ImportLocalStatus, UnfinishedImportNotice } from '@/features/imports/ImportStatus';
 import { useTabNavigation } from '@/features/navigation';
 
 const SCOPE_HELP = 'Jawaban ini hanya berlaku antar perangkat dalam berkas ini.';
@@ -140,6 +140,7 @@ export function MappingStep() {
         errors={summary.map((item) => ({ key: item.key, text: item.text, target: () => frame.revealTarget(item.key) }))}
         submitCount={submits}
       />
+      <ImportLocalStatus unsent={draft.unsent} failed={draft.persistenceFailed} />
       <CheckStatus check={draft.check} onRetry={() => void submit()} />
       {draft.needsReselect && draft.sourceName ? (
         <ReselectNotice

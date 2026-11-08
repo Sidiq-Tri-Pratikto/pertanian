@@ -15,8 +15,12 @@ import {
   type ImportSource,
 } from '@/api/client';
 import { ApiError } from '@/api/errors';
-import { clearImportDraft, loadImportDraft, saveImportDraft, type CommitIntent, type StoredSource } from '@/features/imports/draft-store';
+import {
+  clearLegacyDraft, loadLegacyDraft, readDraft, readRecovery, storeDraft, writeRecovery,
+  type CommitIntent, type LoadedDraft, type StoredSource,
+} from '@/features/imports/draft-store';
 import { answerFor, commitOutcome, previewOutcome, readMinutes, type AnswerValue, type CommitOutcome, type Control, type PreviewOutcome } from '@/features/imports/import-model';
+import { isKnownOffline } from '@/features/offline/useConnectivity';
 import { useWorkspace } from '@/features/workspace/WorkspaceProvider';
 import { randomToken } from '@/lib/random';
 
@@ -43,6 +47,10 @@ export type MoreState = { kind: 'idle' } | { kind: 'pending' } | { kind: 'failed
 
 type Draft = {
   siteId: string | null;
+  owner: number | null;
+  unsent: ApiError | null;
+  persistenceFailed: boolean;
+  legacyHandled: boolean;
   source: DraftSource | null;
   needsReselect: boolean;
   textDropped: boolean;
@@ -67,7 +75,7 @@ type Draft = {
 };
 
 const EMPTY: Draft = {
-  siteId: null,
+  siteId: null, owner: null, unsent: null, persistenceFailed: false, legacyHandled: false,
   source: null,
   needsReselect: false,
   textDropped: false,
@@ -91,24 +99,18 @@ const EMPTY: Draft = {
 /** The largest file or paste the service accepts, checked before an upload when the size is known. */
 export const MAX_IMPORT_BYTES = 10_485_760;
 
-function initialDraft(): Draft {
-  const stored = loadImportDraft();
-  if (!stored) {
-    return EMPTY;
-  }
+function recoveredDraft(data: LoadedDraft | null, intent: CommitIntent | null): Partial<Draft> {
   return {
-    ...EMPTY,
-    siteId: stored.siteId,
-    source: stored.source,
-    needsReselect: stored.needsReselect,
-    textDropped: stored.textDropped,
-    answers: stored.answers,
-    intervalText: stored.intervalText,
-    importId: stored.importId,
-    intent: stored.intent,
-    acknowledged: stored.intent?.acknowledge ?? false,
-    // A stored intent may have reached the service before the reload: check before anything is sent (027 D12).
-    commit: stored.intent ? { kind: 'unknown', error: null, checkError: null } : { kind: 'idle' },
+    source: data?.source ?? null,
+    needsReselect: data?.needsReselect ?? false,
+    textDropped: data?.textDropped ?? false,
+    answers: data?.answers ?? {},
+    intervalText: data?.intervalText ?? {},
+    importId: intent?.importId ?? data?.importId ?? null,
+    intent,
+    acknowledged: intent?.acknowledge ?? false,
+    legacyHandled: data?.legacyHandled ?? false,
+    commit: intent ? { kind: 'unknown', error: null, checkError: null } : { kind: 'idle' },
   };
 }
 
@@ -137,6 +139,7 @@ function sourceName(source: DraftSource): string {
 }
 
 type ImportDraftValue = Draft & {
+  ready: boolean;
   /** Content, answers or a preview that a new source would replace (027 D16). */
   hasContent: boolean;
   sourceName: string | null;
@@ -171,65 +174,104 @@ const ImportDraftContext = createContext<ImportDraftValue | null>(null);
  * and the commit intent are mirrored to web storage (027 D12, D35). Plain calls only: nothing here retries.
  */
 export function ImportDraftProvider({ children }: { children: ReactNode }) {
-  const { status, workspace, end } = useWorkspace();
+  const { status, workspace, credential, storage, legacyImport, credentialGeneration, isCurrentCredential, advanceScope } = useWorkspace();
   const queryClient = useQueryClient();
-  const [draft, setDraft] = useState<Draft>(initialDraft);
-  const draftRef = useRef(draft);
-  useEffect(() => {
-    draftRef.current = draft;
-  }, [draft]);
-  const inFlight = useRef(false);
+  const [stored, setDraft] = useState<Draft>(EMPTY);
+  const draftRef = useRef(EMPTY);
+  const adopted = useRef(false);
+  const legacy = useRef<CommitIntent | null>(null);
+  const inFlight = useRef<object | null>(null);
+  const siteId = workspace?.siteId ?? null;
+  const ready = status === 'ready' && (siteId === null || stored.owner === credentialGeneration);
+  const draft = ready && stored.owner === (siteId ? credentialGeneration : null) ? stored : EMPTY;
+
+  const currentOwner = useCallback(() => isCurrentCredential(credentialGeneration) &&
+    (credential === null || credential.current()), [credential, credentialGeneration, isCurrentCredential]);
 
   const update = useCallback((change: (current: Draft) => Draft) => {
-    setDraft((current) => {
-      const next = change(current);
+    if (!currentOwner()) return;
+    const current = draftRef.current;
+    if (siteId !== current.siteId || (siteId && current.owner !== credentialGeneration)) return;
+    const next = change(current);
+    draftRef.current = next;
+    setDraft(next);
+  }, [credentialGeneration, currentOwner, siteId]);
+
+  useEffect(() => {
+    if (status !== 'ready') return;
+    let live = true;
+    const previous = draftRef.current;
+    if (previous.owner !== credentialGeneration) {
+      inFlight.current = null;
+      legacy.current = null;
+    }
+    if (!siteId) {
+      if (previous.owner !== null) {
+        draftRef.current = EMPTY;
+        setDraft(EMPTY);
+      }
+      return;
+    }
+    const adopt = previous.owner === credentialGeneration || (!adopted.current && previous.owner === null) ? previous : EMPTY;
+    adopted.current = true;
+    const hydrate = async () => {
+      const data = storage ? readDraft(await storage.read('import-draft')) : null;
+      if (!live || !currentOwner()) return;
+      const intent = storage ? readRecovery(storage.epoch) : null;
+      const old = legacyImport && !data?.legacyHandled && !intent ? loadLegacyDraft(siteId) : null;
+      const owner = { siteId, owner: credentialGeneration };
+      let next: Draft = { ...adopt, ...owner };
+      if (data || intent || old) next = { ...EMPTY, ...owner, ...recoveredDraft(data ?? old?.draft ?? null, intent) };
+      if (old?.intent) {
+        legacy.current = old.intent;
+        next = { ...EMPTY, ...owner, importId: old.intent.importId, commit: { kind: 'unknown', error: null, checkError: null } };
+      } else if (old) {
+        next.legacyHandled = true;
+        if (storage && await storage.write('import-draft', storeDraft(next))) clearLegacyDraft();
+      }
+      if (!live || !currentOwner()) return;
       draftRef.current = next;
-      return next;
-    });
-  }, []);
+      setDraft(next);
+    };
+    void hydrate();
+    return () => { live = false; };
+  }, [credentialGeneration, currentOwner, legacyImport, siteId, status, storage]);
 
-  // A preview, an asset answer and a key belong to one site; the user's content does not.
-  const siteId = workspace?.siteId ?? null;
+  const { source, answers, intervalText, importId, textDropped, legacyHandled } = draft;
+  const snapshot = useMemo(() => ({ source, answers, intervalText, importId, textDropped, legacyHandled }),
+    [source, answers, intervalText, importId, textDropped, legacyHandled]);
   useEffect(() => {
-    if (status !== 'ready') {
+    if (!ready || !siteId || legacy.current || !currentOwner()) return;
+    if (!storage) {
+      if (snapshot.source && !draft.persistenceFailed) {
+        void Promise.resolve().then(() => update((state) => ({ ...state, persistenceFailed: true })));
+      }
       return;
     }
-    update((current) => {
-      if (current.siteId === siteId) {
-        return current;
+    let live = true;
+    void (async () => {
+      const written = await storage.write('import-draft', storeDraft(snapshot));
+      if (!written && snapshot.source?.kind === 'paste') {
+        await storage.write('import-draft', storeDraft(snapshot, true));
       }
-      if (current.siteId === null && siteId !== null && !current.preview && !current.intent && !current.importId) {
-        return { ...current, siteId };
+      if (live && (!written || (snapshot.source?.kind === 'paste' && snapshot.source.text.length > 512_000))) {
+        update((state) => ({ ...state, persistenceFailed: true }));
       }
-      return {
-        ...EMPTY,
-        siteId,
-        source: current.source,
-        needsReselect: current.needsReselect,
-        textDropped: current.textDropped,
-      };
-    });
-  }, [siteId, status, update]);
+    })();
+    return () => { live = false; };
+  }, [currentOwner, draft.persistenceFailed, ready, siteId, snapshot, storage, update]);
 
-  useEffect(() => {
-    const { source, answers, intervalText, importId, intent, textDropped } = draft;
-    if (!source && !importId && !intent && Object.keys(answers).length === 0) {
-      clearImportDraft();
-      return;
+  const clearRecovery = useCallback(() => {
+    if (storage && currentOwner() && !writeRecovery(storage.epoch, null)) {
+      update((state) => ({ ...state, persistenceFailed: true }));
     }
-    saveImportDraft({ siteId: draft.siteId ?? '', source, answers, intervalText, importId, intent, textDropped });
-  }, [draft]);
+  }, [currentOwner, storage, update]);
 
-  const failSession = useCallback(
-    async (error: ApiError) => {
-      if (error.code === 'SESSION_EXPIRED' || error.code === 'UNAUTHORIZED') {
-        await end('expired');
-        return true;
-      }
-      return false;
-    },
-    [end],
-  );
+  const reportUnsent = useCallback((error = ApiError.offline()) =>
+    update((state) => ({ ...state, unsent: error })), [update]);
+
+  const failSession = useCallback((error: ApiError) => !currentOwner() ||
+    error.code === 'WORKSPACE_CHANGED' || error.code === 'SESSION_EXPIRED' || error.code === 'UNAUTHORIZED', [currentOwner]);
 
   const setText = useCallback(
     (text: string) =>
@@ -251,7 +293,7 @@ export function ImportDraftProvider({ children }: { children: ReactNode }) {
 
   const replaceSource = useCallback(
     (source: ImportSource) =>
-      update((current) => ({ ...EMPTY, siteId: current.siteId, source, previews: current.previews })),
+      update((current) => ({ ...EMPTY, siteId: current.siteId, owner: current.owner, legacyHandled: current.legacyHandled, source, previews: current.previews })),
     [update],
   );
 
@@ -260,7 +302,7 @@ export function ImportDraftProvider({ children }: { children: ReactNode }) {
     [update],
   );
 
-  const clearSource = useCallback(() => update((current) => ({ ...EMPTY, siteId: current.siteId, previews: current.previews })), [update]);
+  const clearSource = useCallback(() => update((current) => ({ ...EMPTY, siteId: current.siteId, owner: current.owner, legacyHandled: current.legacyHandled, previews: current.previews })), [update]);
 
   const setAnswer = useCallback(
     (control: Control, value: AnswerValue | undefined) =>
@@ -298,14 +340,20 @@ export function ImportDraftProvider({ children }: { children: ReactNode }) {
 
   const runPreview = useCallback(async (): Promise<ImportPreview | null> => {
     const current = draftRef.current;
-    if (inFlight.current || !workspace || current.intent || !uploadable(current.source)) {
+    if (inFlight.current || !workspace || !credential || !currentOwner() || !ready || current.intent || !uploadable(current.source)) {
       return null;
     }
-    inFlight.current = true;
+    if (isKnownOffline()) {
+      reportUnsent();
+      return null;
+    }
+    const operation = {};
+    inFlight.current = operation;
     const answers = current.answers;
-    update((state) => ({ ...state, check: { kind: 'pending' } }));
+    update((state) => ({ ...state, check: { kind: 'pending' }, unsent: null }));
     try {
-      const preview = await previewImport(workspace.siteId, current.source, answers, workspace.token);
+      const preview = await previewImport(workspace.siteId, current.source, answers, credential);
+      if (!currentOwner()) return null;
       // Each preview is a new import: an earlier intent and acknowledgment belong to the one it replaces.
       update((state) => ({
         ...state,
@@ -326,7 +374,9 @@ export function ImportDraftProvider({ children }: { children: ReactNode }) {
       return preview;
     } catch (failure) {
       const error = ApiError.from(failure);
-      if (!(await failSession(error))) {
+      if (error.code === 'OFFLINE_UNSENT') {
+        update((state) => ({ ...state, check: { kind: 'idle' }, unsent: error }));
+      } else if (!failSession(error)) {
         const outcome = previewOutcome(error);
         update((state) => ({
           ...state,
@@ -337,18 +387,19 @@ export function ImportDraftProvider({ children }: { children: ReactNode }) {
       }
       return null;
     } finally {
-      inFlight.current = false;
+      if (inFlight.current === operation) inFlight.current = null;
     }
-  }, [failSession, update, workspace]);
+  }, [credential, currentOwner, failSession, ready, reportUnsent, update, workspace]);
 
   const reloadPreview = useCallback(async () => {
     const current = draftRef.current;
-    if (inFlight.current || !workspace || !current.importId || current.preview) {
+    if (inFlight.current || !credential || !currentOwner() || !ready || isKnownOffline() || !current.importId || current.preview) {
       return;
     }
-    inFlight.current = true;
+    const operation = {};
+    inFlight.current = operation;
     try {
-      const preview = await getImport(current.importId, workspace.token);
+      const preview = await getImport(current.importId, credential);
       update((state) => ({
         ...state,
         preview,
@@ -359,52 +410,56 @@ export function ImportDraftProvider({ children }: { children: ReactNode }) {
       }));
     } catch (failure) {
       const error = ApiError.from(failure);
-      if (!(await failSession(error))) {
+      if (!failSession(error)) {
         update((state) => ({ ...state, importId: state.intent ? state.importId : null, check: { kind: 'failed', error, outcome: previewOutcome(error) } }));
       }
     } finally {
-      inFlight.current = false;
+      if (inFlight.current === operation) inFlight.current = null;
     }
-  }, [failSession, update, workspace]);
+  }, [credential, currentOwner, failSession, ready, update]);
 
-  const send = useCallback(
-    async (intent: CommitIntent) => {
-      if (inFlight.current || !workspace) {
+  const send = useCallback(async (intent: CommitIntent) => {
+    if (inFlight.current || !credential || !currentOwner() || !ready) return;
+    if (isKnownOffline()) {
+      reportUnsent();
+      return;
+    }
+    const operation = {};
+    inFlight.current = operation;
+    try {
+      const result = await commitImport(intent.importId, intent.acknowledge, intent.key, credential, () => {
+        const persisted = storage ? writeRecovery(storage.epoch, intent) : false;
+        update((state) => ({ ...state, intent, unsent: null, commit: { kind: 'pending' },
+          persistenceFailed: state.persistenceFailed || !persisted }));
+      });
+      if (!currentOwner()) return;
+      await advanceScope();
+      if (!currentOwner()) return;
+      clearRecovery();
+      update((state) => ({ ...state, intent: null, commit: { kind: 'committed', result, found: false } }));
+      await queryClient.invalidateQueries();
+    } catch (failure) {
+      const error = ApiError.from(failure);
+      if (failSession(error)) return;
+      if (error.code === 'OFFLINE_UNSENT') {
+        reportUnsent(error);
         return;
       }
-      inFlight.current = true;
-      const current = draftRef.current;
-      saveImportDraft({ ...current, siteId: current.siteId ?? '', importId: intent.importId, intent });
-      update((state) => ({ ...state, intent, commit: { kind: 'pending' } }));
-      try {
-        const result = await commitImport(intent.importId, intent.acknowledge, intent.key, workspace.token);
-        update((state) => ({ ...state, intent: null, commit: { kind: 'committed', result, found: false } }));
-        await queryClient.invalidateQueries();
-      } catch (failure) {
-        const error = ApiError.from(failure);
-        if (await failSession(error)) {
-          return;
-        }
-        const outcome = commitOutcome(error);
-        if (outcome.kind === 'unknown') {
-          // The commit may have arrived. The intent stays, so a later attempt can only replay it.
-          update((state) => ({ ...state, commit: { kind: 'unknown', error, checkError: null } }));
-          return;
-        }
-        update((state) => ({ ...state, intent: null, commit: { kind: 'refused', error, outcome } }));
-        if (outcome.reason === 'blocked') {
-          // The service's current reasons, not the ones this screen last saw.
-          const preview = await getImport(intent.importId, workspace.token).catch(() => null);
-          if (preview) {
-            update((state) => ({ ...state, preview, errors: preview.errors, nextCursor: preview.next_error_cursor }));
-          }
-        }
-      } finally {
-        inFlight.current = false;
+      const outcome = commitOutcome(error);
+      if (outcome.kind === 'unknown') {
+        update((state) => ({ ...state, commit: { kind: 'unknown', error, checkError: null } }));
+        return;
       }
-    },
-    [failSession, queryClient, update, workspace],
-  );
+      clearRecovery();
+      update((state) => ({ ...state, intent: null, commit: { kind: 'refused', error, outcome } }));
+      if (outcome.reason === 'blocked') {
+        const preview = await getImport(intent.importId, credential).catch(() => null);
+        if (preview) update((state) => ({ ...state, preview, errors: preview.errors, nextCursor: preview.next_error_cursor }));
+      }
+    } finally {
+      if (inFlight.current === operation) inFlight.current = null;
+    }
+  }, [advanceScope, clearRecovery, credential, currentOwner, failSession, queryClient, ready, reportUnsent, storage, update]);
 
   const confirm = useCallback(async (): Promise<boolean> => {
     const current = draftRef.current;
@@ -428,66 +483,90 @@ export function ImportDraftProvider({ children }: { children: ReactNode }) {
 
   const checkStatus = useCallback(async () => {
     const current = draftRef.current;
-    if (inFlight.current || !workspace || current.commit.kind !== 'unknown' || !current.intent) {
+    const pendingLegacy = legacy.current;
+    const intent = current.intent ?? pendingLegacy;
+    if (inFlight.current || !credential || !currentOwner() || !ready || current.commit.kind !== 'unknown' || !intent) return;
+    const originalError = current.commit.error;
+    if (isKnownOffline()) {
+      update((state) => ({ ...state, commit: { kind: 'unknown', error: originalError, checkError: ApiError.offline() } }));
       return;
     }
-    const originalError = current.commit.error;
-    inFlight.current = true;
-    update((state) => ({ ...state, commit: { kind: 'checking' } }));
+    const operation = {};
+    inFlight.current = operation;
+    update((state) => ({ ...state, unsent: null, commit: { kind: 'checking' } }));
     try {
-      const stored = await getImport(current.intent.importId, workspace.token);
-      if (stored.result) {
-        const result = stored.result;
-        update((state) => ({ ...state, preview: state.preview ?? stored, intent: null, commit: { kind: 'committed', result, found: true } }));
+      const found = await getImport(intent.importId, credential);
+      if (!currentOwner()) return;
+      if (pendingLegacy) {
+        const old = siteId ? loadLegacyDraft(siteId) : null;
+        if (!old || old.intent?.key !== intent.key) throw ApiError.unexpected();
+        const safe = { ...recoveredDraft(old.draft, intent), legacyHandled: true };
+        const moved = storage && writeRecovery(storage.epoch, intent) &&
+          await storage.write('import-draft', storeDraft({ ...old.draft, legacyHandled: true }));
+        if (!currentOwner()) return;
+        if (moved) clearLegacyDraft();
+        legacy.current = null;
+        update((state) => ({ ...state, ...safe, persistenceFailed: state.persistenceFailed || !moved }));
+      }
+      if (found.result) {
+        const result = found.result;
+        await advanceScope();
+        if (!currentOwner()) return;
+        clearRecovery();
+        update((state) => ({ ...state, preview: state.preview ?? found, intent: null, commit: { kind: 'committed', result, found: true } }));
         await queryClient.invalidateQueries();
-      } else if (stored.status === 'previewed') {
-        update((state) => ({ ...state, preview: state.preview ?? stored, commit: { kind: 'notYet' } }));
+      } else if (found.status === 'previewed') {
+        update((state) => ({ ...state, preview: state.preview ?? found, commit: { kind: 'notYet' } }));
       } else {
+        clearRecovery();
         update((state) => ({ ...state, intent: null, commit: { kind: 'refused', error: null, outcome: { kind: 'gone', reason: 'other' } } }));
       }
     } catch (failure) {
       const error = ApiError.from(failure);
-      if (await failSession(error)) {
-        return;
-      }
+      if (failSession(error)) return;
       if (error.code === 'NOT_FOUND') {
-        // Purges skip committed imports, so a missing one was never committed (027 D6).
-        update((state) => ({ ...state, intent: null, commit: { kind: 'refused', error, outcome: { kind: 'gone', reason: 'other' } } }));
+        if (pendingLegacy) {
+          legacy.current = null;
+          clearLegacyDraft();
+        }
+        clearRecovery();
+        update((state) => ({ ...state, intent: null, legacyHandled: state.legacyHandled || Boolean(pendingLegacy),
+          commit: { kind: 'refused', error, outcome: { kind: 'gone', reason: 'other' } } }));
       } else {
         update((state) => ({ ...state, commit: { kind: 'unknown', error: originalError, checkError: error } }));
       }
     } finally {
-      inFlight.current = false;
+      if (inFlight.current === operation) inFlight.current = null;
     }
-  }, [failSession, queryClient, update, workspace]);
+  }, [advanceScope, clearRecovery, credential, currentOwner, failSession, queryClient, ready, siteId, storage, update]);
 
   const loadMoreErrors = useCallback(async () => {
     const current = draftRef.current;
-    if (!workspace || !current.importId || !current.nextCursor || current.more.kind === 'pending') {
+    if (!credential || !currentOwner() || !ready || isKnownOffline() || !current.importId || !current.nextCursor || current.more.kind === 'pending') {
       return;
     }
     update((state) => ({ ...state, more: { kind: 'pending' } }));
     try {
-      const page = await getImportErrors(current.importId, current.nextCursor, workspace.token);
+      const page = await getImportErrors(current.importId, current.nextCursor, credential);
       update((state) => ({ ...state, errors: [...state.errors, ...page.items], nextCursor: page.next_cursor, more: { kind: 'idle' } }));
     } catch (failure) {
       const error = ApiError.from(failure);
-      if (!(await failSession(error))) {
+      if (!failSession(error)) {
         update((state) => ({ ...state, more: { kind: 'failed', error } }));
       }
     }
-  }, [failSession, update, workspace]);
+  }, [credential, currentOwner, failSession, ready, update]);
 
   const markResultShown = useCallback(() => update((state) => (state.resultShown ? state : { ...state, resultShown: true })), [update]);
 
   const finish = useCallback(() => {
-    clearImportDraft();
-    update((state) => ({ ...EMPTY, siteId: state.siteId }));
-  }, [update]);
+    clearRecovery();
+    update((state) => ({ ...EMPTY, siteId: state.siteId, owner: state.owner, legacyHandled: state.legacyHandled }));
+  }, [clearRecovery, update]);
 
   const value = useMemo<ImportDraftValue>(
     () => ({
-      ...draft,
+      ...draft, ready,
       hasContent: draft.source !== null || Object.keys(draft.answers).length > 0 || draft.preview !== null,
       sourceName: draft.source ? sourceName(draft.source) : null,
       setText,
@@ -506,7 +585,7 @@ export function ImportDraftProvider({ children }: { children: ReactNode }) {
       markResultShown,
       finish,
     }),
-    [draft, setText, replaceSource, reselect, clearSource, setAnswer, setIntervalText, setAcknowledged, runPreview, reloadPreview, confirm, checkStatus, resend, loadMoreErrors, markResultShown, finish],
+    [draft, ready, setText, replaceSource, reselect, clearSource, setAnswer, setIntervalText, setAcknowledged, runPreview, reloadPreview, confirm, checkStatus, resend, loadMoreErrors, markResultShown, finish],
   );
 
   return <ImportDraftContext.Provider value={value}>{children}</ImportDraftContext.Provider>;

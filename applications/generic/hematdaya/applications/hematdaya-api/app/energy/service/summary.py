@@ -20,6 +20,7 @@ from app.energy.model.schema import (
 )
 from app.energy.repository.base_repository import EnergyRepository
 from app.energy.service.format import kwh, percent, ratio
+from app.energy.service.freshness import source_freshness
 from app.energy.service.intervals import complement, intersect, length
 from app.energy.service.measure import AssetBucket, measure
 from app.energy.service.periods import Preset, Window, resolve_window
@@ -143,9 +144,8 @@ class EnergyService:
             selected = [asset for asset in snapshot.assets if asset.id in asset_ids]
         selected_ids = {asset.id for asset in selected}
         buckets = [(window.start, window.effective_end)] if window.elapsed.total_seconds() > 0 else []
-        measured = await measure(
-            self.repository, selected, snapshot.bindings, snapshot.sources, buckets, site_clock(site)
-        )
+        now = site_clock(site)
+        measured = await measure(self.repository, selected, snapshot.bindings, snapshot.sources, buckets, now)
         results = {asset.id: measured.get((asset.id, 0), AssetBucket()) for asset in selected}
         conflicted = {asset_id for asset_id, result in results.items() if result.conflict is not None}
         issues = scope_issues([asset.id for asset in selected], snapshot.containment, snapshot.relations, conflicted)
@@ -204,6 +204,9 @@ class EnergyService:
             latest_measurement_at=max(latest) if latest else None,
             origins=sorted({origin for result in counted.values() for origin in result.origins}),
             revision=site.binding_revision + site.measurement_revision,
+            source_freshness=await source_freshness(
+                self.repository, selected, snapshot.bindings, snapshot.sources, window, now
+            ),
         )
 
     @staticmethod

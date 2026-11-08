@@ -21,7 +21,7 @@ from app.energy.service.summary import EnergyService
 from app.measurements.dependencies import build_ingest_service
 from app.measurements.model.models import ReadingInput
 from app.sites.repository.sqlalchemy.repository import SqlAlchemySiteRepository
-from tests.integration.conftest import execute, make_asset, start_demo, summary
+from tests.integration.conftest import execute, make_asset, make_binding, make_source, start_demo, summary
 
 pytestmark = pytest.mark.integration
 
@@ -184,6 +184,11 @@ async def test_scope_refuses_double_counting(client: AsyncClient) -> None:
     assert [source["energy_kwh"] for source in kulkas["conflict_sources"]] == ["2.000", "2.000"]
     assert {row["share_percent"] for row in default["assets"]} == {None}
     assert meter["energy_kwh"] == "10.000" and meter["scope"]["valid"]
+    week = await summary(client, session, **WEEK)
+    assert week["window"]["timezone"] == "Asia/Jakarta"
+    assert (week["energy_kwh"], _by_name(week)["Meter utama"]["energy_kwh"]) == (None, "70.000")
+    assert {row["share_percent"] for row in week["assets"]} == {None}
+    assert {row["state"] for row in week["source_freshness"] if row["asset_id"] == kulkas["asset_id"]} == {"unknown"}
     assert parent_child["energy_kwh"] is None
     assert (
         parent_child["scope"]["issues"][0]["message"]
@@ -211,7 +216,7 @@ async def test_partial_coverage_is_never_averaged_away(client: AsyncClient) -> N
     assert rows["Pompa Air"]["coverage"] == "0.714"
     assert body["coverage"]["minimum"] == "0.714"
     assert body["coverage"]["concurrent"] == "0.702"
-    assert body["energy_kwh"] is not None
+    assert body["energy_kwh"] == "14.000"
 
 
 async def test_measured_zero_gives_no_percentages(client: AsyncClient) -> None:
@@ -412,3 +417,72 @@ async def test_asset_summary_row_matches_the_site_summary_row(client: AsyncClien
         own = await summary(client, session, f"/api/v1/assets/{row['asset_id']}/summary", **period)
         assert len(own["assets"]) == 1
         assert {**own["assets"][0], "share_percent": None} == {**row, "share_percent": None}
+
+
+async def test_stale_source_freshness_is_independent_of_report_window(client: AsyncClient) -> None:
+    """Router freshness uses the site clock and the owned stream, even for an earlier report."""
+    session = await start_demo(client, "h-stale-offline")
+    week = await summary(client, session, **WEEK)
+    earlier = await summary(client, session, start_date="2026-10-19", end_date="2026-10-19")
+    router = _by_name(week)["Router"]
+    stale = [source for source in week["source_freshness"] if source["state"] == "stale"]
+    assert week["energy_kwh"] == "14.640"
+    assert len(stale) == 1
+    assert stale[0]["asset_id"] == router["asset_id"]
+    assert stale[0]["last_capture_at"] == "2026-10-25T11:00:00Z"
+    assert stale[0]["cadence_seconds"] == 3600 and stale[0]["policy_version"] == 1
+    assert earlier["source_freshness"] == week["source_freshness"]
+    path = f"/api/v1/assets/{router['asset_id']}/summary"
+    owned = await client.get(path, params=WEEK, headers=session["auth"])
+    assert owned.status_code == 200 and owned.json()["source_freshness"] == stale
+    stranger = await start_demo(client)
+    assert (await client.get(path, params=WEEK, headers=stranger["auth"])).status_code == 404
+
+
+async def test_current_binding_excludes_old_future_and_long_gap_captures(client: AsyncClient) -> None:
+    """Latest freshness belongs to the effective authority, never an older binding or unusable capture."""
+    session = await start_demo(client, "h-stale-offline")
+    report = await summary(client, session, **WEEK)
+    site_id = UUID(session["site_id"])
+    asset_id = UUID(_by_name(report)["Router"]["asset_id"])
+    old_source = next(row for row in report["source_freshness"] if row["asset_id"] == str(asset_id))
+    source_id = UUID(old_source["source_id"])
+
+    # Replace the newest current row with a long-gap revision. Its superseded valid version cannot qualify.
+    await execute(
+        "INSERT INTO measurements (source_id, identity_key, revision, kind, interval_start, interval_end,"
+        " energy_mwh, quality, received_at) SELECT source_id, identity_key, revision + 1, kind,"
+        " interval_start, interval_end, energy_mwh, 'long_gap', now() FROM current_measurements"
+        " WHERE source_id = :source AND interval_end = '2026-10-25T11:00:00Z'",
+        source=source_id,
+    )
+    later = await summary(client, session, **WEEK)
+    router = next(row for row in later["source_freshness"] if row["asset_id"] == str(asset_id))
+    assert router["last_capture_at"] == "2026-10-25T10:00:00Z"
+
+    boundary = datetime(2026, 10, 25, 12, tzinfo=UTC)
+    await execute(
+        "UPDATE bindings SET effective_to = :boundary WHERE asset_id = :asset",
+        boundary=boundary,
+        asset=asset_id,
+    )
+    replacement = await make_source(site_id, "Router baru")
+    await execute(
+        "UPDATE sources SET cadence_seconds = 900, transport_status = 'simulated_live' WHERE id = :source",
+        source=replacement,
+    )
+    await make_binding(site_id, asset_id, replacement, boundary.isoformat())
+    await execute(
+        "INSERT INTO measurements (source_id, identity_key, revision, kind, interval_start, interval_end,"
+        " energy_mwh, quality, received_at) VALUES"
+        " (:source, 'prior', 1, 'interval_energy',"
+        " '2026-10-25T11:45:00Z', '2026-10-25T12:00:00Z', 5, 'valid', now()),"
+        " (:source, 'future', 1, 'interval_energy',"
+        " '2026-10-25T17:00:00Z', '2026-10-25T17:15:00Z', 5, 'valid', now())",
+        source=replacement,
+    )
+    rebound = await summary(client, session, **WEEK)
+    router_rows = [row for row in rebound["source_freshness"] if row["asset_id"] == str(asset_id)]
+    assert len(router_rows) == 1
+    assert router_rows[0]["source_id"] == str(replacement)
+    assert router_rows[0]["state"] == "unknown" and router_rows[0]["last_capture_at"] is None

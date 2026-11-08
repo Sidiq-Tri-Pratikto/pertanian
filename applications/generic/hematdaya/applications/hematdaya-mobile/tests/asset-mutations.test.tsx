@@ -1,6 +1,7 @@
 import { focusManager, onlineManager, useQueryClient } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react-native';
 import * as SecureStore from 'expo-secure-store';
+import { attestedResponse, seedConfirmedWorkspace } from './fixtures/workspaces';
 
 import type { AssetDetail } from '@/api/client';
 import { useAssetMutations } from '@/features/assets/useAssetMutations';
@@ -41,12 +42,12 @@ function fetchAssets(patch: () => Promise<Response>, get = () => Promise.resolve
   return {
     fetchMock,
     patches: () => fetchMock.mock.calls.filter(([, init]) => init?.method === 'PATCH'),
-    reads: () => fetchMock.mock.calls.filter(([, init]) => init?.method === 'GET'),
+    reads: () => fetchMock.mock.calls.filter(([url, init]) => init?.method === 'GET' && /\/assets\//.test(String(url))),
   };
 }
 
 async function open() {
-  await SecureStore.setItemAsync('hematdaya.workspace.v1', JSON.stringify(workspace));
+  await seedConfirmedWorkspace(workspace);
   const hook = await renderHook(({ assetId }: { assetId: string }) => ({
     editor: useAssetMutations(assetId), detail: useAsset(assetId),
     session: useWorkspace(), client: useQueryClient(),
@@ -161,7 +162,8 @@ it('ignores a failed acknowledgment and session effect from a replaced credentia
   const api = fetchAssets(() => patch.promise);
   const { result } = await open();
   await act(() => { void result.current.editor.submit({ name: renamed.name }); });
-  await act(async () => { await result.current.session.open({ ...workspace, token: 'replacement-token' }); });
+  const replacement = { ...workspace, token: 'replacement-token' };
+  await act(async () => { await result.current.session.open(replacement, attestedResponse(replacement)); });
   await act(() => patch.resolve(failure(401, 'SESSION_EXPIRED')));
   expect(result.current.session.workspace?.token).toBe('replacement-token');
   expect(result.current.editor.state).toBeUndefined();
@@ -198,17 +200,18 @@ it('does not apply a finished write to another active asset route', async () => 
   expect(result.current.editor.state).toBeUndefined();
 });
 
-it('keeps the prior workspace writable after saving a replacement credential fails', async () => {
+it('blocks replacement and old dispatch when durable revocation fails', async () => {
   const api = fetchAssets(async () => response(renamed));
   const { result } = await open();
+  const oldSubmit = result.current.editor.submit;
   jest.spyOn(SecureStore, 'setItemAsync').mockRejectedValueOnce(new Error('storage unavailable'));
   await act(async () => {
-    await expect(result.current.session.open({ ...workspace, token: 'replacement-token' })).rejects.toThrow('storage unavailable');
+    await expect(result.current.session.open({ ...workspace, token: 'replacement-token' })).rejects.toMatchObject({ code: 'LOCAL_STORAGE' });
   });
-  await waitFor(() => expect(result.current.detail.data?.name).toBe(original.name));
-  await act(async () => { await result.current.editor.submit({ name: renamed.name }); });
-  await waitFor(() => expect(result.current.detail.data?.name).toBe(renamed.name));
-  expect(api.patches()[0][1]?.headers).toMatchObject({ Authorization: 'Bearer first-token' });
+  await act(async () => { await oldSubmit({ name: renamed.name }); });
+  expect(result.current.session.workspace).toBeNull();
+  expect(result.current.session.storageError).toBe(true);
+  expect(api.patches()).toHaveLength(0);
 });
 
 it.each([true, false])('observes a lost archive acknowledgment with archived=%s without replaying the change', async (archived) => {
@@ -221,4 +224,47 @@ it.each([true, false])('observes a lost archive acknowledgment with archived=%s 
   expect(result.current.detail.data?.archived).toBe(archived);
   expect(api.patches().map(([, init]) => init?.body)).toEqual([JSON.stringify({ archived: true })]);
   expect(api.reads()).toHaveLength(2);
+});
+
+it('requires an owned read for a restored draft and sends no PATCH when the edits are already present', async () => {
+  const get = jest.fn<Promise<Response>, []>().mockResolvedValueOnce(response(original)).mockResolvedValueOnce(response(renamed));
+  const api = fetchAssets(async () => response(renamed), get);
+  const { result } = await open();
+  await act(() => result.current.editor.reconcileDraft({ name: renamed.name }, {
+    name: original.name, category: original.category ?? '', location: original.location ?? '',
+  }));
+  await waitFor(() => expect(result.current.editor.state?.kind).toBe('observed'));
+  expect(api.reads()).toHaveLength(2);
+  expect(api.patches()).toHaveLength(0);
+});
+
+it('requires review of a divergent restored draft before a separate explicit write', async () => {
+  const get = jest.fn<Promise<Response>, []>().mockResolvedValueOnce(response(original))
+    .mockResolvedValueOnce(response({ ...original, name: 'Latest service name' }));
+  const api = fetchAssets(async () => response(renamed), get);
+  const { result } = await open();
+  const changes = { name: renamed.name };
+  await act(() => result.current.editor.reconcileDraft(changes, {
+    name: original.name, category: original.category ?? '', location: original.location ?? '',
+  }));
+  await waitFor(() => expect(result.current.editor.state?.kind).toBe('draft-review'));
+  await act(() => result.current.editor.submit(changes));
+  expect(api.patches()).toHaveLength(0);
+  await act(() => result.current.editor.review());
+  expect(api.patches()).toHaveLength(0);
+  await act(() => result.current.editor.submit(changes));
+  expect(api.patches()).toHaveLength(1);
+});
+
+it('manually observes an unresolved dispatched write without replaying PATCH', async () => {
+  const get = jest.fn<Promise<Response>, []>().mockResolvedValueOnce(response(original))
+    .mockResolvedValueOnce(failure(500, 'INTERNAL_ERROR'))
+    .mockResolvedValueOnce(response(renamed));
+  const api = fetchAssets(async () => { throw new TypeError('Response was lost'); }, get);
+  const { result } = await open();
+  await act(() => result.current.editor.submit({ name: renamed.name }));
+  await waitFor(() => expect(result.current.editor.state?.kind).toBe('unresolved'));
+  await act(() => result.current.editor.checkOutcome());
+  await waitFor(() => expect(result.current.editor.state?.kind).toBe('observed'));
+  expect(api.patches()).toHaveLength(1);
 });

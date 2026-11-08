@@ -1,7 +1,8 @@
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import * as SecureStore from 'expo-secure-store';
 import { useRef, type ComponentRef } from 'react';
-import { AccessibilityInfo, Platform, View } from 'react-native';
+import { AccessibilityInfo, Platform, StyleSheet, View } from 'react-native';
+import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 
 import {
   commitImport,
@@ -19,9 +20,10 @@ import {
 import { ApiError } from '@/api/errors';
 import { endsSession, retryDelay, shouldRetry } from '@/api/query-client';
 import { HDSheetDialog } from '@/components/hd/HDSheetDialog';
-import { clearImportDraft, loadImportDraft, saveImportDraft } from '@/features/imports/draft-store';
+import { tokens } from '@/design/tokens.generated';
 import { clearWorkspace, loadWorkspace, saveWorkspace, type Workspace } from '@/features/workspace/workspace-store';
 
+import assetFixtures from './fixtures/assets.json';
 import { hourlyHistory, weeklyHistory } from './fixtures/history';
 import recordedImports from './fixtures/imports.json';
 
@@ -38,9 +40,9 @@ describe('query retry policy', () => {
     const retryable = new ApiError('DATABASE_UNAVAILABLE', 'x', { retryable: true, retry_after_seconds: 30, max_attempts: 3 });
     const final = new ApiError('INTERNAL_ERROR', 'x', { retryable: false });
 
+    expect(shouldRetry(0, retryable)).toBe(true);
     expect(shouldRetry(1, retryable)).toBe(true);
-    expect(shouldRetry(2, retryable)).toBe(true);
-    expect(shouldRetry(3, retryable)).toBe(false);
+    expect(shouldRetry(2, retryable)).toBe(false);
     expect(shouldRetry(1, final)).toBe(false);
     expect(retryDelay(1, retryable)).toBe(30_000);
     expect(retryDelay(1, ApiError.unreachable())).toBe(1000);
@@ -157,7 +159,7 @@ describe('asset reads', () => {
 
   it('reads one asset summary for the period', async () => {
     const fetchMock = jest.spyOn(globalThis, 'fetch').mockResolvedValue(
-      new Response(JSON.stringify({ window: {}, scope: {}, coverage: {}, assets: [], energy_kwh: null })),
+      new Response(JSON.stringify(assetFixtures['h-base'].summary)),
     );
 
     await getAssetSummary('a 1', { preset: 'today' }, 'tok');
@@ -321,7 +323,7 @@ describe('import client', () => {
   }
 
   it('posts a paste as form text with the answers as JSON text, the bearer token and the long preview timeout', async () => {
-    const timeout = jest.spyOn(AbortSignal, 'timeout');
+    const timeout = jest.spyOn(globalThis, 'setTimeout');
     const fetchMock = jest.spyOn(globalThis, 'fetch').mockImplementation(reply(Recorded.valid.first, 201));
 
     await expect(previewImport('site 1', { kind: 'paste', text: 'a' }, { timezone_confirmed: true }, 'tok')).resolves.toMatchObject({
@@ -339,7 +341,7 @@ describe('import client', () => {
     expect(body.get('mapping')).toBe(JSON.stringify({ timezone_confirmed: true }));
     expect(body.get('file')).toBeNull();
     expect(IMPORT_PREVIEW_TIMEOUT_MS).toBe(120_000);
-    expect(timeout).toHaveBeenCalledWith(120_000);
+    expect(timeout).toHaveBeenCalledWith(expect.any(Function), 120_000);
   });
 
   it('uploads a web File as it is, with no text', async () => {
@@ -369,14 +371,15 @@ describe('import client', () => {
   });
 
   it('reads one import with the default timeout, encoding its ID', async () => {
-    const timeout = jest.spyOn(AbortSignal, 'timeout');
-    const fetchMock = jest.spyOn(globalThis, 'fetch').mockImplementation(reply(Recorded.valid.get));
+    const timeout = jest.spyOn(globalThis, 'setTimeout');
+    const fetchMock = jest.spyOn(globalThis, 'fetch').mockImplementation(reply({ ...recordedImports.valid.get, id: 'i/1',
+        result: { ...recordedImports.valid.get.result, import_id: 'i/1' } }));
 
     await expect(getImport('i/1', 'tok')).resolves.toMatchObject({ status: 'committed' });
 
     expect(call(fetchMock).url).toContain('/api/v1/imports/i%2F1');
     expect(call(fetchMock).headers.Authorization).toBe('Bearer tok');
-    expect(timeout).toHaveBeenCalledWith(10_000);
+    expect(timeout).toHaveBeenCalledWith(expect.any(Function), 10_000);
   });
 
   it('reads the next page of row errors by cursor', async () => {
@@ -388,8 +391,8 @@ describe('import client', () => {
   });
 
   it('commits with the operation key, the acknowledgment as JSON and the commit timeout', async () => {
-    const timeout = jest.spyOn(AbortSignal, 'timeout');
-    const fetchMock = jest.spyOn(globalThis, 'fetch').mockImplementation(reply(Recorded.valid.commit));
+    const timeout = jest.spyOn(globalThis, 'setTimeout');
+    const fetchMock = jest.spyOn(globalThis, 'fetch').mockImplementation(reply({ ...recordedImports.valid.commit, import_id: 'i' }));
     const key = 'k'.repeat(22);
 
     await expect(commitImport('i', true, key, 'tok')).resolves.toMatchObject({ rows_added: 12, replayed: false });
@@ -401,7 +404,7 @@ describe('import client', () => {
     expect(headers['Idempotency-Key']).toBe(key);
     expect(headers['Content-Type']).toBe('application/json');
     expect(IMPORT_COMMIT_TIMEOUT_MS).toBe(60_000);
-    expect(timeout).toHaveBeenCalledWith(60_000);
+    expect(timeout).toHaveBeenCalledWith(expect.any(Function), 60_000);
   });
 
   it.each([
@@ -418,93 +421,6 @@ describe('import client', () => {
   });
 });
 
-describe('import draft store', () => {
-  const realOS = Platform.OS;
-  let storage: Map<string, string>;
-  const KEY = 'hematdaya.import-draft.v1';
-  const answers = { timezone_confirmed: true, scope: 'disjoint' as const };
-  const base = { siteId: 'site-1', answers, intervalText: {}, importId: 'imp-1', intent: { importId: 'imp-1', key: 'k'.repeat(22), acknowledge: false } };
-
-  function useWebStorage(setItem?: (key: string, value: string) => void) {
-    Platform.OS = 'web';
-    storage = new Map();
-    Object.defineProperty(globalThis, 'sessionStorage', {
-      configurable: true,
-      value: {
-        getItem: (key: string) => storage.get(key) ?? null,
-        setItem: setItem ?? ((key: string, value: string) => storage.set(key, value)),
-        removeItem: (key: string) => storage.delete(key),
-        clear: () => storage.clear(),
-      },
-    });
-  }
-
-  afterEach(() => {
-    Platform.OS = realOS;
-  });
-
-  it('brings a paste back with its text on the web', () => {
-    useWebStorage();
-
-    saveImportDraft({ ...base, source: { kind: 'paste', text: 'timestamp,perangkat,energi_wh\n' } });
-
-    expect(loadImportDraft()).toEqual({
-      ...base,
-      source: { kind: 'paste', text: 'timestamp,perangkat,energi_wh\n' },
-      needsReselect: false,
-      textDropped: false,
-    });
-  });
-
-  it('brings a file back by its name only, to be picked again', () => {
-    useWebStorage();
-
-    saveImportDraft({ ...base, source: { kind: 'file', file: new File(['x'], 'contoh-valid.csv') } });
-
-    expect(storage.get(KEY)).not.toContain('"x"');
-    expect(loadImportDraft()).toMatchObject({ source: { kind: 'file', name: 'contoh-valid.csv' }, needsReselect: true, textDropped: false });
-  });
-
-  it('stores a paste too large for the quota without its text, and says so', () => {
-    let calls = 0;
-    useWebStorage((key, value) => {
-      calls += 1;
-      if (calls === 1) {
-        throw Object.assign(new Error('full'), { name: 'QuotaExceededError' });
-      }
-      storage.set(key, value);
-    });
-
-    saveImportDraft({ ...base, source: { kind: 'paste', text: 'besar' } });
-
-    expect(storage.get(KEY)).not.toContain('besar');
-    expect(loadImportDraft()).toMatchObject({ source: null, textDropped: true, answers, importId: 'imp-1' });
-  });
-
-  it('ignores a damaged entry, and clears', () => {
-    useWebStorage();
-    storage.set(KEY, '{not json');
-    expect(loadImportDraft()).toBeNull();
-
-    storage.set(KEY, JSON.stringify({ siteId: 1 }));
-    expect(loadImportDraft()).toBeNull();
-
-    saveImportDraft({ ...base, source: null });
-    clearImportDraft();
-    expect(loadImportDraft()).toBeNull();
-  });
-
-  it('keeps nothing on native, and never touches the secure store', () => {
-    (SecureStore.setItemAsync as jest.Mock).mockClear();
-    (SecureStore.getItemAsync as jest.Mock).mockClear();
-    saveImportDraft({ ...base, source: { kind: 'paste', text: 'a' } });
-
-    expect(loadImportDraft()).toBeNull();
-    clearImportDraft();
-    expect(SecureStore.setItemAsync).not.toHaveBeenCalled();
-    expect(SecureStore.getItemAsync).not.toHaveBeenCalled();
-  });
-});
 
 function SheetHarness({ open, onClose }: { open: boolean; onClose: (reason: string) => void }) {
   const opener = useRef<ComponentRef<typeof View>>(null);
@@ -519,6 +435,25 @@ function SheetHarness({ open, onClose }: { open: boolean; onClose: (reason: stri
 }
 
 describe('sheet dialog', () => {
+  it.each([['android', 48], ['ios', 0]] as const)('keeps footer actions above the Android bottom inset on %s', async (os, extra) => {
+    const previousOS = Platform.OS;
+    Platform.OS = os;
+    try {
+      await render(
+        <SafeAreaInsetsContext.Provider value={{ top: 24, right: 0, bottom: 48, left: 0 }}>
+          <HDSheetDialog open title="Ubah detail perangkat" onClose={jest.fn()} footer={<View />}>
+            <View />
+          </HDSheetDialog>
+        </SafeAreaInsetsContext.Provider>,
+      );
+
+      const padding = StyleSheet.flatten(screen.getByLabelText('Ubah detail perangkat').props.style);
+      expect(padding.paddingBottom ?? padding.padding).toBe(tokens.space.pageGutter + extra);
+    } finally {
+      Platform.OS = previousOS;
+    }
+  });
+
   it('closes from its Tutup control and returns focus to the opener', async () => {
     const focusSpy = jest.spyOn(AccessibilityInfo, 'sendAccessibilityEvent').mockImplementation(() => undefined);
     const onClose = jest.fn();

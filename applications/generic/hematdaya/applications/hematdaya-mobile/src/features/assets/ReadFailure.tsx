@@ -1,6 +1,8 @@
 import { ApiError } from '@/api/errors';
 import { HDButton } from '@/components/hd/HDButton';
 import { HDProgressStatus } from '@/components/hd/HDProgressStatus';
+import { HDNotice } from '@/components/hd/HDNotice';
+import { formatDateTime } from '@/lib/format';
 
 type ReadFailureProps = {
   error: unknown;
@@ -33,5 +35,24 @@ export function ReadFailure({ error, label, retrying, onRetry, kept = false }: R
         ) : null
       }
     />
+  );
+}
+
+/** Announce the original successful fetch or explain that the selected data has no saved copy. */
+export function SavedReadStatus({ offline, fetchedAt, timezone, failed = false }: {
+  offline: boolean; fetchedAt?: number; timezone?: string; failed?: boolean;
+}) {
+  if (!offline && !failed) return null;
+  if (fetchedAt === undefined || timezone === undefined) {
+    return offline ? (
+      <HDNotice tone="info" title="Offline · belum ada data tersimpan" live>
+        Data untuk pilihan ini belum tersimpan. Sambungkan perangkat untuk memuatnya.
+      </HDNotice>
+    ) : null;
+  }
+  return (
+    <HDNotice tone="info" title={offline ? 'Offline · menampilkan data tersimpan' : 'Menampilkan data terakhir yang terkonfirmasi'} live>
+      {`Terakhir dimuat: ${formatDateTime(new Date(fetchedAt).toISOString(), timezone)} (${timezone}).`}
+    </HDNotice>
   );
 }

@@ -3,7 +3,6 @@
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
-from app.assets.model.models import TransportStatus
 from app.assets.service.service import SiteSnapshot
 from app.energy.model.schema import SummaryResponse
 from app.insights.service.copy import _date, number
@@ -25,16 +24,20 @@ def _gap(start: datetime, end: datetime, zone: ZoneInfo) -> str:
     return f"{_date(str(local_start.date()))} – {_date(str(last))}"
 
 
-def notices(
-    summary: SummaryResponse, snapshot: SiteSnapshot, latest: dict, now: datetime, timezone: str
-) -> list[dict[str, str | None]]:
+def _cadence(seconds: int) -> str:
+    if seconds % 3600 == 0:
+        return f"{seconds // 3600} jam"
+    if seconds % 60 == 0:
+        return f"{seconds // 60} menit"
+    return f"{seconds} detik"
+
+
+def notices(summary: SummaryResponse, snapshot: SiteSnapshot, timezone: str) -> list[dict[str, str | None]]:
     """List scope, partial-coverage and stale-source notices for a period.
 
     Args:
         summary (SummaryResponse): The period's summary.
         snapshot (SiteSnapshot): The site's asset model.
-        latest (dict): Latest completed reading end by source ID.
-        now (datetime): Site time.
         timezone (str): Site timezone.
 
     Returns:
@@ -65,22 +68,21 @@ def notices(
                     "body": f"Kelengkapan data: {percent}% periode. {gaps}".strip(),
                 }
             )
-    asset_by_source = {binding.source_id: binding.asset_id for binding in snapshot.bindings}
     names = {asset.id: asset.name for asset in snapshot.assets}
-    for source in snapshot.sources:
-        last = latest.get(source.id)
-        cadence = timedelta(seconds=source.cadence_seconds or 3600)
-        if source.transport_status is not TransportStatus.SIMULATED_LIVE or last is None or now - last <= 2 * cadence:
+    seen = set()
+    for source in summary.source_freshness:
+        last, cadence = source.last_capture_at, source.cadence_seconds
+        if source.state != "stale" or last is None or cadence is None or source.source_id in seen:
             continue
-        asset_id = asset_by_source.get(source.id)
+        seen.add(source.source_id)
         out.append(
             {
-                "id": f"stale:{source.id}",
+                "id": f"stale:{source.source_id}",
                 "kind": "stale",
-                "asset_id": str(asset_id) if asset_id else None,
-                "title": f"Data belum diperbarui · {names.get(asset_id, source.label)}",
+                "asset_id": str(source.asset_id),
+                "title": f"Data belum diperbarui · {names.get(source.asset_id, source.label)}",
                 "body": f"Pembacaan terakhir {_date(str(last.astimezone(zone).date()))} {_clock(last, zone)}"
-                f" (interval {int(cadence.total_seconds() // 3600)} jam). Ini bukan tanda perangkat mati.",
+                f" (interval {_cadence(cadence)}). Ini bukan tanda perangkat mati.",
             }
         )
     return out

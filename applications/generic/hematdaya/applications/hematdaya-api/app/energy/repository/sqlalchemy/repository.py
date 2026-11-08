@@ -7,6 +7,7 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.energy.repository.base_repository import (
+    CaptureQuery,
     EnergyRepository,
     SlotRepository,
     Span,
@@ -95,6 +96,38 @@ class SqlAlchemyEnergyRepository(EnergyRepository):
             for row in await self.session.execute(text(_STRADDLERS), params)
         ]
         return whole, straddlers
+
+    async def capture_ranges(
+        self, queries: list[CaptureQuery], now: datetime
+    ) -> dict[int, tuple[datetime, datetime, datetime]]:
+        """Read valid, current, completed interval captures for effective segments in one query."""
+        result = await self.session.execute(
+            text("""
+                WITH part AS (
+                    SELECT * FROM unnest(CAST(:indices AS int[]), CAST(:sources AS uuid[]),
+                        CAST(:starts AS timestamptz[]), CAST(:ends AS timestamptz[]),
+                        CAST(:historical AS boolean[])) AS t(idx, source_id, lo, hi, historical)
+                )
+                SELECT p.idx, min(GREATEST(c.interval_start, p.lo)) AS start,
+                    max(LEAST(c.interval_end, p.hi)) AS "end", max(c.interval_end) AS latest
+                FROM part p
+                JOIN current_measurements c ON c.source_id = p.source_id
+                    AND c.energy_mwh IS NOT NULL AND c.quality = 'valid'
+                    AND c.interval_start < c.interval_end AND c.interval_end <= :now
+                    AND ((p.historical AND c.interval_start < p.hi AND p.lo < c.interval_end)
+                        OR (NOT p.historical AND p.lo <= c.interval_start AND c.interval_end <= p.hi))
+                GROUP BY p.idx
+                """),
+            {
+                "indices": list(range(len(queries))),
+                "sources": [query.source_id for query in queries],
+                "starts": [query.span[0] for query in queries],
+                "ends": [query.span[1] for query in queries],
+                "historical": [query.historical for query in queries],
+                "now": now,
+            },
+        )
+        return {row.idx: (row.start, row.end, row.latest) for row in result}
 
 
 _WHOLE_READINGS = _HITS + "SELECT part, bucket, s, e, energy, kind FROM hit WHERE fs = s AND fe = e ORDER BY bucket, s"

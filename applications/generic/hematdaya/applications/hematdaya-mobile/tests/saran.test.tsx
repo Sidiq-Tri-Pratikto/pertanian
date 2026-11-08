@@ -1,8 +1,10 @@
 import { fireEvent, renderRouter, screen, within } from 'expo-router/testing-library';
-import * as SecureStore from 'expo-secure-store';
+import { seedConfirmedWorkspace } from './fixtures/workspaces';
 
-import householdWeek from '../../../contracts/golden/summary-h-week.json';
+import householdGolden from '../../../contracts/golden/summary-h-week.json';
 import recorded from './fixtures/insights.json';
+
+const householdWeek = { ...householdGolden, revision: 1 };
 
 // Recorded from the 021 service on 2026-11-07: h-change, h-base and h-learning-partial for 19–25 Oktober 2026.
 const change = recorded['h-change'];
@@ -66,16 +68,13 @@ function mockApi({
 }
 
 async function storeWorkspace() {
-  await SecureStore.setItemAsync(
-    'hematdaya.workspace.v1',
-    JSON.stringify({
+  await seedConfirmedWorkspace({
       token: 'hdd_v1_change',
       siteId: 'site-change',
       scenarioId: 'h-change',
       expiresAt: '2099-01-01T00:00:00Z',
       initialPeriod: LAST_WEEK,
-    }),
-  );
+    });
 }
 
 function detailCalls(fetchMock: jest.SpyInstance) {

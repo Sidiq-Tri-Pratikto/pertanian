@@ -37,7 +37,3 @@ class InsightRepository(ABC):
     @abstractmethod
     async def set_state(self, insight_id: UUID, *, current_revision: int, active: bool) -> None:
         """Point an insight at its current revision and activity."""
-
-    @abstractmethod
-    async def latest_reading_end(self, source_ids: list[UUID], now: datetime) -> dict[UUID, datetime]:
-        """Return each source's latest completed reading end."""

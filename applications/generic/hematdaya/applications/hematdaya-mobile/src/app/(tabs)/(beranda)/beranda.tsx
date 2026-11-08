@@ -5,7 +5,7 @@ import type { Summary } from '@/api/client';
 import { HDButton } from '@/components/hd/HDButton';
 import { HDChartDataAlternative } from '@/components/hd/HDChartDataAlternative';
 import { HDContributionRanking } from '@/components/hd/HDContributionRanking';
-import { HDDataQuality } from '@/components/hd/HDDataQuality';
+import { HDDataQuality, freshnessRows } from '@/components/hd/HDDataQuality';
 import { HDEnergyMetric } from '@/components/hd/HDEnergyMetric';
 import { HDNotice } from '@/components/hd/HDNotice';
 import { HDPeriodSelector } from '@/components/hd/HDPeriodSelector';
@@ -13,6 +13,8 @@ import { HDProgressStatus } from '@/components/hd/HDProgressStatus';
 import { HDScreen } from '@/components/hd/HDScreen';
 import { HDText } from '@/components/hd/HDText';
 import { tokens } from '@/design/tokens.generated';
+import { useLastConfirmed } from '@/features/assets/useLastConfirmed';
+import { ReadFailure, SavedReadStatus } from '@/features/assets/ReadFailure';
 import { usePreviousAssetScope } from '@/features/assets/useAssets';
 import { CONTEXT_EXAMPLES, useContextPreset } from '@/features/context-preset';
 import { berandaModel, shownOrigins } from '@/features/energy/beranda-model';
@@ -86,11 +88,16 @@ function WorkspaceBeranda() {
   const { workspace } = useWorkspace();
   const summary = useSummary();
   const previousScope = usePreviousAssetScope();
+  const kept = useLastConfirmed(summary);
+  const shown = summary.offline ? summary.data : kept;
+  const { period, setPeriod } = useNavigationContext();
 
-  if (summary.data === undefined) {
+  if (shown === undefined) {
     return (
       <HDScreen title="Beranda">
-        <HDProgressStatus
+        {period ? <HDPeriodSelector value={period} activeLabel="belum terkonfirmasi" onCommit={setPeriod} /> : null}
+        <SavedReadStatus offline={summary.offline} />
+        {!summary.offline ? <HDProgressStatus
           state={summary.isError ? 'failure' : 'loading'}
           label={summary.isError ? 'Data belum dapat dimuat' : 'Memuat ringkasan energi…'}
           detail={summary.error?.message}
@@ -101,20 +108,25 @@ function WorkspaceBeranda() {
               </HDButton>
             ) : null
           }
-        />
+        /> : null}
       </HDScreen>
     );
   }
-  if (summary.data.scope.included.length === 0 && summary.data.scope.excluded.length === 0) {
-    return <EmptyBeranda expiresAt={workspace?.expiresAt} timezone={summary.data.window.timezone} />;
+  if (shown.scope.included.length === 0 && shown.scope.excluded.length === 0) {
+    return <EmptyBeranda expiresAt={workspace?.expiresAt} timezone={shown.window.timezone} />;
   }
-  return <PopulatedBeranda previousSelection={Boolean(previousScope?.summaries.has(summary.data))} data={summary.data} refreshing={summary.isFetching} failed={summary.isError ? summary.error.message : null} onRefresh={() => void summary.refetch()} />;
+  return <PopulatedBeranda previousSelection={summary.previousSelection || shown !== summary.data || Boolean(previousScope?.summaries.has(shown))}
+    data={shown} refreshing={summary.isFetching} failure={summary.error} onRefresh={summary.refresh}
+    offline={summary.offline} fetchedAt={summary.confirmedAtFor(shown)} />;
 }
 
-type PopulatedProps = { previousSelection: boolean; data: Summary; refreshing: boolean; failed: string | null; onRefresh: () => void };
+type PopulatedProps = {
+  previousSelection: boolean; data: Summary; refreshing: boolean; failure: unknown;
+  onRefresh: () => void; offline: boolean; fetchedAt?: number;
+};
 
 /** S03: period and scope, recorded kWh, cost, completeness and freshness, then contributors. */
-function PopulatedBeranda({ previousSelection, data, refreshing, failed, onRefresh }: PopulatedProps) {
+function PopulatedBeranda({ previousSelection, data, refreshing, failure, onRefresh, offline, fetchedAt }: PopulatedProps) {
   const { workspace } = useWorkspace();
   const { period, setPeriod } = useNavigationContext();
   const { openAsset, openFeature, openSettings } = useTabNavigation();
@@ -138,6 +150,7 @@ function PopulatedBeranda({ previousSelection, data, refreshing, failed, onRefre
           Total yang tampil berasal dari ringkasan terakhir. Tunggu ringkasan cakupan terkini.
         </HDNotice>
       ) : null}
+      <SavedReadStatus offline={offline} failed={Boolean(failure)} fetchedAt={fetchedAt} timezone={model.timezone} />
       <HDEnergyMetric
         state={model.state}
         kwh={model.kwh}
@@ -171,6 +184,7 @@ function PopulatedBeranda({ previousSelection, data, refreshing, failed, onRefre
       </HDNotice>
       <HDDataQuality
         rows={[
+          ...freshnessRows(data.source_freshness, model.timezone, data.assets),
           ...(model.completeness || model.state === 'conflict'
             ? [
                 {
@@ -190,21 +204,11 @@ function PopulatedBeranda({ previousSelection, data, refreshing, failed, onRefre
       />
       <View style={styles.row}>
         <HDButton variant="text" icon="refresh" loading={refreshing} loadingLabel="Memeriksa pembaruan…" onPress={onRefresh}>
-          Perbarui
+          {data.source_freshness?.some((source) => source.state === 'stale') ? 'Periksa sumber' : 'Perbarui'}
         </HDButton>
       </View>
-      <HDProgressStatus
-        state={failed ? 'failure' : null}
-        label="Data belum dapat diperbarui"
-        detail={failed ? `${failed} Angka yang tampil adalah data terakhir yang terkonfirmasi.` : null}
-        action={
-          failed ? (
-            <HDButton variant="text" icon="refresh" onPress={onRefresh}>
-              Coba lagi
-            </HDButton>
-          ) : null
-        }
-      />
+      <ReadFailure error={offline ? null : failure} label="Data belum dapat diperbarui"
+        retrying={refreshing} onRetry={onRefresh} kept />
       {model.ranking.length ? (
         <View style={styles.section}>
           {largest && largest.share !== null ? (

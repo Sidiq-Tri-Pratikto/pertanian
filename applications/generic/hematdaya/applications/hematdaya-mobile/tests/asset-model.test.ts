@@ -21,9 +21,9 @@ function siteRow(scenario: string, name: string): { row: AssetEnergy; asset: Ass
   };
 }
 
-function detail(scenario: string, name: string, notices: InsightNotice[] = scenarios[scenario].notices) {
+function detail(scenario: string, name: string) {
   const entry = scenarios[scenario].details[name];
-  return assetDetailModel(entry.summary, entry.asset, notices);
+  return assetDetailModel(entry.summary, entry.asset);
 }
 
 const NONE = new Set<string>();
@@ -108,7 +108,7 @@ describe('assetRowModel', () => {
   it('adds stale to a partial row and replaces nothing', () => {
     const { row, asset } = siteRow('h-stale-offline', 'Router');
 
-    expect(assetRowModel(row, asset, staleAssetIds(scenarios['h-stale-offline'].notices))).toMatchObject({
+    expect(assetRowModel(row, asset, staleAssetIds(scenarios['h-stale-offline'].summary.source_freshness))).toMatchObject({
       kwh: '1,620 kWh',
       quality: 'partial',
       qualityLabel: 'Kelengkapan data: 96,4% periode',
@@ -118,19 +118,13 @@ describe('assetRowModel', () => {
 });
 
 describe('staleAssetIds', () => {
-  it('keeps only stale notices with an asset', () => {
+  it('keeps the asset attributed to a stale source', () => {
     const { row } = siteRow('h-stale-offline', 'Router');
-    const notices: InsightNotice[] = [
-      ...scenarios['h-stale-offline'].notices,
-      { id: 'x', kind: 'stale', asset_id: null, title: 'x', body: 'x' },
-    ];
-
-    expect([...staleAssetIds(notices)]).toEqual([row.asset_id]);
+    expect([...staleAssetIds(scenarios['h-stale-offline'].summary.source_freshness)]).toEqual([row.asset_id]);
   });
 
-  it('ignores a partial notice', () => {
-    expect(scenarios['h-learning-partial'].notices.length).toBeGreaterThan(0);
-    expect(staleAssetIds(scenarios['h-learning-partial'].notices).size).toBe(0);
+  it('does not infer stale from legacy absence', () => {
+    expect(staleAssetIds(undefined).size).toBe(0);
   });
 });
 
@@ -188,7 +182,7 @@ describe('assetDetailModel', () => {
       assets: entry.summary.assets.map((row) => ({ ...row, scope_kind: kind })),
     };
 
-    expect(assetDetailModel(summary, entry.asset, []).scopeLabel).toBe(label);
+    expect(assetDetailModel(summary, entry.asset).scopeLabel).toBe(label);
   });
 
   it('lists a source with its origin, interval, resolution, range and role', () => {
@@ -221,23 +215,15 @@ describe('assetDetailModel', () => {
       bindings: entry.asset.bindings.map((binding) => ({ ...binding, effective_to: '2026-10-01T17:00:00Z' })),
     };
 
-    expect(assetDetailModel(entry.summary, asset, []).sourceRows[0].effective).toBe(
+    expect(assetDetailModel(entry.summary, asset).sourceRows[0].effective).toBe(
       'mulai 28 September 2026 00.00 sampai 2 Oktober 2026 00.00',
     );
-  });
-
-  it('keeps only the stale notice for this asset', () => {
-    const router = detail('h-stale-offline', 'Router');
-    const kulkas = detail('h-stale-offline', 'Kulkas');
-
-    expect(router.staleNotices.map((notice) => notice.title)).toEqual(['Data belum diperbarui · Router']);
-    expect(kulkas.staleNotices).toEqual([]);
   });
 
   it('works from the summary alone', () => {
     const entry = scenarios['h-base'].details.Kulkas;
 
-    expect(assetDetailModel(entry.summary, undefined, [])).toMatchObject({
+    expect(assetDetailModel(entry.summary, undefined)).toMatchObject({
       name: 'Kulkas',
       meta: 'Perangkat',
       sourceRows: [],

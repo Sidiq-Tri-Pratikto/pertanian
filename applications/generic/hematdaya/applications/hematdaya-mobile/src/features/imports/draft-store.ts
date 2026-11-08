@@ -1,126 +1,142 @@
 import { Platform } from 'react-native';
 
 import type { ImportAnswers, ImportSource } from '@/api/client';
+import { ownerStorageKey } from '@/features/offline/owner-storage';
 
-/** One commit intent. A resend keeps all three, so the service replays the first result (027 D5). */
+/** A web-only recovery record for a commit that was actually dispatched. */
 export type CommitIntent = { importId: string; key: string; acknowledge: boolean };
-
-/** What a reload can bring back: a file by its name only, since a browser cannot give its bytes back. */
 export type StoredSource = { kind: 'file'; name: string } | { kind: 'paste'; text: string };
-
 export type DraftSnapshot = {
-  siteId: string;
   source: ImportSource | StoredSource | null;
   answers: ImportAnswers;
   intervalText: Record<string, string>;
   importId: string | null;
-  intent: CommitIntent | null;
+  textDropped?: boolean;
+  legacyHandled?: boolean;
 };
 
 export type LoadedDraft = Omit<DraftSnapshot, 'source'> & {
   source: StoredSource | null;
-  /** A file was chosen before the reload and must be picked again before its bytes are needed. */
   needsReselect: boolean;
-  /** The paste did not fit the browser's storage and must be pasted again. */
-  textDropped: boolean;
 };
 
-const KEY = 'hematdaya.import-draft.v1';
+const LEGACY_KEY = 'hematdaya.import-draft.v1';
+const MAX_PASTE = 512_000;
 
-type Stored = Omit<DraftSnapshot, 'source'> & { source: StoredSource | null; textDropped: boolean };
-
-function storedSource(source: DraftSnapshot['source']): StoredSource | null {
-  if (!source) {
-    return null;
-  }
-  if (source.kind === 'paste') {
-    return { kind: 'paste', text: source.text };
-  }
-  return { kind: 'file', name: 'file' in source ? source.file.name : source.name };
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
+function record(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
-function isStoredSource(value: unknown): value is StoredSource | null {
-  return (
-    value === null ||
-    (isRecord(value) && ((value.kind === 'file' && typeof value.name === 'string') || (value.kind === 'paste' && typeof value.text === 'string')))
-  );
+function reference(value: unknown): value is string {
+  return typeof value === 'string' && /^[\w-]{1,100}$/.test(value);
 }
 
-function isIntent(value: unknown): value is CommitIntent | null {
-  return (
-    value === null ||
-    (isRecord(value) && typeof value.importId === 'string' && typeof value.key === 'string' && typeof value.acknowledge === 'boolean')
-  );
+function isIntent(value: unknown): value is CommitIntent {
+  return record(value) && reference(value.importId) && reference(value.key) && typeof value.acknowledge === 'boolean';
 }
 
-function isStored(value: unknown): value is Stored {
-  return (
-    isRecord(value) &&
-    typeof value.siteId === 'string' &&
-    isStoredSource(value.source) &&
-    isRecord(value.answers) &&
-    isRecord(value.intervalText) &&
-    (value.importId === null || typeof value.importId === 'string') &&
-    isIntent(value.intent) &&
-    typeof value.textDropped === 'boolean'
-  );
+function smallMap<T>(value: unknown, accept: (item: unknown) => item is T): Record<string, T> {
+  if (!record(value)) return {};
+  return Object.fromEntries(Object.entries(value).slice(0, 100).flatMap(([key, item]) =>
+    key.length <= 200 && accept(item) ? [[key, item] as const] : []));
 }
 
-function storage(): Storage | null {
-  return Platform.OS === 'web' ? (globalThis.sessionStorage ?? null) : null;
+function answers(value: unknown): ImportAnswers {
+  if (!record(value)) return {};
+  const { value_kind, power_meaning, timezone_confirmed, interval_minutes, asset_map, scope } = value;
+  return {
+    ...(value_kind === 'interval_energy' || value_kind === 'average_power' || value_kind === 'counter' ? { value_kind } : {}),
+    ...(power_meaning === 'average' || power_meaning === 'instantaneous' ? { power_meaning } : {}),
+    ...(typeof timezone_confirmed === 'boolean' ? { timezone_confirmed } : {}),
+    ...(record(interval_minutes) ? { interval_minutes: smallMap(interval_minutes, (item): item is number =>
+      typeof item === 'number' && Number.isSafeInteger(item) && item > 0 && item <= 1440) } : {}),
+    ...(record(asset_map) ? { asset_map: smallMap(asset_map, reference) } : {}),
+    ...(scope === 'disjoint' || scope === 'unknown_overlap' ? { scope } : {}),
+  };
 }
 
-/**
- * The web draft, read back after a reload or a restored session (027 D12). Native keeps the draft in memory only:
- * a re-import counts identical rows once, so losing it is safe, and persisting it is 034's.
- */
-export function loadImportDraft(): LoadedDraft | null {
+function projection(value: Record<string, unknown>): LoadedDraft {
+  const item = record(value.source) ? value.source : null;
+  const paste = item?.kind === 'paste' && typeof item.text === 'string' ? item.text : null;
+  const name = item?.kind === 'file' && typeof item.name === 'string' ? item.name.slice(0, 200) : null;
+  const source: StoredSource | null = name ? { kind: 'file', name } :
+    paste && paste.length <= MAX_PASTE ? { kind: 'paste', text: paste } : null;
+  return {
+    source, needsReselect: source?.kind === 'file',
+    answers: answers(value.answers),
+    intervalText: smallMap(value.intervalText, (item): item is string => typeof item === 'string' && item.length <= 40),
+    importId: reference(value.importId) ? value.importId : null,
+    textDropped: value.textDropped === true || (paste !== null && paste.length > MAX_PASTE),
+    legacyHandled: value.legacyHandled === true,
+  };
+}
+
+function parse(raw: string | null): unknown {
   try {
-    const raw = storage()?.getItem(KEY);
-    const parsed: unknown = raw ? JSON.parse(raw) : null;
-    if (!isStored(parsed)) {
-      return null;
-    }
-    const { textDropped, ...draft } = parsed;
-    return { ...draft, needsReselect: draft.source?.kind === 'file', textDropped };
+    return raw && raw.length <= 11_000_000 ? JSON.parse(raw) : null;
   } catch {
     return null;
   }
 }
 
-/** Mirrors the user's input, the import ID and the commit intent. A paste over the quota is stored without its text. */
-export function saveImportDraft(draft: DraftSnapshot & { textDropped?: boolean }): void {
-  let target: Storage | null;
-  try {
-    target = storage();
-  } catch {
-    return;
+export function readDraft(raw: string | null): LoadedDraft | null {
+  const value = parse(raw);
+  return record(value) && value.version === 1 ? projection(value) : null;
+}
+
+/** The general draft contains only bounded input and a preview reference. */
+export function storeDraft(value: DraftSnapshot, omitPaste = false): string {
+  let { source } = value;
+  if (source?.kind === 'file' && 'file' in source) source = { kind: 'file', name: source.file.name };
+  const clean = projection({ ...value, source });
+  if (omitPaste && clean.source?.kind === 'paste') {
+    clean.source = null;
+    clean.textDropped = true;
   }
-  if (!target) {
-    return;
-  }
-  const { siteId, source, answers, intervalText, importId, intent, textDropped = false } = draft;
-  const stored: Stored = { siteId, source: storedSource(source), answers, intervalText, importId, intent, textDropped };
+  return JSON.stringify({ version: 1, ...clean });
+}
+
+export function loadLegacyDraft(siteId: string): { draft: LoadedDraft; intent: CommitIntent | null } | null {
   try {
-    target.setItem(KEY, JSON.stringify(stored));
+    if (Platform.OS !== 'web') return null;
+    const value = parse(globalThis.sessionStorage.getItem(LEGACY_KEY));
+    if (!record(value) || value.siteId !== siteId) return null;
+    const draft = projection(value);
+    const intent = isIntent(value.intent) && value.intent.importId === draft.importId ? value.intent : null;
+    if (value.intent !== null && !intent) return null;
+    return { draft, intent };
   } catch {
-    try {
-      const withoutText = stored.source?.kind === 'paste' ? { ...stored, source: null, textDropped: true } : stored;
-      target.setItem(KEY, JSON.stringify(withoutText));
-    } catch {
-      // Storage is unavailable: the draft stays in memory for this page, as it does on native.
-    }
+    return null;
   }
 }
 
-export function clearImportDraft(): void {
+export function clearLegacyDraft(): void {
   try {
-    storage()?.removeItem(KEY);
+    globalThis.sessionStorage.removeItem(LEGACY_KEY);
   } catch {
-    // Nothing stored, or storage is unavailable: either way there is no draft to clear.
+    // A durable migration marker prevents the legacy input from being adopted again.
+  }
+}
+
+export function readRecovery(epoch: string): CommitIntent | null {
+  try {
+    if (Platform.OS !== 'web') return null;
+    const value = parse(globalThis.sessionStorage.getItem(ownerStorageKey(epoch, 'import-recovery')));
+    return record(value) && value.version === 1 && isIntent(value.intent) ? value.intent : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Invoked synchronously at dispatch so an offline tap cannot create a recovery intent. */
+export function writeRecovery(epoch: string, intent: CommitIntent | null): boolean {
+  if (Platform.OS !== 'web') return true;
+  try {
+    const key = ownerStorageKey(epoch, 'import-recovery');
+    if (intent) globalThis.sessionStorage.setItem(key, JSON.stringify({ version: 1, intent }));
+    else globalThis.sessionStorage.removeItem(key);
+    return true;
+  } catch {
+    return false;
   }
 }

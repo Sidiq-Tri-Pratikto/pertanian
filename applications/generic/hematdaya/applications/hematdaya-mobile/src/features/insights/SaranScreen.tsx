@@ -12,6 +12,7 @@ import { evidenceModel } from '@/features/insights/evidence-model';
 import { useInsights } from '@/features/insights/useInsights';
 import { useTabNavigation } from '@/features/navigation';
 import { RestoreNotice } from '@/features/insights/RestoreNotice';
+import { isKnownOffline, useConnectivity } from '@/features/offline/useConnectivity';
 import { useWorkspace } from '@/features/workspace/WorkspaceProvider';
 import { formatDateRange } from '@/lib/format';
 
@@ -20,6 +21,8 @@ export function SaranScreen() {
   const { workspace } = useWorkspace();
   const { openSettings } = useTabNavigation();
   const insights = useInsights();
+  useConnectivity();
+  const offline = isKnownOffline();
 
   return (
     <HDScreen title="Saran" subtitle="Pengamatan berbasis bukti, bukan diagnosis">
@@ -28,10 +31,10 @@ export function SaranScreen() {
       ) : insights.data === undefined ? (
         <HDProgressStatus
           state={insights.isError ? 'failure' : 'loading'}
-          label={insights.isError ? 'Saran belum dapat dimuat' : 'Memuat saran…'}
+          label={offline ? 'Menunggu koneksi untuk saran…' : insights.isError ? 'Saran belum dapat dimuat' : 'Memuat saran…'}
           detail={insights.error?.message}
           action={
-            insights.isError ? (
+            insights.isError && !offline ? (
               <HDButton variant="text" icon="refresh" onPress={() => void insights.refetch()}>
                 Coba lagi
               </HDButton>

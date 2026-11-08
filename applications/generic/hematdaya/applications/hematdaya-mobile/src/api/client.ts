@@ -1,5 +1,7 @@
 import { ApiError, readFailure } from '@/api/errors';
+import { endsSession } from '@/api/query-client';
 import type { components, paths } from '@/api/schema.generated';
+import { isKnownOffline } from '@/features/offline/useConnectivity';
 
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:8000';
 const TIMEOUT_MS = 10_000;
@@ -14,11 +16,22 @@ export type CapabilityManifest =
 export type DemoSession = components['schemas']['DemoSessionResponse'];
 export type Summary = components['schemas']['SummaryResponse'];
 
+/** A credential lease belongs to one provider generation, even when a reset reuses the same token. */
+export type RequestCredential = {
+  token: string;
+  signal: AbortSignal;
+  current: () => boolean;
+  reject: () => void;
+};
+
+type Credential = string | RequestCredential;
+
 type RequestOptions = {
   method?: 'GET' | 'POST' | 'PATCH' | 'DELETE';
   expectedStatus?: number;
   body?: unknown;
-  token?: string | null;
+  token?: Credential | null;
+  beforeDispatch?: () => void;
   headers?: Record<string, string>;
   query?: Record<string, string | undefined>;
   /** Sent as the body. The platform sets the multipart `Content-Type` with its boundary, so the client sets none. */
@@ -36,41 +49,61 @@ function isRecord(value: unknown): value is Record<string, unknown> {
  */
 export async function apiRequest<T>(
   path: string,
-  { method = 'GET', body, token, headers, query, form, timeoutMs = TIMEOUT_MS, expectedStatus }: RequestOptions,
+  { method = 'GET', body, token, headers, query, form, timeoutMs = TIMEOUT_MS, expectedStatus, beforeDispatch }: RequestOptions,
   isValid: (value: unknown) => value is T,
 ): Promise<T> {
   const search = new URLSearchParams(
     Object.entries(query ?? {}).filter((entry): entry is [string, string] => entry[1] !== undefined),
   ).toString();
-  let response: Response;
+  const lease = typeof token === 'object' ? token : null;
+  const bearer = typeof token === 'string' ? token : lease?.token;
+  const checkCurrent = () => {
+    if (lease && (!lease.current() || lease.signal.aborted)) throw ApiError.revoked();
+  };
+  const controller = new AbortController();
+  const abort = () => controller.abort();
+  const timeout = setTimeout(abort, timeoutMs);
+  lease?.signal.addEventListener('abort', abort);
   try {
-    response = await fetch(`${BASE_URL}${path}${search ? `?${search}` : ''}`, {
+    const init = {
       method,
       headers: {
         ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}),
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(bearer ? { Authorization: `Bearer ${bearer}` } : {}),
         ...headers,
       },
       body: form ?? (body !== undefined ? JSON.stringify(body) : undefined),
-      signal: AbortSignal.timeout(timeoutMs),
-    });
-  } catch {
-    throw ApiError.unreachable();
+      signal: controller.signal,
+    };
+    checkCurrent();
+    if (method !== 'GET' && isKnownOffline()) throw ApiError.offline();
+    beforeDispatch?.();
+
+    let response: Response;
+    try {
+      response = await fetch(`${BASE_URL}${path}${search ? `?${search}` : ''}`, init);
+    } catch {
+      checkCurrent();
+      throw ApiError.unreachable();
+    }
+    checkCurrent();
+    if (!response.ok) {
+      const error = await readFailure(response);
+      checkCurrent();
+      if (endsSession(error)) lease?.reject();
+      throw error;
+    }
+    if (expectedStatus !== undefined && response.status !== expectedStatus) throw ApiError.unexpected();
+    if (response.status === 204) return undefined as T;
+
+    const payload: unknown = await response.json().catch(() => null);
+    checkCurrent();
+    if (!isValid(payload)) throw ApiError.unexpected();
+    return payload;
+  } finally {
+    clearTimeout(timeout);
+    lease?.signal.removeEventListener('abort', abort);
   }
-  if (!response.ok) {
-    throw await readFailure(response);
-  }
-  if (expectedStatus !== undefined && response.status !== expectedStatus) {
-    throw ApiError.unexpected();
-  }
-  if (response.status === 204) {
-    return undefined as T;
-  }
-  const payload: unknown = await response.json().catch(() => null);
-  if (!isValid(payload)) {
-    throw ApiError.unexpected();
-  }
-  return payload;
 }
 
 function isVersionedEntry(value: unknown): boolean {
@@ -102,29 +135,92 @@ function isCapabilityManifest(value: unknown): value is CapabilityManifest {
 }
 
 function isPeriod(value: unknown): boolean {
-  return isRecord(value) && typeof value.start_date === 'string' && typeof value.end_date === 'string';
+  return isRecord(value) && typeof value.preset === 'string' && isLocalDate(value.start_date) && isLocalDate(value.end_date);
+}
+
+function isDemoWorkspace(value: unknown): value is components['schemas']['DemoWorkspaceResponse'] {
+  return isRecord(value) && typeof value.site_id === 'string' && value.site_id.length > 0 &&
+    typeof value.scenario_id === 'string' && value.scenario_id.length > 0 &&
+    typeof value.expires_at === 'string' && Number.isFinite(Date.parse(value.expires_at)) && isPeriod(value.initial_period);
 }
 
 function isDemoSession(value: unknown): value is DemoSession {
   return (
-    isRecord(value) &&
-    typeof value.token === 'string' &&
-    typeof value.site_id === 'string' &&
-    typeof value.scenario_id === 'string' &&
-    typeof value.expires_at === 'string' &&
-    isPeriod(value.initial_period)
+    isRecord(value) && typeof value.token === 'string' && value.token.length > 0 && isDemoWorkspace(value)
   );
 }
 
-function isSummary(value: unknown): value is Summary {
-  return (
-    isRecord(value) &&
-    isRecord(value.window) &&
-    isRecord(value.scope) &&
-    isRecord(value.coverage) &&
-    Array.isArray(value.assets) &&
-    (value.energy_kwh === null || typeof value.energy_kwh === 'string')
-  );
+/** An authenticated owned-site response is required to upgrade a pre-attestation session. */
+export function confirmDemoSite(siteId: string, token: Credential): Promise<components['schemas']['SiteResponse']> {
+  return apiRequest(`/api/v1/sites/${encodeURIComponent(siteId)}`, { token, expectedStatus: 200 },
+    (value): value is components['schemas']['SiteResponse'] =>
+      isRecord(value) && value.id === siteId && value.kind === 'demo' &&
+      typeof value.timezone === 'string' && typeof value.name === 'string');
+}
+
+/** An explicit transition issues the only reset request allowed after revoking the old local epoch. */
+export function resetDemoSession(token: RequestCredential): Promise<components['schemas']['DemoWorkspaceResponse']> {
+  return apiRequest('/api/v1/demo/sessions/current/reset', { method: 'POST', token, expectedStatus: 200 }, isDemoWorkspace);
+}
+
+export type SourceFreshness = components['schemas']['SourceFreshnessResponse'];
+
+const nullableString = (value: unknown) => value === null || typeof value === 'string';
+const nullableEnergy = (value: unknown) => value === null || isEnergy(value);
+
+function isSpan(value: unknown): value is { start: string; end: string } {
+  return isRecord(value) && historyInstant(value.start) < historyInstant(value.end);
+}
+
+function isFreshness(value: unknown): value is SourceFreshness {
+  if (!isRecord(value) || typeof value.source_id !== 'string' || typeof value.asset_id !== 'string' ||
+    typeof value.label !== 'string' || !HISTORY_ORIGINS.has(value.origin) || value.policy_version !== 1 ||
+    (value.cadence_seconds !== null && (!Number.isSafeInteger(value.cadence_seconds) || Number(value.cadence_seconds) <= 0)) ||
+    (value.last_capture_at !== null && !Number.isFinite(historyInstant(value.last_capture_at)))) return false;
+  switch (value.state) {
+    case 'stale':
+    case 'current':
+      return value.last_capture_at !== null && value.cadence_seconds !== null && value.historical_range === null;
+    case 'historical':
+      return value.last_capture_at !== null && isSpan(value.historical_range);
+    case 'unknown':
+      return value.historical_range === null;
+    default:
+      return false;
+  }
+}
+
+function isScopeAsset(value: unknown): value is Summary['scope']['included'][number] {
+  return isRecord(value) && typeof value.asset_id === 'string' && typeof value.name === 'string';
+}
+
+export function isSummary(value: unknown): value is Summary {
+  if (!isRecord(value) || !isRecord(value.window) || !isRecord(value.scope) || !isRecord(value.coverage)) return false;
+  const { window, scope, coverage } = value;
+  const start = historyInstant(window.start);
+  const end = historyInstant(window.end);
+  const cutoff = historyInstant(window.effective_end);
+  return start < end && start <= cutoff && cutoff <= end &&
+    isLocalDate(window.start_date) && isLocalDate(window.end_date) && window.start_date <= window.end_date &&
+    isTimezone(window.timezone) && typeof window.is_current === 'boolean' &&
+    typeof scope.valid === 'boolean' && Array.isArray(scope.issues) && scope.issues.every((issue) =>
+      isRecord(issue) && typeof issue.type === 'string' && Array.isArray(issue.asset_ids) &&
+      issue.asset_ids.every((id: unknown) => typeof id === 'string') && typeof issue.message === 'string') &&
+    Array.isArray(scope.included) && scope.included.every(isScopeAsset) &&
+    Array.isArray(scope.excluded) && scope.excluded.every((row) => isRecord(row) && isScopeAsset(row) && 'reason' in row && typeof row.reason === 'string') &&
+    nullableEnergy(coverage.minimum) && nullableEnergy(coverage.concurrent) && typeof coverage.allocated_estimate === 'boolean' &&
+    Array.isArray(value.assets) && value.assets.every((row) => isRecord(row) && typeof row.asset_id === 'string' &&
+      typeof row.name === 'string' && typeof row.scope_kind === 'string' && nullableEnergy(row.energy_kwh) &&
+      nullableString(row.energy_unavailable_reason) && nullableEnergy(row.share_percent) && nullableEnergy(row.coverage) &&
+      Array.isArray(row.gaps) && row.gaps.every(isSpan) && (row.conflict_sources === null ||
+      (Array.isArray(row.conflict_sources) && row.conflict_sources.every((source) => isRecord(source) &&
+        typeof source.source_id === 'string' && typeof source.label === 'string' && isEnergy(source.energy_kwh))))) &&
+    nullableEnergy(value.energy_kwh) && nullableString(value.energy_unavailable_reason) &&
+    (value.latest_measurement_at === null || Number.isFinite(historyInstant(value.latest_measurement_at))) &&
+    Array.isArray(value.origins) && value.origins.every((origin) => typeof origin === 'string') &&
+    Number.isSafeInteger(value.revision) && (value.source_freshness === undefined ||
+      (Array.isArray(value.source_freshness) && value.source_freshness.every((row) => isFreshness(row) &&
+        (scope.included as Summary['scope']['included']).some((asset) => asset.asset_id === row.asset_id))));
 }
 
 export function getCapabilities(): Promise<CapabilityManifest> {
@@ -132,13 +228,13 @@ export function getCapabilities(): Promise<CapabilityManifest> {
 }
 
 /** Starts a demo, or recovers the same one: the key, proof and body must stay unchanged across retries. */
-export function createDemoSession(scenarioId: string, operationId: string, replayProof: string): Promise<DemoSession> {
+export function createDemoSession(scenarioId: string, operationId: string, replayProof: string, beforeDispatch?: () => void): Promise<DemoSession> {
   return apiRequest(
     '/api/v1/demo/sessions',
     {
       method: 'POST',
       body: { scenario_id: scenarioId },
-      headers: { 'Idempotency-Key': operationId, 'X-Demo-Replay-Proof': replayProof },
+      headers: { 'Idempotency-Key': operationId, 'X-Demo-Replay-Proof': replayProof }, beforeDispatch,
     },
     isDemoSession,
   );
@@ -146,8 +242,8 @@ export function createDemoSession(scenarioId: string, operationId: string, repla
 
 export type PeriodQuery = { preset?: string; start_date?: string; end_date?: string };
 
-export function getSummary(siteId: string, period: PeriodQuery, token: string): Promise<Summary> {
-  return apiRequest(`/api/v1/sites/${encodeURIComponent(siteId)}/summary`, { token, query: period }, isSummary);
+export function getSummary(siteId: string, period: PeriodQuery, token: Credential): Promise<Summary> {
+  return apiRequest(`/api/v1/sites/${encodeURIComponent(siteId)}/summary`, { token, query: period, expectedStatus: 200 }, isSummary);
 }
 
 export type InsightList = components['schemas']['InsightListResponse'];
@@ -179,12 +275,12 @@ function isInsightList(value: unknown): value is InsightList {
   );
 }
 
-export function getInsights(siteId: string, period: PeriodQuery, token: string): Promise<InsightList> {
+export function getInsights(siteId: string, period: PeriodQuery, token: Credential): Promise<InsightList> {
   return apiRequest(`/api/v1/sites/${encodeURIComponent(siteId)}/insights`, { token, query: period }, isInsightList);
 }
 
 /** Always one exact revision: the evidence screen must show what the card showed, even after a correction. */
-export function getInsight(insightId: string, revision: number, token: string): Promise<Insight> {
+export function getInsight(insightId: string, revision: number, token: Credential): Promise<Insight> {
   return apiRequest(
     `/api/v1/insights/${encodeURIComponent(insightId)}`,
     { token, query: { revision: String(revision) } },
@@ -211,15 +307,15 @@ function isHiddenInsights(value: unknown): value is HiddenInsights {
 }
 
 /** One feedback intent. Retries resend the same key so a lost response never applies twice. */
-export function sendFeedback(insightId: string, revision: number, action: FeedbackAction, key: string, token: string): Promise<FeedbackResult> {
+export function sendFeedback(insightId: string, revision: number, action: FeedbackAction, key: string, token: Credential, beforeDispatch?: () => void): Promise<FeedbackResult> {
   return apiRequest(
     `/api/v1/insights/${encodeURIComponent(insightId)}/feedback`,
-    { method: 'POST', token, body: { action, revision }, headers: { 'Idempotency-Key': key } },
+    { method: 'POST', token, body: { action, revision }, headers: { 'Idempotency-Key': key }, beforeDispatch },
     isFeedbackResult,
   );
 }
 
-export function getHiddenInsights(siteId: string, period: PeriodQuery, token: string): Promise<HiddenInsights> {
+export function getHiddenInsights(siteId: string, period: PeriodQuery, token: Credential): Promise<HiddenInsights> {
   return apiRequest(`/api/v1/sites/${encodeURIComponent(siteId)}/insights/hidden`, { token, query: period }, isHiddenInsights);
 }
 
@@ -299,7 +395,7 @@ function isAssetDetail(value: unknown): value is AssetDetail {
 type ReadAssetPage = (read: () => Promise<AssetPage>) => Promise<AssetPage>;
 
 async function listAssets(
-  siteId: string, token: string, includeArchived: boolean, readPage: ReadAssetPage, onPage?: (page: AssetPage) => void,
+  siteId: string, token: Credential, includeArchived: boolean, readPage: ReadAssetPage, onPage?: (page: AssetPage) => void,
 ): Promise<AssetPage> {
   const assets: Asset[] = [];
   const collected = () => includeArchived ? [...new Map(assets.map((asset) => [asset.id, asset])).values()] : assets;
@@ -319,18 +415,18 @@ async function listAssets(
 }
 
 /** Active assets in service order. */
-export async function getAssets(siteId: string, token: string): Promise<Asset[]> {
+export async function getAssets(siteId: string, token: Credential): Promise<Asset[]> {
   return (await listAssets(siteId, token, false, (read) => read())).items;
 }
 
 /** Includes archived assets on every cursor and reports if the client stops with pages still unread. */
 export function getArchivedAssets(
-  siteId: string, token: string, readPage: ReadAssetPage = (read) => read(), onPage?: (page: AssetPage) => void,
+  siteId: string, token: Credential, readPage: ReadAssetPage = (read) => read(), onPage?: (page: AssetPage) => void,
 ): Promise<AssetPage> {
   return listAssets(siteId, token, true, readPage, onPage);
 }
 
-export function getAsset(assetId: string, token: string): Promise<AssetDetail> {
+export function getAsset(assetId: string, token: Credential): Promise<AssetDetail> {
   return apiRequest(
     `/api/v1/assets/${encodeURIComponent(assetId)}`,
     { token, expectedStatus: 200 },
@@ -343,7 +439,7 @@ export function matchesAssetChanges(asset: Asset, changes: AssetChanges): boolea
 }
 
 /** Only a matching HTTP 200 asset can acknowledge this intent. */
-export function patchAsset(assetId: string, changes: AssetChanges, token: string): Promise<Asset> {
+export function patchAsset(assetId: string, changes: AssetChanges, token: Credential): Promise<Asset> {
   return apiRequest(
     `/api/v1/assets/${encodeURIComponent(assetId)}`,
     { method: 'PATCH', body: changes, token, expectedStatus: 200 },
@@ -359,8 +455,8 @@ export function isAssetPatchRefusal(failure: ApiError): boolean {
     (failure.status === 422 && failure.code === 'VALIDATION_FAILED');
 }
 
-export function getAssetSummary(assetId: string, period: PeriodQuery, token: string): Promise<Summary> {
-  return apiRequest(`/api/v1/assets/${encodeURIComponent(assetId)}/summary`, { token, query: period }, isSummary);
+export function getAssetSummary(assetId: string, period: PeriodQuery, token: Credential): Promise<Summary> {
+  return apiRequest(`/api/v1/assets/${encodeURIComponent(assetId)}/summary`, { token, query: period, expectedStatus: 200 }, isSummary);
 }
 
 const LOCAL_DATE = /^\d{4}-\d{2}-\d{2}$/;
@@ -468,7 +564,7 @@ function isHistoryResponse(value: unknown, selection: HistorySelection): value i
 
 /** Read the selected asset's recorded series, with the service's own bucket states and highest pointer. */
 export async function getAssetHistory(
-  assetId: string, selection: HistorySelection, token: string,
+  assetId: string, selection: HistorySelection, token: Credential,
 ): Promise<HistoryResponse> {
   const { start_date, end_date, bucket } = selection;
   const history = await apiRequest(
@@ -556,7 +652,7 @@ function appendSource(form: FormData, source: ImportSource) {
 }
 
 /** Stores a preview. It saves no reading and carries no key, so a lost answer is simply sent again (027 D4). */
-export function previewImport(siteId: string, source: ImportSource, answers: ImportAnswers, token: string): Promise<ImportPreview> {
+export function previewImport(siteId: string, source: ImportSource, answers: ImportAnswers, token: Credential): Promise<ImportPreview> {
   const form = new FormData();
   appendSource(form, source);
   form.append('mapping', JSON.stringify(answers));
@@ -568,11 +664,13 @@ export function previewImport(siteId: string, source: ImportSource, answers: Imp
 }
 
 /** Reads a stored preview, including its result once committed. Checked before any commit is sent again. */
-export function getImport(importId: string, token: string): Promise<ImportPreview> {
-  return apiRequest(`/api/v1/imports/${encodeURIComponent(importId)}`, { token }, isImportPreview);
+export function getImport(importId: string, token: Credential): Promise<ImportPreview> {
+  return apiRequest(`/api/v1/imports/${encodeURIComponent(importId)}`, { token, expectedStatus: 200 },
+    (value): value is ImportPreview => isImportPreview(value) && value.id === importId &&
+      (!value.result || (value.status === 'committed' && value.result.import_id === importId)));
 }
 
-export function getImportErrors(importId: string, cursor: string, token: string): Promise<ImportErrorPage> {
+export function getImportErrors(importId: string, cursor: string, token: Credential): Promise<ImportErrorPage> {
   return apiRequest(
     `/api/v1/imports/${encodeURIComponent(importId)}/errors`,
     { token, query: { limit: IMPORT_ERROR_PAGE_SIZE, cursor } },
@@ -581,7 +679,7 @@ export function getImportErrors(importId: string, cursor: string, token: string)
 }
 
 /** One commit intent: a resend keeps the key and the acknowledgment, so the service replays instead of importing twice. */
-export function commitImport(importId: string, acknowledge: boolean, key: string, token: string): Promise<ImportCommit> {
+export function commitImport(importId: string, acknowledge: boolean, key: string, token: Credential, beforeDispatch?: () => void): Promise<ImportCommit> {
   return apiRequest(
     `/api/v1/imports/${encodeURIComponent(importId)}/commit`,
     {
@@ -589,8 +687,8 @@ export function commitImport(importId: string, acknowledge: boolean, key: string
       token,
       body: { acknowledge_skipped: acknowledge },
       headers: { 'Idempotency-Key': key },
-      timeoutMs: IMPORT_COMMIT_TIMEOUT_MS,
+      timeoutMs: IMPORT_COMMIT_TIMEOUT_MS, beforeDispatch,
     },
-    isImportCommit,
+    (value): value is ImportCommit => isImportCommit(value) && value.import_id === importId,
   );
 }

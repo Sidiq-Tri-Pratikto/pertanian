@@ -15,7 +15,7 @@ import { EXAMPLES } from '@/features/imports/examples';
 import { reselectText, ReselectNotice, useFilePick } from '@/features/imports/FileSource';
 import { MAX_IMPORT_BYTES, useImportDraft } from '@/features/imports/ImportDraftProvider';
 import { ImportFrame, useImportFrame } from '@/features/imports/ImportFrame';
-import { CheckStatus, UnfinishedImportNotice } from '@/features/imports/ImportStatus';
+import { CheckStatus, ImportLocalStatus, UnfinishedImportNotice } from '@/features/imports/ImportStatus';
 import { useTabNavigation } from '@/features/navigation';
 import { SessionEndedNotice } from '@/features/workspace/SessionEndedNotice';
 import { useDemoSession } from '@/features/workspace/useDemoSession';
@@ -94,7 +94,7 @@ export function InputStep() {
   const summary: SummaryError[] = [...issues, ...refused].map((issue) => ({ key: issue.key, text: issue.text, target: sourceTarget }));
   const storedResult = draft.commit.kind === 'committed' && !draft.resultShown;
 
-  if (draft.intent) {
+  if (draft.intent || draft.commit.kind === 'unknown') {
     return (
       <ImportFrame step="berkas" frame={frame}>
         <UnfinishedImportNotice />
@@ -123,7 +123,7 @@ export function InputStep() {
           <HDNotice tone="attention" title="Belum ada ruang kerja">
             Impor memerlukan ruang kerja. Mulai ruang kerja sementara untuk melanjutkan; isi yang sudah ditempel tetap ada.
           </HDNotice>
-          {demo.state.kind === 'failed' || demo.state.kind === 'unknown' ? (
+          {demo.state.kind === 'failed' || demo.state.kind === 'unknown' || demo.state.kind === 'unsent' ? (
             <HDProgressStatus state="failure" label="Belum berhasil" detail={demo.state.error.message} />
           ) : null}
         </View>
@@ -135,6 +135,7 @@ export function InputStep() {
       <HDNotice tone="info" title="Syarat berkas">
         {REQUIREMENTS}
       </HDNotice>
+      <ImportLocalStatus unsent={draft.unsent} failed={draft.persistenceFailed} />
       <CheckStatus check={draft.check} onRetry={() => void check()} />
       {draft.textDropped ? <HDNotice tone="attention" title="Isi tempelan terlalu besar untuk disimpan di peramban. Tempel ulang isinya." /> : null}
       <View
