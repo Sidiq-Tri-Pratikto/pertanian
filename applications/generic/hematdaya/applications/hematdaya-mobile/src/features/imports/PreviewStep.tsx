@@ -12,6 +12,8 @@ import { counterNotes, mappingLine, mappingOf, rowErrorText, streamRow } from '@
 import { ReadFailure } from '@/features/assets/ReadFailure';
 import { uploadable, useImportDraft } from '@/features/imports/ImportDraftProvider';
 import { ImportFrame, useImportFrame } from '@/features/imports/ImportFrame';
+import { useLocale } from '@/features/localization/locale';
+import { message } from '@/features/localization/messages';
 import { CheckStatus, ImportLocalStatus, CommitStatus } from '@/features/imports/ImportStatus';
 import { useTabNavigation } from '@/features/navigation';
 
@@ -22,6 +24,7 @@ const SUMMARY_ROWS = 5;
 /** Pratinjau: the service's preview, the acknowledgment and Konfirmasi impor, with one commit intent (027 D5). */
 export function PreviewStep() {
   const draft = useImportDraft();
+  const locale = useLocale();
   const { back, goImportStep, replaceImportStep, showImportResult } = useTabNavigation();
   const frame = useImportFrame();
   const [ackMissing, setAckMissing] = useState(false);
@@ -64,7 +67,7 @@ export function PreviewStep() {
       case 'checking':
         return (
           <HDButton variant="primary" fullWidth loading={commit.kind === 'checking'} loadingLabel="Memeriksa status…" onPress={() => void draft.checkStatus()}>
-            Periksa status
+            {message(locale, 'checkStatus')}
           </HDButton>
         );
       case 'notYet':

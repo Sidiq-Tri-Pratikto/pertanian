@@ -4,8 +4,9 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
+from app.core.locale import Locale
 from app.energy.model.schema import WindowResponse
 
 
@@ -50,8 +51,18 @@ class InsightResponse(BaseModel):
     policy: PolicyResponse
     evidence: dict[str, Any]
     text: InsightCopyResponse
+    text_by_locale: dict[Locale, InsightCopyResponse] | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     feedback: FeedbackStateResponse | None = None
     earlier_feedback: bool = False
+
+
+class NoticeCopyResponse(BaseModel):
+    """Localized presentation of a data notice."""
+
+    title: str
+    body: str
 
 
 class NoticeResponse(BaseModel):
@@ -62,6 +73,9 @@ class NoticeResponse(BaseModel):
     asset_id: UUID | None
     title: str
     body: str
+    copy_by_locale: dict[Locale, NoticeCopyResponse] | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
 
 
 class InsightListResponse(BaseModel):

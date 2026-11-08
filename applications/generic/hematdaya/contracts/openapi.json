@@ -2333,6 +2333,26 @@
           },
           "text": {
             "$ref": "#/components/schemas/InsightCopyResponse"
+          },
+          "text_by_locale": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/InsightCopyResponse"
+                },
+                "propertyNames": {
+                  "enum": [
+                    "id",
+                    "en"
+                  ]
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text By Locale"
           }
         },
         "required": [
@@ -2375,6 +2395,25 @@
         "title": "MeasurementKind",
         "type": "string"
       },
+      "NoticeCopyResponse": {
+        "description": "Localized presentation of a data notice.",
+        "properties": {
+          "body": {
+            "title": "Body",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "body"
+        ],
+        "title": "NoticeCopyResponse",
+        "type": "object"
+      },
       "NoticeResponse": {
         "description": "A data-quality notice, ranked apart from observations.",
         "properties": {
@@ -2393,6 +2432,26 @@
           "body": {
             "title": "Body",
             "type": "string"
+          },
+          "copy_by_locale": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/NoticeCopyResponse"
+                },
+                "propertyNames": {
+                  "enum": [
+                    "id",
+                    "en"
+                  ]
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Copy By Locale"
           },
           "id": {
             "title": "Id",

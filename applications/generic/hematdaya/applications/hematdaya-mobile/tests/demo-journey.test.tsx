@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { fireEvent, renderRouter, screen, waitFor, within } from 'expo-router/testing-library';
+import { act, fireEvent, renderRouter, screen, waitFor, within } from 'expo-router/testing-library';
 import * as SecureStore from 'expo-secure-store';
+import { setLocale } from '@/features/localization/locale';
 import { seedConfirmedWorkspace } from './fixtures/workspaces';
 
 import householdGolden from '../../../contracts/golden/summary-h-week.json';
@@ -137,6 +138,24 @@ describe('demo onboarding', () => {
     const summaryCall = fetchMock.mock.calls.find(([input]) => String(input).includes('/summary'))!;
     expect(String(summaryCall[0])).toContain('/api/v1/sites/site-h-base/summary?preset=last_7_days');
     expect(((summaryCall[1] as RequestInit).headers as Record<string, string>).Authorization).toBe('Bearer hdd_v1_h-base');
+  });
+
+  it('keeps Insights reads and workspace identity stable when the locale changes', async () => {
+    await storeWorkspace();
+    const fetchMock = mockApi({});
+    await renderRouter('./src/app', { initialUrl: '/beranda' });
+    await screen.findByText('14,700 kWh');
+    const listReads = () => fetchMock.mock.calls.filter(([input]) => String(input).includes('/insights')).length;
+    await waitFor(() => expect(listReads()).toBeGreaterThan(0));
+    const before = listReads();
+    try {
+      await act(() => setLocale('en'));
+      expect(listReads()).toBe(before);
+      expect(createCalls(fetchMock)).toHaveLength(0);
+      expect(screen.getByText('14,700 kWh')).toBeOnTheScreen();
+    } finally {
+      await act(() => setLocale('id'));
+    }
   });
 
   it('opens the industrial demo after selecting Industri', async () => {

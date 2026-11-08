@@ -9,6 +9,7 @@ import type { ImportCommit, ImportPreview } from '@/api/client';
 import { tokens } from '@/design/tokens.generated';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { storeDraft, writeRecovery, type CommitIntent, type DraftSnapshot } from '@/features/imports/draft-store';
+import { setLocale } from '@/features/localization/locale';
 import { ownerStorageKey } from '@/features/offline/owner-storage';
 import { saveWorkspace, type Workspace } from '@/features/workspace/workspace-store';
 import { EXAMPLES } from '@/features/imports/examples';
@@ -910,6 +911,61 @@ describe('unknown commit result', () => {
       await jest.advanceTimersByTimeAsync(70_000);
     });
     expect(api.requests(COMMIT)).toHaveLength(1);
+  });
+
+  it('refreshes the copy of a stable preview without resending the file', async () => {
+    const api = mockImportApi('valid', { get: () => respond(200, Recorded.valid.answered) });
+    await openImport();
+    await toPreview('Valid: dua perangkat, interval 1 jam', Recorded.valid.first!);
+    const previews = api.requests(PREVIEW).length;
+    try {
+      await act(() => setLocale('en'));
+      await waitFor(() => expect(api.requests(GET_IMPORT)).toHaveLength(1));
+      expect(api.requests(PREVIEW)).toHaveLength(previews);
+      expect(api.requests(COMMIT)).toHaveLength(0);
+      expect(api.requests(GET_IMPORT)[0].init.headers).toMatchObject({ 'X-HematDaya-Locale': 'en' });
+      expect(screen.getByRole('button', { name: 'Konfirmasi impor' })).toBeOnTheScreen();
+    } finally {
+      await act(() => setLocale('id'));
+    }
+  });
+
+  it('does not check or retry an uncertain commit when the locale changes', async () => {
+    const api = await toUnknown();
+    try {
+      await act(() => setLocale('en'));
+      expect(api.requests(GET_IMPORT)).toHaveLength(0);
+      expect(api.requests(COMMIT)).toHaveLength(1);
+      expect(screen.getByText('Import status unknown')).toBeOnTheScreen();
+      expect(screen.getByRole('button', { name: 'Check status' })).toBeOnTheScreen();
+    } finally {
+      await act(() => setLocale('id'));
+    }
+  });
+
+  it('ignores preview copy that arrives after a second locale change', async () => {
+    const english = deferred<Response>();
+    const api = mockImportApi('valid', {
+      get: ({ init }) => (init.headers as Record<string, string>)['X-HematDaya-Locale'] === 'en'
+        ? english.promise
+        : respond(200, { ...Recorded.valid.answered, assumptions: ['Catatan pratinjau terbaru'] }),
+    });
+    await openImport();
+    await toPreview('Valid: dua perangkat, interval 1 jam', Recorded.valid.first!);
+    try {
+      await act(() => setLocale('en'));
+      await waitFor(() => expect(api.requests(GET_IMPORT)).toHaveLength(1));
+      await act(() => setLocale('id'));
+      expect(await screen.findByText('Catatan pratinjau terbaru')).toBeOnTheScreen();
+      await act(() => english.resolve(respond(200, {
+        ...Recorded.valid.answered, assumptions: ['Outdated preview note'],
+      })));
+      expect(screen.queryByText('Outdated preview note')).toBeNull();
+      expect(screen.getByText('Catatan pratinjau terbaru')).toBeOnTheScreen();
+      expect(api.requests(COMMIT)).toHaveLength(0);
+    } finally {
+      await act(() => setLocale('id'));
+    }
   });
 
   it('keeps the original commit intent when the user goes back before checking', async () => {

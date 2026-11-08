@@ -78,7 +78,7 @@ describe('asset write and reconciliation contract', () => {
     expect(fetchMock).toHaveBeenCalledWith(expect.stringMatching(new RegExp(`/assets/${asset.id}$`)), expect.objectContaining({
       method: 'PATCH',
       body: JSON.stringify({ name: asset.name, location: '' }),
-      headers: { Authorization: 'Bearer bearer', 'Content-Type': 'application/json' },
+      headers: { Authorization: 'Bearer bearer', 'Content-Type': 'application/json', 'X-HematDaya-Locale': 'id' },
       signal: expect.anything(),
     }));
   });

@@ -253,3 +253,27 @@ async def test_scope_save_does_not_write_or_retire_insights(client: AsyncClient)
     assert await persisted() == before
     result = await summary(client, demo, **WEEK)
     assert [row["asset_id"] for row in result["source_freshness"]] == [asset]
+
+
+async def test_localized_insight_preserves_the_evidence_revision(client: AsyncClient) -> None:
+    """
+    Condition:
+    - The same household observation is requested in Indonesian and English.
+
+    Expected:
+    - Both variants render the same evidence, revision and feedback association.
+    """
+    session = await start_demo(client, "h-change")
+    path = f"/api/v1/sites/{session['site_id']}/insights"
+    variants = {}
+    for language in ("id", "en"):
+        response = await client.get(path, params=WEEK, headers=session["auth"] | {"X-HematDaya-Locale": language})
+        assert response.status_code == 200
+        assert response.headers["Content-Language"] == language
+        observation = response.json()["observations"][0]
+        assert observation["text_by_locale"][language] == observation["text"]
+        variants[language] = observation
+    assert variants["id"]["text"]["title"] == "TV naik 1,400 kWh (+55,56%)"
+    assert variants["en"]["text"]["title"] == "TV rose by 1.400 kWh (+55.56%)"
+    for key in ("id", "evidence", "revision", "feedback", "text_by_locale"):
+        assert variants["id"][key] == variants["en"][key]

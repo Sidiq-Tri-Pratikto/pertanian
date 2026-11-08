@@ -18,6 +18,7 @@ from app.assets.service.service import AssetService, SiteSnapshot
 from app.audit.service.service import AuditService
 from app.core.clock import wall_now
 from app.core.errors.base import AppError, NotFoundError
+from app.core.locale import locale
 from app.identity.model.models import PrincipalModel
 from app.imports.model.models import ImportModel, ImportStatus, ValueKind
 from app.imports.repository.base_repository import ImportRepository
@@ -49,6 +50,13 @@ _STALE_TEXT = {
     EXPIRED: "Pratinjau sudah melewati batas 24 jam.",
     REVISION_CHANGED: "Data pada ruang kerja ini berubah setelah pratinjau dibuat.",
     TIMEZONE_CHANGED: "Zona waktu ruang kerja berubah setelah pratinjau dibuat.",
+}
+
+
+_STALE_TEXT_EN = {
+    EXPIRED: "The preview is more than 24 hours old.",
+    REVISION_CHANGED: "Workspace data changed after the preview was created.",
+    TIMEZONE_CHANGED: "The workspace timezone changed after the preview was created.",
 }
 
 
@@ -178,13 +186,16 @@ class ImportCommitService:
         ImportPreviewService.require_committable(model)
         reason = stale_reason(model, site, wall_now())
         if reason is not None:
-            raise ImportStaleError(details=[{"loc": ["import"], "msg": _STALE_TEXT[reason], "type": reason}])
+            text = _STALE_TEXT_EN if locale() == "en" else _STALE_TEXT
+            raise ImportStaleError(details=[{"loc": ["import"], "msg": text[reason], "type": reason}])
         if model.needs_acknowledgment and not acknowledge_skipped:
             raise ImportAckRequiredError(
                 details=[
                     {
                         "loc": ["body", "acknowledge_skipped"],
-                        "msg": f"{model.invalid_rows} baris tidak valid akan dilewati.",
+                        "msg": f"Invalid rows to be skipped: {model.invalid_rows}."
+                        if locale() == "en"
+                        else f"{model.invalid_rows} baris tidak valid akan dilewati.",
                         "type": "acknowledgment_required",
                     }
                 ]

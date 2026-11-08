@@ -118,7 +118,7 @@ it('durably revokes the previous epoch before the real reset request and activat
   await waitFor(() => expect(hook.result.current.storage?.epoch).toBe(prior.epoch));
   await act(() => hook.result.current.resetDemo());
   expect(fetch).toHaveBeenCalledWith(expect.stringMatching(/\/demo\/sessions\/current\/reset$/), expect.objectContaining({
-    method: 'POST', headers: { Authorization: 'Bearer demo-test' },
+    method: 'POST', headers: { Authorization: 'Bearer demo-test', 'X-HematDaya-Locale': 'id' },
   }));
   expect(hook.result.current.workspace?.token).toBe(workspace.token);
   expect(hook.result.current.storage?.epoch).not.toBe(prior.epoch);

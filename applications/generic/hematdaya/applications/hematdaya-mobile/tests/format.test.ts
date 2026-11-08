@@ -83,3 +83,9 @@ describe('Indonesian formatting from decimal strings', () => {
     expect(formatAssetMeta(kind, location, category)).toBe(expected);
   });
 });
+
+
+it('formats English decimals without losing precision or trailing zeros', () => {
+  expect(formatKwh('1234.500', 'en')).toBe('1,234.500 kWh');
+  expect(formatKwh('1234.500', 'id')).toBe('1.234,500 kWh');
+});

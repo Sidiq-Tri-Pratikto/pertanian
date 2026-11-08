@@ -53,7 +53,7 @@ Deliver the approved refresh in sequence from the merged predecessor.
 | --- | --- | --- |
 | 047 | Explore-first onboarding and explicit CSV entry | Implemented and verified locally |
 | 048 | Compact app and prototype layout | Implemented and verified locally |
-| 049 | Localization foundation and API copy | Planned |
+| 049 | Localization foundation and API copy | Implemented and verified locally |
 | 050 | Bilingual MVP app and prototype | Planned |
 
 Record both joint walkthroughs on the refreshed build after 050.

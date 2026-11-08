@@ -7,6 +7,7 @@ from uuid import UUID
 from app.assets.model.models import AssetModel
 from app.assets.service.service import AssetService, SiteSnapshot
 from app.core.errors.sanitize import redact_text
+from app.core.locale import Locale, locale
 from app.energy.model.schema import (
     AssetEnergyResponse,
     ConflictSourceResponse,
@@ -43,6 +44,15 @@ _ISSUE_TEXT = {
 }
 
 
+_ISSUE_TEXT_EN = {
+    IssueType.PARENT_CHILD: "{0} already includes {1}. Their readings cannot be added together.",
+    IssueType.UNKNOWN_OVERLAP: "It is unknown whether {0} and {1} measure separate loads.",
+    IssueType.UNCONFIRMED: "Separate loads have not been confirmed for {0} and {1}.",
+    IssueType.SOURCE_CONFLICT: "{0} has multiple sources for the same load. Select a reference source.",
+    IssueType.SHARED_SOURCE: "{0} and {1} use the same source at overlapping times.",
+}
+
+
 @dataclass(frozen=True)
 class PeriodQuery:
     """A period as the client asked for it."""
@@ -72,12 +82,16 @@ def window_response(window: Window) -> WindowResponse:
     )
 
 
+def scope_issue_message(issue: ScopeIssue | ScopeIssueResponse, names: dict[UUID, str], language: Locale) -> str:
+    """Describe a scope issue in the requested language with sanitized labels."""
+    catalog = _ISSUE_TEXT_EN if language == "en" else _ISSUE_TEXT
+    return catalog[issue.type].format(*(redact_text(names[asset_id]) for asset_id in issue.asset_ids))
+
+
 def scope_issue_response(issue: ScopeIssue, names: dict[UUID, str]) -> ScopeIssueResponse:
     """Describe the affected assets without echoing credential-like names."""
     return ScopeIssueResponse(
-        type=issue.type,
-        asset_ids=issue.asset_ids,
-        message=_ISSUE_TEXT[issue.type].format(*(redact_text(names[asset_id]) for asset_id in issue.asset_ids)),
+        type=issue.type, asset_ids=issue.asset_ids, message=scope_issue_message(issue, names, locale())
     )
 
 

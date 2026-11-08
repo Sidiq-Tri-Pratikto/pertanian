@@ -20,6 +20,7 @@ import {
   type CommitIntent, type LoadedDraft, type StoredSource,
 } from '@/features/imports/draft-store';
 import { answerFor, commitOutcome, previewOutcome, readMinutes, type AnswerValue, type CommitOutcome, type Control, type PreviewOutcome } from '@/features/imports/import-model';
+import { getLocale, useLocale, type Locale } from '@/features/localization/locale';
 import { isKnownOffline } from '@/features/offline/useConnectivity';
 import { useWorkspace } from '@/features/workspace/WorkspaceProvider';
 import { randomToken } from '@/lib/random';
@@ -177,6 +178,9 @@ export function ImportDraftProvider({ children }: { children: ReactNode }) {
   const { status, workspace, credential, storage, legacyImport, credentialGeneration, isCurrentCredential, advanceScope } = useWorkspace();
   const queryClient = useQueryClient();
   const [stored, setDraft] = useState<Draft>(EMPTY);
+  const language = useLocale();
+  const previousLanguage = useRef(language);
+  const pendingCopyLocale = useRef<Locale | null>(null);
   const draftRef = useRef(EMPTY);
   const adopted = useRef(false);
   const legacy = useRef<CommitIntent | null>(null);
@@ -556,6 +560,40 @@ export function ImportDraftProvider({ children }: { children: ReactNode }) {
       }
     }
   }, [credential, currentOwner, failSession, ready, update]);
+
+  useEffect(() => {
+    if (previousLanguage.current !== language) {
+      previousLanguage.current = language;
+      pendingCopyLocale.current = language;
+    }
+    if (pendingCopyLocale.current !== language) return;
+    const current = draftRef.current;
+    const preview = current.preview;
+    if (!preview || preview.status !== 'previewed' || current.intent || current.commit.kind !== 'idle' ||
+      current.check.kind !== 'idle' || current.more.kind === 'pending' || inFlight.current ||
+      !ready || !credential || !currentOwner() || isKnownOffline()) return;
+
+    pendingCopyLocale.current = null;
+    let active = true;
+    // Refresh only a preview's presentation. Never adopt a result or change recovery from a locale request.
+    void getImport(preview.id, credential).then((copy) => {
+      if (!active || getLocale() !== language || copy.id !== preview.id || copy.status !== 'previewed') return;
+      update((state) => {
+        if (state.preview !== preview || state.intent || state.commit.kind !== 'idle' ||
+          state.check.kind !== 'idle' || state.more.kind === 'pending') return state;
+        return {
+          ...state,
+          preview: { ...preview, questions: copy.questions, assumptions: copy.assumptions,
+            block_reasons: copy.block_reasons, errors: copy.errors },
+          asked: mergeQuestions(state.asked, copy.questions),
+          errors: copy.errors,
+          nextCursor: copy.next_error_cursor,
+          more: { kind: 'idle' },
+        };
+      });
+    }, () => undefined);
+    return () => { active = false; };
+  }, [credential, currentOwner, draft.preview, draft.intent, draft.commit.kind, draft.check.kind, draft.more.kind, language, ready, update]);
 
   const markResultShown = useCallback(() => update((state) => (state.resultShown ? state : { ...state, resultShown: true })), [update]);
 

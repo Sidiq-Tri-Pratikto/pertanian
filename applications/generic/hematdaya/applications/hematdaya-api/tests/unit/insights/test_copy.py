@@ -73,3 +73,18 @@ def test_numbers_render_without_parsing_to_float() -> None:
     - Thousands with dots, decimals with a comma.
     """
     assert (number("1234.500"), number("0.168"), number("72")) == ("1.234,500", "0,168", "72")
+
+
+def test_english_copy_uses_the_same_frozen_values() -> None:
+    """
+    Condition:
+    - The same observation snapshot is presented in both languages.
+
+    Expected:
+    - Both presentations retain the original values and periods.
+    """
+    copy = insight_copy(_snapshot("increase", "55.56"), "en")
+    assert copy["title"] == "Kulkas rose by 1.400 kWh (+55.56%)"
+    assert "3.920 kWh" in copy["observed"]
+    assert "2.520 kWh" in copy["observed"]
+    assert "12 October 2026 – 18 October 2026" in copy["comparison"]

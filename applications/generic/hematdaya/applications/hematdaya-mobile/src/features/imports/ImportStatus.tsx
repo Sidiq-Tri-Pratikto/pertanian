@@ -8,6 +8,8 @@ import { HDText } from '@/components/hd/HDText';
 import { HDNotice } from '@/components/hd/HDNotice';
 import { tokens } from '@/design/tokens.generated';
 import type { CheckState, CommitState } from '@/features/imports/ImportDraftProvider';
+import { useLocale, type Locale } from '@/features/localization/locale';
+import { message } from '@/features/localization/messages';
 import { useTabNavigation } from '@/features/navigation';
 
 const UNKNOWN_DETAIL = 'Jawaban layanan tidak diterima. Periksa status sebelum mencoba lagi; impor tidak akan tersimpan dua kali.';
@@ -16,14 +18,19 @@ const NOT_YET_DETAIL =
 const UNCHANGED = 'Data yang tersimpan tidak berubah.';
 
 /** The service's message, then the details it sent where they carry specifics, then the reference. */
-export function failureLines(error: ApiError | null, { details = false }: { details?: boolean } = {}): string[] {
+export function failureLines(error: ApiError | null, {
+  details = false, locale,
+}: { details?: boolean; locale?: Locale } = {}): string[] {
   if (!error) {
     return [];
   }
+  const language = locale ?? error.language;
+  const useMessage = language === error.language;
+  const reference = language === 'en' ? 'Reference ID' : 'ID referensi';
   return [
-    error.message,
-    ...(details ? error.details.map((detail) => detail.msg) : []),
-    ...(error.requestId ? [`ID referensi: ${error.requestId}.`] : []),
+    ...(useMessage ? [error.message] : []),
+    ...(useMessage && details ? error.details.map((detail) => detail.msg) : []),
+    ...(error.requestId ? [`${reference}: ${error.requestId}.`] : []),
   ];
 }
 
@@ -90,6 +97,7 @@ export function UnfinishedImportNotice() {
 
 /** A commit's state: pending, unknown until checked, not yet recorded, or a definite refusal (027 D5, D6). */
 export function CommitStatus({ commit }: { commit: CommitState }) {
+  const locale = useLocale();
   switch (commit.kind) {
     case 'pending':
       return <HDProgressStatus state="saving" label="Menyimpan impor…" detail="Berkas besar dapat memerlukan waktu hingga satu menit." />;
@@ -99,12 +107,17 @@ export function CommitStatus({ commit }: { commit: CommitState }) {
       return (
         <HDProgressStatus
           state="unknown"
-          label="Status impor belum diketahui"
-          detail={UNKNOWN_DETAIL}
+          label={message(locale, 'importUnknown')}
+          detail={locale === 'en'
+            ? 'The service did not confirm the import. Check its status before trying again.'
+            : UNKNOWN_DETAIL}
           action={
             <Lines lines={Array.from(new Set([
-              ...failureLines(commit.error),
-              ...(commit.checkError ? ['Status impor belum dapat diperiksa', ...failureLines(commit.checkError)] : []),
+              ...failureLines(commit.error, { locale }),
+              ...(commit.checkError ? [
+                locale === 'en' ? 'Could not check the import status' : 'Status impor belum dapat diperiksa',
+                ...failureLines(commit.checkError, { locale }),
+              ] : []),
             ]))} />
           }
         />

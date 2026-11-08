@@ -1,3 +1,4 @@
+import type { Locale } from '@/features/localization/locale';
 import type { Insight } from '@/api/client';
 import { formatDate, formatDateRange, formatKwh, formatRatio } from '@/lib/format';
 
@@ -30,7 +31,8 @@ const SCOPE_KINDS: Record<string, string> = {
 export type ChartPoint = { date: string; label: string; current: string | null; reference: string | null };
 
 /** Display strings for the summary, evidence steps, calculation detail and chart. Nothing is recomputed here. */
-export function evidenceModel(insight: Insight) {
+export function evidenceModel(insight: Insight, locale: Locale = 'id') {
+  const copy = insight.text_by_locale?.[locale] ?? insight.text;
   const evidence = insight.evidence as Evidence;
   const eligible = evidence.historical.filter((week) => week.eligible);
   const oldest = eligible[eligible.length - 1];
@@ -40,7 +42,7 @@ export function evidenceModel(insight: Insight) {
   const current = evidence.current.mask_kwh ?? '0';
 
   return {
-    title: insight.text.title,
+    title: copy.title,
     assetName: evidence.asset.name,
     periodLabel,
     timezone: evidence.period.timezone,
@@ -48,7 +50,7 @@ export function evidenceModel(insight: Insight) {
     comparisonLabel: oldest
       ? `Dibanding median ${eligible.length} minggu sebelumnya, ${formatDateRange(oldest.start_date, newest.end_date)}`
       : 'Tanpa periode pembanding',
-    qualification: ['Memenuhi kriteria perubahan.', insight.text.pct_note, 'Penyebab belum diketahui.']
+    qualification: ['Memenuhi kriteria perubahan.', copy.pct_note, 'Penyebab belum diketahui.']
       .filter(Boolean)
       .join(' '),
     qualityScope: [
