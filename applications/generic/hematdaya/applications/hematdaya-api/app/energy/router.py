@@ -24,7 +24,7 @@ async def site_summary(
     start_date: date | None = None,
     end_date: date | None = None,
 ) -> SummaryResponse:
-    """Return recorded energy for every active asset, with coverage and any reason the total is withheld.
+    """Return recorded energy for the confirmed site scope, with coverage and any reason the total is withheld.
 
     Pass ``preset`` or both ``start_date`` and ``end_date`` (inclusive local dates, at most 366 days).
 

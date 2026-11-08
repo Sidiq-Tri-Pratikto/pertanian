@@ -5,7 +5,7 @@ from typing import Any
 from uuid import UUID
 
 from asyncpg.exceptions import ExclusionViolationError
-from sqlalchemy import and_, delete, select, tuple_, update
+from sqlalchemy import and_, delete, insert, select, tuple_, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -292,6 +292,38 @@ class SqlAlchemyAssetRepository(AssetRepository):
             return None
         record = await self.session.get(BindingRecord, binding_id, populate_existing=True)
         return _binding(record) if record is not None else None
+
+    async def apply_binding_edits(
+        self, site_id: UUID, updated: list[BindingModel], inserted: list[BindingModel]
+    ) -> None:
+        """Persist the planned updates in constraint-safe order before inserting segments."""
+        for binding in updated:
+            await self.session.execute(
+                update(BindingRecord)
+                .where(BindingRecord.site_id == site_id, BindingRecord.id == binding.id)
+                .values(
+                    effective_from=binding.effective_from,
+                    effective_to=binding.effective_to,
+                    authoritative=binding.authoritative,
+                )
+            )
+        if inserted:
+            await self.session.execute(insert(BindingRecord), [binding.model_dump() for binding in inserted])
+        await self.session.flush()
+
+    async def apply_relation_edits(self, site_id: UUID, removed: list[UUID], added: list[RelationModel]) -> None:
+        """Replace contrary evidence in the same site transaction."""
+        if removed:
+            await self.session.execute(
+                delete(AssetRelationRecord).where(
+                    AssetRelationRecord.site_id == site_id, AssetRelationRecord.id.in_(removed)
+                )
+            )
+        if added:
+            await self.session.execute(
+                insert(AssetRelationRecord), [relation.model_dump(mode="python") for relation in added]
+            )
+        await self.session.flush()
 
     async def containment(self, site_id: UUID) -> list[tuple[UUID, UUID]]:
         """Return a site's containment pairs.

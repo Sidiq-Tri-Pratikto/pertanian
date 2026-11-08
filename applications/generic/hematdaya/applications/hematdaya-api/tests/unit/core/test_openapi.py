@@ -75,3 +75,39 @@ def test_no_cors_when_no_origin_is_configured() -> None:
     response = client.get("/health/live", headers={"Origin": "http://localhost:8081"})
 
     assert "access-control-allow-origin" not in response.headers
+
+
+def test_scope_contract_documents_limits_revisions_and_period() -> None:
+    """Scope operations expose the proposal, frozen period, candidates, and independent revisions."""
+    document = app.openapi()
+    path = "/api/v1/sites/{site_id}/aggregation-selection"
+    operations = document["paths"]
+    schemas = document["components"]["schemas"]
+    assert set(operations[path]) == {"get", "put"}
+    assert set(operations[f"{path}/preview"]) == {"post"}
+    request = schemas["ConfirmScopeRequest"]
+    assert set(request["required"]) >= {
+        "selected_asset_ids",
+        "period",
+        "expected_selection_revision",
+        "expected_binding_revision",
+        "resolved_period",
+    }
+    fields = request["properties"]
+    assert fields["selected_asset_ids"]["minItems"] == 1
+    assert fields["selected_asset_ids"]["maxItems"] == 100
+    assert fields["authority_actions"]["maxItems"] == 100
+    assert fields["disjoint_confirmations"]["maxItems"] == 200
+    assert set(schemas["ResolvedScopePeriod"]["required"]) == {"timezone", "start_date", "end_date"}
+    tokens = {"selection_revision", "binding_revision"}
+    assert set(schemas["ScopeSelectionResponse"]["required"]) >= tokens | {"selected_asset_ids", "issues"}
+    assert set(schemas["ScopePreviewResponse"]["required"]) >= tokens | {"summary", "candidates"}
+    assert set(schemas["ScopeBindingResponse"]["required"]) >= {
+        "binding_id",
+        "source_id",
+        "asset_id",
+        "authoritative",
+        "effective_from",
+        "effective_to",
+    }
+    assert set(schemas["SummaryResponse"]["properties"]) >= tokens

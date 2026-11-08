@@ -9,9 +9,10 @@ import pytest
 from httpx import AsyncClient
 
 from app.core.settings import get_settings
-from tests.integration.conftest import demo_headers, execute, start_demo
+from tests.integration.conftest import demo_headers, execute, scope_confirmation, scope_path, start_demo, summary
 
 pytestmark = pytest.mark.integration
+DAY = {"start_date": "2026-10-25", "end_date": "2026-10-25"}
 
 
 async def _rows(site_id: str) -> int:
@@ -331,3 +332,41 @@ async def test_credentials_never_reach_logs_or_errors(client: AsyncClient, caplo
     for secret in (session["token"], headers["X-Demo-Replay-Proof"]):
         assert all(secret not in body for body in bodies)
         assert secret not in caplog.text
+
+
+async def test_reset_clears_selection_fences_old_preview_and_rolls_back_on_failure(client: AsyncClient) -> None:
+    """A failed reset preserves membership and a committed reset fences the old proposal."""
+    demo = await start_demo(client, "h-scope")
+    path, auth = scope_path(demo["site_id"]), demo["auth"]
+    current = (await client.get(path, headers=auth)).json()
+    meter = next(
+        row["asset_id"] for row in (await summary(client, demo, **DAY))["assets"] if row["name"] == "Meter utama"
+    )
+    proposal = {"selected_asset_ids": [meter], "period": DAY}
+    preview = (await client.post(f"{path}/preview", headers=auth, json=proposal)).json()
+    saved = await client.put(path, headers=auth, json=scope_confirmation(proposal, preview))
+    assert saved.status_code == 200, saved.text
+    prior_request = scope_confirmation(proposal, preview | saved.json())
+
+    other = await start_demo(client, "empty")
+    for method, route, payload in (
+        ("GET", path, None),
+        ("POST", f"{path}/preview", proposal),
+        ("PUT", path, prior_request),
+    ):
+        foreign = await client.request(method, route, headers=other["auth"], json=payload)
+        assert foreign.status_code == 404 and foreign.json()["error"]["code"] == "NOT_FOUND"
+
+    with patch("app.demo.service.service.seed", side_effect=RuntimeError("seed failed")):
+        failed = await client.post("/api/v1/demo/sessions/current/reset", headers=auth)
+    assert failed.status_code == 500
+    assert (await client.get(path, headers=auth)).json() == saved.json()
+
+    reset = await client.post("/api/v1/demo/sessions/current/reset", headers=auth)
+    assert reset.status_code == 200 and reset.json()["site_id"] == demo["site_id"]
+    reseeded = (await client.get(path, headers=auth)).json()
+    assert reseeded["selection_revision"] == 0 and reseeded["binding_revision"] > saved.json()["binding_revision"]
+    assert set(reseeded["selected_asset_ids"]).isdisjoint(current["selected_asset_ids"])
+    assert len(reseeded["selected_asset_ids"]) == len(current["selected_asset_ids"])
+    stale = await client.put(path, headers=auth, json=prior_request)
+    assert stale.status_code == 409 and stale.json()["error"]["code"] == "SCOPE_STALE"

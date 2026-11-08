@@ -14,7 +14,7 @@ from app.core.database import get_session_factory
 from app.measurements.dependencies import build_ingest_service
 from app.measurements.model.models import ReadingInput
 from app.sites.repository.sqlalchemy.repository import SqlAlchemySiteRepository
-from tests.integration.conftest import execute, start_demo, summary
+from tests.integration.conftest import execute, scope_confirmation, scope_path, start_demo, summary
 
 pytestmark = pytest.mark.integration
 
@@ -229,3 +229,27 @@ async def test_foreign_insight_is_not_found(client: AsyncClient) -> None:
     for suffix in ("", "?revision=1"):
         response = await client.get(f"/api/v1/insights/{insight['id']}{suffix}", headers=intruder["auth"])
         assert response.status_code == 404
+
+
+async def test_scope_save_does_not_write_or_retire_insights(client: AsyncClient) -> None:
+    """Save a narrow scope while keeping historical evidence from an excluded asset."""
+    demo = await start_demo(client, "h-change")
+    site, auth = demo["site_id"], demo["auth"]
+    observation = (await _insights(client, demo))["observations"][0]
+    asset = next(row["asset_id"] for row in (await summary(client, demo, **WEEK))["assets"] if row["name"] == "Kulkas")
+    path = scope_path(site)
+    proposal = {"selected_asset_ids": [asset], "period": WEEK}
+    preview = await client.post(f"{path}/preview", headers=auth, json=proposal)
+    assert preview.status_code == 200, preview.text
+
+    async def persisted() -> list:
+        return await execute("SELECT * FROM insights WHERE site_id = CAST(:site AS uuid) ORDER BY id", site=site)
+
+    before = await persisted()
+    saved = await client.put(path, headers=auth, json=scope_confirmation(proposal, preview.json()))
+    assert saved.status_code == 200, saved.text
+    assert await persisted() == before
+    assert (await _insights(client, demo))["observations"] == [observation]
+    assert await persisted() == before
+    result = await summary(client, demo, **WEEK)
+    assert [row["asset_id"] for row in result["source_freshness"]] == [asset]

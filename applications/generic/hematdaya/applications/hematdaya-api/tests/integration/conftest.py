@@ -317,3 +317,61 @@ async def summary(client: AsyncClient, session: dict, path: str | None = None, *
     )
     assert response.status_code == 200, response.text
     return response.json()
+
+
+def scope_path(site_id: str) -> str:
+    """Return the site's scope route."""
+    return f"/api/v1/sites/{site_id}/aggregation-selection"
+
+
+def scope_confirmation(proposal: dict, preview: dict) -> dict:
+    """Confirm the exact preview period and scope revisions."""
+    window = preview["summary"]["window"]
+    return proposal | {
+        "expected_selection_revision": preview["selection_revision"],
+        "expected_binding_revision": preview["binding_revision"],
+        "resolved_period": {key: window[key] for key in ("timezone", "start_date", "end_date")},
+    }
+
+
+async def scope_state(site_id: str) -> list:
+    """Read persisted scope state in a separate transaction for preview and rollback assertions."""
+    return await execute(
+        """
+        SELECT binding_revision, measurement_revision,
+               ARRAY(SELECT to_jsonb(t) FROM aggregation_selections t WHERE t.site_id = s.id),
+               ARRAY(SELECT to_jsonb(t) FROM aggregation_selection_assets t WHERE t.site_id = s.id ORDER BY asset_id),
+               ARRAY(SELECT to_jsonb(t) FROM bindings t WHERE t.site_id = s.id ORDER BY id),
+               ARRAY(SELECT to_jsonb(t) FROM asset_relations t WHERE t.site_id = s.id ORDER BY id),
+               ARRAY(SELECT to_jsonb(t) FROM audit_events t WHERE t.site_id = s.id ORDER BY id)
+        FROM sites s WHERE s.id = CAST(:site AS uuid)
+        """,
+        site=site_id,
+    )
+
+
+async def make_switchable_scope_site() -> tuple[UUID, UUID, UUID, UUID, UUID]:
+    owner = await make_principal()
+    site = await make_site(owner)
+    asset = await make_asset(site, "Meter")
+    current, candidate = await make_source(site, "Sumber lama"), await make_source(site, "Sumber baru")
+    await execute(
+        "INSERT INTO bindings (id, site_id, asset_id, source_id, effective_from, authoritative) VALUES "
+        "(gen_random_uuid(), :site, :asset, :current, '2026-10-24T17:00:00Z', true), "
+        "(gen_random_uuid(), :site, :asset, :candidate, '2026-10-24T17:00:00Z', false)",
+        site=site,
+        asset=asset,
+        current=current,
+        candidate=candidate,
+    )
+    await execute(
+        "INSERT INTO measurements (source_id, identity_key, kind, interval_start, interval_end, "
+        "energy_mwh, quality, received_at) VALUES "
+        "(:current, 'test', 'interval_energy', '2026-10-24T17:00:00Z', '2026-10-24T18:00:00Z', "
+        "1000000, 'valid', now()), "
+        "(:candidate, 'test', 'interval_energy', '2026-10-24T17:00:00Z', '2026-10-24T18:00:00Z', "
+        "2000000, 'valid', now())",
+        current=current,
+        candidate=candidate,
+    )
+    return owner, site, asset, current, candidate

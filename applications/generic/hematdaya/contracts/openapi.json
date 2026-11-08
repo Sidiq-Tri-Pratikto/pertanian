@@ -494,6 +494,40 @@
         "title": "CaptureRangeResponse",
         "type": "object"
       },
+      "ChooseAuthorityRequest": {
+        "additionalProperties": false,
+        "description": "Select an effective candidate as the source of truth.",
+        "properties": {
+          "action": {
+            "const": "choose",
+            "title": "Action",
+            "type": "string"
+          },
+          "asset_id": {
+            "format": "uuid",
+            "title": "Asset Id",
+            "type": "string"
+          },
+          "effective_from": {
+            "format": "date-time",
+            "title": "Effective From",
+            "type": "string"
+          },
+          "source_id": {
+            "format": "uuid",
+            "title": "Source Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "action",
+          "asset_id",
+          "source_id",
+          "effective_from"
+        ],
+        "title": "ChooseAuthorityRequest",
+        "type": "object"
+      },
       "ComparisonResponse": {
         "description": "A matched-baseline comparison. Full recorded totals stay separate from common-mask totals.",
         "properties": {
@@ -716,6 +750,77 @@
           "version"
         ],
         "title": "CompositionResponse",
+        "type": "object"
+      },
+      "ConfirmScopeRequest": {
+        "additionalProperties": false,
+        "description": "The reviewed proposal together with its resolved local period and both revision fences.",
+        "properties": {
+          "authority_actions": {
+            "items": {
+              "discriminator": {
+                "mapping": {
+                  "choose": "#/components/schemas/ChooseAuthorityRequest",
+                  "skip": "#/components/schemas/SkipAuthorityRequest"
+                },
+                "propertyName": "action"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/ChooseAuthorityRequest"
+                },
+                {
+                  "$ref": "#/components/schemas/SkipAuthorityRequest"
+                }
+              ]
+            },
+            "maxItems": 100,
+            "title": "Authority Actions",
+            "type": "array"
+          },
+          "disjoint_confirmations": {
+            "items": {
+              "$ref": "#/components/schemas/ScopeAssetPair"
+            },
+            "maxItems": 200,
+            "title": "Disjoint Confirmations",
+            "type": "array"
+          },
+          "expected_binding_revision": {
+            "minimum": 0.0,
+            "title": "Expected Binding Revision",
+            "type": "integer"
+          },
+          "expected_selection_revision": {
+            "minimum": 0.0,
+            "title": "Expected Selection Revision",
+            "type": "integer"
+          },
+          "period": {
+            "$ref": "#/components/schemas/ScopePeriodRequest"
+          },
+          "resolved_period": {
+            "$ref": "#/components/schemas/ResolvedScopePeriod"
+          },
+          "selected_asset_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "maxItems": 100,
+            "minItems": 1,
+            "title": "Selected Asset Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "selected_asset_ids",
+          "period",
+          "expected_selection_revision",
+          "expected_binding_revision",
+          "resolved_period"
+        ],
+        "title": "ConfirmScopeRequest",
         "type": "object"
       },
       "ConflictSourceResponse": {
@@ -2253,7 +2358,8 @@
           "parent_child",
           "unknown_overlap",
           "unconfirmed",
-          "source_conflict"
+          "source_conflict",
+          "shared_source"
         ],
         "title": "IssueType",
         "type": "string"
@@ -2321,6 +2427,45 @@
         "title": "Preset",
         "type": "string"
       },
+      "RelationKind": {
+        "description": "What is known about two assets' physical loads.",
+        "enum": [
+          "contains",
+          "unknown_overlap",
+          "disjoint"
+        ],
+        "title": "RelationKind",
+        "type": "string"
+      },
+      "ResolvedScopePeriod": {
+        "additionalProperties": false,
+        "description": "The local dates and timezone shown to the user in preview.",
+        "properties": {
+          "end_date": {
+            "format": "date",
+            "title": "End Date",
+            "type": "string"
+          },
+          "start_date": {
+            "format": "date",
+            "title": "Start Date",
+            "type": "string"
+          },
+          "timezone": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Timezone",
+            "type": "string"
+          }
+        },
+        "required": [
+          "timezone",
+          "start_date",
+          "end_date"
+        ],
+        "title": "ResolvedScopePeriod",
+        "type": "object"
+      },
       "ScenarioResponse": {
         "description": "A scenario clients can start.",
         "properties": {
@@ -2350,6 +2495,28 @@
         "title": "ScenarioResponse",
         "type": "object"
       },
+      "ScopeAssetPair": {
+        "additionalProperties": false,
+        "description": "Two distinct assets. A disjoint confirmation ignores their order.",
+        "properties": {
+          "first_asset_id": {
+            "format": "uuid",
+            "title": "First Asset Id",
+            "type": "string"
+          },
+          "second_asset_id": {
+            "format": "uuid",
+            "title": "Second Asset Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "first_asset_id",
+          "second_asset_id"
+        ],
+        "title": "ScopeAssetPair",
+        "type": "object"
+      },
       "ScopeAssetResponse": {
         "description": "An asset considered for the total.",
         "properties": {
@@ -2368,6 +2535,62 @@
           "name"
         ],
         "title": "ScopeAssetResponse",
+        "type": "object"
+      },
+      "ScopeBindingResponse": {
+        "description": "One stored candidate, with its original half-open range and explicit authority flag.",
+        "properties": {
+          "asset_id": {
+            "format": "uuid",
+            "title": "Asset Id",
+            "type": "string"
+          },
+          "authoritative": {
+            "title": "Authoritative",
+            "type": "boolean"
+          },
+          "binding_id": {
+            "format": "uuid",
+            "title": "Binding Id",
+            "type": "string"
+          },
+          "effective_from": {
+            "format": "date-time",
+            "title": "Effective From",
+            "type": "string"
+          },
+          "effective_to": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effective To"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "source_id": {
+            "format": "uuid",
+            "title": "Source Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "binding_id",
+          "source_id",
+          "asset_id",
+          "label",
+          "authoritative",
+          "effective_from",
+          "effective_to"
+        ],
+        "title": "ScopeBindingResponse",
         "type": "object"
       },
       "ScopeIssueResponse": {
@@ -2408,6 +2631,159 @@
         "title": "ScopeKind",
         "type": "string"
       },
+      "ScopePeriodRequest": {
+        "additionalProperties": false,
+        "description": "A preset or two inclusive local dates, resolved under the site lock.",
+        "properties": {
+          "end_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Date"
+          },
+          "preset": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Preset"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "start_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start Date"
+          }
+        },
+        "title": "ScopePeriodRequest",
+        "type": "object"
+      },
+      "ScopePreviewResponse": {
+        "description": "The computed proposal, both base revisions, and candidates relevant to the period.",
+        "properties": {
+          "binding_revision": {
+            "title": "Binding Revision",
+            "type": "integer"
+          },
+          "candidates": {
+            "items": {
+              "$ref": "#/components/schemas/ScopeBindingResponse"
+            },
+            "title": "Candidates",
+            "type": "array"
+          },
+          "selection_revision": {
+            "title": "Selection Revision",
+            "type": "integer"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/SummaryResponse"
+          }
+        },
+        "required": [
+          "selection_revision",
+          "binding_revision",
+          "summary",
+          "candidates"
+        ],
+        "title": "ScopePreviewResponse",
+        "type": "object"
+      },
+      "ScopeProposalRequest": {
+        "additionalProperties": false,
+        "description": "The complete proposal considered by preview and confirmation.",
+        "properties": {
+          "authority_actions": {
+            "items": {
+              "discriminator": {
+                "mapping": {
+                  "choose": "#/components/schemas/ChooseAuthorityRequest",
+                  "skip": "#/components/schemas/SkipAuthorityRequest"
+                },
+                "propertyName": "action"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/ChooseAuthorityRequest"
+                },
+                {
+                  "$ref": "#/components/schemas/SkipAuthorityRequest"
+                }
+              ]
+            },
+            "maxItems": 100,
+            "title": "Authority Actions",
+            "type": "array"
+          },
+          "disjoint_confirmations": {
+            "items": {
+              "$ref": "#/components/schemas/ScopeAssetPair"
+            },
+            "maxItems": 200,
+            "title": "Disjoint Confirmations",
+            "type": "array"
+          },
+          "period": {
+            "$ref": "#/components/schemas/ScopePeriodRequest"
+          },
+          "selected_asset_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "maxItems": 100,
+            "minItems": 1,
+            "title": "Selected Asset Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "selected_asset_ids",
+          "period"
+        ],
+        "title": "ScopeProposalRequest",
+        "type": "object"
+      },
+      "ScopeRelationResponse": {
+        "description": "One relation between site assets, including directed containment.",
+        "properties": {
+          "from_asset_id": {
+            "format": "uuid",
+            "title": "From Asset Id",
+            "type": "string"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/RelationKind"
+          },
+          "to_asset_id": {
+            "format": "uuid",
+            "title": "To Asset Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "from_asset_id",
+          "to_asset_id",
+          "kind"
+        ],
+        "title": "ScopeRelationResponse",
+        "type": "object"
+      },
       "ScopeResponse": {
         "description": "Which assets were considered and whether they may be added together.",
         "properties": {
@@ -2444,6 +2820,66 @@
           "excluded"
         ],
         "title": "ScopeResponse",
+        "type": "object"
+      },
+      "ScopeSelectionResponse": {
+        "description": "Confirmed membership and its validity at current site time.",
+        "properties": {
+          "authority": {
+            "items": {
+              "$ref": "#/components/schemas/ScopeBindingResponse"
+            },
+            "title": "Authority",
+            "type": "array"
+          },
+          "binding_revision": {
+            "title": "Binding Revision",
+            "type": "integer"
+          },
+          "candidates": {
+            "items": {
+              "$ref": "#/components/schemas/ScopeBindingResponse"
+            },
+            "title": "Candidates",
+            "type": "array"
+          },
+          "issues": {
+            "items": {
+              "$ref": "#/components/schemas/ScopeIssueResponse"
+            },
+            "title": "Issues",
+            "type": "array"
+          },
+          "relations": {
+            "items": {
+              "$ref": "#/components/schemas/ScopeRelationResponse"
+            },
+            "title": "Relations",
+            "type": "array"
+          },
+          "selected_asset_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Selected Asset Ids",
+            "type": "array"
+          },
+          "selection_revision": {
+            "title": "Selection Revision",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "selected_asset_ids",
+          "selection_revision",
+          "binding_revision",
+          "issues",
+          "relations",
+          "authority",
+          "candidates"
+        ],
+        "title": "ScopeSelectionResponse",
         "type": "object"
       },
       "SiteContext": {
@@ -2508,6 +2944,28 @@
           "now"
         ],
         "title": "SiteResponse",
+        "type": "object"
+      },
+      "SkipAuthorityRequest": {
+        "additionalProperties": false,
+        "description": "Leave the asset's current authority unchanged.",
+        "properties": {
+          "action": {
+            "const": "skip",
+            "title": "Action",
+            "type": "string"
+          },
+          "asset_id": {
+            "format": "uuid",
+            "title": "Asset Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "action",
+          "asset_id"
+        ],
+        "title": "SkipAuthorityRequest",
         "type": "object"
       },
       "SourceFreshnessResponse": {
@@ -2671,6 +3129,17 @@
             "title": "Assets",
             "type": "array"
           },
+          "binding_revision": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Binding Revision"
+          },
           "coverage": {
             "$ref": "#/components/schemas/CoverageResponse"
           },
@@ -2721,6 +3190,17 @@
           },
           "scope": {
             "$ref": "#/components/schemas/ScopeResponse"
+          },
+          "selection_revision": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selection Revision"
           },
           "source_freshness": {
             "items": {
@@ -4206,6 +4686,206 @@
         ]
       }
     },
+    "/api/v1/sites/{site_id}/aggregation-selection": {
+      "get": {
+        "description": "Return raw membership, scope revisions, and current authority and validity.",
+        "operationId": "get_selection_api_v1_sites__site_id__aggregation_selection_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "site_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Site Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScopeSelectionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Get Selection",
+        "tags": [
+          "scope"
+        ]
+      },
+      "put": {
+        "description": "Revalidate and atomically apply a proposal with the preview period and revisions.",
+        "operationId": "confirm_selection_api_v1_sites__site_id__aggregation_selection_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "site_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Site Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmScopeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScopeSelectionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "SCOPE_CONFLICT or SCOPE_STALE"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Confirm Selection",
+        "tags": [
+          "scope"
+        ]
+      }
+    },
+    "/api/v1/sites/{site_id}/aggregation-selection/preview": {
+      "post": {
+        "description": "Calculate a draft with its resolved period and base revisions without persisting it.",
+        "operationId": "preview_selection_api_v1_sites__site_id__aggregation_selection_preview_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "site_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Site Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScopeProposalRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScopePreviewResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "SCOPE_CONFLICT"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Preview Selection",
+        "tags": [
+          "scope"
+        ]
+      }
+    },
     "/api/v1/sites/{site_id}/assets": {
       "get": {
         "description": "Return one page of assets, active ones unless archived are asked for.\n\nArgs:\n    site_id (UUID): The site.\n    principal (PrincipalModel): The acting principal.\n    service (AssetService): Asset rules.\n    include_archived (bool, optional): Add archived assets. Defaults to False.\n    limit (int, optional): Page size up to 100. Defaults to 50.\n    cursor (str | None, optional): ``next_cursor`` of the previous page. Defaults to None.\n\nReturns:\n    AssetPageResponse: The page.",
@@ -4650,7 +5330,7 @@
     },
     "/api/v1/sites/{site_id}/summary": {
       "get": {
-        "description": "Return recorded energy for every active asset, with coverage and any reason the total is withheld.\n\nPass ``preset`` or both ``start_date`` and ``end_date`` (inclusive local dates, at most 366 days).\n\nArgs:\n    site_id (UUID): The site.\n    principal (PrincipalModel): The acting principal.\n    service (EnergyService): Energy reads.\n    preset (Preset | None, optional): A named period. Defaults to None.\n    start_date (date | None, optional): First local date. Defaults to None.\n    end_date (date | None, optional): Last local date. Defaults to None.\n\nReturns:\n    SummaryResponse: The summary.",
+        "description": "Return recorded energy for the confirmed site scope, with coverage and any reason the total is withheld.\n\nPass ``preset`` or both ``start_date`` and ``end_date`` (inclusive local dates, at most 366 days).\n\nArgs:\n    site_id (UUID): The site.\n    principal (PrincipalModel): The acting principal.\n    service (EnergyService): Energy reads.\n    preset (Preset | None, optional): A named period. Defaults to None.\n    start_date (date | None, optional): First local date. Defaults to None.\n    end_date (date | None, optional): Last local date. Defaults to None.\n\nReturns:\n    SummaryResponse: The summary.",
         "operationId": "site_summary_api_v1_sites__site_id__summary_get",
         "parameters": [
           {

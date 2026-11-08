@@ -18,6 +18,7 @@ from app.identity.model.models import PrincipalModel
 from app.identity.repository.sqlalchemy.repository import SqlAlchemyPrincipalRepository
 from app.identity.service.service import PrincipalService
 from app.measurements.dependencies import build_ingest_service
+from app.scope.selection_dependencies import build_selection_service
 from app.sites.repository.sqlalchemy.repository import SqlAlchemySiteRepository
 from app.sites.service.service import SiteService
 
@@ -39,6 +40,7 @@ def build_demo_service(session: AsyncSession) -> DemoService:
         principals=PrincipalService(SqlAlchemyPrincipalRepository(session)),
         assets=AssetService(SqlAlchemyAssetRepository(session), sites, audit),
         ingest=build_ingest_service(session),
+        selections=build_selection_service(session),
         settings=get_settings(),
     )
 

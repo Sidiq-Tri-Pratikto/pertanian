@@ -71,6 +71,16 @@ class AssetRepository(ABC):
         """End an open binding that started before ``at``; None when it was not open."""
 
     @abstractmethod
+    async def apply_binding_edits(
+        self, site_id: UUID, updated: list[BindingModel], inserted: list[BindingModel]
+    ) -> None:
+        """Apply planned range edits in order, then insert split segments."""
+
+    @abstractmethod
+    async def apply_relation_edits(self, site_id: UUID, removed: list[UUID], added: list[RelationModel]) -> None:
+        """Remove replaced relations and store the projected positive evidence."""
+
+    @abstractmethod
     async def containment(self, site_id: UUID) -> list[tuple[UUID, UUID]]:
         """Return (container, contained) pairs from parent links and ``contains`` relations."""
 
