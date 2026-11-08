@@ -1,3 +1,4 @@
+import { useCopy } from '@/features/localization/messages';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { HDText } from '@/components/hd/HDText';
@@ -15,15 +16,16 @@ type HDContributionRankingProps = {
 
 /** Sorted bars on a shared zero baseline with direct labels. The largest is not waste; values come from the service. */
 export function HDContributionRanking({ items, periodLabel, denominatorLabel, onOpen }: HDContributionRankingProps) {
+  const say = useCopy();
   const shares = items.some((item) => item.share !== null);
   return (
     <View style={styles.block}>
-      <HDText variant="section">Kontributor terbesar</HDText>
+      <HDText variant="section">{say("Kontributor terbesar", "Largest contributors")}</HDText>
       <HDText variant="label" tone="secondary">
         {periodLabel} · {denominatorLabel}
       </HDText>
       {!shares ? (
-        <HDText tone="secondary">Total energi nol, sehingga tidak ada persentase kontribusi.</HDText>
+        <HDText tone="secondary">{say("Total energi nol, sehingga tidak ada persentase kontribusi.", "All recorded energy was zero. There are no percentage shares.")}</HDText>
       ) : null}
       <View role="list" style={styles.block}>
         {items.map((item) => (

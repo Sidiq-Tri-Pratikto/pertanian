@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { HDButton } from '@/components/hd/HDButton';
 import { HDText } from '@/components/hd/HDText';
 import { tokens } from '@/design/tokens.generated';
+import { useLabels } from '@/features/localization/messages';
 
 type HDScreenProps = {
   title: string;
@@ -25,6 +26,7 @@ const FOCUSABLE_BY_SCRIPT = { tabIndex: -1 } as object;
 
 /** Shared screen frame: top bar, title, and optional supporting column. Moves focus to the heading on arrival. */
 export function HDScreen({ title, subtitle, onBack, children, supporting, footer, scrollRef, contentRef }: HDScreenProps) {
+  const { back } = useLabels();
   const heading = useRef<TextInstance>(null);
   const { width } = useWindowDimensions();
   const wide = width >= size.breakpointWide;
@@ -49,7 +51,7 @@ export function HDScreen({ title, subtitle, onBack, children, supporting, footer
       <View style={styles.top}>
         {onBack ? (
           <HDButton variant="text" icon="chevronLeft" onPress={onBack}>
-            Kembali
+            {back}
           </HDButton>
         ) : (
           <HDText variant="bodyStrong">HematDaya</HDText>

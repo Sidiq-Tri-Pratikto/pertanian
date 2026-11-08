@@ -5,12 +5,14 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HDIcon, type HDIconName } from '@/components/hd/HDIcon';
 import { HDText } from '@/components/hd/HDText';
 import { tokens } from '@/design/tokens.generated';
+import { useLabels } from '@/features/localization/messages';
 
 /** The bar. Exactly three destinations are composed in the tabs layout, and no badge implies urgency. */
 export function HDTabBar({ children, ...props }: { children?: ReactNode }) {
   const insets = useSafeAreaInsets();
+  const { navigation } = useLabels();
   return (
-    <View {...props} role="tablist" aria-label="Navigasi utama" style={[styles.bar, { paddingBottom: insets.bottom }]}>
+    <View {...props} role="tablist" aria-label={navigation} style={[styles.bar, { paddingBottom: insets.bottom }]}>
       {children}
     </View>
   );
@@ -37,7 +39,7 @@ export function HDTabItem({ icon, label, isFocused = false, onPress, ref }: HDTa
       onPress={onPress}
       style={[styles.item, isFocused && styles.selected]}>
       <HDIcon name={icon} color={foreground} />
-      <HDText variant={isFocused ? 'labelStrong' : 'label'} style={{ color: foreground }}>
+      <HDText variant={isFocused ? 'labelStrong' : 'label'} style={[styles.label, { color: foreground }]}>
         {label}
       </HDText>
     </Pressable>
@@ -52,7 +54,9 @@ const styles = StyleSheet.create({
     borderTopColor: tokens.color.borderDecorative,
   },
   item: {
-    flex: 1,
+    flexGrow: 1,
+    flexShrink: 1,
+    minWidth: tokens.size.targetMinimum,
     minHeight: tokens.size.targetMinimum,
     alignItems: 'center',
     justifyContent: 'center',
@@ -60,6 +64,7 @@ const styles = StyleSheet.create({
     borderTopWidth: tokens.size.borderSelected,
     borderTopColor: 'transparent',
   },
+  label: { textAlign: 'center' },
   selected: {
     backgroundColor: tokens.component.tabSelectedBackground,
     borderTopColor: tokens.component.tabSelectedIndicator,

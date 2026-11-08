@@ -1,7 +1,8 @@
 import type { Ref } from 'react';
-import { Text, type TextInstance, type TextProps } from 'react-native';
+import { Platform, Text, type TextInstance, type TextProps } from 'react-native';
 
 import { tokens } from '@/design/tokens.generated';
+import { useLocale } from '@/features/localization/locale';
 
 export type HDTextProps = TextProps & {
   variant?: keyof typeof tokens.type;
@@ -19,5 +20,6 @@ const TONES = {
 
 /** Design-system text. Sizes scale with the user's font setting. */
 export function HDText({ variant = 'body', tone = 'primary', style, ...props }: HDTextProps) {
-  return <Text {...props} style={[tokens.type[variant], { color: TONES[tone] }, style]} />;
+  const language = useLocale();
+  return <Text accessibilityLanguage={Platform.OS === 'ios' ? language : undefined} {...props} style={[tokens.type[variant], { color: TONES[tone] }, style]} />;
 }

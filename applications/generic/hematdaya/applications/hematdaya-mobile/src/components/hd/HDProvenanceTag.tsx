@@ -1,3 +1,4 @@
+import { useCopy } from '@/features/localization/messages';
 import { StyleSheet, View } from 'react-native';
 
 import { HDTag } from '@/components/hd/HDTag';
@@ -8,9 +9,10 @@ import { tokens } from '@/design/tokens.generated';
  * that mixes both shows both, so imported data is never presented as simulated or the other way round.
  */
 export function HDProvenanceTag({ origins }: { origins: string[] }) {
+  const say = useCopy();
   const tags = [
-    ...(origins.includes('simulated') ? ['Demo · Data simulasi'] : []),
-    ...(origins.includes('import') ? ['Data historis · Impor CSV'] : []),
+    ...(origins.includes('simulated') ? [say("Demo · Data simulasi", "Demo · Simulated data")] : []),
+    ...(origins.includes('import') ? [say("Data historis · Impor CSV", "Historical data · CSV import")] : []),
   ];
   if (tags.length === 0) {
     return null;

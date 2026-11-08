@@ -1,3 +1,4 @@
+import { useCopy } from '@/features/localization/messages';
 import { useId, useState } from 'react';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import Svg, { Defs, Line, Path, Pattern, Rect } from 'react-native-svg';
@@ -64,6 +65,7 @@ function axisRows(points: HistoryPoint[], width: number, fontScale: number): Axi
 export function HDHistoryChart({
   title, points, periodLabel, scopeLabel, unit, summary, gapNote, dense = false, showValues = true,
 }: HDHistoryChartProps) {
+  const say = useCopy();
   const [width, setWidth] = useState(288);
   const { fontScale } = useWindowDimensions();
   const hasReference = points.some((point) => point.reference !== undefined);
@@ -80,20 +82,20 @@ export function HDHistoryChart({
       <View style={styles.legend}>
         <View style={styles.legendItem}>
           <View aria-hidden style={[styles.swatch, styles.current]} />
-          <HDText variant="label">Periode ini</HDText>
+          <HDText variant="label">{say("Periode ini", "This period")}</HDText>
         </View>
         {hasReference ? (
           <View style={styles.legendItem}>
             <View aria-hidden style={[styles.swatch, styles.reference]} />
-            <HDText variant="label">Pembanding (median)</HDText>
+            <HDText variant="label">{say("Pembanding (median)", "Comparison (median)")}</HDText>
           </View>
         ) : null}
-        {states.has('partial') ? <LegendMark label="Data sebagian" path="M6 1 L11 6 L6 11 L1 6 Z" stroke={color.chartCurrent} /> : null}
-        {states.has('missing') ? <LegendMark label="Tidak ada data" path="M1 5 L5 1 M1 11 L11 1 M7 11 L11 7" stroke={color.chartMissingMarker} /> : null}
-        {states.has('unavailable') ? <LegendMark label="Data tidak tersedia" path="M2 2 L10 10 M10 2 L2 10" stroke={color.chartMissingMarker} /> : null}
-        {states.has('future') ? <HDText variant="label">Belum terjadi (kolom kosong)</HDText> : null}
+        {states.has('partial') ? <LegendMark label={say("Data sebagian", "Partial data")} path="M6 1 L11 6 L6 11 L1 6 Z" stroke={color.chartCurrent} /> : null}
+        {states.has('missing') ? <LegendMark label={say("Tidak ada data", "No data")} path="M1 5 L5 1 M1 11 L11 1 M7 11 L11 7" stroke={color.chartMissingMarker} /> : null}
+        {states.has('unavailable') ? <LegendMark label={say("Data tidak tersedia", "Data unavailable")} path="M2 2 L10 10 M10 2 L2 10" stroke={color.chartMissingMarker} /> : null}
+        {states.has('future') ? <HDText variant="label">{say("Belum terjadi (kolom kosong)", "Future period (blank column)")}</HDText> : null}
       </View>
-      <HDText variant="label" tone="secondary">Skala mulai dari 0 {unit}.</HDText>
+      <HDText variant="label" tone="secondary">{say("Skala mulai dari 0", "Scale starts at 0")} {unit}.</HDText>
       <View
         accessible
         role="img"

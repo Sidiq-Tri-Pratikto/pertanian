@@ -9,7 +9,7 @@ import { useWorkspace } from '@/features/workspace/WorkspaceProvider';
 import type { Period } from '@/features/workspace/workspace-store';
 
 /** An observation just hidden from the evidence screen, so the screen it returns to can offer Pulihkan. */
-export type HiddenItem = { id: string; revision: number; title: string };
+export type HiddenItem = { id: string; revision: number; title: string; titles?: { id: string; en: string } };
 
 type NavigationContextValue = {
   period: Period | null;

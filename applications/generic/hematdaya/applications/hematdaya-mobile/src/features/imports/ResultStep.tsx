@@ -1,3 +1,4 @@
+import { currentCopy, useCopy } from '@/features/localization/messages';
 import { useRouter } from 'expo-router';
 import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
@@ -12,12 +13,16 @@ import { ImportFrame, useImportFrame } from '@/features/imports/ImportFrame';
 import { useNavigationContext } from '@/features/navigation-context/NavigationContextProvider';
 import { useTabNavigation } from '@/features/navigation';
 
-const SCOPE_NOTE =
-  'Jawaban cakupan hanya berlaku antar perangkat dalam berkas ini. Bila ruang kerja sudah berisi perangkat lain, total gabungan menunggu konfirmasi cakupan; nilai per perangkat tetap tampil.';
-const UNKNOWN_OVERLAP_NOTE = 'Anda memilih “Belum tahu”: nilai tampil per perangkat dan total gabungan tidak dihitung.';
+function copyScopeNote(): string {
+  return currentCopy("Jawaban cakupan hanya berlaku antar perangkat dalam berkas ini. Bila ruang kerja sudah berisi perangkat lain, total gabungan menunggu konfirmasi cakupan; nilai per perangkat tetap tampil.", "Your scope answer applies to the devices in this file. Review scope before combining them with other devices. Individual readings are available.");
+}
+function copyUnknownOverlapNote(): string {
+  return currentCopy("Anda memilih “Belum tahu”: nilai tampil per perangkat dan total gabungan tidak dihitung.", "You selected “Not sure”. You can view individual readings while the combined total is unavailable.");
+}
 
 /** Hasil: what the service stored, stated plainly, and where to see it, or that it is not visible yet (027 D21). */
 export function ResultStep() {
+  const say = useCopy();
   const draft = useImportDraft();
   const router = useRouter();
   const { setPeriod } = useNavigationContext();
@@ -52,13 +57,9 @@ export function ResultStep() {
       frame={frame}
       footer={
         model.primary === 'landing' ? (
-          <HDButton variant="primary" fullWidth icon="chevronRight" onPress={() => leave(true)}>
-            Lihat periode data
-          </HDButton>
+          <HDButton variant="primary" fullWidth icon="chevronRight" onPress={() => leave(true)}>{say("Lihat periode data", "View data period")}</HDButton>
         ) : (
-          <HDButton variant="primary" fullWidth onPress={() => leave(false)}>
-            Kembali ke Beranda
-          </HDButton>
+          <HDButton variant="primary" fullWidth onPress={() => leave(false)}>{say("Kembali ke Beranda", "Back to Home")}</HDButton>
         )
       }>
       <HDNotice tone="success" title={model.title} live>
@@ -77,11 +78,11 @@ export function ResultStep() {
             <HDText variant="bodyStrong">{row.value}</HDText>
           </View>
         ))}
-        <HDText variant="label">Asal data: Data historis · Impor CSV</HDText>
+        <HDText variant="label">{say("Asal data: Data historis · Impor CSV", "Source: Historical data · CSV import")}</HDText>
       </View>
       {scope ? (
-        <HDNotice tone="neutral" title={SCOPE_NOTE}>
-          {scope === 'unknown_overlap' ? UNKNOWN_OVERLAP_NOTE : undefined}
+        <HDNotice tone="neutral" title={copyScopeNote()}>
+          {scope === 'unknown_overlap' ? copyUnknownOverlapNote() : undefined}
         </HDNotice>
       ) : null}
       <HDButton
@@ -89,9 +90,7 @@ export function ResultStep() {
         onPress={() => {
           replaceImportStep('berkas');
           draft.finish();
-        }}>
-        Impor berkas lain
-      </HDButton>
+        }}>{say("Impor berkas lain", "Import another file")}</HDButton>
     </ImportFrame>
   );
 }

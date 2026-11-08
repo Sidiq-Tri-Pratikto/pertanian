@@ -1,3 +1,4 @@
+import { currentCopy, useCopy } from '@/features/localization/messages';
 import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -16,16 +17,16 @@ import {
   askedAgain,
   mappingLine,
   mappingOf,
-  MINUTES_ERROR,
+  minutesError,
   NEW_ASSET,
-  POWER_OPTIONS,
+  powerOptions,
   questionControls,
   readMinutes,
-  SCOPE_OPTIONS,
+  scopeOptions,
   streamRow,
   streamTarget,
   unanswered,
-  VALUE_KIND_OPTIONS,
+  valueKindOptions,
   type Control,
   type SummaryItem,
 } from '@/features/imports/import-model';
@@ -35,10 +36,13 @@ import { ImportFrame, useImportFrame } from '@/features/imports/ImportFrame';
 import { CheckStatus, ImportLocalStatus, UnfinishedImportNotice } from '@/features/imports/ImportStatus';
 import { useTabNavigation } from '@/features/navigation';
 
-const SCOPE_HELP = 'Jawaban ini hanya berlaku antar perangkat dalam berkas ini.';
+function copyScopeHelp(): string {
+  return currentCopy("Jawaban ini hanya berlaku antar perangkat dalam berkas ini.", "This answer applies only to the devices in this file.");
+}
 
 /** Pemetaan: what the service read, one control per open question, and Lihat pratinjau (027 D13 to D15). */
 export function MappingStep() {
+  const say = useCopy();
   const draft = useImportDraft();
   const { goImportStep, back } = useTabNavigation();
   const frame = useImportFrame();
@@ -127,13 +131,9 @@ export function MappingStep() {
       frame={frame}
       footer={
         blockedByFile.length ? (
-          <HDButton variant="primary" fullWidth onPress={back}>
-            Ubah berkas
-          </HDButton>
+          <HDButton variant="primary" fullWidth onPress={back}>{say("Ubah berkas", "Change file")}</HDButton>
         ) : (
-          <HDButton variant="primary" fullWidth loading={checking} loadingLabel="Menyiapkan pratinjau…" onPress={() => void submit()}>
-            Lihat pratinjau
-          </HDButton>
+          <HDButton variant="primary" fullWidth loading={checking} loadingLabel={say("Menyiapkan pratinjau…", "Preparing preview…")} onPress={() => void submit()}>{say("Lihat pratinjau", "View preview")}</HDButton>
         )
       }>
       <HDErrorSummary
@@ -170,21 +170,20 @@ export function MappingStep() {
         />
       ))}
       {blockedByFile.length ? null : (
-        <HDButton variant="text" onPress={back}>
-          Ubah berkas
-        </HDButton>
+        <HDButton variant="text" onPress={back}>{say("Ubah berkas", "Change file")}</HDButton>
       )}
     </ImportFrame>
   );
 }
 
 function MappingFacts({ preview }: { preview: ImportPreview }) {
+  const say = useCopy();
   const { timezone, streams } = mappingOf(preview);
   const asksTimezone = preview.questions.some((question) => question.kind === 'timezone');
   return (
     <View style={styles.section}>
       <HDText variant="bodyStrong">{mappingLine(preview)}</HDText>
-      {asksTimezone ? null : <HDText>{`Zona waktu ruang kerja: ${timezone}`}</HDText>}
+      {asksTimezone ? null : <HDText>{say(`Zona waktu ruang kerja: ${timezone}`, `Workspace time zone: ${timezone}`)}</HDText>}
       <View role="list" style={styles.section}>
         {streams.map((stream) => (
           <View key={stream.stream_key} role="listitem" style={styles.stream}>
@@ -208,6 +207,7 @@ type QuestionControlProps = {
 };
 
 function QuestionControl({ control, error, register, disabled }: QuestionControlProps) {
+  const say = useCopy();
   const draft = useImportDraft();
   const answer = answerOf(control, draft.answers);
   const choose = (value: string) => draft.setAnswer(control, value);
@@ -216,13 +216,13 @@ function QuestionControl({ control, error, register, disabled }: QuestionControl
       return (
         <HDChoiceGroup
           type="checkbox"
-          legend={`Zona waktu ruang kerja: ${control.timezone}`}
+          legend={say(`Zona waktu ruang kerja: ${control.timezone}`, `Workspace time zone: ${control.timezone}`)}
           help={control.message}
           required
           error={error}
           disabled={disabled}
           groupRef={register}
-          options={[{ value: 'confirmed', label: `Waktu dalam berkas adalah waktu lokal ${control.timezone}` }]}
+          options={[{ value: 'confirmed', label: say(`Waktu dalam berkas adalah waktu lokal ${control.timezone}`, `The file uses local time in ${control.timezone}`) }]}
           value={answer === true ? ['confirmed'] : []}
           onChange={(value) => draft.setAnswer(control, value.includes('confirmed') ? true : undefined)}
         />
@@ -230,14 +230,14 @@ function QuestionControl({ control, error, register, disabled }: QuestionControl
     case 'scope':
       return (
         <HDChoiceGroup
-          legend="Apakah beban perangkat dalam berkas ini terukur terpisah?"
-          help={SCOPE_HELP}
+          legend={say("Apakah beban perangkat dalam berkas ini terukur terpisah?", "Do the devices in this file measure separate loads?")}
+          help={copyScopeHelp()}
           required
           error={error}
           disabled={disabled}
           groupRef={register}
-          options={SCOPE_OPTIONS}
-          value={typeof answer === 'string' ? (answer as (typeof SCOPE_OPTIONS)[number]['value']) : null}
+          options={scopeOptions()}
+          value={typeof answer === 'string' ? (answer as ReturnType<typeof scopeOptions>[number]['value']) : null}
           onChange={choose}
         />
       );
@@ -249,8 +249,8 @@ function QuestionControl({ control, error, register, disabled }: QuestionControl
           error={error}
           disabled={disabled}
           groupRef={register}
-          options={POWER_OPTIONS}
-          value={typeof answer === 'string' ? (answer as (typeof POWER_OPTIONS)[number]['value']) : null}
+          options={powerOptions()}
+          value={typeof answer === 'string' ? (answer as ReturnType<typeof powerOptions>[number]['value']) : null}
           onChange={choose}
         />
       );
@@ -262,8 +262,8 @@ function QuestionControl({ control, error, register, disabled }: QuestionControl
           error={error}
           disabled={disabled}
           groupRef={register}
-          options={VALUE_KIND_OPTIONS}
-          value={typeof answer === 'string' ? (answer as (typeof VALUE_KIND_OPTIONS)[number]['value']) : null}
+          options={valueKindOptions()}
+          value={typeof answer === 'string' ? (answer as ReturnType<typeof valueKindOptions>[number]['value']) : null}
           onChange={choose}
         />
       );
@@ -271,13 +271,13 @@ function QuestionControl({ control, error, register, disabled }: QuestionControl
       const typed = draft.intervalText[control.streamKey] ?? '';
       return (
         <HDTextField
-          label={`Panjang interval untuk ${control.assetName} (menit)`}
+          label={say(`Panjang interval untuk ${control.assetName} (menit)`, `Interval for ${control.assetName} (minutes)`)}
           help={control.message}
           required
           keyboardType="number-pad"
           value={typed}
           editable={!disabled}
-          error={readMinutes(typed) === 'invalid' ? MINUTES_ERROR : error}
+          error={readMinutes(typed) === 'invalid' ? minutesError() : error}
           onChange={(text) => draft.setIntervalText(control, text)}
           inputRef={register}
         />
@@ -305,11 +305,11 @@ function QuestionControl({ control, error, register, disabled }: QuestionControl
             error={error}
             disabled={disabled}
             groupRef={register}
-            options={[{ value: NEW_ASSET, label: 'Buat perangkat baru', description: 'Sumber yang sudah ada tidak dijumlahkan dengan berkas ini.' }]}
+            options={[{ value: NEW_ASSET, label: say("Buat perangkat baru", "Create a new device"), description: say("Sumber yang sudah ada tidak dijumlahkan dengan berkas ini.", "Existing sources stay separate from this file.") }]}
             value={typeof answer === 'string' ? answer : null}
             onChange={choose}
           />
-          <HDText variant="label">Pemilihan sumber acuan belum tersedia di aplikasi ini.</HDText>
+          <HDText variant="label">{say("Pemilihan sumber acuan belum tersedia di aplikasi ini.", "Reference source selection is unavailable here.")}</HDText>
         </View>
       );
     default:

@@ -1,3 +1,4 @@
+import { useCopy } from '@/features/localization/messages';
 import type { ComponentRef, Ref } from 'react';
 import { StyleSheet, TextInput, View, type KeyboardTypeOptions } from 'react-native';
 
@@ -38,13 +39,14 @@ export function HDTextField({
   editable = true,
   inputRef,
 }: HDTextFieldProps) {
+  const say = useCopy();
   const description = [error, help, draftNote].filter(Boolean).join(' ');
   return (
     <View style={styles.field}>
       <HDText variant="labelStrong">
         {label}
-        {optional ? <HDText variant="label"> (opsional)</HDText> : null}
-        {required ? <HDText variant="label"> (wajib)</HDText> : null}
+        {optional ? <HDText variant="label"> {say("(opsional)", "(optional)")}</HDText> : null}
+        {required ? <HDText variant="label"> {say("(wajib)", "(required)")}</HDText> : null}
       </HDText>
       {help ? (
         <HDText variant="label" tone="secondary">

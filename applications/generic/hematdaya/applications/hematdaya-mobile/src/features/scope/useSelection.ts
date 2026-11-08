@@ -1,3 +1,4 @@
+import { currentCopy } from '@/features/localization/messages';
 import { CancelledError, skipToken, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import {
@@ -26,7 +27,7 @@ type SaveStatus = (
 ) & { knownAttemptId?: string };
 
 export function scopeReviewStale(): ApiError {
-  return new ApiError('SCOPE_STALE', 'Cakupan atau periode berubah. Tinjau kembali pratinjau sebelum menyimpan.', { retryable: false });
+  return new ApiError('SCOPE_STALE', currentCopy("Cakupan atau periode berubah. Tinjau kembali pratinjau sebelum menyimpan.", "Scope or period changed. Review a new preview before saving."), { retryable: false });
 }
 
 /** One owned bounded GET. Membership stays raw until a matching confirmed summary resolves eligibility. */

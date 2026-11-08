@@ -11,7 +11,7 @@
   "supply": "selected Claude artifact (session design-system selection) -> files copied server-side into the Design canvas under project/ds/hematdaya/ with a designSystems record in project/canvas.json",
   "filesCopied": {
     "project/ds/hematdaya/tokens.json": "server-side copy of the system's project/tokens.json (feeds the canvas colour/text-style pickers)",
-    "project/ds/hematdaya/components/bundle.js": "server-side copy, sha256 745dee2976abc9bc68a5a386b4517b627bf57ea61761c288bf84abeacaa175ee",
+    "project/ds/hematdaya/components/bundle.js": "server-side copy with documented local language override, sha256 0462b73395253ff5484ca790c1c9106ed4ba89bb5e49ca066a96290c01d4c9cc",
     "project/ds/hematdaya/components/bundle.css": "server-side copy, sha256 c4cb3381cce5be41e2c63f7364c66e77000578fb7c75900feac7bd038f3f5911"
   },
   "tokenExport": "tokens.json (Design System type list grammar); the system's export name is hematdaya-tokens/1",
@@ -23,6 +23,7 @@
   ],
   "componentsNotUsed": [{ "name": "HD.ScheduleWindows", "why": "Its mode chooser has no editable windows; schedule editing composes ChoiceGroup + TextField(time) instead, with the same mode wording." }],
   "localDeviations": [
+    { "what": "App-provided language copy and formatting for shared components", "why": "Spec 050 adds an optional HD.CopyProvider. The standalone app supplies its locale and catalog for tabs, accessible names, statuses and formatted values. Components keep Indonesian defaults outside the provider.", "reviewImpact": "Local bundle override; preserve provider support if recopying the design system." },
     { "what": "project/ds/hematdaya/tokens.css written by hand in this project", "why": "The system ships no compiled tokens.css; its consuming guide says to regenerate from tokens.json. Values and names are copied 1:1 (aliases resolved to var() references) plus the .type-* classes.", "reviewImpact": "Must be regenerated if tokens.json changes; not a system file." },
     { "what": "project/app/app.css (scroll container, data <pre>, error list, key/value grid, 200% text class)", "why": "App-level layout not covered by a component; reads tokens only.", "reviewImpact": "Low; candidate for an HD layout helper." },
     { "what": "Own markup for: scope-conflict energy block, split/partial-tariff cost, CSV row-error list, source catalog rows, schedule window editor", "why": "Component gaps: EnergyMetric/CostEstimate render 'Belum ada data energi' when a total is withheld for a scope conflict; CostEstimate cannot show effective-dated tariff splits; ImportPreview assumes file line = data row + 1 (wrong with blank lines or multi-line quoted fields).", "reviewImpact": "Recommend system changes: EnergyMetric/CostEstimate 'scopeConflict' state, CostEstimate split/partial tariff, ImportPreview fileLine field." },

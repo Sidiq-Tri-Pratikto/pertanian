@@ -1,3 +1,4 @@
+import { useLocale } from '@/features/localization/locale';
 import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -17,6 +18,9 @@ type HDNoticeProps = {
 };
 
 const { color } = tokens;
+const EN_PREFIX: Record<Tone, string> = {
+  info: 'Info', attention: 'Attention', error: 'Error', success: 'Success', neutral: 'Note',
+};
 
 const TONES: Record<Tone, { icon: HDIconName; background: string; foreground: string; prefix: string }> = {
   info: { icon: 'info', background: color.statusInfoBackground, foreground: color.statusInfoForeground, prefix: 'Info' },
@@ -49,6 +53,8 @@ const TONES: Record<Tone, { icon: HDIconName; background: string; foreground: st
 /** Persistent explanation with a tone word, so meaning never rests on colour alone. */
 export function HDNotice({ tone = 'neutral', title, children, action, live = false }: HDNoticeProps) {
   const style = TONES[tone];
+  const locale = useLocale();
+  const prefix = locale === 'en' ? EN_PREFIX[tone] : style.prefix;
   return (
     <View
       accessibilityLiveRegion={live ? 'polite' : 'none'}
@@ -56,7 +62,7 @@ export function HDNotice({ tone = 'neutral', title, children, action, live = fal
       style={[styles.notice, { backgroundColor: style.background }]}>
       <HDIcon name={style.icon} size="small" color={style.foreground} />
       <View style={styles.content}>
-        <HDText variant="bodyStrong" accessibilityLabel={`${style.prefix}: ${title}`}>
+        <HDText variant="bodyStrong" accessibilityLabel={`${prefix}: ${title}`}>
           {title}
         </HDText>
         {typeof children === 'string' ? <HDText>{children}</HDText> : children}

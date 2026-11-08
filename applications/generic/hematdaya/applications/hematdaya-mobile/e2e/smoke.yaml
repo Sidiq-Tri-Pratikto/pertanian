@@ -28,3 +28,24 @@ appId: id.hematdaya.app
     timeout: 60000
 - assertVisible: "Belum ada perangkat"
 - takeScreenshot: perangkat-empty
+# A device-local language choice works even while the API is unavailable.
+- scrollUntilVisible:
+    element: "Pengaturan"
+    direction: DOWN
+- tapOn: "Pengaturan"
+- tapOn: "English"
+- extendedWaitUntil:
+    visible: "Settings"
+    timeout: 15000
+- tapOn: "Back"
+- assertVisible: "No devices yet"
+- takeScreenshot: devices-english
+- stopApp
+- launchApp
+- extendedWaitUntil:
+    visible: "No energy data yet"
+    timeout: 60000
+- assertVisible: "Home"
+- assertVisible: "Devices"
+- assertVisible: "Insights"
+- takeScreenshot: home-english-after-restart

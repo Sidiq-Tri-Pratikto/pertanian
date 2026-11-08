@@ -1,3 +1,4 @@
+import { currentCopy, useCopy } from '@/features/localization/messages';
 import type { ComponentRef, Ref } from 'react';
 import { StyleSheet, View, type TextInstance } from 'react-native';
 
@@ -38,8 +39,12 @@ type HDImportPreviewProps = {
   listTarget?: Ref<TextInstance>;
 };
 
-export const ROW_CONVENTION =
-  'Nomor baris data tidak menghitung header dan baris kosong. Baris berkas adalah nomor baris pada berkas, termasuk header.';
+export function rowConvention(): string {
+  return currentCopy(
+    'Nomor baris data tidak menghitung header dan baris kosong. Baris berkas adalah nomor baris pada berkas, termasuk header.',
+    'Data row numbers skip headers and blank lines. File line numbers count every line.',
+  );
+}
 
 export function rowKey(error: ImportRowError): string {
   return `row-${error.data_row}-${error.field}`;
@@ -75,13 +80,14 @@ export function HDImportPreview({
   ackTarget,
   listTarget,
 }: HDImportPreviewProps) {
+  const say = useCopy();
   const rows: [string, number][] = [
-    ['Baris data', counts.total_rows],
-    ['Diterima', counts.accepted_rows],
-    ['Tidak valid', counts.invalid_rows],
-    ['Duplikat (dihitung sekali)', counts.duplicate_rows],
-    ['Nilai berbeda', counts.conflict_rows],
-    ...(counts.pending_rows > 0 ? [['Menunggu pemetaan', counts.pending_rows] as [string, number]] : []),
+    [say("Baris data", "Data rows"), counts.total_rows],
+    [say("Diterima", "Accepted"), counts.accepted_rows],
+    [say("Tidak valid", "Invalid"), counts.invalid_rows],
+    [say("Duplikat (dihitung sekali)", "Duplicates (counted once)"), counts.duplicate_rows],
+    [say("Nilai berbeda", "Conflicting values"), counts.conflict_rows],
+    ...(counts.pending_rows > 0 ? [[say("Menunggu pemetaan", "Needs mapping"), counts.pending_rows] as [string, number]] : []),
   ];
   const blocked = blockReasons.length > 0;
 
@@ -91,8 +97,8 @@ export function HDImportPreview({
         <HDText variant="section">{fileName}</HDText>
         <HDText>
           {period
-            ? `Periode data: ${formatDateRange(period.start_date, period.end_date)} · ${period.timezone}`
-            : 'Periode data: belum ada baris yang diterima'}
+            ? say(`Periode data: ${formatDateRange(period.start_date, period.end_date)} · ${period.timezone}`, `Data period: ${formatDateRange(period.start_date, period.end_date)} · ${period.timezone}`)
+            : say("Periode data: belum ada baris yang diterima", "Data period: no accepted rows yet")}
         </HDText>
       </View>
       <View style={styles.counts}>
@@ -106,7 +112,7 @@ export function HDImportPreview({
         ))}
       </View>
       {blocked ? (
-        <HDNotice tone="error" title="Impor diblokir">
+        <HDNotice tone="error" title={say("Impor diblokir", "Import blocked")}>
           <View style={styles.tight}>
             {blockReasons.map((reason) => (
               <HDText key={reason}>{reason}</HDText>
@@ -116,20 +122,20 @@ export function HDImportPreview({
       ) : (
         <HDText variant="bodyStrong">
           {counts.accepted_rows > 0
-            ? `${counts.accepted_rows} baris akan disimpan.`
-            : `Tidak ada baris baru; ${counts.duplicate_rows} baris sama dengan data tersimpan.`}
+            ? say(`${counts.accepted_rows} baris akan disimpan.`, `Rows to save: ${counts.accepted_rows}.`)
+            : say(`Tidak ada baris baru; ${counts.duplicate_rows} baris sama dengan data tersimpan.`, `No new rows. ${counts.duplicate_rows} match existing data.`)}
         </HDText>
       )}
       {needsAcknowledgment ? (
         <HDChoiceGroup
           type="checkbox"
-          legend="Baris tidak valid"
+          legend={say("Baris tidak valid", "Invalid rows")}
           required
           error={ackError}
           disabled={ackLocked}
           options={[{
             value: ACK_VALUE,
-            label: `Saya setuju ${counts.invalid_rows} baris tidak valid dilewati dan tidak diimpor.`,
+            label: say(`Saya setuju ${counts.invalid_rows} baris tidak valid dilewati dan tidak diimpor.`, `I agree to skip ${counts.invalid_rows} invalid rows.`),
             ref: ackTarget,
           }]}
           value={acknowledged ? [ACK_VALUE] : []}
@@ -147,7 +153,7 @@ export function HDImportPreview({
         </View>
       ) : null}
       {mapping.length ? (
-        <HDDisclosure summary="Lihat pemetaan kolom">
+        <HDDisclosure summary={say("Lihat pemetaan kolom", "View column mapping")}>
           {mapping.map((line) => (
             <HDText key={line}>{line}</HDText>
           ))}
@@ -155,10 +161,8 @@ export function HDImportPreview({
       ) : null}
       {errors.length ? (
         <View style={styles.tight}>
-          <HDText ref={listTarget} variant="section" role="heading" aria-level={2} {...FOCUSABLE_BY_SCRIPT}>
-            Baris bermasalah
-          </HDText>
-          <HDText variant="label">{ROW_CONVENTION}</HDText>
+          <HDText ref={listTarget} variant="section" role="heading" aria-level={2} {...FOCUSABLE_BY_SCRIPT}>{say("Baris bermasalah", "Rows to review")}</HDText>
+          <HDText variant="label">{rowConvention()}</HDText>
           <View role="list" style={styles.tight}>
             {errors.map((error) => (
               <View key={rowKey(error)} ref={rowTarget?.(rowKey(error))} role="listitem" style={styles.row} {...FOCUSABLE_BY_SCRIPT}>
@@ -167,9 +171,7 @@ export function HDImportPreview({
             ))}
           </View>
           {onMoreErrors ? (
-            <HDButton variant="text" onPress={onMoreErrors} loading={loadingMore} loadingLabel="Memuat baris…">
-              Muat 50 baris berikutnya
-            </HDButton>
+            <HDButton variant="text" onPress={onMoreErrors} loading={loadingMore} loadingLabel={say("Memuat baris…", "Loading rows…")}>{say("Muat 50 baris berikutnya", "Load the next 50 rows")}</HDButton>
           ) : null}
         </View>
       ) : null}

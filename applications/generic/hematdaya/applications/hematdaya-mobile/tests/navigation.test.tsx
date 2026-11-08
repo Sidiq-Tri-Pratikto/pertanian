@@ -1,7 +1,9 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { act, fireEvent, renderRouter, screen } from 'expo-router/testing-library';
 import { AccessibilityInfo, Platform, Text, View } from 'react-native';
 
+import { setLocale } from '@/features/localization/locale';
 import { HDScreen } from '@/components/hd/HDScreen';
 import { moveFocus } from '@/lib/focus';
 
@@ -71,11 +73,31 @@ describe('navigation', () => {
     await renderRouter('./src/app', { initialUrl: '/' });
 
     expect(screen.getByRole('heading', { name: 'Selamat datang' })).toBeOnTheScreen();
-    expect(screen.queryByRole('radio')).toBeNull();
+    expect(screen.getAllByRole('radio')).toHaveLength(2);
+    expect(screen.getByText('Bahasa', { exact: true })).toBeOnTheScreen();
 
     await fireEvent.press(screen.getByRole('button', { name: 'Lanjut tanpa data' }));
 
     expect(await screen.findByRole('heading', { name: 'Beranda' })).toBeOnTheScreen();
+  });
+
+  it('switches Welcome and Settings without creating a workspace', async () => {
+    await renderRouter('./src/app', { initialUrl: '/' });
+
+    try {
+      await fireEvent.press(screen.getByRole('radio', { name: 'English' }));
+      expect(screen.getByRole('heading', { name: 'Welcome' })).toBeOnTheScreen();
+      expect(await AsyncStorage.getItem('hematdaya.locale.v1')).toBe('en');
+      await fireEvent.press(screen.getByRole('button', { name: 'Continue without data' }));
+      expect(await screen.findByRole('heading', { name: 'Home' })).toBeOnTheScreen();
+      await fireEvent.press(screen.getByRole('button', { name: 'Settings' }));
+      expect(await screen.findByRole('heading', { name: 'Settings' })).toBeOnTheScreen();
+      await fireEvent.press(screen.getByRole('radio', { name: 'Bahasa Indonesia' }));
+      expect(screen.getByRole('heading', { name: 'Pengaturan' })).toBeOnTheScreen();
+      expect((globalThis.fetch as jest.Mock).mock.calls.every(([, init]) => init?.method !== 'POST')).toBe(true);
+    } finally {
+      await act(() => setLocale('id'));
+    }
   });
 
   it('uses the chosen context for examples only', async () => {

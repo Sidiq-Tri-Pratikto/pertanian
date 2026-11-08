@@ -1,3 +1,4 @@
+import { useCopy } from '@/features/localization/messages';
 import { useCallback, useLayoutEffect, useRef, useState, type ComponentRef, type ReactNode, type Ref } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 
@@ -53,11 +54,12 @@ export function HDButton({
   onPress,
   icon,
   loading = false,
-  loadingLabel = 'Memproses…',
+  loadingLabel,
   disabledReason,
   fullWidth = false,
   expanded,
 }: HDButtonProps) {
+  const say = useCopy();
   const [focused, setFocused] = useState(false);
   const disabled = Boolean(disabledReason);
   const foreground = disabled ? color.disabledForeground : FOREGROUND[variant];
@@ -95,7 +97,7 @@ export function HDButton({
           icon && <HDIcon name={icon} size="small" color={foreground} />
         )}
         <HDText variant="bodyStrong" style={[styles.label, { color: foreground }]}>
-          {loading ? loadingLabel : children}
+          {loading ? (loadingLabel ?? say("Memproses…", "Working…")) : children}
         </HDText>
       </Pressable>
       {disabledReason ? (

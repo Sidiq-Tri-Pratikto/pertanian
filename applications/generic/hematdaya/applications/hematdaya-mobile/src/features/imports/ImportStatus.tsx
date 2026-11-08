@@ -1,3 +1,4 @@
+import { errorMessage } from '@/features/localization/error-copy';
 import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -8,14 +9,17 @@ import { HDText } from '@/components/hd/HDText';
 import { HDNotice } from '@/components/hd/HDNotice';
 import { tokens } from '@/design/tokens.generated';
 import type { CheckState, CommitState } from '@/features/imports/ImportDraftProvider';
-import { useLocale, type Locale } from '@/features/localization/locale';
-import { message } from '@/features/localization/messages';
+import { getLocale, useLocale, type Locale } from '@/features/localization/locale';
+import { currentCopy, useCopy, message } from '@/features/localization/messages';
 import { useTabNavigation } from '@/features/navigation';
 
 const UNKNOWN_DETAIL = 'Jawaban layanan tidak diterima. Periksa status sebelum mencoba lagi; impor tidak akan tersimpan dua kali.';
-const NOT_YET_DETAIL =
-  'Saat diperiksa, impor ini belum tersimpan. Data tersimpan sebelumnya tidak berubah. Kirim lagi memakai permintaan yang sama.';
-const UNCHANGED = 'Data yang tersimpan tidak berubah.';
+function copyNotYetDetail(): string {
+  return currentCopy("Saat diperiksa, impor ini belum tersimpan. Data tersimpan sebelumnya tidak berubah. Kirim lagi memakai permintaan yang sama.", "The service has no saved import yet. You can send the same request again.");
+}
+function copyUnchanged(): string {
+  return currentCopy("Data yang tersimpan tidak berubah.", "Your saved data is unchanged.");
+}
 
 /** The service's message, then the details it sent where they carry specifics, then the reference. */
 export function failureLines(error: ApiError | null, {
@@ -24,11 +28,11 @@ export function failureLines(error: ApiError | null, {
   if (!error) {
     return [];
   }
-  const language = locale ?? error.language;
+  const language = locale ?? getLocale();
   const useMessage = language === error.language;
   const reference = language === 'en' ? 'Reference ID' : 'ID referensi';
   return [
-    ...(useMessage ? [error.message] : []),
+    ...(errorMessage(error) ? [errorMessage(error)!] : []),
     ...(useMessage && details ? error.details.map((detail) => detail.msg) : []),
     ...(error.requestId ? [`${reference}: ${error.requestId}.`] : []),
   ];
@@ -53,17 +57,18 @@ function Lines({ lines, action }: { lines: string[]; action?: ReactNode }) {
  * answers; a lost preview saved nothing and may be sent again when the service allows it (027 D4).
  */
 export function CheckStatus({ check, onRetry }: { check: CheckState; onRetry: () => void }) {
+  const say = useCopy();
   if (check.kind !== 'failed' || check.outcome.kind === 'ended') {
     return <HDProgressStatus state={null} />;
   }
   const { error, outcome } = check;
   const label =
     outcome.kind === 'notFinished'
-      ? 'Berkas belum selesai diperiksa'
+      ? say("Berkas belum selesai diperiksa", "File check incomplete")
       : outcome.kind === 'assetGone'
-        ? 'Perangkat yang dipilih tidak ditemukan lagi. Pilih ulang perangkatnya.'
-        : 'Berkas belum dapat diperiksa';
-  const lines = [...failureLines(error), ...(outcome.kind === 'notFinished' ? [UNCHANGED] : [])];
+        ? say("Perangkat yang dipilih tidak ditemukan lagi. Pilih ulang perangkatnya.", "The device is no longer available. Choose a device again.")
+        : say("Berkas belum dapat diperiksa", "Could not check the file");
+  const lines = [...failureLines(error), ...(outcome.kind === 'notFinished' ? [copyUnchanged()] : [])];
   return (
     <HDProgressStatus
       state="failure"
@@ -73,9 +78,7 @@ export function CheckStatus({ check, onRetry }: { check: CheckState; onRetry: ()
           lines={lines}
           action={
             outcome.canRetry ? (
-              <HDButton variant="text" icon="refresh" onPress={onRetry}>
-                Coba lagi
-              </HDButton>
+              <HDButton variant="text" icon="refresh" onPress={onRetry}>{say("Coba lagi", "Try again")}</HDButton>
             ) : null
           }
         />
@@ -85,24 +88,26 @@ export function CheckStatus({ check, onRetry }: { check: CheckState; onRetry: ()
 }
 
 export function UnfinishedImportNotice() {
+  const say = useCopy();
   const { goImportStep } = useTabNavigation();
   return (
     <HDNotice
       tone="attention"
-      title="Ada impor yang belum selesai."
-      action={<HDButton onPress={() => goImportStep('pratinjau')}>Buka pratinjau</HDButton>}
+      title={say("Ada impor yang belum selesai.", "You have an unfinished import.")}
+      action={<HDButton onPress={() => goImportStep('pratinjau')}>{say("Buka pratinjau", "Open preview")}</HDButton>}
     />
   );
 }
 
 /** A commit's state: pending, unknown until checked, not yet recorded, or a definite refusal (027 D5, D6). */
 export function CommitStatus({ commit }: { commit: CommitState }) {
+  const say = useCopy();
   const locale = useLocale();
   switch (commit.kind) {
     case 'pending':
-      return <HDProgressStatus state="saving" label="Menyimpan impor…" detail="Berkas besar dapat memerlukan waktu hingga satu menit." />;
+      return <HDProgressStatus state="saving" label={say("Menyimpan impor…", "Saving import…")} detail={say("Berkas besar dapat memerlukan waktu hingga satu menit.", "Large files can take up to one minute.")} />;
     case 'checking':
-      return <HDProgressStatus state="loading" label="Memeriksa status…" />;
+      return <HDProgressStatus state="loading" label={say("Memeriksa status…", "Checking status…")} />;
     case 'unknown':
       return (
         <HDProgressStatus
@@ -123,11 +128,11 @@ export function CommitStatus({ commit }: { commit: CommitState }) {
         />
       );
     case 'notYet':
-      return <HDProgressStatus state="unknown" label="Impor belum tercatat" detail={NOT_YET_DETAIL} />;
+      return <HDProgressStatus state="unknown" label={say("Impor belum tercatat", "Import has not been saved")} detail={copyNotYetDetail()} />;
     case 'refused': {
       const { outcome, error } = commit;
       const label =
-        outcome.kind === 'stale' ? 'Pratinjau sudah tidak berlaku' : outcome.kind === 'gone' ? 'Pratinjau sudah tidak tersedia' : 'Impor belum disimpan';
+        outcome.kind === 'stale' ? say("Pratinjau sudah tidak berlaku", "Preview expired") : outcome.kind === 'gone' ? say("Pratinjau sudah tidak tersedia", "Preview no longer available") : say("Impor belum disimpan", "Import was not saved");
       return <HDProgressStatus state="failure" label={label} action={<Lines lines={failureLines(error, { details: outcome.kind !== 'gone' })} />} />;
     }
     default:
@@ -140,13 +145,12 @@ const styles = StyleSheet.create({
 });
 
 export function ImportLocalStatus({ unsent, failed }: { unsent: ApiError | null; failed: boolean }) {
+  const say = useCopy();
   return (
     <>
-      {unsent ? <HDProgressStatus state="failure" label="Impor belum dikirim" detail={unsent.message} /> : null}
+      {unsent ? <HDProgressStatus state="failure" label={say("Impor belum dikirim", "Import not sent")} detail={unsent.message} /> : null}
       {failed ? (
-        <HDNotice tone="attention" title="Pemulihan draf belum terkonfirmasi" live>
-          Isian masih tersedia selama aplikasi terbuka. Periksa penyimpanan perangkat sebelum memulai ulang.
-        </HDNotice>
+        <HDNotice tone="attention" title={say("Pemulihan draf belum terkonfirmasi", "Draft recovery unconfirmed")} live>{say("Isian masih tersedia selama aplikasi terbuka. Periksa penyimpanan perangkat sebelum memulai ulang.", "Your entries are available while the app is open. Check device storage before restarting.")}</HDNotice>
       ) : null}
     </>
   );

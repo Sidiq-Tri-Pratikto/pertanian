@@ -2,10 +2,11 @@
  * What S10 shows, from the service's import responses. Every count, reason, question and assumption is the
  * service's: nothing here adds, subtracts or divides a count, or decides whether an import is blocked.
  */
+import { currentCopy } from '@/features/localization/messages';
 import type { AssetCandidate, ImportAnswers, ImportCommit, ImportPeriod, ImportPreview, ImportResult } from '@/api/client';
 import type { ApiError } from '@/api/errors';
 import type { Period } from '@/features/workspace/workspace-store';
-import { formatCadence, formatDateRange, formatDateTime, KIND_LABEL, type AssetKind } from '@/lib/format';
+import { formatCadence, formatDateRange, formatDateTime, assetKindLabel, type AssetKind } from '@/lib/format';
 
 export type ImportStream = {
   stream_key: string;
@@ -67,32 +68,40 @@ export function mappingOf(preview: ImportPreview): ImportMapping {
   };
 }
 
-export const VALUE_KIND_OPTIONS = [
-  { value: 'interval_energy' as const, label: 'Energi interval (Wh)' },
-  { value: 'average_power' as const, label: 'Daya rata-rata (W)' },
-  { value: 'counter' as const, label: 'Penghitung kumulatif (Wh)' },
-];
+export function valueKindOptions() {
+  return [
+    { value: 'interval_energy' as const, label: currentCopy('Energi interval (Wh)', 'Interval energy (Wh)') },
+    { value: 'average_power' as const, label: currentCopy('Daya rata-rata (W)', 'Average power (W)') },
+    { value: 'counter' as const, label: currentCopy('Penghitung kumulatif (Wh)', 'Cumulative counter (Wh)') },
+  ];
+}
 
-export const POWER_OPTIONS = [
-  { value: 'average' as const, label: 'Daya rata-rata selama interval', description: 'Diubah menjadi energi: W × durasi.' },
-  { value: 'instantaneous' as const, label: 'Daya sesaat (titik waktu)', description: 'Tidak dapat menjadi energi; impor diblokir.' },
-];
+export function powerOptions() {
+  return [
+    { value: 'average' as const, label: currentCopy('Daya rata-rata selama interval', 'Average power over the interval'), description: currentCopy('Diubah menjadi energi: W × durasi.', 'Converts to energy using W × duration.') },
+    { value: 'instantaneous' as const, label: currentCopy('Daya sesaat (titik waktu)', 'Instantaneous power (one point in time)'), description: currentCopy('Tidak dapat menjadi energi; impor diblokir.', 'We need a duration to calculate energy. This file cannot be imported.') },
+  ];
+}
 
-export const SCOPE_OPTIONS = [
-  {
-    value: 'disjoint' as const,
-    label: 'Ya, terpisah satu sama lain dan dari perangkat lain',
-    description: 'Nilainya boleh dijumlahkan.',
-  },
-  {
-    value: 'unknown_overlap' as const,
-    label: 'Belum tahu',
-    description: 'Nilai tampil per perangkat; total gabungan tidak dihitung.',
-  },
-];
+export function scopeOptions() {
+  return [
+    {
+      value: 'disjoint' as const,
+      label: currentCopy('Ya, terpisah satu sama lain dan dari perangkat lain', 'Yes, they measure separate loads'),
+      description: currentCopy('Nilainya boleh dijumlahkan.', 'The readings can be added together.'),
+    },
+    {
+      value: 'unknown_overlap' as const,
+      label: currentCopy('Belum tahu', 'Not sure'),
+      description: currentCopy('Nilai tampil per perangkat; total gabungan tidak dihitung.', 'Individual readings are available. The combined total is unavailable.'),
+    },
+  ];
+}
 
 export const NEW_ASSET = 'new';
-const NEW_ASSET_LABEL = 'Buat perangkat baru';
+function copyNewAssetLabel(): string {
+  return currentCopy("Buat perangkat baru", "Create a new device");
+}
 
 export type Control =
   | { kind: 'timezone'; key: string; message: string; timezone: string }
@@ -111,7 +120,7 @@ const ASSET_KIND: Record<string, AssetKind> = { device: 'device', circuit: 'circ
 /** `Kulkas · Perangkat · Dapur · Pendingin makanan · ID …a1b2c3`, leaving out what is absent. */
 export function assetOptionLabel(candidate: AssetCandidate): string {
   const kind = ASSET_KIND[candidate.scope_kind];
-  return [candidate.name, kind ? KIND_LABEL[kind] : null, candidate.location, candidate.category, `ID …${candidate.id.slice(-6)}`]
+  return [candidate.name, kind ? assetKindLabel(kind) : null, candidate.location, candidate.category, `ID …${candidate.id.slice(-6)}`]
     .filter(Boolean)
     .join(' · ');
 }
@@ -149,7 +158,7 @@ export function questionControls(preview: ImportPreview): Control[] {
             assetName,
             options: [
               ...(question.candidates ?? []).map((candidate) => ({ value: candidate.id, label: assetOptionLabel(candidate) })),
-              { value: NEW_ASSET, label: NEW_ASSET_LABEL },
+              { value: NEW_ASSET, label: copyNewAssetLabel() },
             ],
           },
         ];
@@ -242,19 +251,19 @@ export type SummaryItem = { key: string; text: string; unanswerable: boolean };
 function missingText(control: Control): string {
   switch (control.kind) {
     case 'timezone':
-      return `Konfirmasi zona waktu ${control.timezone}.`;
+      return currentCopy(`Konfirmasi zona waktu ${control.timezone}.`, `Confirm the ${control.timezone} time zone.`);
     case 'scope':
-      return 'Pilih apakah beban perangkat terukur terpisah.';
+      return currentCopy("Pilih apakah beban perangkat terukur terpisah.", "Choose whether the devices measure separate loads.");
     case 'power_meaning':
-      return 'Pilih arti kolom daya.';
+      return currentCopy("Pilih arti kolom daya.", "Choose what the power column represents.");
     case 'value_kind':
-      return 'Pilih jenis nilai.';
+      return currentCopy("Pilih jenis nilai.", "Choose a value type.");
     case 'interval_duration':
-      return `Isi panjang interval untuk ${control.assetName}.`;
+      return currentCopy(`Isi panjang interval untuk ${control.assetName}.`, `Enter the interval length for ${control.assetName}.`);
     case 'asset_choice':
-      return `Pilih perangkat untuk “${control.assetName}”.`;
+      return currentCopy(`Pilih perangkat untuk “${control.assetName}”.`, `Choose a device for “${control.assetName}”.`);
     case 'other_source':
-      return `Pilih cara mengimpor ${control.assetName}.`;
+      return currentCopy(`Pilih cara mengimpor ${control.assetName}.`, `Choose how to import ${control.assetName}.`);
     default:
       return control.message;
   }
@@ -273,7 +282,7 @@ export function askedAgain(preview: ImportPreview, answers: ImportAnswers): Summ
     .filter((control) => control.kind !== 'unanswerable' && answerOf(control, answers) !== undefined)
     .map((control) => ({
       key: control.key,
-      text: control.kind === 'value_kind' ? `Jenis nilai ini tidak ada di berkas. Pilih jenis lain. ${control.message}` : control.message,
+      text: control.kind === 'value_kind' ? currentCopy(`Jenis nilai ini tidak ada di berkas. Pilih jenis lain. ${control.message}`, `This file does not contain that value type. Choose another. ${control.message}`) : control.message,
       unanswerable: false,
     }));
 }
@@ -338,7 +347,7 @@ export type ResultModel = {
 };
 
 function names(assets: { name: string }[] | undefined): string {
-  return assets?.length ? assets.map((asset) => asset.name).join(', ') : 'Tidak ada';
+  return assets?.length ? assets.map((asset) => asset.name).join(', ') : currentCopy("Tidak ada", "None");
 }
 
 /**
@@ -356,31 +365,31 @@ export function resultModel(result: ImportCommit | ImportResult, { found, timezo
   if (allAfter) {
     clockNotice = {
       tone: 'attention',
-      text: `Semua ${added} baris tersimpan, tetapi berada setelah waktu ruang kerja ini, sehingga belum tampil di Beranda atau Perangkat.`,
+      text: currentCopy(`Semua ${added} baris tersimpan, tetapi berada setelah waktu ruang kerja ini, sehingga belum tampil di Beranda atau Perangkat.`, `All ${added} rows were saved after the workspace’s current date. They will not show on Home or Devices yet.`),
     };
   } else if (after > 0) {
     clockNotice = {
       tone: 'attention',
-      text: `${after} dari ${added} baris tersimpan berada setelah waktu ruang kerja ini, sehingga belum dihitung pada ringkasan.`,
+      text: currentCopy(`${after} dari ${added} baris tersimpan berada setelah waktu ruang kerja ini, sehingga belum dihitung pada ringkasan.`, `${after} of ${added} saved rows are after this workspace’s current date. The summary excludes them.`),
     };
   }
   return {
-    title: replayed ? 'Impor sudah dikonfirmasi sebelumnya' : 'Impor tersimpan',
-    note: replayed ? 'Permintaan yang sama ditemukan; data tidak diimpor dua kali.' : null,
-    confirmedAt: `Dikonfirmasi layanan ${formatDateTime(result.committed_at, timezone)}`,
+    title: replayed ? currentCopy("Impor sudah dikonfirmasi sebelumnya", "Import already confirmed") : currentCopy("Impor tersimpan", "Import saved"),
+    note: replayed ? currentCopy("Permintaan yang sama ditemukan; data tidak diimpor dua kali.", "We found the previous request and kept the original import.") : null,
+    confirmedAt: currentCopy(`Dikonfirmasi layanan ${formatDateTime(result.committed_at, timezone)}`, `Confirmed by the service at ${formatDateTime(result.committed_at, timezone)}`),
     rows: [
-      { term: 'Baris disimpan', value: String(added) },
-      { term: 'Baris tidak valid dilewati', value: String(result.rows_skipped) },
-      { term: 'Duplikat (dihitung sekali)', value: String(result.rows_duplicate) },
-      { term: 'Perangkat baru', value: names(result.assets_created) },
-      { term: 'Perangkat yang dipakai', value: names(result.assets_mapped) },
-      { term: 'Periode data', value: result.period ? formatDateRange(result.period.start_date, result.period.end_date) : 'Tidak ada periode baru' },
+      { term: currentCopy("Baris disimpan", "Rows saved"), value: String(added) },
+      { term: currentCopy("Baris tidak valid dilewati", "Invalid rows skipped"), value: String(result.rows_skipped) },
+      { term: currentCopy("Duplikat (dihitung sekali)", "Duplicates (counted once)"), value: String(result.rows_duplicate) },
+      { term: currentCopy("Perangkat baru", "New devices"), value: names(result.assets_created) },
+      { term: currentCopy("Perangkat yang dipakai", "Existing devices used"), value: names(result.assets_mapped) },
+      { term: currentCopy("Periode data", "Data period"), value: result.period ? formatDateRange(result.period.start_date, result.period.end_date) : currentCopy("Tidak ada periode baru", "No new period") },
     ],
     primary: visible ? 'landing' : 'home',
     landing,
     clockNotice,
-    nothingNew: added === 0 ? `Tidak ada baris baru. ${result.rows_duplicate} baris sama dengan data tersimpan dan dihitung sekali.` : null,
-    longRange: visible && landing?.clamped ? 'Rentang data lebih dari 366 hari, sehingga Beranda menampilkan 366 hari terakhirnya.' : null,
+    nothingNew: added === 0 ? currentCopy(`Tidak ada baris baru. ${result.rows_duplicate} baris sama dengan data tersimpan dan dihitung sekali.`, `No new rows. ${result.rows_duplicate} match existing readings and were counted once.`) : null,
+    longRange: visible && landing?.clamped ? currentCopy("Rentang data lebih dari 366 hari, sehingga Beranda menampilkan 366 hari terakhirnya.", "This file covers over 366 days. Home shows the last 366 days of the data.") : null,
   };
 }
 
@@ -442,7 +451,7 @@ export function previewOutcome(error: ApiError): PreviewOutcome {
       canRetry,
       items: error.details.map((detail, index) => {
         const line = detailLine(detail.loc);
-        return { key: `detail-${index}`, text: line === null ? detail.msg : `${detail.msg} (baris berkas ${line})`, target: detailTarget(detail.loc) };
+        return { key: `detail-${index}`, text: line === null ? detail.msg : currentCopy(`${detail.msg} (baris berkas ${line})`, `${detail.msg} (file line ${line})`), target: detailTarget(detail.loc) };
       }),
     };
   }
@@ -461,33 +470,39 @@ export function counterNotes(preview: ImportPreview): string[] {
     .streams.filter((stream) => stream.kind === 'counter' && stream.source_id !== null)
     .map(
       (stream) =>
-        `${stream.asset_name} melanjutkan penghitung yang sudah tersimpan. Energi dihitung dari selisih dengan pembacaan tersimpan; catatan “pembacaan pertama” hanya menggambarkan isi berkas ini.`,
+        currentCopy(`${stream.asset_name} melanjutkan penghitung yang sudah tersimpan. Energi dihitung dari selisih dengan pembacaan tersimpan; catatan “pembacaan pertama” hanya menggambarkan isi berkas ini.`, `${stream.asset_name} continues an existing counter. Energy uses the difference from the last saved reading. “First reading” refers to the first row in this file.`),
     );
 }
 
-const BASIS = { inferred: 'disimpulkan', declared: 'diisi', explicit: 'dari kolom awal dan akhir' };
+function basisLabel(basis: NonNullable<ImportStream['interval_basis']>): string {
+  return {
+    inferred: currentCopy('disimpulkan', 'inferred'),
+    declared: currentCopy('diisi', 'entered'),
+    explicit: currentCopy('dari kolom awal dan akhir', 'from the start and end columns'),
+  }[basis];
+}
 
 /** `Lampu Teras: interval 1 jam (disimpulkan)`. */
 export function streamRow(stream: ImportStream): string {
-  const interval = stream.cadence_seconds ? `interval ${formatCadence(stream.cadence_seconds)}` : 'interval belum diketahui';
-  return `${stream.asset_name}: ${interval}${stream.interval_basis ? ` (${BASIS[stream.interval_basis]})` : ''}`;
+  const interval = stream.cadence_seconds ? currentCopy(`interval ${formatCadence(stream.cadence_seconds)}`, `${formatCadence(stream.cadence_seconds)} intervals`) : currentCopy("interval belum diketahui", "interval unknown");
+  return `${stream.asset_name}: ${interval}${stream.interval_basis ? ` (${basisLabel(stream.interval_basis)})` : ''}`;
 }
 
 export function streamTarget(stream: ImportStream): string {
-  return stream.asset_id ? 'Perangkat tersimpan' : 'Perangkat baru';
+  return stream.asset_id ? currentCopy("Perangkat tersimpan", "Saved device") : currentCopy("Perangkat baru", "New devices");
 }
 
 /** `tempelan.csv · 12 baris data · kolom waktu timestamp · kolom nilai energi_wh (Wh)`. */
 export function mappingLine(preview: ImportPreview): string {
   const { columns } = mappingOf(preview);
-  const time = columns.timestamp ?? `${columns.interval_start} dan ${columns.interval_end}`;
-  const value = columns.value ? `kolom nilai ${columns.value}${columns.unit ? ` (${columns.unit})` : ''}` : 'kolom nilai belum dipilih';
-  return `${preview.file_name} · ${preview.total_rows} baris data · kolom waktu ${time} · ${value}`;
+  const time = columns.timestamp ?? currentCopy(`${columns.interval_start} dan ${columns.interval_end}`, `${columns.interval_start} and ${columns.interval_end}`);
+  const value = columns.value ? `kolom nilai ${columns.value}${columns.unit ? ` (${columns.unit})` : ''}` : currentCopy("kolom nilai belum dipilih", "no value column selected");
+  return currentCopy(`${preview.file_name} · ${preview.total_rows} baris data · kolom waktu ${time} · ${value}`, `${preview.file_name} · ${preview.total_rows} data rows · time column ${time} · ${value}`);
 }
 
 /** A row message as the service wrote it, then the file line it sent. Never derived from the data row (027 D18). */
 export function rowErrorText(error: { message: string; file_line: number }): string {
-  return `${error.message} (baris berkas ${error.file_line})`;
+  return currentCopy(`${error.message} (baris berkas ${error.file_line})`, `${error.message} (file line ${error.file_line})`);
 }
 
 const WHOLE_MINUTES = /^[0-9]+$/;
@@ -501,4 +516,6 @@ export function readMinutes(typed: string): number | null | 'invalid' {
   return WHOLE_MINUTES.test(trimmed) ? Number(trimmed) : 'invalid';
 }
 
-export const MINUTES_ERROR = 'Isi panjang interval dalam menit, dengan angka bulat.';
+export function minutesError(): string {
+  return currentCopy('Isi panjang interval dalam menit, dengan angka bulat.', 'Enter a whole number of minutes.');
+}

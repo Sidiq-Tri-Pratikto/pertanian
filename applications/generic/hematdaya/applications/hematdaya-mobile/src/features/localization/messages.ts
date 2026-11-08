@@ -1,4 +1,4 @@
-import type { Locale } from '@/features/localization/locale';
+import { getLocale, useLocale, type Locale } from '@/features/localization/locale';
 
 const id = {
   home: 'Beranda',
@@ -12,6 +12,7 @@ const id = {
   addData: 'Tambah data',
   checkStatus: 'Periksa status',
   importUnknown: 'Status impor belum diketahui',
+  navigation: 'Navigasi utama',
 };
 
 type MessageKey = keyof typeof id;
@@ -28,8 +29,30 @@ const en: Record<MessageKey, string> = {
   addData: 'Add data',
   checkStatus: 'Check status',
   importUnknown: 'Import status unknown',
+  navigation: 'Main navigation',
 };
 
 export function message(locale: Locale, key: MessageKey): string {
   return (locale === 'en' ? en : id)[key];
+}
+
+export function useLabels() {
+  return useLocale() === 'en' ? en : id;
+}
+
+export function useCopy() {
+  return useLocale() === 'en' ? englishCopy : indonesianCopy;
+}
+
+function englishCopy(_id: string, english: string): string {
+  return english;
+}
+
+function indonesianCopy(indonesian: string, _en: string): string {
+  return indonesian;
+}
+
+/** For building display models from structured data inside a localized render. */
+export function currentCopy(indonesian: string, english: string): string {
+  return getLocale() === 'en' ? english : indonesian;
 }

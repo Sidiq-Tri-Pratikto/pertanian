@@ -1,3 +1,5 @@
+import { errorMessage } from '@/features/localization/error-copy';
+import { useCopy } from '@/features/localization/messages';
 import { ApiError } from '@/api/errors';
 import { HDButton } from '@/components/hd/HDButton';
 import { HDProgressStatus } from '@/components/hd/HDProgressStatus';
@@ -14,25 +16,22 @@ type ReadFailureProps = {
   kept?: boolean;
 };
 
-const KEPT_SENTENCE = 'Angka yang tampil adalah data terakhir yang terkonfirmasi.';
-
 /** A failed read: the service's message and reference, and Coba lagi only when the service allows a retry. */
 export function ReadFailure({ error, label, retrying, onRetry, kept = false }: ReadFailureProps) {
+  const say = useCopy();
   if (error === null || error === undefined) {
     return <HDProgressStatus state={null} />;
   }
   const failure = ApiError.from(error);
-  const reference = failure.requestId ? `ID referensi: ${failure.requestId}.` : null;
+  const reference = failure.requestId ? say(`ID referensi: ${failure.requestId}.`, `Reference ID: ${failure.requestId}.`) : null;
   return (
     <HDProgressStatus
       state="failure"
       label={label}
-      detail={[failure.message, reference, kept ? KEPT_SENTENCE : null].filter(Boolean).join(' ')}
+      detail={[errorMessage(failure), reference, kept ? say('Angka yang tampil adalah data terakhir yang terkonfirmasi.', 'These are the last confirmed readings.') : null].filter(Boolean).join(' ')}
       action={
         failure.recovery.retryable === true ? (
-          <HDButton variant="text" icon="refresh" loading={retrying} onPress={onRetry}>
-            Coba lagi
-          </HDButton>
+          <HDButton variant="text" icon="refresh" loading={retrying} onPress={onRetry}>{say("Coba lagi", "Try again")}</HDButton>
         ) : null
       }
     />

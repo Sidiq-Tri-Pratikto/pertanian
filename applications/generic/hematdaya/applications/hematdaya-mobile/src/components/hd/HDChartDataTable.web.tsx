@@ -1,3 +1,4 @@
+import { useCopy } from '@/features/localization/messages';
 import { useId, type CSSProperties } from 'react';
 
 import type { ChartDataTableProps } from '@/components/hd/HDChartDataTable';
@@ -14,6 +15,7 @@ const style = {
 
 /** Explicit roles and header IDs preserve table navigation when CSS stacks the rows. */
 export function HDChartDataTable({ caption, columns, rows }: ChartDataTableProps) {
+  const say = useCopy();
   const id = useId();
   const captionId = `${id}-caption`;
   return (
@@ -36,7 +38,7 @@ export function HDChartDataTable({ caption, columns, rows }: ChartDataTableProps
                 const contents = (
                   <>
                     <span className="hd-chart-data-label" aria-hidden="true">{column.label}</span>
-                    <span>{row[column.key] || 'Tidak ada data'}</span>
+                    <span>{row[column.key] || say("Tidak ada data", "No data")}</span>
                   </>
                 );
                 return columnIndex === 0

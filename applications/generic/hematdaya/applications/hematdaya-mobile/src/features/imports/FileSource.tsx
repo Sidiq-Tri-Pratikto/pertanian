@@ -1,3 +1,4 @@
+import { useCopy, currentCopy } from '@/features/localization/messages';
 import * as DocumentPicker from 'expo-document-picker';
 import type { ComponentRef, Ref } from 'react';
 import { View } from 'react-native';
@@ -23,7 +24,7 @@ export function useFilePick(onRefused: (refusal: PickRefusal) => void) {
     try {
       result = await DocumentPicker.getDocumentAsync(PICKER_OPTIONS);
     } catch {
-      onRefused({ key: 'picker', text: 'Pemilih berkas tidak dapat dibuka. Coba lagi atau tempel isi CSV.' });
+      onRefused({ key: 'picker', text: currentCopy("Pemilih berkas tidak dapat dibuka. Coba lagi atau tempel isi CSV.", "Could not open the file picker. Try again or paste your CSV.") });
       return false;
     }
     const asset = result.canceled ? null : result.assets?.[0];
@@ -31,11 +32,11 @@ export function useFilePick(onRefused: (refusal: PickRefusal) => void) {
       return false;
     }
     if (asset.size !== undefined && asset.size > MAX_IMPORT_BYTES) {
-      onRefused({ key: 'size', text: `Ukuran ${asset.name} melebihi batas 10 MiB.` });
+      onRefused({ key: 'size', text: currentCopy(`Ukuran ${asset.name} melebihi batas 10 MiB.`, `${asset.name} exceeds the 10 MiB limit.`) });
       return false;
     }
     if (mode === 'reselect' && asset.name !== draft.sourceName) {
-      onRefused({ key: 'file', text: `Pilih kembali ${draft.sourceName}, atau kembali ke Berkas untuk memilih berkas lain.` });
+      onRefused({ key: 'file', text: currentCopy(`Pilih kembali ${draft.sourceName}, atau kembali ke Berkas untuk memilih berkas lain.`, `Choose ${draft.sourceName} again, or go back to File to choose another file.`) });
       return false;
     }
     const source: ImportSource = asset.file
@@ -51,20 +52,19 @@ export function useFilePick(onRefused: (refusal: PickRefusal) => void) {
 }
 
 export function reselectText(name: string): string {
-  return `Berkas ${name} perlu dipilih ulang karena halaman dimuat ulang. Isi berkas tidak dapat dipulihkan dari peramban.`;
+  return currentCopy(`Berkas ${name} perlu dipilih ulang karena halaman dimuat ulang. Isi berkas tidak dapat dipulihkan dari peramban.`, `The page reloaded. Choose ${name} again to continue.`);
 }
 
 /** After a web reload: the file is named, and must be picked again. Nothing claims it was recovered (027 D12). */
 export function ReselectNotice({ name, onPick, noticeRef }: { name: string; onPick: () => void; noticeRef?: Ref<ComponentRef<typeof View>> }) {
+  const say = useCopy();
   return (
     <View ref={noticeRef} {...FOCUSABLE_BY_SCRIPT}>
       <HDNotice
         tone="attention"
         title={reselectText(name)}
         action={
-          <HDButton icon="chevronRight" onPress={onPick}>
-            Pilih berkas lagi
-          </HDButton>
+          <HDButton icon="chevronRight" onPress={onPick}>{say("Pilih berkas lagi", "Choose file again")}</HDButton>
         }
       />
     </View>

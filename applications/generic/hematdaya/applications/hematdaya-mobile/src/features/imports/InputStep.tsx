@@ -1,3 +1,5 @@
+import { errorMessage } from '@/features/localization/error-copy';
+import { useCopy } from '@/features/localization/messages';
 import { useRef, useState, type ComponentRef } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 
@@ -28,6 +30,7 @@ type Issue = { key: string; text: string };
 
 /** Berkas: the requirements first, then a file or a paste, the examples, and Periksa berkas. */
 export function InputStep() {
+  const say = useCopy();
   const draft = useImportDraft();
   const { status, workspace } = useWorkspace();
   const { preset } = useContextPreset();
@@ -73,11 +76,11 @@ export function InputStep() {
       return;
     }
     if (!source) {
-      refuse({ key: 'source', text: 'Pilih berkas CSV atau tempel isi CSV.' });
+      refuse({ key: 'source', text: say("Pilih berkas CSV atau tempel isi CSV.", "Choose a CSV file or paste your CSV.") });
       return;
     }
     if (source.kind === 'paste' && source.text.length > MAX_IMPORT_BYTES) {
-      refuse({ key: 'size', text: 'Ukuran tempelan.csv melebihi batas 10 MiB.' });
+      refuse({ key: 'size', text: say("Ukuran tempelan.csv melebihi batas 10 MiB.", "The pasted CSV exceeds the 10 MiB limit.") });
       return;
     }
     setIssues([]);
@@ -108,36 +111,30 @@ export function InputStep() {
       frame={frame}
       footer={
         noWorkspace ? (
-          <HDButton variant="primary" fullWidth loading={demo.state.kind === 'pending'} onPress={() => void demo.start('empty')}>
-            Mulai ruang kerja
-          </HDButton>
+          <HDButton variant="primary" fullWidth loading={demo.state.kind === 'pending'} onPress={() => void demo.start('empty')}>{say("Mulai ruang kerja", "Start workspace")}</HDButton>
         ) : (
-          <HDButton variant="primary" fullWidth loading={checking} loadingLabel="Memeriksa berkas…" onPress={() => void check()}>
-            Periksa berkas
-          </HDButton>
+          <HDButton variant="primary" fullWidth loading={checking} loadingLabel={say("Memeriksa berkas…", "Checking file…")} onPress={() => void check()}>{say("Periksa berkas", "Check file")}</HDButton>
         )
       }>
       {noWorkspace ? (
         <View style={styles.section}>
           <SessionEndedNotice />
-          <HDNotice tone="attention" title="Belum ada ruang kerja">
-            Impor memerlukan ruang kerja. Mulai ruang kerja sementara untuk melanjutkan; isi yang sudah ditempel tetap ada.
-          </HDNotice>
+          <HDNotice tone="attention" title={say("Belum ada ruang kerja", "No workspace yet")}>{say("Impor memerlukan ruang kerja. Mulai ruang kerja sementara untuk melanjutkan; isi yang sudah ditempel tetap ada.", "Start a temporary workspace to import. Your pasted CSV will stay here.")}</HDNotice>
           {demo.state.kind === 'failed' || demo.state.kind === 'unknown' || demo.state.kind === 'unsent' ? (
-            <HDProgressStatus state="failure" label="Belum berhasil" detail={demo.state.error.message} />
+            <HDProgressStatus state="failure" label={say("Belum berhasil", "Unsuccessful")} detail={errorMessage(demo.state.error)} />
           ) : null}
         </View>
       ) : null}
       {storedResult ? (
-        <HDNotice tone="success" title="Impor sebelumnya sudah tersimpan." action={<HDButton onPress={showImportResult}>Lihat hasil</HDButton>} />
+        <HDNotice tone="success" title={say("Impor sebelumnya sudah tersimpan.", "Your earlier import was saved.")} action={<HDButton onPress={showImportResult}>{say("Lihat hasil", "View result")}</HDButton>} />
       ) : null}
       <HDErrorSummary errors={summary} submitCount={submits} />
-      <HDNotice tone="info" title="Syarat berkas">
+      <HDNotice tone="info" title={say("Syarat berkas", "File requirements")}>
         {REQUIREMENTS}
       </HDNotice>
       <ImportLocalStatus unsent={draft.unsent} failed={draft.persistenceFailed} />
       <CheckStatus check={draft.check} onRetry={() => void check()} />
-      {draft.textDropped ? <HDNotice tone="attention" title="Isi tempelan terlalu besar untuk disimpan di peramban. Tempel ulang isinya." /> : null}
+      {draft.textDropped ? <HDNotice tone="attention" title={say("Isi tempelan terlalu besar untuk disimpan di peramban. Tempel ulang isinya.", "The CSV was too large to keep in your browser. Paste it again.")} /> : null}
       <View
         ref={(node) => {
           fileRef.current = node;
@@ -149,53 +146,47 @@ export function InputStep() {
           <ReselectNotice name={draft.sourceName} onPick={() => void pick('reselect')} />
         ) : file ? (
           <>
-            <HDText variant="bodyStrong">{`Berkas: ${draft.sourceName}`}</HDText>
-            {Platform.OS === 'web' ? <HDText variant="label">Setelah peramban ditutup, berkas perlu dipilih ulang.</HDText> : null}
+            <HDText variant="bodyStrong">{say(`Berkas: ${draft.sourceName}`, `File: ${draft.sourceName}`)}</HDText>
+            {Platform.OS === 'web' ? <HDText variant="label">{say("Setelah peramban ditutup, berkas perlu dipilih ulang.", "Choose the file again after closing the browser.")}</HDText> : null}
             <View style={styles.row}>
-              <HDButton onPress={() => askFirst(() => void pick('replace'))}>Ganti berkas</HDButton>
-              <HDButton variant="text" onPress={draft.clearSource}>
-                Hapus berkas
-              </HDButton>
+              <HDButton onPress={() => askFirst(() => void pick('replace'))}>{say("Ganti berkas", "Replace file")}</HDButton>
+              <HDButton variant="text" onPress={draft.clearSource}>{say("Hapus berkas", "Remove file")}</HDButton>
             </View>
           </>
         ) : (
-          <HDButton icon="chevronRight" onPress={() => askFirst(() => void pick('replace'))}>
-            Pilih berkas CSV
-          </HDButton>
+          <HDButton icon="chevronRight" onPress={() => askFirst(() => void pick('replace'))}>{say("Pilih berkas CSV", "Choose file")}</HDButton>
         )}
       </View>
       {file || draft.needsReselect ? null : (
         <HDTextField
-          label="Atau tempel isi CSV"
+          label={say("Atau tempel isi CSV", "Or paste CSV")}
           optional
-          help="Untuk berkas besar, pilih berkas."
+          help={say("Untuk berkas besar, pilih berkas.", "Use the file picker for large CSV files.")}
           multiline
           value={draft.source?.kind === 'paste' ? draft.source.text : ''}
           onChange={draft.setText}
           editable={!checking}
-          draftNote={draft.source?.kind === 'paste' ? 'Isi tetap tersimpan bila Anda kembali.' : undefined}
+          draftNote={draft.source?.kind === 'paste' ? say("Isi tetap tersimpan bila Anda kembali.", "Your entries stay here when you go back.") : undefined}
           inputRef={(node) => {
             frame.refFor('paste').current = node;
           }}
         />
       )}
-      <HDDisclosure summary="Contoh berkas yang dapat disalin">
+      <HDDisclosure summary={say("Contoh berkas yang dapat disalin", "CSV examples you can copy")}>
         {EXAMPLES(preset).map((example) => (
           <View key={example.id} role="group" aria-label={example.label} style={styles.example}>
             <HDText variant="bodyStrong">{example.label}</HDText>
             <HDText variant="label" selectable style={styles.code}>
               {example.text}
             </HDText>
-            <HDButton onPress={() => askFirst(() => draft.replaceSource({ kind: 'paste', text: example.text }))}>Gunakan contoh ini</HDButton>
+            <HDButton onPress={() => askFirst(() => draft.replaceSource({ kind: 'paste', text: example.text }))}>{say("Gunakan contoh ini", "Use this example")}</HDButton>
           </View>
         ))}
       </HDDisclosure>
-      <HDButton variant="text" onPress={toTabRoot}>
-        Tutup impor (draf tetap tersimpan)
-      </HDButton>
+      <HDButton variant="text" onPress={toTabRoot}>{say("Tutup impor (draf tetap tersimpan)", "Close import and keep draft")}</HDButton>
       <HDSheetDialog
         open={pendingReplace !== null}
-        title="Ganti isi impor?"
+        title={say("Ganti isi impor?", "Replace import contents?")}
         onClose={() => setPendingReplace(null)}
         returnFocusTo={fileRef}
         footer={
@@ -206,13 +197,11 @@ export function InputStep() {
                 const apply = pendingReplace;
                 setPendingReplace(null);
                 apply?.();
-              }}>
-              Ganti
-            </HDButton>
-            <HDButton onPress={() => setPendingReplace(null)}>Batal</HDButton>
+              }}>{say("Ganti", "Replace")}</HDButton>
+            <HDButton onPress={() => setPendingReplace(null)}>{say("Batal", "Cancel")}</HDButton>
           </>
         }>
-        <HDText>Isi sekarang, jawaban pemetaan, dan pratinjau akan diganti. Data yang sudah tersimpan tidak berubah.</HDText>
+        <HDText>{say("Isi sekarang, jawaban pemetaan, dan pratinjau akan diganti. Data yang sudah tersimpan tidak berubah.", "This replaces your current file or text, mapping answers and preview. Saved readings stay as they are.")}</HDText>
       </HDSheetDialog>
     </ImportFrame>
   );

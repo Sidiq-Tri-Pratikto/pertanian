@@ -1,3 +1,4 @@
+import { useCopy } from '@/features/localization/messages';
 import type { ComponentRef, Ref } from 'react';
 import { Platform, Pressable, StyleSheet, View } from 'react-native';
 
@@ -49,6 +50,7 @@ const { color } = tokens;
  * label and a filled mark, round for a radio and square for a checkbox.
  */
 export function HDChoiceGroup<Value extends string>(props: HDChoiceGroupProps<Value>) {
+  const say = useCopy();
   const { legend, help, optional = false, required = false, error, disabled = false, options, groupRef } = props;
   const checkbox = props.type === 'checkbox';
   const isSelected = (value: Value) => (props.type === 'checkbox' ? props.value.includes(value) : props.value === value);
@@ -67,8 +69,8 @@ export function HDChoiceGroup<Value extends string>(props: HDChoiceGroupProps<Va
     <View ref={groupRef} role={checkbox ? 'group' : 'radiogroup'} aria-label={legend} style={styles.group} {...FOCUSABLE_BY_SCRIPT}>
       <HDText variant="labelStrong">
         {legend}
-        {optional ? <HDText variant="label"> (opsional)</HDText> : null}
-        {required ? <HDText variant="label"> (wajib)</HDText> : null}
+        {optional ? <HDText variant="label"> {say("(opsional)", "(optional)")}</HDText> : null}
+        {required ? <HDText variant="label"> {say("(wajib)", "(required)")}</HDText> : null}
       </HDText>
       {help ? (
         <HDText variant="label" tone="secondary">

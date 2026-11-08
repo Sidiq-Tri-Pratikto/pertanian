@@ -11,45 +11,63 @@
   function ids() { return Array.prototype.filter.call(arguments, Boolean).join(' ') || undefined; }
 
   /* ================= formatting (Indonesian display; canonical numbers stay numbers) ================= */
-  var nf3 = new Intl.NumberFormat('id-ID', { minimumFractionDigits: 3, maximumFractionDigits: 3 });
-  var nf2 = new Intl.NumberFormat('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  var nf0 = new Intl.NumberFormat('id-ID', { maximumFractionDigits: 0 });
-  var nfAny = new Intl.NumberFormat('id-ID', { maximumFractionDigits: 3 });
-  var MONTHS = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-  var MINUS = '\u2212';
   function finite(v) { return typeof v === 'number' && isFinite(v); }
-  var format = {
-    /** 14.7 -> "14,700 kWh"; null/NaN -> null (never "0"). */
-    kwh: function (v, unit) { return finite(v) ? nf3.format(v) + ' ' + (unit || 'kWh') : null; },
-    signedKwh: function (v) { return finite(v) ? (v > 0 ? '+' : v < 0 ? MINUS : '') + nf3.format(Math.abs(v)) + ' kWh' : null; },
-    /** 22050 -> "Rp22.050"; rounds the unrounded product once, at display. */
-    rupiah: function (v) { return finite(v) ? (v < 0 ? MINUS : '') + 'Rp' + nf0.format(Math.round(Math.abs(v))) : null; },
-    /** ratio 0.5714 -> "57,14%"; null when the reference is zero or missing. */
-    percent: function (part, whole) { return finite(part) && finite(whole) && whole !== 0 ? nf2.format((part / whole) * 100) + '%' : null; },
-    signedPercent: function (delta, reference) { if (!finite(delta) || !finite(reference) || reference === 0) return null; var p = (delta / reference) * 100; return (p > 0 ? '+' : p < 0 ? MINUS : '') + nf2.format(Math.abs(p)) + '%'; },
-    number: function (v) { return finite(v) ? nfAny.format(v) : null; },
-    /** ("2026-10-19","2026-10-25") -> "19\u201325 Oktober 2026". */
-    dateRange: function (start, end) {
-      var a = start.split('-').map(Number), b = (end || start).split('-').map(Number);
-      if (start === (end || start)) return a[2] + ' ' + MONTHS[a[1] - 1] + ' ' + a[0];
-      if (a[0] === b[0] && a[1] === b[1]) return a[2] + '\u2013' + b[2] + ' ' + MONTHS[b[1] - 1] + ' ' + b[0];
-      if (a[0] === b[0]) return a[2] + ' ' + MONTHS[a[1] - 1] + '\u2013' + b[2] + ' ' + MONTHS[b[1] - 1] + ' ' + b[0];
-      return a[2] + ' ' + MONTHS[a[1] - 1] + ' ' + a[0] + '\u2013' + b[2] + ' ' + MONTHS[b[1] - 1] + ' ' + b[0];
-    },
-    /** "07:00" -> "07.00". */
-    time: function (hhmm) { return String(hhmm).replace(':', '.'); },
-    /**
-     * Indonesian decimal input. "" -> {empty:true,value:null}; "1,5" -> 1.5; "1.500" -> 1500 (dot groups of three);
-     * "1.5" is rejected with a correction instead of guessed.
-     */
-    parseDecimal: function (text) {
-      var s = String(text == null ? '' : text).trim().replace(/\s/g, '');
-      if (s === '') return { empty: true, valid: true, value: null };
-      if (/^-?(\d{1,3}(\.\d{3})+|\d+)(,\d+)?$/.test(s)) return { empty: false, valid: true, value: Number(s.replace(/\./g, '').replace(',', '.')) };
-      if (/^-?\d+\.\d{1,2}$|^-?\d+\.\d{4,}$/.test(s)) return { empty: false, valid: false, value: null, error: 'Gunakan koma untuk desimal, misalnya 1,5.' };
-      return { empty: false, valid: false, value: null, error: 'Isi dengan angka, misalnya 1.500 atau 0,25.' };
-    }
-  };
+
+  function makeFormat(locale) {
+    var nf3 = new Intl.NumberFormat(locale === 'en' ? 'en-US' : 'id-ID', { minimumFractionDigits: 3, maximumFractionDigits: 3 });
+    var nf2 = new Intl.NumberFormat(locale === 'en' ? 'en-US' : 'id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    var nf0 = new Intl.NumberFormat(locale === 'en' ? 'en-US' : 'id-ID', { maximumFractionDigits: 0 });
+    var nfAny = new Intl.NumberFormat(locale === 'en' ? 'en-US' : 'id-ID', { maximumFractionDigits: 3 });
+    var MONTHS = locale === 'en' ? ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'] : ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+    var MINUS = '\u2212';
+    return {
+      /** 14.7 -> "14,700 kWh"; null/NaN -> null (never "0"). */
+      kwh: function (v, unit) { return finite(v) ? nf3.format(v) + ' ' + (unit || 'kWh') : null; },
+      signedKwh: function (v) { return finite(v) ? (v > 0 ? '+' : v < 0 ? MINUS : '') + nf3.format(Math.abs(v)) + ' kWh' : null; },
+      /** 22050 -> "Rp22.050"; rounds the unrounded product once, at display. */
+      rupiah: function (v) { return finite(v) ? (v < 0 ? MINUS : '') + 'Rp' + nf0.format(Math.round(Math.abs(v))) : null; },
+      /** ratio 0.5714 -> "57,14%"; null when the reference is zero or missing. */
+      percent: function (part, whole) { return finite(part) && finite(whole) && whole !== 0 ? nf2.format((part / whole) * 100) + '%' : null; },
+      signedPercent: function (delta, reference) { if (!finite(delta) || !finite(reference) || reference === 0) return null; var p = (delta / reference) * 100; return (p > 0 ? '+' : p < 0 ? MINUS : '') + nf2.format(Math.abs(p)) + '%'; },
+      fixedEnergy: function (v) { return nf3.format(v); },
+      integer: function (v) { return nf0.format(v); },
+      number: function (v) { return finite(v) ? nfAny.format(v) : null; },
+      /** ("2026-10-19","2026-10-25") -> "19\u201325 Oktober 2026". */
+      dateRange: function (start, end) {
+        var a = start.split('-').map(Number), b = (end || start).split('-').map(Number);
+        if (start === (end || start)) return a[2] + ' ' + MONTHS[a[1] - 1] + ' ' + a[0];
+        if (a[0] === b[0] && a[1] === b[1]) return a[2] + '\u2013' + b[2] + ' ' + MONTHS[b[1] - 1] + ' ' + b[0];
+        if (a[0] === b[0]) return a[2] + ' ' + MONTHS[a[1] - 1] + '\u2013' + b[2] + ' ' + MONTHS[b[1] - 1] + ' ' + b[0];
+        return a[2] + ' ' + MONTHS[a[1] - 1] + ' ' + a[0] + '\u2013' + b[2] + ' ' + MONTHS[b[1] - 1] + ' ' + b[0];
+      },
+      /** "07:00" -> "07.00". */
+      time: function (hhmm) { return locale === 'en' ? String(hhmm).replace('.', ':') : String(hhmm).replace(':', '.'); },
+      /**
+       * Indonesian decimal input. "" -> {empty:true,value:null}; "1,5" -> 1.5; "1.500" -> 1500 (dot groups of three);
+       * "1.5" is rejected with a correction instead of guessed.
+       */
+      parseDecimal: function (text) {
+        var s = String(text == null ? '' : text).trim().replace(/\s/g, '');
+        if (s === '') return { empty: true, valid: true, value: null };
+        if (locale === 'en') {
+          return /^-?(\d{1,3}(,\d{3})+|\d+)(\.\d+)?$/.test(s)
+            ? { empty: false, valid: true, value: Number(s.replace(/,/g, '')) }
+            : { empty: false, valid: false, value: null, error: 'Enter a number such as 1,500 or 0.25.' };
+        }
+        if (/^-?(\d{1,3}(\.\d{3})+|\d+)(,\d+)?$/.test(s)) return { empty: false, valid: true, value: Number(s.replace(/\./g, '').replace(',', '.')) };
+        if (/^-?\d+\.\d{1,2}$|^-?\d+\.\d{4,}$/.test(s)) return { empty: false, valid: false, value: null, error: 'Gunakan koma untuk desimal, misalnya 1,5.' };
+        return { empty: false, valid: false, value: null, error: 'Isi dengan angka, misalnya 1.500 atau 0,25.' };
+      }
+    };
+  }
+
+  var formats = { id: makeFormat('id'), en: makeFormat('en') };
+  var format = formats.id;
+  var CopyContext = React.createContext({ text: function (label) { return label; }, format: format });
+
+  function CopyProvider(p) {
+    return h(CopyContext.Provider, { value: { text: p.text, format: formats[p.language] || format } }, p.children);
+  }
 
   /* ================= Icon (own 24-unit stroke set, no external library) ================= */
   var ICONS = {
@@ -86,6 +104,7 @@
   /* ================= primitives ================= */
 
   function Button(p) {
+    var tr = React.useContext(CopyContext).text;
     var reasonId = useId();
     var variant = p.variant || 'secondary';
     var disabled = !!p.disabledReason;
@@ -99,7 +118,7 @@
       'aria-describedby': ids(disabled && reasonId, p.describedBy),
       onClick: onClick
     }, busy ? h(Spinner) : p.icon ? h(Icon, { name: p.icon, size: 'small' }) : null,
-      h('span', null, busy ? (p.loadingLabel || 'Memproses\u2026') : p.children));
+      h('span', null, busy ? (p.loadingLabel || tr('Memproses\u2026')) : p.children));
     if (!disabled) return btn;
     return h('span', { className: cx('hd-root hd-btn-wrap', p.fullWidth && 'hd-btn--full') }, btn,
       h('span', { id: reasonId, className: 'hd-btn-reason type-label' }, p.disabledReason));
@@ -119,7 +138,8 @@
   }
 
   function FieldShell(p) {
-    var marker = p.required ? ' (wajib)' : p.optional ? ' (opsional)' : p.readOnly ? ' (hanya baca)' : null;
+    var tr = React.useContext(CopyContext).text;
+    var marker = p.required ? tr(' (wajib)') : p.optional ? tr(' (opsional)') : p.readOnly ? tr(' (hanya baca)') : null;
     return h('div', { className: cx('hd-root hd-field', p.error && 'hd-field--error') },
       h('label', { htmlFor: p.id, className: 'hd-field__label type-label-strong' }, p.label, marker && h('span', { className: 'hd-field__marker' }, marker)),
       p.help && h('p', { id: p.id + '-help', className: 'hd-field__help type-label' }, p.help),
@@ -144,17 +164,18 @@
   }
 
   function NumericField(p) {
+    var copy = React.useContext(CopyContext), tr = copy.text, format = copy.format;
     var auto = useId(); var id = p.id || auto;
     var touched = useState(false);
     var parsed = format.parseDecimal(p.value);
     var ruleError = null;
     if (parsed.valid && !parsed.empty) {
-      if (!p.allowNegative && parsed.value < 0) ruleError = 'Nilai tidak boleh negatif.';
-      else if (p.max != null && parsed.value > p.max) ruleError = 'Nilai paling besar ' + format.number(p.max) + (p.unit ? ' ' + p.unit : '') + '.';
+      if (!p.allowNegative && parsed.value < 0) ruleError = tr('Nilai tidak boleh negatif.');
+      else if (p.max != null && parsed.value > p.max) ruleError = tr('Nilai paling besar ') + format.number(p.max) + (p.unit ? ' ' + p.unit : '') + '.';
     }
     if (parsed.empty && p.required) ruleError = 'Isi ' + p.label.toLowerCase() + '.';
     var shownError = p.error || (touched[0] || p.showErrors ? (parsed.error || ruleError) : null);
-    var interpretation = parsed.empty ? 'Kosong \u2014 belum diisi, tidak dianggap 0.' : parsed.valid && parsed.value === 0 ? 'Tercatat 0 sebagai nilai yang diisi.' : null;
+    var interpretation = parsed.empty ? tr('Kosong \u2014 belum diisi, tidak dianggap 0.') : parsed.valid && parsed.value === 0 ? tr('Tercatat 0 sebagai nilai yang diisi.') : null;
     var note = p.disabledReason || p.note || interpretation;
     return h(FieldShell, { id: id, label: p.label, help: p.help, error: shownError, required: p.required, optional: p.optional, note: note },
       h('div', { className: cx('hd-field__control', p.unit && 'hd-field__control--unit') },
@@ -169,6 +190,7 @@
   }
 
   function ChoiceGroup(p) {
+    var tr = React.useContext(CopyContext).text;
     var name = useId();
     var type = p.type || 'radio';
     if (type === 'select') {
@@ -185,7 +207,7 @@
       else p.onChange(v);
     }
     return h('fieldset', { className: 'hd-root hd-choice', id: p.id, 'aria-describedby': ids(p.help && name + '-help', p.error && name + '-error') },
-      h('legend', { className: 'hd-choice__legend type-label-strong' }, p.legend, p.optional ? h('span', { className: 'hd-field__marker' }, ' (opsional)') : null),
+      h('legend', { className: 'hd-choice__legend type-label-strong' }, p.legend, p.optional ? h('span', { className: 'hd-field__marker' }, tr(' (opsional)')) : null),
       p.help && h('p', { id: name + '-help', className: 'hd-field__help type-label' }, p.help),
       p.error && h('p', { id: name + '-error', className: 'hd-field__error type-label-strong' }, h(Icon, { name: 'error', size: 'small' }), h('span', null, p.error)),
       h('div', { className: cx('hd-choice__options', p.inline && 'hd-choice__options--inline') },
@@ -207,6 +229,7 @@
   function addDays(iso, n) { var d = new Date(iso + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
   function presetRange(id, today) { return id === 'today' ? { start: today, end: today } : id === 'last7' ? { start: addDays(today, -7), end: addDays(today, -1) } : null; }
   function PeriodSelector(p) {
+    var copy = React.useContext(CopyContext), tr = copy.text, format = copy.format;
     var today = p.today; // local date in Asia/Jakarta, supplied by the app (virtual now in demos)
     var committed = p.value;
     var draft = useState(committed.preset);
@@ -218,43 +241,45 @@
       if (id !== 'range') { var r = presetRange(id, today); p.onCommit({ preset: id, start: r.start, end: r.end }); }
     }
     function apply() {
-      if (!start[0] || !end[0]) { err[1]('Isi tanggal mulai dan sampai.'); return; }
-      if (end[0] < start[0]) { err[1]('Tanggal sampai harus sama atau setelah tanggal mulai.'); return; }
-      if (end[0] > today) { err[1]('Tanggal sampai tidak boleh setelah hari ini (' + format.dateRange(today) + ').'); return; }
+      if (!start[0] || !end[0]) { err[1](tr('Isi tanggal mulai dan sampai.')); return; }
+      if (end[0] < start[0]) { err[1](tr('Tanggal sampai harus sama atau setelah tanggal mulai.')); return; }
+      if (end[0] > today) { err[1](tr('Tanggal sampai tidak boleh setelah hari ini (') + format.dateRange(today) + ').'); return; }
       err[1](null); p.onCommit({ preset: 'range', start: start[0], end: end[0] });
     }
     var pending = draft[0] === 'range' && (committed.preset !== 'range' || start[0] !== committed.start || end[0] !== committed.end);
-    var committedLabel = format.dateRange(committed.start, committed.end) + (committed.preset === 'today' ? ' (sampai sekarang)' : '');
+    var committedLabel = format.dateRange(committed.start, committed.end) + (committed.preset === 'today' ? tr(' (sampai sekarang)') : '');
     return h('div', { className: 'hd-root hd-period' },
-      h('p', { id: groupLabel, className: 'type-label-strong' }, p.label || 'Periode'),
+      h('p', { id: groupLabel, className: 'type-label-strong' }, p.label || tr('Periode')),
       h('div', { className: 'hd-period__presets', role: 'group', 'aria-labelledby': groupLabel },
         PRESETS.map(function (o) {
           var on = draft[0] === o.id;
           return h('button', { key: o.id, type: 'button', 'aria-pressed': on ? 'true' : 'false', className: 'hd-period__preset type-body',
-            onClick: function () { choose(o.id); } }, on ? h(Icon, { name: 'success', size: 'small' }) : null, o.label);
+            onClick: function () { choose(o.id); } }, on ? h(Icon, { name: 'success', size: 'small' }) : null, tr(o.label));
         })),
       draft[0] === 'range' && h('div', { className: 'hd-period__range' },
-        h(TextField, { label: 'Mulai', type: 'date', value: start[0], onChange: start[1] }),
-        h(TextField, { label: 'Sampai', type: 'date', value: end[0], onChange: end[1] }),
-        h(Button, { variant: 'primary', onClick: apply }, 'Terapkan')),
+        h(TextField, { label: tr('Mulai'), type: 'date', value: start[0], onChange: start[1] }),
+        h(TextField, { label: tr('Sampai'), type: 'date', value: end[0], onChange: end[1] }),
+        h(Button, { variant: 'primary', onClick: apply }, tr('Terapkan'))),
       err[0] && h('p', { className: 'hd-field__error type-label-strong', role: 'alert' }, h(Icon, { name: 'error', size: 'small' }), h('span', null, err[0])),
       h('p', { className: 'hd-period__current type-label', 'aria-live': 'polite' }, h(Icon, { name: 'calendar', size: 'small' }),
-        h('span', null, h('strong', null, 'Periode aktif: '), committedLabel, ' \u00b7 ', p.timezone || 'Asia/Jakarta', pending ? ' \u00b7 Pilihan tanggal belum diterapkan' : '')));
+        h('span', null, h('strong', null, tr('Periode aktif: ')), committedLabel, ' \u00b7 ', p.timezone || 'Asia/Jakarta', pending ? tr(' \u00b7 Pilihan tanggal belum diterapkan') : '')));
   }
 
   var DESTINATIONS = [{ id: 'beranda', label: 'Beranda', icon: 'home' }, { id: 'perangkat', label: 'Perangkat', icon: 'devices' }, { id: 'saran', label: 'Saran', icon: 'saran' }];
   function TabNavigation(p) {
-    return h('nav', { className: 'hd-root hd-tabs', 'aria-label': 'Navigasi utama' },
+    var tr = React.useContext(CopyContext).text;
+    return h('nav', { className: 'hd-root hd-tabs', 'aria-label': tr('Navigasi utama') },
       h('ul', { className: 'hd-tabs__list' }, DESTINATIONS.map(function (d) {
         var current = p.current === d.id;
         return h('li', { key: d.id }, h('a', {
           href: (p.hrefs && p.hrefs[d.id]) || '#' + d.id, className: 'hd-tabs__item', 'aria-current': current ? 'page' : undefined,
           onClick: function (e) { if (p.onNavigate) { e.preventDefault(); p.onNavigate(d.id); } }
-        }, h(Icon, { name: d.icon }), h('span', { className: 'hd-tabs__label type-label' }, d.label)));
+        }, h(Icon, { name: d.icon }), h('span', { className: 'hd-tabs__label type-label' }, tr(d.label))));
       })));
   }
 
   function SheetDialog(p) {
+    var tr = React.useContext(CopyContext).text;
     var ref = useRef(null), titleRef = useRef(null), returnTo = useRef(null);
     var titleId = useId();
     useEffect(function () {
@@ -276,7 +301,7 @@
     },
       h('div', { className: 'hd-sheet__header' },
         h('h2', { id: titleId, ref: titleRef, tabIndex: -1, className: 'hd-sheet__title type-section' }, p.title),
-        h(IconButton, { icon: 'close', label: p.closeLabel || 'Tutup', onClick: function () { requestClose('close'); } })),
+        h(IconButton, { icon: 'close', label: p.closeLabel || tr('Tutup'), onClick: function () { requestClose('close'); } })),
       h('div', { className: 'hd-sheet__body type-body' }, p.children),
       p.footer && h('div', { className: 'hd-sheet__footer' }, p.footer));
   }
@@ -289,11 +314,12 @@
 
   var TONES = { info: ['info', 'Info'], attention: ['attention', 'Perhatian'], error: ['error', 'Kesalahan'], success: ['success', 'Berhasil'], neutral: ['info', null] };
   function Notice(p) {
+    var tr = React.useContext(CopyContext).text;
     var tone = TONES[p.tone] ? p.tone : 'neutral';
     return h('div', { className: cx('hd-root hd-notice', 'hd-notice--' + tone), role: p.live ? (tone === 'error' ? 'alert' : 'status') : undefined },
       h(Icon, { name: p.icon || TONES[tone][0] }),
       h('div', { className: 'hd-notice__body' },
-        h('p', { className: 'type-body-strong' }, TONES[tone][1] && h('span', { className: 'hd-sr-only' }, TONES[tone][1] + ': '), p.title),
+        h('p', { className: 'type-body-strong' }, TONES[tone][1] && h('span', { className: 'hd-sr-only' }, tr(TONES[tone][1]) + ': '), p.title),
         p.children && h('div', { className: 'type-body' }, p.children),
         p.action && h('div', { className: 'hd-notice__action' }, p.action)));
   }
@@ -304,11 +330,12 @@
     el.focus(); if (el.scrollIntoView) el.scrollIntoView({ block: 'center' });
   }
   function ErrorSummary(p) {
+    var tr = React.useContext(CopyContext).text;
     var ref = useRef(null); var titleId = useId();
     useEffect(function () { if (p.autoFocus !== false && ref.current) ref.current.focus(); }, [p.submitCount]);
     if (!p.errors || !p.errors.length) return null;
     return h('div', { ref: ref, tabIndex: -1, className: 'hd-root hd-errsum', role: 'alert', 'aria-labelledby': titleId },
-      h('h2', { id: titleId, className: 'type-section' }, p.title || ('Periksa ' + p.errors.length + ' isian berikut')),
+      h('h2', { id: titleId, className: 'type-section' }, p.title || (tr('Periksa ') + p.errors.length + tr(' isian berikut'))),
       p.convention && h('p', { className: 'type-label' }, p.convention),
       h('ul', { className: 'hd-errsum__list type-body' }, p.errors.map(function (e) {
         return h('li', { key: e.targetId + e.text }, h('a', { href: '#' + e.targetId, onClick: function (ev) { ev.preventDefault(); focusTarget(e.targetId); } }, e.text));
@@ -322,84 +349,88 @@
     failure: { label: 'Gagal menyimpan', icon: 'error', detail: 'Server menolak atau tidak menjawab. Isian Anda masih ada di layar ini.' }
   };
   function ProgressStatus(p) {
+    var tr = React.useContext(CopyContext).text;
     var s = PROGRESS[p.state];
     return h('div', { className: cx('hd-root hd-progress', s && 'hd-progress--' + p.state), role: 'status', 'aria-live': 'polite' },
       s ? h(Fragment, null,
         s.icon ? h(Icon, { name: s.icon }) : h(Spinner),
         h('div', { className: 'hd-progress__body' },
-          h('p', { className: 'type-body-strong' }, p.label || s.label),
-          (p.detail || s.detail) && h('p', { className: 'type-label hd-secondary' }, p.detail || s.detail),
-          p.state === 'unknown' && p.onCheck && h('div', { className: 'hd-row' }, h(Button, { variant: 'secondary', icon: 'refresh', onClick: p.onCheck, loading: p.checking, loadingLabel: 'Memeriksa\u2026' }, 'Periksa status')),
-          p.state === 'failure' && p.onRetry && h('div', { className: 'hd-row' }, h(Button, { variant: 'secondary', icon: 'refresh', onClick: p.onRetry }, 'Coba lagi')))) : null);
+          h('p', { className: 'type-body-strong' }, p.label || tr(s.label)),
+          (p.detail || (s.detail && tr(s.detail))) && h('p', { className: 'type-label hd-secondary' }, p.detail || (s.detail && tr(s.detail))),
+          p.state === 'unknown' && p.onCheck && h('div', { className: 'hd-row' }, h(Button, { variant: 'secondary', icon: 'refresh', onClick: p.onCheck, loading: p.checking, loadingLabel: tr('Memeriksa\u2026') }, tr('Periksa status'))),
+          p.state === 'failure' && p.onRetry && h('div', { className: 'hd-row' }, h(Button, { variant: 'secondary', icon: 'refresh', onClick: p.onRetry }, tr('Coba lagi'))))) : null);
   }
 
   /* ================= domain ================= */
 
   function EnergyMetric(p) {
+    var copy = React.useContext(CopyContext), tr = copy.text, format = copy.format;
     var titleId = useId();
     var quality = p.quality || 'complete';
     var hasValue = quality !== 'unavailable' && finite(p.kwh);
     return h('section', { className: 'hd-root hd-metric', 'aria-labelledby': titleId },
       h('div', { className: 'hd-row', style: { justifyContent: 'space-between' } },
-        h(Heading, { level: p.headingLevel, id: titleId, className: 'type-label-strong' }, p.label || 'Energi yang dipantau'),
-        p.provenance && h(Tag, null, PROVENANCE[p.provenance] || p.provenance)),
+        h(Heading, { level: p.headingLevel, id: titleId, className: 'type-label-strong' }, p.label || tr('Energi yang dipantau')),
+        p.provenance && h(Tag, null, tr(PROVENANCE[p.provenance] || p.provenance))),
       h('p', { className: 'hd-metric__context type-label' }, [p.periodLabel, p.scopeLabel].filter(Boolean).join(' \u00b7 ')),
       hasValue
-        ? h('p', { className: 'hd-metric__value hd-num' }, h('span', { className: 'type-metric' }, nf3.format(p.kwh)), h('span', { className: 'type-section' }, p.unit || 'kWh'))
-        : h('div', { className: 'hd-empty' }, h('p', { className: 'type-section' }, 'Belum ada data energi'),
-            h('p', { className: 'type-body hd-secondary' }, p.emptyDetail || 'Tidak ada pengukuran untuk periode dan cakupan ini. Tidak ditampilkan sebagai 0 kWh.'),
+        ? h('p', { className: 'hd-metric__value hd-num' }, h('span', { className: 'type-metric' }, format.fixedEnergy(p.kwh)), h('span', { className: 'type-section' }, p.unit || 'kWh'))
+        : h('div', { className: 'hd-empty' }, h('p', { className: 'type-section' }, tr('Belum ada data energi')),
+            h('p', { className: 'type-body hd-secondary' }, p.emptyDetail || tr('Tidak ada pengukuran untuk periode dan cakupan ini. Tidak ditampilkan sebagai 0 kWh.')),
             p.emptyAction),
       hasValue && quality === 'partial' && h('p', { className: 'hd-qualifier type-label-strong' }, h(Icon, { name: 'attention', size: 'small' }),
-        h('span', null, 'Sebagian data belum tersedia', finite(p.completeness) ? ' \u00b7 Kelengkapan data: ' + nf0.format(p.completeness * 100) + '% periode' : '', p.gapLabel ? ' \u00b7 ' + p.gapLabel : '', '. Angka ini hanya energi yang terekam.')),
+        h('span', null, tr('Sebagian data belum tersedia'), finite(p.completeness) ? tr(' \u00b7 Kelengkapan data: ') + format.integer(p.completeness * 100) + tr('% periode') : '', p.gapLabel ? ' \u00b7 ' + p.gapLabel : '', tr('. Angka ini hanya energi yang terekam.'))),
       hasValue && quality === 'complete' && p.kwh === 0 && h('p', { className: 'hd-qualifier hd-qualifier--neutral type-label' }, h(Icon, { name: 'info', size: 'small' }),
-        h('span', null, 'Nol terukur dengan data lengkap \u2014 bukan data kosong.')),
+        h('span', null, tr('Nol terukur dengan data lengkap \u2014 bukan data kosong.'))),
       p.children);
   }
 
   function CostEstimate(p) {
+    var copy = React.useContext(CopyContext), tr = copy.text, format = copy.format;
     var titleId = useId();
     var body;
     if (!finite(p.kwh)) {
-      body = h('p', { className: 'type-body' }, 'Biaya belum dapat dihitung \u2014 belum ada data energi.');
+      body = h('p', { className: 'type-body' }, tr('Biaya belum dapat dihitung \u2014 belum ada data energi.'));
     } else if (p.tariff == null) {
       body = h(Fragment, null,
-        h('p', { className: 'type-body-strong' }, 'Biaya belum dihitung \u2014 tarif belum diatur'),
-        h('p', { className: 'type-label hd-secondary' }, 'Energi tetap ditampilkan. Biaya tidak dianggap Rp0.'),
-        p.onSetTariff && h('div', null, h(Button, { variant: 'text', onClick: p.onSetTariff }, 'Atur tarif (opsional)')));
+        h('p', { className: 'type-body-strong' }, tr('Biaya belum dihitung \u2014 tarif belum diatur')),
+        h('p', { className: 'type-label hd-secondary' }, tr('Energi tetap ditampilkan. Biaya tidak dianggap Rp0.')),
+        p.onSetTariff && h('div', null, h(Button, { variant: 'text', onClick: p.onSetTariff }, tr('Atur tarif (opsional)'))));
     } else {
       var cost = p.kwh * p.tariff; // computed from the unrounded energy, rounded once for display
       body = h(Fragment, null,
         h('p', { className: 'hd-metric__value hd-num' }, h('span', { className: 'type-title' }, format.rupiah(cost))),
-        h('p', { className: 'type-label' }, (p.tariffSource === 'synthetic' ? 'Tarif simulasi ' : 'Tarif ') + format.rupiah(p.tariff) + '/kWh \u00d7 ' + format.kwh(p.kwh)),
-        p.tariff === 0 && h('p', { className: 'hd-qualifier hd-qualifier--neutral type-label' }, h(Icon, { name: 'info', size: 'small' }), h('span', null, 'Tarif diatur Rp0/kWh. Periksa pengaturan tarif bila ini tidak disengaja.')),
-        p.partial && h('p', { className: 'hd-qualifier type-label-strong' }, h(Icon, { name: 'attention', size: 'small' }), h('span', null, 'Dihitung dari energi yang terekam saja; sebagian data belum tersedia.')),
-        h('p', { className: 'type-label hd-secondary' }, 'Bukan tagihan listrik. Hanya energi terpantau dalam cakupan ini.'));
+        h('p', { className: 'type-label' }, (p.tariffSource === 'synthetic' ? tr('Tarif simulasi ') : 'Tarif ') + format.rupiah(p.tariff) + '/kWh \u00d7 ' + format.kwh(p.kwh)),
+        p.tariff === 0 && h('p', { className: 'hd-qualifier hd-qualifier--neutral type-label' }, h(Icon, { name: 'info', size: 'small' }), h('span', null, tr('Tarif diatur Rp0/kWh. Periksa pengaturan tarif bila ini tidak disengaja.'))),
+        p.partial && h('p', { className: 'hd-qualifier type-label-strong' }, h(Icon, { name: 'attention', size: 'small' }), h('span', null, tr('Dihitung dari energi yang terekam saja; sebagian data belum tersedia.'))),
+        h('p', { className: 'type-label hd-secondary' }, tr('Bukan tagihan listrik. Hanya energi terpantau dalam cakupan ini.')));
     }
     return h('section', { className: 'hd-root hd-cost', 'aria-labelledby': titleId },
-      h(Heading, { level: p.headingLevel, id: titleId, className: 'type-label-strong' }, 'Estimasi biaya energi terpantau'), body);
+      h(Heading, { level: p.headingLevel, id: titleId, className: 'type-label-strong' }, tr('Estimasi biaya energi terpantau')), body);
   }
 
   function ScopeSummary(p) {
+    var copy = React.useContext(CopyContext), tr = copy.text, format = copy.format;
     var included = p.included || [], excluded = p.excluded || [];
     var unit = p.unitLabel || 'perangkat';
     var count = p.count != null ? p.count : included.length;
     var overlap = p.overlap || 'none';
-    return h('section', { className: 'hd-root hd-scope', 'aria-label': 'Cakupan pengukuran' },
-      h('p', { className: 'hd-row type-label-strong' }, h(Icon, { name: 'scope', size: 'small' }), 'Cakupan pengukuran: ' + count + ' ' + unit),
-      excluded.length > 0 && h('p', { className: 'type-label' }, excluded.length + ' ' + unit + ' lain tidak termasuk: ' + excluded.join(', ') + '.'),
+    return h('section', { className: 'hd-root hd-scope', 'aria-label': tr('Cakupan pengukuran') },
+      h('p', { className: 'hd-row type-label-strong' }, h(Icon, { name: 'scope', size: 'small' }), tr('Cakupan pengukuran: ') + count + ' ' + unit),
+      excluded.length > 0 && h('p', { className: 'type-label' }, excluded.length + ' ' + unit + tr(' lain tidak termasuk: ') + excluded.join(', ') + '.'),
       overlap === 'parentChild' && h(Fragment, null,
-        h(Notice, { tone: 'info', title: p.parent.name + ' sudah mencakup ' + p.child.name },
-          'Nilai keduanya tidak dijumlahkan. Pilih satu tampilan: ' + p.parent.name + ' ' + format.kwh(p.parent.kwh) + ', atau ' + p.child.name + ' saja ' + format.kwh(p.child.kwh) + '.'),
-        h(ChoiceGroup, { legend: 'Tampilkan cakupan', value: p.view, onChange: p.onViewChange, options: [
-          { value: 'parent', label: p.parent.name + ' \u2014 ' + format.kwh(p.parent.kwh), description: p.parent.description || 'Seluruh beban di belakang meteran ini, termasuk ' + p.child.name + '.' },
-          { value: 'child', label: p.child.name + ' saja \u2014 ' + format.kwh(p.child.kwh), description: p.child.description || 'Hanya sub-meteran ' + p.child.name + '.' }] })),
+        h(Notice, { tone: 'info', title: p.parent.name + tr(' sudah mencakup ') + p.child.name },
+          tr('Nilai keduanya tidak dijumlahkan. Pilih satu tampilan: ') + p.parent.name + ' ' + format.kwh(p.parent.kwh) + tr(', atau ') + p.child.name + ' saja ' + format.kwh(p.child.kwh) + '.'),
+        h(ChoiceGroup, { legend: tr('Tampilkan cakupan'), value: p.view, onChange: p.onViewChange, options: [
+          { value: 'parent', label: p.parent.name + ' \u2014 ' + format.kwh(p.parent.kwh), description: p.parent.description || tr('Seluruh beban di belakang meteran ini, termasuk ') + p.child.name + '.' },
+          { value: 'child', label: p.child.name + tr(' saja \u2014 ') + format.kwh(p.child.kwh), description: p.child.description || tr('Hanya sub-meteran ') + p.child.name + '.' }] })),
       overlap === 'unknown' && h(Fragment, null,
-        h(Notice, { tone: 'attention', title: 'Total gabungan belum dapat ditampilkan' },
-          'Hubungan cakupan antar sumber belum diketahui, sehingga nilainya bisa tumpang tindih. Lihat nilai masing-masing atau pilih satu tampilan yang valid.'),
+        h(Notice, { tone: 'attention', title: tr('Total gabungan belum dapat ditampilkan') },
+          tr('Hubungan cakupan antar sumber belum diketahui, sehingga nilainya bisa tumpang tindih. Lihat nilai masing-masing atau pilih satu tampilan yang valid.')),
         p.values && h('ul', { className: 'hd-scope__values type-body' }, p.values.map(function (v) {
           return h('li', { key: v.name }, h('span', null, v.name), h('span', { className: 'hd-num type-body-strong' }, format.kwh(v.kwh)));
         }))),
-      included.length > 0 && h(Disclosure, { summary: 'Lihat ' + unit + ' yang termasuk' }, h('ul', { className: 'type-body' }, included.map(function (n) { return h('li', { key: n }, n); }))));
+      included.length > 0 && h(Disclosure, { summary: 'Lihat ' + unit + tr(' yang termasuk') }, h('ul', { className: 'type-body' }, included.map(function (n) { return h('li', { key: n }, n); }))));
   }
 
   function QualityRow(p) {
@@ -407,54 +438,57 @@
       h('dt', { className: 'type-label-strong' }, h(Icon, { name: p.icon, size: 'small' }), h('span', null, p.term)), h('dd', { className: 'type-label' }, p.children));
   }
   function DataQuality(p) {
+    var copy = React.useContext(CopyContext), tr = copy.text, format = copy.format;
     var rows = [];
     if (p.completeness !== undefined) {
-      var pct = finite(p.completeness) ? nf0.format(p.completeness * 100) + '% periode' : 'Belum diketahui';
-      rows.push(h(QualityRow, { key: 'c', icon: p.completeness < 1 ? 'attention' : 'success', attention: p.completeness < 1, term: 'Kelengkapan data' },
-        h('span', null, pct), p.gaps && h('span', null, 'Tidak ada data: ' + p.gaps), p.completeness < 1 && h('span', { className: 'hd-secondary' }, 'Kelengkapan waktu, bukan tingkat akurasi.')));
+      var pct = finite(p.completeness) ? format.integer(p.completeness * 100) + tr('% periode') : tr('Belum diketahui');
+      rows.push(h(QualityRow, { key: 'c', icon: p.completeness < 1 ? 'attention' : 'success', attention: p.completeness < 1, term: tr('Kelengkapan data') },
+        h('span', null, pct), p.gaps && h('span', null, tr('Tidak ada data: ') + p.gaps), p.completeness < 1 && h('span', { className: 'hd-secondary' }, tr('Kelengkapan waktu, bukan tingkat akurasi.'))));
     }
     var f = p.freshness;
     if (f) {
-      if (f.state === 'stale') rows.push(h(QualityRow, { key: 'f', icon: 'clock', attention: true, term: 'Kesegaran sumber' },
-        h('span', null, 'Data belum diperbarui \u00b7 pengukuran terakhir ' + f.lastMeasurement),
-        h('span', { className: 'hd-secondary' }, 'Ini tentang sumber data, bukan tanda perangkat mati.'),
-        p.onCheckSource && h(Button, { variant: 'text', icon: 'refresh', onClick: p.onCheckSource, loading: p.checkingSource, loadingLabel: 'Memeriksa sumber\u2026' }, 'Periksa sumber')));
-      else if (f.state === 'historical') rows.push(h(QualityRow, { key: 'f', icon: 'file', term: 'Kesegaran sumber' },
-        h('span', null, 'Data impor historis \u00b7 ' + f.importRange), h('span', { className: 'hd-secondary' }, 'Bukan sambungan langsung yang gagal.'),
-        p.onViewPeriod && h(Button, { variant: 'text', icon: 'calendar', onClick: p.onViewPeriod }, 'Lihat periode data')));
-      else rows.push(h(QualityRow, { key: 'f', icon: 'clock', term: 'Kesegaran sumber' }, h('span', null, 'Pengukuran terakhir ' + f.lastMeasurement)));
+      if (f.state === 'stale') rows.push(h(QualityRow, { key: 'f', icon: 'clock', attention: true, term: tr('Kesegaran sumber') },
+        h('span', null, tr('Data belum diperbarui \u00b7 pengukuran terakhir ') + f.lastMeasurement),
+        h('span', { className: 'hd-secondary' }, tr('Ini tentang sumber data, bukan tanda perangkat mati.')),
+        p.onCheckSource && h(Button, { variant: 'text', icon: 'refresh', onClick: p.onCheckSource, loading: p.checkingSource, loadingLabel: tr('Memeriksa sumber\u2026') }, tr('Periksa sumber'))));
+      else if (f.state === 'historical') rows.push(h(QualityRow, { key: 'f', icon: 'file', term: tr('Kesegaran sumber') },
+        h('span', null, tr('Data impor historis \u00b7 ') + f.importRange), h('span', { className: 'hd-secondary' }, tr('Bukan sambungan langsung yang gagal.')),
+        p.onViewPeriod && h(Button, { variant: 'text', icon: 'calendar', onClick: p.onViewPeriod }, tr('Lihat periode data'))));
+      else rows.push(h(QualityRow, { key: 'f', icon: 'clock', term: tr('Kesegaran sumber') }, h('span', null, tr('Pengukuran terakhir ') + f.lastMeasurement)));
     }
-    if (p.client === 'offline') rows.push(h(QualityRow, { key: 'o', icon: 'offline', attention: true, term: 'Koneksi aplikasi' },
-      h('span', null, 'Aplikasi sedang luring \u00b7 menampilkan data terkonfirmasi ' + (p.cachedAge || '')),
-      h('span', { className: 'hd-secondary' }, 'Perubahan disimpan sebagai draf dan belum terkirim.')));
-    if (p.source) rows.push(h(QualityRow, { key: 's', icon: p.source === 'demo' ? 'info' : p.source === 'import' ? 'upload' : 'devices', term: 'Asal data' }, h('span', null, PROVENANCE[p.source] || p.source)));
-    return h('section', { className: 'hd-root', 'aria-label': p.label || 'Kualitas data' }, h('dl', { className: 'hd-quality' }, rows));
+    if (p.client === 'offline') rows.push(h(QualityRow, { key: 'o', icon: 'offline', attention: true, term: tr('Koneksi aplikasi') },
+      h('span', null, tr('Aplikasi sedang luring \u00b7 menampilkan data terkonfirmasi ') + (p.cachedAge || '')),
+      h('span', { className: 'hd-secondary' }, tr('Perubahan disimpan sebagai draf dan belum terkirim.'))));
+    if (p.source) rows.push(h(QualityRow, { key: 's', icon: p.source === 'demo' ? 'info' : p.source === 'import' ? 'upload' : 'devices', term: tr('Asal data') }, h('span', null, tr(PROVENANCE[p.source] || p.source))));
+    return h('section', { className: 'hd-root', 'aria-label': p.label || tr('Kualitas data') }, h('dl', { className: 'hd-quality' }, rows));
   }
 
   var KINDS = { device: 'Perangkat', circuit: 'Sirkuit', group: 'Grup beban', meter: 'Meteran utama' };
   var QUALITY_TEXT = { partial: 'Sebagian data belum tersedia', stale: 'Data belum diperbarui', unavailable: 'Belum ada data energi' };
   function AssetRow(p) {
-    var q = p.quality && p.quality !== 'complete' ? (p.qualityLabel || QUALITY_TEXT[p.quality]) : null;
+    var copy = React.useContext(CopyContext), tr = copy.text, format = copy.format;
+    var q = p.quality && p.quality !== 'complete' ? (p.qualityLabel || tr(QUALITY_TEXT[p.quality])) : null;
     var value = p.quality === 'unavailable' ? null : format.kwh(p.kwh);
     return h('a', { className: 'hd-root hd-asset', href: p.href || '#', onClick: function (e) { if (p.onOpen) { e.preventDefault(); p.onOpen(); } } },
       h('span', { className: 'hd-asset__main' },
         h('span', { className: 'type-body-strong' }, p.name),
-        h('span', { className: 'type-label hd-secondary' }, [KINDS[p.kind] || p.kind, p.location].filter(Boolean).join(' \u00b7 ')),
+        h('span', { className: 'type-label hd-secondary' }, [tr(KINDS[p.kind] || p.kind), p.location].filter(Boolean).join(' \u00b7 ')),
         q && h('span', { className: 'hd-qualifier type-label-strong' }, h(Icon, { name: p.quality === 'stale' ? 'clock' : 'attention', size: 'small' }), h('span', null, q))),
       h('span', { className: 'hd-asset__value' }, value ? h('span', { className: 'type-body-strong hd-num' }, value) : h('span', { className: 'type-label' }, '\u2014 kWh')),
       h(Icon, { name: 'chevronRight', className: 'hd-asset__chev' }));
   }
 
   function ContributionRanking(p) {
+    var copy = React.useContext(CopyContext), tr = copy.text, format = copy.format;
     var titleId = useId();
     var items = (p.items || []).slice().sort(function (a, b) { return b.kwh - a.kwh; });
     var total = items.reduce(function (s, i) { return s + i.kwh; }, 0);
     var zero = total === 0;
     return h('section', { className: 'hd-root hd-rank', 'aria-labelledby': titleId },
-      h(Heading, { level: p.headingLevel, id: titleId, className: 'type-section' }, p.title || 'Kontributor terbesar'),
-      h('p', { className: 'type-label' }, [p.periodLabel, (zero ? 'Total ' : 'Dari total ') + format.kwh(total) + ' ' + (p.denominatorLabel || 'perangkat terukur yang dipilih')].filter(Boolean).join(' \u00b7 ')),
-      !zero && items.length > 0 && h('p', { className: 'type-body' }, h('strong', null, items[0].name), ' terbesar di antara ' + (p.denominatorLabel || 'perangkat terukur yang dipilih') + '. Ini bukan penilaian boros atau hemat.'),
-      zero && h(Notice, { tone: 'neutral', title: 'Persentase tidak dihitung' }, 'Total energi terukur 0,000 kWh, jadi tidak ada pembagian untuk dibandingkan.'),
+      h(Heading, { level: p.headingLevel, id: titleId, className: 'type-section' }, p.title || tr('Kontributor terbesar')),
+      h('p', { className: 'type-label' }, [p.periodLabel, (zero ? 'Total ' : tr('Dari total ')) + format.kwh(total) + ' ' + (p.denominatorLabel || tr('perangkat terukur yang dipilih'))].filter(Boolean).join(' \u00b7 ')),
+      !zero && items.length > 0 && h('p', { className: 'type-body' }, h('strong', null, items[0].name), tr(' terbesar di antara ') + (p.denominatorLabel || tr('perangkat terukur yang dipilih')) + tr('. Ini bukan penilaian boros atau hemat.')),
+      zero && h(Notice, { tone: 'neutral', title: tr('Persentase tidak dihitung') }, tr('Total energi terukur 0,000 kWh, jadi tidak ada pembagian untuk dibandingkan.')),
       h('ol', { className: 'hd-rank__list' }, items.map(function (i) {
         var pct = format.percent(i.kwh, total);
         return h('li', { key: i.name, className: 'hd-rank__item' },
@@ -466,6 +500,7 @@
 
   function niceMax(v) { if (!(v > 0)) return 1; var m = Math.pow(10, Math.floor(Math.log10(v))); var n = v / m; return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 2.5 ? 2.5 : n <= 5 ? 5 : 10) * m; }
   function HistoryChart(p) {
+    var copy = React.useContext(CopyContext), tr = copy.text, format = copy.format;
     var titleId = useId(); var descId = useId();
     var points = p.points || [];
     var hasRef = points.some(function (d) { return d.reference !== undefined; });
@@ -481,10 +516,10 @@
       h(Heading, { level: p.headingLevel, id: titleId, className: 'type-section' }, p.title),
       h('p', { className: 'type-label' }, [p.periodLabel, p.scopeLabel, 'Satuan: ' + (p.unit || 'kWh')].filter(Boolean).join(' \u00b7 ')),
       h('div', { className: 'hd-chart__legend type-label' },
-        h('span', { className: 'hd-chart__key' }, h('span', { className: 'hd-chart__swatch hd-bar--current' }), p.currentLabel || 'Periode ini (batang penuh)'),
-        hasRef && h('span', { className: 'hd-chart__key' }, h('span', { className: 'hd-chart__swatch hd-bar--reference' }), p.referenceLabel || 'Periode pembanding (garis putus-putus)'),
-        missing.length > 0 && h('span', { className: 'hd-chart__key' }, h('span', { className: 'hd-chart__swatch hd-bar--missing' }), 'Tidak ada data (arsir)')),
-      h('div', { className: 'hd-chart__scale type-caption', 'aria-hidden': 'true' }, h('span', null, 'Skala 0\u2013' + format.number(max) + ' ' + (p.unit || 'kWh')), h('span', null, 'Nilai tepat di tabel data')),
+        h('span', { className: 'hd-chart__key' }, h('span', { className: 'hd-chart__swatch hd-bar--current' }), p.currentLabel || tr('Periode ini (batang penuh)')),
+        hasRef && h('span', { className: 'hd-chart__key' }, h('span', { className: 'hd-chart__swatch hd-bar--reference' }), p.referenceLabel || tr('Periode pembanding (garis putus-putus)')),
+        missing.length > 0 && h('span', { className: 'hd-chart__key' }, h('span', { className: 'hd-chart__swatch hd-bar--missing' }), tr('Tidak ada data (arsir)'))),
+      h('div', { className: 'hd-chart__scale type-caption', 'aria-hidden': 'true' }, h('span', null, tr('Skala 0\u2013') + format.number(max) + ' ' + (p.unit || 'kWh')), h('span', null, tr('Nilai tepat di tabel data'))),
       h('div', { role: 'img', 'aria-labelledby': titleId, 'aria-describedby': descId },
         h('div', { className: 'hd-chart__plot' }, h('span', { className: 'hd-chart__grid', 'aria-hidden': 'true' }),
           points.map(function (d, i) { return h('div', { key: i, className: 'hd-chart__col' }, bar(d.current, 'current', 'c'), hasRef ? bar(d.reference, 'reference', 'r') : null); })),
@@ -493,67 +528,71 @@
         }))),
       h('figcaption', { id: descId, className: 'type-body' }, p.summary,
         missing.length > 0 && h('span', { className: 'hd-qualifier type-label-strong', style: { marginTop: 'var(--space-8)' } }, h(Icon, { name: 'attention', size: 'small' }),
-          h('span', null, p.gapNote || ('Tidak ada data: ' + missing.map(function (d) { return d.label; }).join(', ') + '. Celah tidak digambar sebagai 0 dan tidak diperkirakan.')))),
+          h('span', null, p.gapNote || (tr('Tidak ada data: ') + missing.map(function (d) { return d.label; }).join(', ') + tr('. Celah tidak digambar sebagai 0 dan tidak diperkirakan.'))))),
       p.children);
   }
 
   function ChartDataAlternative(p) {
+    var copy = React.useContext(CopyContext), tr = copy.text, format = copy.format;
     var table = h('table', { className: 'hd-table hd-table--stack type-label' },
       h('caption', { className: 'type-label-strong' }, p.caption),
       h('thead', null, h('tr', null, p.columns.map(function (c) { return h('th', { key: c.key, scope: 'col', className: c.numeric ? 'hd-table__num' : undefined }, c.label); }))),
       h('tbody', null, p.rows.map(function (r, i) {
         return h('tr', { key: i }, p.columns.map(function (c, j) {
           var v = r[c.key];
-          var text = v === null ? 'Tidak ada data' : c.format ? c.format(v) : c.numeric ? format.number(v) : v;
+          var text = v === null ? tr('Tidak ada data') : c.format ? c.format(v) : c.numeric ? format.number(v) : v;
           return j === 0 ? h('th', { key: c.key, scope: 'row', 'data-label': c.label }, text) : h('td', { key: c.key, 'data-label': c.label, className: c.numeric ? 'hd-table__num' : undefined }, text);
         }));
       })));
     return h('div', { className: 'hd-root' }, p.summary && h('p', { className: 'type-body', style: { marginBottom: 'var(--space-8)' } }, p.summary),
-      p.collapsed === false ? table : h(Disclosure, { summary: p.toggleLabel || 'Lihat data dalam tabel' }, table));
+      p.collapsed === false ? table : h(Disclosure, { summary: p.toggleLabel || tr('Lihat data dalam tabel') }, table));
   }
 
   function InsightSummary(p) {
+    var tr = React.useContext(CopyContext).text;
     var titleId = useId();
     var kind = p.kind || 'change';
-    if (kind === 'none') return h(Notice, { tone: 'neutral', title: 'Belum ada perubahan yang memenuhi syarat untuk ditampilkan' }, (p.periodLabel ? p.periodLabel + '. ' : '') + 'Ini bukan penilaian efisiensi atau keamanan; data terukur tetap dapat dilihat.');
-    if (kind === 'learning') return h(Notice, { tone: 'neutral', title: 'Belum cukup periode pembanding' }, p.detail || 'Total terukur tetap tersedia. Perbandingan muncul setelah ada periode sebanding yang cukup.');
+    if (kind === 'none') return h(Notice, { tone: 'neutral', title: tr('Belum ada perubahan yang memenuhi syarat untuk ditampilkan') }, (p.periodLabel ? p.periodLabel + '. ' : '') + tr('Ini bukan penilaian efisiensi atau keamanan; data terukur tetap dapat dilihat.'));
+    if (kind === 'learning') return h(Notice, { tone: 'neutral', title: tr('Belum cukup periode pembanding') }, p.detail || tr('Total terukur tetap tersedia. Perbandingan muncul setelah ada periode sebanding yang cukup.'));
     return h('section', { className: 'hd-root hd-insight', 'aria-labelledby': titleId },
       h(Heading, { level: p.headingLevel, id: titleId, className: 'type-body-strong' }, p.title),
       h('p', { className: 'type-label' }, [p.periodLabel, p.comparison && p.comparison.eligible ? p.comparison.label : null].filter(Boolean).join(' \u00b7 ')),
-      p.comparison && !p.comparison.eligible && h('p', { className: 'hd-qualifier type-label-strong' }, h(Icon, { name: 'attention', size: 'small' }), h('span', null, 'Belum dapat dibandingkan: ' + p.comparison.reason)),
-      h('p', { className: 'type-label hd-secondary' }, p.cause || 'Penyebab perubahan belum diketahui.'),
+      p.comparison && !p.comparison.eligible && h('p', { className: 'hd-qualifier type-label-strong' }, h(Icon, { name: 'attention', size: 'small' }), h('span', null, tr('Belum dapat dibandingkan: ') + p.comparison.reason)),
+      h('p', { className: 'type-label hd-secondary' }, p.cause || tr('Penyebab perubahan belum diketahui.')),
       p.qualification && h('p', { className: 'hd-qualifier type-label-strong' }, h(Icon, { name: 'attention', size: 'small' }), h('span', null, p.qualification)),
-      p.onOpenEvidence && h('div', null, h(Button, { variant: 'text', onClick: p.onOpenEvidence }, p.evidenceLabel || 'Lihat bukti')));
+      p.onOpenEvidence && h('div', null, h(Button, { variant: 'text', onClick: p.onOpenEvidence }, p.evidenceLabel || tr('Lihat bukti'))));
   }
 
   var FEEDBACK = { saving: 'saving', success: 'success', failure: 'failure', unknown: 'unknown' };
   function EvidencePanel(p) {
+    var tr = React.useContext(CopyContext).text;
     var steps = [
-      ['Yang teramati', p.observed], ['Pembanding', p.comparison], ['Kualitas dan cakupan data', p.qualityScope],
-      ['Yang belum diketahui', p.unknown], ['Saran umum', p.guidance]
+      [tr('Yang teramati'), p.observed], [tr('Pembanding'), p.comparison], [tr('Kualitas dan cakupan data'), p.qualityScope],
+      [tr('Yang belum diketahui'), p.unknown], [tr('Saran umum'), p.guidance]
     ].filter(function (s) { return s[1]; });
-    return h('section', { className: 'hd-root hd-evidence', 'aria-label': p.label || 'Bukti dan batasan' },
+    return h('section', { className: 'hd-root hd-evidence', 'aria-label': p.label || tr('Bukti dan batasan') },
       h('ol', null, steps.map(function (s, i) {
         return h('li', { key: s[0], className: 'hd-evidence__step' }, h('span', { className: 'hd-evidence__index type-label-strong', 'aria-hidden': 'true' }, i + 1),
           h('div', { className: 'hd-evidence__content' }, h('h3', { className: 'type-body-strong' }, s[0]),
-            s[0] === 'Saran umum' && h('p', { className: 'type-label hd-secondary' }, 'Panduan umum untuk diperiksa, bukan diagnosis perangkat Anda.'),
+            s[0] === tr('Saran umum') && h('p', { className: 'type-label hd-secondary' }, tr('Panduan umum untuk diperiksa, bukan diagnosis perangkat Anda.')),
             h('div', { className: 'type-body' }, s[1])));
       })),
       p.onFeedback && h('div', { className: 'hd-evidence__step' }, h('span', { className: 'hd-evidence__index type-label-strong', 'aria-hidden': 'true' }, steps.length + 1),
-        h('div', { className: 'hd-evidence__content' }, h('h3', { className: 'type-body-strong' }, 'Apakah penjelasan ini membantu?'),
-          h('p', { className: 'type-label hd-secondary' }, 'Opsional. Jawaban hanya memperbaiki penjelasan; tidak mengubah data atau perangkat.'),
+        h('div', { className: 'hd-evidence__content' }, h('h3', { className: 'type-body-strong' }, tr('Apakah penjelasan ini membantu?')),
+          h('p', { className: 'type-label hd-secondary' }, tr('Opsional. Jawaban hanya memperbaiki penjelasan; tidak mengubah data atau perangkat.')),
           p.feedbackState !== 'success' && h('div', { className: 'hd-row' },
-            h(Button, { variant: 'secondary', onClick: function () { p.onFeedback('helpful'); }, loading: p.feedbackState === 'saving' && p.feedbackChoice === 'helpful', loadingLabel: 'Mengirim\u2026' }, 'Membantu'),
-            h(Button, { variant: 'secondary', onClick: function () { p.onFeedback('notHelpful'); }, loading: p.feedbackState === 'saving' && p.feedbackChoice === 'notHelpful', loadingLabel: 'Mengirim\u2026' }, 'Kurang membantu')),
-          h(ProgressStatus, { state: FEEDBACK[p.feedbackState] && p.feedbackState !== 'saving' ? p.feedbackState : null, label: p.feedbackState === 'success' ? 'Terima kasih, jawaban tercatat' : undefined,
-            detail: p.feedbackState === 'success' ? 'Dikonfirmasi server.' : p.feedbackState === 'failure' ? 'Jawaban belum terkirim. Tidak ada yang berubah.' : undefined,
+            h(Button, { variant: 'secondary', onClick: function () { p.onFeedback('helpful'); }, loading: p.feedbackState === 'saving' && p.feedbackChoice === 'helpful', loadingLabel: tr('Mengirim\u2026') }, tr('Membantu')),
+            h(Button, { variant: 'secondary', onClick: function () { p.onFeedback('notHelpful'); }, loading: p.feedbackState === 'saving' && p.feedbackChoice === 'notHelpful', loadingLabel: tr('Mengirim\u2026') }, tr('Kurang membantu'))),
+          h(ProgressStatus, { state: FEEDBACK[p.feedbackState] && p.feedbackState !== 'saving' ? p.feedbackState : null, label: p.feedbackState === 'success' ? tr('Terima kasih, jawaban tercatat') : undefined,
+            detail: p.feedbackState === 'success' ? tr('Dikonfirmasi server.') : p.feedbackState === 'failure' ? tr('Jawaban belum terkirim. Tidak ada yang berubah.') : undefined,
             onRetry: p.onFeedbackRetry, onCheck: p.onFeedbackCheck }))),
-      p.metadata && h(Disclosure, { summary: 'Detail perhitungan' }, h('dl', { className: 'hd-meta type-label' }, p.metadata.map(function (m) {
+      p.metadata && h(Disclosure, { summary: tr('Detail perhitungan') }, h('dl', { className: 'hd-meta type-label' }, p.metadata.map(function (m) {
         return h('div', { key: m[0] }, h('dt', { className: 'type-label-strong' }, m[0]), h('dd', null, m[1]));
       }))));
   }
 
   function ImportPreview(p) {
+    var copy = React.useContext(CopyContext), tr = copy.text, format = copy.format;
     var ackId = useId();
     var threshold = p.maxInvalidShare != null ? p.maxInvalidShare : 0.2;
     var total = p.totalRows, invalid = p.invalidRows || 0, dup = p.duplicateRows || 0, conflicts = p.conflictRows || 0;
@@ -563,29 +602,29 @@
     var blocked = tooMany || conflicts > 0;
     var needsAck = !blocked && invalid > 0;
     var done = p.saveState === 'success';
-    var blockReason = tooMany ? invalid + ' dari ' + total + ' baris tidak valid, melebihi batas ' + maxInvalid + '. Perbaiki file lalu unggah ulang.'
-      : conflicts > 0 ? conflicts + ' baris bertentangan dengan data yang sudah ada. Selesaikan konflik terlebih dahulu.' : null;
+    var blockReason = tooMany ? invalid + ' dari ' + total + tr(' baris tidak valid, melebihi batas ') + maxInvalid + tr('. Perbaiki file lalu unggah ulang.')
+      : conflicts > 0 ? conflicts + tr(' baris bertentangan dengan data yang sudah ada. Selesaikan konflik terlebih dahulu.') : null;
     function count(label, v, attention) { return h('div', null, h('span', { className: 'type-label hd-secondary' }, label), h('span', { className: cx('type-section hd-num', attention && 'hd-qualifier') }, format.number(v))); }
-    return h('section', { className: 'hd-root hd-import', 'aria-label': 'Pratinjau impor' },
+    return h('section', { className: 'hd-root hd-import', 'aria-label': tr('Pratinjau impor') },
       h('div', { className: 'hd-row' }, h(Icon, { name: 'file' }), h('p', { className: 'type-body-strong' }, p.fileName), p.periodLabel && h('span', { className: 'type-label hd-secondary' }, '\u00b7 ' + p.periodLabel)),
-      h('div', { className: 'hd-counts' }, count('Baris data', total), count('Valid dan unik', valid), count('Tidak valid', invalid, invalid > 0), count('Duplikat (dihitung sekali)', dup), count('Konflik', conflicts, conflicts > 0)),
-      p.mapping && h(Disclosure, { summary: 'Pemetaan kolom dan asumsi' },
+      h('div', { className: 'hd-counts' }, count(tr('Baris data'), total), count(tr('Valid dan unik'), valid), count(tr('Tidak valid'), invalid, invalid > 0), count(tr('Duplikat (dihitung sekali)'), dup), count(tr('Konflik'), conflicts, conflicts > 0)),
+      p.mapping && h(Disclosure, { summary: tr('Pemetaan kolom dan asumsi') },
         h('ul', { className: 'type-body' }, p.mapping.map(function (m) { return h('li', { key: m[0] }, h('strong', null, m[0]), ' \u2192 ' + m[1]); })),
         p.assumptions && h('ul', { className: 'type-label' }, p.assumptions.map(function (a) { return h('li', { key: a }, a); }))),
       p.errors && p.errors.length > 0 && h('div', { className: 'hd-stack hd-stack--tight' },
-        h('h3', { className: 'type-body-strong' }, 'Baris yang tidak valid'),
-        h('p', { className: 'type-label hd-secondary' }, 'Nomor baris data tidak menghitung header. Baris file = baris data + 1.'),
+        h('h3', { className: 'type-body-strong' }, tr('Baris yang tidak valid')),
+        h('p', { className: 'type-label hd-secondary' }, tr('Nomor baris data tidak menghitung header. Baris file = baris data + 1.')),
         h('ul', { className: 'hd-rowerrors' }, p.errors.map(function (e) {
-          return h('li', { key: e.id, id: e.id, tabIndex: -1 }, h('span', { className: 'type-body-strong' }, 'Baris data ' + e.dataRow + ' (baris file ' + (e.dataRow + 1) + ') \u00b7 kolom ' + e.field), h('span', { className: 'type-body' }, e.message));
+          return h('li', { key: e.id, id: e.id, tabIndex: -1 }, h('span', { className: 'type-body-strong' }, tr('Baris data ') + e.dataRow + tr(' (baris file ') + (e.dataRow + 1) + tr(') \u00b7 kolom ') + e.field), h('span', { className: 'type-body' }, e.message));
         }))),
-      blockReason && h(Notice, { tone: 'error', title: 'Impor tidak dapat dilanjutkan' }, blockReason),
-      needsAck && !done && h(ChoiceGroup, { type: 'checkbox', legend: 'Konfirmasi baris yang dilewati', error: p.ackError, value: p.acknowledged ? ['ack'] : [], onChange: function (v) { if (p.onAcknowledge) p.onAcknowledge(v.length > 0); },
-        options: [{ value: 'ack', id: p.ackInputId || ackId, label: 'Saya mengerti ' + invalid + ' baris tidak valid tidak akan diimpor.', description: valid + ' baris valid akan disimpan. Data yang sudah terkonfirmasi tidak berubah.' }] }),
-      h(ProgressStatus, { state: p.saveState === 'saving' ? null : p.saveState, label: done ? valid + ' baris diimpor' : undefined, detail: done ? 'Dikonfirmasi server' + (p.confirmedAt ? ' ' + p.confirmedAt : '') + '.' : p.saveState === 'failure' ? 'Pratinjau dan pilihan Anda tetap tersimpan. Tidak ada baris yang diimpor.' : undefined,
+      blockReason && h(Notice, { tone: 'error', title: tr('Impor tidak dapat dilanjutkan') }, blockReason),
+      needsAck && !done && h(ChoiceGroup, { type: 'checkbox', legend: tr('Konfirmasi baris yang dilewati'), error: p.ackError, value: p.acknowledged ? ['ack'] : [], onChange: function (v) { if (p.onAcknowledge) p.onAcknowledge(v.length > 0); },
+        options: [{ value: 'ack', id: p.ackInputId || ackId, label: tr('Saya mengerti ') + invalid + tr(' baris tidak valid tidak akan diimpor.'), description: valid + tr(' baris valid akan disimpan. Data yang sudah terkonfirmasi tidak berubah.') }] }),
+      h(ProgressStatus, { state: p.saveState === 'saving' ? null : p.saveState, label: done ? valid + tr(' baris diimpor') : undefined, detail: done ? tr('Dikonfirmasi server') + (p.confirmedAt ? ' ' + p.confirmedAt : '') + '.' : p.saveState === 'failure' ? tr('Pratinjau dan pilihan Anda tetap tersimpan. Tidak ada baris yang diimpor.') : undefined,
         onRetry: p.onConfirm, onCheck: p.onCheckStatus, checking: p.checking }),
       !done && p.saveState !== 'unknown' && p.saveState !== 'failure' && h('div', { className: 'hd-row' },
-        h(Button, { variant: 'primary', onClick: p.onConfirm, loading: p.saveState === 'saving', loadingLabel: 'Mengimpor\u2026', disabledReason: blocked ? 'Tidak dapat mengimpor: ' + (tooMany ? 'terlalu banyak baris tidak valid.' : 'ada konflik data.') : null }, blocked ? 'Impor baris valid' : 'Impor ' + valid + ' baris'),
-        p.onCancel && h(Button, { variant: 'text', onClick: p.onCancel }, 'Batal')));
+        h(Button, { variant: 'primary', onClick: p.onConfirm, loading: p.saveState === 'saving', loadingLabel: tr('Mengimpor\u2026'), disabledReason: blocked ? tr('Tidak dapat mengimpor: ') + (tooMany ? tr('terlalu banyak baris tidak valid.') : tr('ada konflik data.')) : null }, blocked ? tr('Impor baris valid') : tr('Konfirmasi impor')),
+        p.onCancel && h(Button, { variant: 'text', onClick: p.onCancel }, tr('Batal'))));
   }
 
   var SCHEDULE_MODES = [
@@ -595,6 +634,7 @@
     { value: 'windows', label: 'Jendela mingguan khusus', description: 'Boleh lebih dari satu, termasuk melewati tengah malam.' }
   ];
   function ScheduleWindows(p) {
+    var format = React.useContext(CopyContext).format;
     var modes = SCHEDULE_MODES.map(function (m) { return m.value === 'inherit' ? Object.assign({}, m, { description: p.inheritLabel || 'Jadwal lokasi belum diatur.', disabledReason: p.inheritLabel ? null : 'Lokasi belum punya jadwal.' }) : m; });
     return h('section', { className: 'hd-root hd-schedule', 'aria-label': 'Jadwal operasi' },
       h(ChoiceGroup, { legend: 'Jadwal operasi', optional: true, help: p.help || 'Hanya untuk membandingkan pemakaian di dalam dan di luar jam operasi.', value: p.mode, onChange: p.onModeChange, options: modes }),
@@ -606,6 +646,7 @@
   }
 
   function OutputMetricPreview(p) {
+    var format = React.useContext(CopyContext).format;
     var titleId = useId();
     if (!p.enabled) return null; // optional capability: absent when not enabled, core stays complete
     var unit = p.unit || 'unit';
@@ -619,22 +660,23 @@
     return h('section', { className: 'hd-root hd-output', 'aria-labelledby': titleId },
       h(Heading, { level: p.headingLevel, id: titleId, className: 'type-label-strong' }, 'Energi per output (opsional)'),
       state === 'ok' ? h(Fragment, null,
-        h('p', { className: 'hd-metric__value hd-num' }, h('span', { className: 'type-title' }, nf3.format(p.energyKwh / p.output)), h('span', { className: 'type-body-strong' }, 'kWh/' + unit)),
+        h('p', { className: 'hd-metric__value hd-num' }, h('span', { className: 'type-title' }, format.fixedEnergy(p.energyKwh / p.output)), h('span', { className: 'type-body-strong' }, 'kWh/' + unit)),
         h('p', { className: 'type-label' }, format.kwh(p.energyKwh) + ' \u00f7 ' + format.number(p.output) + ' ' + unit + ' \u00b7 output ' + (p.method === 'estimated' ? 'estimasi' : 'aktual') + (p.periodLabel ? ' \u00b7 ' + p.periodLabel : ''))) :
         h('p', { className: 'hd-qualifier hd-qualifier--neutral type-body' }, h(Icon, { name: 'info', size: 'small' }), h('span', null, message)),
       p.method === 'estimated' && state === 'ok' && h('p', { className: 'hd-qualifier type-label-strong' }, h(Icon, { name: 'attention', size: 'small' }), h('span', null, 'Output berupa estimasi, bukan hitungan aktual.')));
   }
 
   function Screen(p) {
+    var tr = React.useContext(CopyContext).text;
     var titleId = useId();
     return h('div', { className: cx('hd-root hd-screen', p.aside && 'hd-screen--aside') },
       h('header', { className: 'hd-screen__top' },
         p.back ? h(IconButton, { icon: 'chevronLeft', label: p.back.label, showLabel: true, onClick: p.back.onClick }) : h('span', { className: 'hd-screen__wordmark type-body' }, 'HematDaya'),
-        p.provenance && h(Tag, null, PROVENANCE[p.provenance] || p.provenance)),
+        p.provenance && h(Tag, null, tr(PROVENANCE[p.provenance] || p.provenance))),
       h('main', { className: 'hd-screen__body', 'aria-labelledby': titleId },
         h('div', { className: 'hd-screen__head' }, h('h1', { id: titleId, className: 'type-title' }, p.title), p.subtitle && h('p', { className: 'type-label hd-secondary' }, p.subtitle)),
         h('div', { className: 'hd-screen__main' }, p.children),
-        p.aside && h('aside', { className: 'hd-screen__aside', 'aria-label': p.asideLabel || 'Informasi pendukung' }, p.aside)),
+        p.aside && h('aside', { className: 'hd-screen__aside', 'aria-label': p.asideLabel || tr('Informasi pendukung') }, p.aside)),
       p.current && h('div', { className: 'hd-screen__nav' }, h(TabNavigation, { current: p.current, onNavigate: p.onNavigate })));
   }
 
@@ -646,7 +688,7 @@
     ContributionRanking: ContributionRanking, HistoryChart: HistoryChart, ChartDataAlternative: ChartDataAlternative,
     InsightSummary: InsightSummary, EvidencePanel: EvidencePanel, ImportPreview: ImportPreview, ScheduleWindows: ScheduleWindows,
     OutputMetricPreview: OutputMetricPreview, Screen: Screen, Icon: Icon,
-    format: format, version: '1.0.0-draft'
+    format: format, formatFor: function (language) { return formats[language] || format; }, CopyProvider: CopyProvider, version: '1.0.0-draft'
   };
   window.HD = Object.assign(window.HD || {}, HD);
 })();

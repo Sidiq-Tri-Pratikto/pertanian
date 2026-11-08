@@ -924,7 +924,7 @@ describe('unknown commit result', () => {
       expect(api.requests(PREVIEW)).toHaveLength(previews);
       expect(api.requests(COMMIT)).toHaveLength(0);
       expect(api.requests(GET_IMPORT)[0].init.headers).toMatchObject({ 'X-HematDaya-Locale': 'en' });
-      expect(screen.getByRole('button', { name: 'Konfirmasi impor' })).toBeOnTheScreen();
+      expect(screen.getByRole('button', { name: 'Confirm import' })).toBeOnTheScreen();
     } finally {
       await act(() => setLocale('id'));
     }
