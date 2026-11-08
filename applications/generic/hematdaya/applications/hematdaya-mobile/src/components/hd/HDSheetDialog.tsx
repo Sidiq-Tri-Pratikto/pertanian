@@ -1,3 +1,4 @@
+import { useCopy } from '@/features/localization/messages';
 import { useContext, useEffect, useRef, type ComponentRef, type ReactNode, type RefObject } from 'react';
 import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, View, type TextInstance } from 'react-native';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
@@ -25,6 +26,7 @@ const FOCUSABLE_BY_SCRIPT = { tabIndex: -1 } as object;
 
 /** Non-destructive sheet on RN `Modal`: focus to the title on open, Escape or back closes, focus returns to the opener. */
 export function HDSheetDialog({ open, title, onClose, children, footer, returnFocusTo, scrollable = false }: HDSheetDialogProps) {
+  const say = useCopy();
   const heading = useRef<TextInstance>(null);
   const wasOpen = useRef(open);
   const web = Platform.OS === 'web';
@@ -51,15 +53,13 @@ export function HDSheetDialog({ open, title, onClose, children, footer, returnFo
   return (
     <Modal {...modalLabel} visible={open} transparent animationType="slide" onDismiss={returnWebFocus} onRequestClose={() => onClose('escape')} onShow={() => moveFocus(heading.current)}>
       <KeyboardAvoidingView style={styles.root} behavior={scrollable && Platform.OS === 'ios' ? 'padding' : undefined}>
-        <Pressable accessibilityLabel="Tutup" style={StyleSheet.absoluteFill} onPress={() => onClose('backdrop')} />
+        <Pressable accessibilityLabel={say("Tutup", "Close")} style={StyleSheet.absoluteFill} onPress={() => onClose('backdrop')} />
         <View {...nativeDialog} style={sheetStyle}>
           <View style={styles.header}>
             <HDText ref={heading} variant="section" role="heading" style={styles.title} {...FOCUSABLE_BY_SCRIPT}>
               {title}
             </HDText>
-            <HDButton variant="text" onPress={() => onClose('close')}>
-              Tutup
-            </HDButton>
+            <HDButton variant="text" onPress={() => onClose('close')}>{say("Tutup", "Close")}</HDButton>
           </View>
           {scrollable ? (
             <ScrollView style={styles.scrollBody} contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">

@@ -1,37 +1,43 @@
+import { getLocale } from '@/features/localization/locale';
+import { currentCopy } from '@/features/localization/messages';
 import { historyInstant, type HistoryResponse } from '@/api/client';
 import type { HistoryPoint } from '@/components/hd/HDHistoryChart';
 import { formatDate, formatDateRange, formatKwh, formatRatio, formatResolution } from '@/lib/format';
 
 type Bucket = HistoryResponse['buckets'][number];
 
+function clock(value: string): string {
+  return getLocale() === 'en' ? value.replaceAll('.', ':') : value.replaceAll(':', '.');
+}
+
 function localInstantLabel(instant: string, formatter: Intl.DateTimeFormat): string {
   const parts = Object.fromEntries(formatter.formatToParts(new Date(historyInstant(instant))).map(({ type, value }) => [type, value]));
   const offset = parts.timeZoneName.slice(3) || '+00:00';
   const time = parts.second === '00' ? `${parts.hour}.${parts.minute}` : `${parts.hour}.${parts.minute}.${parts.second}`;
-  return `${formatDate(`${parts.year}-${parts.month}-${parts.day}`)} ${time} (UTC${offset})`;
+  return `${formatDate(`${parts.year}-${parts.month}-${parts.day}`)} ${clock(time)} (UTC${offset})`;
 }
 
 function bucketStartLabel(bucket: Bucket): string {
   const date = formatDate(bucket.local_date);
-  return bucket.local_time === null ? date : `${date} ${bucket.local_time.replace(':', '.')} (UTC${bucket.utc_offset})`;
+  return bucket.local_time === null ? date : `${date} ${clock(bucket.local_time)} (UTC${bucket.utc_offset})`;
 }
 
 function bucketQuality(bucket: Bucket, qualification: string): string {
   switch (bucket.state) {
     case 'measured':
-      return `Terukur${qualification}`;
+      return currentCopy(`Terukur${qualification}`, `Measured${qualification}`);
     case 'partial':
-      return `Data sebagian. Angka hanya mencakup bagian yang tercatat${qualification}.`;
+      return currentCopy(`Data sebagian. Angka hanya mencakup bagian yang tercatat${qualification}.`, `Partial data. The figure covers only recorded readings${qualification}.`);
     case 'missing':
-      return `Tidak ada data${qualification}`;
+      return currentCopy(`Tidak ada data${qualification}`, `No data${qualification}`);
     case 'future':
-      return 'Belum terjadi';
+      return currentCopy("Belum terjadi", "Future interval");
     default: {
       const reason = bucket.unavailable_reason === 'source_conflict'
-        ? 'Sumber data bertentangan untuk interval ini'
+        ? currentCopy("Sumber data bertentangan untuk interval ini", "Sources conflict for this interval")
         : bucket.unavailable_reason === 'insufficient_resolution'
-          ? 'Resolusi pengukuran belum memadai untuk interval ini'
-          : 'Data tidak tersedia untuk interval ini';
+          ? currentCopy("Resolusi pengukuran belum memadai untuk interval ini", "Measurement resolution is too low for this interval")
+          : currentCopy("Data tidak tersedia untuk interval ini", "Data unavailable for this interval");
       return `${reason}${qualification}.`;
     }
   }
@@ -52,9 +58,9 @@ export function historyModel(history: HistoryResponse) {
     timeZoneName: 'longOffset',
   });
   const cutoff = historyInstant(window.effective_end);
-  const through = `hingga ${localInstantLabel(window.effective_end, formatter)}`;
+  const through = currentCopy(`hingga ${localInstantLabel(window.effective_end, formatter)}`, `through ${localInstantLabel(window.effective_end, formatter)}`);
   const current = window.is_current
-    ? cutoff === historyInstant(window.start) ? 'periode belum dimulai' : through
+    ? cutoff === historyInstant(window.start) ? currentCopy("periode belum dimulai", "period has not started") : through
     : null;
   const periodLabel = [formatDateRange(window.start_date, window.end_date), window.timezone, current].filter(Boolean).join(' · ');
   const highestStart = historyInstant(history.highest_bucket?.start);
@@ -83,7 +89,7 @@ export function historyModel(history: HistoryResponse) {
     const coverage = bucket.coverage === null ? '—' : formatRatio(bucket.coverage) + qualification;
     if (start === highestStart) highestLabel = `${label}, ${energy}`;
 
-    const time = bucket.local_time?.replace(':', '.');
+    const time = bucket.local_time === null ? null : clock(bucket.local_time);
     const repeated = bucket.local_time !== null && repeatedTimes.has(bucket.local_time);
     const axisLabel = repeated
       ? `${time} (UTC${bucket.utc_offset})`
@@ -107,14 +113,14 @@ export function historyModel(history: HistoryResponse) {
   const missingIntervals = gaps.map(({ first, last }) => {
     const elapsed = historyInstant(last.end) > cutoff;
     const end = elapsed ? window.effective_end : last.end;
-    const range = hourly ? '' : `${formatDateRange(first.local_date, last.local_date)}, mulai `;
-    return `Tidak ada data: ${range}${localInstantLabel(first.start, formatter)} ${elapsed ? 'hingga' : 'sampai sebelum'} ${localInstantLabel(end, formatter)}.`;
+    const range = hourly ? '' : currentCopy(`${formatDateRange(first.local_date, last.local_date)}, mulai `, `${formatDateRange(first.local_date, last.local_date)}, from `);
+    return currentCopy(`Tidak ada data: ${range}${localInstantLabel(first.start, formatter)} ${elapsed ? 'hingga' : 'sampai sebelum'} ${localInstantLabel(end, formatter)}.`, `No data: ${range}${localInstantLabel(first.start, formatter)} ${elapsed ? 'through' : 'until'} ${localInstantLabel(end, formatter)}.`);
   });
 
   return {
     periodLabel,
     gapNote: missingIntervals.length ? missingIntervals.join(' ') : undefined,
-    summary: highestLabel ? `Energi tercatat tertinggi: ${highestLabel}.` : 'Belum ada interval terukur lengkap untuk menentukan energi tertinggi.',
+    summary: highestLabel ? currentCopy(`Energi tercatat tertinggi: ${highestLabel}.`, `Highest recorded energy: ${highestLabel}.`) : currentCopy("Belum ada interval terukur lengkap untuk menentukan energi tertinggi.", "There are no complete intervals to compare yet."),
     rows: entries.map(({ row }) => row),
     points: entries.map(({ point }) => point),
     dense,

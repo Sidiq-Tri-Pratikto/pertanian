@@ -1,3 +1,6 @@
+import { errorMessage } from '@/features/localization/error-copy';
+import { useLocale } from '@/features/localization/locale';
+import { useCopy } from '@/features/localization/messages';
 import { StyleSheet, View } from 'react-native';
 
 import type { InsightList } from '@/api/client';
@@ -18,28 +21,27 @@ import { formatDateRange } from '@/lib/format';
 
 /** S07: observations that met the rule, data notices apart from them, and honest empty states. */
 export function SaranScreen() {
+  const say = useCopy();
   const { workspace } = useWorkspace();
   const { openSettings } = useTabNavigation();
   const insights = useInsights();
   useConnectivity();
   const offline = isKnownOffline();
 
-  const settings = <HDButton variant="text" onPress={openSettings}>Pengaturan</HDButton>;
+  const settings = <HDButton variant="text" onPress={openSettings}>{say("Pengaturan", "Settings")}</HDButton>;
   const supporting = insights.data ? <><DataNotices data={insights.data} />{settings}</> : null;
   return (
-    <HDScreen title="Saran" subtitle="Pengamatan berbasis bukti, bukan diagnosis" supporting={supporting}>
+    <HDScreen title={say("Saran", "Insights")} subtitle={say("Pengamatan berbasis bukti, bukan diagnosis", "Observations from your readings")} supporting={supporting}>
       {workspace === null ? (
         <NoData />
       ) : insights.data === undefined ? (
         <HDProgressStatus
           state={insights.isError ? 'failure' : 'loading'}
-          label={offline ? 'Menunggu koneksi untuk saran…' : insights.isError ? 'Saran belum dapat dimuat' : 'Memuat saran…'}
-          detail={insights.error?.message}
+          label={offline ? say("Menunggu koneksi untuk saran…", "Waiting for a connection to load insights…") : insights.isError ? say("Saran belum dapat dimuat", "Could not load insights") : say("Memuat saran…", "Loading insights…")}
+          detail={errorMessage(insights.error)}
           action={
             insights.isError && !offline ? (
-              <HDButton variant="text" icon="refresh" onPress={() => void insights.refetch()}>
-                Coba lagi
-              </HDButton>
+              <HDButton variant="text" icon="refresh" onPress={() => void insights.refetch()}>{say("Coba lagi", "Try again")}</HDButton>
             ) : null
           }
         />
@@ -52,19 +54,19 @@ export function SaranScreen() {
 }
 
 function NoData() {
+  const say = useCopy();
   const { openImport } = useTabNavigation();
   return (
     <View style={styles.section}>
-      <HDText variant="section">Belum ada saran</HDText>
-      <HDText>Saran hanya muncul dari data yang tercatat. Ini bukan penilaian efisiensi atau keamanan.</HDText>
-      <HDButton variant="text" onPress={() => openImport()}>
-        Tentang impor data
-      </HDButton>
+      <HDText variant="section">{say("Belum ada saran", "No insights yet")}</HDText>
+      <HDText>{say("Saran hanya muncul dari data yang tercatat. Ini bukan penilaian efisiensi atau keamanan.", "Insights use recorded data and show changes worth a closer look.")}</HDText>
+      <HDButton variant="text" onPress={() => openImport()}>{say("Tentang impor data", "About importing data")}</HDButton>
     </View>
   );
 }
 
 function SaranList({ data }: { data: InsightList }) {
+  const say = useCopy();
   const { openEvidence, openAssetHistoryChooser, openHidden } = useTabNavigation();
   const learningOnly = data.comparable_count === 0 && data.learning_count > 0;
 
@@ -74,7 +76,7 @@ function SaranList({ data }: { data: InsightList }) {
         {formatDateRange(data.window.start_date, data.window.end_date)} · {data.window.timezone}
       </HDText>
       <RestoreNotice timezone={data.window.timezone} />
-      <View role="list" aria-label="Pengamatan" style={styles.section}>
+      <View role="list" aria-label={say("Pengamatan", "Observations")} style={styles.section}>
         {data.observations.map((insight) => {
           const model = evidenceModel(insight);
           return (
@@ -91,39 +93,32 @@ function SaranList({ data }: { data: InsightList }) {
         })}
       </View>
       {data.observations.length === 0 && (data.hidden_count ?? 0) > 0 ? (
-        <HDText>Semua pengamatan pada periode ini sedang disembunyikan atau ditunda.</HDText>
+        <HDText>{say("Semua pengamatan pada periode ini sedang disembunyikan atau ditunda.", "All observations for this period are hidden or snoozed.")}</HDText>
       ) : data.observations.length === 0 ? (
         learningOnly ? (
           <View style={styles.section}>
-            <HDText variant="section">Belum cukup periode pembanding</HDText>
-            <HDText>
-              Perubahan hanya dihitung bila ada sedikitnya dua minggu sebelumnya dengan data yang cukup pada hari dan
-              jam yang sama. Saran akan muncul setelah riwayatnya cukup.
-            </HDText>
-            <HDButton variant="text" onPress={openAssetHistoryChooser}>
-              Tentang riwayat perangkat
-            </HDButton>
+            <HDText variant="section">{say("Belum cukup periode pembanding", "Not enough comparable history")}</HDText>
+            <HDText>{say("Perubahan hanya dihitung bila ada sedikitnya dua minggu sebelumnya dengan data yang cukup pada hari dan jam yang sama. Saran akan muncul setelah riwayatnya cukup.", "Insights compare the same days and hours across at least two earlier weeks with enough data.")}</HDText>
+            <HDButton variant="text" onPress={openAssetHistoryChooser}>{say("Tentang riwayat perangkat", "About device history")}</HDButton>
           </View>
         ) : data.comparable_count === 0 ? (
           <NoData />
         ) : (
           <View style={styles.section}>
-            <HDText variant="section">Belum ada perubahan yang memenuhi kriteria pada periode ini</HDText>
-            <HDText>
-              Ini bukan penilaian efisiensi atau keamanan, hanya berarti tidak ada perubahan yang cukup besar.
-            </HDText>
+            <HDText variant="section">{say("Belum ada perubahan yang memenuhi kriteria pada periode ini", "No significant changes in this period")}</HDText>
+            <HDText>{say("Ini bukan penilaian efisiensi atau keamanan, hanya berarti tidak ada perubahan yang cukup besar.", "The readings did not change enough to trigger an insight.")}</HDText>
           </View>
         )
       ) : null}
       {data.learning_count > 0 && !learningOnly ? (
         <HDText variant="label" tone="secondary">
-          {`${data.learning_count} perangkat belum punya cukup periode pembanding.`}
+          {say(`${data.learning_count} perangkat belum punya cukup periode pembanding.`, `Devices without enough comparable history: ${data.learning_count}.`)}
         </HDText>
       ) : null}
       {(data.hidden_count ?? 0) > 0 ? (
         <View style={styles.row}>
           <HDButton variant="text" icon="chevronRight" onPress={openHidden}>
-            {`Saran tersembunyi (${data.hidden_count})`}
+            {say(`Saran tersembunyi (${data.hidden_count})`, `Hidden insights (${data.hidden_count})`)}
           </HDButton>
         </View>
       ) : null}
@@ -132,17 +127,15 @@ function SaranList({ data }: { data: InsightList }) {
 }
 
 function DataNotices({ data }: { data: InsightList }) {
+  const say = useCopy();
+  const locale = useLocale();
   return data.notices.length ? (
     <View style={styles.section}>
-      <HDText variant="section" role="heading">
-        Catatan data
-      </HDText>
-      <HDText variant="label" tone="secondary">
-        Catatan ini tentang kualitas data, bukan pengamatan pemakaian.
-      </HDText>
+      <HDText variant="section" role="heading">{say("Catatan data", "Data notes")}</HDText>
+      <HDText variant="label" tone="secondary">{say("Catatan ini tentang kualitas data, bukan pengamatan pemakaian.", "These notes explain the quality of your readings.")}</HDText>
       {data.notices.map((notice) => (
-        <HDNotice key={notice.id} tone="attention" title={notice.title}>
-          {notice.body}
+        <HDNotice key={notice.id} tone="attention" title={notice.copy_by_locale?.[locale].title ?? notice.title}>
+          {notice.copy_by_locale?.[locale].body ?? notice.body}
         </HDNotice>
       ))}
     </View>

@@ -1,3 +1,4 @@
+import { useCopy } from '@/features/localization/messages';
 import { useEffect, useRef, type ComponentRef } from 'react';
 import { Platform, Pressable, StyleSheet, View } from 'react-native';
 
@@ -44,6 +45,7 @@ function enterFollows(follow: () => void): object {
 
 /** After a submit, lists every error as a link to its field or row, and takes focus. Hidden when empty. */
 export function HDErrorSummary({ errors, submitCount, convention, title }: HDErrorSummaryProps) {
+  const say = useCopy();
   const container = useRef<ComponentRef<typeof View>>(null);
   const shown = errors.length > 0;
 
@@ -59,7 +61,7 @@ export function HDErrorSummary({ errors, submitCount, convention, title }: HDErr
   if (!shown) {
     return null;
   }
-  const heading = title ?? `Periksa ${errors.length} hal berikut`;
+  const heading = title ?? say(`Periksa ${errors.length} hal berikut`, `Check these ${errors.length} items`);
   return (
     <View ref={container} role="alert" aria-label={heading} style={styles.summary} {...FOCUSABLE_BY_SCRIPT}>
       <View style={styles.head}>

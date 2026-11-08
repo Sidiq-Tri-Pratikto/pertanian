@@ -1,3 +1,5 @@
+import { errorMessage } from '@/features/localization/error-copy';
+import { useCopy } from '@/features/localization/messages';
 import { useQuery } from '@tanstack/react-query';
 import { StyleSheet, View } from 'react-native';
 
@@ -18,6 +20,7 @@ import { formatDateRange, formatDateTime } from '@/lib/format';
 
 /** Saran tersembunyi: hidden and still-snoozed observations for the period, each with Pulihkan. */
 export function HiddenScreen() {
+  const say = useCopy();
   const { workspace, credential, credentialGeneration, scopeEpoch } = useWorkspace();
   const { period } = useNavigationContext();
   const { back } = useTabNavigation();
@@ -28,17 +31,15 @@ export function HiddenScreen() {
   });
 
   return (
-    <HDScreen title="Saran tersembunyi" onBack={back}>
+    <HDScreen title={say("Saran tersembunyi", "Hidden insights")} onBack={back}>
       {hidden.data === undefined ? (
         <HDProgressStatus
           state={hidden.isError ? 'failure' : 'loading'}
-          label={hidden.isError ? 'Saran tersembunyi belum dapat dimuat' : 'Memuat saran tersembunyi…'}
-          detail={hidden.error?.message}
+          label={hidden.isError ? say("Saran tersembunyi belum dapat dimuat", "Could not load hidden insights") : say("Memuat saran tersembunyi…", "Loading hidden insights…")}
+          detail={errorMessage(hidden.error)}
           action={
             hidden.isError ? (
-              <HDButton variant="text" icon="refresh" onPress={() => void hidden.refetch()}>
-                Coba lagi
-              </HDButton>
+              <HDButton variant="text" icon="refresh" onPress={() => void hidden.refetch()}>{say("Coba lagi", "Try again")}</HDButton>
             ) : null
           }
         />
@@ -48,9 +49,9 @@ export function HiddenScreen() {
             {formatDateRange(hidden.data.window.start_date, hidden.data.window.end_date)} · {hidden.data.window.timezone}
           </HDText>
           {hidden.data.observations.length === 0 ? (
-            <HDText>Tidak ada saran yang disembunyikan atau ditunda pada periode ini.</HDText>
+            <HDText>{say("Tidak ada saran yang disembunyikan atau ditunda pada periode ini.", "No hidden or snoozed insights for this period.")}</HDText>
           ) : (
-            <View role="list" aria-label="Saran tersembunyi" style={styles.section}>
+            <View role="list" aria-label={say("Saran tersembunyi", "Hidden insights")} style={styles.section}>
               {hidden.data.observations.map((insight) => (
                 <View key={insight.id} role="listitem">
                   <HiddenItem insight={insight} timezone={hidden.data.window.timezone} />
@@ -65,6 +66,7 @@ export function HiddenScreen() {
 }
 
 function HiddenItem({ insight, timezone }: { insight: Insight; timezone: string }) {
+  const say = useCopy();
   const { openEvidence } = useTabNavigation();
   const restore = useFeedback(insight.id, insight.revision);
   const model = evidenceModel(insight);
@@ -75,14 +77,12 @@ function HiddenItem({ insight, timezone }: { insight: Insight; timezone: string 
       <HDInsightSummary
         title={model.title}
         periodLabel={model.periodLabel}
-        comparison={until ? `Ditunda hingga ${formatDateTime(until, timezone)}` : 'Disembunyikan'}
+        comparison={until ? say(`Ditunda hingga ${formatDateTime(until, timezone)}`, `Snoozed until ${formatDateTime(until, timezone)}`) : say("Disembunyikan", "Hidden")}
         qualification={model.qualification}
         onOpenEvidence={() => openEvidence(insight.id, insight.revision)}
       />
       <View style={styles.row}>
-        <HDButton loading={restore.state.kind === 'pending'} loadingLabel="Memulihkan…" onPress={() => void restore.give('restore')}>
-          Pulihkan
-        </HDButton>
+        <HDButton loading={restore.state.kind === 'pending'} loadingLabel={say("Memulihkan…", "Restoring…")} onPress={() => void restore.give('restore')}>{say("Pulihkan", "Restore")}</HDButton>
       </View>
       <FeedbackStatus state={restore.state} timezone={timezone} onRetry={() => void restore.retry()} />
     </View>

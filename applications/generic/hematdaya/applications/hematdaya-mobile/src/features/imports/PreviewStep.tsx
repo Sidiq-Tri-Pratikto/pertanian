@@ -4,7 +4,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { HDButton } from '@/components/hd/HDButton';
 import { HDErrorSummary, type SummaryError } from '@/components/hd/HDErrorSummary';
-import { HDImportPreview, ROW_CONVENTION, rowKey } from '@/components/hd/HDImportPreview';
+import { HDImportPreview, rowConvention, rowKey } from '@/components/hd/HDImportPreview';
 import { HDProgressStatus } from '@/components/hd/HDProgressStatus';
 import { HDText } from '@/components/hd/HDText';
 import { tokens } from '@/design/tokens.generated';
@@ -13,16 +13,21 @@ import { ReadFailure } from '@/features/assets/ReadFailure';
 import { uploadable, useImportDraft } from '@/features/imports/ImportDraftProvider';
 import { ImportFrame, useImportFrame } from '@/features/imports/ImportFrame';
 import { useLocale } from '@/features/localization/locale';
-import { message } from '@/features/localization/messages';
+import { currentCopy, useCopy, message } from '@/features/localization/messages';
 import { CheckStatus, ImportLocalStatus, CommitStatus } from '@/features/imports/ImportStatus';
 import { useTabNavigation } from '@/features/navigation';
 
-const OPERATION_SENTENCE = 'Konfirmasi impor membuat satu operasi. Mencoba lagi memakai permintaan yang sama, sehingga data tidak tersimpan dua kali.';
-const BLOCKED_REASON = 'Impor diblokir. Selesaikan alasan di atas lalu periksa lagi.';
+function copyOperationSentence(): string {
+  return currentCopy("Konfirmasi impor membuat satu operasi. Mencoba lagi memakai permintaan yang sama, sehingga data tidak tersimpan dua kali.", "The import uses one request. Retrying uses the same request and keeps readings from being counted twice.");
+}
+function copyBlockedReason(): string {
+  return currentCopy("Impor diblokir. Selesaikan alasan di atas lalu periksa lagi.", "Resolve the issues above and check the file again.");
+}
 const SUMMARY_ROWS = 5;
 
 /** Pratinjau: the service's preview, the acknowledgment and Konfirmasi impor, with one commit intent (027 D5). */
 export function PreviewStep() {
+  const say = useCopy();
   const draft = useImportDraft();
   const locale = useLocale();
   const { back, goImportStep, replaceImportStep, showImportResult } = useTabNavigation();
@@ -66,22 +71,18 @@ export function PreviewStep() {
       case 'unknown':
       case 'checking':
         return (
-          <HDButton variant="primary" fullWidth loading={commit.kind === 'checking'} loadingLabel="Memeriksa status…" onPress={() => void draft.checkStatus()}>
+          <HDButton variant="primary" fullWidth loading={commit.kind === 'checking'} loadingLabel={say("Memeriksa status…", "Checking status…")} onPress={() => void draft.checkStatus()}>
             {message(locale, 'checkStatus')}
           </HDButton>
         );
       case 'notYet':
         return (
-          <HDButton variant="primary" fullWidth onPress={() => void draft.resend()}>
-            Kirim lagi
-          </HDButton>
+          <HDButton variant="primary" fullWidth onPress={() => void draft.resend()}>{say("Kirim lagi", "Send again")}</HDButton>
         );
       case 'refused':
         if (commit.outcome.kind === 'stale' || commit.outcome.kind === 'gone') {
           return (
-            <HDButton variant="primary" fullWidth loading={draft.check.kind === 'pending'} onPress={() => void newPreview()}>
-              Buat pratinjau baru
-            </HDButton>
+            <HDButton variant="primary" fullWidth loading={draft.check.kind === 'pending'} onPress={() => void newPreview()}>{say("Buat pratinjau baru", "Create new preview")}</HDButton>
           );
         }
         break;
@@ -103,7 +104,7 @@ export function PreviewStep() {
     );
   }
 
-  const ackText = `Centang konfirmasi bahwa ${preview.invalid_rows} baris tidak valid tidak akan diimpor.`;
+  const ackText = say(`Centang konfirmasi bahwa ${preview.invalid_rows} baris tidak valid tidak akan diimpor.`, `Confirm that you want to skip the ${preview.invalid_rows} invalid rows.`);
   const pending = commit.kind === 'pending';
   const locked = draft.intent !== null;
   const ackRefused = commit.kind === 'refused' && commit.outcome.reason === 'ack';
@@ -128,11 +129,9 @@ export function PreviewStep() {
       variant="primary"
       fullWidth
       loading={pending}
-      loadingLabel="Menyimpan impor…"
-      disabledReason={preview.blocked ? BLOCKED_REASON : null}
-      onPress={() => void confirm()}>
-      Konfirmasi impor
-    </HDButton>
+      loadingLabel={say("Menyimpan impor…", "Saving import…")}
+      disabledReason={preview.blocked ? copyBlockedReason() : null}
+      onPress={() => void confirm()}>{say("Konfirmasi impor", "Confirm import")}</HDButton>
   );
 
   const rowItems: SummaryError[] = draft.errors.length
@@ -142,7 +141,7 @@ export function PreviewStep() {
           text: rowErrorText(error),
           target: () => frame.revealTarget(rowKey(error)),
         })),
-        { key: 'all-rows', text: 'Lihat semua baris bermasalah', target: () => frame.revealTarget('list') },
+        { key: 'all-rows', text: say("Lihat semua baris bermasalah", "View all rows to review"), target: () => frame.revealTarget('list') },
       ]
     : [];
   const summary: SummaryError[] = showAck ? [{ key: 'ack', text: ackText, target: () => frame.revealTarget('ack') }] : rowItems;
@@ -156,8 +155,8 @@ export function PreviewStep() {
       <HDErrorSummary
         errors={summary}
         submitCount={(rowItems.length ? draft.previews : 0) + attempts}
-        title={showAck ? undefined : 'Baris bermasalah dalam berkas'}
-        convention={showAck ? undefined : ROW_CONVENTION}
+        title={showAck ? undefined : say("Baris bermasalah dalam berkas", "File rows to review")}
+        convention={showAck ? undefined : rowConvention()}
       />
       <HDImportPreview
         fileName={preview.file_name}
@@ -186,18 +185,16 @@ export function PreviewStep() {
         }}
       />
       <View style={styles.section}>
-        <HDText variant="label">{OPERATION_SENTENCE}</HDText>
+        <HDText variant="label">{copyOperationSentence()}</HDText>
         <CommitStatus commit={commit} />
         <ImportLocalStatus unsent={draft.unsent} failed={draft.persistenceFailed} />
       <CheckStatus check={draft.check} onRetry={() => void newPreview()} />
       </View>
       {draft.more.kind === 'failed' ? (
-        <ReadFailure error={draft.more.error} label="Baris berikutnya belum dapat dimuat" retrying={false} onRetry={() => void draft.loadMoreErrors()} />
+        <ReadFailure error={draft.more.error} label={say("Baris berikutnya belum dapat dimuat", "Could not load the next rows")} retrying={false} onRetry={() => void draft.loadMoreErrors()} />
       ) : null}
       {locked ? null : (
-        <HDButton variant="text" onPress={back}>
-          Ubah pemetaan
-        </HDButton>
+        <HDButton variant="text" onPress={back}>{say("Ubah pemetaan", "Change mapping")}</HDButton>
       )}
     </ImportFrame>
   );

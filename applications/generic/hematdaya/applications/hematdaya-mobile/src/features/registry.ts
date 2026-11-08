@@ -3,6 +3,8 @@
  * pull request flips `status`. `screens` map to the PRD screen contract; `specs` name folders under `specs/`.
  * Spec numbers are for engineers and stay out of product copy.
  */
+import type { Locale } from '@/features/localization/locale';
+
 export type FeatureStatus = 'coming_soon' | 'available';
 
 export type Feature = {
@@ -173,4 +175,46 @@ export const FEATURES: Feature[] = [
 
 export function findFeature(id: string | undefined): Feature | undefined {
   return FEATURES.find((feature) => feature.id === id);
+}
+
+const ENGLISH_FEATURES: Record<string, Pick<Feature, 'title' | 'summary' | 'points'>> = {
+  'estimasi-biaya': {
+    title: 'Cost estimates',
+    summary: 'Estimate the cost of recorded electricity using a tariff you enter.',
+    points: ['Tariffs are optional', 'An unset tariff leaves cost unavailable', 'The estimate covers monitored energy'],
+  },
+  'sumber-meter': {
+    title: 'Sources and meters',
+    summary: 'See supported and planned data sources.',
+    points: ['See which sources are available', 'A connection needs a valid reading', 'Electrical installation stays with qualified professionals'],
+  },
+  'pengaturan-lokasi': {
+    title: 'Site settings',
+    summary: 'Set the site name, usage context and time zone.',
+    points: ['Usage context changes only the examples', 'Confirm time-zone changes', 'Measurements stay as recorded'],
+  },
+  'jadwal-pemakaian': {
+    title: 'Usage schedule',
+    summary: 'Set expected hours of operation to see energy used outside those hours.',
+    points: ['Schedules are optional', 'A schedule can cross midnight', 'Some devices need to stay on'],
+  },
+  'metrik-keluaran': {
+    title: 'Energy per unit of output',
+    summary: 'Calculate energy per unit, batch or another measure of output.',
+    points: ['Output is optional', 'See the energy and output used in the calculation', 'Zero output leaves the result unavailable'],
+  },
+  akun: {
+    title: 'Accounts and saved data',
+    summary: 'Keep your readings in an account, export them or delete them.',
+    points: ['Data is separate for each owner', 'Export your readings', 'Confirm before deleting'],
+  },
+  notifikasi: {
+    title: 'Notifications',
+    summary: 'Choose whether to be notified about new insights.',
+    points: ['Notifications are off by default', 'Insights are always available in the app'],
+  },
+};
+
+export function localizedFeature(feature: Feature, locale: Locale): Feature {
+  return locale === 'en' ? { ...feature, ...ENGLISH_FEATURES[feature.id] } : feature;
 }

@@ -739,7 +739,7 @@
     var stored = {}; ws.readings.forEach(function (r) { stored[r.s + '|' + r.t0 + '|' + r.t1] = r.mWh; });
     var rows = [], errors = [];
     var explicitMs = mp.intervalMinutes !== '' && mp.intervalMinutes != null ? +mp.intervalMinutes * MIN : null;
-    function bad(r, n, col, msg) { errors.push({ id: 'row-' + n, dataRow: n, fileLine: r.line, field: col, message: 'Baris data ' + n + (r.line !== n + parsed.headerLine ? ' (baris file ' + r.line + ')' : '') + ', ' + col + ': ' + msg }); return null; }
+    function bad(r, n, col, msg) { errors.push({ id: 'row-' + n, dataRow: n, fileLine: r.line, field: col, detail: msg, message: 'Baris data ' + n + (r.line !== n + parsed.headerLine ? ' (baris file ' + r.line + ')' : '') + ', ' + col + ': ' + msg }); return null; }
     var vcol = mp.valueKind === 'cum' ? cols.cum : mp.valueKind === 'w' ? cols.w : cols.wh;
     var vname = vcol != null ? parsed.headers[vcol] : '';
     var points = {};

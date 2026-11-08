@@ -1,3 +1,4 @@
+import { useCopy } from '@/features/localization/messages';
 import { useRouter } from 'expo-router';
 import { useCallback, useRef, type ComponentRef, type ReactNode } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
@@ -6,14 +7,14 @@ import { HDScreen } from '@/components/hd/HDScreen';
 import { tokens } from '@/design/tokens.generated';
 import { useTabNavigation, type ImportStep } from '@/features/navigation';
 
-export const IMPORT_TITLE = 'Impor data CSV';
-
-const SUBTITLES: Record<ImportStep, string> = {
-  berkas: 'Langkah 1 dari 4 · Berkas',
-  pemetaan: 'Langkah 2 dari 4 · Arti kolom dan pemetaan',
-  pratinjau: 'Langkah 3 dari 4 · Pratinjau',
-  hasil: 'Langkah 4 dari 4 · Hasil',
-};
+function subtitles(say: ReturnType<typeof useCopy>): Record<ImportStep, string> {
+  return {
+    berkas: say('Langkah 1 dari 4 · Berkas', 'Step 1 of 4 · File'),
+    pemetaan: say('Langkah 2 dari 4 · Arti kolom dan pemetaan', 'Step 2 of 4 · Column mapping'),
+    pratinjau: say('Langkah 3 dari 4 · Pratinjau', 'Step 3 of 4 · Preview'),
+    hasil: say('Langkah 4 dari 4 · Hasil', 'Step 4 of 4 · Result'),
+  };
+}
 
 const PREVIOUS: Record<ImportStep, ImportStep | null> = { berkas: null, pemetaan: 'berkas', pratinjau: 'pemetaan', hasil: null };
 
@@ -60,6 +61,7 @@ type ImportFrameProps = {
  * primary action sits in the footer, outside the scroll view, and the screen avoids the keyboard (027 D34).
  */
 export function ImportFrame({ step, footer, children, frame }: ImportFrameProps) {
+  const say = useCopy();
   const router = useRouter();
   const { back, replaceImportStep } = useTabNavigation();
   const previous = PREVIOUS[step];
@@ -72,7 +74,7 @@ export function ImportFrame({ step, footer, children, frame }: ImportFrameProps)
   };
   return (
     <KeyboardAvoidingView testID="import-keyboard-avoiding" behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.fill}>
-      <HDScreen title={IMPORT_TITLE} subtitle={SUBTITLES[step]} onBack={onBack} footer={footer} scrollRef={frame.scrollRef} contentRef={frame.contentRef}>
+      <HDScreen title={say('Impor data CSV', 'Import CSV data')} subtitle={subtitles(say)[step]} onBack={onBack} footer={footer} scrollRef={frame.scrollRef} contentRef={frame.contentRef}>
         {children}
       </HDScreen>
     </KeyboardAvoidingView>

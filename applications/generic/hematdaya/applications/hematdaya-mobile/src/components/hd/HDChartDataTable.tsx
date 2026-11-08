@@ -1,3 +1,4 @@
+import { useCopy } from '@/features/localization/messages';
 import { StyleSheet, View } from 'react-native';
 
 import { HDText } from '@/components/hd/HDText';
@@ -11,6 +12,7 @@ export type ChartDataTableProps = {
 
 /** Native rows pair each value with its column label at every width. */
 export function HDChartDataTable({ caption, columns, rows }: ChartDataTableProps) {
+  const say = useCopy();
   return (
     <View role="table" aria-label={caption} style={styles.block}>
       <HDText variant="labelStrong">{caption}</HDText>
@@ -19,7 +21,7 @@ export function HDChartDataTable({ caption, columns, rows }: ChartDataTableProps
           {columns.map((column) => (
             <View key={column.key} role="cell" style={styles.cell}>
               <HDText variant="label" tone="secondary">{column.label}</HDText>
-              <HDText style={styles.value}>{row[column.key] || 'Tidak ada data'}</HDText>
+              <HDText style={styles.value}>{row[column.key] || say("Tidak ada data", "No data")}</HDText>
             </View>
           ))}
         </View>

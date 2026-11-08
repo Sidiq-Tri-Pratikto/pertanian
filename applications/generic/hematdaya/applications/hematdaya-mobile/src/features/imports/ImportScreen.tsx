@@ -1,3 +1,4 @@
+import { useCopy } from '@/features/localization/messages';
 import { Redirect } from 'expo-router';
 
 import { HDProgressStatus } from '@/components/hd/HDProgressStatus';
@@ -16,6 +17,7 @@ function isStep(value: string | undefined): value is ImportStep {
 
 /** S10: four routes, one per step (027 D10). A step whose draft data is missing goes back to Berkas. */
 export function ImportScreen({ step }: { step: string | undefined }) {
+  const say = useCopy();
   const { status, workspace } = useWorkspace();
   const draft = useImportDraft();
   const { importHref } = useTabNavigation();
@@ -25,7 +27,7 @@ export function ImportScreen({ step }: { step: string | undefined }) {
   if (status === 'loading' || !draft.ready) {
     return (
       <ImportFrame step={current} frame={frame}>
-        <HDProgressStatus state="loading" label="Memuat ruang kerja…" />
+        <HDProgressStatus state="loading" label={say("Memuat ruang kerja…", "Loading workspace…")} />
       </ImportFrame>
     );
   }

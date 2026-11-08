@@ -1,3 +1,5 @@
+import { errorMessage } from '@/features/localization/error-copy';
+import { useCopy } from '@/features/localization/messages';
 import { useRef, useState, type ComponentRef } from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -16,7 +18,7 @@ import { tokens } from '@/design/tokens.generated';
 import { useLastConfirmed } from '@/features/assets/useLastConfirmed';
 import { ReadFailure, SavedReadStatus } from '@/features/assets/ReadFailure';
 import { usePreviousAssetScope } from '@/features/assets/useAssets';
-import { CONTEXT_EXAMPLES, useContextPreset } from '@/features/context-preset';
+import { contextExample, useContextPreset } from '@/features/context-preset';
 import { berandaModel, shownOrigins } from '@/features/energy/beranda-model';
 import { useSummary } from '@/features/energy/useSummary';
 import { FeaturedInsight } from '@/features/insights/FeaturedInsight';
@@ -30,11 +32,12 @@ import { formatDate, formatDateTime, formatPercent, localParts } from '@/lib/for
 
 /** S02 or S03: empty until a workspace has data, then the populated summary in UX-17 reading order. */
 export default function BerandaScreen() {
+  const say = useCopy();
   const { status, workspace, credentialGeneration } = useWorkspace();
   if (status === 'loading') {
     return (
-      <HDScreen title="Beranda">
-        <HDProgressStatus state="loading" label="Memuat ruang kerja…" />
+      <HDScreen title={say("Beranda", "Home")}>
+        <HDProgressStatus state="loading" label={say("Memuat ruang kerja…", "Loading workspace…")} />
       </HDScreen>
     );
   }
@@ -43,35 +46,32 @@ export default function BerandaScreen() {
 
 /** S02: no axes, no Rp0, no giant zero. There is simply no data yet. */
 function EmptyBeranda({ expiresAt, timezone = 'Asia/Jakarta' }: { expiresAt?: string; timezone?: string }) {
+  const say = useCopy();
   const { preset } = useContextPreset();
   const { openFeature, openImport, openSettings } = useTabNavigation();
   const [sheetOpen, setSheetOpen] = useState(false);
   const demoButton = useRef<ComponentRef<typeof View>>(null);
 
   return (
-    <HDScreen title="Beranda">
+    <HDScreen title={say("Beranda", "Home")}>
       <SessionEndedNotice />
       <View style={styles.section}>
-        <HDText variant="section">Belum ada data energi</HDText>
-        <HDText>HematDaya membaca energi dari berkas CSV atau dari sumber pengukuran yang didukung.</HDText>
-        <HDText tone="secondary">{CONTEXT_EXAMPLES[preset]}</HDText>
+        <HDText variant="section">{say("Belum ada data energi", "No energy data yet")}</HDText>
+        <HDText>{say("HematDaya membaca energi dari berkas CSV atau dari sumber pengukuran yang didukung.", "Add a CSV file to see your own readings.")}</HDText>
+        <HDText tone="secondary">{contextExample(preset)}</HDText>
         <View ref={demoButton}>
-          <HDButton variant="primary" onPress={() => setSheetOpen(true)}>Coba demo</HDButton>
+          <HDButton variant="primary" onPress={() => setSheetOpen(true)}>{say("Coba demo", "Try demo")}</HDButton>
         </View>
-        <HDButton onPress={openImport}>Tambah data</HDButton>
-        <HDButton variant="text" onPress={() => openFeature('sumber-meter')}>
-          Lihat meter yang didukung
-        </HDButton>
+        <HDButton onPress={openImport}>{say("Tambah data", "Add data")}</HDButton>
+        <HDButton variant="text" onPress={() => openFeature('sumber-meter')}>{say("Lihat meter yang didukung", "View supported meters")}</HDButton>
       </View>
       {expiresAt ? (
-        <HDNotice tone="info" title="Ruang kerja sementara">
-          {`Ruang kerja ini tersimpan di perangkat ini sampai akun tersedia dan berakhir ${formatDate(localParts(expiresAt, timezone).date)}.`}
+        <HDNotice tone="info" title={say("Ruang kerja sementara", "Temporary workspace")}>
+          {say(`Ruang kerja ini tersimpan di perangkat ini sampai akun tersedia dan berakhir ${formatDate(localParts(expiresAt, timezone).date)}.`, `This workspace is stored on this device until ${formatDate(localParts(expiresAt, timezone).date)}.`)}
         </HDNotice>
       ) : null}
       <ServiceStatus />
-      <HDButton variant="text" onPress={openSettings}>
-        Pengaturan
-      </HDButton>
+      <HDButton variant="text" onPress={openSettings}>{say("Pengaturan", "Settings")}</HDButton>
       <DemoSheet
         open={sheetOpen}
         onClose={() => setSheetOpen(false)}
@@ -83,6 +83,7 @@ function EmptyBeranda({ expiresAt, timezone = 'Asia/Jakarta' }: { expiresAt?: st
 }
 
 function WorkspaceBeranda() {
+  const say = useCopy();
   const { workspace } = useWorkspace();
   const summary = useSummary();
   const previousScope = usePreviousAssetScope();
@@ -92,18 +93,16 @@ function WorkspaceBeranda() {
 
   if (shown === undefined) {
     return (
-      <HDScreen title="Beranda">
-        {period ? <HDPeriodSelector value={period} activeLabel="belum terkonfirmasi" onCommit={setPeriod} /> : null}
+      <HDScreen title={say("Beranda", "Home")}>
+        {period ? <HDPeriodSelector value={period} activeLabel={say("belum terkonfirmasi", "not confirmed")} onCommit={setPeriod} /> : null}
         <SavedReadStatus offline={summary.offline} />
         {!summary.offline ? <HDProgressStatus
           state={summary.isError ? 'failure' : 'loading'}
-          label={summary.isError ? 'Data belum dapat dimuat' : 'Memuat ringkasan energi…'}
-          detail={summary.error?.message}
+          label={summary.isError ? say("Data belum dapat dimuat", "Could not load data") : say("Memuat ringkasan energi…", "Loading energy summary…")}
+          detail={errorMessage(summary.error)}
           action={
             summary.isError ? (
-              <HDButton variant="text" icon="refresh" onPress={() => void summary.refetch()}>
-                Coba lagi
-              </HDButton>
+              <HDButton variant="text" icon="refresh" onPress={() => void summary.refetch()}>{say("Coba lagi", "Try again")}</HDButton>
             ) : null
           }
         /> : null}
@@ -125,6 +124,7 @@ type PopulatedProps = {
 
 /** S03: period and scope, recorded kWh, cost, completeness and freshness, then contributors. */
 function PopulatedBeranda({ previousSelection, data, refreshing, failure, onRefresh, offline, fetchedAt }: PopulatedProps) {
+  const say = useCopy();
   const { workspace } = useWorkspace();
   const { period, setPeriod } = useNavigationContext();
   const { openAsset, openFeature, openImport, openSettings } = useTabNavigation();
@@ -138,28 +138,26 @@ function PopulatedBeranda({ previousSelection, data, refreshing, failure, onRefr
       {model.ranking.length ? (
         <View style={styles.section}>
           {largest && largest.share !== null ? (
-            <HDButton variant="primary" icon="chevronRight" onPress={() => openAsset(largest.assetId)}>
-              Lihat perangkat terbesar
-            </HDButton>
+            <HDButton variant="primary" icon="chevronRight" onPress={() => openAsset(largest.assetId)}>{say("Lihat perangkat terbesar", "View largest contributors")}</HDButton>
           ) : null}
           <HDContributionRanking
             items={model.ranking}
             periodLabel={model.periodLabel}
-            denominatorLabel={`${model.ranking.length} perangkat yang dipantau`}
+            denominatorLabel={say(`${model.ranking.length} perangkat yang dipantau`, `Monitored devices: ${model.ranking.length}`)}
             onOpen={openAsset}
           />
           <HDChartDataAlternative
             summary={
               largest && largest.share !== null
-                ? `${largest.name} mencatat energi terbesar: ${largest.kwh} dari ${model.totalLabel} pada ${model.periodLabel}. Angka ini hanya mencakup ${model.ranking.length} perangkat yang dipilih.`
-                : 'Semua perangkat mencatat 0 kWh dengan data lengkap; tidak ada persentase kontribusi.'
+                ? say(`${largest.name} mencatat energi terbesar: ${largest.kwh} dari ${model.totalLabel} pada ${model.periodLabel}. Angka ini hanya mencakup ${model.ranking.length} perangkat yang dipilih.`, `${largest.name} used the most recorded energy: ${largest.kwh} of ${model.totalLabel} for ${model.periodLabel}. The total covers only the ${model.ranking.length} selected devices.`)
+                : say("Semua perangkat mencatat 0 kWh dengan data lengkap; tidak ada persentase kontribusi.", "All devices recorded 0 kWh with complete data. There are no percentage shares.")
             }
-            caption={`Energi per perangkat, ${model.periodLabel}, ${model.timezone}`}
+            caption={say(`Energi per perangkat, ${model.periodLabel}, ${model.timezone}`, `Energy by device, ${model.periodLabel}, ${model.timezone}`)}
             columns={[
-              { key: 'name', label: 'Perangkat' },
-              { key: 'kwh', label: 'Energi' },
-              { key: 'share', label: 'Porsi' },
-              { key: 'coverage', label: 'Kelengkapan data' },
+              { key: 'name', label: say("Perangkat", "Devices") },
+              { key: 'kwh', label: say("Energi", "Energy") },
+              { key: 'share', label: say("Porsi", "Share") },
+              { key: 'coverage', label: say("Kelengkapan data", "Data coverage") },
             ]}
             rows={model.ranking.map((item) => ({
               name: item.name,
@@ -171,30 +169,26 @@ function PopulatedBeranda({ previousSelection, data, refreshing, failure, onRefr
         </View>
       ) : null}
       <FeaturedInsight />
-      <HDButton variant="text" onPress={openImport}>Tambah data</HDButton>
-      <HDButton variant="text" onPress={openSettings}>
-        Pengaturan
-      </HDButton>
+      <HDButton variant="text" onPress={openImport}>{say("Tambah data", "Add data")}</HDButton>
+      <HDButton variant="text" onPress={openSettings}>{say("Pengaturan", "Settings")}</HDButton>
     </>
   );
 
   return (
-    <HDScreen title="Beranda" subtitle={model.timezone} supporting={supporting}>
+    <HDScreen title={say("Beranda", "Home")} subtitle={model.timezone} supporting={supporting}>
       {period ? (
         <HDPeriodSelector value={period} activeLabel={model.periodLabel} timezone={model.timezone} onCommit={setPeriod} />
       ) : null}
       <View style={styles.section}>
-        <HDText variant="label" tone="secondary">
-          Hanya mencakup sumber yang dipilih.
-          {data.scope.excluded.length ? ` Tidak termasuk: ${data.scope.excluded.map((asset) => asset.name).join(', ')}.` : ''}
+        <HDText variant="label" tone="secondary">{say("Hanya mencakup sumber yang dipilih.", "Includes only the selected sources.")}{data.scope.excluded.length ? say(` Tidak termasuk: ${data.scope.excluded.map((asset) => asset.name).join(', ')}.`, ` Excludes: ${data.scope.excluded.map((asset) => asset.name).join(', ')}.`) : ''}
         </HDText>
-        <HDButton variant="text" {...scopeControl}>Atur cakupan dan sumber</HDButton>
+        <HDButton variant="text" {...scopeControl}>{say("Atur cakupan dan sumber", "Manage scope and sources")}</HDButton>
       </View>
       {previousSelection ? (
-        <HDNotice tone="info" title="Ringkasan masih memakai cakupan sebelumnya">
+        <HDNotice tone="info" title={say("Ringkasan masih memakai cakupan sebelumnya", "Summary still uses the previous scope")}>
           {fetchedAt !== undefined && !offline
-            ? `Terakhir dimuat: ${formatDateTime(new Date(fetchedAt).toISOString(), model.timezone)}. Tunggu ringkasan cakupan terkini.`
-            : 'Total yang tampil berasal dari ringkasan terakhir. Tunggu ringkasan cakupan terkini.'}
+            ? say(`Terakhir dimuat: ${formatDateTime(new Date(fetchedAt).toISOString(), model.timezone)}. Tunggu ringkasan cakupan terkini.`, `Last loaded: ${formatDateTime(new Date(fetchedAt).toISOString(), model.timezone)}. Waiting for the new scope summary.`)
+            : say("Total yang tampil berasal dari ringkasan terakhir. Tunggu ringkasan cakupan terkini.", "The total comes from the last summary. Waiting for the new scope summary.")}
         </HDNotice>
       ) : null}
       <SavedReadStatus offline={offline} failed={Boolean(failure)} fetchedAt={fetchedAt} timezone={model.timezone} />
@@ -209,21 +203,17 @@ function PopulatedBeranda({ previousSelection, data, refreshing, failure, onRefr
         emptyDetail={model.emptyDetail}
         issues={model.issues}
         action={
-          model.state === 'conflict' ? <HDButton {...scopeIssue}>Selesaikan cakupan</HDButton> : model.state === 'none' && workspace ? (
-            <HDButton icon="chevronRight" onPress={() => setPeriod(workspace.initialPeriod)}>
-              Lihat periode data
-            </HDButton>
+          model.state === 'conflict' ? <HDButton {...scopeIssue}>{say("Selesaikan cakupan", "Resolve scope")}</HDButton> : model.state === 'none' && workspace ? (
+            <HDButton icon="chevronRight" onPress={() => setPeriod(workspace.initialPeriod)}>{say("Lihat periode data", "View data period")}</HDButton>
           ) : null
         }
       />
       {model.allocated ? (
-        <HDText variant="label">Sebagian interval melewati batas periode dan dibagi rata dalam intervalnya (estimasi).</HDText>
+        <HDText variant="label">{say("Sebagian interval melewati batas periode dan dibagi rata dalam intervalnya (estimasi).", "Readings crossing the period boundary are split evenly over their intervals (estimated).")}</HDText>
       ) : null}
       <View style={styles.row}>
-        <HDText variant="label" tone="secondary">Estimasi biaya segera hadir</HDText>
-        <HDButton variant="text" onPress={() => openFeature('estimasi-biaya')}>
-          Tentang estimasi biaya
-        </HDButton>
+        <HDText variant="label" tone="secondary">{say("Estimasi biaya segera hadir", "Cost estimates are coming soon")}</HDText>
+        <HDButton variant="text" onPress={() => openFeature('estimasi-biaya')}>{say("Tentang estimasi biaya", "About cost estimates")}</HDButton>
       </View>
       <HDDataQuality
         rows={[
@@ -231,26 +221,26 @@ function PopulatedBeranda({ previousSelection, data, refreshing, failure, onRefr
           ...(model.completeness || model.state === 'conflict'
             ? [
                 {
-                  term: 'Kelengkapan data',
-                  value: model.state === 'conflict' ? 'Tidak dihitung untuk total gabungan' : model.completeness!,
-                  detail: model.gaps.length ? model.gaps.map((gap) => `Data ${gap} belum tersedia.`).join(' ') : undefined,
+                  term: say("Kelengkapan data", "Data coverage"),
+                  value: model.state === 'conflict' ? say("Tidak dihitung untuk total gabungan", "Combined total unavailable") : model.completeness!,
+                  detail: model.gaps.length ? model.gaps.map((gap) => say(`Data ${gap} belum tersedia.`, `Data unavailable for ${gap}.`)).join(' ') : undefined,
                 },
               ]
             : []),
           ...(model.latest
-            ? [{ term: 'Pengukuran terakhir', value: `${model.latest}${model.origins.includes('simulated') ? ' (data simulasi)' : ''}` }]
+            ? [{ term: say("Pengukuran terakhir", "Last reading"), value: `${model.latest}${model.origins.includes('simulated') ? say(" (data simulasi)", " (simulated data)") : ''}` }]
             : []),
           ...(model.origins.includes('simulated')
-            ? [{ term: 'Asal data', value: 'Data simulasi untuk demo', detail: 'Bukan pengukuran dari perangkat nyata.' }]
+            ? [{ term: say("Asal data", "Data source"), value: say("Data simulasi untuk demo", "Simulated demo data"), detail: say("Bukan pengukuran dari perangkat nyata.", "These readings are simulated.") }]
             : []),
         ]}
       />
       <View style={styles.row}>
-        <HDButton variant="text" icon="refresh" loading={refreshing} loadingLabel="Memeriksa pembaruan…" onPress={onRefresh}>
-          {data.source_freshness?.some((source) => source.state === 'stale') ? 'Periksa sumber' : 'Perbarui'}
+        <HDButton variant="text" icon="refresh" loading={refreshing} loadingLabel={say("Memeriksa pembaruan…", "Checking for updates…")} onPress={onRefresh}>
+          {data.source_freshness?.some((source) => source.state === 'stale') ? say("Periksa sumber", "Check sources") : say("Perbarui", "Refresh")}
         </HDButton>
       </View>
-      <ReadFailure error={offline ? null : failure} label="Data belum dapat diperbarui"
+      <ReadFailure error={offline ? null : failure} label={say("Data belum dapat diperbarui", "Could not refresh data")}
         retrying={refreshing} onRetry={onRefresh} kept />
     </HDScreen>
   );

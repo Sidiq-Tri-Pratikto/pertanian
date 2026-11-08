@@ -1,3 +1,4 @@
+import { useCopy } from '@/features/localization/messages';
 import type { ReactNode } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
@@ -12,15 +13,15 @@ type HDProgressStatusProps = {
   action?: ReactNode;
 };
 
-const DEFAULT_LABEL = {
-  loading: 'Memuat…',
-  saving: 'Menyimpan…',
-  unknown: 'Status permintaan belum diketahui',
-  failure: 'Belum berhasil',
-};
-
 /** Always-mounted polite status region: loading, failure with retry, or unknown result. Never early success. */
 export function HDProgressStatus({ state, label, detail, action }: HDProgressStatusProps) {
+  const say = useCopy();
+  const defaultLabel = {
+    loading: say('Memuat…', 'Loading…'),
+    saving: say('Menyimpan…', 'Saving…'),
+    unknown: say('Status permintaan belum diketahui', 'Request status unknown'),
+    failure: say('Belum berhasil', 'Unsuccessful'),
+  };
   return (
     <View role="status" accessibilityLiveRegion="polite" style={state ? styles.status : undefined}>
       {state ? (
@@ -36,7 +37,7 @@ export function HDProgressStatus({ state, label, detail, action }: HDProgressSta
               />
             )}
             <HDText variant="bodyStrong" style={styles.label}>
-              {label ?? DEFAULT_LABEL[state]}
+              {label ?? defaultLabel[state]}
             </HDText>
           </View>
           {detail ? <HDText>{detail}</HDText> : null}

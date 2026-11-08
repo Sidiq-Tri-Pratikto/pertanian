@@ -348,13 +348,13 @@ describe('preview lines', () => {
 describe('examples', () => {
   // The prototype is the oracle: its EXAMPLES function runs here, so the ported data must match it byte for byte.
   const source = readFileSync(join(__dirname, '../../../docs/reference/prototype/hematdaya-app.js'), 'utf8');
-  const start = source.indexOf('var EXAMPLES = function (ctx) {');
+  const start = source.indexOf('var EXAMPLES = function (ctx, tr) {');
   const end = source.indexOf('\n  };\n', start);
   // eslint-disable-next-line no-new-func -- evaluates the prototype's own data function as the oracle
-  const oracle = new Function(`${source.slice(start, end)}\n  }; return EXAMPLES;`)() as (ctx: string) => { id: string; label: string; file: string; text: string }[];
+  const oracle = new Function(`${source.slice(start, end)}\n  }; return EXAMPLES;`)() as (ctx: string, translate: (label: string) => string) => { id: string; label: string; file: string; text: string }[];
 
   it.each(['household', 'business', 'industry', 'unspecified'] as const)('matches the prototype for %s', (preset) => {
-    expect(EXAMPLES(preset)).toEqual(oracle(preset === 'unspecified' ? 'household' : preset));
+    expect(EXAMPLES(preset)).toEqual(oracle(preset === 'unspecified' ? 'household' : preset, (label) => label));
   });
 
   it('names the industrial assets', () => {

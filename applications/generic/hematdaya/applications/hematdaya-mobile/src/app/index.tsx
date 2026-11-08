@@ -1,3 +1,5 @@
+import { LanguageSetting } from '@/features/localization/LanguageSetting';
+import { useCopy } from '@/features/localization/messages';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Redirect, useRouter } from 'expo-router';
 import { useEffect, useRef, useState, type ComponentRef } from 'react';
@@ -15,6 +17,7 @@ const EXPLORED_KEY = 'hematdaya.welcome.explored.v1';
 
 /** S01 offers a demo or empty Home without requiring setup. */
 export default function WelcomeScreen() {
+  const say = useCopy();
   const router = useRouter();
   const { status, workspace, ended } = useWorkspace();
   const [explored, setExplored] = useState<boolean | null>(null);
@@ -40,7 +43,7 @@ export default function WelcomeScreen() {
   if (status === 'loading' || explored === null) {
     return (
       <HDScreen title="HematDaya">
-        <HDProgressStatus state="loading" label="Memuat HematDaya…" />
+        <HDProgressStatus state="loading" label={say("Memuat HematDaya…", "Loading HematDaya…")} />
       </HDScreen>
     );
   }
@@ -49,17 +52,16 @@ export default function WelcomeScreen() {
   }
 
   return (
-    <HDScreen title="Selamat datang">
-      <HDText variant="section">Lihat pemakaian listrik dan apa yang berubah.</HDText>
-      <HDText>Coba dengan data contoh. HematDaya hanya membaca data, tanpa mengendalikan perangkat.</HDText>
+    <HDScreen title={say("Selamat datang", "Welcome")}>
+      <HDText variant="section">{say("Lihat pemakaian listrik dan apa yang berubah.", "See how much electricity you use and what changed.")}</HDText>
+      <HDText>{say("Pakai data contoh untuk melihat cara kerjanya. HematDaya hanya membaca data.", "Explore with sample data. HematDaya reads electricity data and leaves your devices in your control.")}</HDText>
       <View style={styles.actions}>
         <View ref={demoButton}>
-          <HDButton variant="primary" fullWidth onPress={() => setSheetOpen(true)}>
-            Coba demo
-          </HDButton>
+          <HDButton variant="primary" fullWidth onPress={() => setSheetOpen(true)}>{say("Coba demo", "Try demo")}</HDButton>
         </View>
-        <HDButton fullWidth onPress={openHome}>Lanjut tanpa data</HDButton>
+        <HDButton fullWidth onPress={openHome}>{say("Lanjut tanpa data", "Continue without data")}</HDButton>
       </View>
+      <LanguageSetting />
       <DemoSheet
         open={sheetOpen}
         onClose={() => setSheetOpen(false)}

@@ -1,21 +1,26 @@
+import { currentCopy } from '@/features/localization/messages';
 import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
 
 export type ContextPreset = 'household' | 'business' | 'industry' | 'unspecified';
 
-export const CONTEXT_OPTIONS: { value: ContextPreset; label: string }[] = [
-  { value: 'household', label: 'Rumah tangga' },
-  { value: 'business', label: 'Usaha' },
-  { value: 'industry', label: 'Industri' },
-  { value: 'unspecified', label: 'Belum memilih' },
-];
+export function contextOptions(): { value: ContextPreset; label: string }[] {
+  return [
+    { value: 'household', label: currentCopy('Rumah tangga', 'Household') },
+    { value: 'business', label: currentCopy('Usaha', 'Business') },
+    { value: 'industry', label: currentCopy('Industri', 'Industrial') },
+    { value: 'unspecified', label: currentCopy('Belum memilih', 'No preference') },
+  ];
+}
 
 /** The preset changes examples only. It never changes data, permissions, calculations or schedules. */
-export const CONTEXT_EXAMPLES: Record<ContextPreset, string> = {
-  household: 'Misalnya kulkas, router, atau pompa air.',
-  business: 'Misalnya lampu toko, pendingin, atau komputer kasir.',
-  industry: 'Misalnya oven, kompresor, atau mesin press.',
-  unspecified: 'Misalnya perangkat, sirkuit, atau meter lokasi.',
-};
+export function contextExample(preset: ContextPreset): string {
+  return {
+    household: currentCopy('Misalnya kulkas, router, atau pompa air.', 'Examples: fridge, router or water pump.'),
+    business: currentCopy('Misalnya lampu toko, pendingin, atau komputer kasir.', 'Examples: shop lighting, refrigeration or checkout computer.'),
+    industry: currentCopy('Misalnya oven, kompresor, atau mesin press.', 'Examples: oven, compressor or press.'),
+    unspecified: currentCopy('Misalnya perangkat, sirkuit, atau meter lokasi.', 'Examples: device, circuit or site meter.'),
+  }[preset];
+}
 
 type ContextPresetValue = { preset: ContextPreset; setPreset: (preset: ContextPreset) => void };
 

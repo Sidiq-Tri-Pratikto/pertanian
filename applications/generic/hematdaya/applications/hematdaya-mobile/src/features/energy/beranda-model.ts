@@ -1,3 +1,5 @@
+import { scopeIssueCopy } from '@/features/scope/scope-copy';
+import { currentCopy } from '@/features/localization/messages';
 import type { Summary } from '@/api/client';
 import { formatDateRange, formatDateTime, formatGap, formatKwh, formatRatio, localParts } from '@/lib/format';
 
@@ -35,7 +37,7 @@ export function berandaModel(summary: Summary): BerandaModel {
   const { window, coverage, scope } = summary;
   const tz = window.timezone;
   const started = window.effective_end !== window.start;
-  const running = window.is_current && started ? ` · sampai ${localParts(window.effective_end, tz).time} (berjalan)` : '';
+  const running = window.is_current && started ? currentCopy(` · sampai ${localParts(window.effective_end, tz).time} (berjalan)`, ` · through ${localParts(window.effective_end, tz).time.replace('.', ':')} (in progress)`) : '';
   const gaps = summary.assets.flatMap((asset) =>
     asset.gaps.slice(0, 1).map((gap) => `${asset.name}: ${formatGap(gap.start, gap.end, tz)}`),
   );
@@ -48,10 +50,10 @@ export function berandaModel(summary: Summary): BerandaModel {
     state = 'none';
     emptyDetail =
       window.effective_end === window.start
-        ? `Periode ini belum dimulai pada waktu ${formatDateTime(window.effective_end, tz)}. Tidak ditampilkan sebagai 0 kWh.`
+        ? currentCopy(`Periode ini belum dimulai pada waktu ${formatDateTime(window.effective_end, tz)}. Tidak ditampilkan sebagai 0 kWh.`, `This period starts after ${formatDateTime(window.effective_end, tz)}. Energy is unavailable.`)
         : summary.energy_unavailable_reason === 'insufficient_resolution'
-          ? 'Resolusi data belum cukup untuk memecah periode ini. Tidak ditampilkan sebagai 0 kWh.'
-          : 'Belum ada pengukuran pada periode ini. Tidak ditampilkan sebagai 0 kWh.';
+          ? currentCopy("Resolusi data belum cukup untuk memecah periode ini. Tidak ditampilkan sebagai 0 kWh.", "The readings are too far apart to break down this period. Energy is unavailable.")
+          : currentCopy("Belum ada pengukuran pada periode ini. Tidak ditampilkan sebagai 0 kWh.", "No readings for this period. Energy is unavailable.");
   } else if (minimum !== null && minimum !== '1.000') {
     state = 'partial';
   } else if (summary.energy_kwh === '0.000') {
@@ -59,27 +61,27 @@ export function berandaModel(summary: Summary): BerandaModel {
   } else {
     state = 'complete';
   }
-  const completeness = minimum === null ? null : `Kelengkapan data: ${formatRatio(minimum)} periode`;
+  const completeness = minimum === null ? null : currentCopy(`Kelengkapan data: ${formatRatio(minimum)} periode`, `Data coverage: ${formatRatio(minimum)} of the period`);
   const qualifier =
     state === 'partial'
-      ? `Sebagian data belum tersedia · ${completeness}`
+      ? currentCopy(`Sebagian data belum tersedia · ${completeness}`, `Some data is missing · ${completeness}`)
       : state === 'zero'
-        ? `Nol terukur dengan data lengkap · ${completeness}`
+        ? currentCopy(`Nol terukur dengan data lengkap · ${completeness}`, `Measured zero with complete data · ${completeness}`)
         : state === 'complete'
           ? completeness
           : null;
   const counted = summary.assets.filter((asset) => asset.energy_kwh !== null);
   return {
     periodLabel: `${formatDateRange(window.start_date, window.end_date)}${running}`,
-    scopeLabel: `Cakupan pengukuran: ${scope.included.length} perangkat`,
+    scopeLabel: currentCopy(`Cakupan pengukuran: ${scope.included.length} perangkat`, `Devices in scope: ${scope.included.length}`),
     timezone: tz,
     state,
     kwh: summary.energy_kwh === null ? null : formatKwh(summary.energy_kwh),
     qualifier,
-    completeness: minimum === null ? null : `${formatRatio(minimum)} periode`,
+    completeness: minimum === null ? null : currentCopy(`${formatRatio(minimum)} periode`, `${formatRatio(minimum)} of the period`),
     gaps: state === 'partial' ? gaps.slice(0, 2) : gaps.slice(0, 3),
     emptyDetail,
-    issues: scope.issues.map((issue) => issue.message),
+    issues: scope.issues.map((issue) => scopeIssueCopy(issue, [...scope.included, ...scope.excluded])),
     ranking:
       state === 'conflict'
         ? []

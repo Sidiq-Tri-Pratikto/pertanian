@@ -1,3 +1,5 @@
+import { useCopy } from '@/features/localization/messages';
+import { errorMessage } from '@/features/localization/error-copy';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import { HDButton } from '@/components/hd/HDButton';
@@ -8,15 +10,14 @@ import { useCapabilities } from '@/features/use-capabilities';
 
 /** States whether the service answers, and keeps the app usable when it does not. */
 export function ServiceStatus() {
+  const say = useCopy();
   const { state, retry } = useCapabilities();
 
   if (state.kind === 'loading') {
     return (
       <View role="status" style={styles.loading}>
         <ActivityIndicator color={tokens.color.actionPrimaryBackground} />
-        <HDText variant="label" tone="secondary">
-          Memeriksa layanan…
-        </HDText>
+        <HDText variant="label" tone="secondary">{say("Memeriksa layanan…", "Checking service…")}</HDText>
       </View>
     );
   }
@@ -26,7 +27,7 @@ export function ServiceStatus() {
     return (
       <HDNotice
         tone="attention"
-        title="Layanan belum tersedia"
+        title={say("Layanan belum tersedia", "Service unavailable")}
         live
         action={
           retryStatus !== 'unavailable' ? (
@@ -34,15 +35,12 @@ export function ServiceStatus() {
               variant="text"
               icon="refresh"
               onPress={retry}
-              disabledReason={retryStatus === 'waiting' ? 'Tunggu sebentar sebelum mencoba lagi.' : null}>
-              Coba lagi
-            </HDButton>
+              disabledReason={retryStatus === 'waiting' ? say("Tunggu sebentar sebelum mencoba lagi.", "Wait a moment before trying again.") : null}>{say("Coba lagi", "Try again")}</HDButton>
           ) : null
         }>
-        <HDText>{error.message}</HDText>
+        <HDText>{errorMessage(error)}</HDText>
         {error.requestId ? (
-          <HDText variant="label" tone="secondary">
-            ID referensi: {error.requestId}
+          <HDText variant="label" tone="secondary">{say("ID referensi:", "Reference ID:")} {error.requestId}
           </HDText>
         ) : null}
       </HDNotice>
@@ -50,8 +48,8 @@ export function ServiceStatus() {
   }
 
   return (
-    <HDNotice tone="neutral" title="Layanan tersedia">
-      {`Versi ${state.manifest.source_release}. Fitur pemantauan segera hadir.`}
+    <HDNotice tone="neutral" title={say("Layanan tersedia", "Service available")}>
+      {say(`Versi ${state.manifest.source_release}. Fitur pemantauan segera hadir.`, `Release ${state.manifest.source_release}.`)}
     </HDNotice>
   );
 }

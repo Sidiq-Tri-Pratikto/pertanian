@@ -1,10 +1,11 @@
+import { useCopy } from '@/features/localization/messages';
 import { useState } from 'react';
 import { Platform, Pressable, StyleSheet, View } from 'react-native';
 
 import { HDIcon } from '@/components/hd/HDIcon';
 import { HDText } from '@/components/hd/HDText';
 import { tokens } from '@/design/tokens.generated';
-import { formatAssetMeta, KIND_LABEL, type AssetKind } from '@/lib/format';
+import { formatAssetMeta, assetKindLabel, type AssetKind } from '@/lib/format';
 
 type HDAssetRowProps = {
   name: string;
@@ -33,20 +34,20 @@ function enterOpens(onOpen: () => void): object {
   };
 }
 
-const STALE_LABEL = 'Data belum diperbarui';
-
 /** One measured thing as one link. No nested control: HematDaya reads energy and never operates a device. */
 export function HDAssetRow({ name, kind, location, category, kwh, quality, qualityLabel, sources, stale, onOpen }: HDAssetRowProps) {
+  const say = useCopy();
+  const staleLabel = say('Data belum diperbarui', 'Data is out of date');
   const [focused, setFocused] = useState(false);
   const label = [
     name,
-    KIND_LABEL[kind],
+    assetKindLabel(kind),
     location,
     category,
-    kwh ?? 'nilai belum tersedia',
+    kwh ?? say("nilai belum tersedia", "value unavailable"),
     qualityLabel,
     ...sources,
-    stale ? STALE_LABEL : null,
+    stale ? staleLabel : null,
   ]
     .filter(Boolean)
     .join(', ');
@@ -75,7 +76,7 @@ export function HDAssetRow({ name, kind, location, category, kwh, quality, quali
         ))}
         {stale ? (
           <HDText variant="label" tone="attention">
-            {STALE_LABEL}
+            {staleLabel}
           </HDText>
         ) : null}
       </View>

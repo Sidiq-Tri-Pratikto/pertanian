@@ -1,3 +1,4 @@
+import { useCopy } from '@/features/localization/messages';
 import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -19,15 +20,16 @@ type HDEvidencePanelProps = {
 
 /** Ordered evidence: observed, comparison, quality and scope, unknown, then general guidance; metadata collapsed. */
 export function HDEvidencePanel({ observed, comparison, qualityScope, unknown, guidance, metadata, feedback }: HDEvidencePanelProps) {
+  const say = useCopy();
   const steps = [
-    { heading: 'Yang tercatat', body: observed },
-    { heading: 'Pembanding', body: comparison },
-    { heading: 'Kualitas dan cakupan data', body: qualityScope },
-    { heading: 'Yang belum diketahui', body: unknown },
+    { heading: say("Yang tercatat", "What we recorded"), body: observed },
+    { heading: say("Pembanding", "Comparison"), body: comparison },
+    { heading: say("Kualitas dan cakupan data", "Data quality and scope"), body: qualityScope },
+    { heading: say("Yang belum diketahui", "What we don’t know"), body: unknown },
   ];
   return (
     <View style={styles.block}>
-      <View role="list" aria-label="Dasar saran" style={styles.block}>
+      <View role="list" aria-label={say("Dasar saran", "Insight evidence")} style={styles.block}>
         {steps.map((step, index) => (
           <View key={step.heading} role="listitem" style={styles.step}>
             <HDText variant="labelStrong" role="heading">
@@ -38,16 +40,14 @@ export function HDEvidencePanel({ observed, comparison, qualityScope, unknown, g
         ))}
         <View role="listitem" style={styles.step}>
           <HDText variant="labelStrong" role="heading">
-            {`${steps.length + 1}. Saran umum`}
+            {say(`${steps.length + 1}. Saran umum`, `${steps.length + 1}. General tips`)}
           </HDText>
           <HDText>{guidance}</HDText>
-          <HDText variant="label" tone="secondary">
-            Langkah pemeriksaan umum, bukan hasil analisis khusus lokasi ini.
-          </HDText>
+          <HDText variant="label" tone="secondary">{say("Langkah pemeriksaan umum, bukan hasil analisis khusus lokasi ini.", "General checks you can try at any site.")}</HDText>
         </View>
       </View>
       {feedback}
-      <HDDisclosure summary="Detail perhitungan">
+      <HDDisclosure summary={say("Detail perhitungan", "Calculation details")}>
         <HDDataQuality rows={metadata} />
       </HDDisclosure>
     </View>

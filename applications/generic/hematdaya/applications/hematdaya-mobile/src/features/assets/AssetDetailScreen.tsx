@@ -1,3 +1,4 @@
+import { useCopy } from '@/features/localization/messages';
 import { useEffect, useRef, useState, type ComponentRef } from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -31,17 +32,16 @@ import { SessionEndedNotice } from '@/features/workspace/SessionEndedNotice';
 import { useWorkspace } from '@/features/workspace/WorkspaceProvider';
 import type { Period } from '@/features/workspace/workspace-store';
 
-const TITLE = 'Perangkat';
-const LOADING = 'Memuat perangkat…';
 
 /** S06: one asset for the shared period, with its quality and where its data comes from. */
 export function AssetDetailScreen({ assetId }: { assetId: string | undefined }) {
+  const say = useCopy();
   const { status, workspace, credentialGeneration } = useWorkspace();
   const { back } = useTabNavigation();
   if (status === 'loading') {
     return (
-      <HDScreen title={TITLE} onBack={back}>
-        <HDProgressStatus state="loading" label="Memuat ruang kerja…" />
+      <HDScreen title={say('Perangkat', 'Devices')} onBack={back}>
+        <HDProgressStatus state="loading" label={say("Memuat ruang kerja…", "Loading workspace…")} />
       </HDScreen>
     );
   }
@@ -53,12 +53,13 @@ export function AssetDetailScreen({ assetId }: { assetId: string | undefined }) 
 }
 
 function NotAvailable({ requestId = null }: { requestId?: string | null }) {
+  const say = useCopy();
   const { back } = useTabNavigation();
   return (
-    <HDScreen title="Perangkat tidak ditemukan" onBack={back}>
-      <HDNotice tone="attention" title="Perangkat tidak ditemukan">
-        <HDText>Perangkat ini tidak ada di ruang kerja aktif.</HDText>
-        {requestId ? <HDText>ID referensi: {requestId}.</HDText> : null}
+    <HDScreen title={say("Perangkat tidak ditemukan", "Device not found")} onBack={back}>
+      <HDNotice tone="attention" title={say("Perangkat tidak ditemukan", "Device not found")}>
+        <HDText>{say("Perangkat ini tidak ada di ruang kerja aktif.", "This device is outside the active workspace.")}</HDText>
+        {requestId ? <HDText>{say("ID referensi:", "Reference ID:")} {requestId}.</HDText> : null}
       </HDNotice>
       <SessionEndedNotice />
     </HDScreen>
@@ -70,6 +71,7 @@ function notFoundIn(...errors: unknown[]): ApiError | undefined {
 }
 
 function AssetDetail({ assetId }: { assetId: string }) {
+  const say = useCopy();
   const { back } = useTabNavigation();
   const { period } = useNavigationContext();
   const summaryQuery = useAssetSummary(assetId);
@@ -103,7 +105,7 @@ function AssetDetail({ assetId }: { assetId: string }) {
   const historyWindowError = window && !confirmedWindow ? ApiError.unexpected() : summaryQuery.error;
   const model = summary ? assetDetailModel(summary, asset) : undefined;
   return (
-    <HDScreen title={model?.name || asset?.name || savedDraft.draft?.baseline.name || TITLE} subtitle={model?.meta} onBack={back}>
+    <HDScreen title={model?.name || asset?.name || savedDraft.draft?.baseline.name || say('Perangkat', 'Devices')} subtitle={model?.meta} onBack={back}>
       {asset || savedDraft.draft ? <AssetActions assetId={assetId} asset={asset} saved={savedDraft} /> : null}
       {summary && model ? (
         <PopulatedDetail assetId={assetId} summary={summary} model={model}
@@ -114,8 +116,8 @@ function AssetDetail({ assetId }: { assetId: string }) {
       ) : (
         <>
           <SavedReadStatus offline={summaryQuery.offline} />
-          <HDProgressStatus state={summaryQuery.isError || summaryQuery.offline ? null : 'loading'} label={LOADING} />
-          <ReadFailure error={summaryQuery.error} label="Perangkat belum dapat dimuat"
+          <HDProgressStatus state={summaryQuery.isError || summaryQuery.offline ? null : 'loading'} label={say('Memuat perangkat…', 'Loading device…')} />
+          <ReadFailure error={summaryQuery.error} label={say("Perangkat belum dapat dimuat", "Could not load the device")}
             retrying={summaryQuery.isFetching} onRetry={retrySummary} />
         </>
       )}
@@ -127,6 +129,7 @@ function AssetDetail({ assetId }: { assetId: string }) {
 function AssetActions({ assetId, asset, saved }: {
   assetId: string; asset?: AssetDetailData; saved: ReturnType<typeof useAssetDraft>;
 }) {
+  const say = useCopy();
   const [sheet, setSheet] = useState<'edit' | 'archive' | null>(null);
   const { draft, change: setDraft, restored, reconciled, failed } = saved;
   const [archive, setArchive] = useState(false);
@@ -159,25 +162,25 @@ function AssetActions({ assetId, asset, saved }: {
     close();
   }
 
-  let announcement = asset?.archived ? 'Diarsipkan. Pulihkan dari Perangkat, di bagian Diarsipkan.' : null;
+  let announcement = asset?.archived ? say("Diarsipkan. Pulihkan dari Perangkat, di bagian Diarsipkan.", "Archived. You can restore it under Archived in Devices.") : null;
   if (state?.kind === 'observed') {
-    announcement = edit ? 'Data saat diperiksa sesuai dengan draf.' : `Status saat diperiksa: ${announcement ?? 'aktif.'}`;
+    announcement = edit ? say("Data saat diperiksa sesuai dengan draf.", "The current details match your draft.") : say(`Status saat diperiksa: ${announcement ?? 'aktif.'}`, `Status when checked: ${announcement ?? 'aktif.'}`);
   } else if (state?.kind === 'acknowledged') {
-    announcement = edit ? 'Detail perangkat disimpan.' : (announcement ?? 'Perangkat dipulihkan ke daftar aktif.');
+    announcement = edit ? say("Detail perangkat disimpan.", "Device details saved.") : (announcement ?? say("Perangkat dipulihkan ke daftar aktif.", "Device restored to the active list."));
   }
 
   const editable = draft ?? (asset ? createAssetDraft(asset) : null);
   if (!asset && !editable && !announcement) return null;
   return (
     <View style={styles.section}>
-      {!asset && draft ? <HDText>Detail perangkat terkini belum tersedia. Anda masih dapat membuka draf tersimpan.</HDText> : null}
+      {!asset && draft ? <HDText>{say("Detail perangkat terkini belum tersedia. Anda masih dapat membuka draf tersimpan.", "Current device details are unavailable. You can still open your saved draft.")}</HDText> : null}
       <View role="status" accessibilityLiveRegion="polite">{announcement ? <HDText>{announcement}</HDText> : null}</View>
       <View style={styles.actions}>
-        <HDButton ref={editButton} disabledReason={pendingReview && !edit ? 'Tinjau status arsip dahulu.' : undefined}
+        <HDButton ref={editButton} disabledReason={pendingReview && !edit ? say("Tinjau status arsip dahulu.", "Check the archive status first.") : undefined}
           onPress={() => { if (!draft && asset) setDraft(createAssetDraft(asset)); setSheet('edit'); }}>
-          {restored ? 'Buka draf detail' : 'Ubah detail'}</HDButton>
-        {asset ? <HDButton ref={archiveButton} disabledReason={pendingReview && edit ? 'Tinjau draf detail dahulu.' : undefined}
-          onPress={() => { setArchive(!asset.archived); setSheet('archive'); }}>{asset.archived ? 'Pulihkan' : 'Arsipkan'}</HDButton> : null}
+          {restored ? say("Buka draf detail", "Open detail draft") : say("Ubah detail", "Edit details")}</HDButton>
+        {asset ? <HDButton ref={archiveButton} disabledReason={pendingReview && edit ? say("Tinjau draf detail dahulu.", "Review the details draft first.") : undefined}
+          onPress={() => { setArchive(!asset.archived); setSheet('archive'); }}>{asset.archived ? say("Pulihkan", "Restore") : say("Arsipkan", "Archive")}</HDButton> : null}
       </View>
       {sheet === null && blocked ? <AssetWriteFeedback state={state} onCheck={() => void checkOutcome()} /> : null}
       {editable ? <EditAssetSheet open={sheet === 'edit'} draft={editable} onDraft={setDraft}
@@ -209,6 +212,7 @@ type PopulatedProps = {
 };
 
 function PopulatedDetail({ assetId, summary, confirmedWindow, historyWindowError, model, failure, retrying, onRetry, offline, fetchedAt, previousSelection }: PopulatedProps) {
+  const say = useCopy();
   const { workspace } = useWorkspace();
   const scopeIssue = useScopeInvoker();
   const { period, setPeriod } = useNavigationContext();
@@ -224,15 +228,13 @@ function PopulatedDetail({ assetId, summary, confirmedWindow, historyWindowError
         <HDPeriodSelector value={period} activeLabel={model.periodLabel} timezone={model.timezone} onCommit={setPeriod} />
       ) : null}
       <SavedReadStatus offline={offline} failed={Boolean(failure)} fetchedAt={fetchedAt} timezone={model.timezone} />
-      {previousSelection ? <HDNotice tone="info" title="Ringkasan masih memakai pilihan sebelumnya">
-        Periode dan cakupan berikut mengikuti ringkasan terakhir.
-      </HDNotice> : null}
+      {previousSelection ? <HDNotice tone="info" title={say("Ringkasan masih memakai pilihan sebelumnya", "Summary still uses the previous selection")}>{say("Periode dan cakupan berikut mengikuti ringkasan terakhir.", "The period and scope below are from the last confirmed summary.")}</HDNotice> : null}
       {model.state === 'conflict' ? (
         <View style={styles.section}>
           <HDProvenanceTag origins={origins} />
           <HDText variant="label">{model.scopeLabel}</HDText>
-          <HDNotice tone="attention" title="Lebih dari satu sumber untuk beban yang sama"
-            action={<HDButton {...scopeIssue}>Selesaikan cakupan</HDButton>}>
+          <HDNotice tone="attention" title={say("Lebih dari satu sumber untuk beban yang sama", "Multiple sources measure the same load")}
+            action={<HDButton {...scopeIssue}>{say("Selesaikan cakupan", "Resolve scope")}</HDButton>}>
             <View style={styles.tight}>
               {model.sources.map((line, index) => (
                 <HDText key={`${index}-${line}`}>{line}</HDText>
@@ -256,29 +258,27 @@ function PopulatedDetail({ assetId, summary, confirmedWindow, historyWindowError
           issues={[]}
           action={
             canShowDataPeriod ? (
-              <HDButton icon="chevronRight" onPress={() => setPeriod(workspace.initialPeriod)}>
-                Lihat periode data
-              </HDButton>
+              <HDButton icon="chevronRight" onPress={() => setPeriod(workspace.initialPeriod)}>{say("Lihat periode data", "View data period")}</HDButton>
             ) : null
           }
         />
       )}
       {model.allocated ? (
-        <HDText variant="label">Sebagian interval melewati batas periode dan dibagi rata dalam intervalnya (estimasi).</HDText>
+        <HDText variant="label">{say("Sebagian interval melewati batas periode dan dibagi rata dalam intervalnya (estimasi).", "Readings crossing the period boundary are split evenly over their intervals (estimated).")}</HDText>
       ) : null}
-      <ReadFailure error={failure} label="Data perangkat belum dapat diperbarui" retrying={retrying} onRetry={onRetry} kept />
+      <ReadFailure error={failure} label={say("Data perangkat belum dapat diperbarui", "Could not refresh device data")} retrying={retrying} onRetry={onRetry} kept />
       {summary.source_freshness?.some((source) => source.state === 'stale') ? (
-        <HDButton variant="text" icon="refresh" loading={retrying} onPress={onRetry}>Periksa sumber</HDButton>
+        <HDButton variant="text" icon="refresh" loading={retrying} onPress={onRetry}>{say("Periksa sumber", "Check sources")}</HDButton>
       ) : null}
       <HDDataQuality
         rows={[
           ...freshnessRows(summary.source_freshness, model.timezone, summary.assets),
-          ...(model.completeness ? [{ term: 'Kelengkapan data', value: model.completeness }] : []),
-          ...(model.latest ? [{ term: 'Pengukuran terakhir', value: `${model.latest}${simulated ? ' (data simulasi)' : ''}` }] : []),
+          ...(model.completeness ? [{ term: say("Kelengkapan data", "Data coverage"), value: model.completeness }] : []),
+          ...(model.latest ? [{ term: say("Pengukuran terakhir", "Last reading"), value: `${model.latest}${simulated ? say(" (data simulasi)", " (simulated data)") : ''}` }] : []),
           ...(simulated
-            ? [{ term: 'Asal data', value: 'Data simulasi untuk demo', detail: 'Bukan pengukuran dari perangkat nyata.' }]
+            ? [{ term: say("Asal data", "Data source"), value: say("Data simulasi untuk demo", "Simulated demo data"), detail: say("Bukan pengukuran dari perangkat nyata.", "These readings are simulated.") }]
             : origins.length
-              ? [{ term: 'Asal data', value: origins.map(originLabel).join(', ') }]
+              ? [{ term: say("Asal data", "Data source"), value: origins.map(originLabel).join(', ') }]
               : []),
         ]}
       />
@@ -297,29 +297,30 @@ type SourceSectionProps = { rows: SourceRow[]; known: boolean; failure: unknown;
 
 /** Where this asset's data comes from, one entry per binding. Null cadence or resolution says it is unknown. */
 function SourceSection({ rows, known, failure, retrying, onRetry }: SourceSectionProps) {
+  const say = useCopy();
   return (
     <View style={styles.section}>
-      <HDText variant="section">Sumber data</HDText>
+      <HDText variant="section">{say("Sumber data", "Data sources")}</HDText>
       {known ? (
         rows.length ? (
-          <View role="list" aria-label="Sumber data" style={styles.section}>
+          <View role="list" aria-label={say("Sumber data", "Data sources")} style={styles.section}>
             {rows.map((row) => (
               <View key={row.id} role="listitem" style={styles.tight}>
-                <SourceTerm term="Sumber" value={row.label} />
-                <SourceTerm term="Asal" value={row.origin} />
-                <SourceTerm term="Interval dan resolusi" value={row.interval} />
-                {row.effective ? <SourceTerm term="Berlaku" value={row.effective} /> : null}
-                <SourceTerm term="Peran" value={row.role} />
+                <SourceTerm term={say("Sumber", "Source")} value={row.label} />
+                <SourceTerm term={say("Asal", "Origin")} value={row.origin} />
+                <SourceTerm term={say("Interval dan resolusi", "Interval and resolution")} value={row.interval} />
+                {row.effective ? <SourceTerm term={say("Berlaku", "Effective")} value={row.effective} /> : null}
+                <SourceTerm term={say("Peran", "Role")} value={row.role} />
               </View>
             ))}
           </View>
         ) : (
-          <HDText>Belum ada sumber untuk perangkat ini.</HDText>
+          <HDText>{say("Belum ada sumber untuk perangkat ini.", "This device has no sources yet.")}</HDText>
         )
       ) : failure ? null : (
-        <HDProgressStatus state="loading" label={LOADING} />
+        <HDProgressStatus state="loading" label={say('Memuat perangkat…', 'Loading device…')} />
       )}
-      <ReadFailure error={failure} label="Sumber data belum dapat dimuat" retrying={retrying} onRetry={onRetry} />
+      <ReadFailure error={failure} label={say("Sumber data belum dapat dimuat", "Could not load data sources")} retrying={retrying} onRetry={onRetry} />
     </View>
   );
 }

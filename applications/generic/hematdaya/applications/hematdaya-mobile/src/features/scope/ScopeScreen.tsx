@@ -1,3 +1,5 @@
+import { errorMessage } from '@/features/localization/error-copy';
+import { useCopy, currentCopy } from '@/features/localization/messages';
 import { StyleSheet, View } from 'react-native';
 
 import { selectionScopePair, summaryScopePair, type ScopePreview, type Summary } from '@/api/client';
@@ -23,31 +25,35 @@ import { SessionEndedNotice } from '@/features/workspace/SessionEndedNotice';
 import { useWorkspace } from '@/features/workspace/WorkspaceProvider';
 import { formatDateRange, formatDateTime, formatKwh } from '@/lib/format';
 
-const TITLE = 'Cakupan dan sumber';
+function copyTitle(): string {
+  return currentCopy("Cakupan dan sumber", "Scope and sources");
+}
 
 function Evidence({ error }: { error: ApiError }) {
+  const say = useCopy();
   return (
     <View style={styles.group}>
-      <HDText>{error.message}</HDText>
+      <HDText>{errorMessage(error)}</HDText>
       {error.details.map((row, index) => <HDText key={`${row.type}-${index}`}>{row.msg}</HDText>)}
-      {error.requestId ? <HDText variant="label">{`ID referensi: ${error.requestId}.`}</HDText> : null}
+      {error.requestId ? <HDText variant="label">{say(`ID referensi: ${error.requestId}.`, `Reference ID: ${error.requestId}.`)}</HDText> : null}
     </View>
   );
 }
 
 function WindowLabel({ data, title }: { data: Summary; title: string }) {
+  const say = useCopy();
   const { window } = data;
   return (
     <View style={styles.group}>
       <HDText variant="labelStrong">{title}</HDText>
       <HDText>{`${formatDateRange(window.start_date, window.end_date)} · ${window.timezone}`}</HDText>
-      <HDText variant="label">{`Data hingga ${formatDateTime(window.effective_end, window.timezone)}.`}</HDText>
+      <HDText variant="label">{say(`Data hingga ${formatDateTime(window.effective_end, window.timezone)}.`, `Data through ${formatDateTime(window.effective_end, window.timezone)}.`)}</HDText>
     </View>
   );
 }
 
 function optionEnergy(result: ScopePreview | undefined): string {
-  if (!result) return 'Nilai belum tersedia';
+  if (!result) return currentCopy("Nilai belum tersedia", "Value unavailable");
   const { scope, energy_kwh, energy_unavailable_reason } = result.summary;
   return scopeEnergy(scope.valid ? energy_kwh : null, energy_unavailable_reason);
 }
@@ -55,7 +61,7 @@ function optionEnergy(result: ScopePreview | undefined): string {
 function optionContext(result: ScopePreview | undefined, confirmed: Summary['window']) {
   if (!result) return undefined;
   const { window } = result.summary;
-  if (window.is_current) return `Data hingga ${formatDateTime(window.effective_end, window.timezone)} (${window.timezone}).`;
+  if (window.is_current) return currentCopy(`Data hingga ${formatDateTime(window.effective_end, window.timezone)} (${window.timezone}).`, `Data through ${formatDateTime(window.effective_end, window.timezone)} (${window.timezone}).`);
   if (window.start !== confirmed.start || window.end !== confirmed.end || window.timezone !== confirmed.timezone) {
     return `${formatDateRange(window.start_date, window.end_date)} · ${window.timezone}`;
   }
@@ -63,14 +69,15 @@ function optionContext(result: ScopePreview | undefined, confirmed: Summary['win
 }
 
 export function ScopeScreen() {
+  const say = useCopy();
   const { workspace, credentialGeneration, status } = useWorkspace();
   const { scopeBack } = useTabNavigation();
   if (!workspace) {
     return (
-      <HDScreen title={TITLE} onBack={scopeBack}>
+      <HDScreen title={copyTitle()} onBack={scopeBack}>
         <SessionEndedNotice />
-        {status === 'loading' ? <HDProgressStatus state="loading" label="Memuat ruang kerja…" /> : (
-          <HDNotice title="Belum ada ruang kerja aktif">Buka ruang kerja untuk meninjau cakupan pengukuran.</HDNotice>
+        {status === 'loading' ? <HDProgressStatus state="loading" label={say("Memuat ruang kerja…", "Loading workspace…")} /> : (
+          <HDNotice title={say("Belum ada ruang kerja aktif", "No active workspace")}>{say("Buka ruang kerja untuk meninjau cakupan pengukuran.", "Open a workspace to review its measurement scope.")}</HDNotice>
         )}
       </HDScreen>
     );
@@ -79,6 +86,7 @@ export function ScopeScreen() {
 }
 
 function OwnedScope({ onBack }: { onBack: () => void }) {
+  const say = useCopy();
   const { workspace, scopeEpoch, isScopeCurrent, scopeWriting, scopeAttempt } = useWorkspace();
   const { period } = useNavigationContext();
   const summary = useSummary();
@@ -99,13 +107,13 @@ function OwnedScope({ onBack }: { onBack: () => void }) {
   const sent = status?.kind === 'saving' && status.dispatched;
   const checked = draft.reviewed?.response.summary;
   const members = draft.proposal?.selected_asset_ids ?? [];
-  const cannotPreview = summary.offline ? 'Sambungkan perangkat untuk memuat pratinjau.' :
-    !confirmed ? 'Tunggu ringkasan dan pilihan cakupan terkonfirmasi.' :
-    members.length === 0 ? 'Pilih setidaknya satu perangkat.' :
-    members.length > 100 ? 'Pilih paling banyak 100 perangkat.' : null;
-  const cannotConfirm = cannotPreview ?? (draft.previewing ? 'Tunggu pratinjau selesai.' :
-    !checked ? 'Tinjau pratinjau cakupan sebelum menyimpan.' :
-    !checked.scope.valid ? 'Selesaikan tumpang tindih atau pilih sumber acuan pada pratinjau.' : null);
+  const cannotPreview = summary.offline ? say("Sambungkan perangkat untuk memuat pratinjau.", "Reconnect to load a preview.") :
+    !confirmed ? say("Tunggu ringkasan dan pilihan cakupan terkonfirmasi.", "Wait for the confirmed scope and summary.") :
+    members.length === 0 ? say("Pilih setidaknya satu perangkat.", "Choose at least one device.") :
+    members.length > 100 ? say("Pilih paling banyak 100 perangkat.", "Choose up to 100 devices.") : null;
+  const cannotConfirm = cannotPreview ?? (draft.previewing ? say("Tunggu pratinjau selesai.", "Wait for the preview to finish.") :
+    !checked ? say("Tinjau pratinjau cakupan sebelum menyimpan.", "Review the scope preview before saving.") :
+    !checked.scope.valid ? say("Selesaikan tumpang tindih atau pilih sumber acuan pada pratinjau.", "Resolve the overlap or choose a reference source in the preview.") : null);
 
   function leave() {
     draft.discard();
@@ -118,33 +126,33 @@ function OwnedScope({ onBack }: { onBack: () => void }) {
 
   const errors = [selection.error, summary.error].filter((error): error is ApiError => error !== null);
   const confirm = (
-    <HDButton variant="primary" fullWidth loading={busy} loadingLabel="Memproses cakupan…" disabledReason={cannotConfirm}
+    <HDButton variant="primary" fullWidth loading={busy} loadingLabel={say("Memproses cakupan…", "Processing scope…")} disabledReason={cannotConfirm}
       onPress={() => {
         const review = draft.reviewed;
         if (review) void save.save(review, draft.reviewIsCurrent, draft.wasDiscarded).then((acknowledged) => {
           if (acknowledged !== undefined) draft.finishReview(review, acknowledged);
         });
-      }}>Konfirmasi cakupan</HDButton>
+      }}>{say("Konfirmasi cakupan", "Confirm scope")}</HDButton>
   );
   return (
-    <HDScreen title={TITLE} onBack={leave} footer={confirm}>
+    <HDScreen title={copyTitle()} onBack={leave} footer={confirm}>
       <HDProgressStatus state={busy ? status?.kind === 'checking' ? 'loading' : 'saving' :
         draft.previewing || (!displayed && !summary.offline && errors.length === 0) ? 'loading' : null}
-        label={status?.kind === 'checking' ? 'Memeriksa cakupan terkonfirmasi…' :
-          busy ? 'Menyimpan cakupan…' : draft.previewing ? 'Menghitung pratinjau cakupan…' : 'Memuat cakupan pengukuran…'} />
+        label={status?.kind === 'checking' ? say("Memeriksa cakupan terkonfirmasi…", "Checking confirmed scope…") :
+          busy ? say("Menyimpan cakupan…", "Saving scope…") : draft.previewing ? say("Menghitung pratinjau cakupan…", "Preparing scope preview…") : say("Memuat cakupan pengukuran…", "Loading measurement scope…")} />
       <SavedReadStatus offline={summary.offline} failed={errors.length > 0} fetchedAt={fetchedAt} timezone={displayed?.window.timezone} />
       <ScopeSaveNotice status={status} pending={save.pending} offline={summary.offline} onCheck={verify} />
-      {errors.length ? <HDNotice tone="error" title="Cakupan terkonfirmasi belum dapat dimuat" live
-        action={<HDButton variant="text" onPress={verify} disabledReason={summary.offline ? 'Sambungkan perangkat untuk memeriksa cakupan.' : null}>Periksa cakupan</HDButton>}>
+      {errors.length ? <HDNotice tone="error" title={say("Cakupan terkonfirmasi belum dapat dimuat", "Could not load confirmed scope")} live
+        action={<HDButton variant="text" onPress={verify} disabledReason={summary.offline ? say("Sambungkan perangkat untuk memeriksa cakupan.", "Reconnect to check scope.") : null}>{say("Periksa cakupan", "Check scope")}</HDButton>}>
         {errors.map((error, index) => <Evidence key={index} error={error} />)}
       </HDNotice> : null}
       {previous ? (
         <View style={styles.group}>
-          <HDNotice tone="info" title="Ringkasan masih memakai cakupan sebelumnya">
-            {fetchedAt ? `Terakhir dimuat: ${formatDateTime(new Date(fetchedAt).toISOString(), previous.window.timezone)}.` :
-              'Tunggu ringkasan untuk cakupan terkini.'}
+          <HDNotice tone="info" title={say("Ringkasan masih memakai cakupan sebelumnya", "Summary still uses the previous scope")}>
+            {fetchedAt ? say(`Terakhir dimuat: ${formatDateTime(new Date(fetchedAt).toISOString(), previous.window.timezone)}.`, `Last loaded: ${formatDateTime(new Date(fetchedAt).toISOString(), previous.window.timezone)}.`) :
+              say("Tunggu ringkasan untuk cakupan terkini.", "Wait for the summary for the new scope.")}
           </HDNotice>
-          <WindowLabel data={previous} title="Periode ringkasan sebelumnya" />
+          <WindowLabel data={previous} title={say("Periode ringkasan sebelumnya", "Previous summary period")} />
           <HDProvenanceTag origins={shownOrigins(previous.origins, workspace?.scenarioId)} />
           <HDScopeSummary summary={previous} />
         </View>
@@ -152,38 +160,36 @@ function OwnedScope({ onBack }: { onBack: () => void }) {
       {confirmed && selection.data ? (
         <>
           <View style={styles.group}>
-            <HDText variant="section">Cakupan terkonfirmasi</HDText>
-            <WindowLabel data={confirmed} title="Periode pengukuran" />
+            <HDText variant="section">{say("Cakupan terkonfirmasi", "Confirmed scope")}</HDText>
+            <WindowLabel data={confirmed} title={say("Periode pengukuran", "Measurement period")} />
             <HDProvenanceTag origins={shownOrigins(confirmed.origins, workspace?.scenarioId)} />
             <HDScopeSummary summary={confirmed} />
             {confirmed.scope.excluded.filter((row) => row.reason === 'archived' && selection.data?.selected_asset_ids.includes(row.asset_id))
-              .map((row) => <HDText key={row.asset_id} variant="label">{`${row.name} masih tercatat dalam pilihan tersimpan dan dikecualikan karena diarsipkan.`}</HDText>)}
+              .map((row) => <HDText key={row.asset_id} variant="label">{say(`${row.name} masih tercatat dalam pilihan tersimpan dan dikecualikan karena diarsipkan.`, `${row.name} is in the saved selection but is excluded because it is archived.`)}</HDText>)}
           </View>
           <DraftControls confirmed={confirmed} selection={selection.data} draft={draft} disabled={busy || summary.offline} />
         </>
       ) : null}
-      {draft.error ? <HDNotice tone="error" title="Pratinjau belum dapat digunakan" live
-        action={draft.error.code === 'SCOPE_STALE' ? <HDButton variant="text" onPress={verify}>Periksa cakupan</HDButton> : null}>
+      {draft.error ? <HDNotice tone="error" title={say("Pratinjau belum dapat digunakan", "Preview unavailable")} live
+        action={draft.error.code === 'SCOPE_STALE' ? <HDButton variant="text" onPress={verify}>{say("Periksa cakupan", "Check scope")}</HDButton> : null}>
         <Evidence error={draft.error} />
       </HDNotice> : null}
       {checked ? (
         <View style={styles.group}>
-          <HDText variant="section">Pratinjau cakupan</HDText>
-          <WindowLabel data={checked} title="Periode yang ditinjau" />
+          <HDText variant="section">{say("Pratinjau cakupan", "Preview scope")}</HDText>
+          <WindowLabel data={checked} title={say("Periode yang ditinjau", "Reviewed period")} />
           <HDProvenanceTag origins={shownOrigins(checked.origins, workspace?.scenarioId)} />
           <HDScopeSummary summary={checked} />
         </View>
       ) : null}
       <View style={styles.group}>
         <HDButton onPress={() => void draft.preview()} loading={draft.previewing}
-          disabledReason={cannotPreview ?? (busy ? 'Tunggu pemeriksaan cakupan selesai.' : null)}>Pratinjau cakupan</HDButton>
-        {sent ? <HDText variant="label">Permintaan sudah dikirim. Penyimpanan dapat selesai setelah halaman ditutup.</HDText> : null}
-        <HDButton variant="text" onPress={leave}>{sent ? 'Tutup' : 'Batal'}</HDButton>
+          disabledReason={cannotPreview ?? (busy ? say("Tunggu pemeriksaan cakupan selesai.", "Wait for the scope check to finish.") : null)}>{say("Pratinjau cakupan", "Preview scope")}</HDButton>
+        {sent ? <HDText variant="label">{say("Permintaan sudah dikirim. Penyimpanan dapat selesai setelah halaman ditutup.", "The request was sent. It may finish after you close this screen.")}</HDText> : null}
+        <HDButton variant="text" onPress={leave}>{sent ? say("Tutup", "Close") : say("Batal", "Cancel")}</HDButton>
       </View>
       {scopeAttempt && !save.pending && !busy && !status ? (
-        <HDNotice tone="info" title="Cakupan terbaru tersedia">
-          Pemeriksaan menemukan revisi yang lebih baru. Periksa kembali cakupan sebelum membuat perubahan.
-        </HDNotice>
+        <HDNotice tone="info" title={say("Cakupan terbaru tersedia", "Newer scope available")}>{say("Pemeriksaan menemukan revisi yang lebih baru. Periksa kembali cakupan sebelum membuat perubahan.", "The scope changed. Review the latest scope before editing.")}</HDNotice>
       ) : null}
     </HDScreen>
   );
@@ -195,6 +201,7 @@ function DraftControls({ confirmed, selection, draft, disabled }: {
   draft: ReturnType<typeof useScopeDraft>;
   disabled: boolean;
 }) {
+  const say = useCopy();
   const members = draft.proposal?.selected_asset_ids ?? [];
   const all = [...confirmed.scope.included, ...confirmed.scope.excluded];
   const names = new Map(all.map((row) => [row.asset_id, row.name]));
@@ -209,31 +216,31 @@ function DraftControls({ confirmed, selection, draft, disabled }: {
   return (
     <>
       {contained.length > 0 ? <View style={styles.group}>
-        <HDText variant="section">Hubungan pengukuran</HDText>
+        <HDText variant="section">{say("Hubungan pengukuran", "Measurement relationships")}</HDText>
         {contained.map((row) => (
-          <HDText key={`${row.from_asset_id}:${row.to_asset_id}`}>{`${names.get(row.from_asset_id)} mencakup ${names.get(row.to_asset_id)}.`}</HDText>
+          <HDText key={`${row.from_asset_id}:${row.to_asset_id}`}>{say(`${names.get(row.from_asset_id)} mencakup ${names.get(row.to_asset_id)}.`, `${names.get(row.from_asset_id)} includes ${names.get(row.to_asset_id)}.`)}</HDText>
         ))}
       </View> : null}
       {parent && children.length > 0 ? (
         <HDChoiceGroup
-          legend="Pilih tampilan pengukuran"
-          help="Pilih nilai meter atau perangkat yang dicakupnya."
+          legend={say("Pilih tampilan pengukuran", "Choose how to view measurements")}
+          help={say("Pilih nilai meter atau perangkat yang dicakupnya.", "Choose the meter total or the devices it includes.")}
           disabled={disabled}
           value={draft.variant}
           onChange={(value) => draft.selectMembers(value === 'parent' ? [parent] : children)}
           options={[
             { value: 'parent', testID: 'scope-view-parent', label: `${names.get(parent)} · ${optionEnergy(parentPreview)}`,
               description: optionContext(parentPreview, confirmed.window) },
-            { value: 'children', label: `Perangkat dalam ${names.get(parent)} · ${optionEnergy(childrenPreview)}`,
+            { value: 'children', label: say(`Perangkat dalam ${names.get(parent)} · ${optionEnergy(childrenPreview)}`, `Devices in ${names.get(parent)} · ${optionEnergy(childrenPreview)}`),
               description: [children.map((id) => names.get(id)).join(', '), optionContext(childrenPreview, confirmed.window)].filter(Boolean).join(' · ') },
           ]} />
       ) : null}
-      <HDChoiceGroup type="checkbox" legend="Perangkat dalam draf" value={members} disabled={disabled}
+      <HDChoiceGroup type="checkbox" legend={say("Perangkat dalam draf", "Devices in this draft")} value={members} disabled={disabled}
         onChange={draft.selectMembers} options={assets.map((asset) => ({ value: asset.asset_id, label: asset.name }))} />
       {unknown.length > 0 ? (
         <View style={styles.group}>
-          <HDText variant="section">Nilai masing-masing perangkat</HDText>
-          <HDText>Periksa apakah kedua alat ukur mencatat beban yang terpisah.</HDText>
+          <HDText variant="section">{say("Nilai masing-masing perangkat", "Individual device readings")}</HDText>
+          <HDText>{say("Periksa apakah kedua alat ukur mencatat beban yang terpisah.", "Check whether these meters record separate loads.")}</HDText>
           {[...new Set(unknown.flatMap((row) => [row.first_asset_id, row.second_asset_id]))].map((id) => {
             const individual = draft.options.get(id);
             const row = confirmed.assets.find((item) => item.asset_id === id);
@@ -251,9 +258,9 @@ function DraftControls({ confirmed, selection, draft, disabled }: {
               const value = `${row.first_asset_id}:${row.second_asset_id}`;
               const checked = draft.proposal?.disjoint_confirmations?.some((pair) =>
                 pair.first_asset_id === row.first_asset_id && pair.second_asset_id === row.second_asset_id);
-              return <HDChoiceGroup key={value} type="checkbox" legend="Konfirmasi beban terpisah" disabled={disabled}
+              return <HDChoiceGroup key={value} type="checkbox" legend={say("Konfirmasi beban terpisah", "Confirm separate loads")} disabled={disabled}
                 value={checked ? [value] : []} onChange={(chosen) => draft.changeDisjoint(row, chosen.length > 0)}
-                options={[{ value, label: `Saya memastikan ${names.get(row.first_asset_id)} dan ${names.get(row.second_asset_id)} mengukur beban terpisah` }]} />;
+                options={[{ value, label: say(`Saya memastikan ${names.get(row.first_asset_id)} dan ${names.get(row.second_asset_id)} mengukur beban terpisah`, `I confirm that ${names.get(row.first_asset_id)} and ${names.get(row.second_asset_id)} measure separate loads`) }]} />;
             })}
         </View>
       ) : null}
@@ -263,9 +270,9 @@ function DraftControls({ confirmed, selection, draft, disabled }: {
         if (candidates.length < 2 && readings.length < 2 && !draft.chosen[asset.asset_id]) return null;
         const { window } = choice.summary;
         return (
-          <HDChoiceGroup key={asset.asset_id} legend={`Sumber acuan · ${asset.name}`}
+          <HDChoiceGroup key={asset.asset_id} legend={say(`Sumber acuan · ${asset.name}`, `Reference source · ${asset.name}`)}
             disabled={disabled}
-            help={`Pilih sumber untuk ${formatDateRange(window.start_date, window.end_date)}.`}
+            help={say(`Pilih sumber untuk ${formatDateRange(window.start_date, window.end_date)}.`, `Choose a source for ${formatDateRange(window.start_date, window.end_date)}.`)}
             value={draft.chosen[asset.asset_id] ?? null} onChange={(id) => draft.chooseAuthority(asset.asset_id, id)}
             options={[
               ...candidates.map((candidate) => {
@@ -274,11 +281,11 @@ function DraftControls({ confirmed, selection, draft, disabled }: {
                 return {
                   value: candidate.binding_id,
                   label: reading ? `${candidate.label} · ${formatKwh(reading.energy_kwh)}` : candidate.label,
-                  description: action ? `Berlaku mulai ${formatDateTime(action.effective_from, window.timezone)} (${window.timezone}) · ${action.effective_from}` : undefined,
-                  disabledReason: action ? undefined : 'Waktu mulai sumber ini belum dapat dipastikan untuk periode ini.',
+                  description: action ? say(`Berlaku mulai ${formatDateTime(action.effective_from, window.timezone)} (${window.timezone}) · ${action.effective_from}`, `Effective from ${formatDateTime(action.effective_from, window.timezone)} (${window.timezone}) · ${action.effective_from}`) : undefined,
+                  disabledReason: action ? undefined : say("Waktu mulai sumber ini belum dapat dipastikan untuk periode ini.", "The source’s start time is unknown for this period."),
                 };
               }),
-              { value: 'skip', label: 'Lewati perubahan sumber' },
+              { value: 'skip', label: say("Lewati perubahan sumber", "Leave the source as is") },
             ]} />
         );
       }) : null}
@@ -292,35 +299,34 @@ function ScopeSaveNotice({ status, pending, offline, onCheck }: {
   offline: boolean;
   onCheck: () => void;
 }) {
-  const check = <HDButton variant="text" onPress={onCheck} disabledReason={offline ? 'Sambungkan perangkat untuk memeriksa cakupan.' : null}>Periksa status simpan</HDButton>;
+  const say = useCopy();
+  const check = <HDButton variant="text" onPress={onCheck} disabledReason={offline ? say("Sambungkan perangkat untuk memeriksa cakupan.", "Reconnect to check scope.") : null}>{say("Periksa status simpan", "Check save status")}</HDButton>;
   const error = status && 'error' in status ? status.error : null;
-  const title = status?.kind === 'unsent' ? 'Perubahan belum dikirim' :
-    status?.kind === 'refused' ? 'Perubahan ditolak layanan' :
-    status?.kind === 'stale' ? 'Pratinjau perlu diperbarui' :
-    status?.kind === 'check-failed' ? 'Cakupan belum dapat diperiksa' : null;
+  const title = status?.kind === 'unsent' ? say("Perubahan belum dikirim", "Changes not sent") :
+    status?.kind === 'refused' ? say("Perubahan ditolak layanan", "The service refused the changes") :
+    status?.kind === 'stale' ? say("Pratinjau perlu diperbarui", "Preview needs updating") :
+    status?.kind === 'check-failed' ? say("Cakupan belum dapat diperiksa", "Could not check scope") : null;
   return (
     <>
       {title && error ? <HDNotice tone="error" title={title} live><Evidence error={error} /></HDNotice> : null}
       {pending && status?.kind !== 'saving' && status?.kind !== 'checking' ? (
-        <HDNotice tone="attention" title="Hasil penyimpanan belum diketahui" live action={check}>
-          <HDText>Periksa cakupan terkonfirmasi. Jika ingin menyimpan lagi, buat pratinjau baru dan konfirmasi secara terpisah.</HDText>
+        <HDNotice tone="attention" title={say("Hasil penyimpanan belum diketahui", "Save status unknown")} live action={check}>
+          <HDText>{say("Periksa cakupan terkonfirmasi. Jika ingin menyimpan lagi, buat pratinjau baru dan konfirmasi secara terpisah.", "Check the confirmed scope. If you want to try again, create a new preview and confirm it.")}</HDText>
           {status?.kind === 'uncertain' ? <Evidence error={status.error} /> : null}
         </HDNotice>
       ) : null}
       {(status?.kind === 'observed' || status?.kind === 'uncertain') && !pending ? (
-        <HDNotice tone="info" title="Cakupan terkini telah diperiksa" live>
-          Ringkasan memakai hasil pembacaan cakupan terkonfirmasi dari layanan.
-        </HDNotice>
+        <HDNotice tone="info" title={say("Cakupan terkini telah diperiksa", "Current scope checked")} live>{say("Ringkasan memakai hasil pembacaan cakupan terkonfirmasi dari layanan.", "The summary uses the confirmed scope from the service.")}</HDNotice>
       ) : null}
-      {status?.kind === 'acknowledged' ? <HDNotice tone="success" title="Cakupan tersimpan di layanan" live /> : null}
+      {status?.kind === 'acknowledged' ? <HDNotice tone="success" title={say("Cakupan tersimpan di layanan", "Scope saved")} live /> : null}
       {status?.kind === 'refresh-failed' ? (
-        <HDNotice tone="attention" title="Cakupan tersimpan · ringkasan belum dapat diperbarui" live action={check}>
+        <HDNotice tone="attention" title={say("Cakupan tersimpan · ringkasan belum dapat diperbarui", "Scope saved · summary could not refresh")} live action={check}>
           <Evidence error={status.error} />
         </HDNotice>
       ) : null}
       {status?.kind === 'local-failed' ? (
-        <HDNotice tone="attention" title="Cakupan tersimpan · penyimpanan perangkat belum diperbarui" live action={check}>
-          <HDText>Periksa cakupan kembali saat terhubung untuk memuat ringkasan terbaru.</HDText>
+        <HDNotice tone="attention" title={say("Cakupan tersimpan · penyimpanan perangkat belum diperbarui", "Scope saved · device storage could not update")} live action={check}>
+          <HDText>{say("Periksa cakupan kembali saat terhubung untuk memuat ringkasan terbaru.", "Reconnect and check scope to load the latest summary.")}</HDText>
           {status.refreshError ? <Evidence error={status.refreshError} /> : null}
         </HDNotice>
       ) : null}

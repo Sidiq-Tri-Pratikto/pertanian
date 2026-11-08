@@ -1,3 +1,4 @@
+import { useCopy } from '@/features/localization/messages';
 import { StyleSheet, View } from 'react-native';
 
 import { HDChartDataTable, type ChartDataTableProps } from '@/components/hd/HDChartDataTable';
@@ -11,11 +12,12 @@ type HDChartDataAlternativeProps = ChartDataTableProps & {
 };
 
 /** Text summary and an optional data disclosure with the same values as the chart. */
-export function HDChartDataAlternative({ summary, caption, columns, rows, toggleLabel = 'Lihat data' }: HDChartDataAlternativeProps) {
+export function HDChartDataAlternative({ summary, caption, columns, rows, toggleLabel }: HDChartDataAlternativeProps) {
+  const say = useCopy();
   return (
     <View style={styles.block}>
       <HDText>{summary}</HDText>
-      <HDDisclosure summary={toggleLabel}>
+      <HDDisclosure summary={(toggleLabel ?? say("Lihat data", "View data"))}>
         <HDChartDataTable caption={caption} columns={columns} rows={rows} />
       </HDDisclosure>
     </View>

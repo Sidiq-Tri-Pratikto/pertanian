@@ -1,3 +1,6 @@
+import { useCopy } from '@/features/localization/messages';
+import { useLocale } from '@/features/localization/locale';
+import { localizedFeature } from '@/features/registry';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { HDIcon } from '@/components/hd/HDIcon';
@@ -9,12 +12,14 @@ import type { Feature } from '@/features/registry';
 type FeatureRowProps = { feature: Feature; onPress: () => void };
 
 /** One planned feature as a single row link. */
-export function FeatureRow({ feature, onPress }: FeatureRowProps) {
+export function FeatureRow({ feature: original, onPress }: FeatureRowProps) {
+  const say = useCopy();
+  const feature = localizedFeature(original, useLocale());
   return (
-    <Pressable role="link" aria-label={`${feature.title}, segera hadir`} onPress={onPress} style={styles.row}>
+    <Pressable role="link" aria-label={say(`${feature.title}, segera hadir`, `${feature.title}, coming soon`)} onPress={onPress} style={styles.row}>
       <View style={styles.text}>
         <HDText variant="bodyStrong">{feature.title}</HDText>
-        <HDTag>Segera hadir</HDTag>
+        <HDTag>{say("Segera hadir", "Coming soon")}</HDTag>
       </View>
       <HDIcon name="chevronRight" color={tokens.color.textSecondary} />
     </Pressable>

@@ -1,3 +1,4 @@
+import { currentCopy } from '@/features/localization/messages';
 import type { Asset, AssetDetail, AssetEnergy, ScopeKind, SourceFreshness, SourceOrigin, Summary, TransportStatus } from '@/api/client';
 import { berandaModel, type BerandaModel } from '@/features/energy/beranda-model';
 import {
@@ -38,12 +39,12 @@ function sourceLines(row: AssetEnergy | undefined): string[] {
 
 function unavailableLabel(row: AssetEnergy): string {
   if (row.conflict_sources) {
-    return 'Lebih dari satu sumber · nilai tidak dijumlahkan';
+    return currentCopy("Lebih dari satu sumber · nilai tidak dijumlahkan", "Multiple sources · no combined total");
   }
   if (row.energy_unavailable_reason === 'insufficient_resolution') {
-    return 'Resolusi data belum cukup untuk periode ini';
+    return currentCopy("Resolusi data belum cukup untuk periode ini", "Data resolution is too low for this period");
   }
-  return row.energy_unavailable_reason === 'no_data' ? 'Belum ada data pada periode ini' : 'Data belum tersedia';
+  return row.energy_unavailable_reason === 'no_data' ? currentCopy("Belum ada data pada periode ini", "No data for this period yet") : currentCopy("Data belum tersedia", "Data unavailable");
 }
 
 function rowQuality(row: AssetEnergy): Pick<AssetRowModel, 'quality' | 'qualityLabel'> {
@@ -51,11 +52,11 @@ function rowQuality(row: AssetEnergy): Pick<AssetRowModel, 'quality' | 'qualityL
     return { quality: 'unavailable', qualityLabel: unavailableLabel(row) };
   }
   if (row.coverage !== FULL_COVERAGE) {
-    return { quality: 'partial', qualityLabel: `Kelengkapan data: ${formatRatio(row.coverage)} periode` };
+    return { quality: 'partial', qualityLabel: currentCopy(`Kelengkapan data: ${formatRatio(row.coverage)} periode`, `Data coverage: ${formatRatio(row.coverage)} of the period`) };
   }
   return {
     quality: 'complete',
-    qualityLabel: row.energy_kwh === MEASURED_ZERO ? 'Nol terukur dengan data lengkap' : `Kelengkapan data: ${formatRatio(row.coverage)} periode`,
+    qualityLabel: row.energy_kwh === MEASURED_ZERO ? currentCopy("Nol terukur dengan data lengkap", "Measured zero with complete data") : currentCopy(`Kelengkapan data: ${formatRatio(row.coverage)} periode`, `Data coverage: ${formatRatio(row.coverage)} of the period`),
   };
 }
 
@@ -79,28 +80,34 @@ export function staleAssetIds(sources: SourceFreshness[] | undefined): Set<strin
   return new Set(sources?.filter((source) => source.state === 'stale').map((source) => source.asset_id));
 }
 
-const ORIGIN_LABEL: Record<SourceOrigin, string> = {
-  simulated: 'Simulasi',
-  import: 'Impor CSV',
-  dataset_replay: 'Putar ulang dataset',
-  live: 'Langsung',
+function originLabels(): Record<SourceOrigin, string> {
+  return {
+  simulated: currentCopy('Simulasi', 'Simulated'),
+  import: currentCopy('Impor CSV', 'CSV import'),
+  dataset_replay: currentCopy('Putar ulang dataset', 'Dataset replay'),
+  live: currentCopy('Langsung', 'Live'),
 };
+}
 
-const TRANSPORT_LABEL: Record<TransportStatus, string | null> = {
+function transportLabels(): Record<TransportStatus, string | null> {
+  return {
   none: null,
-  simulated_live: 'Simulasi koneksi',
-  historical: 'Data historis',
+  simulated_live: currentCopy('Simulasi koneksi', 'Simulated connection'),
+  historical: currentCopy('Data historis', 'Historical data'),
 };
+}
 
-const DETAIL_SCOPE_LABEL: Record<AssetKind, string> = {
-  device: 'Cakupan pengukuran: 1 perangkat (hanya beban yang diukur sumber ini)',
-  meter: 'Cakupan pengukuran: 1 meter lokasi',
-  group: 'Cakupan pengukuran: 1 grup',
-  circuit: 'Cakupan pengukuran: 1 sirkuit',
+function detailScopeLabels(): Record<AssetKind, string> {
+  return {
+  device: currentCopy('Cakupan pengukuran: 1 perangkat (hanya beban yang diukur sumber ini)', 'Measurement scope: one device (the load this source measures)'),
+  meter: currentCopy('Cakupan pengukuran: 1 meter lokasi', 'Measurement scope: one site meter'),
+  group: currentCopy('Cakupan pengukuran: 1 grup', 'Measurement scope: one group'),
+  circuit: currentCopy('Cakupan pengukuran: 1 sirkuit', 'Measurement scope: one circuit'),
 };
+}
 
 export function assetScopeLabel(scope: ScopeKind): string {
-  return DETAIL_SCOPE_LABEL[KIND_BY_SCOPE[scope]];
+  return detailScopeLabels()[KIND_BY_SCOPE[scope]];
 }
 
 /** Reachable even without a period summary. Only metadata is known. */
@@ -108,13 +115,13 @@ export function unrankedAssetRow(asset: Asset, archived: boolean): AssetRowModel
   return {
     assetId: asset.id, name: asset.name, kind: KIND_BY_SCOPE[asset.scope_kind],
     location: asset.location, category: asset.category, kwh: null, quality: 'unavailable',
-    qualityLabel: archived ? 'Diarsipkan · riwayat tetap tersimpan' : 'Nilai periode ini belum tersedia',
+    qualityLabel: archived ? currentCopy("Diarsipkan · riwayat tetap tersimpan", "Archived · history retained") : currentCopy("Nilai periode ini belum tersedia", "Value unavailable for this period"),
     sources: [], stale: false,
   };
 }
 
 export function originLabel(origin: string): string {
-  return ORIGIN_LABEL[origin as SourceOrigin] ?? origin;
+  return originLabels()[origin as SourceOrigin] ?? origin;
 }
 
 export type SourceRow = {
@@ -134,20 +141,20 @@ export function assetSourceRows(asset: AssetDetail | undefined, timezone: string
     if (!source) {
       return [];
     }
-    const transport = TRANSPORT_LABEL[source.transport_status];
-    const start = timezone && `mulai ${formatDateTime(binding.effective_from, timezone)}`;
-    const end = timezone && binding.effective_to ? ` sampai ${formatDateTime(binding.effective_to, timezone)}` : '';
+    const transport = transportLabels()[source.transport_status];
+    const start = timezone && currentCopy(`mulai ${formatDateTime(binding.effective_from, timezone)}`, `from ${formatDateTime(binding.effective_from, timezone)}`);
+    const end = timezone && binding.effective_to ? currentCopy(` sampai ${formatDateTime(binding.effective_to, timezone)}`, ` through ${formatDateTime(binding.effective_to, timezone)}`) : '';
     return [
       {
         id: binding.id,
         label: source.label,
         origin: [originLabel(source.origin), transport].filter(Boolean).join(' · '),
         interval: [
-          source.cadence_seconds === null ? 'interval tidak diketahui' : formatCadence(source.cadence_seconds),
-          source.resolution_mwh === null ? 'resolusi tidak diketahui' : `resolusi ${formatResolution(source.resolution_mwh)}`,
+          source.cadence_seconds === null ? currentCopy("interval tidak diketahui", "interval unknown") : formatCadence(source.cadence_seconds),
+          source.resolution_mwh === null ? currentCopy("resolusi tidak diketahui", "resolution unknown") : currentCopy(`resolusi ${formatResolution(source.resolution_mwh)}`, `resolution ${formatResolution(source.resolution_mwh)}`),
         ].join(' · '),
         effective: start ? `${start}${end}` : null,
-        role: binding.authoritative ? 'Sumber acuan' : 'Belum dipilih sebagai sumber acuan',
+        role: binding.authoritative ? currentCopy("Sumber acuan", "Reference source") : currentCopy("Belum dipilih sebagai sumber acuan", "No reference source selected"),
       },
     ];
   });
@@ -184,7 +191,7 @@ export function assetDetailModel(summary: Summary, asset: AssetDetail | undefine
     emptyDetail: base.emptyDetail,
     latest: base.latest,
     allocated: base.allocated,
-    scopeLabel: DETAIL_SCOPE_LABEL[kind],
+    scopeLabel: detailScopeLabels()[kind],
     gaps: (row?.gaps ?? []).map((gap) => formatGap(gap.start, gap.end, base.timezone)),
     issues: base.issues,
     name: asset?.name ?? row?.name ?? '',

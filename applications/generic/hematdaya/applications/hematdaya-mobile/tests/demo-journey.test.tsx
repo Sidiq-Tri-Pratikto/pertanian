@@ -152,7 +152,7 @@ describe('demo onboarding', () => {
       await act(() => setLocale('en'));
       expect(listReads()).toBe(before);
       expect(createCalls(fetchMock)).toHaveLength(0);
-      expect(screen.getByText('14,700 kWh')).toBeOnTheScreen();
+      expect(screen.getByText('14.700 kWh')).toBeOnTheScreen();
     } finally {
       await act(() => setLocale('id'));
     }

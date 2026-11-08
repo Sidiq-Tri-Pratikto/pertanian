@@ -1,3 +1,4 @@
+import { useCopy } from '@/features/localization/messages';
 import { StyleSheet, View } from 'react-native';
 
 import { HDButton } from '@/components/hd/HDButton';
@@ -14,7 +15,8 @@ type HDInsightSummaryProps = {
 };
 
 /** One observed fact with its period, comparison and qualification. No verdict, no fault, no saving. */
-export function HDInsightSummary({ title, periodLabel, comparison, qualification, onOpenEvidence, openLabel = 'Lihat dasar saran' }: HDInsightSummaryProps) {
+export function HDInsightSummary({ title, periodLabel, comparison, qualification, onOpenEvidence, openLabel }: HDInsightSummaryProps) {
+  const say = useCopy();
   return (
     <View role="region" aria-label={title} style={styles.card}>
       <HDText variant="bodyStrong" role="heading">
@@ -26,7 +28,7 @@ export function HDInsightSummary({ title, periodLabel, comparison, qualification
       <HDText variant="label">{qualification}</HDText>
       <View style={styles.row}>
         <HDButton variant="text" icon="chevronRight" onPress={onOpenEvidence}>
-          {openLabel}
+          {(openLabel ?? say("Lihat dasar saran", "View evidence"))}
         </HDButton>
       </View>
     </View>
