@@ -242,7 +242,20 @@
       var emptyDetail = conflict ? 'Total gabungan tidak ditampilkan karena cakupan tumpang tindih. Nilai masing-masing perangkat tetap tersedia di Perangkat.'
         : sum.window.elapsedMs === 0 ? 'Periode ini belum dimulai pada waktu ' + (ws.mode === 'demo' ? 'virtual' : 'perangkat') + ' ' + D.fmtDateTime(ws.nowMs, tz) + '. Tidak ditampilkan sebagai 0 kWh.'
         : 'Belum ada pengukuran pada periode ini. Tidak ditampilkan sebagai 0 kWh.';
-      return h(HD.Screen, { title: 'Beranda', subtitle: ws.site.name + ' · ' + tz, provenance: provOf(ws), current: 'beranda', onNavigate: goTab },
+      var supporting = h(Fragment, null,
+        sum.scopeValid && sum.hasData && h('div', { className: 'hd-group hd-stack' },
+          h(HD.ContributionRanking, { items: d.rank.map(function (r) { return { name: r.name, kwh: kwh(r.mWh) }; }), periodLabel: periodLabel(), denominatorLabel: d.rank.length + ' perangkat yang dipantau' }),
+          d.rank.length && sum.totalMWh > 0 ? Btn('primary', 'Lihat perangkat terbesar', function () { push('asset', { id: d.rank[0].id }); }, { icon: 'chevronRight' }) : null,
+          rankingAlt(d, sum)),
+        metric && metric.ok && h('div', { className: 'hd-group' }, h(HD.OutputMetricPreview, { enabled: true, energyKwh: kwh(metric.energyMWh), output: metric.output, unit: metric.unit, method: metric.method, periodLabel: metric.periodLabel })),
+        h('div', { className: 'hd-stack hd-stack--tight' },
+          featured ? h(HD.InsightSummary, { kind: 'change', title: featured.copy.title, periodLabel: featured.copy.period, comparison: { eligible: true, label: 'dibanding median ' + featured.evidence.historical.length + ' minggu sebelumnya' },
+            cause: 'Penyebab perubahan belum diketahui.', qualification: featured.kind === 'outside' ? 'Pemakaian di luar jadwal belum tentu pemborosan.' : undefined,
+            onOpenEvidence: function () { push('insight', { id: featured.id }); }, evidenceLabel: 'Lihat dasar saran' })
+            : d.ins.learning > 0 && d.ins.comparable === 0 ? h(HD.InsightSummary, { kind: 'learning', detail: 'Total terukur ' + periodLabel() + ' tetap tersedia. Perbandingan memerlukan minimal 2 minggu sebelumnya yang lengkap.' })
+            : h(HD.InsightSummary, { kind: 'none', periodLabel: 'Belum ada perubahan yang memenuhi kriteria pada periode ini' }),
+          Row(Btn('text', 'Lihat semua saran', function () { goTab('saran'); }, { icon: 'chevronRight' }))));
+      return h(HD.Screen, { title: 'Beranda', subtitle: ws.site.name + ' · ' + tz, provenance: provOf(ws), current: 'beranda', onNavigate: goTab, aside: supporting },
         SettingsLink(), Btn('text', 'Tambah data', function () { push('import'); }), flashBlock(),
         PeriodBlock(false),
         h('div', { className: 'hd-stack hd-stack--tight' },
@@ -267,19 +280,7 @@
         h('div', { className: 'hd-group' }, qualityBlock(sum)),
         Row(Btn('text', 'Perbarui', function () { run('refresh', D.api.refresh(ws)); }, { icon: 'refresh', loading: refresh.state === 'saving', loadingLabel: 'Memeriksa pembaruan…' })),
         refresh.state === 'failure' && h(HD.ProgressStatus, { state: 'failure', label: 'Data belum dapat dimuat', detail: refresh.message + (ws.client.cachedAtMs ? ' Data tersimpan: ' + D.fmtDateTime(ws.client.cachedAtMs, tz) + '.' : ''), onRetry: function () { run('refresh', D.api.refresh(ws)); } }),
-        refresh.state === 'success' && P('Diperbarui. Tidak ada pembacaan baru; data terkonfirmasi tetap sama.', 'type-label hd-secondary'),
-        sum.scopeValid && sum.hasData && h('div', { className: 'hd-group hd-stack' },
-          h(HD.ContributionRanking, { items: d.rank.map(function (r) { return { name: r.name, kwh: kwh(r.mWh) }; }), periodLabel: periodLabel(), denominatorLabel: d.rank.length + ' perangkat yang dipantau' }),
-          d.rank.length && sum.totalMWh > 0 ? Btn('primary', 'Lihat perangkat terbesar', function () { push('asset', { id: d.rank[0].id }); }, { icon: 'chevronRight' }) : null,
-          rankingAlt(d, sum)),
-        metric && metric.ok && h('div', { className: 'hd-group' }, h(HD.OutputMetricPreview, { enabled: true, energyKwh: kwh(metric.energyMWh), output: metric.output, unit: metric.unit, method: metric.method, periodLabel: metric.periodLabel })),
-        h('div', { className: 'hd-stack hd-stack--tight' },
-          featured ? h(HD.InsightSummary, { kind: 'change', title: featured.copy.title, periodLabel: featured.copy.period, comparison: { eligible: true, label: 'dibanding median ' + featured.evidence.historical.length + ' minggu sebelumnya' },
-            cause: 'Penyebab perubahan belum diketahui.', qualification: featured.kind === 'outside' ? 'Pemakaian di luar jadwal belum tentu pemborosan.' : undefined,
-            onOpenEvidence: function () { push('insight', { id: featured.id }); }, evidenceLabel: 'Lihat dasar saran' })
-            : d.ins.learning > 0 && d.ins.comparable === 0 ? h(HD.InsightSummary, { kind: 'learning', detail: 'Total terukur ' + periodLabel() + ' tetap tersedia. Perbandingan memerlukan minimal 2 minggu sebelumnya yang lengkap.' })
-            : h(HD.InsightSummary, { kind: 'none', periodLabel: 'Belum ada perubahan yang memenuhi kriteria pada periode ini' }),
-          Row(Btn('text', 'Lihat semua saran', function () { goTab('saran'); }, { icon: 'chevronRight' }))));
+        refresh.state === 'success' && P('Diperbarui. Tidak ada pembacaan baru; data terkonfirmasi tetap sama.', 'type-label hd-secondary'));
     }
     function rowOf(sum, id) { return sum.rows.filter(function (r) { return r.asset.id === id; })[0] || { mWh: null }; }
     function firstGap(sum) { var g = []; sum.rows.forEach(function (r) { if (r.gaps.length) g.push(r.asset.name + ': ' + D.fmtGap(r.gaps[0][0], r.gaps[0][1], ws.site.tz)); }); return g.slice(0, 2).join('; '); }
@@ -313,8 +314,13 @@
       var rows = active.map(function (a) { var s = D.assetSlice(ws, a, d.q.startMs, d.q.endMs); return { a: a, s: s }; })
         .sort(function (x, y) { return (y.s.mWh == null ? -1 : y.s.mWh) - (x.s.mWh == null ? -1 : x.s.mWh) || (x.a.name < y.a.name ? -1 : 1) || (x.a.id < y.a.id ? -1 : 1); });
       var stale = D.staleSources(ws).map(function (s) { return s.assetId; });
-      return h(HD.Screen, { title: 'Perangkat', subtitle: 'Perangkat, grup, sirkuit dan meter lokasi', provenance: provOf(ws), current: 'perangkat', onNavigate: goTab },
-        SettingsLink(), flashBlock(), PeriodBlock(true),
+      var supporting = h(Fragment, null, SettingsLink(),
+        archived.length > 0 && Section('Diarsipkan', h('ul', { className: 'hd-stack hd-stack--tight' }, archived.map(function (a) {
+          return h('li', { key: a.id, className: 'hd-row' }, P(a.name + ' · riwayat tetap tersimpan', 'type-body'),
+            Btn('text', 'Pulihkan', function () { run('restore:' + a.id, D.api.saveAsset(ws, a.id, { archived: false })); }, { loading: opState(st, 'restore:' + a.id).state === 'saving', loadingLabel: 'Memulihkan…' }));
+        })), 'arch-h'));
+      return h(HD.Screen, { title: 'Perangkat', subtitle: 'Perangkat, grup, sirkuit dan meter lokasi', provenance: provOf(ws), current: 'perangkat', onNavigate: goTab, aside: supporting },
+        flashBlock(), PeriodBlock(true),
         !d.sum.scopeValid && h(HD.Notice, { tone: 'attention', title: 'Total gabungan belum dapat dihitung', action: Btn('text', 'Pilih cakupan', function () { push('scope'); }) }, d.sum.issues.map(function (i) { return i.text; }).join(' ') + ' Nilai masing-masing tetap ditampilkan.'),
         Row(Btn('primary', 'Tambah sumber', function () { push('source'); }), Btn('secondary', 'Tambah data', function () { push('import'); }, { icon: 'upload' })),
         h('ul', { className: 'hd-stack hd-stack--tight', 'aria-label': 'Daftar perangkat, urut energi tercatat' }, rows.map(function (r) {
@@ -324,11 +330,7 @@
           return h('li', { key: a.id }, h(HD.AssetRow, { name: a.name, kind: a.kind === 'site_total' ? 'meter' : a.kind, location: [a.location, D.KIND_LABEL[a.kind], inScope ? null : 'di luar cakupan'].filter(Boolean).join(' · '),
             kwh: s.conflict || !s.covered.length ? null : kwh(s.mWh), quality: q, qualityLabel: ql, onOpen: function () { push('asset', { id: a.id }); } }));
         })),
-        P('Urutan berdasarkan energi tercatat pada periode ini. Urutan bukan penilaian boros atau hemat.', 'type-label hd-secondary'),
-        archived.length > 0 && Section('Diarsipkan', h('ul', { className: 'hd-stack hd-stack--tight' }, archived.map(function (a) {
-          return h('li', { key: a.id, className: 'hd-row' }, P(a.name + ' · riwayat tetap tersimpan', 'type-body'),
-            Btn('text', 'Pulihkan', function () { run('restore:' + a.id, D.api.saveAsset(ws, a.id, { archived: false })); }, { loading: opState(st, 'restore:' + a.id).state === 'saving', loadingLabel: 'Memulihkan…' }));
-        })), 'arch-h'));
+        P('Urutan berdasarkan energi tercatat pada periode ini. Urutan bukan penilaian boros atau hemat.', 'type-label hd-secondary'));
     }
 
     /* ======================= S05 Source setup ======================= */
@@ -516,13 +518,14 @@
       var d = derived(), tz = ws.site.tz;
       var obs = d.ins.observations, vis = obs.filter(function (o) { return D.feedbackState(ws, o).visible; });
       var hidden = obs.filter(function (o) { return D.feedbackState(ws, o).hidden; }), snoozed = obs.filter(function (o) { return D.feedbackState(ws, o).snoozed; });
-      return h(HD.Screen, { title: 'Saran', subtitle: 'Pengamatan berbasis bukti, bukan diagnosis', provenance: provOf(ws), current: 'saran', onNavigate: goTab },
-        SettingsLink(), flashBlock(), PeriodBlock(true),
+      var supporting = h(Fragment, null, SettingsLink(),
         d.ins.notices.length > 0 && Section('Catatan data', h('div', { className: 'hd-stack hd-stack--tight' }, d.ins.notices.map(function (n) {
           var act = n.action === 'scope' ? Btn('text', 'Pilih cakupan', function () { push('scope'); }) : n.action === 'history' ? Btn('text', 'Lihat riwayat', function () { st.view['asset:' + n.assetId] = { history: true }; push('asset', { id: n.assetId }); })
             : n.action === 'source' ? Btn('text', 'Periksa sumber', function () { run('check:' + n.id.slice(6), D.api.checkSource(ws, n.id.slice(6))); }) : null;
           return h('div', { key: n.id, className: 'hd-stack hd-stack--tight' }, h(HD.Notice, { tone: n.tone, title: n.title, action: act }, n.body), n.action === 'source' ? checkStatus('check:' + n.id.slice(6)) : null);
-        })), 'notes-h'),
+        })), 'notes-h'));
+      return h(HD.Screen, { title: 'Saran', subtitle: 'Pengamatan berbasis bukti, bukan diagnosis', provenance: provOf(ws), current: 'saran', onNavigate: goTab, aside: supporting },
+        flashBlock(), PeriodBlock(true),
         Section('Pengamatan', vis.length ? h('div', { className: 'hd-stack' }, vis.map(function (o) {
           var fs = D.feedbackState(ws, o);
           return h('div', { key: o.id, className: 'hd-group hd-stack hd-stack--tight' }, h(HD.InsightSummary, { kind: 'change', headingLevel: 3, title: o.copy.title, periodLabel: o.copy.period + ' · ' + o.evidence.assetName,

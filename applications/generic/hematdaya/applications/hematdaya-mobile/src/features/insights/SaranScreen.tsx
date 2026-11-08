@@ -24,8 +24,10 @@ export function SaranScreen() {
   useConnectivity();
   const offline = isKnownOffline();
 
+  const settings = <HDButton variant="text" onPress={openSettings}>Pengaturan</HDButton>;
+  const supporting = insights.data ? <><DataNotices data={insights.data} />{settings}</> : null;
   return (
-    <HDScreen title="Saran" subtitle="Pengamatan berbasis bukti, bukan diagnosis">
+    <HDScreen title="Saran" subtitle="Pengamatan berbasis bukti, bukan diagnosis" supporting={supporting}>
       {workspace === null ? (
         <NoData />
       ) : insights.data === undefined ? (
@@ -44,9 +46,7 @@ export function SaranScreen() {
       ) : (
         <SaranList data={insights.data} />
       )}
-      <HDButton variant="text" onPress={openSettings}>
-        Pengaturan
-      </HDButton>
+      {supporting === null ? settings : null}
     </HDScreen>
   );
 }
@@ -127,23 +127,26 @@ function SaranList({ data }: { data: InsightList }) {
           </HDButton>
         </View>
       ) : null}
-      {data.notices.length ? (
-        <View style={styles.section}>
-          <HDText variant="section" role="heading">
-            Catatan data
-          </HDText>
-          <HDText variant="label" tone="secondary">
-            Catatan ini tentang kualitas data, bukan pengamatan pemakaian.
-          </HDText>
-          {data.notices.map((notice) => (
-            <HDNotice key={notice.id} tone="attention" title={notice.title}>
-              {notice.body}
-            </HDNotice>
-          ))}
-        </View>
-      ) : null}
     </>
   );
+}
+
+function DataNotices({ data }: { data: InsightList }) {
+  return data.notices.length ? (
+    <View style={styles.section}>
+      <HDText variant="section" role="heading">
+        Catatan data
+      </HDText>
+      <HDText variant="label" tone="secondary">
+        Catatan ini tentang kualitas data, bukan pengamatan pemakaian.
+      </HDText>
+      {data.notices.map((notice) => (
+        <HDNotice key={notice.id} tone="attention" title={notice.title}>
+          {notice.body}
+        </HDNotice>
+      ))}
+    </View>
+  ) : null;
 }
 
 const styles = StyleSheet.create({

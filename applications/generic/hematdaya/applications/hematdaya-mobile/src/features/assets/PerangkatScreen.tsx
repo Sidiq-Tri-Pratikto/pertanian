@@ -163,8 +163,17 @@ function PopulatedPerangkat({
   const scopeIssue = useScopeInvoker();
   const { excluded, issues, valid } = summary.scope;
 
+  const supporting = (
+    <>
+      {archiveSection}
+      <HDButton variant="text" onPress={openSettings}>
+        Pengaturan
+      </HDButton>
+    </>
+  );
+
   return (
-    <HDScreen title={title} subtitle={SUBTITLE} onBack={onBack}>
+    <HDScreen title={title} subtitle={SUBTITLE} onBack={onBack} supporting={supporting}>
       {period ? (
         <HDPeriodSelector value={period} activeLabel={model.periodLabel} timezone={model.timezone} onCommit={setPeriod} />
       ) : null}
@@ -209,10 +218,6 @@ function PopulatedPerangkat({
       {model.allocated ? (
         <HDText variant="label">Sebagian interval melewati batas periode dan dibagi rata dalam intervalnya (estimasi).</HDText>
       ) : null}
-      {archiveSection}
-      <HDButton variant="text" onPress={openSettings}>
-        Pengaturan
-      </HDButton>
     </HDScreen>
   );
 }

@@ -52,7 +52,7 @@ Deliver the approved refresh in sequence from the merged predecessor.
 | Spec | Scope | Status |
 | --- | --- | --- |
 | 047 | Explore-first onboarding and explicit CSV entry | Implemented and verified locally |
-| 048 | Compact app and prototype layout | Planned |
+| 048 | Compact app and prototype layout | Implemented and verified locally |
 | 049 | Localization foundation and API copy | Planned |
 | 050 | Bilingual MVP app and prototype | Planned |
 

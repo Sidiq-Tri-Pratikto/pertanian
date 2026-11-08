@@ -133,85 +133,8 @@ function PopulatedBeranda({ previousSelection, data, refreshing, failure, onRefr
   const scopeIssue = useScopeInvoker();
   const largest = model.ranking[0];
 
-  return (
-    <HDScreen title="Beranda" subtitle={model.timezone}>
-      {period ? (
-        <HDPeriodSelector value={period} activeLabel={model.periodLabel} timezone={model.timezone} onCommit={setPeriod} />
-      ) : null}
-      <View style={styles.section}>
-        <HDText variant="labelStrong">{model.scopeLabel}</HDText>
-        <HDText variant="label" tone="secondary">
-          Hanya mencakup sumber yang dipilih.
-          {data.scope.excluded.length ? ` Tidak termasuk: ${data.scope.excluded.map((asset) => asset.name).join(', ')}.` : ''}
-        </HDText>
-        <HDButton variant="text" {...scopeControl}>Atur cakupan dan sumber</HDButton>
-      </View>
-      {previousSelection ? (
-        <HDNotice tone="info" title="Ringkasan masih memakai cakupan sebelumnya">
-          {fetchedAt !== undefined && !offline
-            ? `Terakhir dimuat: ${formatDateTime(new Date(fetchedAt).toISOString(), model.timezone)}. Tunggu ringkasan cakupan terkini.`
-            : 'Total yang tampil berasal dari ringkasan terakhir. Tunggu ringkasan cakupan terkini.'}
-        </HDNotice>
-      ) : null}
-      <SavedReadStatus offline={offline} failed={Boolean(failure)} fetchedAt={fetchedAt} timezone={model.timezone} />
-      <HDEnergyMetric
-        state={model.state}
-        kwh={model.kwh}
-        qualifier={model.qualifier}
-        gaps={model.state === 'partial' ? model.gaps : []}
-        periodLabel={model.periodLabel}
-        scopeLabel={model.scopeLabel}
-        origins={shownOrigins(model.origins, workspace?.scenarioId)}
-        emptyDetail={model.emptyDetail}
-        issues={model.issues}
-        action={
-          model.state === 'conflict' ? <HDButton {...scopeIssue}>Selesaikan cakupan</HDButton> : model.state === 'none' && workspace ? (
-            <HDButton icon="chevronRight" onPress={() => setPeriod(workspace.initialPeriod)}>
-              Lihat periode data
-            </HDButton>
-          ) : null
-        }
-      />
-      {model.allocated ? (
-        <HDText variant="label">Sebagian interval melewati batas periode dan dibagi rata dalam intervalnya (estimasi).</HDText>
-      ) : null}
-      <HDNotice
-        tone="neutral"
-        title="Estimasi biaya segera hadir"
-        action={
-          <HDButton variant="text" onPress={() => openFeature('estimasi-biaya')}>
-            Tentang estimasi biaya
-          </HDButton>
-        }>
-        Biaya belum dihitung pada versi ini. Energi yang dipantau tetap tersedia.
-      </HDNotice>
-      <HDDataQuality
-        rows={[
-          ...freshnessRows(data.source_freshness, model.timezone, data.assets),
-          ...(model.completeness || model.state === 'conflict'
-            ? [
-                {
-                  term: 'Kelengkapan data',
-                  value: model.state === 'conflict' ? 'Tidak dihitung untuk total gabungan' : model.completeness!,
-                  detail: model.gaps.length ? model.gaps.map((gap) => `Data ${gap} belum tersedia.`).join(' ') : undefined,
-                },
-              ]
-            : []),
-          ...(model.latest
-            ? [{ term: 'Pengukuran terakhir', value: `${model.latest}${model.origins.includes('simulated') ? ' (data simulasi)' : ''}` }]
-            : []),
-          ...(model.origins.includes('simulated')
-            ? [{ term: 'Asal data', value: 'Data simulasi untuk demo', detail: 'Bukan pengukuran dari perangkat nyata.' }]
-            : []),
-        ]}
-      />
-      <View style={styles.row}>
-        <HDButton variant="text" icon="refresh" loading={refreshing} loadingLabel="Memeriksa pembaruan…" onPress={onRefresh}>
-          {data.source_freshness?.some((source) => source.state === 'stale') ? 'Periksa sumber' : 'Perbarui'}
-        </HDButton>
-      </View>
-      <ReadFailure error={offline ? null : failure} label="Data belum dapat diperbarui"
-        retrying={refreshing} onRetry={onRefresh} kept />
+  const supporting = (
+    <>
       {model.ranking.length ? (
         <View style={styles.section}>
           {largest && largest.share !== null ? (
@@ -252,6 +175,83 @@ function PopulatedBeranda({ previousSelection, data, refreshing, failure, onRefr
       <HDButton variant="text" onPress={openSettings}>
         Pengaturan
       </HDButton>
+    </>
+  );
+
+  return (
+    <HDScreen title="Beranda" subtitle={model.timezone} supporting={supporting}>
+      {period ? (
+        <HDPeriodSelector value={period} activeLabel={model.periodLabel} timezone={model.timezone} onCommit={setPeriod} />
+      ) : null}
+      <View style={styles.section}>
+        <HDText variant="label" tone="secondary">
+          Hanya mencakup sumber yang dipilih.
+          {data.scope.excluded.length ? ` Tidak termasuk: ${data.scope.excluded.map((asset) => asset.name).join(', ')}.` : ''}
+        </HDText>
+        <HDButton variant="text" {...scopeControl}>Atur cakupan dan sumber</HDButton>
+      </View>
+      {previousSelection ? (
+        <HDNotice tone="info" title="Ringkasan masih memakai cakupan sebelumnya">
+          {fetchedAt !== undefined && !offline
+            ? `Terakhir dimuat: ${formatDateTime(new Date(fetchedAt).toISOString(), model.timezone)}. Tunggu ringkasan cakupan terkini.`
+            : 'Total yang tampil berasal dari ringkasan terakhir. Tunggu ringkasan cakupan terkini.'}
+        </HDNotice>
+      ) : null}
+      <SavedReadStatus offline={offline} failed={Boolean(failure)} fetchedAt={fetchedAt} timezone={model.timezone} />
+      <HDEnergyMetric
+        state={model.state}
+        kwh={model.kwh}
+        qualifier={model.qualifier}
+        gaps={model.state === 'partial' ? model.gaps : []}
+        periodLabel={model.periodLabel}
+        scopeLabel={model.scopeLabel}
+        origins={shownOrigins(model.origins, workspace?.scenarioId)}
+        emptyDetail={model.emptyDetail}
+        issues={model.issues}
+        action={
+          model.state === 'conflict' ? <HDButton {...scopeIssue}>Selesaikan cakupan</HDButton> : model.state === 'none' && workspace ? (
+            <HDButton icon="chevronRight" onPress={() => setPeriod(workspace.initialPeriod)}>
+              Lihat periode data
+            </HDButton>
+          ) : null
+        }
+      />
+      {model.allocated ? (
+        <HDText variant="label">Sebagian interval melewati batas periode dan dibagi rata dalam intervalnya (estimasi).</HDText>
+      ) : null}
+      <View style={styles.row}>
+        <HDText variant="label" tone="secondary">Estimasi biaya segera hadir</HDText>
+        <HDButton variant="text" onPress={() => openFeature('estimasi-biaya')}>
+          Tentang estimasi biaya
+        </HDButton>
+      </View>
+      <HDDataQuality
+        rows={[
+          ...freshnessRows(data.source_freshness, model.timezone, data.assets),
+          ...(model.completeness || model.state === 'conflict'
+            ? [
+                {
+                  term: 'Kelengkapan data',
+                  value: model.state === 'conflict' ? 'Tidak dihitung untuk total gabungan' : model.completeness!,
+                  detail: model.gaps.length ? model.gaps.map((gap) => `Data ${gap} belum tersedia.`).join(' ') : undefined,
+                },
+              ]
+            : []),
+          ...(model.latest
+            ? [{ term: 'Pengukuran terakhir', value: `${model.latest}${model.origins.includes('simulated') ? ' (data simulasi)' : ''}` }]
+            : []),
+          ...(model.origins.includes('simulated')
+            ? [{ term: 'Asal data', value: 'Data simulasi untuk demo', detail: 'Bukan pengukuran dari perangkat nyata.' }]
+            : []),
+        ]}
+      />
+      <View style={styles.row}>
+        <HDButton variant="text" icon="refresh" loading={refreshing} loadingLabel="Memeriksa pembaruan…" onPress={onRefresh}>
+          {data.source_freshness?.some((source) => source.state === 'stale') ? 'Periksa sumber' : 'Perbarui'}
+        </HDButton>
+      </View>
+      <ReadFailure error={offline ? null : failure} label="Data belum dapat diperbarui"
+        retrying={refreshing} onRetry={onRefresh} kept />
     </HDScreen>
   );
 }
