@@ -1,4 +1,4 @@
-import { useState, type ComponentRef, type ReactNode, type Ref } from 'react';
+import { useCallback, useLayoutEffect, useRef, useState, type ComponentRef, type ReactNode, type Ref } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 
 import { HDIcon, type HDIconName } from '@/components/hd/HDIcon';
@@ -61,6 +61,13 @@ export function HDButton({
   const [focused, setFocused] = useState(false);
   const disabled = Boolean(disabledReason);
   const foreground = disabled ? color.disabledForeground : FOREGROUND[variant];
+  const action = useRef({ disabled, loading, onPress });
+  // The web Pressable installs callbacks after paint. Use the committed action as soon as the button is enabled.
+  useLayoutEffect(() => { action.current = { disabled, loading, onPress }; }, [disabled, loading, onPress]);
+  const press = useCallback(() => {
+    const current = action.current;
+    if (!current.disabled && !current.loading) current.onPress?.();
+  }, []);
 
   return (
     <View style={[styles.wrapper, fullWidth && styles.fullWidth]}>
@@ -71,11 +78,7 @@ export function HDButton({
         aria-busy={loading}
         aria-expanded={expanded}
         accessibilityHint={disabledReason ?? undefined}
-        onPress={() => {
-          if (!disabled && !loading) {
-            onPress?.();
-          }
-        }}
+        onPress={press}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
         style={({ pressed }) => [

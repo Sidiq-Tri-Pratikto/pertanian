@@ -77,6 +77,10 @@ run() {
   printf '%s passed\n' "$phase" >> "$evidence/assertions.txt"
 }
 
+scope_writes() {
+  awk '$1 == "PUT" && $2 == "/api/v1/sites/:id/aggregation-selection" { n++ } END { print n+0 }' "$evidence/requests.txt"
+}
+
 writes() {
   awk '/^(POST|PATCH|DELETE) / { n++ } END { print n+0 }' "$evidence/requests.txt"
 }
@@ -142,7 +146,10 @@ choose h-zero
 run zero
 expire_owner
 choose h-scope
+scope_before="$(scope_writes)"
 run scope
+[[ "$(scope_writes)" = "$scope_before" ]]
+printf '%s\n' 'Scope preview and cancel issued zero PUT requests to aggregation-selection.' >> "$evidence/assertions.txt"
 expire_owner
 choose empty
 run historical-online

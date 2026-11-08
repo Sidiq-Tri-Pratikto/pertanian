@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useMemo, useRef, useState, type R
 
 import type { PeriodQuery, Summary } from '@/api/client';
 import {
-  isServicePreset, readSummaryStore, rememberSummary, resolvedPreset, serializeSummaryStore, snapshotFor,
+  isServicePreset, previousSnapshotFor, readSummaryStore, rememberSummary, resolvedPreset, serializeSummaryStore, snapshotFor,
   type SummaryScope, type SummarySnapshot, type SummaryStore,
 } from '@/features/offline/persist-queries';
 import { useWorkspace } from '@/features/workspace/WorkspaceProvider';
@@ -14,15 +14,18 @@ export type HiddenItem = { id: string; revision: number; title: string };
 type NavigationContextValue = {
   period: Period | null;
   setPeriod: (period: Period) => void;
+  isCurrentPeriod: (period: Period) => boolean;
+  currentPeriodVersion: () => number;
+  periodRevision: number;
   recentlyHidden: HiddenItem | null;
   setRecentlyHidden: (item: HiddenItem | null) => void;
-  snapshot: (period: Period, scope: SummaryScope) => SummarySnapshot | undefined;
+  snapshot: (period: Period, scope: SummaryScope, previous?: boolean) => SummarySnapshot | undefined;
   record: (data: Summary, period: Period, scope: SummaryScope, epoch: number, fetchedAt: number) => void;
   fetchedAt: (data: Summary) => number | undefined;
 };
 
 const NavigationContext = createContext<NavigationContextValue>({
-  period: null, setPeriod: () => undefined, recentlyHidden: null, setRecentlyHidden: () => undefined,
+  period: null, setPeriod: () => undefined, isCurrentPeriod: () => false, currentPeriodVersion: () => 0, periodRevision: 0, recentlyHidden: null, setRecentlyHidden: () => undefined,
   snapshot: () => undefined, record: () => undefined, fetchedAt: () => undefined,
 });
 
@@ -43,7 +46,7 @@ function matchesRequest(a: Period, b: Period): boolean {
 
 /** One owner-scoped selection for every tab, with the last server-resolved period on cold start. */
 export function NavigationContextProvider({ children }: { children: ReactNode }) {
-  const { workspace, storage, credentialGeneration, isCurrentCredential, scopeEpoch, currentScopeEpoch } = useWorkspace();
+  const { workspace, storage, credentialGeneration, isCurrentCredential, scopeEpoch, currentScopeEpoch, scopePair, scopeAttempt } = useWorkspace();
   const [chosen, setChosen] = useState<Chosen | null>(null);
   const [hidden, setHidden] = useState<Hidden | null>(null);
   const [hydrated, setHydrated] = useState<Hydrated | null>(null);
@@ -54,6 +57,8 @@ export function NavigationContextProvider({ children }: { children: ReactNode })
   const period = pending ? null : (chosen?.generation === credentialGeneration ? chosen.value :
     recordForOwner?.store.chosen ?? workspace?.initialPeriod ?? null);
   const currentPeriod = useRef<Period | null>(null);
+  const periodVersion = useRef(0);
+  const [periodRevision, setPeriodRevision] = useState(0);
   useEffect(() => { currentPeriod.current = period; }, [period]);
   const recentlyHidden = hidden?.generation === credentialGeneration ? hidden.value : null;
 
@@ -78,16 +83,30 @@ export function NavigationContextProvider({ children }: { children: ReactNode })
       const owner = persisted.current;
       const selected = storage?.epoch === owner?.epoch && owner
         ? resolvedPreset(owner.store, next, scopeEpoch) : next;
+      const before = currentPeriod.current;
+      if (!before || !matchesRequest(before, selected) || before.start_date !== selected.start_date || before.end_date !== selected.end_date) {
+        setPeriodRevision(++periodVersion.current);
+      }
       currentPeriod.current = selected;
       setChosen({ generation: credentialGeneration, value: selected });
     },
+    currentPeriodVersion: () => periodVersion.current,
+    periodRevision,
+    isCurrentPeriod: (expected) => currentPeriod.current !== null &&
+      matchesRequest(currentPeriod.current, expected) &&
+      currentPeriod.current.start_date === expected.start_date && currentPeriod.current.end_date === expected.end_date,
     recentlyHidden,
     setRecentlyHidden: (next) => {
       if (isCurrentCredential(credentialGeneration)) setHidden({ generation: credentialGeneration, value: next });
     },
-    snapshot: (selected, selection) => recordForOwner && storage?.epoch === recordForOwner.epoch
-      ? snapshotFor(recordForOwner.store, selected, selection, scopeEpoch)
-      : undefined,
+    snapshot: (selected, selection, previous = false) => {
+      if (!recordForOwner || storage?.epoch !== recordForOwner.epoch) return undefined;
+      const unresolved = selection.kind === 'all-active' && scopeAttempt !== null;
+      const pair = unresolved ? null : scopePair;
+      if (previous) return previousSnapshotFor(recordForOwner.store, selected, selection, scopeEpoch, pair);
+      if (unresolved) return undefined;
+      return snapshotFor(recordForOwner.store, selected, selection, scopeEpoch, pair);
+    },
     fetchedAt: (data) => fetchTimes.current.get(data),
     record: (data, selected, selection, epoch, fetchedAt) => {
       if (!isCurrentCredential(credentialGeneration) || epoch !== currentScopeEpoch()) return;
@@ -100,7 +119,7 @@ export function NavigationContextProvider({ children }: { children: ReactNode })
         chosenNow !== null && matchesRequest(chosenNow, selected));
       void storage.write('summaries', serializeSummaryStore(state.store));
     },
-  }), [period, credentialGeneration, currentScopeEpoch, isCurrentCredential, recentlyHidden, recordForOwner, scopeEpoch, storage]);
+  }), [period, periodRevision, credentialGeneration, currentScopeEpoch, isCurrentCredential, recentlyHidden, recordForOwner, scopeEpoch, scopePair, scopeAttempt, storage]);
 
   return <NavigationContext.Provider value={value}>{children}</NavigationContext.Provider>;
 }

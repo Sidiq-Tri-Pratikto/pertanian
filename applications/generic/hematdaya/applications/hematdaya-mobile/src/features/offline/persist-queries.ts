@@ -1,4 +1,4 @@
-import { isSummary, type Summary } from '@/api/client';
+import { compareScopePairs, isSummary, summaryScopePair, type ScopePair, type Summary } from '@/api/client';
 import type { Period } from '@/features/workspace/workspace-store';
 
 export type SummaryScope = { kind: 'all-active' } | { kind: 'asset'; assetId: string };
@@ -9,12 +9,11 @@ export type SummarySnapshot = {
   scope: SummaryScope;
   scopeIds: string[];
   scopeEpoch: number;
-  /** 028 selection revisions are separate from the combined data revision returned by SummaryResponse. */
-  selectionRevision: null;
+  pair: ScopePair | null;
 };
 
 export type SummaryStore = {
-  version: 1;
+  version: 2;
   scopeEpoch: number;
   chosen: Period | null;
   snapshots: SummarySnapshot[];
@@ -23,7 +22,7 @@ export type SummaryStore = {
 const LIMIT = 18;
 const MAX_BYTES = 750_000;
 const PRESETS = new Set(['today', 'this_week', 'last_7_days']);
-const EMPTY: SummaryStore = { version: 1, scopeEpoch: 0, chosen: null, snapshots: [] };
+const EMPTY: SummaryStore = { version: 2, scopeEpoch: 0, chosen: null, snapshots: [] };
 
 export function isServicePreset(preset: string): boolean {
   return PRESETS.has(preset);
@@ -61,23 +60,23 @@ function isSnapshot(value: unknown): value is SummarySnapshot {
     typeof row.fetchedAt === 'number' && Number.isSafeInteger(row.fetchedAt) && row.fetchedAt > 0 &&
     row.scope != null && scopeMatches(row.data, row.scope) && Array.isArray(row.scopeIds) &&
     JSON.stringify(ids(row.data)) === JSON.stringify(row.scopeIds) &&
-    isEpoch(row.scopeEpoch) && row.selectionRevision === null;
+    isEpoch(row.scopeEpoch);
 }
 
 export function readSummaryStore(raw: string | null): SummaryStore {
   if (!raw || raw.length > MAX_BYTES) return EMPTY;
   try {
-    const parsed = JSON.parse(raw) as Partial<SummaryStore> | null;
-    if (parsed?.version !== 1 || !isEpoch(parsed.scopeEpoch) || !Array.isArray(parsed.snapshots)) return EMPTY;
+    const parsed = JSON.parse(raw) as (Omit<Partial<SummaryStore>, 'version'> & { version?: number }) | null;
+    if ((parsed?.version !== 1 && parsed?.version !== 2) || !isEpoch(parsed.scopeEpoch) || !Array.isArray(parsed.snapshots)) return EMPTY;
     const epoch = parsed.scopeEpoch;
     return {
-      version: 1, scopeEpoch: epoch,
+      version: 2, scopeEpoch: epoch,
       chosen: isPeriod(parsed.chosen) ? parsed.chosen : null,
       snapshots: parsed.snapshots.filter(isSnapshot).filter((row) => row.scopeEpoch <= epoch).slice(0, LIMIT).map((row) => ({
-        data: projectSummary(row.data), fetchedAt: row.fetchedAt,
+        data: projectSummary(row.data, parsed.version === 2), fetchedAt: row.fetchedAt,
         period: pick(row.period, 'preset', 'start_date', 'end_date'),
         scope: row.scope.kind === 'asset' ? { kind: 'asset', assetId: row.scope.assetId } : { kind: 'all-active' },
-        scopeIds: row.scopeIds, scopeEpoch: row.scopeEpoch, selectionRevision: null,
+        scopeIds: row.scopeIds, scopeEpoch: row.scopeEpoch, pair: parsed.version === 2 ? summaryScopePair(row.data) : null,
       })),
     };
   } catch {
@@ -91,14 +90,25 @@ export function resolvedPreset(store: SummaryStore, period: Period, epoch: numbe
   return store.snapshots.find((row) => row.scopeEpoch === epoch && row.period.preset === period.preset)?.period ?? period;
 }
 
-export function snapshotFor(store: SummaryStore, period: Period, scope: SummaryScope, epoch: number) {
-  return store.snapshots.find((row) => row.scopeEpoch === epoch && row.scope.kind === scope.kind &&
+function matchesSnapshot(row: SummarySnapshot, period: Period, scope: SummaryScope) {
+  return row.scope.kind === scope.kind &&
     (scope.kind === 'all-active' || (row.scope.kind === 'asset' && row.scope.assetId === scope.assetId)) &&
-    row.period.start_date === period.start_date && row.period.end_date === period.end_date);
+    row.period.start_date === period.start_date && row.period.end_date === period.end_date;
+}
+
+export function snapshotFor(store: SummaryStore, period: Period, scope: SummaryScope, epoch: number, pair: ScopePair | null = null) {
+  return store.snapshots.find((row) => row.scopeEpoch === epoch && matchesSnapshot(row, period, scope) &&
+    (scope.kind === 'asset' || (pair !== null && row.pair !== null && compareScopePairs(pair, row.pair) === 0)));
+}
+
+export function previousSnapshotFor(store: SummaryStore, period: Period, scope: SummaryScope, epoch: number, pair: ScopePair | null) {
+  const exact = snapshotFor(store, period, scope, epoch, pair);
+  return store.snapshots.find((row) => row !== exact && matchesSnapshot(row, period, scope));
 }
 
 function sameKey(a: SummarySnapshot, b: SummarySnapshot) {
   return a.scopeEpoch === b.scopeEpoch && a.scope.kind === b.scope.kind &&
+    (a.pair === null || b.pair === null ? a.pair === b.pair : compareScopePairs(a.pair, b.pair) === 0) &&
     JSON.stringify(a.scopeIds) === JSON.stringify(b.scopeIds) &&
     a.data.window.start === b.data.window.start && a.data.window.end === b.data.window.end &&
     a.data.window.effective_end === b.data.window.effective_end && a.data.window.timezone === b.data.window.timezone;
@@ -107,9 +117,9 @@ function sameKey(a: SummarySnapshot, b: SummarySnapshot) {
 export function rememberSummary(store: SummaryStore, data: Summary, period: Period, scope: SummaryScope, scopeEpoch: number, fetchedAt: number, rememberSelection = true): SummaryStore {
   const { start_date, end_date } = data.window;
   const resolved = { preset: period.preset, start_date, end_date };
-  const snapshot = { data: projectSummary(data), fetchedAt, period: resolved, scope, scopeIds: ids(data), scopeEpoch, selectionRevision: null };
+  const snapshot = { data: projectSummary(data), fetchedAt, period: resolved, scope, scopeIds: ids(data), scopeEpoch, pair: summaryScopePair(data) };
   return {
-    version: 1, scopeEpoch, chosen: rememberSelection ? resolved : store.chosen,
+    version: 2, scopeEpoch, chosen: rememberSelection ? resolved : store.chosen,
     snapshots: [snapshot, ...store.snapshots.filter((row) => !sameKey(row, snapshot))].slice(0, LIMIT),
   };
 }
@@ -119,8 +129,10 @@ function pick<T extends object, K extends keyof T>(item: T, ...fields: K[]): Pic
 }
 
 /** Persist only the summary contract fields. Unexpected response extras never enter durable storage. */
-function projectSummary(data: Summary): Summary {
+function projectSummary(data: Summary, scopeEvidence = true): Summary {
   return {
+    ...(scopeEvidence && 'selection_revision' in data ? pick(data, 'selection_revision') : {}),
+    ...(scopeEvidence && 'binding_revision' in data ? pick(data, 'binding_revision') : {}),
     ...pick(data, 'energy_kwh', 'energy_unavailable_reason', 'latest_measurement_at', 'origins', 'revision'),
     window: pick(data.window, 'start', 'end', 'effective_end', 'start_date', 'end_date', 'timezone', 'is_current'),
     scope: {

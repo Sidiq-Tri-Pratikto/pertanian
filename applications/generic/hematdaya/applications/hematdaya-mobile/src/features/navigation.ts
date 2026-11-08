@@ -1,6 +1,10 @@
-import { useRouter, useSegments, type Href } from 'expo-router';
+import { useFocusEffect, useRouter, useSegments, type Href } from 'expo-router';
+
+import { useCallback, useRef, type ComponentRef } from 'react';
+import type { View } from 'react-native';
 
 import { useOptionalImportDraft } from '@/features/imports/ImportDraftProvider';
+import { moveFocus } from '@/lib/focus';
 
 export type ImportStep = 'berkas' | 'pemetaan' | 'pratinjau' | 'hasil';
 
@@ -18,7 +22,10 @@ export function useTabNavigation() {
   };
 
   return {
-    openFeature: (id: string) => router.push(inTab(`segera-hadir/${id}`)),
+    openFeature: (id: string) => router.push(inTab(id === 'cakupan-sumber' ? 'cakupan' : `segera-hadir/${id}`)),
+    openScope: () => router.push(inTab('cakupan')),
+    scopeHref: inTab('cakupan'),
+    scopeBack: () => router.canGoBack() ? router.back() : router.replace(inTab(group.slice(1, -1))),
     openSettings: () => router.push(inTab('pengaturan')),
     openHidden: () => router.push(inTab('saran/tersembunyi')),
     openEvidence: (id: string, revision: number) =>
@@ -43,4 +50,23 @@ export function useTabNavigation() {
     },
     toTabRoot,
   };
+}
+
+/** A returning screen focuses the opener after the shared screen heading has taken focus. */
+export function useScopeInvoker() {
+  const { openScope } = useTabNavigation();
+  const ref = useRef<ComponentRef<typeof View>>(null);
+  const returning = useRef(false);
+  useFocusEffect(useCallback(() => {
+    if (!returning.current) return;
+    returning.current = false;
+    let focused = true;
+    // The heading focuses in the same route event. Restore the opener once those listeners have run.
+    void Promise.resolve().then(() => {
+      const opener = ref.current;
+      if (focused && opener) moveFocus(opener);
+    });
+    return () => { focused = false; };
+  }, []));
+  return { ref, onPress: () => { returning.current = true; openScope(); } };
 }

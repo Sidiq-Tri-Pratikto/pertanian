@@ -1,4 +1,9 @@
-import { getAsset, getArchivedAssets, getAssets, getCapabilities, getSummary, isAssetPatchRefusal, patchAsset, type Asset, type CapabilityManifest } from '@/api/client';
+import {
+  confirmScope, getAsset, getArchivedAssets, getAssets, getCapabilities, getSelection, getSummary,
+  isAssetPatchRefusal, patchAsset, previewScope, summaryScopePair, type Asset, type CapabilityManifest, type ScopeProposal,
+} from '@/api/client';
+import { onlineManager } from '@tanstack/react-query';
+
 import { ApiError } from '@/api/errors';
 
 import summaryFixtures from '../../tests/fixtures/assets.json';
@@ -185,4 +190,82 @@ describe('summary freshness boundary', () => {
         .rejects.toMatchObject({ code: 'UNEXPECTED_RESPONSE', recovery: { retryable: false } });
     },
   );
+});
+
+describe('028 scope contract', () => {
+  const summary = { ...summaryFixtures['h-base'].summary, selection_revision: null, binding_revision: 0 };
+  const members = summary.scope.included.map((asset) => asset.asset_id);
+  const proposal: ScopeProposal = {
+    selected_asset_ids: members, period: { preset: 'last_7_days' }, authority_actions: [], disjoint_confirmations: [],
+  };
+  const selection = {
+    selection_revision: 0, binding_revision: 0, selected_asset_ids: members, relations: [], authority: [], candidates: [], issues: [],
+  };
+  const preview = { selection_revision: 0, binding_revision: 0, summary, candidates: [] };
+  const acknowledgment = { ...selection, selection_revision: 1 };
+  afterEach(() => {
+    jest.restoreAllMocks();
+    onlineManager.setOnline(true);
+  });
+
+  it('refuses offline confirmation before the dispatch callback or fetch', async () => {
+    const dispatch = jest.fn();
+    const fetchMock = jest.spyOn(globalThis, 'fetch');
+    onlineManager.setOnline(false);
+    await expect(confirmScope('site', proposal, preview as never, selection, 'bearer', dispatch))
+      .rejects.toMatchObject({ code: 'OFFLINE_UNSENT' });
+    expect(dispatch).not.toHaveBeenCalled();
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it('sends owned GET, read-only POST, and one exact PUT using the original proposal', async () => {
+    const fetchMock = jest.spyOn(globalThis, 'fetch').mockResolvedValueOnce(response(selection))
+      .mockResolvedValueOnce(response(preview)).mockResolvedValueOnce(response(acknowledgment));
+    await expect(getSelection('site', 'bearer')).resolves.toEqual(selection);
+    const reviewed = await previewScope('site', proposal, 'bearer');
+    await expect(confirmScope('site', proposal, reviewed, selection, 'bearer')).resolves.toEqual(acknowledgment);
+    const { start_date, end_date, timezone } = summary.window;
+    expect(fetchMock.mock.calls.map(([url, init]) => [new URL(String(url)).pathname, init?.method, init?.body])).toEqual([
+      ['/api/v1/sites/site/aggregation-selection', 'GET', undefined],
+      ['/api/v1/sites/site/aggregation-selection/preview', 'POST', JSON.stringify(proposal)],
+      ['/api/v1/sites/site/aggregation-selection', 'PUT', JSON.stringify({
+        ...proposal, expected_selection_revision: 0, expected_binding_revision: 0,
+        resolved_period: { start_date, end_date, timezone },
+      })],
+    ]);
+    expect(fetchMock.mock.calls.every(([, init]) => (init?.headers as Record<string, string>).Authorization === 'Bearer bearer')).toBe(true);
+  });
+
+  it.each([{ selection_revision: 0 }, { selection_revision: 2 }, { binding_revision: 1 }, { selected_asset_ids: [] }])(
+    'rejects an implausible acknowledgment %#', async (changes) => {
+      jest.spyOn(globalThis, 'fetch').mockResolvedValue(response({ ...acknowledgment, ...changes }));
+      await expect(confirmScope('site', proposal, preview as never, selection, 'bearer')).rejects.toMatchObject({ code: 'UNEXPECTED_RESPONSE' });
+    },
+  );
+
+  it('distinguishes missing revision evidence, null default, zero and malformed fields', async () => {
+    const { selection_revision: _selection, binding_revision: _binding, ...legacy } = summary;
+    const fetchMock = jest.spyOn(globalThis, 'fetch').mockResolvedValueOnce(response(legacy))
+      .mockResolvedValueOnce(response(summary)).mockResolvedValueOnce(response({ ...summary, selection_revision: 0 }))
+      .mockResolvedValueOnce(response({ ...summary, binding_revision: -1 }));
+    expect(summaryScopePair(await getSummary('site', {}, 'bearer'))).toBeNull();
+    expect(summaryScopePair(await getSummary('site', {}, 'bearer'))).toEqual({ selection: 0, binding: 0 });
+    expect(summaryScopePair(await getSummary('site', {}, 'bearer'))).toEqual({ selection: 0, binding: 0 });
+    await expect(getSummary('site', {}, 'bearer')).rejects.toMatchObject({ code: 'UNEXPECTED_RESPONSE' });
+    expect(fetchMock).toHaveBeenCalledTimes(4);
+  });
+
+  it('rejects a malformed candidate interval and preserves a normalized refusal and reference', async () => {
+    const fetchMock = jest.spyOn(globalThis, 'fetch').mockResolvedValueOnce(response({
+      ...preview, candidates: [{
+        binding_id: 'binding', asset_id: members[0], source_id: 'source', label: 'Source', authoritative: false,
+        effective_from: '2026-10-25T00:00:00Z', effective_to: '2026-10-25T00:00:00Z',
+      }],
+    })).mockResolvedValueOnce(response({
+      error: { code: 'SCOPE_STALE', message: 'Pratinjau berubah. Tinjau lagi.', request_id: 'ref-scope', recovery: { retryable: false } },
+    }, 409));
+    await expect(previewScope('site', proposal, 'bearer')).rejects.toMatchObject({ code: 'UNEXPECTED_RESPONSE' });
+    await expect(confirmScope('site', proposal, preview as never, selection, 'bearer')).rejects.toMatchObject({ code: 'SCOPE_STALE', requestId: 'ref-scope', status: 409 });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
 });

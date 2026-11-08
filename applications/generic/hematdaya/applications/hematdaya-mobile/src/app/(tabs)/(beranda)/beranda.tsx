@@ -21,12 +21,12 @@ import { berandaModel, shownOrigins } from '@/features/energy/beranda-model';
 import { useSummary } from '@/features/energy/useSummary';
 import { FeaturedInsight } from '@/features/insights/FeaturedInsight';
 import { useNavigationContext } from '@/features/navigation-context/NavigationContextProvider';
-import { useTabNavigation } from '@/features/navigation';
+import { useScopeInvoker, useTabNavigation } from '@/features/navigation';
 import { ServiceStatus } from '@/features/ServiceStatus';
 import { DemoSheet } from '@/features/workspace/DemoSheet';
 import { SessionEndedNotice } from '@/features/workspace/SessionEndedNotice';
 import { useWorkspace } from '@/features/workspace/WorkspaceProvider';
-import { formatDate, formatPercent, localParts } from '@/lib/format';
+import { formatDate, formatDateTime, formatPercent, localParts } from '@/lib/format';
 
 /** S02 or S03: empty until a workspace has data, then the populated summary in UX-17 reading order. */
 export default function BerandaScreen() {
@@ -131,6 +131,8 @@ function PopulatedBeranda({ previousSelection, data, refreshing, failure, onRefr
   const { period, setPeriod } = useNavigationContext();
   const { openAsset, openFeature, openSettings } = useTabNavigation();
   const model = berandaModel(data);
+  const scopeControl = useScopeInvoker();
+  const scopeIssue = useScopeInvoker();
   const largest = model.ranking[0];
 
   return (
@@ -144,10 +146,13 @@ function PopulatedBeranda({ previousSelection, data, refreshing, failure, onRefr
           Hanya mencakup sumber yang dipilih.
           {data.scope.excluded.length ? ` Tidak termasuk: ${data.scope.excluded.map((asset) => asset.name).join(', ')}.` : ''}
         </HDText>
+        <HDButton variant="text" {...scopeControl}>Atur cakupan dan sumber</HDButton>
       </View>
       {previousSelection ? (
         <HDNotice tone="info" title="Ringkasan masih memakai cakupan sebelumnya">
-          Total yang tampil berasal dari ringkasan terakhir. Tunggu ringkasan cakupan terkini.
+          {fetchedAt !== undefined && !offline
+            ? `Terakhir dimuat: ${formatDateTime(new Date(fetchedAt).toISOString(), model.timezone)}. Tunggu ringkasan cakupan terkini.`
+            : 'Total yang tampil berasal dari ringkasan terakhir. Tunggu ringkasan cakupan terkini.'}
         </HDNotice>
       ) : null}
       <SavedReadStatus offline={offline} failed={Boolean(failure)} fetchedAt={fetchedAt} timezone={model.timezone} />
@@ -162,7 +167,7 @@ function PopulatedBeranda({ previousSelection, data, refreshing, failure, onRefr
         emptyDetail={model.emptyDetail}
         issues={model.issues}
         action={
-          model.state === 'none' && workspace ? (
+          model.state === 'conflict' ? <HDButton {...scopeIssue}>Selesaikan cakupan</HDButton> : model.state === 'none' && workspace ? (
             <HDButton icon="chevronRight" onPress={() => setPeriod(workspace.initialPeriod)}>
               Lihat periode data
             </HDButton>

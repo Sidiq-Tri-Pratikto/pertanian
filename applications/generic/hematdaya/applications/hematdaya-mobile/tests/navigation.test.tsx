@@ -334,3 +334,15 @@ describe('service status', () => {
     expect(await screen.findByText('Belum ada perangkat')).toBeOnTheScreen();
   });
 });
+
+it('redirects the old scope link within its tab and leaves other planned links in Settings', async () => {
+  jest.spyOn(globalThis, 'fetch').mockImplementation(serviceWithEmptyWorkspace);
+  await renderRouter('./src/app', { initialUrl: '/(tabs)/(perangkat)/segera-hadir/cakupan-sumber' });
+  expect(await screen.findByRole('heading', { name: 'Cakupan dan sumber' })).toBeOnTheScreen();
+  expect(screen.getByRole('tab', { name: 'Perangkat', selected: true })).toBeOnTheScreen();
+  await act(() => router.push('/(tabs)/(perangkat)/pengaturan'));
+  await screen.findByRole('heading', { name: 'Pengaturan' });
+  expect(screen.queryByText('Cakupan dan sumber')).toBeNull();
+  expect(screen.getByText('Sumber dan meter')).toBeOnTheScreen();
+  jest.restoreAllMocks();
+});

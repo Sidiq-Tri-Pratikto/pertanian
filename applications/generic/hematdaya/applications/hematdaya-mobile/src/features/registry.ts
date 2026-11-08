@@ -104,7 +104,7 @@ export const FEATURES: Feature[] = [
     points: ['Meter utama dan sub-meter tidak dijumlahkan', 'Alasan pengecualian ditampilkan', 'Nilai masing-masing tetap terlihat'],
     screens: ['S11'],
     specs: ['028', '029'],
-    status: 'coming_soon',
+    status: 'available',
   },
   {
     id: 'sumber-meter',

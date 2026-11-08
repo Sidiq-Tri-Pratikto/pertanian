@@ -8,6 +8,8 @@ type Option<Value extends string> = {
   value: Value;
   label: string;
   description?: string;
+  disabledReason?: string;
+  testID?: string;
   ref?: Ref<ComponentRef<typeof View>>;
 };
 
@@ -76,27 +78,30 @@ export function HDChoiceGroup<Value extends string>(props: HDChoiceGroupProps<Va
       {error ? <HDText tone="error">{error}</HDText> : null}
       {options.map((option) => {
         const selected = isSelected(option.value);
+        const unavailable = disabled || Boolean(option.disabledReason);
+        const onSelect = () => { if (!unavailable) choose(option.value); };
         return (
           <Pressable
             key={option.value}
             ref={option.ref}
+            testID={option.testID}
             role={checkbox ? 'checkbox' : 'radio'}
             aria-checked={selected}
-            aria-disabled={disabled || undefined}
+            aria-disabled={unavailable || undefined}
             aria-label={option.label}
-            accessibilityHint={error ?? undefined}
-            disabled={disabled}
-            onPress={() => choose(option.value)}
-            {...spaceSelect(() => choose(option.value))}
-            style={[styles.option, selected && styles.selected, disabled && styles.disabled]}>
+            accessibilityHint={option.disabledReason ?? error ?? undefined}
+            disabled={unavailable}
+            onPress={onSelect}
+            {...spaceSelect(onSelect)}
+            style={[styles.option, selected && styles.selected, unavailable && styles.disabled]}>
             <View style={[styles.mark, checkbox && styles.square, selected && styles.markSelected]}>
               {selected ? <View style={[styles.markFill, checkbox && styles.squareFill]} /> : null}
             </View>
             <View style={styles.optionText}>
               <HDText variant={selected ? 'bodyStrong' : 'body'}>{option.label}</HDText>
-              {option.description ? (
+              {option.description || option.disabledReason ? (
                 <HDText variant="label" tone="secondary">
-                  {option.description}
+                  {[option.description, option.disabledReason].filter(Boolean).join(' ')}
                 </HDText>
               ) : null}
             </View>
