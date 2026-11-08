@@ -1,6 +1,7 @@
 import { ApiError, readFailure } from '@/api/errors';
 import { endsSession } from '@/api/query-client';
 import type { components, paths } from '@/api/schema.generated';
+import { getLocale } from '@/features/localization/locale';
 import { isKnownOffline } from '@/features/offline/useConnectivity';
 
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:8000';
@@ -68,6 +69,7 @@ export async function apiRequest<T>(
     const init = {
       method,
       headers: {
+        'X-HematDaya-Locale': getLocale(),
         ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}),
         ...(bearer ? { Authorization: `Bearer ${bearer}` } : {}),
         ...headers,
@@ -370,6 +372,20 @@ export type InsightList = components['schemas']['InsightListResponse'];
 export type Insight = components['schemas']['InsightResponse'];
 export type InsightNotice = components['schemas']['NoticeResponse'];
 
+function isInsightCopy(value: unknown): boolean {
+  return isRecord(value) && typeof value.title === 'string' && typeof value.observed === 'string' &&
+    nullableString(value.pct_note) && typeof value.comparison === 'string' &&
+    typeof value.unknown === 'string' && typeof value.step === 'string';
+}
+
+function isCopyVariants(value: unknown, check: (copy: unknown) => boolean): boolean {
+  return value == null || (isRecord(value) && check(value.id) && check(value.en));
+}
+
+function isNoticeCopy(value: unknown): boolean {
+  return isRecord(value) && typeof value.title === 'string' && typeof value.body === 'string';
+}
+
 function isInsight(value: unknown): value is Insight {
   return (
     isRecord(value) &&
@@ -379,7 +395,8 @@ function isInsight(value: unknown): value is Insight {
     typeof value.superseded === 'boolean' &&
     isRecord(value.evidence) &&
     isRecord(value.text) &&
-    typeof value.text.title === 'string'
+    typeof value.text.title === 'string' &&
+    isCopyVariants(value.text_by_locale, isInsightCopy)
   );
 }
 
@@ -390,6 +407,8 @@ function isInsightList(value: unknown): value is InsightList {
     Array.isArray(value.observations) &&
     value.observations.every(isInsight) &&
     Array.isArray(value.notices) &&
+    value.notices.every((notice) => isRecord(notice) && isNoticeCopy(notice) &&
+      isCopyVariants(notice.copy_by_locale, isNoticeCopy)) &&
     Number.isInteger(value.learning_count) &&
     Number.isInteger(value.comparable_count)
   );

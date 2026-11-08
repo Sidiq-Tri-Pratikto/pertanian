@@ -14,6 +14,7 @@ from app.capabilities.service.service import SOURCE_RELEASE, build_manifest
 from app.core.database import get_engine
 from app.core.errors.database import handle_database_error
 from app.core.errors.handlers import ErrorBoundaryMiddleware, register_exception_handlers
+from app.core.locale import LocaleMiddleware
 from app.core.logging import setup_logging
 from app.core.openapi import install_error_schema
 from app.core.settings import get_settings
@@ -49,6 +50,7 @@ def create_app() -> FastAPI:
     build_manifest(settings.composition)  # An unsupported composition must stop startup.
     app = FastAPI(title="hematdaya-api", version=SOURCE_RELEASE, lifespan=lifespan)
     app.add_middleware(ErrorBoundaryMiddleware)
+    app.add_middleware(LocaleMiddleware)
     if settings.cors_allowed_origins:
         # Added after the boundary so it wraps it: failure responses keep their CORS headers.
         app.add_middleware(

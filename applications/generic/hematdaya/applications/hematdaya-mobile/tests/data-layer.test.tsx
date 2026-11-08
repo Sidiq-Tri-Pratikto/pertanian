@@ -203,7 +203,7 @@ describe('asset history client', () => {
       end_date: history.window.end_date,
       bucket: history.bucket,
     });
-    expect(init?.headers).toEqual({ Authorization: 'Bearer demo-token' });
+    expect(init?.headers).toEqual({ Authorization: 'Bearer demo-token', 'X-HematDaya-Locale': 'id' });
   });
 
   it.each([

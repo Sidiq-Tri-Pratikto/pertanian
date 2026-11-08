@@ -1828,6 +1828,10 @@ export interface components {
             /** Superseded */
             superseded: boolean;
             text: components["schemas"]["InsightCopyResponse"];
+            /** Text By Locale */
+            text_by_locale?: {
+                [key: string]: components["schemas"]["InsightCopyResponse"];
+            } | null;
         };
         /**
          * IssueType
@@ -1842,6 +1846,16 @@ export interface components {
          */
         MeasurementKind: "interval_energy" | "average_power" | "instantaneous_power" | "counter";
         /**
+         * NoticeCopyResponse
+         * @description Localized presentation of a data notice.
+         */
+        NoticeCopyResponse: {
+            /** Body */
+            body: string;
+            /** Title */
+            title: string;
+        };
+        /**
          * NoticeResponse
          * @description A data-quality notice, ranked apart from observations.
          */
@@ -1850,6 +1864,10 @@ export interface components {
             asset_id: string | null;
             /** Body */
             body: string;
+            /** Copy By Locale */
+            copy_by_locale?: {
+                [key: string]: components["schemas"]["NoticeCopyResponse"];
+            } | null;
             /** Id */
             id: string;
             /** Kind */

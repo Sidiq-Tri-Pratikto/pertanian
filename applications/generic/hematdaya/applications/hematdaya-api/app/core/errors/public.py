@@ -1,9 +1,10 @@
 """Public error definitions: the one place internal codes map to what clients see."""
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Any
 
 from app.core.errors import codes
+from app.core.locale import locale
 
 _FALLBACK_MESSAGE = "Permintaan belum dapat diselesaikan. Hubungi dukungan dan sebutkan ID referensi yang ditampilkan."
 
@@ -180,8 +181,75 @@ _FIELD_MESSAGES = {
 }
 
 
+_EN_FALLBACK = "Something went wrong. Contact support and include the reference ID."
+_EN_CODES = {
+    codes.APP_UNKNOWN: _EN_FALLBACK,
+    codes.APP_REQUEST_INVALID: "We could not read the request. Check your entries and try again.",
+    codes.APP_NOT_FOUND: "We could not find that data. Check the address and try again.",
+    codes.APP_CONFLICT: "The data has changed. Review it and try again.",
+    codes.APP_DB_ERROR: "We could not save or read the data. Contact support with the reference ID.",
+    codes.APP_DB_UNAVAILABLE: "The data service is unavailable. Try again in a few minutes.",
+    codes.APP_ASSET_CYCLE: "This relationship makes the asset contain itself. Choose another parent asset.",
+    codes.APP_BINDING_OVERLAP: "This asset already has a reference source for that time. End the old source first.",
+    codes.APP_DEMO_CAPACITY: "The demo is busy. Wait a moment and try again.",
+    codes.APP_SESSION_EXPIRED: "Your demo session has ended. Start a new demo to continue.",
+    codes.APP_SCENARIO_UNKNOWN: "We could not find that demo. Choose one from the list.",
+    codes.APP_DEMO_REPLAY_PROOF_MISMATCH: "We could not find that data. Check the address and try again.",
+    codes.APP_DEMO_REPLAY_CONFLICT: "That demo request expired or was already used. Start a new demo.",
+    codes.APP_RANGE_TOO_LARGE: "The date range is too long. Choose a shorter range.",
+    codes.APP_CAPABILITY_DISABLED: "This feature is unavailable. Use a core feature or contact support.",
+    codes.APP_FEEDBACK_KEY_CONFLICT: "This request was used for other feedback. Select your action again.",
+    codes.APP_AUTH_REQUIRED: "You need to sign in. Sign in and try again.",
+    codes.APP_SCOPE_OVERLAP: "This scope cannot be added together. Review the assets and sources, then preview again.",
+    codes.APP_SCOPE_STALE: "The scope or period has changed. Preview it again before saving.",
+    codes.APP_IMPORT_TOO_LARGE: "The file exceeds the import limit. Use up to 10 MiB and 150,000 data rows.",
+    codes.APP_IMPORT_STRUCTURE: "We could not read the file structure. Fix the issue below and try again.",
+    codes.APP_IMPORT_BLOCKED: "This import is blocked. Fix the issues in the preview and try again.",
+    codes.APP_IMPORT_STALE: "This preview has expired. Create a new preview.",
+    codes.APP_IMPORT_ACK_REQUIRED: "Some rows will be skipped. Confirm that before importing.",
+    codes.APP_IMPORT_KEY_CONFLICT: "This request was already used for a different import. Check the import status.",
+}
+_EN_STATUS = {
+    400: _EN_CODES[codes.APP_REQUEST_INVALID],
+    401: _EN_CODES[codes.APP_AUTH_REQUIRED],
+    403: "You do not have access. Contact the data owner if you need it.",
+    404: _EN_CODES[codes.APP_NOT_FOUND],
+    405: "This request method is unavailable. Use a supported method.",
+    409: _EN_CODES[codes.APP_CONFLICT],
+    422: "Some entries are invalid. Correct them and try again.",
+    429: "Too many requests arrived. Wait a moment and try again.",
+}
+_EN_FIELDS = {
+    "missing": "This field is required.",
+    "string_type": "Enter text.",
+    "string_too_short": "This entry is too short.",
+    "string_too_long": "This entry is too long.",
+    "int_type": "Enter a whole number.",
+    "int_parsing": "Enter a whole number.",
+    "float_type": "Enter a number.",
+    "float_parsing": "Enter a number.",
+    "decimal_type": "Enter a decimal number.",
+    "decimal_parsing": "Enter a decimal number.",
+    "bool_type": "Choose true or false.",
+    "bool_parsing": "Choose true or false.",
+    "uuid_type": "This identifier is invalid.",
+    "uuid_parsing": "This identifier is invalid.",
+    "date_parsing": "Enter a valid date.",
+    "datetime_parsing": "Enter a valid date and time.",
+    "greater_than": "The value is too small.",
+    "greater_than_equal": "The value is too small.",
+    "less_than": "The value is too large.",
+    "less_than_equal": "The value is too large.",
+    "enum": "Choose an available value.",
+    "literal_error": "Choose an available value.",
+    "json_invalid": "The request body is not valid JSON.",
+    "decimal_string_type": 'Send the number as text, such as "12.5".',
+    "timezone_invalid": "Choose a valid IANA timezone, such as Asia/Jakarta.",
+}
+
+
 def field_message(error_type: str) -> str:
-    """Resolve a validation error type to an Indonesian field message.
+    """Resolve a validation error type in the current locale.
 
     Args:
         error_type (str): The validator's error type.
@@ -189,6 +257,8 @@ def field_message(error_type: str) -> str:
     Returns:
         str: The field message, or a safe default for an unmapped type.
     """
+    if locale() == "en":
+        return _EN_FIELDS.get(error_type, "This entry is invalid. Check it and try again.")
     return _FIELD_MESSAGES.get(error_type, _DEFAULT_FIELD_MESSAGE)
 
 
@@ -201,7 +271,8 @@ def public_error_for_code(code: str) -> PublicError:
     Returns:
         PublicError: The mapped definition, or the fallback for an unregistered code.
     """
-    return PUBLIC_ERROR_BY_CODE.get(code, FALLBACK_PUBLIC_ERROR)
+    public = PUBLIC_ERROR_BY_CODE.get(code, FALLBACK_PUBLIC_ERROR)
+    return replace(public, message=_EN_CODES.get(code, _EN_FALLBACK)) if locale() == "en" else public
 
 
 def public_error_for_status(status_code: int) -> PublicError:
@@ -215,9 +286,9 @@ def public_error_for_status(status_code: int) -> PublicError:
     """
     known = PUBLIC_ERROR_BY_STATUS.get(status_code)
     if known is not None:
-        return known
+        return replace(known, message=_EN_STATUS[status_code]) if locale() == "en" else known
     code = "INTERNAL_ERROR" if status_code >= 500 else "HTTP_ERROR"
-    return PublicError(code, status_code, _FALLBACK_MESSAGE)
+    return PublicError(code, status_code, _EN_FALLBACK if locale() == "en" else _FALLBACK_MESSAGE)
 
 
 def error_response(public: PublicError, request_id: str, *, details: list[dict[str, Any]] | None = None) -> dict:
@@ -233,7 +304,7 @@ def error_response(public: PublicError, request_id: str, *, details: list[dict[s
     """
     error: dict[str, Any] = {
         "code": public.code,
-        "message": public.message,
+        "message": _EN_FALLBACK if public is FALLBACK_PUBLIC_ERROR and locale() == "en" else public.message,
         "request_id": request_id,
         "recovery": dict(public.recovery),
     }

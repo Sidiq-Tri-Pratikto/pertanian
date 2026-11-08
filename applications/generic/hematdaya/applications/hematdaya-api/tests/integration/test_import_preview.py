@@ -1869,3 +1869,41 @@ async def test_streams_over_the_limit_are_blocked(client: AsyncClient, owner: tu
         "Berkas ini memuat 101 perangkat, melebihi batas 100 perangkat per impor. Pisahkan berkasnya lalu coba lagi."
     ]
     assert (at_limit["blocked"], at_limit["block_reasons"]) == (False, [])
+
+
+@pytest.mark.parametrize("legacy", [False, True], ids=["current-preview", "legacy-preview"])
+async def test_saved_preview_copy_can_be_read_in_english(client: AsyncClient, legacy: bool) -> None:
+    """
+    Condition:
+    - A preview contains an invalid value and is read in English, including when it predates bilingual copy.
+
+    Expected:
+    - The saved preview ID, row and field stay the same and the instruction is localized.
+    """
+    session = await start_demo(client, "empty")
+    result = await client.post(
+        f"/api/v1/sites/{session['site_id']}/imports/preview",
+        headers=session["auth"] | {"X-HematDaya-Locale": "id"},
+        files={"text": (None, csv10(2)), "mapping": (None, json.dumps(ANSWERED))},
+    )
+    assert result.status_code == 201, result.text
+    original = result.json()
+    if legacy:
+        await execute(
+            "UPDATE imports SET mapping = mapping - '_assumptions_en' - '_stream_count' WHERE id = :id",
+            id=UUID(original["id"]),
+        )
+    result = await client.get(
+        f"/api/v1/imports/{original['id']}",
+        headers=session["auth"] | {"X-HematDaya-Locale": "en"},
+    )
+    assert result.status_code == 200, result.text
+    localized = result.json()
+    assert localized["id"] == original["id"]
+    assert localized["accepted_rows"] == original["accepted_rows"]
+    assert localized["errors"][0]["file_line"] == original["errors"][0]["file_line"]
+    assert localized["errors"][0]["message"].endswith("Enter zero or a positive value.")
+    if legacy:
+        assert localized["assumptions"] == ["Review the saved mapping and preview before confirming."]
+    else:
+        assert any("Asia/Jakarta" in text for text in localized["assumptions"])

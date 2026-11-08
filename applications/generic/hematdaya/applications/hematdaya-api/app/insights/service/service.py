@@ -8,6 +8,7 @@ from app.baseline.service.compare import ComparisonState
 from app.baseline.service.service import BaselineService
 from app.core.clock import wall_now
 from app.core.errors.base import NotFoundError
+from app.core.locale import locale, wants_bilingual_copy
 from app.energy.service.periods import Window, resolve_window
 from app.energy.service.summary import EnergyService, PeriodQuery, window_response
 from app.identity.model.models import PrincipalModel
@@ -24,7 +25,6 @@ from app.insights.model.schema import (
     InsightCopyResponse,
     InsightListResponse,
     InsightResponse,
-    NoticeResponse,
     PolicyResponse,
 )
 from app.insights.repository.base_repository import InsightRepository
@@ -49,6 +49,8 @@ def render(insight: InsightModel, revision: InsightRevisionModel) -> InsightResp
     Returns:
         InsightResponse: The response.
     """
+    indonesian = InsightCopyResponse(**insight_copy(revision.evidence))
+    english = InsightCopyResponse(**insight_copy(revision.evidence, "en")) if wants_bilingual_copy() else None
     return InsightResponse(
         id=insight.id,
         revision=revision.revision,
@@ -61,7 +63,8 @@ def render(insight: InsightModel, revision: InsightRevisionModel) -> InsightResp
         generated_at=revision.generated_at,
         policy=PolicyResponse(id=revision.policy_id, version=revision.policy_version),
         evidence=revision.evidence,
-        text=InsightCopyResponse(**insight_copy(revision.evidence)),
+        text=english if locale() == "en" and english is not None else indonesian,
+        text_by_locale={"id": indonesian, "en": english} if english is not None else None,
     )
 
 
@@ -262,7 +265,7 @@ class InsightService:
         return InsightListResponse(
             window=window_response(window),
             observations=[response for response, _ in published],
-            notices=[NoticeResponse(**notice) for notice in notices(summary, snapshot, site.timezone)],
+            notices=notices(summary, snapshot, site.timezone),
             learning_count=learning,
             comparable_count=comparable,
         )

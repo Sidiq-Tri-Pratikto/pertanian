@@ -1,3 +1,4 @@
+import type { Locale } from '@/features/localization/locale';
 import type { components } from '@/api/schema.generated';
 
 type ErrorBody = components['schemas']['ErrorBody'];
@@ -12,6 +13,7 @@ const UNEXPECTED_MESSAGE = 'Layanan mengirim jawaban yang tidak dikenali. Coba l
 export class ApiError extends Error {
   readonly code: string;
   readonly status: number | null;
+  readonly language: Locale;
   readonly requestId: string | null;
   readonly recovery: Recovery;
   /** The specifics a refusal carries, such as each problem in a file. Shown as sent, never parsed. */
@@ -19,12 +21,13 @@ export class ApiError extends Error {
 
   constructor(
     code: string, message: string, recovery: Recovery, requestId: string | null = null, details: ErrorDetail[] = [],
-    status: number | null = null,
+    status: number | null = null, language: Locale = 'id',
   ) {
     super(message);
     this.name = 'ApiError';
     this.code = code;
     this.status = status;
+    this.language = language;
     this.recovery = recovery;
     this.requestId = requestId;
     this.details = details;
@@ -96,5 +99,7 @@ export async function readFailure(response: Response): Promise<ApiError> {
   if (!isErrorBody(body)) {
     return ApiError.unexpected();
   }
-  return new ApiError(body.code, body.message, body.recovery, body.request_id, readDetails(body.details), response.status);
+  const language = response.headers.get('Content-Language') === 'en' ? 'en' : 'id';
+  return new ApiError(body.code, body.message, body.recovery, body.request_id,
+    readDetails(body.details), response.status, language);
 }

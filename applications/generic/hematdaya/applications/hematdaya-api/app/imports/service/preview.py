@@ -14,6 +14,7 @@ from uuid import UUID, uuid4
 from app.assets.service.service import AssetService
 from app.core.clock import wall_now
 from app.core.errors.base import NotFoundError, RequestInvalidError
+from app.core.locale import locale, wants_bilingual_copy
 from app.identity.model.models import PrincipalModel
 from app.imports.model.models import (
     ImportModel,
@@ -50,6 +51,7 @@ from app.imports.service.classify import (
     summarize,
 )
 from app.imports.service.columns import VALUE_ROLES, Role, resolve_columns
+from app.imports.service.copy import STRUCTURAL_MESSAGES
 from app.imports.service.errors import ImportBlockedError, ImportStructureError, ImportTooLargeError
 from app.imports.service.mapping import ResolvedMapping, require_active_targets, resolve_streams
 from app.imports.service.parser import MAX_ROWS, parse
@@ -120,7 +122,9 @@ def _structural_failure(errors: list[StructuralError]) -> ImportTooLargeError | 
     details = [
         {
             "loc": ["file"] if error.file_line is None else ["file", "line", error.file_line],
-            "msg": error.message,
+            "msg": STRUCTURAL_MESSAGES.get(error.reason.value, "Check the CSV structure and try again.")
+            if locale() == "en"
+            else error.message,
             "type": error.reason.value,
         }
         for error in errors
@@ -308,13 +312,19 @@ class ImportPreviewService:
         summary = summarize(counts, open_questions=len(questions), streams=streams)
         spans = [row_span(row) for row in accepted]
         now = wall_now()
+        stored_mapping = self._mapping_json(site, parsed, mapping, resolved)
+        if wants_bilingual_copy():
+            stored_mapping["_stream_count"] = streams
+            stored_mapping["_assumptions_en"] = build_assumptions(
+                parsed, accepted, now=site_clock(site), timezone=site.timezone, language="en"
+            )
         model = ImportModel(
             id=uuid4(),
             site_id=site.id,
             status=ImportStatus.PREVIEWED,
             file_name=clean_file_name(file_name),
             content_sha256=content_sha256,
-            mapping=self._mapping_json(site, parsed, mapping, resolved),
+            mapping=stored_mapping,
             total_rows=counts.total,
             accepted_rows=counts.accepted,
             invalid_rows=counts.invalid,

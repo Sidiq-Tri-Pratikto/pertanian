@@ -13,6 +13,7 @@ from starlette.datastructures import FormData, UploadFile
 from starlette.types import Message
 
 from app.core.errors.base import RequestInvalidError
+from app.core.locale import locale
 from app.identity.dependencies import PrincipalDep
 from app.imports.dependencies import ImportCommitServiceDep, ImportPreviewServiceDep
 from app.imports.model.models import ImportRowModel, ValueKind
@@ -27,6 +28,8 @@ from app.imports.model.schema import (
     ImportQuestionResponse,
     ImportRowErrorResponse,
 )
+from app.imports.service.classify import MAX_IMPORT_STREAMS
+from app.imports.service.copy import QUESTION_MESSAGES, ROW_MESSAGES, STRUCTURAL_MESSAGES
 from app.imports.service.errors import ImportTooLargeError
 from app.imports.service.parser import MAX_BYTES
 from app.imports.service.preview import StoredPreview
@@ -76,7 +79,15 @@ def _limited(request: Request) -> Request:
         received += len(message.get("body", b""))
         if received > BODY_LIMIT:
             raise ImportTooLargeError(
-                details=[{"loc": ["file"], "msg": "Ukuran berkas melebihi batas 10 MiB.", "type": "too_large"}]
+                details=[
+                    {
+                        "loc": ["file"],
+                        "msg": STRUCTURAL_MESSAGES["too_large"]
+                        if locale() == "en"
+                        else "Ukuran berkas melebihi batas 10 MiB.",
+                        "type": "too_large",
+                    }
+                ]
             )
         return message
 
@@ -114,8 +125,12 @@ def _upload(form: FormData) -> tuple[BinaryIO, str | None]:
 
 def _row_error(row: ImportRowModel) -> ImportRowErrorResponse:
     assert row.field is not None and row.reason is not None and row.message is not None
+    message = row.message
+    if locale() == "en":
+        correction = ROW_MESSAGES.get(row.reason, "Check the entry and try again.")
+        message = f"Data row {row.data_row}, {row.field}: {correction}"
     return ImportRowErrorResponse(
-        data_row=row.data_row, file_line=row.file_line, field=row.field, reason=row.reason, message=row.message
+        data_row=row.data_row, file_line=row.file_line, field=row.field, reason=row.reason, message=message
     )
 
 
@@ -134,8 +149,31 @@ def _period(stored: StoredPreview) -> ImportPeriodResponse | None:
     )
 
 
+def _english_blockers(stored: StoredPreview) -> list[str]:
+    model = stored.model
+    reasons: list[str] = []
+    if model.questions or model.pending_rows:
+        reasons.append("Complete the mapping first.")
+    if model.invalid_rows * 5 > model.total_rows:
+        reasons.append(f"{model.invalid_rows} of {model.total_rows} data rows are invalid. Fix the file and try again.")
+    if model.conflict_rows:
+        reasons.append("The file contains conflicting readings. Review the sources and correct the data.")
+    streams = model.mapping.get("_stream_count", len(model.mapping.get("streams", [])))
+    if streams > MAX_IMPORT_STREAMS:
+        reasons.append(f"This file has {streams} streams. Split it into files with up to {MAX_IMPORT_STREAMS} streams.")
+    if len(reasons) < len(model.block_reasons):
+        reasons.append("This preview cannot be imported. Review its row errors and file limits.")
+    return reasons
+
+
 def _to_response(stored: StoredPreview) -> ImportPreviewResponse:
     model = stored.model
+    questions = [ImportQuestionResponse(**question) for question in model.questions]
+    english = locale() == "en"
+    if english:
+        questions = [
+            question.model_copy(update={"message": QUESTION_MESSAGES[question.kind.value]}) for question in questions
+        ]
     return ImportPreviewResponse(
         id=model.id,
         status=stored.status,
@@ -148,11 +186,15 @@ def _to_response(stored: StoredPreview) -> ImportPreviewResponse:
         conflict_rows=model.conflict_rows,
         pending_rows=model.pending_rows,
         blocked=model.blocked,
-        block_reasons=model.block_reasons,
+        block_reasons=_english_blockers(stored) if english else model.block_reasons,
         needs_acknowledgment=model.needs_acknowledgment,
-        questions=[ImportQuestionResponse(**question) for question in model.questions],
-        mapping=model.mapping,
-        assumptions=model.assumptions,
+        questions=questions,
+        mapping={key: value for key, value in model.mapping.items() if key not in {"_assumptions_en", "_stream_count"}},
+        assumptions=(
+            model.mapping.get("_assumptions_en", ["Review the saved mapping and preview before confirming."])
+            if english and model.assumptions
+            else model.assumptions
+        ),
         period=_period(stored),
         errors=[_row_error(row) for row in stored.errors],
         next_error_cursor=stored.next_error_cursor,
