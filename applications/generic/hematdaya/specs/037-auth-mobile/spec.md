@@ -4,10 +4,14 @@
 **Created**: 2026-10-30
 **Status**: Seeded, not started
 **Milestone**: M9 Saved service
-**Depends on**: 012, 019, 027, 029, 031, 034, 036
+**Depends on**: 012, 027, 029, 034, 036
 **Size**: M
 **Covers**: FR-01, AT-40
 **Flips**: registry `akun` → `available`
+
+## Pilot account scope
+
+Ship sign-in, session recovery and owner-isolated draft handling for the core app. Verify available core saves before the pilot release. Optional tariff, schedule, output and push work can proceed separately. Any later save flow must pass the same expiry, ownership and replay checks before its own release.
 
 ## User Scenarios & Testing
 
@@ -19,7 +23,7 @@
 
 **Acceptance Scenarios**:
 
-1. **Given** Mulai, **When** the user chooses to save data, **Then** register and login screens appear, and demo stays one tap away.
+1. **Given** the saved-data entry, **When** the user chooses to sign in, **Then** register and login screens appear, and the separate demo entry remains available.
 2. **Given** a signed-in user, **When** the app restarts, **Then** the session resumes.
 3. **Given** logout, **When** confirmed, **Then** tokens and cached data for that user are cleared.
 
@@ -56,4 +60,4 @@ Session on device.
 
 ### Measurable Outcomes
 
-- **SC-001**: AT-40 passes for tariff, schedule, import and scope saves.
+- **SC-001**: AT-40 passes for the core import and scope saves. Apply the same checks to optional saves when they ship and meter enrollment before user-facing release.

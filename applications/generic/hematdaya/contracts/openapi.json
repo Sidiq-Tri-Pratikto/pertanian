@@ -752,6 +752,23 @@
         "title": "CompositionResponse",
         "type": "object"
       },
+      "ConfirmEnrollmentRequest": {
+        "additionalProperties": false,
+        "description": "Name the single new appliance measured by the meter.",
+        "properties": {
+          "asset_name": {
+            "maxLength": 60,
+            "minLength": 1,
+            "title": "Asset Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "asset_name"
+        ],
+        "title": "ConfirmEnrollmentRequest",
+        "type": "object"
+      },
       "ConfirmScopeRequest": {
         "additionalProperties": false,
         "description": "The reviewed proposal together with its resolved local period and both revision fences.",
@@ -1054,6 +1071,127 @@
           "initial_period"
         ],
         "title": "DemoWorkspaceResponse",
+        "type": "object"
+      },
+      "DeviceCatalogResponse": {
+        "description": "Catalog metadata with the environment's capability state.",
+        "properties": {
+          "devices": {
+            "items": {
+              "$ref": "#/components/schemas/DeviceResponse"
+            },
+            "title": "Devices",
+            "type": "array"
+          }
+        },
+        "required": [
+          "devices"
+        ],
+        "title": "DeviceCatalogResponse",
+        "type": "object"
+      },
+      "DeviceResponse": {
+        "description": "One catalog model and the measurement this pilot can accept.",
+        "properties": {
+          "cadence_seconds": {
+            "default": 60,
+            "title": "Cadence Seconds",
+            "type": "integer"
+          },
+          "id": {
+            "const": "shelly-plug-pm-gen3",
+            "default": "shelly-plug-pm-gen3",
+            "title": "Id",
+            "type": "string"
+          },
+          "measurement_kind": {
+            "const": "counter",
+            "default": "counter",
+            "title": "Measurement Kind",
+            "type": "string"
+          },
+          "name": {
+            "default": "Shelly Plug PM Gen3",
+            "title": "Name",
+            "type": "string"
+          },
+          "scope_kind": {
+            "const": "device",
+            "default": "device",
+            "title": "Scope Kind",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "planned",
+              "available"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "DeviceResponse",
+        "type": "object"
+      },
+      "EnrollmentResponse": {
+        "description": "Setup progress for an owner, without any device credential.",
+        "properties": {
+          "asset_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Asset Id"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "title": "Expires At",
+            "type": "string"
+          },
+          "first_measured_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Measured At"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "waiting",
+              "ready",
+              "connected",
+              "expired"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "expires_at",
+          "first_measured_at",
+          "asset_id"
+        ],
+        "title": "EnrollmentResponse",
         "type": "object"
       },
       "ErrorBody": {
@@ -2476,6 +2614,27 @@
         "title": "NoticeResponse",
         "type": "object"
       },
+      "PilotSessionResponse": {
+        "description": "The site associated with a valid operator-issued access code.",
+        "properties": {
+          "expires_at": {
+            "format": "date-time",
+            "title": "Expires At",
+            "type": "string"
+          },
+          "site_id": {
+            "format": "uuid",
+            "title": "Site Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "site_id",
+          "expires_at"
+        ],
+        "title": "PilotSessionResponse",
+        "type": "object"
+      },
       "Preset": {
         "description": "Named periods relative to site time.",
         "enum": [
@@ -3178,6 +3337,22 @@
         "title": "SourceResponse",
         "type": "object"
       },
+      "StartEnrollmentRequest": {
+        "additionalProperties": false,
+        "description": "Select the sole verified adapter candidate.",
+        "properties": {
+          "model_id": {
+            "const": "shelly-plug-pm-gen3",
+            "title": "Model Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "model_id"
+        ],
+        "title": "StartEnrollmentRequest",
+        "type": "object"
+      },
       "SummaryResponse": {
         "description": "Recorded energy for a period and scope.",
         "properties": {
@@ -3287,10 +3462,11 @@
         "type": "object"
       },
       "TransportStatus": {
-        "description": "How a source reaches the API. Nothing is ever a real live connection before 046.",
+        "description": "How a source reaches the API.",
         "enum": [
           "none",
           "simulated_live",
+          "live",
           "historical"
         ],
         "title": "TransportStatus",
@@ -4273,6 +4449,166 @@
         ]
       }
     },
+    "/api/v1/device-catalog": {
+      "get": {
+        "description": "Describe the candidate model and whether this lab can accept enrollment.",
+        "operationId": "device_catalog_api_v1_device_catalog_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeviceCatalogResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Device Catalog",
+        "tags": [
+          "meter pilot"
+        ]
+      }
+    },
+    "/api/v1/enrollments/{enrollment_id}": {
+      "get": {
+        "description": "Read server-side setup progress.",
+        "operationId": "get_enrollment_api_v1_enrollments__enrollment_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "enrollment_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Enrollment Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnrollmentResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Get Enrollment",
+        "tags": [
+          "meter pilot"
+        ]
+      }
+    },
+    "/api/v1/enrollments/{enrollment_id}/confirm": {
+      "post": {
+        "description": "Bind a meter with a valid reading to the named appliance.",
+        "operationId": "confirm_enrollment_api_v1_enrollments__enrollment_id__confirm_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "enrollment_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Enrollment Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "pattern": "^[A-Za-z0-9_-]{22,128}$",
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmEnrollmentRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnrollmentResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Confirm Enrollment",
+        "tags": [
+          "meter pilot"
+        ]
+      }
+    },
     "/api/v1/imports/{import_id}": {
       "get": {
         "description": "Return a stored preview with its counts, assumptions and first row errors.\n\nArgs:\n    import_id (UUID): The import.\n    principal (PrincipalModel): The acting principal.\n    service (ImportPreviewService): Preview rules.\n\nReturns:\n    ImportPreviewResponse: The stored preview.",
@@ -4626,6 +4962,38 @@
         "summary": "Give feedback on an evidence revision",
         "tags": [
           "feedback"
+        ]
+      }
+    },
+    "/api/v1/pilot/session": {
+      "get": {
+        "description": "Verify an operator-issued access code and return its site and expiry.",
+        "operationId": "get_pilot_session_api_v1_pilot_session_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PilotSessionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Get Pilot Session",
+        "tags": [
+          "meter pilot"
         ]
       }
     },
@@ -5097,6 +5465,80 @@
         "summary": "Add an asset",
         "tags": [
           "assets"
+        ]
+      }
+    },
+    "/api/v1/sites/{site_id}/enrollments": {
+      "post": {
+        "description": "Start or recover the setup for the selected model and owned site.",
+        "operationId": "start_enrollment_api_v1_sites__site_id__enrollments_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "site_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Site Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "pattern": "^[A-Za-z0-9_-]{22,128}$",
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartEnrollmentRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnrollmentResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Start Enrollment",
+        "tags": [
+          "meter pilot"
         ]
       }
     },

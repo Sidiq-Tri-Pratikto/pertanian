@@ -6,6 +6,8 @@ import type { View } from 'react-native';
 import { useOptionalImportDraft } from '@/features/imports/ImportDraftProvider';
 import { moveFocus } from '@/lib/focus';
 
+export const HOME_METER_SETUP = '/(tabs)/(beranda)/sumber' as Href;
+
 export type ImportStep = 'berkas' | 'pemetaan' | 'pratinjau' | 'hasil';
 
 /** Link helpers that keep a detail screen inside the current tab, so back returns to where the user was. */
@@ -23,6 +25,8 @@ export function useTabNavigation() {
 
   return {
     openFeature: (id: string) => router.push(inTab(id === 'cakupan-sumber' ? 'cakupan' : `segera-hadir/${id}`)),
+    openMeterSetup: () => router.push(inTab('sumber')),
+    meterSetupHref: inTab('sumber'),
     openScope: () => router.push(inTab('cakupan')),
     scopeHref: inTab('cakupan'),
     scopeBack: () => router.canGoBack() ? router.back() : router.replace(inTab(group.slice(1, -1))),

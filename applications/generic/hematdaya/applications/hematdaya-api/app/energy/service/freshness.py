@@ -44,7 +44,12 @@ async def source_freshness(
         key = (asset_id, part.source_id)
         rows[key] = kind
         if read:
-            reads.append((key, CaptureQuery(part.source_id, (part.start, part.end), kind == "historical")))
+            reads.append(
+                (
+                    key,
+                    CaptureQuery(part.source_id, (part.start, part.end), kind == "historical", kind == "live_counter"),
+                )
+            )
 
     for asset_id, parts in by_asset.items():
         current = resolve_authority(parts, min(part.effective_from for part in parts), now + timedelta(microseconds=1))
@@ -55,8 +60,11 @@ async def source_freshness(
                 and source.origin is not SourceOrigin.IMPORT
                 and source.transport_status is not TransportStatus.HISTORICAL
             ):
-                recurring = source.transport_status is TransportStatus.SIMULATED_LIVE
-                add(asset_id, part, "recurring" if recurring else "unknown", read=recurring)
+                if source.transport_status is TransportStatus.LIVE:
+                    add(asset_id, part, "live_counter", read=True)
+                else:
+                    recurring = source.transport_status is TransportStatus.SIMULATED_LIVE
+                    add(asset_id, part, "recurring" if recurring else "unknown", read=recurring)
         for part in current.conflicts:
             if part.end > now:
                 add(asset_id, part, "unresolved")
@@ -87,7 +95,7 @@ async def source_freshness(
         last = max((capture for _, _, capture in spans), default=None)
         historical_range = None
         state: FreshnessState = "unknown"
-        if kind == "recurring":
+        if kind in ("recurring", "live_counter"):
             state = recurring_state(now, last, cadence)
         elif kind == "historical" and spans:
             state = "historical"

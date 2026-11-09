@@ -1,6 +1,7 @@
+import { useIsFocused } from 'expo-router';
 import { scopeIssueCopy } from '@/features/scope/scope-copy';
 import { errorMessage } from '@/features/localization/error-copy';
-import { currentCopy, useCopy } from '@/features/localization/messages';
+import { currentCopy, useCopy, useLabels } from '@/features/localization/messages';
 import { useRef, useState, type ComponentRef, type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -61,7 +62,8 @@ export function PerangkatScreen({ historyChooser = false }: { historyChooser?: b
 /** No workspace or no asset: no number and no date, and every way data will arrive. */
 function EmptyPerangkat({ title, onBack, children }: { title: string; onBack?: () => void; children?: ReactNode }) {
   const say = useCopy();
-  const { openFeature, openImport, openSettings } = useTabNavigation();
+  const labels = useLabels();
+  const { openMeterSetup, openImport, openSettings } = useTabNavigation();
   const [sheetOpen, setSheetOpen] = useState(false);
   const demoButton = useRef<ComponentRef<typeof View>>(null);
 
@@ -71,11 +73,11 @@ function EmptyPerangkat({ title, onBack, children }: { title: string; onBack?: (
       <View style={styles.section}>
         <HDText variant="section">{say("Belum ada perangkat", "No devices yet")}</HDText>
         <HDText>{say("Perangkat muncul di sini setelah ada data energi. HematDaya tidak mengendalikan perangkat.", "Devices appear here once you have energy readings.")}</HDText>
+        <HDButton variant="primary" onPress={openMeterSetup}>{labels.connectMeter}</HDButton>
         <View ref={demoButton}>
-          <HDButton variant="primary" onPress={() => setSheetOpen(true)}>{say("Coba demo", "Try demo")}</HDButton>
+          <HDButton onPress={() => setSheetOpen(true)}>{say("Coba demo", "Try demo")}</HDButton>
         </View>
-        <HDButton onPress={openImport}>{say("Tambah data", "Add data")}</HDButton>
-        <HDButton variant="text" onPress={() => openFeature('sumber-meter')}>{say("Tambah sumber", "Add source")}</HDButton>
+        <HDButton variant="text" onPress={openImport}>{labels.importHistory}</HDButton>
       </View>
       {children}
       <HDButton variant="text" onPress={openSettings}>{say("Pengaturan", "Settings")}</HDButton>
@@ -91,7 +93,7 @@ function EmptyPerangkat({ title, onBack, children }: { title: string; onBack?: (
 
 function WorkspacePerangkat({ title, onBack }: { title: string; onBack?: () => void }) {
   const say = useCopy();
-  const summaryQuery = useSummary();
+  const summaryQuery = useSummary(useIsFocused());
   const assetsQuery = useAssets();
   const [archiveOpen, setArchiveOpen] = useState(false);
   const archive = useArchivedAssets(archiveOpen);
@@ -169,7 +171,8 @@ function PopulatedPerangkat({
   const say = useCopy();
   const { workspace } = useWorkspace();
   const { period, setPeriod } = useNavigationContext();
-  const { openFeature, openImport, openSettings } = useTabNavigation();
+  const labels = useLabels();
+  const { openMeterSetup, openImport, openSettings } = useTabNavigation();
   const model = berandaModel(summary);
   const scopeIssue = useScopeInvoker();
   const { excluded, issues, valid } = summary.scope;
@@ -210,8 +213,8 @@ function PopulatedPerangkat({
       )}
       <ReadFailure error={failure} label={say("Data perangkat belum dapat diperbarui", "Could not refresh device data")} retrying={retrying} onRetry={onRetry} kept />
       <View style={styles.section}>
-        <HDButton variant="primary" onPress={() => openFeature('sumber-meter')}>{say("Tambah sumber", "Add source")}</HDButton>
-        <HDButton onPress={() => openImport()}>{say("Tambah data", "Add data")}</HDButton>
+        <HDButton variant="primary" onPress={openMeterSetup}>{labels.connectMeter}</HDButton>
+        <HDButton variant="text" onPress={openImport}>{labels.importHistory}</HDButton>
       </View>
       {assetsFailed ? <HDText variant="label">{say("Lokasi dan kategori belum dapat dimuat.", "Could not load location and category.")}</HDText> : null}
       {summary.source_freshness === undefined ? <HDText variant="label">{say("Kesegaran sumber belum diketahui.", "Source update status is unknown.")}</HDText> : null}

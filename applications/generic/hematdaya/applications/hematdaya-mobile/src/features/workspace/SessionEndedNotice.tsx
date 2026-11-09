@@ -5,11 +5,19 @@ import { useWorkspace } from '@/features/workspace/WorkspaceProvider';
 /** Explains, once, that a stored workspace no longer works. Never shows a raw code. */
 export function SessionEndedNotice() {
   const say = useCopy();
-  const { ended, storageError } = useWorkspace();
+  const { ended, pilotEndReference, storageError } = useWorkspace();
   return (
     <>
       {ended === 'expired' ? (
         <HDNotice tone="attention" title={say("Sesi demo sudah berakhir", "Demo session ended")} live>{say("Pilih Coba demo untuk membuka sesi baru, atau lanjutkan dari Beranda.", "Open another demo or keep exploring from Home.")}</HDNotice>
+      ) : null}
+      {ended === 'pilot-expired' ? (
+        <HDNotice tone="attention" title={say("Akses uji coba berakhir", "Pilot access ended")} live>
+          {[
+            say("Buka sambungan alat ukur dan masukkan kode akses yang berlaku.", "Open meter setup and enter a valid access code."),
+            pilotEndReference ? say(`ID referensi: ${pilotEndReference}.`, `Reference ID: ${pilotEndReference}.`) : null,
+          ].filter(Boolean).join(' ')}
+        </HDNotice>
       ) : null}
       {storageError ? (
         <HDNotice tone="attention" title={say("Penyimpanan perangkat belum dapat diperbarui", "Device storage could not be updated")} live>{say("Penyimpanan atau penghapusan data belum terkonfirmasi. Periksa penyimpanan perangkat lalu coba lagi.", "Check your device storage and try again.")}</HDNotice>

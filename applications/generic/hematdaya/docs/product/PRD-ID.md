@@ -1,6 +1,6 @@
 # HematDaya — Dokumen Kebutuhan Produk
 
-Versi: Generik 1.3. Tanggal: 8 November 2026 (Asia/Jakarta).
+Versi: Generik 1.4. Tanggal: 9 November 2026 (Asia/Jakarta).
 Bahasa dokumen: Indonesia. Antarmuka produk: Bahasa Indonesia sebagai bawaan, dengan pilihan English. Mata uang awal: IDR.
 Status: arah produk dan arsitektur modular diterima; spesifikasi pengembangan, verifikasi implementasi, dan validasi lapangan masih menunggu pelaksanaan.
 
@@ -70,7 +70,7 @@ Target riset usulan harus dievaluasi secara terpisah untuk peserta rumah tangga 
 
 - Demo terisolasi tanpa perangkat keras, akses akun untuk data server yang disimpan, satu lokasi milik pengguna.
 - Aset terpantau bebas dengan nama, kategori, label lokasi opsional, dan cakupan pengukuran yang eksplisit.
-- Impor riwayat CSV sebagai jalur data awal yang lengkap; jalur meter langsung yang didukung hanya setelah adapter dan kesesuaian fisiknya diverifikasi.
+- Koneksi alat ukur menjadi jalur utama untuk memantau pemakaian listrik aktual. Impor riwayat CSV menjadi opsi tambahan dan tetap dapat digunakan tanpa perangkat keras. Cakupan awal koneksi langsung terbatas pada satu model dan instalasi yang terverifikasi.
 - Energi interval, estimasi biaya, kontribusi, riwayat, perbandingan riwayat yang setara, kemutakhiran, dan cakupan waktu.
 - Jadwal mingguan pemakaian yang diharapkan, bersifat opsional, dengan beberapa rentang waktu dan dukungan lintas tengah malam.
 - Metrik energi yang dinormalisasi terhadap keluaran, bersifat opsional bagi pengguna yang membutuhkannya.
@@ -145,7 +145,7 @@ Pengguna memilih profil atau mempertahankan keadaan belum diketahui. Kategori da
 
 ### 6.3 Kontrak kemampuan sumber
 
-Shelly Plug PM Gen3 dan perangkat TP-Link merupakan kandidat adapter pengukuran, bukan integrasi terverifikasi atau bukti kompatibilitas rumah tangga/industri. Kandidat harus tetap diberi label direncanakan atau tidak didukung sampai diimplementasikan dan diverifikasi untuk model dan kemampuan tertentu. Jalur demo dan CSV tidak boleh bergantung pada kedua penyedia tersebut.
+Shelly Plug PM Gen3 adalah satu-satunya model yang dipilih untuk uji lab terisolasi. Cakupannya satu perangkat colokan yang kompatibel dan satu aset pantauan baru. Katalog membedakan ketersediaan uji lab dari dukungan yang telah terverifikasi untuk rilis. TP-Link dan model lain tetap berstatus direncanakan atau tidak didukung. Demo dan impor riwayat CSV tetap dapat digunakan tanpa perangkat keras.
 
 Entri katalog menyatakan jenis pengukuran yang didukung, satuan, frekuensi pencatatan, cakupan kanal, dan status validasi. Tampilkan “Terhubung” hanya setelah pendaftaran sumber yang terautentikasi dan pembacaan pertama yang valid. Meter yang terhubung tetap tidak membuktikan bahwa suatu beban sesuai secara kelistrikan. Persyaratan instalasi dan spesifikasi vendor yang sebenarnya harus diperiksa untuk model dan beban yang dipilih; pengawatan tetap memerlukan pemasangan yang tepat oleh tenaga berkualifikasi. Jangan menyediakan alur menyambung ulang kabel listrik utama secara mandiri.
 
@@ -156,12 +156,12 @@ Tidak ada integrasi yang boleh menawarkan penyalaan/pemadaman hanya karena peran
 | ID | Alur | Hasil penerimaan |
 |---|---|---|
 | P01 | Sambutan → Coba demo → demo rumah tangga | Data bermanfaat tanpa mewajibkan AC, jadwal, produksi, tarif, atau kredensial |
-| P02 | Lokasi kosong → impor CSV → tinjau pemetaan dan kesalahan → konfirmasi | Cakupan dan total jelas; impor gagal mempertahankan masukan serta data yang ada |
+| P02 | Pilih impor riwayat CSV → tinjau pemetaan dan kesalahan → konfirmasi | Cakupan dan total jelas. Kegagalan impor mempertahankan masukan dan data yang ada. |
 | P03 | Beranda → periode → kontributor terbesar → riwayat | Paling banyak 3 ketukan yang disengaja; nilai dan cakupan selaras |
 | P04 | Saran → pengamatan perubahan → bukti | Pengguna dapat mengidentifikasi nilai teramati, perbandingan, kualitas, dan penyebab yang belum diketahui |
 | P05 | Pengaturan → jadwal pemakaian yang diharapkan secara opsional → pengganti pada aset | Rentang lintas tengah malam dan aset terus-menerus berperilaku konsisten |
 | P06 | Metrik keluaran opsional → satuan dan cakupan → penyebut | Intensitas valid muncul; masukan hilang/tidak valid tidak pernah menjadi nol |
-| P07 | Tambahkan sumber → merek/model → koneksi → pengikatan aset | Pembacaan pertama terverifikasi; percobaan ulang tidak membuat aset atau pengikatan ganda |
+| P07 | Hubungkan alat ukur → pilih model yang didukung → tunggu pembacaan pertama → konfirmasi aset pantauan | Pembacaan pertama terverifikasi sebelum koneksi dikonfirmasi. Percobaan ulang tidak membuat aset atau pengikatan ganda. |
 | P08 | Tanpa tarif, data hilang, sumber usang, atau klien luring → pemulihan | Nilai terakhir yang diketahui diberi label jujur; percobaan ulang mempertahankan draf |
 | P09 | Dua sumber atau meter induk/anak → selesaikan cakupan | Konflik terlihat dan tidak ada total yang dihitung ganda |
 | P10 | Umpan balik insight → tunda/sembunyikan → pulihkan | Umpan balik tersimpan, tidak pernah menghapus pengukuran atau mengirim tindakan perangkat keras |
@@ -177,11 +177,11 @@ Tiga tab berlabel yang selalu tersedia: **Beranda**, **Perangkat**, **Saran**. �
 
 | ID | Layar | Isi dan tindakan yang berfungsi |
 |---|---|---|
-| S01 | Sambutan | Penjelasan singkat, Coba demo sebagai tindakan utama, Lanjut tanpa data, dan pilihan bahasa saat cakupan dwibahasa selesai |
-| S02 | Beranda kosong | Utamakan Coba demo. Tambah data membuka layar CSV, lalu Pilih berkas membuka pemilih berkas. |
+| S01 | Sambutan | Penjelasan singkat dan tindakan utama **Hubungkan alat ukur**. **Coba demo**, **Lanjut tanpa data**, dan pilihan bahasa tetap tersedia. |
+| S02 | Beranda kosong | **Hubungkan alat ukur** membuka katalog sumber sebagai tindakan utama. **Coba demo** dan **Impor riwayat CSV** menjadi opsi tambahan. Pilih berkas pada layar CSV membuka pemilih berkas. |
 | S03 | Beranda berisi data | Periode, cakupan, kWh, estimasi biaya opsional, cakupan/kemutakhiran, kontribusi, satu pengamatan |
-| S04 | Perangkat | Nama aset, kategori/cakupan, energi, kualitas; tambah/impor dan buka detail |
-| S05 | Penyiapan sumber | Penyedia → model → koneksi/pembacaan pertama → nama/cakupan/pengikatan; draf dipertahankan |
+| S04 | Perangkat | Nama, kategori/cakupan, energi, kualitas, dan detail aset. **Hubungkan alat ukur** membuka katalog sumber. Impor riwayat menjadi opsi tambahan. |
+| S05 | Penyiapan sumber | Model dan ketersediaan → pembacaan pertama terverifikasi → konfirmasi aset. Tampilkan status menunggu, siap, terhubung, atau kedaluwarsa untuk uji lab yang tersedia. Pertahankan draf tanpa rahasia. |
 | S06 | Detail aset | Riwayat, asal-usul sumber, total, kualitas, insight terkait; jadwal/intensitas hanya jika relevan |
 | S07 | Saran | Daftar berbasis bukti; keadaan mempelajari pola/tidak ada temuan; umpan balik dan pemulihan yang disembunyikan |
 | S08 | Detail insight | Apa yang berubah, periode baseline, perhitungan, kualitas, batasan, saran umum, dan umpan balik |
@@ -457,7 +457,7 @@ Statistik dan penjelasan deterministik sudah memadai. Model masa depan harus men
 
 | Keadaan | Yang tetap terlihat | Tindakan/pemulihan wajib |
 |---|---|---|
-| Tidak ada data | Penjelasan, tanpa nol palsu | Impor, demo, atau penyiapan sumber yang didukung |
+| Tidak ada data | Penjelasan, tanpa nol palsu | Utamakan katalog alat ukur, lalu tawarkan demo dan impor riwayat CSV |
 | Nol diketahui | 0 kWh valid dengan cakupan | Tanpa pembagian nol pada kontribusi atau persentase baseline |
 | Mempelajari pola | Total/kontribusi terukur | Jelaskan riwayat setara yang belum cukup |
 | Tanpa tarif | kWh/riwayat/insight energi yang memenuhi syarat | Tambah tarif secara opsional; tanpa Rp0 |
@@ -608,7 +608,7 @@ Rekaman yang menghadap antarmuka menggunakan `asset`, bukan `machine`. Jika apli
 - Validasi ukuran berkas, batas baris, timestamp, satuan, keterhinggaan angka, interval, dan pemetaan aset pada batas kepercayaan server. Batasi laju autentikasi, impor, dan ekspor; lakukan parsing CSV sebagai data.
 - Jaga privasi rutinitas pribadi dan pola produksi. Kumpulkan hanya kolom yang diperlukan untuk pemantauan. Tidak diperlukan izin lokasi terus-menerus, inferensi keberadaan penghuni, pelacakan iklan, atau pelatihan model lintas pelanggan.
 - Jangan mencatat token, kata sandi, kredensial broker, isi CSV pribadi mentah, atau nama aset sensitif dalam telemetri rutin. Catat ID korelasi, jumlah, kualitas, dan kategori kegagalan sebagai gantinya.
-- Cadangkan data dan konfigurasi tersimpan dengan prosedur pemulihan terdokumentasi. Sebelum pilot, lakukan latihan pemulihan dan pastikan agregat yang dipulihkan selaras dengan pembacaan mentah; pesan berhasil dari pekerjaan pencadangan bukan uji pemulihan.
+- Cadangkan data dan konfigurasi tersimpan dengan prosedur pemulihan terdokumentasi. Sebelum pilot dibuka kepada pengguna, lakukan latihan pemulihan dan pastikan agregat yang dipulihkan selaras dengan pembacaan mentah.
 - Retensi pengukuran secara bawaan berlangsung sampai pemilik menghapusnya; v1 tidak memiliki kedaluwarsa otomatis tersembunyi. Publikasikan setiap batas penyimpanan operator sebelum unggah. Penghapusan segera mencabut akses yang menghadap pengguna, memusnahkan rekaman aktif dalam usulan 30 hari, dan mengakhiri masa simpan cadangan tersisa dalam usulan tambahan 30 hari; ungkapkan periode konfigurasi sebenarnya dan uji sebelum peluncuran langsung.
 - Pisahkan reset demo, pengarsipan, pelepasan sumber, dan penghapusan permanen. Konfirmasikan operasi destruktif dengan cakupan spesifik; pelepasan sumber atau umpan balik tidak boleh menghapus pembacaan.
 - Pertahankan komit impor dan penghitungan ulang yang idempoten. Kerusakan proses di antara tahap harus pulih ke status yang diketahui tanpa data parsial yang dihitung ganda. Pembacaan yang dikarantina tetap dikecualikan dan dapat didiagnosis.
@@ -782,12 +782,12 @@ Tugas kontekstual opsional: pengguna usaha menetapkan jadwal lintas tengah malam
 |---|---|---|
 | G0 — spesifikasi | PRD Indonesia/Inggris lengkap, dokumen serah-terima desain Inggris mandiri, dan prompt eksekusi | ID persyaratan cocok, arsitektur diterima, otoritas fixture dan status bukti jelas; tanpa prasyarat AC |
 | G1 — pembuktian perhitungan bersama | Inti/use case bersama, komposisi terbatas, modul opsional, validasi impor, fixture H/I, dan acuan hasil batas | Total desimal, integritas sumber/cakupan, pemeriksaan kemampuan backend, pemeriksaan jadwal dan metrik opsional |
-| G2 — inti yang dapat digunakan | Aplikasi tiga tab bersama, CSV/demo, pemulihan keadaan, bukti/umpan balik | Alur rumah tangga dan industri sama-sama berfungsi tanpa masukan jadwal/keluaran |
+| G2 — inti yang dapat digunakan | Aplikasi tiga tab bersama, katalog alat ukur, demo dan riwayat CSV, pemulihan keadaan, bukti/umpan balik | Alur rumah tangga dan industri sama-sama berfungsi tanpa masukan jadwal/keluaran |
 | G3 — layanan data tersimpan | Autentikasi pemilik, persistensi, komit impor, ekspor, retensi/pemulihan | Pengujian kepemilikan, privasi, idempotensi, dan kegagalan |
 | G4 — platform dan kegunaan | Build web/native responsif dan studi segmen terpisah | Bukti platform dan pemeriksaan UX yang dinyatakan; masalah yang memblokir tugas diperbaiki |
-| G5 — pilot langsung opsional | Adapter meter terpilih, penerimaan data terautentikasi, instalasi yang sesuai | Perbandingan acuan nyata dan bukti kualitas per instalasi |
+| G5 — rilis pilot langsung | Adapter meter terpilih, penerimaan data pengukuran terautentikasi, dan instalasi yang sesuai | Perbandingan meter acuan dan bukti kualitas untuk instalasi yang diuji. G3 dan G4 lulus. |
 
-Urutan ini tidak mengizinkan demo tanpa kredensial diekspos sebagai layanan data tersimpan produksi. Rilis dapat menyediakan inti hanya-CSV berlabel jelas sebelum dukungan perangkat keras langsung; status langsung merupakan gerbang terpisah. Lanjutkan berdasarkan hasil kerja dan bukti terverifikasi, bukan tenggat acara.
+Kerjakan katalog dan uji lab terisolasi sejalan dengan penyiapan akun pilot. Operator menyiapkan lokasi lab, satu meter yang ditetapkan, dan kode akses yang kedaluwarsa serta dapat dicabut. Akses lab tidak memenuhi gerbang data tersimpan, platform, atau lapangan. Buka pilot langsung kepada pengguna setelah akun pemilik, hak data, deployment HTTPS, retensi/pemulihan, platform/kegunaan, dan validasi fisik lulus G3–G5. Sebelumnya, tampilkan jalur katalog, demo, dan impor riwayat yang tersedia.
 
 Hasil akhir implementasi: aplikasi/server bersama yang dapat dijalankan sesuai kebutuhan; generator fixture dan pengujian perhitungan/kontrak; daftar kemampuan/status adapter sumber; penyiapan/runbook tanpa rahasia; hasil UX/platform; panduan langkah rumah tangga dan industri; skrip/hasil riset atau status menunggu; daftar eksplisit jalur simulasi, sudah diimplementasikan tetapi belum diverifikasi, terverifikasi, dan terblokir. Demonstrasi yang berjalan saja tidak memenuhi gerbang rilis.
 

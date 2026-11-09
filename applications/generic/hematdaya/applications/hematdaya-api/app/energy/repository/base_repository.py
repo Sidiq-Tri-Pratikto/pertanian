@@ -38,6 +38,7 @@ class CaptureQuery:
     source_id: UUID
     span: Span
     historical: bool
+    live_counter: bool = False
 
 
 class EnergyRepository(ABC):

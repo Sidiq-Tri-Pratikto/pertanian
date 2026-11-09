@@ -22,7 +22,7 @@ export type RequestCredential = {
   token: string;
   signal: AbortSignal;
   current: () => boolean;
-  reject: () => void;
+  reject: (error: ApiError) => void;
 };
 
 type Credential = string | RequestCredential;
@@ -92,7 +92,7 @@ export async function apiRequest<T>(
     if (!response.ok) {
       const error = await readFailure(response);
       checkCurrent();
-      if (endsSession(error)) lease?.reject();
+      if (endsSession(error)) lease?.reject(error);
       throw error;
     }
     if (expectedStatus !== undefined && response.status !== expectedStatus) throw ApiError.unexpected();

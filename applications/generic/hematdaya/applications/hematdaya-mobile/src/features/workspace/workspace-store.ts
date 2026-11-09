@@ -11,7 +11,7 @@ export type Period = { preset: string; start_date: string; end_date: string };
 export type Workspace = {
   token: string;
   siteId: string;
-  scenarioId: string;
+  scenarioId: string | null;
   expiresAt: string;
   initialPeriod: Period;
 };
@@ -63,6 +63,7 @@ function fingerprint(workspace: Workspace, epoch: string, legacyImport: boolean)
 
 /** Call only after an owned server response. Every activation uses a new durable epoch. */
 export async function attestWorkspace(workspace: Workspace, legacyImport = false): Promise<Attestation> {
+  if (workspace.scenarioId === null) throw ApiError.storage();
   if (!isUnexpired(workspace)) throw ApiError.expired();
   const epoch = randomToken(16);
   return { epoch, fingerprint: await fingerprint(workspace, epoch, legacyImport), legacyImport };

@@ -26,6 +26,8 @@ from app.health.router import router as health_router
 from app.identity.dependencies import register_principal_resolver
 from app.imports.router import router as imports_router
 from app.insights.router import router as insights_router
+from app.meter_pilot.dependencies import resolve_pilot_principal
+from app.meter_pilot.router import router as meter_pilot_router
 from app.scope.router import router as scope_router
 from app.sites.router import router as sites_router
 
@@ -69,7 +71,9 @@ def create_app() -> FastAPI:
     app.include_router(insights_router, prefix=API_PREFIX)
     app.include_router(imports_router, prefix=API_PREFIX)
     app.include_router(feedback_router, prefix=API_PREFIX)
+    app.include_router(meter_pilot_router, prefix=API_PREFIX)
     register_principal_resolver(resolve_demo_principal)
+    register_principal_resolver(resolve_pilot_principal)
     install_error_schema(app)
     return app
 

@@ -44,6 +44,18 @@ class Settings(BaseSettings):
     demo_create_replay_seconds: int = 300
     demo_token_keys: dict[str, SecretStr] = {}
     demo_token_key_version: str = "v1"
+    meter_pilot_enabled: bool = False
+    meter_mqtt_host: str | None = None
+    meter_mqtt_port: int = 8883
+    meter_mqtt_ca_file: str | None = None
+    meter_mqtt_username: str | None = None
+    meter_mqtt_password: SecretStr | None = None
+
+    @model_validator(mode="after")
+    def _check_meter_pilot(self) -> Self:
+        if self.meter_pilot_enabled and self.environment not in ("development", "test", "meter-lab"):
+            raise ValueError("The meter pilot is available only in an isolated lab environment.")
+        return self
 
     @model_validator(mode="after")
     def _check_demo(self) -> Self:

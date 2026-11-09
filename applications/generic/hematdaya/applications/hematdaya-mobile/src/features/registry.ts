@@ -115,7 +115,7 @@ export const FEATURES: Feature[] = [
     points: ['Status tersedia dan direncanakan dipisahkan', 'Tidak ada koneksi tanpa pembacaan valid', 'Tidak ada petunjuk mengubah kabel listrik'],
     screens: ['S05'],
     specs: ['035', '046'],
-    status: 'coming_soon',
+    status: 'available',
   },
   {
     id: 'pengaturan-lokasi',

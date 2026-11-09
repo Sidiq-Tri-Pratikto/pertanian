@@ -10,9 +10,9 @@ One modular monolith API, one mobile client, one Postgres database.
 flowchart LR
     Mobile["hematdaya-mobile<br/>Expo, Android, iOS, web"] -->|"HTTPS, /api/v1"| API["hematdaya-api<br/>FastAPI"]
     API --> PG[("Postgres 17")]
-    CSV["CSV upload"] --> API
+    Live["Meter adapter (046, isolated lab first)"] -.-> API
+    CSV["Historical CSV import"] --> API
     Fixture["Demo fixture generator"] --> API
-    Live["Verified meter adapter (046, gated)"] -.-> API
 ```
 
 The API is the one calculation authority. The mobile app never computes energy, cost, coverage, comparison or percentages. There is no TypeScript calculation engine, so the demo needs a reachable API.
@@ -39,7 +39,7 @@ Each is a feature module under `applications/hematdaya-api/app/` following rule 
 | `imports` | CSV parsing, previews, atomic commit | 024–026 |
 | `schedules` | Weekly windows, effective schedule, outside split (optional capability) | 030 |
 | `output` | Output metric and inputs (optional capability) | 032 |
-| `catalog` | Source catalog, simulated enrollment | 035 |
+| `meter_pilot` | Read-only source catalog, isolated lab access, device assignment and live enrollment | 035, 046 |
 | `auth` | Users, sessions, rate limits | 036 |
 | `exports` | Export, deletion, retention | 038 |
 
@@ -81,6 +81,10 @@ Created by the spec named. Every table carries `created_at`; identifiers are UUI
 ### Demo sessions
 
 Demo is a public write. Some scenarios seed thousands of rows, so admission enforces active capacity and a shared creation budget in the same transaction as the set-based seed. Creation has a bounded replay window with a separate proof. Neither bearer tokens nor replay proofs are stored in plaintext. Expired or purged sessions take the user back to a new session choice. "Mulai" before auth (036) opens a labelled expiring workspace.
+
+### Meter pilot
+
+The catalog describes what the deployment offers. Live lab routes are disabled by default. An operator provisions a real-time standard site and a single meter assignment. Authorize the expiring lab credential against that assignment before enrollment or scoped reads. The device uses its own MQTT credential to publish to an ACL-bound meter topic over TLS. The collection worker can read telemetry topics. Normalize accepted telemetry through `IngestService` and preserve live provenance. User-facing release uses the durable owner account lane and the PRD release gates.
 
 ### Two clocks
 

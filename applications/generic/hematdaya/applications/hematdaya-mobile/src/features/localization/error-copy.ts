@@ -6,6 +6,7 @@ const LOCAL_MESSAGES: Record<string, readonly [string, string]> = {
   OFFLINE_UNSENT: ['Belum dikirim. Sambungkan perangkat lalu coba lagi.', 'Request not sent. Reconnect and try again.'],
   WORKSPACE_CHANGED: ['Ruang kerja berubah. Buka ruang kerja aktif dan coba lagi.', 'The workspace changed. Open the active workspace and try again.'],
   LOCAL_STORAGE: ['Periksa penyimpanan perangkat lalu coba lagi.', 'Check your device storage and try again.'],
+  PILOT_ACCESS_EXPIRED: ['Kode akses sudah kedaluwarsa. Minta kode baru dari pengelola uji coba.', 'The access code expired. Ask the pilot operator for a new one.'],
   SESSION_EXPIRED: ['Sesi demo sudah berakhir. Mulai sesi baru.', 'The demo has ended. Start a new session.'],
   NETWORK_UNREACHABLE: ['Periksa koneksi Anda lalu coba lagi.', 'Check your connection and try again.'],
   UNEXPECTED_RESPONSE: ['Jawaban layanan tidak dikenali. Coba lagi nanti.', 'We received an unexpected response. Try again later.'],

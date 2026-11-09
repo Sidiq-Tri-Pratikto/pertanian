@@ -91,7 +91,7 @@ async def test_scope_migration_preserves_preexisting_state() -> None:
             )
             before = [await connection.fetch(f"SELECT * FROM {table} ORDER BY id") for table in TABLES]
 
-            await _alembic(database_url, "upgrade", "head")
+            await _alembic(database_url, "upgrade", "0010")
             assert await connection.fetchval("SELECT version_num FROM alembic_version") == "0010"
             assert await connection.fetchval("SELECT count(*) FROM aggregation_selections") == 0
             add_selection = "INSERT INTO aggregation_selections (site_id, revision) VALUES ($1, $2)"
@@ -122,7 +122,7 @@ async def test_scope_migration_preserves_preexisting_state() -> None:
             await _alembic(database_url, "downgrade", "0009")
             assert await connection.fetchval("SELECT to_regclass('aggregation_selections')") is None
             assert [await connection.fetch(f"SELECT * FROM {table} ORDER BY id") for table in TABLES] == before
-            await _alembic(database_url, "upgrade", "head")
+            await _alembic(database_url, "upgrade", "0010")
             assert await connection.fetchval("SELECT count(*) FROM aggregation_selections") == 0
             assert [await connection.fetch(f"SELECT * FROM {table} ORDER BY id") for table in TABLES] == before
         finally:

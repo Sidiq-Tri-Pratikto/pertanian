@@ -13,8 +13,9 @@ export default function SegeraHadirScreen() {
   const say = useCopy();
   const locale = useLocale();
   const { feature: featureId } = useLocalSearchParams<{ feature: string }>();
-  const { back, scopeHref } = useTabNavigation();
+  const { back, meterSetupHref, scopeHref } = useTabNavigation();
   if (featureId === 'cakupan-sumber') return <Redirect href={scopeHref} />;
+  if (featureId === 'sumber-meter') return <Redirect href={meterSetupHref} />;
   const feature = findFeature(featureId);
 
   if (!feature) {

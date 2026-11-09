@@ -9,6 +9,10 @@
 **Covers**: FR-01, AT-41
 **Flips**: registry `akun` stays `coming_soon` until 037
 
+## Pilot account scope
+
+Deliver durable owner authentication and one standard site independently of tariff, schedule, output metrics and push. The isolated lab access code in 046 has its own limited lifecycle. Owner accounts and evidence from 038–040 remain prerequisites for the user-facing pilot.
+
 ## User Scenarios & Testing
 
 ### User Story 1 - Own saved data (Priority: P1)

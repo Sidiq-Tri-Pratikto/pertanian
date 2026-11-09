@@ -1,3 +1,4 @@
+import { useIsFocused } from 'expo-router';
 import { useCopy } from '@/features/localization/messages';
 import { useEffect, useRef, useState, type ComponentRef } from 'react';
 import { StyleSheet, View } from 'react-native';
@@ -74,7 +75,7 @@ function AssetDetail({ assetId }: { assetId: string }) {
   const say = useCopy();
   const { back } = useTabNavigation();
   const { period } = useNavigationContext();
-  const summaryQuery = useAssetSummary(assetId);
+  const summaryQuery = useAssetSummary(assetId, useIsFocused());
   const assetQuery = useAsset(assetId);
   const keptSummary = useLastConfirmed(summaryQuery);
   const summary = summaryQuery.offline ? summaryQuery.data : keptSummary;

@@ -1,8 +1,9 @@
 import { LanguageSetting } from '@/features/localization/LanguageSetting';
-import { useCopy } from '@/features/localization/messages';
+import { useCopy, useLabels } from '@/features/localization/messages';
 import Constants from 'expo-constants';
 import { View } from 'react-native';
 
+import { HDButton } from '@/components/hd/HDButton';
 import { HDChoiceGroup } from '@/components/hd/HDChoiceGroup';
 import { HDScreen } from '@/components/hd/HDScreen';
 import { HDText } from '@/components/hd/HDText';
@@ -14,7 +15,8 @@ import { FEATURES } from '@/features/registry';
 /** S09 shell: settings are planned, so this lists what is coming and states the version. */
 export default function PengaturanScreen() {
   const say = useCopy();
-  const { back, openFeature } = useTabNavigation();
+  const labels = useLabels();
+  const { back, openFeature, openMeterSetup } = useTabNavigation();
   const { preset, setPreset } = useContextPreset();
 
   return (
@@ -28,6 +30,7 @@ export default function PengaturanScreen() {
         value={preset}
         onChange={setPreset}
       />
+      <HDButton variant="text" onPress={openMeterSetup}>{labels.connectMeter}</HDButton>
       <View>
         <HDText variant="section">{say("Rencana fitur", "Planned features")}</HDText>
         {FEATURES.filter((feature) => feature.status === 'coming_soon').map((feature) => (

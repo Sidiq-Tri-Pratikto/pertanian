@@ -15,7 +15,7 @@ migrations/versions/0014_create_users_and_sessions.py
 
 ## Summary
 
-Real accounts with revocable sessions, plus the web session decision.
+Real owner accounts with revocable sessions and one standard site for the pilot release. Validate core owner isolation using the existing demo and import surfaces. The lab access mechanism in 046 can be developed in parallel.
 
 ## Decisions to Take in This PR
 

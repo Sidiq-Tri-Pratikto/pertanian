@@ -44,10 +44,11 @@ class MeasurementKind(StrEnum):
 
 
 class TransportStatus(StrEnum):
-    """How a source reaches the API. Nothing is ever a real live connection before 046."""
+    """How a source reaches the API."""
 
     NONE = "none"
     SIMULATED_LIVE = "simulated_live"
+    LIVE = "live"
     HISTORICAL = "historical"
 
 

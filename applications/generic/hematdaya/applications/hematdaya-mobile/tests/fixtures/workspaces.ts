@@ -9,6 +9,7 @@ export async function seedConfirmedWorkspace(workspace: Workspace) {
 }
 
 export function attestedResponse(workspace: Workspace): DemoSession {
+  if (workspace.scenarioId === null) throw new Error('A demo fixture needs a scenario');
   return { token: workspace.token, site_id: workspace.siteId, scenario_id: workspace.scenarioId,
     expires_at: workspace.expiresAt, initial_period: workspace.initialPeriod };
 }

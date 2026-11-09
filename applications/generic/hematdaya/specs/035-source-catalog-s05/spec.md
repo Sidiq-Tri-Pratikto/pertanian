@@ -1,61 +1,30 @@
-# Feature Specification: Source catalog and simulated setup
+# Feature Specification: Source catalog
 
 **Feature Branch**: `035-source-catalog-s05`
 **Created**: 2026-10-30
 **Status**: Seeded, not started
 **Milestone**: M8 Recovery
 **Depends on**: 005, 013, 027
-**Size**: M
+**Size**: S
 **Covers**: FR-04, AT-42, S05, P07
-**Flips**: registry `sumber-meter` → `available`
+**Flips**: registry `sumber-meter` → `available` for the catalog
 
 ## User Scenarios & Testing
 
-### User Story 1 - See what is real (Priority: P1)
+### User Story 1 - Find a compatible meter (Priority: P1)
 
-**Why this priority**: Candidates must stay labelled planned until verified (PRD §6.3).
+**Independent Test**: From Welcome, empty Beranda or Perangkat, open **Hubungkan alat ukur** / **Connect a meter**.
 
-**Independent Test**: Open the catalog.
-
-**Acceptance Scenarios**:
-
-1. **Given** the catalog, **When** opened, **Then** CSV appears available only if the adapter and import screen are available. The simulated source is labelled simulated, and Shelly and TP-Link show "Direncanakan".
-2. **Given** a planned provider, **When** chosen, **Then** "Integrasi belum tersedia pada prototipe ini" shows, with a return to the catalog or to CSV when available, and the draft stays.
-
-### User Story 2 - Simulated setup end to end (Priority: P2)
-
-**Why this priority**: It rehearses enrollment and binding without a device.
-
-**Independent Test**: Complete setup twice with one operation key.
-
-**Acceptance Scenarios**:
-
-1. **Given** the simulated path, **When** completed, **Then** a first reading is recorded, status stays "Simulasi koneksi", and no unqualified "Terhubung" appears.
-2. **Given** the response to confirmation is lost, **When** the same operation and payload are retried, **Then** the service returns the first result without creating a second asset, binding, or reading.
-3. **Given** an expired unconfirmed enrollment, **When** confirmation is attempted, **Then** the service rejects it and creates no data.
-4. **Given** an existing asset, **When** bound, **Then** the source starts at its effective time and old readings stay.
-
-### Edge Cases
-
-- No credentials are requested.
-- No rewiring instructions appear.
-- A new asset's overlap with others stays unknown until confirmed.
+1. The catalog lists the selected lab model, Shelly Plug PM Gen3, and clearly shows whether setup is available in this environment. Unverified models stay planned or unsupported. Opening a catalog entry cannot create a workspace or claim a connection.
+2. When setup is unavailable, explain the status and let the user return or choose historical CSV import when available.
+3. Beranda and Perangkat keep the existing historical CSV path discoverable as a secondary action. The catalog and its status copy work in Indonesian and English.
 
 ## Requirements
 
-### Functional Requirements
-
-- **FR-001**: `GET /device-catalog` MUST report status, measurement kind, cadence and channel scope.
-- **FR-002**: Enrollment MUST expire while pending, verify the simulated source identity on the server, and require a valid first reading. Confirmation MUST be single-use, atomic, and replay-safe.
-- **FR-003**: Steps MUST retain drafts; back moves one step.
-
-### Key Entities
-
-- **CatalogEntry**, **Enrollment**.
+- **FR-001**: `GET /api/v1/device-catalog` MUST report model, availability, measurement kind, cadence and channel scope where known.
+- **FR-002**: The catalog MUST be read-only. Enrollment belongs to 046. A catalog entry marked available MUST describe access to the lab setup separately from verified support for release.
 
 ## Success Criteria
 
-### Measurable Outcomes
-
-- **SC-001**: A UI scan finds no unqualified "Terhubung".
-- **SC-002**: Retry creates exactly one asset, binding and reading.
+- **SC-001**: The catalog and unavailable-state recovery are reachable without creating a workspace or starting import.
+- **SC-002**: A catalog-only deployment displays no connection or enrollment success.

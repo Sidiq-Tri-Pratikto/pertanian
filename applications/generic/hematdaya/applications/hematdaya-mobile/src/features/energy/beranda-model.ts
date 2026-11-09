@@ -28,8 +28,8 @@ export type BerandaModel = {
  * The origins a screen names beside its numbers. Every demo workspace is simulated, so its tag stays even for a
  * period without readings.
  */
-export function shownOrigins(origins: string[], scenarioId: string | undefined): string[] {
-  return origins.length || scenarioId === 'empty' ? origins : ['simulated'];
+export function shownOrigins(origins: string[], scenarioId: string | null | undefined): string[] {
+  return origins.length || scenarioId == null || scenarioId === 'empty' ? origins : ['simulated'];
 }
 
 /** Turn a summary into what S03 shows, in reading order. Every value comes from the service's strings. */

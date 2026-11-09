@@ -17,6 +17,7 @@ from app.identity.repository.sqlalchemy import models as identity_models  # noqa
 from app.imports.repository.sqlalchemy import models as imports_models  # noqa: F401
 from app.insights.repository.sqlalchemy import models as insights_models  # noqa: F401
 from app.measurements.repository.sqlalchemy import models as measurements_models  # noqa: F401
+from app.meter_pilot.repository.sqlalchemy import models as meter_pilot_models  # noqa: F401
 from app.scope.repository.sqlalchemy import models as scope_models  # noqa: F401
 from app.sites.repository.sqlalchemy import models as sites_models  # noqa: F401
 
