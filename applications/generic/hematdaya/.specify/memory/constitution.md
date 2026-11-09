@@ -1,9 +1,9 @@
 <!--
 Sync Impact Report
-Version: 2.0.0
+Version: 2.1.0
 Ratified: 2026-10-30
-Amended: 2026-11-08
-Changes: 2.0.0 adds English alongside default Indonesian; 1.2.0 adds the HematDaya product principles and prohibitions; 1.1.0 adds TypeScript mobile applications; 1.0.0 is the initial constitution from the starter template.
+Amended: 2026-11-09
+Changes: 2.1.0 makes meter connection the primary monitoring path and separates lab access from live release; 2.0.0 adds English alongside default Indonesian; 1.2.0 adds the HematDaya product principles and prohibitions; 1.1.0 adds TypeScript mobile applications; 1.0.0 is the initial constitution from the starter template.
 -->
 
 # Constitution
@@ -23,7 +23,7 @@ Authoritative engineering standards for `hematdaya`. This document says WHAT app
 **Main features:**
 
 - Recorded energy, qualified cost, contribution and history for a selected period and scope, with completeness and freshness shown beside the numbers.
-- Hardware-free demo and CSV import as complete data paths; verified meter adapters later.
+- Meter connection is the primary path for monitoring actual use. Demo and historical CSV import remain complete hardware-free options. Isolated lab access is separate from user-facing release, which requires verified measurement-only access and physical evidence.
 - Evidence-based observations from matched historical comparisons, with stated limitations and optional feedback.
 - Optional tariff, expected-use schedule and energy-per-output metric. The core stays complete without them.
 - Scope-safe aggregation that never double counts parent and child meters or alternative sources.

@@ -23,7 +23,7 @@ Use 034's owner-scoped persistence. Restore a retained non-secret draft only aft
 
 ## Test Plan
 
-Register, login, restart, two web tabs refreshing simultaneously, shared terminal refresh failure, logout clears cache and drafts, different owner cannot recover a prior draft, expiry during each save type, explicit retry, no duplicate commit, autofill attributes, focus and error summary. Run the expiry checks against tariff (019), import (027), scope (029) and schedule (031).
+Register, login, restart, two web tabs refreshing simultaneously, shared terminal refresh failure, logout clears cache and drafts, different owner cannot recover a prior draft, expiry during each save type, explicit retry, no duplicate commit, autofill attributes, focus and error summary. Run the pilot account expiry checks against import (027) and scope (029). Verify optional saves with their feature releases. Verify enrollment on the integrated user-facing pilot candidate.
 
 ## Out of Scope
 

@@ -1,0 +1,8 @@
+# Give only the worker read access to the telemetry namespace.
+user hematdaya-worker
+topic read hematdaya/v1/meters/+/readings
+
+# Replace this example UUID with the device's assigned UUID, in both lines.
+# Add an explicit stanza per meter so access can be revoked independently.
+user 11111111-1111-4111-8111-111111111111
+topic write hematdaya/v1/meters/11111111-1111-4111-8111-111111111111/readings

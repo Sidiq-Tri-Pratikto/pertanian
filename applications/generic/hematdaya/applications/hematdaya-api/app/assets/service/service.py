@@ -270,6 +270,13 @@ class AssetService:
         await self.sites.advance_binding_revision(site)
         return closed
 
+    async def source_for_site(self, site: SiteModel, source_id: UUID) -> SourceModel:
+        """Read a source only within a site already resolved by the caller."""
+        source = await self.repository.get_source_in_site(site.id, source_id)
+        if source is None:
+            raise NotFoundError()
+        return source
+
     async def create_source(
         self,
         site: SiteModel,

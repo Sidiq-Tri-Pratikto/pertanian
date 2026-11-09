@@ -16,4 +16,5 @@ async def get_capabilities() -> CapabilityManifestResponse:
     Returns:
         CapabilityManifestResponse: The manifest.
     """
-    return build_manifest(get_settings().composition)
+    settings = get_settings()
+    return build_manifest(settings.composition, meter_pilot_enabled=settings.meter_pilot_enabled)

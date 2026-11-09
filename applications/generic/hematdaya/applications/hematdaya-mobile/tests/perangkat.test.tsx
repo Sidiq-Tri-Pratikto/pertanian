@@ -2,6 +2,7 @@
 import { focusManager } from '@tanstack/react-query';
 import { act, fireEvent, renderRouter, screen, waitFor, within } from 'expo-router/testing-library';
 import { seedConfirmedWorkspace } from './fixtures/workspaces';
+import { plannedMeter } from './fixtures/meter-pilot';
 
 import recorded from './fixtures/assets.json';
 import { hourlyHistory, mondayWindow, weeklyHistory, weekWindow } from './fixtures/history';
@@ -103,6 +104,7 @@ function mockApi(api: Api = {}) {
   return jest.spyOn(globalThis, 'fetch').mockImplementation(async (input, init = {}) => {
     const url = new URL(String(input));
     const path = url.pathname;
+    if (path === '/api/v1/device-catalog') return respond(200, { devices: [plannedMeter] });
     if (/^\/api\/v1\/demo\/sessions$/.test(path)) {
       return handlers.create(url, init);
     }
@@ -385,15 +387,15 @@ describe('Perangkat empty', () => {
     await renderRouter('./src/app', { initialUrl: '/perangkat' });
     await screen.findByText('Belum ada perangkat');
 
-    await fireEvent.press(screen.getByRole('button', { name: 'Tambah sumber' }));
-    expect(await screen.findByRole('heading', { name: 'Sumber dan meter' })).toBeOnTheScreen();
-    expect(screen.getByText('Segera hadir')).toBeOnTheScreen();
+    await fireEvent.press(screen.getByRole('button', { name: 'Hubungkan alat ukur' }));
+    expect(await screen.findByRole('heading', { name: 'Hubungkan alat ukur' })).toBeOnTheScreen();
+    expect(await screen.findByText('Direncanakan')).toBeOnTheScreen();
     expect(screen.getByRole('tab', { name: 'Perangkat', selected: true })).toBeOnTheScreen();
 
     await fireEvent.press(screen.getByRole('button', { name: 'Kembali' }));
     expect(await screen.findByRole('heading', { name: 'Perangkat' })).toBeOnTheScreen();
 
-    await fireEvent.press(screen.getByRole('button', { name: 'Tambah data' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Impor riwayat CSV' }));
     expect(await screen.findByRole('heading', { name: 'Impor data CSV' })).toBeOnTheScreen();
 
     await fireEvent.press(screen.getByRole('button', { name: 'Kembali' }));

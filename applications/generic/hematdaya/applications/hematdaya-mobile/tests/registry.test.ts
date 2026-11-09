@@ -28,6 +28,7 @@ describe('feature registry', () => {
       'bukti-saran',
       'impor-data',
       'cakupan-sumber',
+      'sumber-meter',
       'data-tersimpan',
     ]);
   });

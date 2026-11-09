@@ -330,6 +330,66 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/device-catalog": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Device Catalog
+         * @description Describe the candidate model and whether this lab can accept enrollment.
+         */
+        get: operations["device_catalog_api_v1_device_catalog_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/enrollments/{enrollment_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Enrollment
+         * @description Read server-side setup progress.
+         */
+        get: operations["get_enrollment_api_v1_enrollments__enrollment_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/enrollments/{enrollment_id}/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Confirm Enrollment
+         * @description Bind a meter with a valid reading to the named appliance.
+         */
+        post: operations["confirm_enrollment_api_v1_enrollments__enrollment_id__confirm_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/imports/{import_id}": {
         parameters: {
             query?: never;
@@ -480,6 +540,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/pilot/session": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Pilot Session
+         * @description Verify an operator-issued access code and return its site and expiry.
+         */
+        get: operations["get_pilot_session_api_v1_pilot_session_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/sites/{site_id}": {
         parameters: {
             query?: never;
@@ -603,6 +683,26 @@ export interface paths {
          *         AssetResponse: The asset.
          */
         post: operations["create_asset_api_v1_sites__site_id__assets_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sites/{site_id}/enrollments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Start Enrollment
+         * @description Start or recover the setup for the selected model and owned site.
+         */
+        post: operations["start_enrollment_api_v1_sites__site_id__enrollments_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1084,6 +1184,14 @@ export interface components {
             version: number;
         };
         /**
+         * ConfirmEnrollmentRequest
+         * @description Name the single new appliance measured by the meter.
+         */
+        ConfirmEnrollmentRequest: {
+            /** Asset Name */
+            asset_name: string;
+        };
+        /**
          * ConfirmScopeRequest
          * @description The reviewed proposal together with its resolved local period and both revision fences.
          */
@@ -1213,6 +1321,78 @@ export interface components {
              * Format: uuid
              */
             site_id: string;
+        };
+        /**
+         * DeviceCatalogResponse
+         * @description Catalog metadata with the environment's capability state.
+         */
+        DeviceCatalogResponse: {
+            /** Devices */
+            devices: components["schemas"]["DeviceResponse"][];
+        };
+        /**
+         * DeviceResponse
+         * @description One catalog model and the measurement this pilot can accept.
+         */
+        DeviceResponse: {
+            /**
+             * Cadence Seconds
+             * @default 60
+             */
+            cadence_seconds?: number;
+            /**
+             * Id
+             * @default shelly-plug-pm-gen3
+             * @constant
+             */
+            id?: "shelly-plug-pm-gen3";
+            /**
+             * Measurement Kind
+             * @default counter
+             * @constant
+             */
+            measurement_kind?: "counter";
+            /**
+             * Name
+             * @default Shelly Plug PM Gen3
+             */
+            name?: string;
+            /**
+             * Scope Kind
+             * @default device
+             * @constant
+             */
+            scope_kind?: "device";
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "planned" | "available";
+        };
+        /**
+         * EnrollmentResponse
+         * @description Setup progress for an owner, without any device credential.
+         */
+        EnrollmentResponse: {
+            /** Asset Id */
+            asset_id: string | null;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            /** First Measured At */
+            first_measured_at: string | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "waiting" | "ready" | "connected" | "expired";
         };
         /**
          * ErrorBody
@@ -1876,6 +2056,22 @@ export interface components {
             title: string;
         };
         /**
+         * PilotSessionResponse
+         * @description The site associated with a valid operator-issued access code.
+         */
+        PilotSessionResponse: {
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            /**
+             * Site Id
+             * Format: uuid
+             */
+            site_id: string;
+        };
+        /**
          * Preset
          * @description Named periods relative to site time.
          * @enum {string}
@@ -2198,6 +2394,17 @@ export interface components {
             transport_status: components["schemas"]["TransportStatus"];
         };
         /**
+         * StartEnrollmentRequest
+         * @description Select the sole verified adapter candidate.
+         */
+        StartEnrollmentRequest: {
+            /**
+             * Model Id
+             * @constant
+             */
+            model_id: "shelly-plug-pm-gen3";
+        };
+        /**
          * SummaryResponse
          * @description Recorded energy for a period and scope.
          */
@@ -2226,10 +2433,10 @@ export interface components {
         };
         /**
          * TransportStatus
-         * @description How a source reaches the API. Nothing is ever a real live connection before 046.
+         * @description How a source reaches the API.
          * @enum {string}
          */
-        TransportStatus: "none" | "simulated_live" | "historical";
+        TransportStatus: "none" | "simulated_live" | "live" | "historical";
         /**
          * UpdateAssetRequest
          * @description Asset fields an owner may change. Archiving is reversible and keeps readings.
@@ -2787,6 +2994,121 @@ export interface operations {
             };
         };
     };
+    device_catalog_api_v1_device_catalog_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceCatalogResponse"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    get_enrollment_api_v1_enrollments__enrollment_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                enrollment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EnrollmentResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    confirm_enrollment_api_v1_enrollments__enrollment_id__confirm_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                enrollment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConfirmEnrollmentRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EnrollmentResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     get_import_api_v1_imports__import_id__get: {
         parameters: {
             query?: never;
@@ -2991,6 +3313,35 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    get_pilot_session_api_v1_pilot_session_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PilotSessionResponse"];
                 };
             };
             /** @description Failure */
@@ -3300,6 +3651,52 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AssetResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    start_enrollment_api_v1_sites__site_id__enrollments_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                site_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StartEnrollmentRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EnrollmentResponse"];
                 };
             };
             /** @description Validation failed */

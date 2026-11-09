@@ -93,6 +93,7 @@ function transportLabels(): Record<TransportStatus, string | null> {
   return {
   none: null,
   simulated_live: currentCopy('Simulasi koneksi', 'Simulated connection'),
+  live: currentCopy('Pengukuran langsung', 'Live metering'),
   historical: currentCopy('Data historis', 'Historical data'),
 };
 }

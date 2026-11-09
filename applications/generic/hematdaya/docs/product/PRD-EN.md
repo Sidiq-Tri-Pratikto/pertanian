@@ -1,6 +1,6 @@
 # HematDaya — Product Requirements Document
 
-Version: Generic 1.3. Date: November 8, 2026 (Asia/Jakarta).
+Version: Generic 1.4. Date: November 9, 2026 (Asia/Jakarta).
 Document language: English. Product interface: Indonesian by default, with English selectable. Initial currency: IDR.
 Status: accepted product and modular-architecture direction; development specification, implementation verification and field validation are pending.
 
@@ -70,7 +70,7 @@ Proposed research targets must be evaluated separately for household and busines
 
 - Isolated hardware-free demo, account access for saved server data, one owned site.
 - Arbitrary monitored assets with names, categories, optional location labels, and an explicit measurement scope.
-- CSV historical import as a complete initial data path; a supported live-meter path only after its adapter and physical suitability are verified.
+- Connecting a meter is the primary path for monitoring actual electricity use. Historical CSV import is a secondary path and remains usable without hardware. The initial live scope is one verified model and installation.
 - Interval energy, estimated cost, contribution, history, matched historical comparisons, freshness, and temporal coverage.
 - Optional weekly expected-use schedule, with multiple windows and overnight support.
 - Optional output-normalized energy metric for users who need it.
@@ -145,7 +145,7 @@ The user chooses a profile or keeps unknown. Categories may suggest an explanati
 
 ### 6.3 Source capability contract
 
-Shelly Plug PM Gen3 and TP-Link devices are candidate measurement adapters, not verified integrations or proof of household/industrial compatibility. A candidate must remain labelled planned or unsupported until implemented and verified for the specific model and capability. The demo and CSV path must not depend on either provider.
+Shelly Plug PM Gen3 is the sole model selected for the isolated lab pilot. It covers one compatible plug-in appliance and one new monitored asset. The catalog distinguishes an available lab setup from verified release support. TP-Link and other models remain planned or unsupported. Demo and historical CSV import remain independent of hardware.
 
 Catalog entries declare supported measurement kind, units, cadence, channel scope, and validation status. Show “Terhubung” only after authenticated source enrollment and a valid first reading. A connected meter still does not establish that a particular load is electrically suitable. Installation requirements and actual vendor specifications must be checked for the chosen model and load; fixed wiring requires appropriate qualified installation. Do not provide a DIY mains-rewiring flow.
 
@@ -156,12 +156,12 @@ No integration may advertise switching merely because the hardware includes a re
 | ID | Journey | Acceptance outcome |
 |---|---|---|
 | P01 | Welcome → Try demo → household demo | Useful data with no AC, schedule, production, tariff, or credentials required |
-| P02 | Empty site → import CSV → review mapping and errors → confirm | Clear scope and totals; failed import preserves input and existing data |
+| P02 | Choose historical CSV import → review mapping and errors → confirm | Clear scope and totals; failed import preserves input and existing data |
 | P03 | Beranda → period → largest contributor → history | At most 3 deliberate taps; values and scope reconcile |
 | P04 | Saran → change observation → evidence | User can identify observed value, comparison, quality, and unknown cause |
 | P05 | Settings → optional expected-use schedule → asset override | Overnight windows and continuous assets behave consistently |
 | P06 | Optional output metric → unit and scope → denominator | A valid intensity appears; missing/invalid inputs never become zero |
-| P07 | Add source → brand/model → connection → asset binding | Verified first reading; retry does not create duplicate assets or bindings |
+| P07 | Connect a meter → select supported model → wait for the first reading → confirm monitored asset | Verified first reading before connection confirmation. Retry does not create duplicate assets or bindings |
 | P08 | No tariff, missing data, stale source, or offline client → recovery | Last known values labelled honestly; retry preserves drafts |
 | P09 | Two sources or parent/child meters → resolve scope | Conflict is visible and no double-counted total is shown |
 | P10 | Insight feedback → snooze/hide → restore | Feedback persists, never deletes measurements or sends a hardware action |
@@ -177,11 +177,11 @@ Three persistent labelled tabs: **Beranda**, **Perangkat**, **Saran**. “Perang
 
 | ID | Screen | Content and working actions |
 |---|---|---|
-| S01 | Welcome | Short value statement, primary Try demo, secondary Continue without data, language selector once bilingual coverage ships |
-| S02 | Empty Beranda | Lead with Try demo. Add data opens the CSV screen, where Choose file opens the picker. |
+| S01 | Welcome | Short value statement and primary **Connect a meter**. **Try demo** and **Continue without data** remain available, along with the language selector. |
+| S02 | Empty Beranda | Primary **Connect a meter** opens the source catalog. **Try demo** and **Import CSV history** are secondary. Choose file on the CSV screen opens the picker. |
 | S03 | Populated Beranda | Period, scope, kWh, optional estimated cost, coverage/freshness, contribution, one observation |
-| S04 | Perangkat | Asset name, category/scope, energy, quality; add/import and open detail |
-| S05 | Source setup | Provider → model → connection/first reading → name/scope/binding; drafts retained |
+| S04 | Perangkat | Asset name, category/scope, energy, quality and detail. **Connect a meter** opens the source catalog. Historical import is secondary. |
+| S05 | Source setup | Model and availability → verified first reading → asset confirmation. Show waiting, ready, connected and expired states for eligible lab setup. Preserve non-secret drafts. |
 | S06 | Asset detail | History, source provenance, totals, quality, related insights; schedule/intensity only when applicable |
 | S07 | Saran | Evidence-based list; learning/no-finding state; feedback and restore hidden |
 | S08 | Insight detail | What changed, baseline periods, arithmetic, quality, limitations, general advice and feedback |
@@ -457,7 +457,7 @@ Statistics and deterministic explanations are sufficient. A future model must be
 
 | State | What remains visible | Required action/recovery |
 |---|---|---|
-| No data | Explanation, no fake zero | Import, demo, or supported-source setup |
+| No data | Explanation, no fake zero | Meter catalog first, then demo and historical CSV import |
 | Known zero | Valid 0 kWh with coverage | No divide-by-zero contribution or baseline percentage |
 | Learning | Measured totals/contribution | Explain insufficient comparable history |
 | No tariff | kWh/history/eligible energy insights | Optional add tariff; no Rp0 |
@@ -608,7 +608,7 @@ UI-facing records use `asset`, not `machine`. If an integrating application alre
 - Validate file size, row limits, timestamps, units, numeric finiteness, intervals and asset mappings at the server trust boundary. Rate-limit authentication, imports and exports; parse CSV as data.
 - Keep personal routine and production patterns private. Collect only fields needed for monitoring. No continuous location permission, occupancy inference, ad tracking or cross-customer model training is required.
 - Do not log tokens, passwords, broker credentials, raw personal CSV content, or sensitive asset names in routine telemetry. Log correlation IDs, counts, quality and failure categories instead.
-- Back up saved data and configuration with a documented restore procedure. Before a pilot, perform a restore rehearsal and ensure restored aggregates reconcile against raw readings; a backup job's success message is not a restore test.
+- Back up saved data and configuration with a documented restore procedure. Before opening the user-facing pilot, perform a restore rehearsal and ensure restored aggregates reconcile against raw readings.
 - Default measurement retention is until owner deletion; v1 has no hidden automatic expiry. Publish any operator storage limit before upload. Deletion revokes user-facing access immediately, purges active records within a proposed 30 days, and expires residual backups within a further proposed 30 days; disclose actual configured periods and test them before a live launch.
 - Separate demo reset, archive, source unlinking and permanent deletion. Confirm destructive operations with the specific scope; unlinking or feedback must never delete readings.
 - Keep import commits and recomputation idempotent. A crash between stages must recover to a known status without partial double-counted data. Quarantined readings remain excluded and diagnosable.
@@ -782,12 +782,12 @@ Optional contextual task: business users set an overnight schedule; users who ac
 |---|---|---|
 | G0 — specification | Complete Indonesian/English PRDs, standalone English design handoff and execution prompt | Matching requirement IDs, accepted architecture, fixture authority and evidence status; no AC prerequisite |
 | G1 — shared calculation proof | Shared core/use cases, bounded composition, optional modules, import validation, H/I fixtures and boundary oracles | Decimal totals, source/scope integrity, backend capability checks, schedule and optional metric checks |
-| G2 — playable core | Shared three-tab app, CSV/demo, state recovery, evidence/feedback | Household and industrial journeys both work without schedule/output input |
+| G2 — playable core | Shared three-tab app, meter catalog, demo and historical CSV, state recovery, evidence/feedback | Household and industrial journeys both work without schedule/output input |
 | G3 — saved data service | Owner auth, persistence, import commits, exports, retention/restore | Ownership, privacy, idempotency and failure tests |
 | G4 — platforms and usability | Responsive web/native builds and separate segment studies | Declared platform evidence and UX checks; task-blocking issues fixed |
-| G5 — optional live pilot | Selected meter adapter, authenticated ingestion, appropriate installation | Actual reference comparison and quality evidence per installation |
+| G5 — live pilot release | Selected meter adapter, authenticated measurement ingestion and appropriate installation | Actual reference comparison and quality evidence for the installed meter. G3 and G4 passed. |
 
-This ordering does not permit a credential-free demo to be exposed as a production saved-data service. A release can provide a clearly labelled CSV-only core before live hardware support; live status is a separate gate. Advance by verified deliverables and evidence rather than an event deadline.
+Run catalog and isolated lab work in parallel with the pilot account lane. An operator provisions the lab site, one meter assignment and an expiring, revocable access code. Lab access does not satisfy the saved-data, platform or field gates. Enable the user-facing live pilot only after owner accounts, data rights, HTTPS deployment, retention/restore, platform/usability and physical validation pass G3–G5. Before then, show the available catalog, demo and historical import paths.
 
 Final deliverables for implementation: runnable shared app/server as applicable; fixture generator and calculation/contract tests; source adapter capability/status list; setup/runbook with no secrets; UX/platform results; household and industrial walkthroughs; research script/results or pending status; explicit list of simulated, implemented-unverified, verified and blocked paths. A running demonstration alone does not satisfy the release gates.
 

@@ -6,7 +6,7 @@ Authority: `docs/product/PRD-EN.md` for behaviour, `docs/roadmap/architecture.md
 
 ## Pick up the next PR
 
-1. Choose the next piece of work in your milestone lane. Prioritize the MVP rounds and check the spec header for prerequisites before opening a branch. Read its `spec.md` and `plan.md`, then `architecture.md`.
+1. Choose the next piece of work in your milestone lane. Prioritize the meter pilot and check the spec header for prerequisites before opening a branch. Read its `spec.md` and `plan.md`, then `architecture.md`.
 2. Create the branch with the folder's exact name: `git checkout -b 009-energy-summary`. Spec Kit commands depend on that shape.
 3. Run `speckit-tasks` to generate `tasks.md` against the code as it stands now. The plan's task outline is the input, not a substitute.
 4. Run `speckit-implement`, test first.
@@ -25,7 +25,7 @@ Each person reviews the other's shared contracts and acceptance evidence. Whoeve
 
 ### Internal MVP
 
-**Finish M0, M1, M2, M4, M5, M6 and the recovery portion of M8 (034).** Site settings and tariffs (M3), schedules and output metrics (M7), the M8 source catalog and simulated enrollment (035), and M9–M11 are follow-up work.
+**Finish M0, M1, M2, M4, M5, M6 and the recovery portion of M8 (034).** Site settings and tariffs (M3), schedules and output metrics (M7), and the remaining work follow their own dependencies.
 
 The MVP is an internal, expiring workspace on web and the Android smoke environment. Verify the household and industrial journeys separately using synthetic/demo data or approved non-sensitive CSV. Each walkthrough must cover recorded energy, scope-safe history, evidence and feedback, and recovery from an offline read or failed save. Record exact totals, refusal of overlapping scopes, and import replay without double counting before calling the MVP complete. Production saved data requires G3, including owner isolation, retention and a successful restore rehearsal.
 
@@ -58,19 +58,20 @@ Deliver the approved refresh in sequence from the merged predecessor.
 
 Record both joint walkthroughs on the refreshed build after 050.
 
-#### After MVP
+### Meter pilot priority
 
-| Round | P1 | P2 | Prerequisites |
-| --- | --- | --- | --- |
-| 9 | **M3** (018) Tariff and cost API, then **M7** (030) schedule API | **M3** (017) Site settings and **M7** (032) output metric API | MVP signed off. Both use the M1 composition guard and M4 insights. P2 also uses M2 Beranda. |
-| 10 | **M3** (019) Tariff editor and qualified cost display | **M7** (033) Output metric screen | P1 needs the M3 API and site settings from round 9 plus M2 asset detail. P2 needs the output API and site settings from round 9 plus M2 asset detail. |
-| 11 | **M7** (031) Schedule screens, then **M9** (036) account and session API | **M8** (035) Source catalog and simulated enrollment | P1 needs the schedule API and site settings from round 9; the account API needs M1 ownership and demo sessions plus M5 import preview. P2 needs M1 assets, M2 Beranda and the M5 import flow. |
-| 12 | **M9** (039, 041) HTTPS rehearsal deployment, then benchmarks | **M9** (037) Account UI and session recovery | Both need the account API from round 11. P1 also uses M1 composition and M5 import commit. P2 needs the M3 tariff, M6 scope and M7 schedule screens plus the MVP save and recovery flows. |
-| 13 | **M9** (038, 040) Export and deletion, then backup and restore rehearsal | **M10** (042–043) Native builds, then accessibility audit | P1 needs M5 import commit, the M9 account flow and rehearsal deployment. P2 needs the MVP journeys and the M9 account flow and HTTPS rehearsal from round 12. Use synthetic data for device checks while saved-data evidence is pending. |
-| 14 | **M11** (046) Live adapter implementation and reference-meter checks on the approved installation | **M10** (044) Usability kit and separate household and industrial study evidence | P1 needs M1 ingestion, the M8 catalog, M9 deployment and restore evidence, and a model with measurement-only credentials. P2 prepares the kit after the accessibility audit and records evidence from the owner's participant studies when available. |
-| 15 | **M11** (046 release gate) Live-pilot sign-off | **M11** (045) Opt-in push | P1 needs the preceding PRD gates and verified reference and quality evidence from round 14. P2 needs M4 insight and feedback, M10 native builds and owner confirmation that users want push. |
+Add the catalog to the refreshed G2 journey so the primary action starts at **Hubungkan alat ukur** / **Connect a meter**. Demo and historical CSV import remain available. Keep the isolated lab lane and the account lane moving independently.
 
-The owner approves the HTTPS host and domain, retention settings, app identity and build accounts required for the chosen distribution. Open production saved data after G3 passes, including export, deletion and restore evidence. Close G4 after the platform checks and both participant studies have evidence and task blockers have passed retests. The live pilot also requires G5 evidence from the actual installation and a qualified installer for fixed wiring. If a device or study is pending, the push lane can proceed once its own prerequisites are ready. Push remains off until the user opts in.
+| Lane | Work | Start condition and outcome |
+| --- | --- | --- |
+| Meter catalog | **035**, read-only catalog and entry from Welcome, Beranda and Perangkat | Use the existing Beranda, assets and CSV routes. Show availability before setup. |
+| Isolated lab | **046**, Shelly Plug PM Gen3 on one compatible plug-in load | Start after 035 with the existing measurement core. Provision an isolated standard site and assigned meter. Keep the feature disabled by default. Capture physical and reference-meter evidence on the actual installation. |
+| Pilot accounts | **036 → 037**, owner identity and core session recovery | Start 036 from the existing ownership, demo and import foundations. Complete 037 with core offline recovery and available save journeys. Tariff, schedule, output and push do not gate this lane. |
+| Saved-data release | **038**, data rights. **039**, HTTPS deployment. **040**, retention and restore. | Rehearse HTTPS after the account API. Verify owner-only export/deletion and complete the restore exercise before opening saved data. |
+| Platform release | **042 → 043 → 044**, platform builds, accessibility and usability | Use the HTTPS rehearsal and integrated account flows. Record distinct runtime and segment evidence. |
+| Live release | **G5** sign-off with **G3** and **G4** passed | Require authenticated measurement-only access, model and installation validation, and actual reference and quality evidence. Lab access is limited to the isolated environment until sign-off. |
+
+The owner confirms the HTTPS host, retention settings and distribution identity and accounts. The optional tariff/settings work (017–019), schedule and output work (030–033), benchmarks (041) and opt-in push (045) have their own prerequisites below. A field validation delay does not block catalog, account or release-readiness work.
 
 ### Milestones and dependencies
 
@@ -86,10 +87,10 @@ The prerequisite column lists direct cross-milestone inputs from the spec header
 | **M5 CSV** | 024–027 | Review the commit contract and replay evidence | Parser, preview, atomic commit, import screens | M1 measurements, M2 onboarding and Beranda, M4 insight revision contract | Required for the G2 journey. Parser and preview can start from M1 measurements. |
 | **M6 Scope** | 028–029 | Scope API and scope screen | Review scope refusal on Beranda and Perangkat | M1 summary, M2 Beranda and Perangkat | Required for the G2 journey. The API can start from M1 summaries. |
 | **M7 Optional analysis** | 030–033 | Schedule API and screens | Output metric API and screen | M1 composition guard, M2 asset detail, M3 settings, M4 insights | Follow-up. Optional-module evidence for G1 and G2. |
-| **M8 Recovery** | 034–035 | Review state and calculation evidence | Offline recovery and combined states, then source catalog and simulated enrollment | Recovery needs M4 Saran and M5 import. Catalog needs M1 assets, M2 Beranda and M5 import. | **MVP cutoff is recovery.** Catalog and simulated enrollment follow later. |
-| **M9 Saved service** | 036–041 | Account API, data rights, deployment, backup/restore and benchmarks | Account UI and session recovery | M1, M2, M3, M5, M6, M7 and M8 recovery | Follow-up. G3 gates production saved data. |
+| **M8 Recovery and catalog** | 034–035 | Review state and calculation evidence | Offline recovery and read-only source catalog | Recovery needs M4 Saran and M5 import. Catalog needs M1 assets, M2 Beranda and M5 import. | Recovery remains part of the internal MVP. Catalog enables 046 lab setup. |
+| **M9 Saved service** | 036–041 | Account API, data rights, deployment, backup/restore and benchmarks | Core account UI and session recovery | M1, M2, M5, M6 and M8 recovery | G3 gates user-facing saved data. Account work is independent of optional analyses. |
 | **M10 Platforms and usability** | 042–044 | Support HTTPS and contract verification on devices | Native builds, accessibility and usability evidence | M2, M4, M5, M6, M8 recovery and M9 account/deployment inputs | Follow-up. G4 requires platform and participant evidence. |
-| **M11 Gated features** | 045–046 | Verified live meter adapter | Opt-in push | Push needs M4 and M10 native builds. Live meter needs M1 measurements, M8 catalog and M9 deployment and restore. | Follow-up. Push needs owner demand and consent. G5 requires reference comparison and quality evidence from a verified installation. |
+| **M11 Live meter and opt-in push** | 045–046 | Isolated live meter integration and release evidence | Opt-in push | Lab needs M1 measurements and M8 catalog. Push needs M4 and M10 native builds. | Live release requires G3–G5. Push requires owner demand and consent. |
 
 <details>
 <summary>Technical spec dependency graph</summary>
@@ -155,10 +156,8 @@ flowchart TD
     S008 --> S036
     S025 --> S036
     S012 --> S037[037 auth-mobile]
-    S019 --> S037
     S027 --> S037
     S029 --> S037
-    S031 --> S037
     S034 --> S037
     S036 --> S037
     S026 --> S038[038 data-rights]
@@ -185,8 +184,6 @@ flowchart TD
     S042 --> S045
     S006 --> S046[046 live-adapter]
     S035 --> S046
-    S039 --> S046
-    S040 --> S046
 ```
 
 </details>

@@ -53,7 +53,7 @@ def validate_composition(capability_ids: tuple[str, ...]) -> None:
         raise ValueError(f"Unsupported capabilities: {', '.join(unknown)}.")
 
 
-def build_manifest(composition_id: str) -> CapabilityManifestResponse:
+def build_manifest(composition_id: str, *, meter_pilot_enabled: bool = False) -> CapabilityManifestResponse:
     """Build the manifest for one composition.
 
     Args:
@@ -74,6 +74,11 @@ def build_manifest(composition_id: str) -> CapabilityManifestResponse:
         source_release=SOURCE_RELEASE,
         composition=CompositionResponse(id=composition_id, version=version),
         capabilities=[CAPABILITIES[capability_id] for capability_id in capability_ids],
-        adapters=list(ADAPTERS),
+        adapters=[
+            adapter.model_copy(update={"status": CapabilityStatus.AVAILABLE})
+            if meter_pilot_enabled and adapter.id == "shelly-plug-pm-gen3"
+            else adapter
+            for adapter in ADAPTERS
+        ],
         policies=list(POLICIES),
     )

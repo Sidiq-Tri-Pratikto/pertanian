@@ -8,12 +8,14 @@ import {
   type DemoSession, type RequestCredential, type ScopePair, type Summary,
 } from '@/api/client';
 import { ApiError } from '@/api/errors';
+import { getPilotSession, getPilotSite } from '@/api/meter-pilot';
 import { createQueryClient, endsSession } from '@/api/query-client';
 import {
   ownerStorageKey, readScopeAttempt, readScopeFence, removeOwnerData,
   type OwnerStorage, type ScopeAttempt, type ScopeFence, type StorageSection,
 } from '@/features/offline/owner-storage';
 import { isKnownOffline } from '@/features/offline/useConnectivity';
+import { localParts } from '@/lib/format';
 import { randomToken } from '@/lib/random';
 import {
   attestWorkspace, clearWorkspace, isUnexpired, loadWorkspaceRecord, revokeWorkspace, saveWorkspace, tombstoneWorkspace,
@@ -23,7 +25,7 @@ import {
 type Active = {
   workspace: Workspace;
   credential: RequestCredential;
-  attestation: Attestation;
+  attestation: Attestation | null;
   storage: OwnerStorage | null;
 };
 
@@ -50,11 +52,15 @@ type WorkspaceValue = {
   observeScope: (pair: ScopePair, evidence: ScopeEvidence, publish?: (epoch: number) => void) => ScopeObservation | null;
   beginScopeWrite: (base: ScopePair, epoch: number) => Promise<ScopeWrite>;
   finishScopeWrite: (write: ScopeWrite, definite: boolean) => Promise<boolean>;
-  ended: 'expired' | null;
+  ended: 'expired' | 'pilot-expired' | null;
+  pilotEndReference: string | null;
   storageError: boolean;
   open: (workspace: Workspace, response?: DemoSession) => Promise<void>;
   end: (reason: 'expired' | null) => Promise<void>;
   resetDemo: () => Promise<void>;
+  pilot: boolean;
+  openPilot: (code: string, stillOpen: () => boolean) => Promise<void>;
+  closePilot: () => Promise<void>;
 };
 
 const WorkspaceContext = createContext<WorkspaceValue | null>(null);
@@ -68,7 +74,8 @@ function isMatchingCreate(workspace: Workspace, response?: DemoSession): boolean
 export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const [status, setStatus] = useState<'loading' | 'ready'>('loading');
   const [active, setActive] = useState<Active | null>(null);
-  const [ended, setEnded] = useState<'expired' | null>(null);
+  const [ended, setEnded] = useState<WorkspaceValue['ended']>(null);
+  const [pilotEndReference, setPilotEndReference] = useState<string | null>(null);
   const [storageError, setStorageError] = useState(false);
   const [queryClient] = useState(createQueryClient);
   const generation = useRef(0);
@@ -85,6 +92,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const inFlight = useRef<string | null>(null);
   const [scopeWriting, setScopeWriting] = useState(false);
   const control = useRef<WorkspaceRecord | null>(null);
+  const pilotActive = useRef(false);
   const controller = useRef(new AbortController());
   const tail = useRef<Promise<unknown>>(Promise.resolve());
   const isCurrentCredential = useCallback((id: number) => generation.current === id, []);
@@ -223,6 +231,51 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     setActive({ workspace, credential, attestation, storage });
   }, [isCurrentCredential, lease, serial]);
 
+  // A pilot credential and its query cache are memory-only. The stored demo is parked until the pilot ends.
+  const closePilot = useCallback(async (expired = false, reference: string | null = null) => {
+    if (!pilotActive.current) return;
+    const id = block();
+    pilotActive.current = false;
+    setEnded(expired ? 'pilot-expired' : null);
+    setPilotEndReference(reference);
+    await serial(async () => {
+      const previous = control.current;
+      if (!isCurrentCredential(id) || previous?.kind !== 'confirmed' || !isUnexpired(previous.workspace)) return;
+      await activate(previous, id);
+      if (expired && isCurrentCredential(id)) setEnded('pilot-expired');
+    });
+  }, [activate, block, isCurrentCredential, serial]);
+
+  const openPilot = useCallback(async (code: string, stillOpen: () => boolean) => {
+    if (isKnownOffline()) throw ApiError.offline();
+    const before = generation.current;
+    const session = await getPilotSession(code);
+    if (!stillOpen() || !isCurrentCredential(before)) throw ApiError.revoked();
+    const site = await getPilotSite(session.site_id, code);
+    if (!stillOpen() || !isCurrentCredential(before)) throw ApiError.revoked();
+    const today = localParts(site.now, site.timezone).date;
+    const workspace: Workspace = {
+      token: code, siteId: site.id, scenarioId: null, expiresAt: session.expires_at,
+      initialPeriod: { preset: 'today', start_date: today, end_date: today },
+    };
+    if (!isUnexpired(workspace)) throw new ApiError('PILOT_ACCESS_EXPIRED',
+      'Kode akses sudah kedaluwarsa. Minta kode baru dari pengelola uji coba.', { retryable: false });
+    const id = block();
+    pilotActive.current = true;
+    setEnded(null);
+    const current = () => {
+      if (!isCurrentCredential(id)) return false;
+      if (isUnexpired(workspace)) return true;
+      void closePilot(true);
+      return false;
+    };
+    const credential: RequestCredential = {
+      token: code, signal: controller.current.signal, current,
+      reject: (error) => { if (isCurrentCredential(id)) void closePilot(true, error.requestId); },
+    };
+    setActive({ workspace, credential, attestation: null, storage: null });
+  }, [block, closePilot, isCurrentCredential]);
+
   // Called inside the serialized lifecycle queue. A superseded save remains visible only to the queued revoker.
   const install = useCallback(async (workspace: Workspace, id: number, legacyImport = false) => {
     const attestation = await attestWorkspace(workspace, legacyImport);
@@ -245,6 +298,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const open = useCallback(async (workspace: Workspace, response?: DemoSession) => {
     if (!isUnexpired(workspace)) throw ApiError.expired();
     const id = block();
+    pilotActive.current = false;
     await serial(async () => {
       if (!isCurrentCredential(id)) throw ApiError.revoked();
       try {
@@ -404,7 +458,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
 
   const resetDemo = useCallback(async () => {
     const record = control.current;
-    if (record?.kind !== 'confirmed' || !active?.credential.current()) throw ApiError.revoked();
+    if (pilotActive.current || record?.kind !== 'confirmed' || !active?.credential.current()) throw ApiError.revoked();
     if (isKnownOffline()) throw ApiError.offline();
     const id = block();
     await serial(async () => {
@@ -433,7 +487,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
 
   const validateOnline = useCallback(async (id: number) => {
     const stored = control.current;
-    if (!stored || !isCurrentCredential(id)) return;
+    if (pilotActive.current || !stored || !isCurrentCredential(id)) return;
     if (!isUnexpired(stored.workspace)) {
       void end('expired');
       return;
@@ -500,13 +554,14 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo(() => ({
     status, workspace: active?.workspace ?? null, credential: active?.credential ?? null,
-    storage: active?.storage ?? null, legacyImport: active?.attestation.legacyImport ?? false,
+    storage: active?.storage ?? null, legacyImport: active?.attestation?.legacyImport ?? false,
+    pilot: active?.attestation === null, openPilot, closePilot,
     credentialGeneration, isCurrentCredential, scopeEpoch, currentScopeEpoch, currentScopePair, advanceScope,
     scopePair, scopeAttempt, scopeWriting, isScopeCurrent, observeScope, beginScopeWrite, finishScopeWrite,
-    ended, storageError, open, end, resetDemo,
+    ended, pilotEndReference, storageError, open, end, resetDemo,
   }), [status, active, credentialGeneration, isCurrentCredential, scopeEpoch, currentScopeEpoch, currentScopePair, advanceScope,
     scopePair, scopeAttempt, scopeWriting, isScopeCurrent, observeScope, beginScopeWrite, finishScopeWrite,
-    ended, storageError, open, end, resetDemo]);
+    ended, pilotEndReference, storageError, open, end, resetDemo, openPilot, closePilot]);
 
   return (
     <QueryClientProvider client={queryClient}>

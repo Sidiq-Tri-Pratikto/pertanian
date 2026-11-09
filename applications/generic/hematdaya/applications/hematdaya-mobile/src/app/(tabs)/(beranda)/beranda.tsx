@@ -1,5 +1,6 @@
+import { useIsFocused } from 'expo-router';
 import { errorMessage } from '@/features/localization/error-copy';
-import { useCopy } from '@/features/localization/messages';
+import { useCopy, useLabels } from '@/features/localization/messages';
 import { useRef, useState, type ComponentRef } from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -47,8 +48,9 @@ export default function BerandaScreen() {
 /** S02: no axes, no Rp0, no giant zero. There is simply no data yet. */
 function EmptyBeranda({ expiresAt, timezone = 'Asia/Jakarta' }: { expiresAt?: string; timezone?: string }) {
   const say = useCopy();
+  const labels = useLabels();
   const { preset } = useContextPreset();
-  const { openFeature, openImport, openSettings } = useTabNavigation();
+  const { openMeterSetup, openImport, openSettings } = useTabNavigation();
   const [sheetOpen, setSheetOpen] = useState(false);
   const demoButton = useRef<ComponentRef<typeof View>>(null);
 
@@ -57,13 +59,13 @@ function EmptyBeranda({ expiresAt, timezone = 'Asia/Jakarta' }: { expiresAt?: st
       <SessionEndedNotice />
       <View style={styles.section}>
         <HDText variant="section">{say("Belum ada data energi", "No energy data yet")}</HDText>
-        <HDText>{say("HematDaya membaca energi dari berkas CSV atau dari sumber pengukuran yang didukung.", "Add a CSV file to see your own readings.")}</HDText>
+        <HDText>{say("Hubungkan alat ukur yang didukung untuk mulai merekam pemakaian listrik.", "Connect a supported meter to start recording electricity use.")}</HDText>
         <HDText tone="secondary">{contextExample(preset)}</HDText>
+        <HDButton variant="primary" onPress={openMeterSetup}>{labels.connectMeter}</HDButton>
         <View ref={demoButton}>
-          <HDButton variant="primary" onPress={() => setSheetOpen(true)}>{say("Coba demo", "Try demo")}</HDButton>
+          <HDButton onPress={() => setSheetOpen(true)}>{say("Coba demo", "Try demo")}</HDButton>
         </View>
-        <HDButton onPress={openImport}>{say("Tambah data", "Add data")}</HDButton>
-        <HDButton variant="text" onPress={() => openFeature('sumber-meter')}>{say("Lihat meter yang didukung", "View supported meters")}</HDButton>
+        <HDButton variant="text" onPress={openImport}>{labels.importHistory}</HDButton>
       </View>
       {expiresAt ? (
         <HDNotice tone="info" title={say("Ruang kerja sementara", "Temporary workspace")}>
@@ -85,7 +87,7 @@ function EmptyBeranda({ expiresAt, timezone = 'Asia/Jakarta' }: { expiresAt?: st
 function WorkspaceBeranda() {
   const say = useCopy();
   const { workspace } = useWorkspace();
-  const summary = useSummary();
+  const summary = useSummary(useIsFocused());
   const previousScope = usePreviousAssetScope();
   const kept = useLastConfirmed(summary);
   const shown = summary.offline ? summary.data : kept;
@@ -110,7 +112,7 @@ function WorkspaceBeranda() {
     );
   }
   if (shown.scope.included.length === 0 && shown.scope.excluded.length === 0) {
-    return <EmptyBeranda expiresAt={workspace?.expiresAt} timezone={shown.window.timezone} />;
+    return <EmptyBeranda expiresAt={workspace?.scenarioId ? workspace.expiresAt : undefined} timezone={shown.window.timezone} />;
   }
   return <PopulatedBeranda previousSelection={summary.previousSelection || shown !== summary.data || Boolean(previousScope?.summaries.has(shown))}
     data={shown} refreshing={summary.isFetching} failure={summary.error} onRefresh={summary.refresh}
@@ -125,9 +127,10 @@ type PopulatedProps = {
 /** S03: period and scope, recorded kWh, cost, completeness and freshness, then contributors. */
 function PopulatedBeranda({ previousSelection, data, refreshing, failure, onRefresh, offline, fetchedAt }: PopulatedProps) {
   const say = useCopy();
+  const labels = useLabels();
   const { workspace } = useWorkspace();
   const { period, setPeriod } = useNavigationContext();
-  const { openAsset, openFeature, openImport, openSettings } = useTabNavigation();
+  const { openAsset, openFeature, openImport, openMeterSetup, openSettings } = useTabNavigation();
   const model = berandaModel(data);
   const scopeControl = useScopeInvoker();
   const scopeIssue = useScopeInvoker();
@@ -169,7 +172,8 @@ function PopulatedBeranda({ previousSelection, data, refreshing, failure, onRefr
         </View>
       ) : null}
       <FeaturedInsight />
-      <HDButton variant="text" onPress={openImport}>{say("Tambah data", "Add data")}</HDButton>
+      <HDButton variant="text" onPress={openMeterSetup}>{labels.connectMeter}</HDButton>
+      <HDButton variant="text" onPress={openImport}>{labels.importHistory}</HDButton>
       <HDButton variant="text" onPress={openSettings}>{say("Pengaturan", "Settings")}</HDButton>
     </>
   );

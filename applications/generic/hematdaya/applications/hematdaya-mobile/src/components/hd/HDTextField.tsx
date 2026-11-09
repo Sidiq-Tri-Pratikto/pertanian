@@ -16,6 +16,8 @@ type HDTextFieldProps = {
   required?: boolean;
   multiline?: boolean;
   keyboardType?: KeyboardTypeOptions;
+  secureTextEntry?: boolean;
+  maxLength?: number;
   /** Says the typed text is kept, for example when the user leaves and comes back. */
   draftNote?: string;
   editable?: boolean;
@@ -35,6 +37,8 @@ export function HDTextField({
   required = false,
   multiline = false,
   keyboardType,
+  secureTextEntry,
+  maxLength,
   draftNote,
   editable = true,
   inputRef,
@@ -64,6 +68,10 @@ export function HDTextField({
         onChangeText={onChange}
         multiline={multiline}
         keyboardType={keyboardType}
+        secureTextEntry={secureTextEntry}
+        maxLength={maxLength}
+        autoCapitalize={secureTextEntry ? 'none' : undefined}
+        autoCorrect={secureTextEntry ? false : undefined}
         editable={editable}
         readOnly={!editable}
         textAlignVertical={multiline ? 'top' : 'center'}

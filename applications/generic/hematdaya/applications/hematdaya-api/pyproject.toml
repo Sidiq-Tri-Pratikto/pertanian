@@ -8,6 +8,7 @@ dependencies = [
     "alembic>=1.13",
     "asyncpg>=0.30",
     "fastapi>=0.121",
+    "paho-mqtt>=2.1,<3",
     "pydantic-settings>=2.6",
     "python-multipart>=0.0.33",
     "sqlalchemy[asyncio]>=2.0",

@@ -6,6 +6,7 @@ import { AccessibilityInfo, Platform, Text, View } from 'react-native';
 import { setLocale } from '@/features/localization/locale';
 import { HDScreen } from '@/components/hd/HDScreen';
 import { moveFocus } from '@/lib/focus';
+import { plannedMeter } from './fixtures/meter-pilot';
 
 import householdGolden from '../../../contracts/golden/summary-h-week.json';
 
@@ -46,6 +47,7 @@ const emptySummary = {
 /** Return the manifest and an empty summary for workspace fixtures. */
 async function serviceWithEmptyWorkspace(input: RequestInfo | URL) {
   const path = new URL(String(input)).pathname;
+  if (path === '/api/v1/device-catalog') return respond(200, { devices: [plannedMeter] });
   if (path === '/api/v1/demo/sessions') {
     return respond(201, emptySession);
   }
@@ -136,13 +138,14 @@ describe('navigation', () => {
     expect(screen.queryByText(/Rp\d/)).toBeNull();
   });
 
-  it('opens a planned feature inside the tab and returns to it', async () => {
+  it('opens meter setup inside the Home tab and shows a planned model honestly', async () => {
     await startAtBeranda();
 
-    await fireEvent.press(screen.getByRole('button', { name: 'Lihat meter yang didukung' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Hubungkan alat ukur' }));
 
-    expect(await screen.findByRole('heading', { name: 'Sumber dan meter' })).toBeOnTheScreen();
-    expect(screen.getByText('Segera hadir')).toBeOnTheScreen();
+    expect(await screen.findByRole('heading', { name: 'Hubungkan alat ukur' })).toBeOnTheScreen();
+    expect(await screen.findByText('Direncanakan')).toBeOnTheScreen();
+    expect(screen.queryByRole('button', { name: 'Masuk ke uji coba' })).toBeNull();
     expect(screen.getByRole('tab', { name: 'Beranda', selected: true })).toBeOnTheScreen();
 
     await fireEvent.press(screen.getByRole('button', { name: 'Kembali' }));
@@ -350,6 +353,6 @@ it('redirects the old scope link within its tab and leaves other planned links i
   await act(() => router.push('/(tabs)/(perangkat)/pengaturan'));
   await screen.findByRole('heading', { name: 'Pengaturan' });
   expect(screen.queryByText('Cakupan dan sumber')).toBeNull();
-  expect(screen.getByText('Sumber dan meter')).toBeOnTheScreen();
+  expect(screen.getByRole('button', { name: 'Hubungkan alat ukur' })).toBeOnTheScreen();
   jest.restoreAllMocks();
 });

@@ -1,6 +1,6 @@
 # HematDaya — Self-Contained Claude Design Handoff
 
-Version: 1.3.0. Updated November 8, 2026, Asia/Jakarta. Canonical product PRD: Generic 1.3. Specification language: English. Product interface: Indonesian by default, with English selectable. Currency: IDR.
+Version: 1.4.0. Updated November 9, 2026, Asia/Jakarta. Canonical product PRD: Generic 1.4. Specification language: English. Product interface: Indonesian by default, with English selectable. Currency: IDR.
 
 **This file contains the complete product context, ready prompt, and canonical English PRD.** Use the agreed design-system-first sequence: create HematDaya Design System, then attach this application handoff and select/import that actual system or its exported reference. No repository access or earlier chat is needed to understand the product. If the system is unavailable, establish a clearly labelled local draft system from the seed guidance before composing screens and record the missing binding; do not claim inheritance. Preparing this handoff does not create, register, or publish a system or application.
 
@@ -36,12 +36,13 @@ Use exactly three persistent labelled primary destinations: **Beranda**, **Peran
 
 Prioritize complete paths in this order:
 
-1. **Hardware-free start:** S01 → Coba demo → demo selection → S03. Opening household demo must immediately show useful measured energy without a setup wizard.
-2. **Interpretation:** S03 → choose period → largest contributor → S06 history; the contributor and featured evidence are each reachable within three deliberate taps from populated Beranda. Count taps separately from whether the user understands the result.
-3. **Evidence:** S03 featured observation or S07 list → S08 → inspect comparison, limitations, and harmless feedback. Return preserves the period and list position.
-4. **CSV first use:** S02 → S10 input → mapping/semantics → preview → explicit commit → S03 for the imported range. Repair and retry are complete parts of this path.
-5. **Recovery:** missing tariff, partial readings, stale live source, cached offline view, historical import, and overlapping scope each preserve useful context and offer their own next action.
-6. **Optional capability:** schedule, asset inheritance/continuous profile, actual or estimated output metric, tariff, and notification preferences are entered only when requested. Industry core tasks remain complete with schedule/output disabled.
+1. **Meter setup:** S01, S02 or S04 → Hubungkan alat ukur → S05 catalog. In the isolated lab, eligible setup proceeds to the first valid reading and asset confirmation. A browser prototype presents catalog availability without suggesting that it connects to hardware.
+2. **Hardware-free start:** S01 → Coba demo → demo selection → S03. Opening household demo must immediately show useful measured energy without a setup wizard.
+3. **Interpretation:** S03 → choose period → largest contributor → S06 history; the contributor and featured evidence are each reachable within three deliberate taps from populated Beranda. Count taps separately from whether the user understands the result.
+4. **Evidence:** S03 featured observation or S07 list → S08 → inspect comparison, limitations, and harmless feedback. Return preserves the period and list position.
+5. **Historical import:** secondary Impor riwayat CSV → S10 input → mapping/semantics → preview → explicit commit → S03 for the imported range. Include repair and retry.
+6. **Recovery:** missing tariff, partial readings, stale live source, cached offline view, historical import, and overlapping scope each preserve useful context and offer their own next action.
+7. **Optional capability:** schedule, asset inheritance/continuous profile, actual or estimated output metric, tariff, and notification preferences are entered only when requested. Industry core tasks remain complete with schedule/output disabled.
 
 Do not lead with sector selection, equipment lists, or production fields. “Lewati” must continue the core journey. Never treat a refrigeration, IT, pumping, or unknown load as wasteful simply because it runs continuously.
 
@@ -90,13 +91,13 @@ On web, focus the screen heading after route change, place focus inside an opene
 
 The common pending/error/draft/focus rules above apply to every screen. The named actions below are required, not decorative affordances. Any additional visible control receives an equally explicit contract in the final route map.
 
-### S01 — Explore-first welcome
+### S01 — Welcome
 
-Purpose: show one short explanation, primary **Coba demo**, and secondary **Lanjut tanpa data**. Continue opens empty Beranda without creating a server workspace. Offer optional usage context in Settings and the language selector on Welcome and in Settings once the MVP is bilingual.
+Give one short explanation. **Hubungkan alat ukur** opens the catalog as the primary action. Offer **Coba demo** and **Lanjut tanpa data**. Continue opens empty Beranda without creating a server workspace. Offer optional usage context in Settings and the language selector on Welcome and in Settings once the MVP is bilingual.
 
 ### S02 — Empty Beranda
 
-Lead with **Coba demo**. **Tambah data** opens the CSV screen. File selection remains an explicit action on that screen. Use a compact hierarchy. Populated dashboards and lists may use a supporting column from 768 logical pixels, while forms stay single-column.
+Lead with **Hubungkan alat ukur** / **Connect a meter** to open S05. Offer **Coba demo** and **Impor riwayat CSV** as secondary actions. File selection remains an explicit action on the CSV screen. Use a compact hierarchy. Populated dashboards and lists may use a supporting column from 768 logical pixels, while forms stay single-column.
 
 ### S03 — Populated Beranda
 
@@ -104,11 +105,11 @@ Display site, period selector, scope control, **Energi yang dipantau**, optional
 
 ### S04 — Perangkat list
 
-Use the shared period/scope. Rows show name, location if provided, scope kind, recorded kWh, and relevant quality; full names wrap. Each row → S06. Primary **Tambah sumber** → S05; **Impor data** → S10 remains discoverable. No switch or power-state icon suggests control. Sorting may use recorded energy with deterministic tie-break; do not label the largest load “paling boros”. Empty list links to import/demo. For unresolved aggregation, retain individual values and the scope notice. Back returns the previous stack; tab selection remains Perangkat. Preserve list position after detail. Loading or error never clears a known list into fake zeros.
+Use the shared period/scope. Rows show name, location if provided, scope kind, recorded kWh, and relevant quality; full names wrap. Each row → S06. Primary **Hubungkan alat ukur** → S05. Secondary **Impor riwayat CSV** → S10 remains discoverable. Use the same actions on an empty list. No switch or power-state icon suggests control. Sorting may use recorded energy with deterministic tie-break. Avoid “paling boros” for the largest measured load. For unresolved aggregation, retain individual values and the scope notice. Back returns the previous stack; tab selection remains Perangkat. Preserve list position after detail. Loading or error never clears a known list into fake zeros.
 
 ### S05 — Source catalog and setup
 
-Steps: provider/model → capability/status → connection/first reading → name/scope/binding review. Fields include user name, optional category/location, scope kind, existing/new asset selection, and effective binding time; include only source-specific requirements actually supported. Primary **Lanjut** advances a valid draft; **Konfirmasi sumber** needs verified enrollment and first reading in a real service. A local demo path says **Simulasikan pembacaan pertama** and keeps “Simulasi koneksi”; it never displays unqualified Terhubung. Planned Shelly/TP-Link paths show “Integrasi belum tersedia pada prototipe ini” and return to catalog/CSV without losing asset draft. Back moves one step; close returns S02/S04. Retry reuses the operation identity. No real credentials or mains rewiring instructions are requested.
+Show model, measurement scope and availability first. The isolated lab flow for Shelly Plug PM Gen3 shows waiting, ready to confirm, connected and expired. Confirm one new monitored asset only after the server accepts a real first reading. Retry reuses the operation identity. For a planned or unavailable model, explain its status and offer a return to the catalog or historical CSV. Browser prototypes show the catalog and its unavailable states. Back moves one step and close returns to the entry screen. Retain non-secret input. The lab operator provides a separate access code. Vendor credentials and mains rewiring are outside app setup.
 
 ### S06 — Asset detail and history
 
@@ -305,7 +306,7 @@ Use the HematDaya Design System created in the preceding stage. Record its versi
 
 Use the actual Claude Design runtime available here. Declare it first. If native execution is unavailable, build a responsive browser simulation with mobile navigation and provide a separate Expo/React Native engineering handoff. Make the project playable with working state transitions; do not stop at a plan, static artboards, screenshots, marketing page, or decorative charts.
 
-Implement the complete household journey first, then industry using the same components and calculation authority, then CSV import/recovery, scope resolution, evidence/feedback, and optional settings. Demo use requires no AC, login, hardware, schedule, production quantity, tariff, push, external account, credentials, or paid service. Use the handoff's exact fixture generation, shared virtual clock, arithmetic assertions, and observation evidence. Derive every total, chart, ranking, and explanation from one accepted-data authority. Keep scenario/reset controls secondary and reset only isolated demo state.
+Start with the meter catalog entry from Welcome, empty Beranda and Perangkat. In the browser prototype, show the declared availability and recovery for unavailable models. Implement household and industrial demo journeys using the same components and calculation authority, then historical CSV import/recovery, scope resolution, evidence/feedback and optional settings. Demo use requires no AC, login, hardware, schedule, production quantity, tariff, push, external account, credentials, or paid service. Use the handoff's exact fixture generation, shared virtual clock, arithmetic assertions, and observation evidence. Derive every total, chart, ranking, and explanation from one accepted-data authority. Keep scenario/reset controls secondary and reset only isolated demo state.
 
 Complete all S01–S12 actions and recovery behavior. Preserve period, scope, navigation, drafts, and previous confirmed values. Parse CSV into a mapping/validation preview before explicit commit; reconcile counts, reject blocked cases, roll back failure, and make retry idempotent. Distinguish zero, missing, partial, learning, no tariff, historical import, stale source, and client offline, including their combinations. Never double-count parent/child or alternative sources. Optional overnight schedules, inheritance/continuous profiles, and actual/estimated output must follow the stated guards.
 
@@ -317,12 +318,12 @@ Continue through the complete agreed prototype. Run fixture and interaction chec
 
 ## 17. Complete canonical English PRD snapshot
 
-The complete English PRD below is included verbatim. Snapshot version: Generic 1.3, November 8, 2026. SHA-256 of the canonical UTF-8 file: `49a23ab6848f4ea2eb8b1e7004a150c43f570dfff75799f8507d866ac4ada5d8`.
+The complete English PRD below is included verbatim. Snapshot version: Generic 1.4, November 9, 2026. SHA-256 of the canonical UTF-8 file: `aa5b6442f648cb961835a908a50d6d90d976da480736ab750a11713bcd3a5e4d`.
 
-<!-- BEGIN CANONICAL PRD EN v1.3 -->
+<!-- BEGIN CANONICAL PRD EN v1.4 -->
 # HematDaya — Product Requirements Document
 
-Version: Generic 1.3. Date: November 8, 2026 (Asia/Jakarta).
+Version: Generic 1.4. Date: November 9, 2026 (Asia/Jakarta).
 Document language: English. Product interface: Indonesian by default, with English selectable. Initial currency: IDR.
 Status: accepted product and modular-architecture direction; development specification, implementation verification and field validation are pending.
 
@@ -392,7 +393,7 @@ Proposed research targets must be evaluated separately for household and busines
 
 - Isolated hardware-free demo, account access for saved server data, one owned site.
 - Arbitrary monitored assets with names, categories, optional location labels, and an explicit measurement scope.
-- CSV historical import as a complete initial data path; a supported live-meter path only after its adapter and physical suitability are verified.
+- Connecting a meter is the primary path for monitoring actual electricity use. Historical CSV import is a secondary path and remains usable without hardware. The initial live scope is one verified model and installation.
 - Interval energy, estimated cost, contribution, history, matched historical comparisons, freshness, and temporal coverage.
 - Optional weekly expected-use schedule, with multiple windows and overnight support.
 - Optional output-normalized energy metric for users who need it.
@@ -467,7 +468,7 @@ The user chooses a profile or keeps unknown. Categories may suggest an explanati
 
 ### 6.3 Source capability contract
 
-Shelly Plug PM Gen3 and TP-Link devices are candidate measurement adapters, not verified integrations or proof of household/industrial compatibility. A candidate must remain labelled planned or unsupported until implemented and verified for the specific model and capability. The demo and CSV path must not depend on either provider.
+Shelly Plug PM Gen3 is the sole model selected for the isolated lab pilot. It covers one compatible plug-in appliance and one new monitored asset. The catalog distinguishes an available lab setup from verified release support. TP-Link and other models remain planned or unsupported. Demo and historical CSV import remain independent of hardware.
 
 Catalog entries declare supported measurement kind, units, cadence, channel scope, and validation status. Show “Terhubung” only after authenticated source enrollment and a valid first reading. A connected meter still does not establish that a particular load is electrically suitable. Installation requirements and actual vendor specifications must be checked for the chosen model and load; fixed wiring requires appropriate qualified installation. Do not provide a DIY mains-rewiring flow.
 
@@ -478,12 +479,12 @@ No integration may advertise switching merely because the hardware includes a re
 | ID | Journey | Acceptance outcome |
 |---|---|---|
 | P01 | Welcome → Try demo → household demo | Useful data with no AC, schedule, production, tariff, or credentials required |
-| P02 | Empty site → import CSV → review mapping and errors → confirm | Clear scope and totals; failed import preserves input and existing data |
+| P02 | Choose historical CSV import → review mapping and errors → confirm | Clear scope and totals; failed import preserves input and existing data |
 | P03 | Beranda → period → largest contributor → history | At most 3 deliberate taps; values and scope reconcile |
 | P04 | Saran → change observation → evidence | User can identify observed value, comparison, quality, and unknown cause |
 | P05 | Settings → optional expected-use schedule → asset override | Overnight windows and continuous assets behave consistently |
 | P06 | Optional output metric → unit and scope → denominator | A valid intensity appears; missing/invalid inputs never become zero |
-| P07 | Add source → brand/model → connection → asset binding | Verified first reading; retry does not create duplicate assets or bindings |
+| P07 | Connect a meter → select supported model → wait for the first reading → confirm monitored asset | Verified first reading before connection confirmation. Retry does not create duplicate assets or bindings |
 | P08 | No tariff, missing data, stale source, or offline client → recovery | Last known values labelled honestly; retry preserves drafts |
 | P09 | Two sources or parent/child meters → resolve scope | Conflict is visible and no double-counted total is shown |
 | P10 | Insight feedback → snooze/hide → restore | Feedback persists, never deletes measurements or sends a hardware action |
@@ -499,11 +500,11 @@ Three persistent labelled tabs: **Beranda**, **Perangkat**, **Saran**. “Perang
 
 | ID | Screen | Content and working actions |
 |---|---|---|
-| S01 | Welcome | Short value statement, primary Try demo, secondary Continue without data, language selector once bilingual coverage ships |
-| S02 | Empty Beranda | Lead with Try demo. Add data opens the CSV screen, where Choose file opens the picker. |
+| S01 | Welcome | Short value statement and primary **Connect a meter**. **Try demo** and **Continue without data** remain available, along with the language selector. |
+| S02 | Empty Beranda | Primary **Connect a meter** opens the source catalog. **Try demo** and **Import CSV history** are secondary. Choose file on the CSV screen opens the picker. |
 | S03 | Populated Beranda | Period, scope, kWh, optional estimated cost, coverage/freshness, contribution, one observation |
-| S04 | Perangkat | Asset name, category/scope, energy, quality; add/import and open detail |
-| S05 | Source setup | Provider → model → connection/first reading → name/scope/binding; drafts retained |
+| S04 | Perangkat | Asset name, category/scope, energy, quality and detail. **Connect a meter** opens the source catalog. Historical import is secondary. |
+| S05 | Source setup | Model and availability → verified first reading → asset confirmation. Show waiting, ready, connected and expired states for eligible lab setup. Preserve non-secret drafts. |
 | S06 | Asset detail | History, source provenance, totals, quality, related insights; schedule/intensity only when applicable |
 | S07 | Saran | Evidence-based list; learning/no-finding state; feedback and restore hidden |
 | S08 | Insight detail | What changed, baseline periods, arithmetic, quality, limitations, general advice and feedback |
@@ -779,7 +780,7 @@ Statistics and deterministic explanations are sufficient. A future model must be
 
 | State | What remains visible | Required action/recovery |
 |---|---|---|
-| No data | Explanation, no fake zero | Import, demo, or supported-source setup |
+| No data | Explanation, no fake zero | Meter catalog first, then demo and historical CSV import |
 | Known zero | Valid 0 kWh with coverage | No divide-by-zero contribution or baseline percentage |
 | Learning | Measured totals/contribution | Explain insufficient comparable history |
 | No tariff | kWh/history/eligible energy insights | Optional add tariff; no Rp0 |
@@ -930,7 +931,7 @@ UI-facing records use `asset`, not `machine`. If an integrating application alre
 - Validate file size, row limits, timestamps, units, numeric finiteness, intervals and asset mappings at the server trust boundary. Rate-limit authentication, imports and exports; parse CSV as data.
 - Keep personal routine and production patterns private. Collect only fields needed for monitoring. No continuous location permission, occupancy inference, ad tracking or cross-customer model training is required.
 - Do not log tokens, passwords, broker credentials, raw personal CSV content, or sensitive asset names in routine telemetry. Log correlation IDs, counts, quality and failure categories instead.
-- Back up saved data and configuration with a documented restore procedure. Before a pilot, perform a restore rehearsal and ensure restored aggregates reconcile against raw readings; a backup job's success message is not a restore test.
+- Back up saved data and configuration with a documented restore procedure. Before opening the user-facing pilot, perform a restore rehearsal and ensure restored aggregates reconcile against raw readings.
 - Default measurement retention is until owner deletion; v1 has no hidden automatic expiry. Publish any operator storage limit before upload. Deletion revokes user-facing access immediately, purges active records within a proposed 30 days, and expires residual backups within a further proposed 30 days; disclose actual configured periods and test them before a live launch.
 - Separate demo reset, archive, source unlinking and permanent deletion. Confirm destructive operations with the specific scope; unlinking or feedback must never delete readings.
 - Keep import commits and recomputation idempotent. A crash between stages must recover to a known status without partial double-counted data. Quarantined readings remain excluded and diagnosable.
@@ -1104,12 +1105,12 @@ Optional contextual task: business users set an overnight schedule; users who ac
 |---|---|---|
 | G0 — specification | Complete Indonesian/English PRDs, standalone English design handoff and execution prompt | Matching requirement IDs, accepted architecture, fixture authority and evidence status; no AC prerequisite |
 | G1 — shared calculation proof | Shared core/use cases, bounded composition, optional modules, import validation, H/I fixtures and boundary oracles | Decimal totals, source/scope integrity, backend capability checks, schedule and optional metric checks |
-| G2 — playable core | Shared three-tab app, CSV/demo, state recovery, evidence/feedback | Household and industrial journeys both work without schedule/output input |
+| G2 — playable core | Shared three-tab app, meter catalog, demo and historical CSV, state recovery, evidence/feedback | Household and industrial journeys both work without schedule/output input |
 | G3 — saved data service | Owner auth, persistence, import commits, exports, retention/restore | Ownership, privacy, idempotency and failure tests |
 | G4 — platforms and usability | Responsive web/native builds and separate segment studies | Declared platform evidence and UX checks; task-blocking issues fixed |
-| G5 — optional live pilot | Selected meter adapter, authenticated ingestion, appropriate installation | Actual reference comparison and quality evidence per installation |
+| G5 — live pilot release | Selected meter adapter, authenticated measurement ingestion and appropriate installation | Actual reference comparison and quality evidence for the installed meter. G3 and G4 passed. |
 
-This ordering does not permit a credential-free demo to be exposed as a production saved-data service. A release can provide a clearly labelled CSV-only core before live hardware support; live status is a separate gate. Advance by verified deliverables and evidence rather than an event deadline.
+Run catalog and isolated lab work in parallel with the pilot account lane. An operator provisions the lab site, one meter assignment and an expiring, revocable access code. Lab access does not satisfy the saved-data, platform or field gates. Enable the user-facing live pilot only after owner accounts, data rights, HTTPS deployment, retention/restore, platform/usability and physical validation pass G3–G5. Before then, show the available catalog, demo and historical import paths.
 
 Final deliverables for implementation: runnable shared app/server as applicable; fixture generator and calculation/contract tests; source adapter capability/status list; setup/runbook with no secrets; UX/platform results; household and industrial walkthroughs; research script/results or pending status; explicit list of simulated, implemented-unverified, verified and blocked paths. A running demonstration alone does not satisfy the release gates.
 
@@ -1151,4 +1152,4 @@ Keep secrets out of code, fixtures, exports and runbooks. Document deployment, b
 Generic v1 is complete only when the implemented release satisfies its required functional, UX, data-integrity, security and reusable-delivery checks; both H/I core journeys are evidenced without AC; households work without schedules or output inputs; supported scopes never double count; arithmetic and import oracles pass; unavailable values remain honest; and runtime/field status is explicitly reported. A documented failed or not-run gate is not a pass.
 
 The specification is generic across **measured electricity-consuming assets and user contexts**. It does not promise that every electrical device can use the same hardware, that every connected appliance can be identified separately, or that monitoring alone can prove avoidable waste. This boundary is part of the product contract.
-<!-- END CANONICAL PRD EN v1.3 -->
+<!-- END CANONICAL PRD EN v1.4 -->

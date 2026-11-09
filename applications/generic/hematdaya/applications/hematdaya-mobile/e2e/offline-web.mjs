@@ -196,7 +196,7 @@ async function checkHistorical(page) {
   page.on('request', (request) => {
     if (request.method() === 'POST' && request.url().includes('/imports/')) writes.push(request);
   });
-  await button(page, 'Tambah data').click();
+  await button(page, 'Impor riwayat CSV').click();
   await button(page, 'Contoh berkas yang dapat disalin').click();
   await page.getByRole('group', { name: 'Valid: dua perangkat, interval 1 jam' })
     .getByRole('button', { name: 'Gunakan contoh ini' }).click();

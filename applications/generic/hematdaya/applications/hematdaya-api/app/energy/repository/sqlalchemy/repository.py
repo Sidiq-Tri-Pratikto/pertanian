@@ -100,23 +100,32 @@ class SqlAlchemyEnergyRepository(EnergyRepository):
     async def capture_ranges(
         self, queries: list[CaptureQuery], now: datetime
     ) -> dict[int, tuple[datetime, datetime, datetime]]:
-        """Read valid, current, completed interval captures for effective segments in one query."""
+        """Read valid captures for effective segments, including live counter points."""
         result = await self.session.execute(
             text("""
                 WITH part AS (
                     SELECT * FROM unnest(CAST(:indices AS int[]), CAST(:sources AS uuid[]),
                         CAST(:starts AS timestamptz[]), CAST(:ends AS timestamptz[]),
-                        CAST(:historical AS boolean[])) AS t(idx, source_id, lo, hi, historical)
+                        CAST(:historical AS boolean[]), CAST(:live_counter AS boolean[]))
+                        AS t(idx, source_id, lo, hi, historical, live_counter)
+                ), captures AS (
+                    SELECT p.idx, GREATEST(c.interval_start, p.lo) AS start,
+                        LEAST(c.interval_end, p.hi) AS finish, c.interval_end AS latest
+                    FROM part p
+                    JOIN current_measurements c ON c.source_id = p.source_id
+                        AND NOT p.live_counter AND c.energy_mwh IS NOT NULL AND c.quality = 'valid'
+                        AND c.interval_start < c.interval_end AND c.interval_end <= :now
+                        AND ((p.historical AND c.interval_start < p.hi AND p.lo < c.interval_end)
+                            OR (NOT p.historical AND p.lo <= c.interval_start AND c.interval_end <= p.hi))
+                    UNION ALL
+                    SELECT p.idx, c.measured_at, c.measured_at, c.measured_at
+                    FROM part p
+                    JOIN current_measurements c ON c.source_id = p.source_id
+                        AND p.live_counter AND c.kind = 'counter_point' AND c.quality = 'valid'
+                        AND p.lo <= c.measured_at AND c.measured_at < p.hi AND c.measured_at <= :now
                 )
-                SELECT p.idx, min(GREATEST(c.interval_start, p.lo)) AS start,
-                    max(LEAST(c.interval_end, p.hi)) AS "end", max(c.interval_end) AS latest
-                FROM part p
-                JOIN current_measurements c ON c.source_id = p.source_id
-                    AND c.energy_mwh IS NOT NULL AND c.quality = 'valid'
-                    AND c.interval_start < c.interval_end AND c.interval_end <= :now
-                    AND ((p.historical AND c.interval_start < p.hi AND p.lo < c.interval_end)
-                        OR (NOT p.historical AND p.lo <= c.interval_start AND c.interval_end <= p.hi))
-                GROUP BY p.idx
+                SELECT idx, min(start) AS start, max(finish) AS "end", max(latest) AS latest
+                FROM captures GROUP BY idx
                 """),
             {
                 "indices": list(range(len(queries))),
@@ -124,6 +133,7 @@ class SqlAlchemyEnergyRepository(EnergyRepository):
                 "starts": [query.span[0] for query in queries],
                 "ends": [query.span[1] for query in queries],
                 "historical": [query.historical for query in queries],
+                "live_counter": [query.live_counter for query in queries],
                 "now": now,
             },
         )

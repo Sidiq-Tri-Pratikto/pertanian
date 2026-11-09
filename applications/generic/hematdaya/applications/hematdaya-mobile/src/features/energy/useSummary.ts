@@ -10,9 +10,9 @@ import { useWorkspace } from '@/features/workspace/WorkspaceProvider';
 import type { Period } from '@/features/workspace/workspace-store';
 
 /** Site and asset summaries share a single scoped GET and successful-read persistence path. */
-export function useScopedSummary(scope: SummaryScope, requested = true) {
+export function useScopedSummary(scope: SummaryScope, requested = true, refreshLive = false) {
   const {
-    workspace, credential, credentialGeneration, scopeEpoch, currentScopeEpoch, currentScopePair, scopePair, observeScope,
+    workspace, credential, credentialGeneration, scopeEpoch, currentScopeEpoch, currentScopePair, scopePair, observeScope, pilot,
   } = useWorkspace();
   const { period, record, snapshot, fetchedAt } = useNavigationContext();
   const client = useQueryClient();
@@ -57,6 +57,8 @@ export function useScopedSummary(scope: SummaryScope, requested = true) {
     structuralSharing: false,
     placeholderData: offline ? undefined : keepPreviousData,
     refetchOnReconnect: 'always',
+    refetchInterval: (entry) => refreshLive && pilot && !offline && entry.state.status !== 'error' &&
+      entry.state.data?.window.is_current !== false ? 60_000 : false,
   });
   const returnedPair = query.data ? summaryScopePair(query.data) : null;
   const earlierPair = scope.kind === 'all-active' && query.data !== undefined && scopePair !== null &&
@@ -88,6 +90,6 @@ export function useScopedSummary(scope: SummaryScope, requested = true) {
 }
 
 /** The current site selection for the shared period. */
-export function useSummary() {
-  return useScopedSummary({ kind: 'all-active' });
+export function useSummary(refreshLive = false) {
+  return useScopedSummary({ kind: 'all-active' }, true, refreshLive);
 }
