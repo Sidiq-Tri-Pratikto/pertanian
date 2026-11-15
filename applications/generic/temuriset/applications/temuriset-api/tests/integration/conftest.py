@@ -16,6 +16,7 @@ from app.main import app
 from tests.integration.mail_relay import local_relay  # noqa: F401 - shared fixture
 
 TABLES = (
+    "subscription_deliveries, subscription_links, subscription_requests, investor_subscriptions, "
     "portability_import_rows, portability_import_runs, portability_external_references, portability_export_jobs, "
     "partnership_restrictions, partnership_confirmations, partnership_versions, partnerships, "
     "meeting_outcomes, bookings, meetings, schedule_slots, schedule_proposals, "

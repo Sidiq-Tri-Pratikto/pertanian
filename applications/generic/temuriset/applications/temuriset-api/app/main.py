@@ -40,6 +40,7 @@ from app.portfolio.router import router as portfolio_router
 from app.relationships.router import router as relationships_router
 from app.scheduling.router import CalendarPrivacyMiddleware
 from app.scheduling.router import router as scheduling_router
+from app.subscriptions.router import router as subscriptions_router
 
 API_PREFIX = "/api/v1"
 
@@ -92,6 +93,7 @@ def create_app() -> FastAPI:
     app.include_router(discussion_router, prefix=API_PREFIX)
     app.include_router(scheduling_router, prefix=API_PREFIX)
     app.include_router(relationships_router, prefix=API_PREFIX)
+    app.include_router(subscriptions_router, prefix=API_PREFIX)
     app.include_router(demo_router, prefix=API_PREFIX)
     app.include_router(moderation_router, prefix=API_PREFIX)
     if settings.environment == "development":

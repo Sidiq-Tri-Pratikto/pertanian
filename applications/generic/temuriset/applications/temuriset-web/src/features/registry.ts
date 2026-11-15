@@ -256,6 +256,20 @@ export const FEATURES: Feature[] = [
     home: '/settings#profil-publik',
   },
   {
+    id: 'kabar-investor',
+    title: 'Kabar inovasi untuk investor',
+    summary: 'Investor cukup memberi email dan minat untuk menerima ringkasan inovasi yang sesuai.',
+    points: [
+      'Kecocokan spesifik dikirim langsung, sisanya dirangkum setiap Senin',
+      'Hanya inovasi yang pengelolanya setuju',
+      'Detail tetap memerlukan akun investor',
+    ],
+    screens: ['S02'],
+    specs: ['046'],
+    status: 'available',
+    home: '/langganan',
+  },
+  {
     id: 'tinjauan-organisasi',
     capability: 'organization_review',
     title: 'Tinjauan organisasi',

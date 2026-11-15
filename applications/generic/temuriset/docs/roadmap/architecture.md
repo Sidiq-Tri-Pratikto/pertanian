@@ -233,6 +233,12 @@ A mandatory requirement is always `PUBLIC`, so no secret criterion can reject a 
 - Copy is Indonesian and inline until a second locale is required.
 - Persona is a cookie in the base release and becomes the account's `persona` in 008.
 
+### Investor quick subscriptions (046)
+
+`app/subscriptions` lets an investor give only an email and topics (sectors, stages, up to five keywords) without an account. Nothing is sent before a deliberate `POST /subscriptions/confirm` with the emailed token; every answer to `POST /subscriptions` is `check_email`, so nobody learns whether an email is registered, and an active subscriber gets a manage link instead of new topics. Rate limits: three requests per email and twenty per client address per hour. Links (`confirm`, 7 days; `manage`, 90 days and minted in every email) are stored only as SHA-256 hashes and travel in request bodies.
+
+Publishing never includes an invention: the managing party switches on `inventions.investor_digest` (`PUT /inventions/{id}/investor-digest`, `edit_portfolio`). `matching.py` is pure: every topic group the subscriber filled in matching is a direct alert, at least one is the weekly digest. The `subscriptions.alerts` consumer on `invention.published` and `invention.digest_enabled` sends alerts, capped at three per subscriber per 24 hours; the self-renewing `subscriptions.weekly_digest` job runs every Monday 09:00 Asia/Jakarta with at most five items. `subscription_deliveries` is unique per subscriber and invention, so nothing is sent twice. Emails and the signed-out teaser (`GET /teasers/inventions/{id}`) read only `public_view`: title, one-line summary, sector, stage, keywords, and the inventor's name only when their public profile is published. Mail goes through the existing mailbox port: the development mailbox, the loopback relay (which rechecks the subscription before delivery), or `MAIL_UNAVAILABLE`. `POST /dev/digest` runs the digest at once in development. Linking a subscription to a later account is not built.
+
 ## Recorded deviations from the design system
 
 | ID | Deviation | Reason | Remove when |

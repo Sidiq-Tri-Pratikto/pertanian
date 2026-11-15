@@ -299,6 +299,32 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/dev/digest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Send the weekly investor digest now, for tests
+         * @description Run the weekly digest at once instead of waiting for Monday.
+         *
+         *     Args:
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         dict[str, int]: Digests sent.
+         */
+        post: operations["send_digest_api_v1_dev_digest_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/dev/mailbox": {
         parameters: {
             query?: never;
@@ -1100,6 +1126,35 @@ export interface paths {
          *         InventionResponse: The invention with its saved draft.
          */
         put: operations["save_draft_api_v1_inventions__invention_id__draft_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/inventions/{invention_id}/investor-digest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Include in investor alerts and digests
+         * @description Switch whether investor alerts and digests may include this published invention; off by default.
+         *
+         *     Args:
+         *         invention_id (UUID): The invention.
+         *         body (InvestorDigestRequest): Acting party, ``expected_version`` and the switch.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         InventionResponse: The invention.
+         */
+        put: operations["set_investor_digest_api_v1_inventions__invention_id__investor_digest_put"];
         post?: never;
         delete?: never;
         options?: never;
@@ -3275,6 +3330,126 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/subscriptions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Subscribe to investor alerts
+         * @description Store a pending subscription and email a confirmation link; the answer is the same for every email.
+         *
+         *     Args:
+         *         body (SubscribeRequest): Email, topics and locale.
+         *         request (Request): For the client address used by the rate limit.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         SubscribeResponse: ``check_email``.
+         */
+        post: operations["subscribe_api_v1_subscriptions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/subscriptions/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Confirm a subscription
+         * @description Activate a subscription from its emailed link, by a deliberate POST.
+         *
+         *     Args:
+         *         body (TokenRequest): The confirmation token.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         SubscriptionResponse: The subscription and a manage token.
+         */
+        post: operations["confirm_api_v1_subscriptions_confirm_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/subscriptions/manage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Change subscription topics
+         * @description Change topics through a manage link.
+         *
+         *     Args:
+         *         body (UpdateTopicsRequest): The manage token and topics.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         SubscriptionResponse: The subscription.
+         */
+        put: operations["update_api_v1_subscriptions_manage_put"];
+        /**
+         * Read a subscription
+         * @description Read a subscription through a manage link; the token travels in the body, never in a logged URL.
+         *
+         *     Args:
+         *         body (TokenRequest): The manage token.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         SubscriptionResponse: The subscription.
+         */
+        post: operations["read_api_v1_subscriptions_manage_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/subscriptions/unsubscribe": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Unsubscribe
+         * @description Stop all alerts and digests to the email.
+         *
+         *     Args:
+         *         body (TokenRequest): A manage token.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         SubscriptionResponse: The subscription.
+         */
+        post: operations["unsubscribe_api_v1_subscriptions_unsubscribe_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/support-requests": {
         parameters: {
             query?: never;
@@ -3501,6 +3676,33 @@ export interface paths {
          *         TaskResponse: The task.
          */
         post: operations["complete_task_api_v1_tasks__task_id__complete_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/teasers/inventions/{invention_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read an invention teaser
+         * @description Read the brief public summary of an invention its managing party included in investor alerts.
+         *
+         *     Args:
+         *         invention_id (UUID): The invention.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         TeaserResponse: Title, summary, sector, stage, keywords and inventor name.
+         */
+        get: operations["teaser_api_v1_teasers_inventions__invention_id__get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -5359,6 +5561,12 @@ export interface components {
              */
             id: string;
             /**
+             * Investor Digest
+             * @description Whether the managing party allows investor alerts and digests to include it.
+             * @default false
+             */
+            investor_digest?: boolean;
+            /**
              * Managing Party Id
              * Format: uuid
              */
@@ -5451,6 +5659,21 @@ export interface components {
             summary: string;
             /** Title */
             title: string;
+        };
+        /**
+         * InvestorDigestRequest
+         * @description Include or exclude the published invention from investor alerts and digests.
+         */
+        InvestorDigestRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /** Enabled */
+            enabled: boolean;
+            /** Expected Version */
+            expected_version: number;
         };
         /**
          * InvitationDetailResponse
@@ -7942,6 +8165,54 @@ export interface components {
             version: number;
         };
         /**
+         * SubscribeRequest
+         * @description A quick subscription: only an email and topics.
+         */
+        SubscribeRequest: {
+            /** Email */
+            email: string;
+            /**
+             * Locale
+             * @default id
+             * @enum {string}
+             */
+            locale?: "id" | "en";
+            topics: components["schemas"]["Topics"];
+        };
+        /**
+         * SubscribeResponse
+         * @description The same answer for every email, so nobody learns whether one is registered.
+         */
+        SubscribeResponse: {
+            /**
+             * Status
+             * @default check_email
+             * @constant
+             */
+            status?: "check_email";
+        };
+        /**
+         * SubscriptionResponse
+         * @description What a manage link shows. The email is partly masked.
+         */
+        SubscriptionResponse: {
+            /** Confirmed At */
+            confirmed_at: string | null;
+            /** Email */
+            email: string;
+            /**
+             * Manage Token
+             * @description A fresh manage link token, returned once after confirmation.
+             */
+            manage_token?: string | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "PENDING" | "ACTIVE" | "UNSUBSCRIBED";
+            topics: components["schemas"]["Topics"];
+        };
+        /**
          * SummaryProvenance
          * @description Trusted versions of the model and prompt that produced a selection.
          */
@@ -8048,6 +8319,60 @@ export interface components {
             title: string;
             /** Version */
             version: number;
+        };
+        /**
+         * TeaserResponse
+         * @description What anyone may see of an invention its managing party included in investor alerts.
+         */
+        TeaserResponse: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Inventor Name */
+            inventor_name: string;
+            /** Keywords */
+            keywords: string[];
+            /** Published At */
+            published_at: string | null;
+            /** Sector */
+            sector: string;
+            /** Stage */
+            stage: ("IDEA" | "PROTOTYPE" | "PILOT" | "WORKING" | "MARKET") | null;
+            /** Summary */
+            summary: string;
+            /** Title */
+            title: string;
+        };
+        /**
+         * TokenRequest
+         * @description A link token from an email.
+         */
+        TokenRequest: {
+            /** Token */
+            token: string;
+        };
+        /**
+         * Topics
+         * @description What the investor wants to hear about. At least one group must be filled in.
+         */
+        Topics: {
+            /**
+             * Keywords
+             * @default []
+             */
+            keywords?: string[];
+            /**
+             * Sectors
+             * @default []
+             */
+            sectors?: string[];
+            /**
+             * Stages
+             * @default []
+             */
+            stages?: ("IDEA" | "PROTOTYPE" | "PILOT" | "WORKING" | "MARKET")[];
         };
         /**
          * TransitionRequest
@@ -8198,6 +8523,15 @@ export interface components {
              * @default []
              */
             support_forms?: ("project_funding" | "testing_support" | "mentoring" | "facilities" | "distribution" | "technical_partner" | "other")[];
+        };
+        /**
+         * UpdateTopicsRequest
+         * @description New topics, through a manage link.
+         */
+        UpdateTopicsRequest: {
+            /** Token */
+            token: string;
+            topics: components["schemas"]["Topics"];
         };
         /**
          * UploadIntentRequest
@@ -8776,6 +9110,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    send_digest_api_v1_dev_digest_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: number;
+                    };
                 };
             };
             /** @description Failure */
@@ -10085,6 +10450,50 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["DraftRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventionResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    set_investor_digest_api_v1_inventions__invention_id__investor_digest_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                invention_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InvestorDigestRequest"];
             };
         };
         responses: {
@@ -13712,6 +14121,216 @@ export interface operations {
             };
         };
     };
+    subscribe_api_v1_subscriptions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubscribeRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscribeResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    confirm_api_v1_subscriptions_confirm_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TokenRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    update_api_v1_subscriptions_manage_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateTopicsRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    read_api_v1_subscriptions_manage_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TokenRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    unsubscribe_api_v1_subscriptions_unsubscribe_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TokenRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
     list_support_requests_api_v1_support_requests_get: {
         parameters: {
             query?: {
@@ -14075,6 +14694,46 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TaskResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    teaser_api_v1_teasers_inventions__invention_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                invention_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TeaserResponse"];
                 };
             };
             /** @description Validation failed */

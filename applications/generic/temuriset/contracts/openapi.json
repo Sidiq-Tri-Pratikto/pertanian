@@ -3920,6 +3920,12 @@
             "title": "Id",
             "type": "string"
           },
+          "investor_digest": {
+            "default": false,
+            "description": "Whether the managing party allows investor alerts and digests to include it.",
+            "title": "Investor Digest",
+            "type": "boolean"
+          },
           "managing_party_id": {
             "format": "uuid",
             "title": "Managing Party Id",
@@ -4159,6 +4165,32 @@
           "published_at"
         ],
         "title": "InventionVersionResponse",
+        "type": "object"
+      },
+      "InvestorDigestRequest": {
+        "additionalProperties": false,
+        "description": "Include or exclude the published invention from investor alerts and digests.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "enabled": {
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "expected_version": {
+            "title": "Expected Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "expected_version",
+          "enabled"
+        ],
+        "title": "InvestorDigestRequest",
         "type": "object"
       },
       "InvitationDetailResponse": {
@@ -9746,6 +9778,102 @@
         "title": "SubmittedFile",
         "type": "object"
       },
+      "SubscribeRequest": {
+        "additionalProperties": false,
+        "description": "A quick subscription: only an email and topics.",
+        "properties": {
+          "email": {
+            "maxLength": 254,
+            "pattern": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$",
+            "title": "Email",
+            "type": "string"
+          },
+          "locale": {
+            "default": "id",
+            "enum": [
+              "id",
+              "en"
+            ],
+            "title": "Locale",
+            "type": "string"
+          },
+          "topics": {
+            "$ref": "#/components/schemas/Topics"
+          }
+        },
+        "required": [
+          "email",
+          "topics"
+        ],
+        "title": "SubscribeRequest",
+        "type": "object"
+      },
+      "SubscribeResponse": {
+        "description": "The same answer for every email, so nobody learns whether one is registered.",
+        "properties": {
+          "status": {
+            "const": "check_email",
+            "default": "check_email",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "title": "SubscribeResponse",
+        "type": "object"
+      },
+      "SubscriptionResponse": {
+        "description": "What a manage link shows. The email is partly masked.",
+        "properties": {
+          "confirmed_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confirmed At"
+          },
+          "email": {
+            "title": "Email",
+            "type": "string"
+          },
+          "manage_token": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "A fresh manage link token, returned once after confirmation.",
+            "title": "Manage Token"
+          },
+          "status": {
+            "enum": [
+              "PENDING",
+              "ACTIVE",
+              "UNSUBSCRIBED"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "topics": {
+            "$ref": "#/components/schemas/Topics"
+          }
+        },
+        "required": [
+          "email",
+          "topics",
+          "status",
+          "confirmed_at"
+        ],
+        "title": "SubscriptionResponse",
+        "type": "object"
+      },
       "SummaryProvenance": {
         "description": "Trusted versions of the model and prompt that produced a selection.",
         "properties": {
@@ -10006,6 +10134,144 @@
           "created_at"
         ],
         "title": "TaskResponse",
+        "type": "object"
+      },
+      "TeaserResponse": {
+        "description": "What anyone may see of an invention its managing party included in investor alerts.",
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "inventor_name": {
+            "title": "Inventor Name",
+            "type": "string"
+          },
+          "keywords": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Keywords",
+            "type": "array"
+          },
+          "published_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Published At"
+          },
+          "sector": {
+            "title": "Sector",
+            "type": "string"
+          },
+          "stage": {
+            "anyOf": [
+              {
+                "enum": [
+                  "IDEA",
+                  "PROTOTYPE",
+                  "PILOT",
+                  "WORKING",
+                  "MARKET"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stage"
+          },
+          "summary": {
+            "title": "Summary",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "summary",
+          "sector",
+          "stage",
+          "keywords",
+          "inventor_name",
+          "published_at"
+        ],
+        "title": "TeaserResponse",
+        "type": "object"
+      },
+      "TokenRequest": {
+        "additionalProperties": false,
+        "description": "A link token from an email.",
+        "properties": {
+          "token": {
+            "maxLength": 200,
+            "minLength": 20,
+            "title": "Token",
+            "type": "string"
+          }
+        },
+        "required": [
+          "token"
+        ],
+        "title": "TokenRequest",
+        "type": "object"
+      },
+      "Topics": {
+        "additionalProperties": false,
+        "description": "What the investor wants to hear about. At least one group must be filled in.",
+        "properties": {
+          "keywords": {
+            "default": [],
+            "items": {
+              "maxLength": 40,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 5,
+            "title": "Keywords",
+            "type": "array"
+          },
+          "sectors": {
+            "default": [],
+            "items": {
+              "maxLength": 60,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 10,
+            "title": "Sectors",
+            "type": "array"
+          },
+          "stages": {
+            "default": [],
+            "items": {
+              "enum": [
+                "IDEA",
+                "PROTOTYPE",
+                "PILOT",
+                "WORKING",
+                "MARKET"
+              ],
+              "type": "string"
+            },
+            "maxItems": 5,
+            "title": "Stages",
+            "type": "array"
+          }
+        },
+        "title": "Topics",
         "type": "object"
       },
       "TransitionRequest": {
@@ -10377,6 +10643,27 @@
           "expected_version"
         ],
         "title": "UpdateSupportRequest",
+        "type": "object"
+      },
+      "UpdateTopicsRequest": {
+        "additionalProperties": false,
+        "description": "New topics, through a manage link.",
+        "properties": {
+          "token": {
+            "maxLength": 200,
+            "minLength": 20,
+            "title": "Token",
+            "type": "string"
+          },
+          "topics": {
+            "$ref": "#/components/schemas/Topics"
+          }
+        },
+        "required": [
+          "token",
+          "topics"
+        ],
+        "title": "UpdateTopicsRequest",
         "type": "object"
       },
       "UploadIntentRequest": {
@@ -11189,6 +11476,42 @@
           }
         },
         "summary": "Book a party's time, for tests",
+        "tags": [
+          "development"
+        ]
+      }
+    },
+    "/api/v1/dev/digest": {
+      "post": {
+        "description": "Run the weekly digest at once instead of waiting for Monday.\n\nArgs:\n    session (SessionDep): Database session.\n\nReturns:\n    dict[str, int]: Digests sent.",
+        "operationId": "send_digest_api_v1_dev_digest_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "integer"
+                  },
+                  "title": "Response Send Digest Api V1 Dev Digest Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Send the weekly investor digest now, for tests",
         "tags": [
           "development"
         ]
@@ -13305,6 +13628,70 @@
           }
         },
         "summary": "Save the draft",
+        "tags": [
+          "inventions"
+        ]
+      }
+    },
+    "/api/v1/inventions/{invention_id}/investor-digest": {
+      "put": {
+        "description": "Switch whether investor alerts and digests may include this published invention; off by default.\n\nArgs:\n    invention_id (UUID): The invention.\n    body (InvestorDigestRequest): Acting party, ``expected_version`` and the switch.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    InventionResponse: The invention.",
+        "operationId": "set_investor_digest_api_v1_inventions__invention_id__investor_digest_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "invention_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Invention Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvestorDigestRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InventionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Include in investor alerts and digests",
         "tags": [
           "inventions"
         ]
@@ -18393,6 +18780,264 @@
         ]
       }
     },
+    "/api/v1/subscriptions": {
+      "post": {
+        "description": "Store a pending subscription and email a confirmation link; the answer is the same for every email.\n\nArgs:\n    body (SubscribeRequest): Email, topics and locale.\n    request (Request): For the client address used by the rate limit.\n    session (SessionDep): Database session.\n\nReturns:\n    SubscribeResponse: ``check_email``.",
+        "operationId": "subscribe_api_v1_subscriptions_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubscribeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscribeResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Subscribe to investor alerts",
+        "tags": [
+          "subscriptions"
+        ]
+      }
+    },
+    "/api/v1/subscriptions/confirm": {
+      "post": {
+        "description": "Activate a subscription from its emailed link, by a deliberate POST.\n\nArgs:\n    body (TokenRequest): The confirmation token.\n    session (SessionDep): Database session.\n\nReturns:\n    SubscriptionResponse: The subscription and a manage token.",
+        "operationId": "confirm_api_v1_subscriptions_confirm_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TokenRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Confirm a subscription",
+        "tags": [
+          "subscriptions"
+        ]
+      }
+    },
+    "/api/v1/subscriptions/manage": {
+      "post": {
+        "description": "Read a subscription through a manage link; the token travels in the body, never in a logged URL.\n\nArgs:\n    body (TokenRequest): The manage token.\n    session (SessionDep): Database session.\n\nReturns:\n    SubscriptionResponse: The subscription.",
+        "operationId": "read_api_v1_subscriptions_manage_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TokenRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Read a subscription",
+        "tags": [
+          "subscriptions"
+        ]
+      },
+      "put": {
+        "description": "Change topics through a manage link.\n\nArgs:\n    body (UpdateTopicsRequest): The manage token and topics.\n    session (SessionDep): Database session.\n\nReturns:\n    SubscriptionResponse: The subscription.",
+        "operationId": "update_api_v1_subscriptions_manage_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTopicsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Change subscription topics",
+        "tags": [
+          "subscriptions"
+        ]
+      }
+    },
+    "/api/v1/subscriptions/unsubscribe": {
+      "post": {
+        "description": "Stop all alerts and digests to the email.\n\nArgs:\n    body (TokenRequest): A manage token.\n    session (SessionDep): Database session.\n\nReturns:\n    SubscriptionResponse: The subscription.",
+        "operationId": "unsubscribe_api_v1_subscriptions_unsubscribe_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TokenRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Unsubscribe",
+        "tags": [
+          "subscriptions"
+        ]
+      }
+    },
     "/api/v1/support-requests": {
       "get": {
         "description": "List the acting party's requests, optionally for one invention.\n\nArgs:\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    invention_id (UUID | None, optional): Only this invention's. Defaults to None.\n\nReturns:\n    list[SupportRequestResponse]: Requests.",
@@ -18942,6 +19587,60 @@
         "summary": "Complete a task",
         "tags": [
           "discussion"
+        ]
+      }
+    },
+    "/api/v1/teasers/inventions/{invention_id}": {
+      "get": {
+        "description": "Read the brief public summary of an invention its managing party included in investor alerts.\n\nArgs:\n    invention_id (UUID): The invention.\n    session (SessionDep): Database session.\n\nReturns:\n    TeaserResponse: Title, summary, sector, stage, keywords and inventor name.",
+        "operationId": "teaser_api_v1_teasers_inventions__invention_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "invention_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Invention Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeaserResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Read an invention teaser",
+        "tags": [
+          "subscriptions"
         ]
       }
     },

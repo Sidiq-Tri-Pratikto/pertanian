@@ -84,6 +84,8 @@ Run one file with `npx vitest run tests/pages.test.tsx`, match by name with `npx
 | `/profiles/<partyId>` | S16 signed-out profile with published biography and inventions, and current consented relationship fields |
 | `/undangan/<token>` | What an invitation grants, then **Terima undangan** |
 | `/home` | S02 Beranda: what waits first as `TR.NextStep`, the rest by turn, and in-app notifications |
+| `/langganan`, `/langganan/konfirmasi?token=`, `/langganan/atur?token=` | Investor quick subscription with email and topics, deliberate confirmation, change topics or unsubscribe; all signed out |
+| `/temuan/<id>` | The brief teaser an investor opens from an email; **Daftar untuk melihat detail** returns to the invention after signup |
 | `/inventions` | Inovasi Saya |
 | `/discover` | S03 Temukan Investor/Mitra, or Jelajahi for partners |
 | `/opportunities` | Kebutuhan/Mandat |

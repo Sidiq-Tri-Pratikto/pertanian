@@ -16,6 +16,9 @@ export type Route = {
  */
 export const ROUTES: Route[] = [
   { path: '/start', persona: null, primary: 'Kirim kode' },
+  { path: '/langganan', persona: null, primary: 'Berlangganan' },
+  { path: '/langganan/konfirmasi?token=tidak-ada-token-ini-1234', persona: null, primary: 'Konfirmasi langganan' },
+  { path: '/temuan/00000000-0000-4000-8000-000000000000', persona: null },
   { path: '/start?masuk=1', persona: null, primary: 'Kirim kode' },
   { path: '/home', persona: 'inovator' },
   { path: '/inventions', persona: 'inovator' },

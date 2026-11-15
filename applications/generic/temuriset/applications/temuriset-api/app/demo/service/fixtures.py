@@ -34,7 +34,12 @@ from app.intake.model.schema import (
 from app.intake.service.service import IntakeService
 from app.needs.model.schema import CreateSupportRequest, TransitionRequest
 from app.needs.service.service import NeedsService
-from app.portfolio.model.schema import CreateInventionRequest, DraftRequest, VersionedActionRequest
+from app.portfolio.model.schema import (
+    CreateInventionRequest,
+    DraftRequest,
+    InvestorDigestRequest,
+    VersionedActionRequest,
+)
 from app.portfolio.service.service import PortfolioService
 
 DEMO_EMAIL_DOMAIN = "demo.invalid"
@@ -193,6 +198,13 @@ class DemoSeeder:
         )
         await portfolio.publish(
             principal, created.id, VersionedActionRequest(acting_party_id=party, expected_version=saved.version)
+        )
+        # Demo inventions are included in investor alerts and digests, so the quick subscription can be shown (046).
+        current = await portfolio.owner_view(principal, created.id)
+        await portfolio.set_investor_digest(
+            principal,
+            created.id,
+            InvestorDigestRequest(acting_party_id=party, expected_version=current.version, enabled=True),
         )
         return created.id
 

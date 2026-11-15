@@ -39,7 +39,7 @@ _MAX_MESSAGE_BYTES = 8192
 class MailReference:
     """Originating state that must remain usable at delivery time."""
 
-    kind: Literal["code", "invitation"]
+    kind: Literal["code", "invitation", "subscription"]
     id: UUID
     expires_at: datetime
 

@@ -19,6 +19,7 @@ import {
   type InventionSummary,
   type PublicInvention,
 } from '@/features/portfolio/model';
+import { InvestorDigestToggle } from '@/features/subscriptions/InvestorDigestToggle';
 import { PROVENANCE } from '@/views/parts';
 
 /** S04 list: the acting party's inventions, drafts and archived ones included. */
@@ -114,6 +115,9 @@ export function InventionView({ me, invention, publicView, justPublished }: Deta
       {owner && !invention!.published ? <Status tone="neutral" label="Draf, belum terbit" /> : null}
       {owner && invention!.status === 'ARCHIVED' ? <Status tone="warning" label="Diarsipkan" /> : null}
       <div className="tr-row">{action}</div>
+      {owner && invention!.published && invention!.status !== 'ARCHIVED' ? (
+        <InvestorDigestToggle inventionId={invention!.id} actingPartyId={me.active_party_id} version={invention!.version} enabled={Boolean(invention!.investor_digest)} />
+      ) : null}
       <section className="tr-panel tr-stack" aria-labelledby="ringkasan-inovasi">
         <h2 id="ringkasan-inovasi" className="tr-sys-type-heading-sm">
           Ringkasan

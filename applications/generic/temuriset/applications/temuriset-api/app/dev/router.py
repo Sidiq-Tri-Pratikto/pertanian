@@ -56,3 +56,18 @@ async def book_time(body: DevBookingRequest, session: SessionDep) -> dict[str, s
         BookingRecord(party_id=body.party_id, title=body.title, during=Range(body.starts_at, body.ends_at, bounds="[)"))
     )
     return {"id": str(booking.id)}
+
+
+@router.post("/digest", summary="Send the weekly investor digest now, for tests")
+async def send_digest(session: SessionDep) -> dict[str, int]:
+    """Run the weekly digest at once instead of waiting for Monday.
+
+    Args:
+        session (SessionDep): Database session.
+
+    Returns:
+        dict[str, int]: Digests sent.
+    """
+    from app.subscriptions.service.service import SubscriptionService  # noqa: PLC0415 - development only
+
+    return {"sent": await SubscriptionService(session).digest()}

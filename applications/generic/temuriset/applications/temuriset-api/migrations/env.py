@@ -24,6 +24,7 @@ import app.portability.repository.sqlalchemy.models  # noqa: F401
 import app.portfolio.repository.sqlalchemy.models  # noqa: F401
 import app.relationships.repository.sqlalchemy.models  # noqa: F401
 import app.scheduling.repository.sqlalchemy.models  # noqa: F401
+import app.subscriptions.repository.sqlalchemy.models  # noqa: F401
 from app.core.database import Base
 from app.core.settings import get_settings
 

@@ -156,7 +156,9 @@ async def test_event_stops_at_the_attempt_limit() -> None:
     async def broken(_session: AsyncSession, _payload: dict[str, Any]) -> None:
         raise RuntimeError("always")
 
-    [event_id] = await _publish()
+    # Published at the frozen start, so the test does not depend on today's date.
+    with clock.frozen(START):
+        [event_id] = await _publish()
     for hour in range(MAX_ATTEMPTS + 2):
         with clock.frozen(START + timedelta(days=hour)):
             await dispatch_events(get_session_factory(), registry)

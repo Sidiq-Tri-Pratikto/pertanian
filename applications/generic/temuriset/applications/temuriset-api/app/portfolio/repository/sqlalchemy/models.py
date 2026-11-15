@@ -20,6 +20,9 @@ class InventionRecord(MutableRow, Base):
     status: Mapped[str] = mapped_column(String(16), default="DRAFT")
     published_version_id: Mapped[UUID | None]
     draft_version_id: Mapped[UUID | None]
+    # Off until the managing party chooses to be included in investor alerts and digests (046).
+    investor_digest: Mapped[bool] = mapped_column(default=False, server_default="false")
+    investor_digest_at: Mapped[datetime | None]
 
 
 class InventionVersionRecord(MutableRow, Base):
