@@ -39,6 +39,17 @@ NOT_DATA_ROUTES = {
     ("GET", "/api/v1/dev/mailbox"),
     # Development only: marks a party busy for browser tests, as another meeting would.
     ("POST", "/api/v1/dev/bookings"),
+    # Development only: runs the weekly investor digest now.
+    ("POST", "/api/v1/dev/digest"),
+    # Quick subscriptions need no account: the email is the subscriber and each link carries its own token. The
+    # teaser shows only what the managing party included for investors. Both are proven in
+    # tests/integration/subscriptions.
+    ("POST", "/api/v1/subscriptions"),
+    ("POST", "/api/v1/subscriptions/confirm"),
+    ("POST", "/api/v1/subscriptions/manage"),
+    ("PUT", "/api/v1/subscriptions/manage"),
+    ("POST", "/api/v1/subscriptions/unsubscribe"),
+    ("GET", "/api/v1/teasers/inventions/{invention_id}"),
     ("POST", "/api/v1/organizations"),
     ("POST", "/api/v1/inventions"),
     ("POST", "/api/v1/imports/validate"),  # The submitted file can only stage for the acting party.
@@ -188,6 +199,11 @@ ROUTES: dict[tuple[str, str], Case] = {
     ),
     ("GET", "/api/v1/inventions"): Case("GET", lambda _o: "/api/v1/inventions"),
     ("GET", "/api/v1/inventions/{invention_id}"): Case("GET", lambda o: f"/api/v1/inventions/{o.invention_id}"),
+    ("PUT", "/api/v1/inventions/{invention_id}/investor-digest"): Case(
+        "PUT",
+        lambda o: f"/api/v1/inventions/{o.published_invention_id}/investor-digest",
+        lambda _o, actor: {"acting_party_id": actor, "expected_version": 1, "enabled": True},
+    ),
     ("PUT", "/api/v1/inventions/{invention_id}/draft"): Case(
         "PUT",
         lambda o: f"/api/v1/inventions/{o.invention_id}/draft",

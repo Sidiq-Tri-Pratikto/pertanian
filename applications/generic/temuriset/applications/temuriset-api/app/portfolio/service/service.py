@@ -1,7 +1,9 @@
 """Inventions: drafts that save anything, versions that never change once published."""
 
+from datetime import datetime
 from uuid import UUID
 
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.access.model.models import Capability
@@ -20,6 +22,7 @@ from app.portfolio.model.schema import (
     InventionResponse,
     InventionSummaryResponse,
     InventionVersionResponse,
+    InvestorDigestRequest,
     PublicClaimResponse,
     PublicFactResponse,
     PublicInventionResponse,
@@ -105,8 +108,48 @@ class PortfolioService:
             draft=await self.repository.version(invention.draft_version_id),
             published=await self.repository.version(invention.published_version_id),
             history=await self.repository.numbers(invention.id),
+            investor_digest=invention.investor_digest,
             operation_id=operation_id,
         )
+
+    async def set_investor_digest(
+        self, principal: Principal, invention_id: UUID, request: InvestorDigestRequest
+    ) -> InventionResponse:
+        """Switch inclusion in investor alerts and digests; publishing alone never includes an invention (046).
+
+        Args:
+            principal (Principal): Who is signed in.
+            invention_id (UUID): The invention.
+            request (InvestorDigestRequest): Acting party, ``expected_version`` and the switch.
+
+        Returns:
+            InventionResponse: The invention.
+        """
+        check_context(principal, request.acting_party_id)
+        invention = await self._owned(principal, invention_id, lock=True)
+        require(principal, Capability.EDIT_PORTFOLIO, invention.managing_party_id)
+        check_expected(invention.version, request.expected_version)
+        changed = invention.investor_digest != request.enabled
+        invention.investor_digest = request.enabled
+        if changed and request.enabled:
+            invention.investor_digest_at = clock.now()
+        invention.version += 1
+        await self.session.flush()
+        if changed and request.enabled and invention.published_version_id is not None:
+            await publish(
+                self.session,
+                "invention.digest_enabled",
+                {"invention_id": str(invention.id), "version_id": str(invention.published_version_id)},
+            )
+        await record_audit(
+            self.session,
+            action="invention.investor_digest",
+            subject_type="invention",
+            subject_id=str(invention.id),
+            actor_account_id=principal.account_id,
+            actor_party_id=principal.active_party_id,
+        )
+        return await self._view(invention)
 
     async def owner_view(self, principal: Principal, invention_id: UUID) -> InventionResponse:
         """Read an invention as its managing party.
@@ -436,3 +479,37 @@ async def invention_ids_of(session: AsyncSession, version_ids: list[UUID]) -> li
         if record is not None and record.invention_id not in found:
             found.append(record.invention_id)
     return found
+
+
+async def digest_candidates(session: AsyncSession, since: datetime) -> list[UUID]:
+    """Published inventions in investor digests that were published or switched on since a time (046).
+
+    Args:
+        session (AsyncSession): The worker's session.
+        since (datetime): The start of the digest window.
+
+    Returns:
+        list[UUID]: Invention ids, newest first; suspension and archiving are checked by ``public_view``.
+    """
+    newest = func.greatest(InventionVersionRecord.published_at, InventionRecord.investor_digest_at)
+    query = (
+        select(InventionRecord.id)
+        .join(InventionVersionRecord, InventionVersionRecord.id == InventionRecord.published_version_id)
+        .where(InventionRecord.investor_digest, InventionRecord.status == "PUBLISHED", newest >= since)
+        .order_by(newest.desc())
+    )
+    return list(await session.scalars(query))
+
+
+async def investor_digest_enabled(session: AsyncSession, invention_id: UUID) -> bool:
+    """Whether the managing party includes the invention in investor alerts and digests (046).
+
+    Args:
+        session (AsyncSession): The request's session.
+        invention_id (UUID): The invention.
+
+    Returns:
+        bool: The switch.
+    """
+    record = await session.get(InventionRecord, invention_id)
+    return bool(record and record.investor_digest)

@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Annotated, Literal
 from uuid import UUID
 
-from pydantic import BaseModel, Field, StringConstraints
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 
 Stage = Literal["IDEA", "PROTOTYPE", "PILOT", "WORKING", "MARKET"]
 Timing = Literal["CURRENT", "PLANNED", "REQUESTED"]
@@ -109,7 +109,20 @@ class InventionResponse(BaseModel):
     draft: InventionVersionResponse | None
     published: InventionVersionResponse | None
     history: list[int]
+    investor_digest: bool = Field(
+        default=False, description="Whether the managing party allows investor alerts and digests to include it."
+    )
     operation_id: UUID | None = None
+
+
+class InvestorDigestRequest(BaseModel):
+    """Include or exclude the published invention from investor alerts and digests."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    acting_party_id: UUID
+    expected_version: int
+    enabled: bool
 
 
 class InventionSummaryResponse(BaseModel):

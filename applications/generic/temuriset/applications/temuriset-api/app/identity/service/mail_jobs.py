@@ -26,7 +26,7 @@ class _SecretMessage(BaseModel):
     to: str
     subject: str
     body: str
-    source_kind: Literal["code", "invitation"]
+    source_kind: Literal["code", "invitation", "subscription"]
     source_id: UUID
 
 
@@ -63,6 +63,11 @@ async def deliver_secret(session: AsyncSession, job_input: dict[str, Any]) -> No
         raise MailRelayRejectedError() from error
     if message.source_kind == "code":
         deliverable = await _code_deliverable(session, message)
+    elif message.source_kind == "subscription":
+        # Imported here: subscriptions sends through this module.
+        from app.subscriptions.service.service import subscription_deliverable  # noqa: PLC0415
+
+        deliverable = await subscription_deliverable(session, message.source_id, message.to)
     else:
         deliverable = await invitation_deliverable(session, message.source_id, message.to)
     if not deliverable:

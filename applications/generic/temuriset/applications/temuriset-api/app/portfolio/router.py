@@ -13,6 +13,7 @@ from app.portfolio.model.schema import (
     DraftRequest,
     InventionResponse,
     InventionSummaryResponse,
+    InvestorDigestRequest,
     PublicInventionResponse,
     PublishResponse,
     VersionedActionRequest,
@@ -153,6 +154,24 @@ async def archive_invention(
     return await operation.respond(  # type: ignore[return-value]
         archived, result=OperationResult(type="invention", id=str(invention_id))
     )
+
+
+@router.put("/{invention_id}/investor-digest", summary="Include in investor alerts and digests")
+async def set_investor_digest(
+    invention_id: UUID, body: InvestorDigestRequest, principal: PrincipalDep, session: SessionDep
+) -> InventionResponse:
+    """Switch whether investor alerts and digests may include this published invention; off by default.
+
+    Args:
+        invention_id (UUID): The invention.
+        body (InvestorDigestRequest): Acting party, ``expected_version`` and the switch.
+        principal (PrincipalDep): Who is signed in.
+        session (SessionDep): Database session.
+
+    Returns:
+        InventionResponse: The invention.
+    """
+    return await PortfolioService(session).set_investor_digest(principal, invention_id, body)
 
 
 @router.get("/{invention_id}/public", summary="Read the published version")

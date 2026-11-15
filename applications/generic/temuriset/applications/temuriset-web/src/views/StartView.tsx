@@ -145,6 +145,12 @@ export function StartView({ persona, mode, returnTo, demo }: StartViewProps) {
           {signUp ? 'Masuk' : 'Daftar'}
         </Link>
       </p>
+      <p>
+        Investor dan cukup ingin kabar lewat email?{' '}
+        <Link className="tr-link" href="/langganan">
+          Berlangganan kabar inovasi
+        </Link>
+      </p>
       {demo}
     </AuthShell>
   );

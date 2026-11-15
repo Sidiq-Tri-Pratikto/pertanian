@@ -39,6 +39,7 @@ make check             # lint, format check, all tests, 80% coverage gate
 | `tests/integration/needs/` | Support requests: exact budgets as strings (F01), invalid ranges per field (AC16), unknown money as null with a reason (AC17), exact line totals, status changes, versions, stale saves | Postgres |
 | `tests/unit/needs/` | Budget rules and when two ranges compare directly (AC18) | Nothing |
 | `tests/integration/funding/` | One raise with two invention links (AC19), proposed companies, target versions, exact amounts per field, no valuation fields, archived links, and the guard in all three compositions with reads kept (AC67) | Postgres |
+| `tests/integration/subscriptions/` | Double opt-in, no enumeration, rate limits, disabled mail, direct alerts with reasons and no private field, once per invention, the daily cap, the weekly digest, manage and unsubscribe, the teaser (046) | Postgres |
 | `tests/integration/intake/` | Partner profiles with honest labels (AC22), closing intake against specific targets (AC23), external handoffs (AC24), separate opportunities (AC25), the availability table, versions, states, expiry, readiness, typed requirements, failure paths | Postgres |
 | `tests/unit/intake/` | Recipients A–E as data, requirement operators and value shapes, states and the availability table | Nothing |
 | `tests/integration/discovery/` | Sections from stated preferences with no trend (AC28–AC30), empty filters echoed with a deliberate relaxation, English aliases and typos, one card per raise, amounts in one currency, saved items and "Kurang relevan" per party, archive removes the row, private notes unsearchable, cursors | Postgres |
@@ -205,6 +206,9 @@ staging evidence are separate release gates.
 | `PUT /api/v1/pitches/{id}/revision-items/{item_id}/answer`, `.../review` | Save a draft answer with its version; mark an answered item `ACCEPTED` or `NEEDS_DETAIL` |
 | `GET`, `POST /api/v1/pitches/{id}/messages`, `GET`, `POST /api/v1/pitches/{id}/tasks`, `POST /api/v1/tasks/{id}/complete` | The room's messages (poll with `since`) and tasks; sends take `Idempotency-Key` |
 | `GET /api/v1/pitches/{id}/next-action`, `GET /api/v1/me/queue` | Whose turn it is on one pitch, and everything waiting for Beranda |
+| `POST /api/v1/subscriptions`, `POST /api/v1/subscriptions/confirm`, `POST`/`PUT /api/v1/subscriptions/manage`, `POST /api/v1/subscriptions/unsubscribe` | Investor quick subscription with double opt-in; manage and unsubscribe links need no account (046) |
+| `GET /api/v1/teasers/inventions/{id}`, `PUT /api/v1/inventions/{id}/investor-digest` | The signed-out teaser of an included invention; the managing party's switch, off by default |
+| `POST /api/v1/dev/digest` | Development only: send the weekly investor digest now |
 | `GET /api/v1/notifications`, `PUT /api/v1/notifications/{id}/read` | The acting party's in-app notifications (`since`, `unread`) and marking one read |
 | `GET /api/v1/pitches/{id}/schedule`, `POST /api/v1/pitches/{id}/schedule-proposals` | Proposals and meetings with expiry evaluated now; propose 2–5 slots of 30 or 60 minutes, or a replacement |
 | `POST /api/v1/schedule-proposals/{id}/accept`, `.../cancel`, `POST /api/v1/meetings/{id}/cancel`, `.../outcome`, `GET /api/v1/meetings/{id}/calendar.ics` | Confirm a slot (`BOOKING_CONFLICT`, `PROPOSAL_CLOSED`), cancel, record outcomes, download ICS |
