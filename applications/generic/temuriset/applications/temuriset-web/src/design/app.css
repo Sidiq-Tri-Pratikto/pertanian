@@ -29,6 +29,7 @@ body {
    lines (about 180 px before any content). The label now sits beside its select at every width, as the design
    system already does from 48 rem, and the demo tag shares a line when it fits. */
 .tr-bar__context .tr-field { flex-direction: row; flex-wrap: wrap; align-items: center; gap: var(--tr-sys-space-controlGap); }
-.tr-bar__context .tr-field__label { flex: none; }
+/* The label may wrap between words: at 200% text on 320 px it is wider than half the bar. */
+.tr-bar__context .tr-field__label { flex: 0 1 auto; min-width: 0; }
 .tr-bar__context .tr-row > .tr-field { flex: 1 1 14rem; min-width: 0; }
 .tr-bar__context .tr-field > select { flex: 1 1 10rem; min-width: 0; }
