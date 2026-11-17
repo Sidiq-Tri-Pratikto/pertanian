@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { ContextBar } from '@/features/ContextBar';
@@ -31,8 +31,8 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllGlobals());
 
 const ACCOUNTS: DemoAccount[] = [
-  { key: 'rani', name: 'Rani', persona: 'inovator', fixture: 'F01', label: 'Akun demo · data fiktif' },
-  { key: 'mitra-a', name: 'Peserta P', persona: 'mitra', fixture: 'Recipient A', label: 'Akun demo · data fiktif' },
+  { key: 'rani', name: 'Rani', persona: 'inovator', fixture: 'F01', summary: 'Inovator perorangan. ClearSpring, filter air.', label: 'Akun demo · data fiktif' },
+  { key: 'mitra-a', name: 'Peserta P', persona: 'mitra', fixture: 'Recipient A', summary: 'Mitra validasi prototipe.', label: 'Akun demo · data fiktif' },
 ];
 
 describe('demo picker (spec 021)', () => {
@@ -41,7 +41,9 @@ describe('demo picker (spec 021)', () => {
     replies = [{ status: 200, body: {} }];
     render(<DemoPanel accounts={ACCOUNTS} />);
 
-    expect(screen.getByText('F01 · Akun demo · data fiktif')).toBeInTheDocument();
+    const inventors = screen.getByRole('region', { name: 'Sebagai inovator' });
+    expect(within(inventors).getByText('Inovator perorangan. ClearSpring, filter air.')).toBeInTheDocument();
+    expect(within(screen.getByRole('region', { name: 'Sebagai investor atau mitra' })).getByRole('button', { name: 'Masuk sebagai Peserta P' })).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Masuk sebagai Peserta P' }));
 
     await waitFor(() => expect(router.push).toHaveBeenCalledWith('/discover'));

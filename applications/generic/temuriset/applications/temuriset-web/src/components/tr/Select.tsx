@@ -38,7 +38,7 @@ export function Select({ label, value, onChange, options, emptyLabel, hint, requ
         {emptyLabel !== null ? <option value="">{emptyLabel ?? 'Pilih salah satu'}</option> : null}
         {options.map((option) => (
           <option key={option.value} value={option.value} disabled={Boolean(option.disabledReason)}>
-            {option.label + (option.disabledReason ? ` — ${option.disabledReason}` : '')}
+            {option.label + (option.disabledReason ? ` (${option.disabledReason})` : '')}
           </option>
         ))}
       </select>

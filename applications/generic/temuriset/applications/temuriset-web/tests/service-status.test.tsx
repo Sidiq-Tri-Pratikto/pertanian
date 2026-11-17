@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { readFailure, ApiError } from '@/api/errors';
@@ -15,15 +15,14 @@ afterEach(() => {
 });
 
 describe('ServiceStatus', () => {
-  it('says the service answers and names the release', async () => {
+  it('says nothing while the service answers', async () => {
     const fetchMock = vi.fn(() => respond(200, MANIFEST));
     vi.stubGlobal('fetch', fetchMock);
 
-    render(<ServiceStatus />);
+    const { container } = render(<ServiceStatus />);
 
-    expect(await screen.findByText('Layanan tersedia')).toBeInTheDocument();
-    expect(screen.getByText(/Versi 0\.1\.0/)).toBeInTheDocument();
-    expect(fetchMock).toHaveBeenCalledWith('/api/v1/capabilities', expect.objectContaining({ cache: 'no-store' }));
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledWith('/api/v1/capabilities', expect.objectContaining({ cache: 'no-store' })));
+    expect(container).toBeEmptyDOMElement();
   });
 
   it('explains an unreachable service and retries on request', async () => {
@@ -35,7 +34,8 @@ describe('ServiceStatus', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('Layanan belum dapat dihubungi');
     await userEvent.click(screen.getByRole('button', { name: 'Coba lagi' }));
 
-    expect(await screen.findByText('Layanan tersedia')).toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByRole('alert')).toBeNull());
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
   it('shows the service message and reference without a retry for a final failure', async () => {

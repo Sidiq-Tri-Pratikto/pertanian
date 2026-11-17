@@ -5,6 +5,7 @@ import { readCapabilities } from '@/features/capabilities';
 import type { components } from '@/api/schema.generated';
 import { destinationFor } from '@/features/destinations';
 import type { Notice } from '@/features/discussion/NotificationList';
+import { matchesHref } from '@/features/discovery/model';
 import { needsRange, type SupportRequest } from '@/features/needs/model';
 import { personaOf, requireMe } from '@/features/session';
 import { DestinationView, type QueueItem } from '@/views/DestinationView';
@@ -23,7 +24,7 @@ export default async function Page() {
   const fromPitches: QueueItem[] = pitches.map((item) => ({
     href: `/pitches/${item.pitch_id}?tab=${item.tab}`,
     label: item.title,
-    context: `${item.subject_title} → ${item.opportunity_title}`,
+    context: `${item.subject_title} untuk ${item.opportunity_title}`,
     who: item.who ?? undefined,
     text: item.text,
   }));
@@ -34,5 +35,17 @@ export default async function Page() {
     who: 'you',
   }));
   const queue = [...fromPitches, ...needs].sort((a, b) => Number(a.who === 'other') - Number(b.who === 'other'));
+  // Nothing waits, but an open need can still go somewhere: point at its matches instead of an empty screen.
+  const open = support.find((request) => request.status === 'ACTIVE');
+  if (!queue.length && open) {
+    queue.push({
+      href: matchesHref({ type: 'SUPPORT_REQUEST', id: open.id }),
+      label: 'Temukan investor atau mitra untuk kebutuhan Anda',
+      context: `${open.outcome || 'Kebutuhan tanpa judul'} · ${open.invention_title}`,
+      who: 'you',
+      text: 'Lihat siapa yang cocok dan alasannya, lalu siapkan pitching.',
+      action: 'Lihat kecocokan',
+    });
+  }
   return <DestinationView me={me} destination={destinationFor('home', persona)} capabilities={await readCapabilities()} queue={queue} notifications={notifications} />;
 }

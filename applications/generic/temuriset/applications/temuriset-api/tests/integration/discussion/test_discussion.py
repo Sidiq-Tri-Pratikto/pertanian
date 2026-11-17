@@ -222,10 +222,10 @@ async def test_each_event_notifies_the_party_that_acts_once_and_read_state_is_it
     foreign = await rani.put(f"/api/v1/notifications/{theirs[0]['id']}/read")
 
     assert [(n["text"], n["tab"]) for n in theirs] == [
-        ("Pitching baru: ClearSpring → Validasi prototipe enam bulan", "ringkasan")
+        ("Pitching baru: ClearSpring untuk Validasi prototipe enam bulan", "ringkasan")
     ]
     assert [(n["text"], n["tab"], n["read"]) for n in mine] == [
-        ("Revisi diminta: ClearSpring → Validasi prototipe enam bulan", "revisi", False)
+        ("Revisi diminta: ClearSpring untuk Validasi prototipe enam bulan", "revisi", False)
     ]
     assert read.json()["read"] is True
     assert foreign.status_code == 404

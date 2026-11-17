@@ -12,6 +12,7 @@ class DemoAccount(BaseModel):
     name: str
     persona: Literal["inovator", "mitra"]
     fixture: str
+    summary: str
     label: str
 
 

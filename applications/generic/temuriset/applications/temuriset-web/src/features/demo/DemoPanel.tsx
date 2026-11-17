@@ -13,6 +13,11 @@ import { homeFor, readPersona } from '@/features/persona';
 
 export type DemoAccount = components['schemas']['DemoAccount'];
 
+const GROUPS = [
+  { persona: 'inovator', title: 'Sebagai inovator' },
+  { persona: 'mitra', title: 'Sebagai investor atau mitra' },
+] as const;
+
 /** The labelled demo: sign in as a fictional account with no email, or reset every demo record (spec 021). */
 export function DemoPanel({ accounts }: { accounts: DemoAccount[] }) {
   const router = useRouter();
@@ -52,17 +57,28 @@ export function DemoPanel({ accounts }: { accounts: DemoAccount[] }) {
       <h2 id="akun-demo" className="tr-sys-type-heading-sm">
         Coba dengan akun demo
       </h2>
-      <p className="tr-muted">Semua data di akun ini fiktif. Akun demo tidak menerima email dan tidak masuk statistik.</p>
-      <ul className="tr-stack">
-        {accounts.map((account) => (
-          <li key={account.key} className="tr-row">
-            <Button busy={busy === account.key} busyLabel="Masuk…" onClick={() => void signIn(account)}>
-              {`Masuk sebagai ${account.name}`}
-            </Button>
-            <span className="tr-muted tr-sys-type-support">{`${account.fixture} · ${account.label}`}</span>
-          </li>
-        ))}
-      </ul>
+      <p className="tr-muted">Masuk tanpa email untuk mencoba alur lengkap. Semua data di akun ini fiktif, tidak menerima email dan tidak masuk statistik.</p>
+      {GROUPS.map((group) => {
+        const members = accounts.filter((account) => account.persona === group.persona);
+        if (!members.length) return null;
+        return (
+          <section key={group.persona} className="tr-stack" aria-labelledby={`demo-${group.persona}`}>
+            <h3 id={`demo-${group.persona}`} className="tr-sys-type-label">
+              {group.title}
+            </h3>
+            <ul className="tr-stack">
+              {members.map((account) => (
+                <li key={account.key} className="tr-row">
+                  <Button busy={busy === account.key} busyLabel="Masuk…" onClick={() => void signIn(account)}>
+                    {`Masuk sebagai ${account.name}`}
+                  </Button>
+                  <span className="tr-muted tr-sys-type-support">{account.summary}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        );
+      })}
       <div className="tr-row">
         <Button id="atur-ulang-demo" onClick={() => setConfirming(true)}>
           Atur ulang demo

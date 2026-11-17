@@ -137,7 +137,7 @@ describe('pitch lists (S12)', () => {
     expect(within(screen.getByRole('listitem')).getByText('Menunggu Anda')).toBeInTheDocument();
     expect(screen.getByText('Dukungan Proyek · dari Rani')).toBeInTheDocument();
     expect(screen.getByText(/^Diperbarui /)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Buka pitching ClearSpring → Validasi prototipe enam bulan' })).toHaveAttribute('href', '/pitches/pitch-1');
+    expect(screen.getByRole('link', { name: 'Buka pitching ClearSpring untuk Validasi prototipe enam bulan' })).toHaveAttribute('href', '/pitches/pitch-1');
   });
 
   it('keeps the filters in a GET form and says when they hide everything', () => {

@@ -100,6 +100,8 @@ async def test_the_picker_lists_labelled_accounts_and_signs_in_without_email(cli
     unknown = await client.post("/api/v1/demo/sign-in", json={"key": "nobody"})
 
     assert {account["label"] for account in accounts} == {"Akun demo · data fiktif"}
+    assert all(account["summary"] for account in accounts)
+    assert accounts[0]["summary"].startswith("Inovator perorangan")
     assert [account["key"] for account in accounts][:5] == ["rani", "dewi", "galih", "bima", "sinta"]
     assert len(accounts) == 10
     assert (me["account"]["kind"], me["account"]["display_name"]) == ("demo", "Rani")
@@ -107,6 +109,22 @@ async def test_the_picker_lists_labelled_accounts_and_signs_in_without_email(cli
     assert (await client.get("/api/v1/dev/mailbox", params={"email": "rani@demo.invalid"})).json() == []
     assert unknown.status_code == 404
     assert (await client.get("/api/v1/capabilities")).json()["demo"] is True
+
+
+@pytest.mark.usefixtures("demo_on")
+async def test_signing_in_before_anyone_seeded_the_demo_seeds_it_first(client: AsyncClient) -> None:
+    """
+    Condition:
+    - Demo mode is on but nobody ran the seed or a reset yet, as on a fresh demo deployment.
+
+    Expected:
+    - Signing in as Rani seeds the demo and succeeds, and her invention is there.
+    """
+    me = await _sign_in(client, "rani")
+
+    assert (me["account"]["kind"], me["account"]["display_name"]) == ("demo", "Rani")
+    titles = [invention["title"] for invention in (await client.get("/api/v1/inventions")).json()]
+    assert "ClearSpring" in titles
 
 
 @pytest.mark.usefixtures("demo_on")

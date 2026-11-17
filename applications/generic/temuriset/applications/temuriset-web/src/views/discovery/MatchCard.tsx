@@ -25,7 +25,8 @@ function primaryAction(result: MatchResult, source: MatchSourceRef) {
   if (result.readiness === 'READY_TO_SUBMIT' && result.availability.available) {
     return { href: `/pitches/new?source=${source.type}:${source.id}&target=${result.opportunity_id}`, label: 'Siapkan pitching' };
   }
-  return { href: `/opportunities/${result.opportunity_id}`, label: 'Lihat mandat' };
+  // The partner's profile lists its mandates; there is no page per mandate for the sender.
+  return { href: `/partners/${result.partner_party_id}`, label: 'Lihat mandat' };
 }
 
 type Props = { result: MatchResult; source: MatchSourceRef };
@@ -55,7 +56,7 @@ export function MatchCard({ result, source }: Props) {
           </div>
           <div>
             <dt className="tr-sys-type-support-strong">Kisaran kecocokan</dt>
-            <dd>{`${score(result.fit.lower)}–${score(result.fit.upper)} · informasi ${percent(result.fit.coverage)}`}</dd>
+            <dd>{`${score(result.fit.lower, 'lower')}–${score(result.fit.upper, 'upper')} dari 100 · informasi ${percent(result.fit.coverage)}`}</dd>
           </div>
         </dl>
         {result.reasons.length ? (

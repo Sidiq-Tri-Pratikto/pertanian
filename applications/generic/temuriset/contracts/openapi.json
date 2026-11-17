@@ -2097,6 +2097,10 @@
             ],
             "title": "Persona",
             "type": "string"
+          },
+          "summary": {
+            "title": "Summary",
+            "type": "string"
           }
         },
         "required": [
@@ -2104,6 +2108,7 @@
           "name",
           "persona",
           "fixture",
+          "summary",
           "label"
         ],
         "title": "DemoAccount",

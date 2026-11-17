@@ -83,7 +83,7 @@ async def notify(session: AsyncSession, topic: str, payload: dict[str, Any]) -> 
             "pitch_id": record.id,
             "event_key": event_key(topic, payload),
             "channel": "in_app",
-            "text": f"{text}: {record.subject_title} → {record.opportunity_title}"[:300],
+            "text": f"{text}: {record.subject_title} untuk {record.opportunity_title}"[:300],
             "tab": tab,
         }
     )

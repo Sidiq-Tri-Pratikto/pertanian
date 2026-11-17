@@ -4,6 +4,7 @@ const ICONS = {
   cross: 'M6 6l12 12M18 6L6 18',
   question: 'M9 9.2a3 3 0 1 1 4.6 2.5c-1 .7-1.6 1.3-1.6 2.5M12 17.6v.1',
   minus: 'M6 12h12',
+  plus: 'M12 5v14M5 12h14',
   alert: 'M12 4l9 16H3L12 4zM12 10v4.5M12 17.2v.1',
   clock: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7.5V12l3 2',
   lock: 'M7 11V8a5 5 0 0 1 10 0v3M6 11h12v9H6z',

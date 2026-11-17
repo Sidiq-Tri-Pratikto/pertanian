@@ -438,7 +438,7 @@ class SchedulingService:
         record, _ = await visible_pitch(self.session, principal, meeting.pitch_id)
         if meeting.state not in ("CONFIRMED", "COMPLETED"):
             raise NotFoundError()
-        return calendar(meeting, f"{record.subject_title} → {record.opportunity_title}", clock.now())
+        return calendar(meeting, f"{record.subject_title} untuk {record.opportunity_title}", clock.now())
 
     @staticmethod
     def _proposal(

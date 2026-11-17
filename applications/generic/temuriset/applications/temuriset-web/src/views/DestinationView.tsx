@@ -14,7 +14,7 @@ import { ServiceStatus } from '@/features/ServiceStatus';
 import { FeatureList, PROVENANCE } from '@/views/parts';
 
 /** One primary destination: what waits first, then the rest of the queue, notifications, and what is coming. */
-export type QueueItem = { href: string; label: string; context: string; who?: 'you' | 'other'; text?: string };
+export type QueueItem = { href: string; label: string; context: string; who?: 'you' | 'other'; text?: string; action?: string };
 type DestinationViewProps = { me: Me; destination: Destination; capabilities: Capabilities; queue?: QueueItem[]; notifications?: Notice[] };
 
 const TURN = { you: 'Menunggu Anda', other: 'Menunggu pihak lain' } as const;
@@ -37,7 +37,7 @@ export function DestinationView({ me, destination, capabilities, queue = [], not
             title={queue[0].label}
             action={
               <Link className="tr-btn tr-btn--primary" href={queue[0].href}>
-                {queue[0].who === 'other' ? 'Buka' : 'Kerjakan sekarang'}
+                {queue[0].action ?? (queue[0].who === 'other' ? 'Buka' : 'Kerjakan sekarang')}
                 <span className="tr-sr">{`: ${queue[0].context}`}</span>
               </Link>
             }>
@@ -65,7 +65,16 @@ export function DestinationView({ me, destination, capabilities, queue = [], not
           ) : null}
         </>
       ) : (
-        <EmptyState icon={destination.empty.icon} title={destination.empty.title}>
+        <EmptyState
+          icon={destination.empty.icon}
+          title={destination.empty.title}
+          action={
+            destination.empty.action ? (
+              <Link className="tr-btn tr-btn--secondary" href={destination.empty.action.href}>
+                {destination.empty.action.label}
+              </Link>
+            ) : undefined
+          }>
           {destination.empty.body}
         </EmptyState>
       )}

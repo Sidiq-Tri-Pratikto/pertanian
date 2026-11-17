@@ -8,7 +8,8 @@ export type Destination = {
   title: string;
   subtitle: string;
   showServiceStatus?: boolean;
-  empty: { icon: IconName; title: string; body: string };
+  /** The one action that fills an empty destination, when there is one. */
+  empty: { icon: IconName; title: string; body: string; action?: { label: string; href: string } };
   /** Feature ids from the registry, in reading order. */
   features: string[];
 };
@@ -26,7 +27,8 @@ const HOME: Record<Persona, Destination> = {
     empty: {
       icon: 'bulb',
       title: 'Belum ada yang perlu dikerjakan',
-      body: 'Pitching, revisi, dan jadwal yang menunggu Anda akan muncul di sini.',
+      body: 'Pitching, revisi, dan jadwal yang menunggu Anda akan muncul di sini. Mulailah dengan inovasi Anda.',
+      action: { label: 'Buka Inovasi Saya', href: '/inventions' },
     },
     features: ['akun', 'inovasi', 'dukungan-proyek', 'kecocokan', 'diskusi', 'kerja-sama'],
   },
@@ -38,7 +40,8 @@ const HOME: Record<Persona, Destination> = {
     empty: {
       icon: 'inbox',
       title: 'Belum ada yang perlu dikerjakan',
-      body: 'Pitching masuk dan jadwal yang menunggu Anda akan muncul di sini.',
+      body: 'Pitching masuk dan jadwal yang menunggu Anda akan muncul di sini. Sementara itu, lihat inovasi yang sedang mencari dukungan.',
+      action: { label: 'Jelajahi inovasi', href: '/discover' },
     },
     features: ['akun', 'profil-mitra', 'keputusan-revisi', 'jadwal'],
   },

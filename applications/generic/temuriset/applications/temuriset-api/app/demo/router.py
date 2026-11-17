@@ -46,7 +46,12 @@ async def demo_sign_in(body: DemoSignInRequest, response: Response, session: Ses
     known = {account["key"] for account in demo_accounts()}
     if body.key not in known:
         raise NotFoundError()
-    token, principal = await start_demo_session(session, settings, demo_email(body.key))
+    try:
+        token, principal = await start_demo_session(session, settings, demo_email(body.key))
+    except NotFoundError:
+        # A fresh demo deployment lists the picker before anyone seeded it: seed once, then sign in.
+        await reset(session, settings)
+        token, principal = await start_demo_session(session, settings, demo_email(body.key))
     response.set_cookie(
         SESSION_COOKIE,
         token,
