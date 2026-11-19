@@ -17,6 +17,7 @@ export function FeatureList({
   const features = ids
     .map(findFeature)
     .filter((feature): feature is Feature => feature !== undefined && feature.status === 'coming_soon' && isOffered(feature, capabilities));
+  if (!features.length) return null;
   return (
     <section className="tr-stack" aria-labelledby="fitur-segera">
       <h2 id="fitur-segera" className="tr-sys-type-heading-sm">

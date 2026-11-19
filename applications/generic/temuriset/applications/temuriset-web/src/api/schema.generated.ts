@@ -4767,6 +4767,8 @@ export interface components {
              * @enum {string}
              */
             persona: "inovator" | "mitra";
+            /** Summary */
+            summary: string;
         };
         /**
          * DemoResetRequest

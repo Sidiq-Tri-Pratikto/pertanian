@@ -42,8 +42,10 @@ export function ContextBar({ me }: { me: Me }) {
 
   return (
     <div className="tr-stack">
-      {me.account.kind === 'demo' ? <p className="tr-tag tr-sys-type-support-strong">Demo · Data fiktif</p> : null}
-      <ContextSwitcher id="konteks" value={value} options={options} onChange={change} />
+      <div className="tr-row">
+        {me.account.kind === 'demo' ? <span className="tr-tag tr-sys-type-support-strong">Demo · Data fiktif</span> : null}
+        <ContextSwitcher id="konteks" value={value} options={options} onChange={change} />
+      </div>
       <div aria-live="polite">
         {notice ? (
           <Status tone={notice.tone} label={notice.label}>

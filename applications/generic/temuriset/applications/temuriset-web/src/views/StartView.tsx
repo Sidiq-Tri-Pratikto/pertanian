@@ -2,18 +2,34 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { useRef, useState, useSyncExternalStore, type FormEvent, type ReactNode } from 'react';
 
 import { send } from '@/api/client';
 import { ApiError } from '@/api/errors';
 import { Button } from '@/components/tr/Button';
 import { ChoiceGroup } from '@/components/tr/ChoiceGroup';
+import { Disclosure } from '@/components/tr/Disclosure';
 import { ErrorSummary } from '@/components/tr/ErrorSummary';
 import { Select } from '@/components/tr/Select';
 import { TextField } from '@/components/tr/TextField';
 import { PERSONA_LABEL, type Persona } from '@/features/persona';
 import { codeRequest, EMAIL_PATTERN, LOCALES, savePending, TIME_ZONES, type PendingSignIn } from '@/features/signIn';
 import { AuthShell } from '@/views/AuthShell';
+
+const DEFAULT_ZONE = 'Asia/Jakarta';
+
+function subscribeNever(): () => void {
+  return () => undefined;
+}
+
+function supportedBrowserZone(): string {
+  const zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  return TIME_ZONES.some((option) => option.value === zone) ? zone : DEFAULT_ZONE;
+}
+
+function labelOf(options: { value: string; label: string }[], value: string): string {
+  return options.find((option) => option.value === value)?.label ?? value;
+}
 
 export const PERSONA_CHOICES = [
   { value: 'inovator', label: 'Saya punya inovasi dan mencari dukungan', hint: PERSONA_LABEL.inovator },
@@ -44,7 +60,10 @@ export function StartView({ persona, mode, returnTo, demo }: StartViewProps) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [locale, setLocale] = useState('id');
-  const [timeZone, setTimeZone] = useState('Asia/Jakarta');
+  // Start from the browser's zone when the list has it, so most people never open the settings.
+  const browserZone = useSyncExternalStore(subscribeNever, supportedBrowserZone, () => DEFAULT_ZONE);
+  const [chosenZone, setTimeZone] = useState<string | null>(null);
+  const timeZone = chosenZone ?? browserZone;
   const [errors, setErrors] = useState<Errors>({});
   const [failure, setFailure] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
@@ -95,6 +114,7 @@ export function StartView({ persona, mode, returnTo, demo }: StartViewProps) {
     <AuthShell
       title={signUp ? 'Selamat datang di TemuRiset' : 'Masuk ke TemuRiset'}
       subtitle={signUp ? 'Pertemukan inovasi dengan investor dan mitra yang tepat.' : 'Kami kirim kode verifikasi ke email akun Anda.'}>
+      {demo}
       {summary.length || failure ? (
         <ErrorSummary errors={summary} focusKey={attempt}>
           {failure}
@@ -128,8 +148,12 @@ export function StartView({ persona, mode, returnTo, demo }: StartViewProps) {
         />
         {signUp ? (
           <>
-            <Select id="bahasa" label="Bahasa" value={locale} onChange={setLocale} options={LOCALES} emptyLabel={null} />
-            <Select id="zona-waktu" label="Zona waktu" hint="Jadwal pertemuan ditampilkan dalam zona ini." value={timeZone} onChange={setTimeZone} options={TIME_ZONES} emptyLabel={null} />
+            <Disclosure label={`Bahasa dan zona waktu: ${labelOf(LOCALES, locale)}, ${labelOf(TIME_ZONES, timeZone)}`}>
+              <div className="tr-stack">
+                <Select id="bahasa" label="Bahasa" value={locale} onChange={setLocale} options={LOCALES} emptyLabel={null} />
+                <Select id="zona-waktu" label="Zona waktu" hint="Jadwal pertemuan ditampilkan dalam zona ini." value={timeZone} onChange={setTimeZone} options={TIME_ZONES} emptyLabel={null} />
+              </div>
+            </Disclosure>
             <p className="tr-muted">Tanpa perusahaan atau institusi pun Anda dapat mulai.</p>
           </>
         ) : null}
@@ -151,7 +175,6 @@ export function StartView({ persona, mode, returnTo, demo }: StartViewProps) {
           Berlangganan kabar inovasi
         </Link>
       </p>
-      {demo}
     </AuthShell>
   );
 }

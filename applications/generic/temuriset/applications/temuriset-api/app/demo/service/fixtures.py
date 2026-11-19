@@ -65,7 +65,7 @@ def demo_accounts() -> list[dict[str, str]]:
     """List the demo picker's accounts in a stable order.
 
     Returns:
-        list[dict[str, str]]: Key, name, persona, the fixture it holds, and the label.
+        list[dict[str, str]]: Key, name, persona, the fixture it holds, what a visitor can try, and the label.
     """
     inventors = [
         {"key": key, "name": account["name"], "persona": "inovator", "fixture": data.INVENTOR_FIXTURES[key]}
@@ -75,7 +75,8 @@ def demo_accounts() -> list[dict[str, str]]:
         {"key": account["key"], "name": account["name"], "persona": "mitra", "fixture": f"Recipient {recipient}"}
         for recipient, account in data.RECIPIENT_ACCOUNTS.items()
     ]
-    return [{**account, "label": DEMO_LABEL} for account in inventors + partners]
+    accounts = inventors + partners
+    return [{**account, "summary": data.ACCOUNT_SUMMARIES[account["key"]], "label": DEMO_LABEL} for account in accounts]
 
 
 def demo_email(key: str) -> str:

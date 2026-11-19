@@ -102,7 +102,7 @@ export function PitchesView({ me, box, pitches, total, filters, capabilities }: 
             return (
               <li key={pitch.id} className="tr-panel tr-stack">
                 <p className="tr-muted tr-sys-type-support">{`${SOURCE_KIND[pitch.subject_type]} · ${incoming ? `dari ${pitch.requester_name}` : `kepada ${pitch.recipient_name}`}`}</p>
-                <h2 className="tr-sys-type-heading-sm">{`${pitch.subject_title} → ${pitch.opportunity_title}`}</h2>
+                <h2 className="tr-sys-type-heading-sm">{`${pitch.subject_title} untuk ${pitch.opportunity_title}`}</h2>
                 <p className="tr-row">
                   <Status tone="neutral" label={PITCH_STATUS[pitch.status] ?? pitch.status} />
                   {turn ? <Status tone={turn === 'you' ? 'action' : 'neutral'} icon={turn === 'you' ? 'right' : 'clock'} label={TURN_LABEL[turn]} /> : null}
@@ -110,7 +110,7 @@ export function PitchesView({ me, box, pitches, total, filters, capabilities }: 
                 <p className="tr-muted tr-sys-type-support">{`Diperbarui ${formatDateTime(pitch.updated_at, me.account.time_zone)}`}</p>
                 <p>
                   <NextLink className="tr-link" href={`/pitches/${pitch.id}`}>
-                    Buka pitching <span className="tr-sr">{`${pitch.subject_title} → ${pitch.opportunity_title}`}</span>
+                    Buka pitching <span className="tr-sr">{`${pitch.subject_title} untuk ${pitch.opportunity_title}`}</span>
                   </NextLink>
                 </p>
               </li>

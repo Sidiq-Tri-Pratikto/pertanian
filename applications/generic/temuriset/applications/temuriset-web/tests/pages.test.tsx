@@ -120,6 +120,7 @@ describe('a visitor who is not signed in', () => {
     expect(screen.getByRole('textbox', { name: /Email/ })).toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: 'Bahasa' })).toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: /Zona waktu/ })).toBeInTheDocument();
+    expect(screen.getByText(/^Bahasa dan zona waktu: Bahasa Indonesia, /)).toBeInTheDocument();
     expect(screen.queryByText(/organisasi|institusi/i, { selector: 'label' })).toBeNull();
   });
 
@@ -166,15 +167,33 @@ describe('a signed-in inventor', () => {
     expect(await redirectOf(() => CodePage())).toBe('/home');
   });
 
-  it('shows an honest empty Beranda with the context in the bar and planned features', async () => {
+  it('shows an honest empty Beranda with the context in the bar and no service banner', async () => {
     render((await HomePage()) as ReactElement);
 
     expect(screen.getByRole('heading', { level: 1, name: 'Beranda' })).toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: 'Bertindak sebagai' })).toHaveDisplayValue('Rani · Pribadi');
-    expect(screen.getByText('Memeriksa layanan…')).toBeInTheDocument();
+    expect(screen.queryByText(/Layanan tersedia|Memeriksa layanan/)).toBeNull();
     expect(screen.queryByRole('link', { name: /Lihat rencana Kerja Sama/ })).not.toBeInTheDocument();
     expect(screen.queryByRole('link', { name: /Lihat rencana Akun dan konteks kerja/ })).toBeNull();
     expect(screen.queryByRole('link', { name: /Lihat rencana Portofolio inovasi/ })).toBeNull();
+  });
+
+  it('offers the one action that fills an empty Beranda', async () => {
+    render((await HomePage()) as ReactElement);
+
+    expect(screen.getByRole('link', { name: 'Buka Inovasi Saya' })).toHaveAttribute('href', '/inventions');
+  });
+
+  it('points an open need at its matches when nothing else waits', async () => {
+    supportRequests = [
+      { id: 'sr1', status: 'ACTIVE', outcome: 'Validasi prototipe enam bulan', invention_title: 'ClearSpring', budget: { financial: true, min: '20000', max: '30000', currency: 'USD' } },
+    ];
+
+    render((await HomePage()) as ReactElement);
+
+    expect(screen.getByRole('heading', { name: 'Temukan investor atau mitra untuk kebutuhan Anda' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /^Lihat kecocokan/ })).toHaveAttribute('href', '/matches?source=SUPPORT_REQUEST:sr1');
+    expect(screen.queryByRole('heading', { name: 'Belum ada yang perlu dikerjakan' })).toBeNull();
   });
 
   it.each([

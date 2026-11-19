@@ -130,108 +130,112 @@ export function DiscoverView({ me, type, filters, page, fundingOn, matchesHref }
           </NextLink>
         </p>
       ) : null}
-      <form method="get" action="/discover" className="tr-panel tr-stack" role="search" aria-label="Cari dan saring">
-        <input type="hidden" name="type" value={type} />
-        <div className="tr-field">
-          <label htmlFor="filter-q" className="tr-sys-type-label">
-            Kata kunci
-          </label>
-          <p id="filter-q-hint" className="tr-muted tr-sys-type-support">
-            Bahasa Indonesia atau Inggris, misalnya &quot;filter air&quot; atau &quot;water filter&quot;.
-          </p>
-          <input id="filter-q" name="q" type="search" className="tr-input" defaultValue={filters.q ?? ''} aria-describedby="filter-q-hint" />
-        </div>
-        <div className="tr-field">
-          <label htmlFor="filter-sector" className="tr-sys-type-label">
-            Sektor
-          </label>
-          <select id="filter-sector" name="sector" className="tr-input tr-select" defaultValue={filters.sector ?? ''}>
-            <option value="">Semua sektor</option>
-            {SECTORS.map((sector) => (
-              <option key={sector} value={sector}>
-                {sector}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="tr-field">
-          <label htmlFor="filter-stage" className="tr-sys-type-label">
-            Tahap
-          </label>
-          <select id="filter-stage" name="stage" className="tr-input tr-select" defaultValue={filters.stage ?? ''}>
-            <option value="">Semua tahap</option>
-            {STAGES.map((stage) => (
-              <option key={stage.value} value={stage.value}>
-                {stage.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        <label className="tr-row">
-          <input type="checkbox" name="saved" value="true" defaultChecked={filters.saved === 'true'} />
-          <span>Hanya yang saya simpan</span>
-        </label>
-        <div className="tr-row">
-          <button type="submit" className="tr-btn tr-btn--primary">
-            Terapkan
-          </button>
-          {active.length ? (
-            <NextLink className="tr-link" href={discoverHref(type)}>
-              Hapus semua filter
-            </NextLink>
-          ) : null}
-        </div>
-      </form>
-      {items.length ? (
-        <>
-          <p className="tr-muted" role="status">{`${page.total_estimate} hasil`}</p>
-          {page.sections
-            .filter((section) => section.items.length)
-            .map((section) => (
-              <section key={section.id} className="tr-stack" aria-labelledby={`bagian-${section.id}`}>
-                <h2 id={`bagian-${section.id}`} className="tr-sys-type-heading-sm">
-                  {section.title}
-                </h2>
-                <ul className="tr-grid">
-                  {section.items.map((item) => (
-                    <li key={item.subject_id}>
-                      <ResultCard item={item} actingPartyId={me.active_party_id} />
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            ))}
-          {page.next_cursor ? (
-            <p>
-              <NextLink className="tr-link" href={`${discoverHref(type, filters)}&cursor=${encodeURIComponent(page.next_cursor)}`}>
-                Hasil berikutnya
-              </NextLink>
+      <div className="tr-discover">
+        <form method="get" action="/discover" className="tr-panel tr-stack tr-discover__filters" role="search" aria-label="Cari dan saring">
+          <input type="hidden" name="type" value={type} />
+          <div className="tr-field">
+            <label htmlFor="filter-q" className="tr-sys-type-label">
+              Kata kunci
+            </label>
+            <p id="filter-q-hint" className="tr-muted tr-sys-type-support">
+              Bahasa Indonesia atau Inggris, misalnya &quot;filter air&quot; atau &quot;water filter&quot;.
             </p>
-          ) : null}
-        </>
-      ) : (
-        <EmptyState
-          icon="search"
-          title={active.length ? 'Tidak ada hasil untuk filter ini' : 'Belum ada yang diterbitkan di sini'}
-          action={
-            active.length ? (
-              <>
-                <NextLink className="tr-btn tr-btn--primary" href={discoverHref(type)}>
-                  Hapus semua filter
-                </NextLink>
-                {page.relaxation && page.relaxation.remove !== 'all' ? (
-                  <NextLink className="tr-btn tr-btn--secondary" href={discoverHref(type, { ...filters, [page.relaxation.remove]: undefined })}>
-                    {`${page.relaxation.label} (${page.relaxation.total_estimate} hasil)`}
+            <input id="filter-q" name="q" type="search" className="tr-input" defaultValue={filters.q ?? ''} aria-describedby="filter-q-hint" />
+          </div>
+          <div className="tr-field">
+            <label htmlFor="filter-sector" className="tr-sys-type-label">
+              Sektor
+            </label>
+            <select id="filter-sector" name="sector" className="tr-input tr-select" defaultValue={filters.sector ?? ''}>
+              <option value="">Semua sektor</option>
+              {SECTORS.map((sector) => (
+                <option key={sector} value={sector}>
+                  {sector}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="tr-field">
+            <label htmlFor="filter-stage" className="tr-sys-type-label">
+              Tahap
+            </label>
+            <select id="filter-stage" name="stage" className="tr-input tr-select" defaultValue={filters.stage ?? ''}>
+              <option value="">Semua tahap</option>
+              {STAGES.map((stage) => (
+                <option key={stage.value} value={stage.value}>
+                  {stage.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <label className="tr-row">
+            <input type="checkbox" name="saved" value="true" defaultChecked={filters.saved === 'true'} />
+            <span>Hanya yang saya simpan</span>
+          </label>
+          <div className="tr-row">
+            <button type="submit" className="tr-btn tr-btn--primary">
+              Terapkan
+            </button>
+            {active.length ? (
+              <NextLink className="tr-link" href={discoverHref(type)}>
+                Hapus semua filter
+              </NextLink>
+            ) : null}
+          </div>
+        </form>
+        <div className="tr-stack tr-discover__results">
+          {items.length ? (
+            <>
+              <p className="tr-muted" role="status">{`${page.total_estimate} hasil`}</p>
+              {page.sections
+                .filter((section) => section.items.length)
+                .map((section) => (
+                  <section key={section.id} className="tr-stack" aria-labelledby={`bagian-${section.id}`}>
+                    <h2 id={`bagian-${section.id}`} className="tr-sys-type-heading-sm">
+                      {section.title}
+                    </h2>
+                    <ul className="tr-grid">
+                      {section.items.map((item) => (
+                        <li key={item.subject_id}>
+                          <ResultCard item={item} actingPartyId={me.active_party_id} />
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
+                ))}
+              {page.next_cursor ? (
+                <p>
+                  <NextLink className="tr-link" href={`${discoverHref(type, filters)}&cursor=${encodeURIComponent(page.next_cursor)}`}>
+                    Hasil berikutnya
                   </NextLink>
-                ) : null}
-              </>
-            ) : undefined
-          }>
-          {active.length
-            ? `Filter aktif: ${active.map(([name, value]) => (name === 'saved' ? FILTER_LABELS[name] : `${FILTER_LABELS[name]} "${String(value)}"`)).join(', ')}. Syarat tidak dilonggarkan tanpa pilihan Anda.`
-            : 'Hasil muncul setelah pemiliknya menerbitkan profil atau inovasi.'}
-        </EmptyState>
-      )}
+                </p>
+              ) : null}
+            </>
+          ) : (
+            <EmptyState
+              icon="search"
+              title={active.length ? 'Tidak ada hasil untuk filter ini' : 'Belum ada yang diterbitkan di sini'}
+              action={
+                active.length ? (
+                  <>
+                    <NextLink className="tr-btn tr-btn--primary" href={discoverHref(type)}>
+                      Hapus semua filter
+                    </NextLink>
+                    {page.relaxation && page.relaxation.remove !== 'all' ? (
+                      <NextLink className="tr-btn tr-btn--secondary" href={discoverHref(type, { ...filters, [page.relaxation.remove]: undefined })}>
+                        {`${page.relaxation.label} (${page.relaxation.total_estimate} hasil)`}
+                      </NextLink>
+                    ) : null}
+                  </>
+                ) : undefined
+              }>
+              {active.length
+                ? `Filter aktif: ${active.map(([name, value]) => (name === 'saved' ? FILTER_LABELS[name] : `${FILTER_LABELS[name]} "${String(value)}"`)).join(', ')}. Syarat tidak dilonggarkan tanpa pilihan Anda.`
+                : 'Hasil muncul setelah pemiliknya menerbitkan profil atau inovasi.'}
+            </EmptyState>
+          )}
+        </div>
+      </div>
     </Screen>
   );
 }

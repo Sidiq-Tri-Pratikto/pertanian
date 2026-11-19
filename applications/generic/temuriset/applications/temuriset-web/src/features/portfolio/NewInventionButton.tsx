@@ -35,7 +35,7 @@ export function NewInventionButton({ actingPartyId }: { actingPartyId: string })
         </Status>
       ) : null}
       <div className="tr-row">
-        <Button intent="primary" icon="check" busy={busy} busyLabel="Membuat…" onClick={create}>
+        <Button intent="primary" icon="plus" busy={busy} busyLabel="Membuat…" onClick={create}>
           Tambah inovasi
         </Button>
       </div>

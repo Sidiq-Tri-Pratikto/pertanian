@@ -114,7 +114,7 @@ export function WorkspaceView({ me, pitch, tab, files, justSent, room }: Props) 
     <Screen
       persona={persona}
       current={mine ? 'pitching' : 'masuk'}
-      title={`${pitch.subject_title} → ${pitch.opportunity_title}`}
+      title={`${pitch.subject_title} untuk ${pitch.opportunity_title}`}
       subtitle={`${SOURCE_KIND[pitch.subject_type]} · ${mine ? `kepada ${pitch.recipient_name}` : `dari ${pitch.requester_name}`}`}
       provenance={PROVENANCE}
       context={<ContextBar me={me} />}

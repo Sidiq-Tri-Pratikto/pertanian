@@ -263,18 +263,18 @@ describe('Beranda (S02)', () => {
         destination={destinationFor('home', 'inovator')}
         capabilities={['core']}
         queue={[
-          { href: '/pitches/p1?tab=revisi', label: 'Jawab permintaan revisi', context: 'ClearSpring → Validasi', who: 'you', text: 'Pertanyaan wajib perlu dijawab.' },
-          { href: '/pitches/p2?tab=jadwal', label: 'Menunggu pihak lain memilih waktu', context: 'GridShare → Uji', who: 'other' },
+          { href: '/pitches/p1?tab=revisi', label: 'Jawab permintaan revisi', context: 'ClearSpring untuk Validasi', who: 'you', text: 'Pertanyaan wajib perlu dijawab.' },
+          { href: '/pitches/p2?tab=jadwal', label: 'Menunggu pihak lain memilih waktu', context: 'GridShare untuk Uji', who: 'other' },
         ]}
-        notifications={[{ id: 'n1', pitch_id: 'p1', text: 'Revisi diminta: ClearSpring → Validasi', tab: 'revisi', created_at: '2026-11-06T09:00:00Z', read: false }]}
+        notifications={[{ id: 'n1', pitch_id: 'p1', text: 'Revisi diminta: ClearSpring untuk Validasi', tab: 'revisi', created_at: '2026-11-06T09:00:00Z', read: false }]}
       />,
     );
 
     expect(screen.getByRole('heading', { name: 'Jawab permintaan revisi' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Kerjakan sekarang: ClearSpring → Validasi' })).toHaveAttribute('href', '/pitches/p1?tab=revisi');
+    expect(screen.getByRole('link', { name: 'Kerjakan sekarang: ClearSpring untuk Validasi' })).toHaveAttribute('href', '/pitches/p1?tab=revisi');
     const rest = screen.getByRole('region', { name: 'Perlu diperhatikan' });
     expect(within(rest).getByText('Menunggu pihak lain')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Revisi diminta: ClearSpring → Validasi' })).toHaveAttribute('href', '/pitches/p1?tab=revisi');
+    expect(screen.getByRole('link', { name: 'Revisi diminta: ClearSpring untuk Validasi' })).toHaveAttribute('href', '/pitches/p1?tab=revisi');
     expect(screen.getByText(/Belum dibaca/)).toBeInTheDocument();
   });
 });

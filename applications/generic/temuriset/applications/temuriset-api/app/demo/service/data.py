@@ -582,3 +582,17 @@ RECIPIENT_ACCOUNTS: dict[str, dict[str, Any]] = {
 }
 INVENTOR_ZONES = {"sinta": "Asia/Makassar"}
 INVENTOR_FIXTURES = {"rani": "F01", "dewi": "F02", "galih": "F03", "bima": "F04, F05 dan FRaise01", "sinta": "F06"}
+
+# What a visitor can try with each account, in the picker's words. Keyed like the accounts above.
+ACCOUNT_SUMMARIES = {
+    "rani": "Inovator perorangan tanpa perusahaan. ClearSpring, filter air tahap prototipe, siap dipitching.",
+    "dewi": "Komunitas. FieldDry, pengering hasil panen tahap pilot, kewenangan belum dikonfirmasi.",
+    "galih": "Tim perangkat lunak. QueueNest, contoh syarat mitra yang belum terpenuhi.",
+    "bima": "Perusahaan pre-seed. Satu pendanaan perusahaan untuk LoopMaterial dan ReFormPress.",
+    "sinta": "Tim nirlaba. GridShare, ide energi komunitas dengan data yang belum diketahui.",
+    "mitra-a": "Mitra validasi prototipe. Meninjau pitching, meminta revisi dan menjadwalkan diskusi.",
+    "investor-b": "Investor individu. Ekuitas USD 50.000–150.000 untuk tahap prototipe.",
+    "distributor-c": "Distributor produk siap pasar yang mensyaratkan sertifikasi.",
+    "lisensi-d": "Mitra lisensi perangkat lunak untuk pelanggan korporasi.",
+    "direktori-e": "Entri direktori dari sumber publik yang belum dikonfirmasi pemiliknya.",
+}

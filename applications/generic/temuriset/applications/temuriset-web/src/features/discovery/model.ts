@@ -57,8 +57,9 @@ export const READINESS: Record<MatchResult['readiness'], string> = {
 };
 
 /** Indonesian decimal comma for a score such as "88.11". */
-export function score(value: string): string {
-  return value.replace('.', ',');
+/** A whole-number bound: the lower bound rounds down and the upper up, so the shown range still holds the real one. */
+export function score(value: string, bound: 'lower' | 'upper'): string {
+  return String(bound === 'lower' ? Math.floor(Number(value)) : Math.ceil(Number(value)));
 }
 
 export function percent(coverage: string): string {

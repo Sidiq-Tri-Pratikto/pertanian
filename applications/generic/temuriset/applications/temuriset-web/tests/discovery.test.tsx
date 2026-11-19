@@ -218,7 +218,7 @@ describe('matches (S10)', () => {
     expect(within(card).getByText('Kecocokan kuat').closest('.tr-status')).not.toHaveClass('tr-status--success');
     expect(within(card).getByText('Memenuhi syarat masuk')).toBeInTheDocument();
     expect(within(card).getByText('Siap dikirim')).toBeInTheDocument();
-    expect(within(card).getByText('88,11–94,04 · informasi 95%')).toBeInTheDocument();
+    expect(within(card).getByText('88–95 dari 100 · informasi 95%')).toBeInTheDocument();
     expect(within(card).getAllByRole('listitem').filter((item) => item.closest('.tr-reasons'))).toHaveLength(3);
     expect(within(card).getByRole('link', { name: 'Siapkan pitching' })).toBeInTheDocument();
     expect(within(card).getByText(/bukan peluang pendanaan/)).toBeInTheDocument();
@@ -232,6 +232,7 @@ describe('matches (S10)', () => {
     expect(await screen.findByText('Mandat tidak direkomendasikan (1)')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Belum ada mandat yang sesuai' })).toBeInTheDocument();
     expect(screen.getByText(/Menghalangi: Fitur baru direncanakan/)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Lihat mandat' }).getAttribute('href')).toMatch(/^\/partners\/[0-9a-f-]+$/);
   });
 
   it('explains the lexical fallback while preserving the ordinary match cards', async () => {

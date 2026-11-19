@@ -280,7 +280,7 @@ function EvidenceStep({ values, errors, edit, hasDocuments }: StepProps & { hasD
         </fieldset>
       ))}
       <div className="tr-row">
-        <Button icon="check" onClick={() => edit({ facts: [...values.facts, { ...EMPTY_FACT }] })}>
+        <Button icon="plus" onClick={() => edit({ facts: [...values.facts, { ...EMPTY_FACT }] })}>
           Tambah fakta
         </Button>
       </div>
