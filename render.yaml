@@ -1,44 +1,25 @@
-# Render Blueprint for TemuRiset's API and worker.
-# Put this file at the root of the pertanian repository. The web app runs on Vercel.
+# Render Blueprint for TemuRiset's API (free plan). The web app runs on Vercel.
+# Free setup: the worker runs inside the API container (api-with-worker.Dockerfile), because
+# Render has no free background workers. Free instances sleep after 15 minutes idle.
+# For a paid setup later: switch this service to the API Dockerfile and add a `worker`
+# service (plan: starter) built from deployment/temuriset/render/worker.Dockerfile.
+# ClamAV is skipped (about USD 25/month): uploads stay in quarantine until a ClamAV pserv
+# (docker.io/clamav/clamav:1.4, plan: standard) is added and CLAMAV_HOST points at it.
 # Secrets are marked `sync: false`: Render asks for them when you create the Blueprint.
 services:
   - type: web
     name: temuriset-api
     runtime: docker
-    plan: free # Free sleeps after 15 minutes idle; use starter for a demo day.
+    plan: free
     region: singapore
-    dockerfilePath: ./applications/generic/temuriset/applications/temuriset-api/Dockerfile
+    dockerfilePath: ./deployment/temuriset/render/api-with-worker.Dockerfile
     dockerContext: ./applications/generic/temuriset/applications/temuriset-api
-    # No dockerCommand: the image's entrypoint runs `alembic upgrade head`, then uvicorn on $PORT.
     healthCheckPath: /health/ready
     autoDeployTrigger: commit
     buildFilter:
       paths:
         - applications/generic/temuriset/applications/temuriset-api/**
-    envVars:
-      - fromGroup: temuriset-shared
-
-  - type: worker
-    name: temuriset-worker
-    runtime: docker
-    plan: starter # Background workers have no free plan.
-    region: singapore
-    dockerfilePath: ./deployment/temuriset/render/worker.Dockerfile
-    dockerContext: ./applications/generic/temuriset/applications/temuriset-api
-    autoDeployTrigger: commit
-    buildFilter:
-      paths:
-        - applications/generic/temuriset/applications/temuriset-api/**
         - deployment/temuriset/render/**
-    envVars:
-      - fromGroup: temuriset-shared
-
-  # ClamAV skipped for now (about USD 25/month). Without it uploads stay in quarantine;
-  # everything else works. To add it later, add a pserv running docker.io/clamav/clamav:1.4
-  # (plan: standard) and set CLAMAV_HOST on the API and worker to its host.
-
-envVarGroups:
-  - name: temuriset-shared
     envVars:
       - key: ENVIRONMENT
         value: staging
@@ -56,19 +37,19 @@ envVarGroups:
         value: "3310"
       - key: STORAGE_ADAPTER
         value: s3
-      - key: S3_REGION
-        value: auto
       - key: S3_BUCKET
         value: temuriset-documents
-      # Neon URL rewritten for asyncpg, e.g.
+      # Neon direct (non-pooler) URL rewritten for asyncpg, e.g.
       # postgresql+asyncpg://USER:PASSWORD@ep-xxxx.ap-southeast-1.aws.neon.tech/neondb?ssl=require
       - key: DATABASE_URL
         sync: false
       # The Vercel address, exactly, e.g. https://temuriset.vercel.app (no trailing slash).
       - key: WEB_ORIGIN
         sync: false
-      # Cloudflare R2: https://<ACCOUNT_ID>.r2.cloudflarestorage.com
+      # S3-compatible storage (Neon object storage, R2, ...): origin only, no path.
       - key: S3_ENDPOINT_URL
+        sync: false
+      - key: S3_REGION
         sync: false
       - key: S3_ACCESS_KEY
         sync: false
