@@ -36,4 +36,6 @@ Fixed: `ENVIRONMENT=staging`, `COMPOSITION=generic-base`, `DEMO_MODE=true`, `DEM
 Secrets: `DATABASE_URL` (`postgresql+asyncpg://USER:PASSWORD@ep-...aws.neon.tech/neondb?ssl=require`),
 `S3_ACCESS_KEY`, `S3_SECRET_KEY`.
 
-There is no ClamAV, so uploads stay in quarantine; everything else works.
+There is no ClamAV. Set `DEMO_ACCEPT_UNSCANNED=true` so the demo seed's sample PDFs and uploads are accepted
+unscanned (`api/index.py` swaps in the accept-all scanner). Without it, demo sign-in fails while seeding and uploads
+stay in quarantine. Use it only for a demo with fictional data.

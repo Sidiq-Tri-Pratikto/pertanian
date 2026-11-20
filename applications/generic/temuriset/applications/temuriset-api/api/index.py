@@ -42,6 +42,14 @@ from app.main import app as api  # noqa: E402
 from app.worker.loop import dispatch_events, run_jobs  # noqa: E402
 from app.worker.registry import registry  # noqa: E402
 
+if os.environ.get("DEMO_ACCEPT_UNSCANNED", "").lower() == "true":
+    # This deployment runs no clamd. Without this switch the demo seed's sample PDFs, and every upload, stay in
+    # quarantine. It is opt-in, for a demo with fictional data only; production keeps FILE_SCANNER=clamav working.
+    import app.documents.service.jobs as document_jobs  # noqa: E402
+    from app.documents.service.scanner_service import DevelopmentAcceptScanner  # noqa: E402
+
+    document_jobs.scanner_for = lambda settings: DevelopmentAcceptScanner()
+
 _READ_METHODS = frozenset({"GET", "HEAD", "OPTIONS"})
 _MAX_PASSES = 5
 logger = logging.getLogger(__name__)
