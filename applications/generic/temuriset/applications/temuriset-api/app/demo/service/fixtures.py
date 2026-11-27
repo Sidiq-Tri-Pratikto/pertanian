@@ -2,6 +2,8 @@
 obey the same rules as real data (spec 021, FR-001). Ids are seeded, so a reset recreates the same ids and versions."""
 
 import io
+import struct
+import zlib
 from dataclasses import dataclass
 from typing import Any
 from uuid import UUID, uuid4
@@ -20,7 +22,7 @@ from app.discovery.service.projection import refresh_funding, refresh_invention,
 from app.discovery.service.service import DiscoveryService
 from app.documents.model.schema import UploadIntentRequest
 from app.documents.service import jobs as document_jobs
-from app.documents.service.service import DocumentService
+from app.documents.service.service import DocumentService, document_version_number
 from app.funding.model.schema import FundingRequestInput, LegalEntityInput
 from app.funding.service.service import FundingService
 from app.identity.model.models import Principal
@@ -38,9 +40,13 @@ from app.portfolio.model.schema import (
     CreateInventionRequest,
     DraftRequest,
     InvestorDigestRequest,
+    PublicPageRequest,
+    PublicPhotoChoice,
+    UpdateRequest,
     VersionedActionRequest,
 )
 from app.portfolio.service.service import PortfolioService
+from app.portfolio.service.updates import UpdateService
 
 DEMO_EMAIL_DOMAIN = "demo.invalid"
 DEMO_LABEL = "Akun demo · data fiktif"
@@ -118,6 +124,32 @@ def _pdf(text: str | None) -> bytes:
     return bytes(out)
 
 
+def _illustration(
+    dark: tuple[int, int, int], light: tuple[int, int, int], width: int = 960, height: int = 640
+) -> bytes:
+    """A plain PNG illustration: a vertical gradient with a lighter rounded block, so the demo photo needs no file."""
+    rows = []
+    for y in range(height):
+        shade = y / (height - 1)
+        background = bytes(round(dark[i] + (light[i] - dark[i]) * shade * 0.35) for i in range(3))
+        row = bytearray(background * width)
+        if height * 0.3 <= y <= height * 0.75:
+            left, right = int(width * 0.35), int(width * 0.65)
+            row[left * 3 : right * 3] = bytes(light) * (right - left)
+        rows.append(b"\x00" + bytes(row))
+
+    def chunk(kind: bytes, body: bytes) -> bytes:
+        return struct.pack(">I", len(body)) + kind + body + struct.pack(">I", zlib.crc32(kind + body))
+
+    header = struct.pack(">IIBBBBB", width, height, 8, 2, 0, 0, 0)
+    return (
+        b"\x89PNG\r\n\x1a\n"
+        + chunk(b"IHDR", header)
+        + chunk(b"IDAT", zlib.compress(b"".join(rows), 9))
+        + chunk(b"IEND", b"")
+    )
+
+
 class DemoSeeder:
     """Writes the demo through the services, as each demo account would."""
 
@@ -157,16 +189,16 @@ class DemoSeeder:
         self.principals[key] = principal
         return principal
 
-    async def _document(self, principal: Principal, title: str, scan: bool) -> UUID:
+    async def _document(self, principal: Principal, title: str, scan: bool, image: bytes | None = None) -> UUID:
         documents = DocumentService(self.session, self.settings)
-        content = _pdf(None if scan else title)
+        content = image if image is not None else _pdf(None if scan else title)
         intent = await documents.create_intent(
             principal,
             UploadIntentRequest(
                 acting_party_id=principal.active_party_id,
                 title=title,
                 kind="evidence",
-                media_type="application/pdf",
+                media_type="image/png" if image is not None else "application/pdf",
                 size_bytes=len(content),
             ),
         )
@@ -207,7 +239,44 @@ class DemoSeeder:
             created.id,
             InvestorDigestRequest(acting_party_id=party, expected_version=current.version, enabled=True),
         )
+        if key in data.PUBLIC_PAGES:
+            await self._public_page(principal, created.id, data.PUBLIC_PAGES[key])
         return created.id
+
+    async def _public_page(self, principal: Principal, invention_id: UUID, page: dict[str, Any]) -> None:
+        """Publish the invention's public page with an illustration and its updates (051, 052)."""
+        party = principal.active_party_id
+        version_id = await self._document(
+            principal, page["photo"]["title"], scan=False, image=_illustration(*page["photo"]["colors"])
+        )
+        found = await document_version_number(self.session, version_id)
+        if found is None:  # the seed just stored it; nothing else can remove it in this transaction
+            raise LookupError(version_id)
+        portfolio = PortfolioService(self.session)
+        current = await portfolio.owner_view(principal, invention_id)
+        await portfolio.set_public_page(
+            principal,
+            invention_id,
+            PublicPageRequest(
+                acting_party_id=party,
+                expected_version=current.version,
+                enabled=True,
+                field_test=page["field_test"],
+                photo=PublicPhotoChoice(document_id=found[0], version=found[1]),
+                photo_alt=page["photo_alt"],
+            ),
+        )
+        updates = UpdateService(self.session)
+        for title, body in page["updates"]:
+            written = await updates.create(
+                principal, invention_id, UpdateRequest(acting_party_id=party, title=title, body=body)
+            )
+            await updates.publish(
+                principal,
+                invention_id,
+                written.id,
+                VersionedActionRequest(acting_party_id=party, expected_version=written.version),
+            )
 
     async def _inventors(self, variants: Variants) -> dict[str, UUID]:
         for key, account in data.ACCOUNTS.items():

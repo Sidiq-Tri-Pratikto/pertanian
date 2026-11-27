@@ -39,9 +39,11 @@ _MAX_MESSAGE_BYTES = 8192
 class MailReference:
     """Originating state that must remain usable at delivery time."""
 
-    kind: Literal["code", "invitation", "subscription"]
+    kind: Literal["code", "invitation", "subscription", "follow"]
     id: UUID
     expires_at: datetime
+    # What the message is about, rechecked before delivery: inventions for subscriptions, an update for a follow.
+    subjects: tuple[UUID, ...] = ()
 
 
 class MailboxAdapter(Protocol):
@@ -107,15 +109,16 @@ class LoopbackMailbox:
             raise MailRelayRejectedError()
         deadline = min(reference.expires_at, clock.now() + SECRET_RETENTION)
         delivery_key = uuid4().hex
-        message = _message_bytes(
-            {
-                "to": to_email,
-                "subject": subject,
-                "body": body,
-                "source_kind": reference.kind,
-                "source_id": str(reference.id),
-            }
-        )
+        fields: dict[str, str | list[str]] = {
+            "to": to_email,
+            "subject": subject,
+            "body": body,
+            "source_kind": reference.kind,
+            "source_id": str(reference.id),
+        }
+        if reference.subjects:
+            fields["subjects"] = [str(subject_id) for subject_id in reference.subjects]
+        message = _message_bytes(fields)
         envelope = seal(self.key, f"{SECRET_PURPOSE}:{delivery_key}", message)
         await enqueue_job(
             session,
@@ -146,7 +149,7 @@ def privacy_mailbox_for(settings: Settings) -> DevelopmentMailbox | DisabledMail
     return DisabledMailbox()
 
 
-def _message_bytes(fields: dict[str, str]) -> bytes:
+def _message_bytes(fields: dict[str, str | list[str]]) -> bytes:
     payload = json.dumps(fields, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
     if len(payload) > _MAX_MESSAGE_BYTES:
         raise MailRelayRejectedError()

@@ -49,6 +49,13 @@ NOT_DATA_ROUTES = {
     ("POST", "/api/v1/subscriptions/manage"),
     ("PUT", "/api/v1/subscriptions/manage"),
     ("POST", "/api/v1/subscriptions/unsubscribe"),
+    # Following one invention (053): no account; a link token in the body is the only key.
+    ("POST", "/api/v1/follows"),
+    ("POST", "/api/v1/follows/preview"),
+    ("POST", "/api/v1/follows/confirm"),
+    ("POST", "/api/v1/follows/manage"),
+    ("PUT", "/api/v1/follows/manage"),
+    ("POST", "/api/v1/follows/unfollow"),
     ("GET", "/api/v1/teasers/inventions/{invention_id}"),
     ("GET", "/api/v1/teasers/inventions/{invention_id}/photo"),  # Public photo; gated in tests/integration/portfolio.
     ("POST", "/api/v1/organizations"),

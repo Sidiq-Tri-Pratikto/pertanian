@@ -38,3 +38,30 @@ export function keywordsOf(text: string): string[] {
 export function hasTopics(topics: Topics): boolean {
   return Boolean(topics.sectors?.length || topics.stages?.length || topics.keywords?.length);
 }
+
+export type Follow = components['schemas']['FollowResponse'];
+
+/** Follow one invention's public updates; the page's language becomes the language of its emails (053). */
+export function follow(inventionId: string, email: string, locale: 'id' | 'en' = 'id'): Promise<{ status: string }> {
+  return send('POST', '/api/v1/follows', { invention_id: inventionId, email, locale });
+}
+
+export function previewFollow(token: string): Promise<Follow> {
+  return send('POST', '/api/v1/follows/preview', { token });
+}
+
+export function confirmFollow(token: string): Promise<Follow> {
+  return send('POST', '/api/v1/follows/confirm', { token });
+}
+
+export function readFollow(token: string): Promise<Follow> {
+  return send('POST', '/api/v1/follows/manage', { token });
+}
+
+export function setFollowLanguage(token: string, locale: 'id' | 'en'): Promise<Follow> {
+  return send('PUT', '/api/v1/follows/manage', { token, locale });
+}
+
+export function unfollow(token: string): Promise<Follow> {
+  return send('POST', '/api/v1/follows/unfollow', { token });
+}

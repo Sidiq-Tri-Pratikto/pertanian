@@ -67,3 +67,46 @@ class SubscriptionRequestRecord(Row, Base):
 
     email_sha256: Mapped[str] = mapped_column(String(64))
     address_sha256: Mapped[str] = mapped_column(String(64))
+
+
+class InventionFollowRecord(MutableRow, Base):
+    """One email following one invention's public updates, without an account (053)."""
+
+    __tablename__ = "invention_follows"
+    __table_args__ = (
+        UniqueConstraint("invention_id", "email"),
+        CheckConstraint("status IN ('PENDING', 'ACTIVE', 'UNSUBSCRIBED')", name="status"),
+        CheckConstraint("locale IN ('id', 'en')", name="locale"),
+        Index("ix_invention_follows_invention_status", "invention_id", "status"),
+    )
+
+    invention_id: Mapped[UUID] = mapped_column(ForeignKey("inventions.id", ondelete="CASCADE"))
+    email: Mapped[str] = mapped_column(String(320))
+    status: Mapped[str] = mapped_column(String(16), default="PENDING")
+    locale: Mapped[str] = mapped_column(String(8), default="id")
+    consent_source: Mapped[str] = mapped_column(String(32), default="public_page")
+    confirmed_at: Mapped[datetime | None]
+    unsubscribed_at: Mapped[datetime | None]
+
+
+class InventionFollowLinkRecord(Row, Base):
+    """A one-time confirmation link or a manage link for a follow, stored only as a hash."""
+
+    __tablename__ = "invention_follow_links"
+    __table_args__ = (CheckConstraint("purpose IN ('confirm', 'manage')", name="purpose"),)
+
+    follow_id: Mapped[UUID] = mapped_column(ForeignKey("invention_follows.id", ondelete="CASCADE"), index=True)
+    purpose: Mapped[str] = mapped_column(String(8))
+    token_sha256: Mapped[str] = mapped_column(String(64), unique=True)
+    expires_at: Mapped[datetime]
+    used_at: Mapped[datetime | None]
+
+
+class InventionFollowDeliveryRecord(Row, Base):
+    """One public update sent to one follower; the unique pair means never twice."""
+
+    __tablename__ = "invention_follow_deliveries"
+    __table_args__ = (UniqueConstraint("follow_id", "update_id"),)
+
+    follow_id: Mapped[UUID] = mapped_column(ForeignKey("invention_follows.id", ondelete="CASCADE"))
+    update_id: Mapped[UUID] = mapped_column(ForeignKey("invention_updates.id", ondelete="CASCADE"), index=True)

@@ -251,6 +251,10 @@ The owner turns a public page on separately from investor news (`PUT /inventions
 
 `invention_updates` holds short news the managing party writes. A new update is a draft; publishing needs the invention published, not suspended, and its public page on. `published_at` is set once and never reset, and only that first publication emits `invention.update_published`, so corrections and a later republication never announce the update again. The public summary shows the newest three published updates, only with the public page on. No consumer listens yet; following by email (053) will.
 
+### Following an invention (053)
+
+A visitor follows one invention with only an email (`app/subscriptions/service/follows.py`), under the same rules as quick subscriptions: double opt-in, the same `check_email` answer for every address, hashed links in request bodies, and the shared `subscription_requests` rate limit. The consumer `follows.update_fanout` on `invention.update_published` writes `invention_follow_deliveries` (unique per follow and update) before queuing each email, and only to followers confirmed before the update's first publication. Every queued follow, alert or digest message carries the ids it names (`MailReference.subjects`), and `deliver_secret` rechecks them before relaying: an unfollow, a withdrawn update, a page switched off or an invention leaving investor news stops mail already queued. Emails stay plain text; `List-Unsubscribe` waits for the real provider (042).
+
 ## Recorded deviations from the design system
 
 | ID | Deviation | Reason | Remove when |

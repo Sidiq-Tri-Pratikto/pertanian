@@ -218,3 +218,115 @@ def digest(
         words["digest_subject"].format(count=len(items)),
         _demo(settings, lang) + body + f"\n{words['signup']}\n" + _footer(settings, record, token),
     )
+
+
+# Following one invention (053). Copy from the follow handoff's UI-COPY.json.
+_FOLLOW_PATHS = {
+    "id": {"confirm": "/ikuti/konfirmasi", "manage": "/ikuti/atur", "invention": "/temuan"},
+    "en": {"confirm": "/en/follow/confirm", "manage": "/en/follow/manage", "invention": "/en/inventions"},
+}
+_FOLLOW_TEXT = {
+    "id": {
+        "confirm_subject": "Konfirmasi langganan Anda: {title}",
+        "confirm_body": (
+            "Anda meminta pembaruan untuk “{title}”. Buka halaman konfirmasi untuk mulai mengikuti inovasi ini."
+        ),
+        "confirm_link": "Buka halaman konfirmasi (berlaku 7 hari)",
+        "unrequested": "Anda dapat mengabaikan email ini jika Anda tidak meminta pembaruan.",
+        "already_subject": "Anda sudah mengikuti {title}",
+        "already_body": "Email ini sudah mengikuti “{title}”. Tidak ada yang diubah.",
+        "update_subject": "Pembaruan dari {title}",
+        "read": "Lihat pembaruan",
+        "because": "Anda menerima email ini karena mengikuti {title}.",
+        "manage": "Ubah bahasa email atau berhenti mengikuti",
+    },
+    "en": {
+        "confirm_subject": "Confirm your subscription: {title}",
+        "confirm_body": (
+            "You asked to receive updates about “{title}”. "
+            "Open the confirmation page to start following this invention."
+        ),
+        "confirm_link": "Open the confirmation page (valid for 7 days)",
+        "unrequested": "You can ignore this email if you didn’t request updates.",
+        "already_subject": "You already follow {title}",
+        "already_body": "This email already follows “{title}”. Nothing was changed.",
+        "update_subject": "An update from {title}",
+        "read": "View update",
+        "because": "You received this email because you follow {title}.",
+        "manage": "Change the email language or unfollow",
+    },
+}
+
+
+def follow_confirm(origin: str, token: str, title: str, lang: str = "id") -> tuple[str, str]:
+    """The double opt-in email for following one invention.
+
+    Args:
+        origin (str): The web origin.
+        token (str): The confirmation token.
+        title (str): The invention's title.
+        lang (str, optional): ``id`` or ``en``. Defaults to ``id``.
+
+    Returns:
+        tuple[str, str]: Subject and body.
+    """
+    lang = _lang(lang)
+    words = _FOLLOW_TEXT[lang]
+    return (
+        words["confirm_subject"].format(title=title)[:150],
+        words["confirm_body"].format(title=title)
+        + f"\n\n{words['confirm_link']}: {_origin(origin)}{_FOLLOW_PATHS[lang]['confirm']}?token={token}\n\n"
+        + f"{words['unrequested']}\n",
+    )
+
+
+def already_following(origin: str, token: str, title: str, lang: str = "id") -> tuple[str, str]:
+    """Sent instead of a new confirmation when the email already follows the invention.
+
+    Args:
+        origin (str): The web origin.
+        token (str): A manage token.
+        title (str): The invention's title.
+        lang (str, optional): ``id`` or ``en``. Defaults to ``id``.
+
+    Returns:
+        tuple[str, str]: Subject and body.
+    """
+    lang = _lang(lang)
+    words = _FOLLOW_TEXT[lang]
+    return (
+        words["already_subject"].format(title=title)[:150],
+        words["already_body"].format(title=title)
+        + f"\n\n{words['manage']}: {_origin(origin)}{_FOLLOW_PATHS[lang]['manage']}?token={token}\n",
+    )
+
+
+def follow_update(
+    settings: Settings, invention_id: str, title: str, update_title: str, update_body: str, token: str, lang: str
+) -> tuple[str, str]:
+    """One public update, sent once to one follower.
+
+    Args:
+        settings (Settings): Settings.
+        invention_id (str): The invention.
+        title (str): The invention's title.
+        update_title (str): The update's title.
+        update_body (str): The update's text.
+        token (str): A manage token.
+        lang (str): The follower's language.
+
+    Returns:
+        tuple[str, str]: Subject and body.
+    """
+    lang = _lang(lang)
+    words = _FOLLOW_TEXT[lang]
+    origin = _origin(settings)
+    return (
+        words["update_subject"].format(title=title)[:150],
+        _demo(settings, lang)
+        + f"{update_title}\n\n{update_body}\n\n"
+        + f"{words['read']}: {origin}{_FOLLOW_PATHS[lang]['invention']}/{invention_id}\n"
+        + "\n—\n"
+        + words["because"].format(title=title)
+        + f"\n{words['manage']}: {origin}{_FOLLOW_PATHS[lang]['manage']}?token={token}\n",
+    )

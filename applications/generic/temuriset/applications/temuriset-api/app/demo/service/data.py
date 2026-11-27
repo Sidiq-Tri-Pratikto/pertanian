@@ -596,3 +596,24 @@ ACCOUNT_SUMMARIES = {
     "lisensi-d": "Mitra lisensi perangkat lunak untuk pelanggan korporasi.",
     "direktori-e": "Entri direktori dari sumber publik yang belum dikonfirmasi pemiliknya.",
 }
+
+
+# The public invention page (051) and its updates (052), so the follow journey (053) can be shown from a reset.
+# The photo is a generated illustration, described as one.
+PUBLIC_PAGES: dict[str, dict[str, Any]] = {
+    "F01": {
+        "field_test": "Diuji 10 L/jam di satu rumah tangga selama dua minggu. Hasil dilaporkan oleh inovator.",
+        "photo": {"title": "Ilustrasi ClearSpring", "colors": ((15, 118, 110), (204, 251, 241))},
+        "photo_alt": "Ilustrasi demo ClearSpring: wadah saringan di atas latar hijau toska",
+        "updates": [
+            ("Uji rumah tangga selesai", "Saringan dipakai satu keluarga selama dua minggu. Air jernih setiap hari."),
+            ("Uji desa disiapkan", "Rani menyiapkan tiga unit untuk uji di satu desa. Jadwal uji sedang dibahas."),
+        ],
+    },
+    "F02": {
+        "field_test": "Dua siklus pengeringan selesai di satu kelompok tani. Hasil dilaporkan oleh inovator.",
+        "photo": {"title": "Ilustrasi FieldDry", "colors": ((146, 64, 14), (254, 243, 199))},
+        "photo_alt": "Ilustrasi demo FieldDry: ruang pengering di atas latar cokelat muda",
+        "updates": [("Pilot musim hujan berjalan", "Pengering dipakai kelompok tani selama musim hujan pertama.")],
+    },
+}

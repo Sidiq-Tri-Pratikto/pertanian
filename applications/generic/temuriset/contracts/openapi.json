@@ -3331,6 +3331,133 @@
         "title": "FitResponse",
         "type": "object"
       },
+      "FollowLanguageRequest": {
+        "additionalProperties": false,
+        "description": "The language of future update emails, through a manage link.",
+        "properties": {
+          "locale": {
+            "enum": [
+              "id",
+              "en"
+            ],
+            "title": "Locale",
+            "type": "string"
+          },
+          "token": {
+            "maxLength": 200,
+            "minLength": 20,
+            "title": "Token",
+            "type": "string"
+          }
+        },
+        "required": [
+          "token",
+          "locale"
+        ],
+        "title": "FollowLanguageRequest",
+        "type": "object"
+      },
+      "FollowRequest": {
+        "additionalProperties": false,
+        "description": "Follow one invention's public updates with only an email (053).",
+        "properties": {
+          "email": {
+            "maxLength": 254,
+            "pattern": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$",
+            "title": "Email",
+            "type": "string"
+          },
+          "invention_id": {
+            "format": "uuid",
+            "title": "Invention Id",
+            "type": "string"
+          },
+          "locale": {
+            "default": "id",
+            "enum": [
+              "id",
+              "en"
+            ],
+            "title": "Locale",
+            "type": "string"
+          }
+        },
+        "required": [
+          "invention_id",
+          "email"
+        ],
+        "title": "FollowRequest",
+        "type": "object"
+      },
+      "FollowResponse": {
+        "description": "What a follow link shows. The email is partly masked.",
+        "properties": {
+          "confirmed_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confirmed At"
+          },
+          "email": {
+            "title": "Email",
+            "type": "string"
+          },
+          "invention_id": {
+            "format": "uuid",
+            "title": "Invention Id",
+            "type": "string"
+          },
+          "invention_title": {
+            "title": "Invention Title",
+            "type": "string"
+          },
+          "locale": {
+            "enum": [
+              "id",
+              "en"
+            ],
+            "title": "Locale",
+            "type": "string"
+          },
+          "manage_token": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "A fresh manage link token, returned once after confirmation.",
+            "title": "Manage Token"
+          },
+          "status": {
+            "enum": [
+              "PENDING",
+              "ACTIVE",
+              "UNSUBSCRIBED"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "invention_id",
+          "invention_title",
+          "email",
+          "status",
+          "locale",
+          "confirmed_at"
+        ],
+        "title": "FollowResponse",
+        "type": "object"
+      },
       "FulfillPrivacyRequest": {
         "additionalProperties": false,
         "description": "Carry out a deletion against the version the operator saw.",
@@ -13011,6 +13138,316 @@
         "summary": "Download an export with fresh authorization",
         "tags": [
           "portability"
+        ]
+      }
+    },
+    "/api/v1/follows": {
+      "post": {
+        "description": "Email a confirmation link; the same answer for every address. Needs the invention's public page.\n\nArgs:\n    body (FollowRequest): The invention, email and language.\n    request (Request): For the client address used by the rate limit.\n    session (SessionDep): Database session.\n\nReturns:\n    SubscribeResponse: ``check_email``.",
+        "operationId": "follow_api_v1_follows_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FollowRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscribeResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Follow an invention's public updates",
+        "tags": [
+          "subscriptions"
+        ]
+      }
+    },
+    "/api/v1/follows/confirm": {
+      "post": {
+        "description": "Start following; only updates first published from now on are sent.\n\nArgs:\n    body (TokenRequest): The confirmation token.\n    session (SessionDep): Database session.\n\nReturns:\n    FollowResponse: The follow and a manage token.",
+        "operationId": "confirm_follow_api_v1_follows_confirm_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TokenRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FollowResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Confirm following an invention",
+        "tags": [
+          "subscriptions"
+        ]
+      }
+    },
+    "/api/v1/follows/manage": {
+      "post": {
+        "description": "Read a follow through a manage link.\n\nArgs:\n    body (TokenRequest): The manage token.\n    session (SessionDep): Database session.\n\nReturns:\n    FollowResponse: The follow.",
+        "operationId": "read_follow_api_v1_follows_manage_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TokenRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FollowResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Read a follow",
+        "tags": [
+          "subscriptions"
+        ]
+      },
+      "put": {
+        "description": "Change the language of future update emails.\n\nArgs:\n    body (FollowLanguageRequest): The manage token and language.\n    session (SessionDep): Database session.\n\nReturns:\n    FollowResponse: The follow.",
+        "operationId": "set_follow_language_api_v1_follows_manage_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FollowLanguageRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FollowResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Change the follow email language",
+        "tags": [
+          "subscriptions"
+        ]
+      }
+    },
+    "/api/v1/follows/preview": {
+      "post": {
+        "description": "Read a pending follow without confirming it, so opening the link alone changes nothing.\n\nArgs:\n    body (TokenRequest): The confirmation token.\n    session (SessionDep): Database session.\n\nReturns:\n    FollowResponse: The follow.",
+        "operationId": "preview_follow_api_v1_follows_preview_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TokenRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FollowResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Show what a follow confirmation link confirms",
+        "tags": [
+          "subscriptions"
+        ]
+      }
+    },
+    "/api/v1/follows/unfollow": {
+      "post": {
+        "description": "Stop updates for this invention; repeating it changes nothing.\n\nArgs:\n    body (TokenRequest): A manage token.\n    session (SessionDep): Database session.\n\nReturns:\n    FollowResponse: The follow.",
+        "operationId": "unfollow_api_v1_follows_unfollow_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TokenRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FollowResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Unfollow an invention",
+        "tags": [
+          "subscriptions"
         ]
       }
     },
