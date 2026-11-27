@@ -14,7 +14,7 @@ import { PITCH_STATUS, SOURCE_KIND, type Pitch } from '@/features/pitches/model'
 import { DiscussionPanel, type Message, type Task } from '@/features/discussion/DiscussionPanel';
 import { PitchActions } from '@/features/pitches/PitchActions';
 import { RevisionPanel, type OwnFile } from '@/features/pitches/RevisionPanel';
-import type { NextAction, TabId } from '@/features/pitches/workspace';
+import { primaryFor, type NextAction, type TabId } from '@/features/pitches/workspace';
 import { WorkspaceTabs } from '@/features/pitches/WorkspaceTabs';
 import { reportHref } from '@/features/privacy/model';
 import type { Partnership } from '@/features/relationships/model';
@@ -49,13 +49,17 @@ function Frozen({ submission }: { submission: Submission }) {
   );
 }
 
-/** S13: one room for summary, revisions, documents and history, with whose turn it is above (UX-11). */
+/**
+ * S13: one room. Above the tabs: who, which mandate, which version and the status, then whose turn it is with one link
+ * into the tab where the work is (UX-11). The six tabs keep their deep links.
+ */
 export function WorkspaceView({ me, pitch, tab, files, justSent, room }: Props) {
   const persona = readPersona(me.account.persona) ?? 'inovator';
   const mine = pitch.requester_party_id === me.active_party_id;
   const zone = me.account.time_zone;
   const latest = pitch.submissions[pitch.submissions.length - 1];
   const step = room.next;
+  const primary = primaryFor(step, tab, pitch.id);
   const ended = ['REJECTED', 'WITHDRAWN', 'CLOSED'].includes(pitch.status);
   const parties = [
     { id: pitch.requester_party_id, name: pitch.requester_name },
@@ -124,11 +128,37 @@ export function WorkspaceView({ me, pitch, tab, files, justSent, room }: Props) 
         </NextLink>
       }>
       {justSent ? <Status tone="success" label={`Pitching terkirim kepada ${pitch.recipient_name}`} live /> : null}
-      <p>
-        <Status tone="neutral" label={PITCH_STATUS[pitch.status] ?? pitch.status} />
-      </p>
+      <dl className="tr-facts" aria-label="Ringkasan pitching">
+        <div>
+          <dt className="tr-sys-type-support-strong">{mine ? 'Penerima' : 'Pengirim'}</dt>
+          <dd>{mine ? pitch.recipient_name : pitch.requester_name}</dd>
+        </div>
+        <div>
+          <dt className="tr-sys-type-support-strong">Mandat</dt>
+          <dd>{pitch.opportunity_title}</dd>
+        </div>
+        <div>
+          <dt className="tr-sys-type-support-strong">Versi aktif</dt>
+          <dd>{latest ? `Kiriman ${latest.number}` : 'Belum dikirim'}</dd>
+        </div>
+        <div>
+          <dt className="tr-sys-type-support-strong">Status</dt>
+          <dd>
+            <Status tone="neutral" label={PITCH_STATUS[pitch.status] ?? pitch.status} />
+          </dd>
+        </div>
+      </dl>
       {step.who ? (
-        <NextStep who={step.who} title={step.title}>
+        <NextStep
+          who={step.who}
+          title={step.title}
+          action={
+            primary ? (
+              <NextLink className="tr-btn tr-btn--primary" href={primary.href}>
+                {primary.label}
+              </NextLink>
+            ) : undefined
+          }>
           {step.text}
         </NextStep>
       ) : step.title && step.title !== PITCH_STATUS[pitch.status] ? (

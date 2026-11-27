@@ -6,7 +6,7 @@ import { ApiError } from '@/api/errors';
 import type { Preflight } from '@/features/pitches/model';
 import { missingFiles } from '@/features/pitches/model';
 import { keepsKey, stateOf } from '@/features/pitches/submit-state';
-import { PreflightView } from '@/views/pitches/PreflightView';
+import { briefPreview, PreflightView } from '@/views/pitches/PreflightView';
 
 import { makeMe, PERSONAL } from './fixtures';
 
@@ -94,6 +94,12 @@ describe('submit state machine', () => {
 });
 
 describe('preflight (S11)', () => {
+  it('previews the brief by whole words', () => {
+    expect(briefPreview('  ')).toBe('Belum diisi');
+    expect(briefPreview('satu dua tiga empat', 12)).toBe('satu dua…');
+    expect(briefPreview('pendek')).toBe('pendek');
+  });
+
   it('shows recipient, sender, versions, unchecked files and the brief, then sends once with one key', async () => {
     const user = userEvent.setup();
     replies = [{ status: 200, body: preflight() }, { status: 201, body: { pitch_id: 'pitch-1', status: 'SUBMITTED' } }];
@@ -107,6 +113,9 @@ describe('preflight (S11)', () => {
     expect(screen.getByRole('textbox', { name: /Brief pitching/ })).toHaveValue('Masalah: Air keruh.\nSaat ini: Kapasitas saring 10 L/jam.');
 
     await user.click(file);
+    const recap = screen.getByRole('region', { name: 'Yang akan diterima Mitra A' });
+    expect(within(recap).getByText('Laporan uji fungsi ClearSpring, versi 1')).toBeInTheDocument();
+    expect(within(recap).getAllByRole('link').map((link) => [link.textContent, link.getAttribute('href')])).toEqual([['Ubah brief pitching', '#brief-pitching'], ['Ubah berkas yang dapat diunduh', '#berkas-pilihan']]);
     await user.type(screen.getByRole('textbox', { name: /Brief pitching/ }), ' Tambahan.');
     await user.click(screen.getByRole('button', { name: 'Kirim pitching kepada Mitra A' }));
 

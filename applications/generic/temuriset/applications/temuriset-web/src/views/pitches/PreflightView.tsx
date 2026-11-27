@@ -12,6 +12,7 @@ import { ErrorSummary } from '@/components/tr/ErrorSummary';
 import { RequirementRow } from '@/components/tr/RequirementRow';
 import { Screen } from '@/components/tr/Screen';
 import { Status } from '@/components/tr/Status';
+import { SummaryList } from '@/components/tr/SummaryList';
 import { TextArea } from '@/components/tr/TextArea';
 import { VersionConflict } from '@/components/tr/VersionConflict';
 import { ContextBar } from '@/features/ContextBar';
@@ -38,6 +39,14 @@ type SummaryState =
   | { kind: 'failure'; refused?: boolean; message: string; requestId?: string | null };
 
 /** S11: everything that would be sent, the files to share and the brief, then one deliberate send (UX-08, UX-17). */
+/** The brief as the recipient will first read it: the opening words, never cut mid-word. */
+export function briefPreview(brief: string, limit = 160): string {
+  const text = brief.replace(/\s+/g, ' ').trim();
+  if (!text) return 'Belum diisi';
+  if (text.length <= limit) return text;
+  return `${text.slice(0, text.lastIndexOf(' ', limit) > 0 ? text.lastIndexOf(' ', limit) : limit)}…`;
+}
+
 export function PreflightView({ me, source, targetId, summaryAvailable = false }: Props) {
   const router = useRouter();
   const persona = readPersona(me.account.persona) ?? 'inovator';
@@ -171,6 +180,7 @@ export function PreflightView({ me, source, targetId, summaryAvailable = false }
   const recipient = preflight.recipient.name;
   const sender = preflight.sender.name;
   const errors = missing.map((message) => ({ fieldId: 'berkas-pilihan', message }));
+  const chosenFiles = preflight.shareable_files.filter((file) => chosen.includes(file.version_id));
   return (
     <Screen {...shell} title="Periksa sebelum mengirim" subtitle={`${preflight.source.title} kepada ${recipient}`}>
       {errors.length ? <ErrorSummary errors={errors} focusKey={attempt} /> : null}
@@ -288,8 +298,20 @@ export function PreflightView({ me, source, targetId, summaryAvailable = false }
       ) : null}
       <section className="tr-panel tr-stack" aria-labelledby="efek-kirim">
         <h2 id="efek-kirim" className="tr-sys-type-heading-sm">
-          Yang terjadi saat Anda mengirim
+          {`Yang akan diterima ${recipient}`}
         </h2>
+        <SummaryList
+          rows={[
+            { id: 'pengirim', label: 'Dikirim oleh', value: sender },
+            { id: 'brief', label: 'Brief pitching', value: briefPreview(brief ?? ''), changeHref: '#brief-pitching' },
+            {
+              id: 'berkas',
+              label: 'Berkas yang dapat diunduh',
+              value: chosenFiles.length ? chosenFiles.map((file) => `${file.title}, versi ${file.version}`).join('; ') : 'Tidak ada berkas',
+              changeHref: '#berkas-pilihan',
+            },
+          ]}
+        />
         <p>{`${sender} mengirim brief ini kepada ${recipient}, beserta akses unduh ke ${chosen.length} berkas yang dicentang. Kebutuhan dan inovasi dibekukan pada versi di atas; perubahan nanti tidak mengubah pitching ini.`}</p>
         <div className="tr-row">
           <Button intent="primary" icon="arrow" busy={state.kind === 'sending'} busyLabel="Mengirim…" disabledReason={blockedReason} onClick={() => void send()}>

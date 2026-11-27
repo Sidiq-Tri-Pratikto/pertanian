@@ -9,6 +9,7 @@ import { makeMe, ORGANIZATION } from './fixtures';
 let me: ReturnType<typeof makeMe> | null = null;
 let deployed: string[] | null = ['core', 'company_funding'];
 let supportRequests: unknown[] = [];
+let inventionList: unknown[] = [];
 const cookieJar = new Map<string, string>();
 
 vi.mock('next/headers', () => ({
@@ -26,7 +27,10 @@ vi.mock('@/api/server', () => ({
     if (path === '/api/v1/me/calendar') return { state: 'off', version: 0 };
     if (path === '/api/v1/reports' || path === '/api/v1/privacy-requests') return [];
     if (path === '/api/v1/profiles/me') return { party_id: me?.active_party_id, bio: '', published: false, version: 1 };
-    if (path === '/api/v1/inventions') return [];
+    if (path === '/api/v1/inventions') return inventionList;
+    if (path === '/api/v1/inventions/inv-draft') {
+      return { id: 'inv-draft', draft: { title: 'Pengering surya', summary: 'Ringkas', problem: 'Basah', solution: '', intended_users: 'Koperasi', stage: 'PROTOTYPE', keywords: [], facts: [], claims: [] } };
+    }
     if (path === '/api/v1/support-requests') return supportRequests;
     if (path === '/api/v1/opportunities') return [];
     if (path === '/api/v1/funding-requests') return [];
@@ -95,6 +99,7 @@ beforeEach(() => {
   me = null;
   deployed = ['core', 'company_funding'];
   supportRequests = [];
+  inventionList = [];
   cookieJar.clear();
   vi.stubGlobal('fetch', vi.fn(() => new Promise(() => {})));
 });
@@ -182,6 +187,16 @@ describe('a signed-in inventor', () => {
     render((await HomePage()) as ReactElement);
 
     expect(screen.getByRole('link', { name: 'Buka Inovasi Saya' })).toHaveAttribute('href', '/inventions');
+  });
+
+  it('resumes an unfinished first draft at its first incomplete step', async () => {
+    inventionList = [{ id: 'inv-draft', title: 'Pengering surya', status: 'DRAFT', has_draft: true, published_number: null, version: 1 }];
+
+    render((await HomePage()) as ReactElement);
+
+    expect(screen.getByRole('heading', { name: 'Lanjutkan draf inovasi Anda' })).toBeInTheDocument();
+    expect(screen.getByText(/Pengering surya\. Lanjutkan dari langkah 1 dari 4\./)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /^Lanjutkan draf/ })).toHaveAttribute('href', '/inventions/inv-draft/edit?step=1');
   });
 
   it('points an open need at its matches when nothing else waits', async () => {

@@ -75,7 +75,7 @@ test('J01: from Beranda through the range repair and the match to a submitted pi
 
   await expect(page).toHaveURL(new RegExp(`/pitches/new\\?source=SUPPORT_REQUEST:${need}&target=${mandate.id}$`));
   await expect(page.getByText('Siap dikirim')).toBeVisible();
-  await expect(page.getByText('Rani', { exact: true })).toBeVisible();
+  await expect(page.getByRole('region', { name: /^Yang akan diterima / }).getByText('Rani', { exact: true })).toBeVisible();
   const { violations } = await new AxeBuilder({ page }).analyze();
   expect(violations.map((violation) => violation.id)).toEqual([]);
   await page.getByRole('textbox', { name: /Brief pitching/ }).press('End');
