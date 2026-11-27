@@ -14,7 +14,7 @@ from app.access.service.service import AccessService, capabilities_for
 from app.core.database import seeded_ids
 from app.core.settings import Settings
 from app.demo.repository.sqlalchemy.repository import SqlAlchemyDemoRepository
-from app.demo.service import data
+from app.demo.service import data, ums_health
 from app.discovery.repository.sqlalchemy.repository import SqlAlchemyDiscoveryRepository
 from app.discovery.service.projection import refresh_funding, refresh_invention, refresh_partner
 from app.discovery.service.service import DiscoveryService
@@ -71,12 +71,22 @@ def demo_accounts() -> list[dict[str, str]]:
         {"key": key, "name": account["name"], "persona": "inovator", "fixture": data.INVENTOR_FIXTURES[key]}
         for key, account in data.ACCOUNTS.items()
     ]
+    inventors.append(
+        {
+            "key": ums_health.ACCOUNT["key"],
+            "name": ums_health.ACCOUNT["name"],
+            "persona": "inovator",
+            "fixture": "UMS1–UMS5",
+        }
+    )
     partners = [
         {"key": account["key"], "name": account["name"], "persona": "mitra", "fixture": f"Recipient {recipient}"}
         for recipient, account in data.RECIPIENT_ACCOUNTS.items()
     ]
-    accounts = inventors + partners
-    return [{**account, "summary": data.ACCOUNT_SUMMARIES[account["key"]], "label": DEMO_LABEL} for account in accounts]
+    partner = ums_health.RECIPIENT_ACCOUNT
+    partners.append({"key": partner["key"], "name": partner["name"], "persona": "mitra", "fixture": "Recipient F"})
+    summaries = {**data.ACCOUNT_SUMMARIES, **ums_health.ACCOUNT_SUMMARIES}
+    return [{**account, "summary": summaries[account["key"]], "label": DEMO_LABEL} for account in inventors + partners]
 
 
 def demo_email(key: str) -> str:
@@ -180,8 +190,8 @@ class DemoSeeder:
         await document_jobs.extract(self.session, {"version_id": str(version_id)})
         return version_id
 
-    async def _invention(self, key: str, variants: Variants) -> UUID:
-        fixture = data.INVENTIONS[key]
+    async def _invention(self, key: str, variants: Variants, fixture: dict[str, Any] | None = None) -> UUID:
+        fixture = fixture or data.INVENTIONS[key]
         principal = self.principals[fixture["account"]]
         content = {**fixture["content"], "facts": [dict(fact) for fact in fixture["content"]["facts"]]}
         for fact in content["facts"]:
@@ -287,6 +297,50 @@ class DemoSeeder:
             )
         return list(parties.values())
 
+    async def _ums_health(self, variants: Variants) -> tuple[dict[str, UUID], UUID]:
+        """Seed the UMS-01 set after everything else, so the ids of F01–F06 and Recipients A–E never move."""
+        account = ums_health.ACCOUNT
+        await self._account(account["key"], account["name"], "inovator", "Asia/Jakarta", account["organization"])
+        inventions = {
+            key: await self._invention(key, variants, fixture) for key, fixture in ums_health.INVENTIONS.items()
+        }
+        needs = NeedsService(self.session)
+        principal = self.principals[account["key"]]
+        party = principal.active_party_id
+        for key, content in ums_health.SUPPORT_REQUESTS.items():
+            created = await needs.create(
+                principal, CreateSupportRequest(acting_party_id=party, invention_id=inventions[key], **content)
+            )
+            await needs.transition(
+                principal,
+                created.id,
+                "activate",
+                TransitionRequest(acting_party_id=party, expected_version=created.version),
+            )
+        intake = IntakeService(self.session)
+        recipient = ums_health.RECIPIENT_ACCOUNT
+        partner = await self._account(
+            recipient["key"], recipient["name"], "mitra", recipient["zone"], ums_health.PROFILE["party"]["name"]
+        )
+        partner_party = partner.active_party_id
+        await intake.save_profile(
+            partner,
+            partner_party,
+            SavePartnerProfileRequest(
+                acting_party_id=partner_party, expected_version=None, **ums_health.PROFILE["content"]
+            ),
+        )
+        created = await intake.create(
+            partner, CreateOpportunityRequest(acting_party_id=partner_party, **ums_health.OPPORTUNITY)
+        )
+        await intake.transition(
+            partner,
+            created.id,
+            "activate",
+            OpportunityTransitionRequest(acting_party_id=partner_party, expected_version=created.version),
+        )
+        return inventions, partner_party
+
     async def seed(self, variants: Variants) -> dict[str, UUID]:
         """Write the whole demo with seeded ids, then project it for discovery.
 
@@ -299,8 +353,11 @@ class DemoSeeder:
         with seeded_ids("demo"):
             subjects = await self._inventors(variants)
             partners = await self._recipients()
+            ums_inventions, ums_partner = await self._ums_health(variants)
+        subjects.update(ums_inventions)
+        partners.append(ums_partner)
         # The worker would project these from the outbox; doing it now makes the demo searchable at once.
-        for key in data.INVENTIONS:
+        for key in [*data.INVENTIONS, *ums_health.INVENTIONS]:
             await refresh_invention(self.session, subjects[key])
         await refresh_funding(self.session, subjects["FRaise01"])
         for party in partners:
