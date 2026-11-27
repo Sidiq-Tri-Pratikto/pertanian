@@ -26,8 +26,9 @@ class _SecretMessage(BaseModel):
     to: str
     subject: str
     body: str
-    source_kind: Literal["code", "invitation", "subscription"]
+    source_kind: Literal["code", "invitation", "subscription", "follow"]
     source_id: UUID
+    subjects: list[UUID] = []
 
 
 async def _code_deliverable(session: AsyncSession, message: _SecretMessage) -> bool:
@@ -67,7 +68,11 @@ async def deliver_secret(session: AsyncSession, job_input: dict[str, Any]) -> No
         # Imported here: subscriptions sends through this module.
         from app.subscriptions.service.service import subscription_deliverable  # noqa: PLC0415
 
-        deliverable = await subscription_deliverable(session, message.source_id, message.to)
+        deliverable = await subscription_deliverable(session, message.source_id, message.to, message.subjects)
+    elif message.source_kind == "follow":
+        from app.subscriptions.service.follows import follow_deliverable  # noqa: PLC0415
+
+        deliverable = await follow_deliverable(session, message.source_id, message.to, message.subjects)
     else:
         deliverable = await invitation_deliverable(session, message.source_id, message.to)
     if not deliverable:

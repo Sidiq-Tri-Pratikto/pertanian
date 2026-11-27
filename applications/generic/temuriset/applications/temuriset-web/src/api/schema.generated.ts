@@ -228,10 +228,9 @@ export interface paths {
         put?: never;
         /**
          * Reset the demo
-         * @description Delete only demo rows and recreate them with the same ids; real accounts are untouched.
+         * @description Delete only demo rows and recreate the scenario's starting point with the same ids; real accounts are untouched.
          *
          *     Args:
-         *         body (DemoResetRequest): Fixture states.
          *         session (SessionDep): Database session.
          *
          *     Returns:
@@ -688,6 +687,153 @@ export interface paths {
         get: operations["download_export_api_v1_exports__export_id__download_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/follows": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Follow an invention's public updates
+         * @description Email a confirmation link; the same answer for every address. Needs the invention's public page.
+         *
+         *     Args:
+         *         body (FollowRequest): The invention, email and language.
+         *         request (Request): For the client address used by the rate limit.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         SubscribeResponse: ``check_email``.
+         */
+        post: operations["follow_api_v1_follows_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/follows/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Confirm following an invention
+         * @description Start following; only updates first published from now on are sent.
+         *
+         *     Args:
+         *         body (TokenRequest): The confirmation token.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         FollowResponse: The follow and a manage token.
+         */
+        post: operations["confirm_follow_api_v1_follows_confirm_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/follows/manage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Change the follow email language
+         * @description Change the language of future update emails.
+         *
+         *     Args:
+         *         body (FollowLanguageRequest): The manage token and language.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         FollowResponse: The follow.
+         */
+        put: operations["set_follow_language_api_v1_follows_manage_put"];
+        /**
+         * Read a follow
+         * @description Read a follow through a manage link.
+         *
+         *     Args:
+         *         body (TokenRequest): The manage token.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         FollowResponse: The follow.
+         */
+        post: operations["read_follow_api_v1_follows_manage_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/follows/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Show what a follow confirmation link confirms
+         * @description Read a pending follow without confirming it, so opening the link alone changes nothing.
+         *
+         *     Args:
+         *         body (TokenRequest): The confirmation token.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         FollowResponse: The follow.
+         */
+        post: operations["preview_follow_api_v1_follows_preview_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/follows/unfollow": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Unfollow an invention
+         * @description Stop updates for this invention; repeating it changes nothing.
+         *
+         *     Args:
+         *         body (TokenRequest): A manage token.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         FollowResponse: The follow.
+         */
+        post: operations["unfollow_api_v1_follows_unfollow_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -4963,29 +5109,8 @@ export interface components {
             summary: string;
         };
         /**
-         * DemoResetRequest
-         * @description Recreate the demo, optionally in a fixture state such as F01-GAP.
-         */
-        DemoResetRequest: {
-            /**
-             * Gap
-             * @default false
-             */
-            gap?: boolean;
-            /**
-             * Proposed Entity
-             * @default false
-             */
-            proposed_entity?: boolean;
-            /**
-             * Scan
-             * @default false
-             */
-            scan?: boolean;
-        };
-        /**
          * DemoResetResponse
-         * @description What the reset recreated.
+         * @description What the reset recreated: the scenario's starting point.
          */
         DemoResetResponse: {
             /** Accounts */
@@ -5519,6 +5644,70 @@ export interface components {
             lower: string;
             /** Upper */
             upper: string;
+        };
+        /**
+         * FollowLanguageRequest
+         * @description The language of future update emails, through a manage link.
+         */
+        FollowLanguageRequest: {
+            /**
+             * Locale
+             * @enum {string}
+             */
+            locale: "id" | "en";
+            /** Token */
+            token: string;
+        };
+        /**
+         * FollowRequest
+         * @description Follow one invention's public updates with only an email (053).
+         */
+        FollowRequest: {
+            /** Email */
+            email: string;
+            /**
+             * Invention Id
+             * Format: uuid
+             */
+            invention_id: string;
+            /**
+             * Locale
+             * @default id
+             * @enum {string}
+             */
+            locale?: "id" | "en";
+        };
+        /**
+         * FollowResponse
+         * @description What a follow link shows. The email is partly masked.
+         */
+        FollowResponse: {
+            /** Confirmed At */
+            confirmed_at: string | null;
+            /** Email */
+            email: string;
+            /**
+             * Invention Id
+             * Format: uuid
+             */
+            invention_id: string;
+            /** Invention Title */
+            invention_title: string;
+            /**
+             * Locale
+             * @enum {string}
+             */
+            locale: "id" | "en";
+            /**
+             * Manage Token
+             * @description A fresh manage link token, returned once after confirmation.
+             */
+            manage_token?: string | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "PENDING" | "ACTIVE" | "UNSUBSCRIBED";
         };
         /**
          * FulfillPrivacyRequest
@@ -9446,11 +9635,7 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["DemoResetRequest"];
-            };
-        };
+        requestBody?: never;
         responses: {
             /** @description Successful Response */
             200: {
@@ -9459,15 +9644,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["DemoResetResponse"];
-                };
-            };
-            /** @description Validation failed */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
             /** @description Failure */
@@ -10147,6 +10323,258 @@ export interface operations {
                 };
                 content: {
                     "application/json": string;
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    follow_api_v1_follows_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FollowRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscribeResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    confirm_follow_api_v1_follows_confirm_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TokenRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FollowResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    set_follow_language_api_v1_follows_manage_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FollowLanguageRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FollowResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    read_follow_api_v1_follows_manage_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TokenRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FollowResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    preview_follow_api_v1_follows_preview_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TokenRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FollowResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    unfollow_api_v1_follows_unfollow_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TokenRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FollowResponse"];
                 };
             };
             /** @description Validation failed */

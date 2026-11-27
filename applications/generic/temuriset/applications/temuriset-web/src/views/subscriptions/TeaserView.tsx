@@ -1,6 +1,7 @@
 import Link from 'next/link';
 
 import { EmptyState } from '@/components/tr/EmptyState';
+import { FollowForm } from '@/features/subscriptions/FollowForm';
 import type { Teaser } from '@/features/subscriptions/api';
 import { AuthShell } from '@/views/AuthShell';
 import type { Locale } from '@/features/i18n/locale';
@@ -59,6 +60,7 @@ export function TeaserView({ teaser, locale = 'id' }: { teaser: Teaser | null; l
         </section>
         {teaser.photo ? <PublicPhoto photo={teaser.photo} /> : null}
       </div>
+      {teaser.follow_enabled ? <FollowForm inventionId={teaser.id} /> : null}
       {teaser.latest_updates?.length ? (
         <section className="tr-panel tr-stack" aria-labelledby="kabar-terbaru">
           <h2 id="kabar-terbaru" className="tr-sys-type-heading-sm">

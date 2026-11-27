@@ -12,7 +12,7 @@ const config: NextConfig = {
   poweredByHeader: false,
   logging: {
     incomingRequests: {
-      ignore: [/^\/undangan\//, /^\/api\/v1\/invitations\//, /^\/api\/v1\/dev\/mailbox\/?(?:\?|$)/],
+      ignore: [/^\/undangan\//, /^\/(?:en\/follow|ikuti)\//, /^\/api\/v1\/invitations\//, /^\/api\/v1\/dev\/mailbox\/?(?:\?|$)/],
     },
   },
   async rewrites() {

@@ -106,3 +106,33 @@ class TeaserResponse(BaseModel):
     latest_updates: list[TeaserUpdate] = Field(
         default_factory=list, description="Up to three published updates, newest first; only with the public page."
     )
+
+
+class FollowRequest(BaseModel):
+    """Follow one invention's public updates with only an email (053)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    invention_id: UUID
+    email: Email
+    locale: Literal["id", "en"] = "id"
+
+
+class FollowLanguageRequest(TokenRequest):
+    """The language of future update emails, through a manage link."""
+
+    locale: Literal["id", "en"]
+
+
+class FollowResponse(BaseModel):
+    """What a follow link shows. The email is partly masked."""
+
+    invention_id: UUID
+    invention_title: str
+    email: str
+    status: Literal["PENDING", "ACTIVE", "UNSUBSCRIBED"]
+    locale: Literal["id", "en"]
+    confirmed_at: datetime | None
+    manage_token: str | None = Field(
+        default=None, description="A fresh manage link token, returned once after confirmation."
+    )

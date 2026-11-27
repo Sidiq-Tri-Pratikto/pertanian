@@ -44,7 +44,7 @@ export function DemoPanel({ accounts }: { accounts: DemoAccount[] }) {
     setBusy('reset');
     setFailure(null);
     try {
-      await send('POST', '/api/v1/demo/reset', {});
+      await send('POST', '/api/v1/demo/reset');
       setNotice(words.resetDone);
     } catch (error) {
       setFailure(ApiError.from(error).message);

@@ -7,6 +7,9 @@ from fastapi import APIRouter, Request, Response, status
 from app.core.database import SessionDep
 from app.identity.router import _client_address
 from app.subscriptions.model.schema import (
+    FollowLanguageRequest,
+    FollowRequest,
+    FollowResponse,
     SubscribeRequest,
     SubscribeResponse,
     SubscriptionResponse,
@@ -14,6 +17,7 @@ from app.subscriptions.model.schema import (
     TokenRequest,
     UpdateTopicsRequest,
 )
+from app.subscriptions.service.follows import FollowService
 from app.subscriptions.service.service import SubscriptionService
 
 router = APIRouter(tags=["subscriptions"])
@@ -132,3 +136,88 @@ async def teaser_photo(invention_id: UUID, session: SessionDep) -> Response:
             "Cache-Control": "public, max-age=300",
         },
     )
+
+
+@router.post("/follows", status_code=status.HTTP_202_ACCEPTED, summary="Follow an invention's public updates")
+async def follow(body: FollowRequest, request: Request, session: SessionDep) -> SubscribeResponse:
+    """Email a confirmation link; the same answer for every address. Needs the invention's public page.
+
+    Args:
+        body (FollowRequest): The invention, email and language.
+        request (Request): For the client address used by the rate limit.
+        session (SessionDep): Database session.
+
+    Returns:
+        SubscribeResponse: ``check_email``.
+    """
+    return await FollowService(session).follow(body, _client_address(request))
+
+
+@router.post("/follows/preview", summary="Show what a follow confirmation link confirms")
+async def preview_follow(body: TokenRequest, session: SessionDep) -> FollowResponse:
+    """Read a pending follow without confirming it, so opening the link alone changes nothing.
+
+    Args:
+        body (TokenRequest): The confirmation token.
+        session (SessionDep): Database session.
+
+    Returns:
+        FollowResponse: The follow.
+    """
+    return await FollowService(session).preview(body.token)
+
+
+@router.post("/follows/confirm", summary="Confirm following an invention")
+async def confirm_follow(body: TokenRequest, session: SessionDep) -> FollowResponse:
+    """Start following; only updates first published from now on are sent.
+
+    Args:
+        body (TokenRequest): The confirmation token.
+        session (SessionDep): Database session.
+
+    Returns:
+        FollowResponse: The follow and a manage token.
+    """
+    return await FollowService(session).confirm(body.token)
+
+
+@router.post("/follows/manage", summary="Read a follow")
+async def read_follow(body: TokenRequest, session: SessionDep) -> FollowResponse:
+    """Read a follow through a manage link.
+
+    Args:
+        body (TokenRequest): The manage token.
+        session (SessionDep): Database session.
+
+    Returns:
+        FollowResponse: The follow.
+    """
+    return await FollowService(session).read(body.token)
+
+
+@router.put("/follows/manage", summary="Change the follow email language")
+async def set_follow_language(body: FollowLanguageRequest, session: SessionDep) -> FollowResponse:
+    """Change the language of future update emails.
+
+    Args:
+        body (FollowLanguageRequest): The manage token and language.
+        session (SessionDep): Database session.
+
+    Returns:
+        FollowResponse: The follow.
+    """
+    return await FollowService(session).set_language(body.token, body.locale)
+
+
+@router.post("/follows/unfollow", summary="Unfollow an invention")
+async def unfollow(body: TokenRequest, session: SessionDep) -> FollowResponse:
+    """Stop updates for this invention; repeating it changes nothing.
+
+    Args:
+        body (TokenRequest): A manage token.
+        session (SessionDep): Database session.
+
+    Returns:
+        FollowResponse: The follow.
+    """
+    return await FollowService(session).unfollow(body.token)

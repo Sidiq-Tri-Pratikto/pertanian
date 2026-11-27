@@ -83,19 +83,55 @@ async def ensure_digest_scheduled(session: AsyncSession) -> None:
     await enqueue_job(session, DIGEST_JOB, {"at": at.isoformat()}, run_after=at, dedupe_key=f"digest:{at.date()}")
 
 
-async def subscription_deliverable(session: AsyncSession, subscription_id: UUID, to_email: str) -> bool:
-    """Whether a queued relay message may still go out: same email, not unsubscribed.
+async def subscription_deliverable(
+    session: AsyncSession, subscription_id: UUID, to_email: str, inventions: list[UUID] | None = None
+) -> bool:
+    """Whether a queued relay message may still go out: same email, not unsubscribed, every invention still included.
+
+    An invention archived, suspended or withdrawn from investor news after the message was queued stops it (053).
 
     Args:
         session (AsyncSession): The worker's session.
         subscription_id (UUID): The subscription.
         to_email (str): The address in the sealed message.
+        inventions (list[UUID] | None, optional): The inventions the message names. Defaults to none.
 
     Returns:
         bool: True when it may be delivered.
     """
     record = await SqlAlchemySubscriptionRepository(session).find(subscription_id)
-    return record is not None and record.email == to_email and record.status != "UNSUBSCRIBED"
+    if record is None or record.email != to_email or record.status == "UNSUBSCRIBED":
+        return False
+    service = SubscriptionService(session)
+    # ponytail: one withdrawn invention drops the whole digest; resend the rest if that ever matters.
+    for invention_id in inventions or []:
+        if await service._public(invention_id) is None:  # noqa: SLF001 - the same gate that chose it
+            return False
+    return True
+
+
+async def rate_limit(session: AsyncSession, email: str, client_address: str) -> None:
+    """Count a request for an email; subscriptions and follows share the limits.
+
+    Args:
+        session (AsyncSession): The request's session.
+        email (str): The normalized email.
+        client_address (str): The caller's address.
+
+    Raises:
+        RateLimitedError: Three requests per email or twenty per address in the last hour.
+    """
+    repository = SqlAlchemySubscriptionRepository(session)
+    now = clock.now()
+    since = now - timedelta(hours=1)
+    email_hash, address_hash = _hash(email), hash_address(client_address)
+    for times, cap in (
+        (await repository.requests_since(email_sha256=email_hash, since=since), PER_EMAIL_PER_HOUR),
+        (await repository.requests_since(address_sha256=address_hash, since=since), PER_ADDRESS_PER_HOUR),
+    ):
+        if len(times) >= cap:
+            raise RateLimitedError(max(int((times[0] + timedelta(hours=1) - now).total_seconds()) + 1, 1))
+    await repository.add(SubscriptionRequestRecord(email_sha256=email_hash, address_sha256=address_hash))
 
 
 def masked(email: str) -> str:
@@ -137,21 +173,16 @@ class SubscriptionService:
         )
         return token
 
-    async def _send(self, record: InvestorSubscriptionRecord, subject: str, body: str) -> None:
-        reference = MailReference(kind="subscription", id=record.id, expires_at=clock.now() + timedelta(hours=1))
+    async def _send(
+        self, record: InvestorSubscriptionRecord, subject: str, body: str, inventions: tuple[UUID, ...] = ()
+    ) -> None:
+        reference = MailReference(
+            kind="subscription", id=record.id, expires_at=clock.now() + timedelta(hours=1), subjects=inventions
+        )
         await self.mailbox.send(self.session, to_email=record.email, subject=subject, body=body, reference=reference)
 
     async def _rate_limit(self, email: str, client_address: str) -> None:
-        now = clock.now()
-        since = now - timedelta(hours=1)
-        email_hash, address_hash = _hash(email), hash_address(client_address)
-        for times, cap in (
-            (await self.repository.requests_since(email_sha256=email_hash, since=since), PER_EMAIL_PER_HOUR),
-            (await self.repository.requests_since(address_sha256=address_hash, since=since), PER_ADDRESS_PER_HOUR),
-        ):
-            if len(times) >= cap:
-                raise RateLimitedError(max(int((times[0] + timedelta(hours=1) - now).total_seconds()) + 1, 1))
-        await self.repository.add(SubscriptionRequestRecord(email_sha256=email_hash, address_sha256=address_hash))
+        await rate_limit(self.session, email, client_address)
 
     @staticmethod
     def _topics(topics: Topics) -> dict[str, Any]:
@@ -434,7 +465,7 @@ class SubscriptionService:
                 continue
             token = await self._link(record, "manage", MANAGE_LIFETIME)
             subject, body = mail.alert(self.settings, invention, found, record, token)
-            await self._send(record, subject, body)
+            await self._send(record, subject, body, (invention_id,))
             sent += 1
         return sent
 
@@ -467,6 +498,6 @@ class SubscriptionService:
                 continue
             token = await self._link(record, "manage", MANAGE_LIFETIME)
             subject, body = mail.digest(self.settings, items, record, token)
-            await self._send(record, subject, body)
+            await self._send(record, subject, body, tuple(invention["id"] for invention, _ in items))
             sent += 1
         return sent

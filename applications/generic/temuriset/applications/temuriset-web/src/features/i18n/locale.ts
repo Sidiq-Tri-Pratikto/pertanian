@@ -17,6 +17,7 @@ export const EN_TO_ID: Record<string, string> = {
   confirm: 'konfirmasi',
   manage: 'atur',
   code: 'kode',
+  follow: 'ikuti',
 };
 const ID_TO_EN = Object.fromEntries(Object.entries(EN_TO_ID).map(([en, id]) => [id, en]));
 

@@ -10,6 +10,7 @@ import app.identity.service.mail_jobs  # noqa: F401 - registers secret email del
 import app.intake.service.jobs  # noqa: F401 - registers the expiry job
 import app.portability.service.jobs  # noqa: F401 - registers the portability jobs
 import app.scheduling.service.jobs  # noqa: F401 - registers the proposal expiry job
+import app.subscriptions.service.follows  # noqa: F401 - registers the update fan-out to followers
 import app.subscriptions.service.jobs  # noqa: F401 - registers investor alerts and the weekly digest
 from app.capabilities.service.configuration import validate_configuration
 from app.core.database import get_engine, get_session_factory

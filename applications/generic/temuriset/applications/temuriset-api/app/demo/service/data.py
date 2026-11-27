@@ -1,4 +1,4 @@
-"""Fixtures F01–F06, FRaise01 and Recipients A–E as plain data, shared by demo seeding (021) and tests (016, 019).
+"""Fixtures F01–F06, FRaise01 and Recipients A–E as plain data for tests (016, 019); the demo seeds ``scenario.py``.
 
 Every value is fictional. This module imports nothing, so engine tests can read it without a database. Where it
 differs from the prototype's ``domain.js``, the reasons are in ``specs/016-partner-intake-api/tasks.md`` and
