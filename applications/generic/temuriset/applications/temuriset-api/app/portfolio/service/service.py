@@ -10,7 +10,9 @@ from app.access.model.models import Capability
 from app.access.service.policy import check_context, require
 from app.access.service.service import party_names
 from app.core import clock
-from app.core.errors.base import ConflictError, NotFoundError
+from app.core.errors.base import ConflictError, FieldsInvalidError, NotFoundError
+from app.core.locale import locale
+from app.documents.service.service import document_version_number, owned_public_image
 from app.identity.model.models import Principal
 from app.moderation.service.suspension import is_suspended, require_unsuspended, suspended_listings
 from app.platform.service.audit import record_audit
@@ -26,6 +28,9 @@ from app.portfolio.model.schema import (
     PublicClaimResponse,
     PublicFactResponse,
     PublicInventionResponse,
+    PublicPageRequest,
+    PublicPageResponse,
+    PublicPhotoResponse,
     PublishResponse,
     VersionedActionRequest,
 )
@@ -36,6 +41,12 @@ from app.portfolio.service.validation import PublicationInvalidError, publicatio
 
 _ARCHIVED = "Inovasi ini sudah diarsipkan. Riwayatnya tetap dapat dibaca, tetapi tidak dapat diubah atau dikirim."
 _NO_DRAFT = "Tidak ada draf untuk diterbitkan. Ubah inovasi terlebih dahulu lalu terbitkan."
+
+
+_ALT_REQUIRED = {
+    "id": "Tulis apa yang terlihat di foto, untuk pembaca layar dan saat foto tidak dimuat.",
+    "en": "Describe what the photo shows, for screen readers and when the photo does not load.",
+}
 
 
 class PortfolioService:
@@ -109,8 +120,88 @@ class PortfolioService:
             published=await self.repository.version(invention.published_version_id),
             history=await self.repository.numbers(invention.id),
             investor_digest=invention.investor_digest,
+            public_page=await self._public_page(invention),
             operation_id=operation_id,
         )
+
+    async def _public_page(self, invention: InventionRecord) -> PublicPageResponse:
+        photo = None
+        if invention.public_photo_version_id is not None:
+            found = await document_version_number(self.session, invention.public_photo_version_id)
+            if found is not None:
+                photo = PublicPhotoResponse(
+                    document_id=found[0],
+                    version=found[1],
+                    alt=invention.public_photo_alt or "",
+                    width=invention.public_photo_width or 0,
+                    height=invention.public_photo_height or 0,
+                    orientation=invention.public_photo_orientation or 1,
+                )
+        return PublicPageResponse(
+            enabled=invention.public_page,
+            field_test=invention.public_field_test,
+            photo=photo,
+            content_locale=invention.public_content_locale,  # type: ignore[arg-type]
+        )
+
+    async def set_public_page(
+        self, principal: Principal, invention_id: UUID, request: PublicPageRequest
+    ) -> InventionResponse:
+        """Publish or withdraw the public invention page and its additions (051).
+
+        Independent of investor alerts: switching this on never puts the invention into investor emails. The photo
+        must be one of the managing party's own files that passed the upload check; its metadata never reaches the
+        page, and its size is read now so the page can reserve the space.
+
+        Args:
+            principal (Principal): Who is signed in.
+            invention_id (UUID): The invention.
+            request (PublicPageRequest): Acting party, ``expected_version``, the switch and the additions.
+
+        Returns:
+            InventionResponse: The invention.
+
+        Raises:
+            FieldsInvalidError: A photo without a description.
+            FileNotAvailableError: The photo is not the party's own available file.
+            FileTypeUnsupportedError: The photo is not a readable JPEG, PNG or WebP.
+        """
+        check_context(principal, request.acting_party_id)
+        invention = await self._owned(principal, invention_id, lock=True)
+        require(principal, Capability.EDIT_PORTFOLIO, invention.managing_party_id)
+        check_expected(invention.version, request.expected_version)
+        alt = (request.photo_alt or "").strip()
+        if request.photo is not None and not alt:
+            raise FieldsInvalidError(
+                [{"loc": ["body", "photo_alt"], "msg": _ALT_REQUIRED[locale()], "type": "photo_alt"}]
+            )
+        if request.photo is None:
+            invention.public_photo_version_id = None
+            invention.public_photo_width = invention.public_photo_height = invention.public_photo_orientation = None
+        else:
+            version_id, image = await owned_public_image(
+                self.session, invention.managing_party_id, request.photo.document_id, request.photo.version
+            )
+            invention.public_photo_version_id = version_id
+            invention.public_photo_width, invention.public_photo_height = image.width, image.height
+            invention.public_photo_orientation = image.orientation
+        if request.enabled and not invention.public_page:
+            invention.public_page_at = clock.now()
+        invention.public_page = request.enabled
+        invention.public_field_test = (request.field_test or "").strip() or None
+        invention.public_photo_alt = alt or None
+        invention.public_content_locale = request.content_locale
+        invention.version += 1
+        await self.session.flush()
+        await record_audit(
+            self.session,
+            action="invention.public_page",
+            subject_type="invention",
+            subject_id=str(invention.id),
+            actor_account_id=principal.account_id,
+            actor_party_id=principal.active_party_id,
+        )
+        return await self._view(invention)
 
     async def set_investor_digest(
         self, principal: Principal, invention_id: UUID, request: InvestorDigestRequest
@@ -499,6 +590,19 @@ async def digest_candidates(session: AsyncSession, since: datetime) -> list[UUID
         .order_by(newest.desc())
     )
     return list(await session.scalars(query))
+
+
+async def public_page_settings(session: AsyncSession, invention_id: UUID) -> InventionRecord | None:
+    """The invention's public-page and investor-alert switches, for the signed-out summary (051).
+
+    Args:
+        session (AsyncSession): The request's session.
+        invention_id (UUID): The invention.
+
+    Returns:
+        InventionRecord | None: The record, or None when unknown.
+    """
+    return await session.get(InventionRecord, invention_id)
 
 
 async def investor_digest_enabled(session: AsyncSession, invention_id: UUID) -> bool:

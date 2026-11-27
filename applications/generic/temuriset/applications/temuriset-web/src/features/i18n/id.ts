@@ -151,7 +151,7 @@ export const id = {
     pageTitle: 'Ringkasan inovasi',
     unavailableTitle: 'Inovasi tidak tersedia',
     unavailableHeading: 'Ringkasan ini tidak tersedia',
-    unavailableBody: 'Pengelolanya mungkin sudah menarik inovasi ini dari kabar untuk investor.',
+    unavailableBody: 'Pengelolanya mungkin sudah menutup halaman ini, atau alamatnya keliru.',
     unavailableAction: 'Atur kabar inovasi Anda',
     inventor: (name: string) => `Inovator: ${name}`,
     summary: 'Ringkasan',
@@ -160,7 +160,8 @@ export const id = {
     moreBody: 'Masalah, solusi, fakta, bukti, dan cara menghubungi inovator tersedia untuk akun investor.',
     signUp: 'Daftar untuk melihat detail',
     signIn: 'Sudah punya akun? Masuk',
-    writtenIn: '',
+    writtenIn: 'Ditulis dalam bahasa Inggris',
+    fieldTest: 'Uji lapangan',
   },
   notFound: {
     title: 'Halaman tidak ditemukan',

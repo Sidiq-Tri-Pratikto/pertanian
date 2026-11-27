@@ -31,23 +31,34 @@ export function TeaserView({ teaser, locale = 'id' }: { teaser: Teaser | null; l
     );
   }
   const detail = `/inventions/${teaser.id}`;
-  const content = locale === 'en' ? 'id' : undefined;
+  // Inventor content is in the language the owner wrote; mark it when the page speaks the other one.
+  const written = teaser.content_locale ?? 'id';
+  const content = written !== locale ? written : undefined;
   return (
     <AuthShell title={teaser.title} subtitle={words.inventor(teaser.inventor_name)}>
-      <section className="tr-panel tr-stack" aria-labelledby="ringkasan">
-        <h2 id="ringkasan" className="tr-sys-type-heading-sm">
-          {words.summary}
-        </h2>
-        {content ? <p className="tr-muted tr-sys-type-support">{words.writtenIn}</p> : null}
-        <p lang={content}>{teaser.summary}</p>
-        <p className="tr-muted">{[sectorLabel(messages, teaser.sector), stageLabel(messages, teaser.stage)].filter(Boolean).join(' · ')}</p>
-        {teaser.keywords.length ? (
-          <p className="tr-muted tr-sys-type-support">
-            {words.keywords('')}
-            <span lang={content}>{teaser.keywords.join(', ')}</span>
-          </p>
-        ) : null}
-      </section>
+      <div className="tr-showcase">
+        <section className="tr-panel tr-stack" aria-labelledby="ringkasan">
+          <h2 id="ringkasan" className="tr-sys-type-heading-sm">
+            {words.summary}
+          </h2>
+          <p className="tr-muted">{[sectorLabel(messages, teaser.sector), stageLabel(messages, teaser.stage)].filter(Boolean).join(' · ')}</p>
+          {content ? <p className="tr-muted tr-sys-type-support">{words.writtenIn}</p> : null}
+          <p lang={content}>{teaser.summary}</p>
+          {teaser.keywords.length ? (
+            <p className="tr-muted tr-sys-type-support">
+              {words.keywords('')}
+              <span lang={content}>{teaser.keywords.join(', ')}</span>
+            </p>
+          ) : null}
+          {teaser.field_test_summary ? (
+            <>
+              <h3 className="tr-sys-type-label">{words.fieldTest}</h3>
+              <p lang={content}>{teaser.field_test_summary}</p>
+            </>
+          ) : null}
+        </section>
+        {teaser.photo ? <PublicPhoto photo={teaser.photo} /> : null}
+      </div>
       <section className="tr-panel tr-stack" aria-labelledby="detail">
         <h2 id="detail" className="tr-sys-type-heading-sm">
           {words.moreTitle}
@@ -63,5 +74,29 @@ export function TeaserView({ teaser, locale = 'id' }: { teaser: Teaser | null; l
         </div>
       </section>
     </AuthShell>
+  );
+}
+
+type Photo = NonNullable<Teaser['photo']>;
+
+/**
+ * The published photo at its real size, so the page never shifts while it loads. Metadata was removed on the server,
+ * rotation with it, so the recorded orientation is applied here: turned photos swap their frame and rotate inside it.
+ */
+function PublicPhoto({ photo }: { photo: Photo }) {
+  const orientation = photo.orientation ?? 1;
+  const turned = orientation >= 5;
+  const degrees = orientation === 3 || orientation === 4 ? 180 : orientation === 6 || orientation === 5 ? 90 : orientation === 8 || orientation === 7 ? -90 : 0;
+  const frame = turned ? `${photo.height} / ${photo.width}` : `${photo.width} / ${photo.height}`;
+  const style = turned
+    ? { width: `${(100 * photo.width) / photo.height}%`, height: `${(100 * photo.height) / photo.width}%`, transform: `translate(-50%, -50%) rotate(${degrees}deg)` }
+    : degrees
+      ? { transform: `rotate(${degrees}deg)` }
+      : undefined;
+  return (
+    <div className="tr-showcase__media" style={{ aspectRatio: frame }}>
+      {/* eslint-disable-next-line @next/next/no-img-element -- the service already serves a cleaned, sized file; next/image would re-encode it through another route. */}
+      <img className={turned ? 'is-turned' : undefined} src={photo.url} alt={photo.alt} width={photo.width} height={photo.height} fetchPriority="high" style={style} />
+    </div>
   );
 }

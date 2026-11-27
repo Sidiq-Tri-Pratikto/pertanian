@@ -297,7 +297,22 @@ async def test_the_teaser_shows_only_the_brief_public_summary(
     )
     assert named["inventor_name"] == "Rani"
     assert INVENTIONS["F01"]["content"]["private_notes"] not in anonymous.text
-    assert set(body) == {"id", "title", "summary", "sector", "stage", "keywords", "inventor_name", "published_at"}
+    assert set(body) == {
+        "id",
+        "title",
+        "summary",
+        "sector",
+        "stage",
+        "keywords",
+        "inventor_name",
+        "published_at",
+        "follow_enabled",
+        "field_test_summary",
+        "photo",
+        "content_locale",
+    }
+    # Investor news alone opens no public page: no field test, no photo, not indexable (spec 051).
+    assert (body["follow_enabled"], body["field_test_summary"], body["photo"]) == (False, None, None)
 
 
 @pytest.mark.parametrize(

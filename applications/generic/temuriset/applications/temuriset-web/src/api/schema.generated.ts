@@ -1190,6 +1190,35 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/inventions/{invention_id}/public-page": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Publish or withdraw the public invention page
+         * @description Switch the signed-out invention page and its photo and field-test summary; independent of investor alerts.
+         *
+         *     Args:
+         *         invention_id (UUID): The invention.
+         *         body (PublicPageRequest): Acting party, ``expected_version``, the switch and the additions.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         InventionResponse: The invention.
+         */
+        put: operations["set_public_page_api_v1_inventions__invention_id__public_page_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/inventions/{invention_id}/publish": {
         parameters: {
             query?: never;
@@ -3691,7 +3720,7 @@ export interface paths {
         };
         /**
          * Read an invention teaser
-         * @description Read the brief public summary of an invention its managing party included in investor alerts.
+         * @description Read the brief public summary of an invention whose page is published or that is included in alerts.
          *
          *     Args:
          *         invention_id (UUID): The invention.
@@ -3701,6 +3730,35 @@ export interface paths {
          *         TeaserResponse: Title, summary, sector, stage, keywords and inventor name.
          */
         get: operations["teaser_api_v1_teasers_inventions__invention_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/teasers/inventions/{invention_id}/photo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read the public page's photo
+         * @description Serve the photo the managing party published on the public page, without its metadata.
+         *
+         *     Every request checks the page switch, the publication, archive and suspension, and the file again.
+         *
+         *     Args:
+         *         invention_id (UUID): The invention.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         Response: The image bytes.
+         */
+        get: operations["teaser_photo_api_v1_teasers_inventions__invention_id__photo_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -5575,6 +5633,7 @@ export interface components {
             managing_party_id: string;
             /** Operation Id */
             operation_id?: string | null;
+            public_page?: components["schemas"]["PublicPageResponse"];
             published: components["schemas"]["InventionVersionResponse"] | null;
             /** Status */
             status: string;
@@ -7334,6 +7393,97 @@ export interface components {
             title: string;
         };
         /**
+         * PublicPageRequest
+         * @description Publish or withdraw the public invention page, independent of investor alerts (051).
+         */
+        PublicPageRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /**
+             * Content Locale
+             * @description The language the owner wrote in.
+             * @default id
+             * @enum {string}
+             */
+            content_locale?: "id" | "en";
+            /** Enabled */
+            enabled: boolean;
+            /** Expected Version */
+            expected_version: number;
+            /**
+             * Field Test
+             * @description A short public field-test summary.
+             */
+            field_test?: string | null;
+            photo?: components["schemas"]["PublicPhotoChoice"] | null;
+            /**
+             * Photo Alt
+             * @description What the photo shows; required with one.
+             */
+            photo_alt?: string | null;
+        };
+        /**
+         * PublicPageResponse
+         * @description The owner's choices for the public invention page (051).
+         */
+        PublicPageResponse: {
+            /**
+             * Content Locale
+             * @default id
+             * @enum {string}
+             */
+            content_locale?: "id" | "en";
+            /**
+             * Enabled
+             * @default false
+             */
+            enabled?: boolean;
+            /** Field Test */
+            field_test?: string | null;
+            photo?: components["schemas"]["PublicPhotoResponse"] | null;
+        };
+        /**
+         * PublicPhotoChoice
+         * @description One version of the managing party's own document, as the public photo.
+         */
+        PublicPhotoChoice: {
+            /**
+             * Document Id
+             * Format: uuid
+             */
+            document_id: string;
+            /** Version */
+            version: number;
+        };
+        /**
+         * PublicPhotoResponse
+         * @description The photo the managing party published, with its size so the page can reserve the space.
+         */
+        PublicPhotoResponse: {
+            /** Alt */
+            alt: string;
+            /**
+             * Document Id
+             * Format: uuid
+             */
+            document_id: string;
+            /** Height */
+            height: number;
+            /**
+             * Orientation
+             * @description EXIF orientation 1 to 8, read before metadata was removed.
+             * @default 1
+             */
+            orientation?: number;
+            /** Version */
+            version: number;
+            /** Width */
+            width: number;
+        };
+        /**
          * PublicProfileResponse
          * @description What anyone may see of a party, computed now from publication and consent (FR-001).
          */
@@ -8323,10 +8473,43 @@ export interface components {
             version: number;
         };
         /**
+         * TeaserPhoto
+         * @description The published photo, served without metadata from ``url``, with its size to reserve the space.
+         */
+        TeaserPhoto: {
+            /** Alt */
+            alt: string;
+            /** Height */
+            height: number;
+            /**
+             * Orientation
+             * @default 1
+             */
+            orientation?: number;
+            /** Url */
+            url: string;
+            /** Width */
+            width: number;
+        };
+        /**
          * TeaserResponse
-         * @description What anyone may see of an invention its managing party included in investor alerts.
+         * @description What anyone may see of an invention whose managing party published its page or included it in alerts.
          */
         TeaserResponse: {
+            /**
+             * Content Locale
+             * @default id
+             * @enum {string}
+             */
+            content_locale?: "id" | "en";
+            /** Field Test Summary */
+            field_test_summary?: string | null;
+            /**
+             * Follow Enabled
+             * @description Whether the public page is on (051); following arrives in 053.
+             * @default false
+             */
+            follow_enabled?: boolean;
             /**
              * Id
              * Format: uuid
@@ -8336,6 +8519,7 @@ export interface components {
             inventor_name: string;
             /** Keywords */
             keywords: string[];
+            photo?: components["schemas"]["TeaserPhoto"] | null;
             /** Published At */
             published_at: string | null;
             /** Sector */
@@ -10546,6 +10730,50 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PublicInventionResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    set_public_page_api_v1_inventions__invention_id__public_page_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                invention_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PublicPageRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventionResponse"];
                 };
             };
             /** @description Validation failed */
@@ -14736,6 +14964,48 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TeaserResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    teaser_photo_api_v1_teasers_inventions__invention_id__photo_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                invention_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/jpeg": unknown;
+                    "image/png": unknown;
+                    "image/webp": unknown;
                 };
             };
             /** @description Validation failed */

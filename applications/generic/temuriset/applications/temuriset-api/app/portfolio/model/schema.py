@@ -99,6 +99,26 @@ class InventionVersionResponse(BaseModel):
     published_at: datetime | None
 
 
+class PublicPhotoResponse(BaseModel):
+    """The photo the managing party published, with its size so the page can reserve the space."""
+
+    document_id: UUID
+    version: int
+    alt: str
+    width: int
+    height: int
+    orientation: int = Field(default=1, description="EXIF orientation 1 to 8, read before metadata was removed.")
+
+
+class PublicPageResponse(BaseModel):
+    """The owner's choices for the public invention page (051)."""
+
+    enabled: bool = False
+    field_test: str | None = None
+    photo: PublicPhotoResponse | None = None
+    content_locale: Literal["id", "en"] = "id"
+
+
 class InventionResponse(BaseModel):
     """The owner's view: draft, published version and history."""
 
@@ -112,6 +132,7 @@ class InventionResponse(BaseModel):
     investor_digest: bool = Field(
         default=False, description="Whether the managing party allows investor alerts and digests to include it."
     )
+    public_page: PublicPageResponse = Field(default_factory=PublicPageResponse)
     operation_id: UUID | None = None
 
 
@@ -123,6 +144,29 @@ class InvestorDigestRequest(BaseModel):
     acting_party_id: UUID
     expected_version: int
     enabled: bool
+
+
+class PublicPhotoChoice(BaseModel):
+    """One version of the managing party's own document, as the public photo."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document_id: UUID
+    version: int = Field(ge=1)
+
+
+class PublicPageRequest(BaseModel):
+    """Publish or withdraw the public invention page, independent of investor alerts (051)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    acting_party_id: UUID
+    expected_version: int
+    enabled: bool
+    field_test: str | None = Field(default=None, max_length=600, description="A short public field-test summary.")
+    photo: PublicPhotoChoice | None = None
+    photo_alt: str | None = Field(default=None, max_length=200, description="What the photo shows; required with one.")
+    content_locale: Literal["id", "en"] = Field(default="id", description="The language the owner wrote in.")
 
 
 class InventionSummaryResponse(BaseModel):

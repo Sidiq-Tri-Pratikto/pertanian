@@ -243,6 +243,10 @@ Publishing never includes an invention: the managing party switches on `inventio
 
 Indonesian is the default and the source; English exists for every signed-out screen and email. English addresses live under `/en` (`src/proxy.ts` maps `/en/subscribe/manage` to `/langganan/atur` and sets `x-tr-locale: en`); the layout sets `<html lang>` from that header. Copy lives in `src/features/i18n/{id,en}.ts`, with `en` typed as the Indonesian shape. Every request to the service carries `X-TemuRiset-Locale`; `app/core/locale.py` puts it in a context variable, and `public_error_for_code`, `public_error_for_status` and `field_message` answer in that language with unchanged codes and recovery. Emails use the language stored with the subscription or account, never the request that happens to send them. Stored values (sector names, stage enums, inventor content) are never translated in the database; the interface names them, and inventor text shown on an English page carries `lang="id"`.
 
+### Public invention page (051)
+
+The owner turns a public page on separately from investor news (`PUT /inventions/{id}/public-page`, `edit_portfolio`). The signed-out summary `GET /teasers/inventions/{id}` shows when either is on, but `SubscriptionService._public(gate="digest")` keeps alerts and the weekly digest on `investor_digest` alone, so a public page never mails anyone. The field-test summary and photo show only with the page on. The photo is one of the owner's own uploaded JPEG, PNG or WebP versions; `GET /teasers/inventions/{id}/photo` rechecks every condition per request and serves the stored bytes through `app/documents/service/public_image.py`, a standard-library walker that drops EXIF, XMP, IPTC and text chunks (no image dependency). Width, height and EXIF orientation are stored when the owner saves, so the page reserves the space and rotates the image. Unavailable addresses answer a real 404, and only pages with the public page on are indexable.
+
 ## Recorded deviations from the design system
 
 | ID | Deviation | Reason | Remove when |

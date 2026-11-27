@@ -3948,6 +3948,9 @@
             ],
             "title": "Operation Id"
           },
+          "public_page": {
+            "$ref": "#/components/schemas/PublicPageResponse"
+          },
           "published": {
             "anyOf": [
               {
@@ -7921,6 +7924,183 @@
         "title": "PublicInventionResponse",
         "type": "object"
       },
+      "PublicPageRequest": {
+        "additionalProperties": false,
+        "description": "Publish or withdraw the public invention page, independent of investor alerts (051).",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "content_locale": {
+            "default": "id",
+            "description": "The language the owner wrote in.",
+            "enum": [
+              "id",
+              "en"
+            ],
+            "title": "Content Locale",
+            "type": "string"
+          },
+          "enabled": {
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "expected_version": {
+            "title": "Expected Version",
+            "type": "integer"
+          },
+          "field_test": {
+            "anyOf": [
+              {
+                "maxLength": 600,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "A short public field-test summary.",
+            "title": "Field Test"
+          },
+          "photo": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PublicPhotoChoice"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "photo_alt": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "What the photo shows; required with one.",
+            "title": "Photo Alt"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "expected_version",
+          "enabled"
+        ],
+        "title": "PublicPageRequest",
+        "type": "object"
+      },
+      "PublicPageResponse": {
+        "description": "The owner's choices for the public invention page (051).",
+        "properties": {
+          "content_locale": {
+            "default": "id",
+            "enum": [
+              "id",
+              "en"
+            ],
+            "title": "Content Locale",
+            "type": "string"
+          },
+          "enabled": {
+            "default": false,
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "field_test": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Field Test"
+          },
+          "photo": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PublicPhotoResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "title": "PublicPageResponse",
+        "type": "object"
+      },
+      "PublicPhotoChoice": {
+        "additionalProperties": false,
+        "description": "One version of the managing party's own document, as the public photo.",
+        "properties": {
+          "document_id": {
+            "format": "uuid",
+            "title": "Document Id",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 1.0,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "document_id",
+          "version"
+        ],
+        "title": "PublicPhotoChoice",
+        "type": "object"
+      },
+      "PublicPhotoResponse": {
+        "description": "The photo the managing party published, with its size so the page can reserve the space.",
+        "properties": {
+          "alt": {
+            "title": "Alt",
+            "type": "string"
+          },
+          "document_id": {
+            "format": "uuid",
+            "title": "Document Id",
+            "type": "string"
+          },
+          "height": {
+            "title": "Height",
+            "type": "integer"
+          },
+          "orientation": {
+            "default": 1,
+            "description": "EXIF orientation 1 to 8, read before metadata was removed.",
+            "title": "Orientation",
+            "type": "integer"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          },
+          "width": {
+            "title": "Width",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "document_id",
+          "version",
+          "alt",
+          "width",
+          "height"
+        ],
+        "title": "PublicPhotoResponse",
+        "type": "object"
+      },
       "PublicProfileResponse": {
         "description": "What anyone may see of a party, computed now from publication and consent (FR-001).",
         "properties": {
@@ -10141,9 +10321,69 @@
         "title": "TaskResponse",
         "type": "object"
       },
-      "TeaserResponse": {
-        "description": "What anyone may see of an invention its managing party included in investor alerts.",
+      "TeaserPhoto": {
+        "description": "The published photo, served without metadata from ``url``, with its size to reserve the space.",
         "properties": {
+          "alt": {
+            "title": "Alt",
+            "type": "string"
+          },
+          "height": {
+            "title": "Height",
+            "type": "integer"
+          },
+          "orientation": {
+            "default": 1,
+            "title": "Orientation",
+            "type": "integer"
+          },
+          "url": {
+            "title": "Url",
+            "type": "string"
+          },
+          "width": {
+            "title": "Width",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "url",
+          "alt",
+          "width",
+          "height"
+        ],
+        "title": "TeaserPhoto",
+        "type": "object"
+      },
+      "TeaserResponse": {
+        "description": "What anyone may see of an invention whose managing party published its page or included it in alerts.",
+        "properties": {
+          "content_locale": {
+            "default": "id",
+            "enum": [
+              "id",
+              "en"
+            ],
+            "title": "Content Locale",
+            "type": "string"
+          },
+          "field_test_summary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Field Test Summary"
+          },
+          "follow_enabled": {
+            "default": false,
+            "description": "Whether the public page is on (051); following arrives in 053.",
+            "title": "Follow Enabled",
+            "type": "boolean"
+          },
           "id": {
             "format": "uuid",
             "title": "Id",
@@ -10159,6 +10399,16 @@
             },
             "title": "Keywords",
             "type": "array"
+          },
+          "photo": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TeaserPhoto"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "published_at": {
             "anyOf": [
@@ -13751,6 +14001,70 @@
           }
         },
         "summary": "Read the published version",
+        "tags": [
+          "inventions"
+        ]
+      }
+    },
+    "/api/v1/inventions/{invention_id}/public-page": {
+      "put": {
+        "description": "Switch the signed-out invention page and its photo and field-test summary; independent of investor alerts.\n\nArgs:\n    invention_id (UUID): The invention.\n    body (PublicPageRequest): Acting party, ``expected_version``, the switch and the additions.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    InventionResponse: The invention.",
+        "operationId": "set_public_page_api_v1_inventions__invention_id__public_page_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "invention_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Invention Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublicPageRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InventionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Publish or withdraw the public invention page",
         "tags": [
           "inventions"
         ]
@@ -19597,7 +19911,7 @@
     },
     "/api/v1/teasers/inventions/{invention_id}": {
       "get": {
-        "description": "Read the brief public summary of an invention its managing party included in investor alerts.\n\nArgs:\n    invention_id (UUID): The invention.\n    session (SessionDep): Database session.\n\nReturns:\n    TeaserResponse: Title, summary, sector, stage, keywords and inventor name.",
+        "description": "Read the brief public summary of an invention whose page is published or that is included in alerts.\n\nArgs:\n    invention_id (UUID): The invention.\n    session (SessionDep): Database session.\n\nReturns:\n    TeaserResponse: Title, summary, sector, stage, keywords and inventor name.",
         "operationId": "teaser_api_v1_teasers_inventions__invention_id__get",
         "parameters": [
           {
@@ -19644,6 +19958,58 @@
           }
         },
         "summary": "Read an invention teaser",
+        "tags": [
+          "subscriptions"
+        ]
+      }
+    },
+    "/api/v1/teasers/inventions/{invention_id}/photo": {
+      "get": {
+        "description": "Serve the photo the managing party published on the public page, without its metadata.\n\nEvery request checks the page switch, the publication, archive and suspension, and the file again.\n\nArgs:\n    invention_id (UUID): The invention.\n    session (SessionDep): Database session.\n\nReturns:\n    Response: The image bytes.",
+        "operationId": "teaser_photo_api_v1_teasers_inventions__invention_id__photo_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "invention_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Invention Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "image/jpeg": {},
+              "image/png": {},
+              "image/webp": {}
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Read the public page's photo",
         "tags": [
           "subscriptions"
         ]

@@ -157,7 +157,7 @@ export const en: Messages = {
     pageTitle: 'Invention summary',
     unavailableTitle: 'Invention not available',
     unavailableHeading: 'This summary is not available',
-    unavailableBody: 'Its manager may have withdrawn this invention from investor news.',
+    unavailableBody: 'Its manager may have closed this page, or the address is wrong.',
     unavailableAction: 'Manage your invention news',
     inventor: (name: string) => `Inventor: ${name}`,
     summary: 'Summary',
@@ -167,6 +167,7 @@ export const en: Messages = {
     signUp: 'Sign up to see the details',
     signIn: 'Already have an account? Sign in',
     writtenIn: 'Written in Indonesian',
+    fieldTest: 'Field testing',
   },
   notFound: {
     title: 'Page not found',

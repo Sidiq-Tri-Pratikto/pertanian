@@ -14,7 +14,13 @@ class InventionRecord(MutableRow, Base):
     """One invention managed by one party, with a published pointer and at most one draft."""
 
     __tablename__ = "inventions"
-    __table_args__ = (CheckConstraint("status IN ('DRAFT', 'PENDING_REVIEW', 'PUBLISHED', 'ARCHIVED')", name="status"),)
+    __table_args__ = (
+        CheckConstraint("status IN ('DRAFT', 'PENDING_REVIEW', 'PUBLISHED', 'ARCHIVED')", name="status"),
+        CheckConstraint("public_content_locale IN ('id', 'en')", name="public_content_locale"),
+        CheckConstraint(
+            "public_photo_version_id IS NULL OR length(coalesce(public_photo_alt, '')) > 0", name="public_photo_alt"
+        ),
+    )
 
     managing_party_id: Mapped[UUID] = mapped_column(ForeignKey("parties.id", ondelete="RESTRICT"), index=True)
     status: Mapped[str] = mapped_column(String(16), default="DRAFT")
@@ -23,6 +29,19 @@ class InventionRecord(MutableRow, Base):
     # Off until the managing party chooses to be included in investor alerts and digests (046).
     investor_digest: Mapped[bool] = mapped_column(default=False, server_default="false")
     investor_digest_at: Mapped[datetime | None]
+    # The public invention page (051): off until the managing party publishes it, independent of investor_digest.
+    public_page: Mapped[bool] = mapped_column(default=False, server_default="false")
+    public_page_at: Mapped[datetime | None]
+    public_field_test: Mapped[str | None] = mapped_column(Text)
+    public_photo_version_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("document_versions.id", ondelete="SET NULL")
+    )
+    public_photo_alt: Mapped[str | None] = mapped_column(String(200))
+    # Read once when the owner picks the photo, so the page reserves its space without decoding it per visit.
+    public_photo_width: Mapped[int | None]
+    public_photo_height: Mapped[int | None]
+    public_photo_orientation: Mapped[int | None]
+    public_content_locale: Mapped[str] = mapped_column(String(2), default="id", server_default="id")
 
 
 class InventionVersionRecord(MutableRow, Base):

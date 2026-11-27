@@ -47,7 +47,10 @@ test('an investor subscribes with only an email, confirms, gets a direct alert, 
   await page.goto(`/inventions/${invention}`);
   const toggle = page.getByRole('checkbox', { name: /Sertakan dalam kabar untuk investor/ });
   await expect(toggle).not.toBeChecked();
+  // The switch saves in the background; wait for the save before reloading.
+  const saved = page.waitForResponse((response) => response.url().endsWith('/investor-digest') && response.request().method() === 'PUT');
   await toggle.check();
+  expect((await saved).ok()).toBe(true);
   await page.reload();
   await expect(page.getByRole('checkbox', { name: /Sertakan dalam kabar untuk investor/ })).toBeChecked();
 
