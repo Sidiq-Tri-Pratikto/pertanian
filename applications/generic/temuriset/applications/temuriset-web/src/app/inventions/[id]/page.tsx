@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 
 import { ApiError } from '@/api/errors';
 import { serverGet } from '@/api/server';
+import type { DocumentView } from '@/features/documents/model';
 import type { Invention, PublicInvention } from '@/features/portfolio/model';
 import { requireMe } from '@/features/session';
 import { InventionView } from '@/views/portfolio/InventionViews';
@@ -26,6 +27,7 @@ export default async function InventionPage({ params, searchParams }: Props) {
   const path = `/api/v1/inventions/${encodeURIComponent(id)}` as const;
   const invention = await orNull(serverGet<Invention>(path));
   const publicView = invention ? null : await orNull(serverGet<PublicInvention>(`${path}/public`));
+  const documents = invention ? await serverGet<DocumentView[]>('/api/v1/documents') : [];
   const saved = publicView ? (await serverGet<{ subject_type: string; subject_id: string }[]>('/api/v1/saved-items')).some((item) => item.subject_type === 'INVENTION' && item.subject_id === publicView.id) : false;
   const terbit = Number((await searchParams).terbit);
   return (
@@ -35,6 +37,7 @@ export default async function InventionPage({ params, searchParams }: Props) {
       publicView={publicView ?? undefined}
       justPublished={Number.isInteger(terbit) && terbit > 0 ? terbit : undefined}
       saved={saved}
+      documents={documents}
     />
   );
 }

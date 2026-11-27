@@ -25,6 +25,32 @@ class InventionRecord(MutableRow, Base):
     investor_digest_at: Mapped[datetime | None]
 
 
+class InventionPublicPageRecord(Row, Base):
+    """The public invention page of one invention (051): off until the managing party publishes it.
+
+    A table of its own instead of columns on ``inventions``, so the release only adds schema (expand): old API and
+    worker instances keep reading and writing ``inventions`` unchanged while both versions run.
+    """
+
+    __tablename__ = "invention_public_pages"
+    __table_args__ = (
+        CheckConstraint("content_locale IN ('id', 'en')", name="content_locale"),
+        CheckConstraint("photo_version_id IS NULL OR length(coalesce(photo_alt, '')) > 0", name="photo_alt"),
+    )
+
+    invention_id: Mapped[UUID] = mapped_column(ForeignKey("inventions.id", ondelete="CASCADE"), unique=True)
+    enabled: Mapped[bool] = mapped_column(default=False, server_default="false")
+    enabled_at: Mapped[datetime | None]
+    field_test: Mapped[str | None] = mapped_column(Text)
+    photo_version_id: Mapped[UUID | None] = mapped_column(ForeignKey("document_versions.id", ondelete="SET NULL"))
+    photo_alt: Mapped[str | None] = mapped_column(String(200))
+    # Read once when the owner picks the photo, so the page reserves its space without decoding it per visit.
+    photo_width: Mapped[int | None]
+    photo_height: Mapped[int | None]
+    photo_orientation: Mapped[int | None]
+    content_locale: Mapped[str] = mapped_column(String(2), default="id", server_default="id")
+
+
 class InventionVersionRecord(MutableRow, Base):
     """One numbered version. Once published it never changes; an edit starts a draft successor."""
 

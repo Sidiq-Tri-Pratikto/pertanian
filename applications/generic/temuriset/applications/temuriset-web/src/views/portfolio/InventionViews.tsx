@@ -20,6 +20,8 @@ import {
   type PublicInvention,
 } from '@/features/portfolio/model';
 import { InvestorDigestToggle } from '@/features/subscriptions/InvestorDigestToggle';
+import { PublicPageForm } from '@/features/portfolio/PublicPageForm';
+import type { DocumentView } from '@/features/documents/model';
 import { PROVENANCE } from '@/views/parts';
 
 /** S04 list: the acting party's inventions, drafts and archived ones included. */
@@ -73,10 +75,12 @@ type DetailProps = {
   justPublished?: number;
   /** Whether the acting party saved this invention; only read for someone else's invention. */
   saved?: boolean;
+  /** The owner's documents, for the public photo choice. */
+  documents?: DocumentView[];
 };
 
 /** S04 detail: honest about what exists now, what is planned, and who says so (UX-04). */
-export function InventionView({ me, invention, publicView, justPublished, saved = false }: DetailProps) {
+export function InventionView({ me, invention, publicView, justPublished, saved = false, documents = [] }: DetailProps) {
   const persona = readPersona(me.account.persona) ?? 'inovator';
   const shown = invention ? (invention.published ?? invention.draft) : publicView;
   const owner = Boolean(invention);
@@ -116,7 +120,10 @@ export function InventionView({ me, invention, publicView, justPublished, saved 
       {owner && invention!.status === 'ARCHIVED' ? <Status tone="warning" label="Diarsipkan" /> : null}
       <div className="tr-row">{action}</div>
       {owner && invention!.published && invention!.status !== 'ARCHIVED' ? (
-        <InvestorDigestToggle inventionId={invention!.id} actingPartyId={me.active_party_id} version={invention!.version} enabled={Boolean(invention!.investor_digest)} />
+        <>
+          <PublicPageForm inventionId={invention!.id} actingPartyId={me.active_party_id} version={invention!.version} page={invention!.public_page ?? {}} documents={documents} />
+          <InvestorDigestToggle inventionId={invention!.id} actingPartyId={me.active_party_id} version={invention!.version} enabled={Boolean(invention!.investor_digest)} />
+        </>
       ) : null}
       <section className="tr-panel tr-stack" aria-labelledby="ringkasan-inovasi">
         <h2 id="ringkasan-inovasi" className="tr-sys-type-heading-sm">

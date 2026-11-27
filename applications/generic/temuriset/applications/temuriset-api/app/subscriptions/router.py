@@ -2,7 +2,7 @@
 
 from uuid import UUID
 
-from fastapi import APIRouter, Request, status
+from fastapi import APIRouter, Request, Response, status
 
 from app.core.database import SessionDep
 from app.identity.router import _client_address
@@ -92,7 +92,7 @@ async def unsubscribe(body: TokenRequest, session: SessionDep) -> SubscriptionRe
 
 @router.get("/teasers/inventions/{invention_id}", summary="Read an invention teaser")
 async def teaser(invention_id: UUID, session: SessionDep) -> TeaserResponse:
-    """Read the brief public summary of an invention its managing party included in investor alerts.
+    """Read the brief public summary of an invention whose page is published or that is included in alerts.
 
     Args:
         invention_id (UUID): The invention.
@@ -102,3 +102,33 @@ async def teaser(invention_id: UUID, session: SessionDep) -> TeaserResponse:
         TeaserResponse: Title, summary, sector, stage, keywords and inventor name.
     """
     return await SubscriptionService(session).teaser(invention_id)
+
+
+@router.get(
+    "/teasers/inventions/{invention_id}/photo",
+    summary="Read the public page's photo",
+    response_class=Response,
+    responses={200: {"content": {"image/jpeg": {}, "image/png": {}, "image/webp": {}}}},
+)
+async def teaser_photo(invention_id: UUID, session: SessionDep) -> Response:
+    """Serve the photo the managing party published on the public page, without its metadata.
+
+    Every request checks the page switch, the publication, archive and suspension, and the file again.
+
+    Args:
+        invention_id (UUID): The invention.
+        session (SessionDep): Database session.
+
+    Returns:
+        Response: The image bytes.
+    """
+    image = await SubscriptionService(session).teaser_photo(invention_id)
+    return Response(
+        content=image.data,
+        media_type=image.media_type,
+        headers={
+            "X-Content-Type-Options": "nosniff",
+            "Content-Security-Policy": "default-src 'none'; sandbox",
+            "Cache-Control": "public, max-age=300",
+        },
+    )

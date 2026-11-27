@@ -66,8 +66,18 @@ class SubscriptionResponse(BaseModel):
     )
 
 
+class TeaserPhoto(BaseModel):
+    """The published photo, served without metadata from ``url``, with its size to reserve the space."""
+
+    url: str
+    alt: str
+    width: int
+    height: int
+    orientation: int = 1
+
+
 class TeaserResponse(BaseModel):
-    """What anyone may see of an invention its managing party included in investor alerts."""
+    """What anyone may see of an invention whose managing party published its page or included it in alerts."""
 
     id: UUID
     title: str
@@ -77,3 +87,9 @@ class TeaserResponse(BaseModel):
     keywords: list[str]
     inventor_name: str
     published_at: datetime | None
+    follow_enabled: bool = Field(
+        default=False, description="Whether the public page is on (051); following arrives in 053."
+    )
+    field_test_summary: str | None = None
+    photo: TeaserPhoto | None = None
+    content_locale: Literal["id", "en"] = "id"

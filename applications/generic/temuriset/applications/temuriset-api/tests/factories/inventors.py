@@ -65,8 +65,16 @@ async def _account(client: Any, key: str, sign_up: Callable[..., Awaitable[dict]
     return organization["party_id"]
 
 
-async def upload_document(client: Any, party_id: str, title: str, document_id: str | None = None) -> str:
-    """Upload a small PDF, or a new version of a document, let the scanner pass it, and return its version id."""
+async def upload_document(
+    client: Any,
+    party_id: str,
+    title: str,
+    document_id: str | None = None,
+    content: bytes | None = None,
+    media_type: str = "application/pdf",
+) -> str:
+    """Upload a small PDF (or ``content``), or a new version of a document, let the scanner pass it, and return its
+    version id."""
     # Imported here so that reading the plain data above needs no application or database.
     from uuid import UUID  # noqa: PLC0415
 
@@ -78,7 +86,7 @@ async def upload_document(client: Any, party_id: str, title: str, document_id: s
     from app.worker.loop import run_jobs  # noqa: PLC0415
     from app.worker.registry import registry  # noqa: PLC0415
 
-    content = b"%PDF-1.4\n" + title.encode() + b"\n%%EOF\n"
+    content = content if content is not None else b"%PDF-1.4\n" + title.encode() + b"\n%%EOF\n"
     intent = _ok(
         await client.post(
             "/api/v1/documents/upload-intents",
@@ -86,7 +94,7 @@ async def upload_document(client: Any, party_id: str, title: str, document_id: s
                 "acting_party_id": party_id,
                 "title": title,
                 "kind": "evidence",
-                "media_type": "application/pdf",
+                "media_type": media_type,
                 "size_bytes": len(content),
                 "document_id": document_id,
             },

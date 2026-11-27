@@ -17,7 +17,7 @@ from app.core.database import get_session_factory
 from app.core.errors import codes
 from app.core.errors.base import AppError, ForbiddenError, NotFoundError, RequestInvalidError
 from app.core.errors.recorder import emergency_log
-from app.core.settings import Settings
+from app.core.settings import Settings, get_settings
 from app.documents.model.schema import (
     DocumentResponse,
     DocumentVersionResponse,
@@ -37,6 +37,7 @@ from app.documents.repository.sqlalchemy.models import (
     UploadIntentRecord,
 )
 from app.documents.repository.sqlalchemy.repository import SqlAlchemyDocumentRepository
+from app.documents.service.public_image import CleanImage, UnreadableImageError, clean_image
 from app.documents.service.sniff import LIMIT_TEXT, LIMITS, sniff
 from app.documents.service.storage_service import StorageAdapter, TooLargeError, storage_for
 from app.identity.model.models import Principal
@@ -188,6 +189,83 @@ async def owned_file(
     if version is None or version.file_state != "AVAILABLE":
         return None
     return {"document_id": str(document.id), "version_id": str(version.id), "version": number, "title": document.title}
+
+
+async def document_version_number(session: AsyncSession, version_id: UUID) -> tuple[UUID, int] | None:
+    """The document and version number of a version id, or None when it is gone.
+
+    Args:
+        session (AsyncSession): The request's session.
+        version_id (UUID): The version.
+
+    Returns:
+        tuple[UUID, int] | None: Document id and number.
+    """
+    version = await session.get(DocumentVersionRecord, version_id)
+    return (version.document_id, version.number) if version is not None else None
+
+
+PUBLIC_IMAGE_TYPES = frozenset({"image/jpeg", "image/png", "image/webp"})
+
+
+async def _read_all(storage: StorageAdapter, key: str) -> bytes:
+    return b"".join([chunk async for chunk in storage.read(key)])
+
+
+async def owned_public_image(
+    session: AsyncSession, owner_party_id: UUID, document_id: UUID, number: int, storage: StorageAdapter | None = None
+) -> tuple[UUID, CleanImage]:
+    """Check that one of the party's own document versions can be its invention's public photo (051).
+
+    Args:
+        session (AsyncSession): The request's session.
+        owner_party_id (UUID): The managing party.
+        document_id (UUID): The document.
+        number (int): The version number.
+        storage (StorageAdapter | None, optional): Byte storage. Defaults to the configured backend.
+
+    Returns:
+        tuple[UUID, CleanImage]: The version id and the photo without metadata, with its size.
+
+    Raises:
+        FileNotAvailableError: Another party's document, an unknown version, or one not past the upload check.
+        FileTypeUnsupportedError: Not a JPEG, PNG or WebP, or not a readable one.
+    """
+    if await owned_file(session, owner_party_id, document_id, number) is None:
+        raise FileNotAvailableError()
+    version = await SqlAlchemyDocumentRepository(session).version(document_id=document_id, number=number)
+    assert version is not None  # noqa: S101 - owned_file just found it
+    if version.media_type not in PUBLIC_IMAGE_TYPES:
+        raise FileTypeUnsupportedError()
+    data = await _read_all(storage or storage_for(get_settings()), version.storage_key)
+    try:
+        return version.id, clean_image(data)
+    except UnreadableImageError as error:
+        raise FileTypeUnsupportedError(error=error) from error
+
+
+async def public_image(
+    session: AsyncSession, version_id: UUID, storage: StorageAdapter | None = None
+) -> CleanImage | None:
+    """The bytes of a published photo without metadata, or None when the version is gone or no longer available.
+
+    Args:
+        session (AsyncSession): The request's session.
+        version_id (UUID): The version the invention points at.
+        storage (StorageAdapter | None, optional): Byte storage. Defaults to the configured backend.
+
+    Returns:
+        CleanImage | None: The cleaned photo.
+    """
+    version = await session.get(DocumentVersionRecord, version_id)
+    if version is None or version.file_state != "AVAILABLE" or version.media_type not in PUBLIC_IMAGE_TYPES:
+        return None
+    # ponytail: decodes and strips on every request; cache the cleaned bytes by version id if traffic grows.
+    data = await _read_all(storage or storage_for(get_settings()), version.storage_key)
+    try:
+        return clean_image(data)
+    except UnreadableImageError:
+        return None
 
 
 class DocumentService:

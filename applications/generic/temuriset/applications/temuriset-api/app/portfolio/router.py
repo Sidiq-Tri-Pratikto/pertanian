@@ -15,6 +15,7 @@ from app.portfolio.model.schema import (
     InventionSummaryResponse,
     InvestorDigestRequest,
     PublicInventionResponse,
+    PublicPageRequest,
     PublishResponse,
     VersionedActionRequest,
 )
@@ -172,6 +173,24 @@ async def set_investor_digest(
         InventionResponse: The invention.
     """
     return await PortfolioService(session).set_investor_digest(principal, invention_id, body)
+
+
+@router.put("/{invention_id}/public-page", summary="Publish or withdraw the public invention page")
+async def set_public_page(
+    invention_id: UUID, body: PublicPageRequest, principal: PrincipalDep, session: SessionDep
+) -> InventionResponse:
+    """Switch the signed-out invention page and its photo and field-test summary; independent of investor alerts.
+
+    Args:
+        invention_id (UUID): The invention.
+        body (PublicPageRequest): Acting party, ``expected_version``, the switch and the additions.
+        principal (PrincipalDep): Who is signed in.
+        session (SessionDep): Database session.
+
+    Returns:
+        InventionResponse: The invention.
+    """
+    return await PortfolioService(session).set_public_page(principal, invention_id, body)
 
 
 @router.get("/{invention_id}/public", summary="Read the published version")

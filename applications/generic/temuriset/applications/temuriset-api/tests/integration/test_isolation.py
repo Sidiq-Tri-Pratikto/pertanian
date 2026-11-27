@@ -50,6 +50,7 @@ NOT_DATA_ROUTES = {
     ("PUT", "/api/v1/subscriptions/manage"),
     ("POST", "/api/v1/subscriptions/unsubscribe"),
     ("GET", "/api/v1/teasers/inventions/{invention_id}"),
+    ("GET", "/api/v1/teasers/inventions/{invention_id}/photo"),  # Public photo; gated in tests/integration/portfolio.
     ("POST", "/api/v1/organizations"),
     ("POST", "/api/v1/inventions"),
     ("POST", "/api/v1/imports/validate"),  # The submitted file can only stage for the acting party.
@@ -202,6 +203,11 @@ ROUTES: dict[tuple[str, str], Case] = {
     ("PUT", "/api/v1/inventions/{invention_id}/investor-digest"): Case(
         "PUT",
         lambda o: f"/api/v1/inventions/{o.published_invention_id}/investor-digest",
+        lambda _o, actor: {"acting_party_id": actor, "expected_version": 1, "enabled": True},
+    ),
+    ("PUT", "/api/v1/inventions/{invention_id}/public-page"): Case(
+        "PUT",
+        lambda o: f"/api/v1/inventions/{o.published_invention_id}/public-page",
         lambda _o, actor: {"acting_party_id": actor, "expected_version": 1, "enabled": True},
     ),
     ("PUT", "/api/v1/inventions/{invention_id}/draft"): Case(

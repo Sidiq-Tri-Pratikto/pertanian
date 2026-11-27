@@ -1,5 +1,6 @@
 """Inventions: drafts that save anything, versions that never change once published."""
 
+from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
 
@@ -10,7 +11,9 @@ from app.access.model.models import Capability
 from app.access.service.policy import check_context, require
 from app.access.service.service import party_names
 from app.core import clock
-from app.core.errors.base import ConflictError, NotFoundError
+from app.core.errors.base import ConflictError, FieldsInvalidError, NotFoundError
+from app.core.locale import locale
+from app.documents.service.service import document_version_number, owned_public_image
 from app.identity.model.models import Principal
 from app.moderation.service.suspension import is_suspended, require_unsuspended, suspended_listings
 from app.platform.service.audit import record_audit
@@ -26,16 +29,29 @@ from app.portfolio.model.schema import (
     PublicClaimResponse,
     PublicFactResponse,
     PublicInventionResponse,
+    PublicPageRequest,
+    PublicPageResponse,
+    PublicPhotoResponse,
     PublishResponse,
     VersionedActionRequest,
 )
-from app.portfolio.repository.sqlalchemy.models import InventionRecord, InventionVersionRecord
+from app.portfolio.repository.sqlalchemy.models import (
+    InventionPublicPageRecord,
+    InventionRecord,
+    InventionVersionRecord,
+)
 from app.portfolio.repository.sqlalchemy.repository import SqlAlchemyPortfolioRepository
 from app.portfolio.service.review_hook import PassThroughGate, PublicationGate
 from app.portfolio.service.validation import PublicationInvalidError, publication_errors
 
 _ARCHIVED = "Inovasi ini sudah diarsipkan. Riwayatnya tetap dapat dibaca, tetapi tidak dapat diubah atau dikirim."
 _NO_DRAFT = "Tidak ada draf untuk diterbitkan. Ubah inovasi terlebih dahulu lalu terbitkan."
+
+
+_ALT_REQUIRED = {
+    "id": "Tulis apa yang terlihat di foto, untuk pembaca layar dan saat foto tidak dimuat.",
+    "en": "Describe what the photo shows, for screen readers and when the photo does not load.",
+}
 
 
 class PortfolioService:
@@ -109,8 +125,95 @@ class PortfolioService:
             published=await self.repository.version(invention.published_version_id),
             history=await self.repository.numbers(invention.id),
             investor_digest=invention.investor_digest,
+            public_page=await self._public_page(invention),
             operation_id=operation_id,
         )
+
+    async def _public_page(self, invention: InventionRecord) -> PublicPageResponse:
+        page = await _page_record(self.session, invention.id)
+        if page is None:
+            return PublicPageResponse()
+        photo = None
+        if page.photo_version_id is not None:
+            found = await document_version_number(self.session, page.photo_version_id)
+            if found is not None:
+                photo = PublicPhotoResponse(
+                    document_id=found[0],
+                    version=found[1],
+                    alt=page.photo_alt or "",
+                    width=page.photo_width or 0,
+                    height=page.photo_height or 0,
+                    orientation=page.photo_orientation or 1,
+                )
+        return PublicPageResponse(
+            enabled=page.enabled,
+            field_test=page.field_test,
+            photo=photo,
+            content_locale=page.content_locale,  # type: ignore[arg-type]
+        )
+
+    async def set_public_page(
+        self, principal: Principal, invention_id: UUID, request: PublicPageRequest
+    ) -> InventionResponse:
+        """Publish or withdraw the public invention page and its additions (051).
+
+        Independent of investor alerts: switching this on never puts the invention into investor emails. The photo
+        must be one of the managing party's own files that passed the upload check; its metadata never reaches the
+        page, and its size is read now so the page can reserve the space.
+
+        Args:
+            principal (Principal): Who is signed in.
+            invention_id (UUID): The invention.
+            request (PublicPageRequest): Acting party, ``expected_version``, the switch and the additions.
+
+        Returns:
+            InventionResponse: The invention.
+
+        Raises:
+            FieldsInvalidError: A photo without a description.
+            FileNotAvailableError: The photo is not the party's own available file.
+            FileTypeUnsupportedError: The photo is not a readable JPEG, PNG or WebP.
+        """
+        check_context(principal, request.acting_party_id)
+        invention = await self._owned(principal, invention_id, lock=True)
+        require(principal, Capability.EDIT_PORTFOLIO, invention.managing_party_id)
+        check_expected(invention.version, request.expected_version)
+        alt = (request.photo_alt or "").strip()
+        if request.photo is not None and not alt:
+            raise FieldsInvalidError(
+                [{"loc": ["body", "photo_alt"], "msg": _ALT_REQUIRED[locale()], "type": "photo_alt"}]
+            )
+        page = await _page_record(self.session, invention.id)
+        if page is None:
+            page = InventionPublicPageRecord(invention_id=invention.id, enabled=False, content_locale="id")
+            self.session.add(page)
+        if request.photo is None:
+            page.photo_version_id = None
+            page.photo_width = page.photo_height = page.photo_orientation = None
+        else:
+            version_id, image = await owned_public_image(
+                self.session, invention.managing_party_id, request.photo.document_id, request.photo.version
+            )
+            page.photo_version_id = version_id
+            page.photo_width, page.photo_height = image.width, image.height
+            page.photo_orientation = image.orientation
+        if request.enabled and not page.enabled:
+            page.enabled_at = clock.now()
+        page.enabled = request.enabled
+        page.field_test = (request.field_test or "").strip() or None
+        page.photo_alt = alt or None
+        page.content_locale = request.content_locale
+        invention.version += 1
+        await self.session.flush()
+        await record_audit(
+            self.session,
+            action="invention.public_page",
+            subject_type="invention",
+            subject_id=str(invention.id),
+            actor_account_id=principal.account_id,
+            actor_party_id=principal.active_party_id,
+        )
+        return await self._view(invention)
 
     async def set_investor_digest(
         self, principal: Principal, invention_id: UUID, request: InvestorDigestRequest
@@ -499,6 +602,68 @@ async def digest_candidates(session: AsyncSession, since: datetime) -> list[UUID
         .order_by(newest.desc())
     )
     return list(await session.scalars(query))
+
+
+async def _page_record(session: AsyncSession, invention_id: UUID) -> InventionPublicPageRecord | None:
+    return await session.scalar(
+        select(InventionPublicPageRecord).where(InventionPublicPageRecord.invention_id == invention_id)
+    )
+
+
+@dataclass(frozen=True)
+class PublicPageSettings:
+    """The switches and additions the signed-out summary reads (051).
+
+    Attributes:
+        investor_digest (bool): Included in investor alerts and digests (046).
+        public_page (bool): The public invention page is on.
+        public_field_test (str | None): Field-test summary.
+        public_photo_version_id (UUID | None): The published photo's document version.
+        public_photo_alt (str | None): What the photo shows.
+        public_photo_width (int | None): Width in pixels.
+        public_photo_height (int | None): Height in pixels.
+        public_photo_orientation (int | None): EXIF orientation the page applies.
+        public_content_locale (str): Language the inventor wrote in, ``id`` or ``en``.
+    """
+
+    investor_digest: bool
+    public_page: bool = False
+    public_field_test: str | None = None
+    public_photo_version_id: UUID | None = None
+    public_photo_alt: str | None = None
+    public_photo_width: int | None = None
+    public_photo_height: int | None = None
+    public_photo_orientation: int | None = None
+    public_content_locale: str = "id"
+
+
+async def public_page_settings(session: AsyncSession, invention_id: UUID) -> PublicPageSettings | None:
+    """The invention's public-page and investor-alert switches, for the signed-out summary (051).
+
+    Args:
+        session (AsyncSession): The request's session.
+        invention_id (UUID): The invention.
+
+    Returns:
+        PublicPageSettings | None: The settings, or None when the invention is unknown.
+    """
+    invention = await session.get(InventionRecord, invention_id)
+    if invention is None:
+        return None
+    page = await _page_record(session, invention_id)
+    if page is None:
+        return PublicPageSettings(investor_digest=invention.investor_digest)
+    return PublicPageSettings(
+        investor_digest=invention.investor_digest,
+        public_page=page.enabled,
+        public_field_test=page.field_test,
+        public_photo_version_id=page.photo_version_id,
+        public_photo_alt=page.photo_alt,
+        public_photo_width=page.photo_width,
+        public_photo_height=page.photo_height,
+        public_photo_orientation=page.photo_orientation,
+        public_content_locale=page.content_locale,
+    )
 
 
 async def investor_digest_enabled(session: AsyncSession, invention_id: UUID) -> bool:

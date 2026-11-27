@@ -3,7 +3,7 @@
 import hashlib
 import secrets
 from datetime import UTC, datetime, timedelta
-from typing import Any
+from typing import Any, Literal
 from uuid import UUID
 
 from sqlalchemy.exc import IntegrityError
@@ -14,18 +14,21 @@ from app.core import clock
 from app.core.errors.base import FieldsInvalidError, NotFoundError
 from app.core.locale import locale
 from app.core.settings import get_settings
+from app.documents.service.public_image import CleanImage
+from app.documents.service.service import public_image
 from app.identity.service.mailbox_service import DisabledMailbox, MailReference, MailUnavailableError, mailbox_for
 from app.identity.service.service import RateLimitedError, hash_address
 from app.platform.service.outbox import enqueue_job
 from app.portfolio.service.service import (
     PortfolioService,
     digest_candidates,
-    investor_digest_enabled,
+    public_page_settings,
 )
 from app.subscriptions.model.schema import (
     SubscribeRequest,
     SubscribeResponse,
     SubscriptionResponse,
+    TeaserPhoto,
     TeaserResponse,
     Topics,
 )
@@ -298,9 +301,17 @@ class SubscriptionService:
             await self.session.flush()
         return self._view(record)
 
-    async def _public(self, invention_id: UUID) -> dict[str, Any] | None:
-        """The public projection of an included invention, or None when it must not be shown."""
-        if not await investor_digest_enabled(self.session, invention_id):
+    async def _public(self, invention_id: UUID, gate: Literal["digest", "page"] = "digest") -> dict[str, Any] | None:
+        """The public projection of an invention, or None when it must not be shown.
+
+        ``digest`` (alerts and digests) needs the investor-alert switch; ``page`` (the signed-out page) needs either
+        switch, so publishing the page never puts an invention into investor emails (051).
+        """
+        settings = await public_page_settings(self.session, invention_id)
+        if settings is None:
+            return None
+        allowed = settings.investor_digest or (gate == "page" and settings.public_page)
+        if not allowed:
             return None
         try:
             view = await PortfolioService(self.session).public_view(invention_id)
@@ -317,6 +328,12 @@ class SubscriptionService:
             "keywords": view.keywords,
             "inventor_name": mail.ANONYMOUS_INVENTOR["id"] if anonymous else party.display_name,
             "anonymous": anonymous,
+            "public_page": settings.public_page,
+            "field_test": settings.public_field_test,
+            "photo_version_id": settings.public_photo_version_id,
+            "photo": (settings.public_photo_alt, settings.public_photo_width, settings.public_photo_height),
+            "orientation": settings.public_photo_orientation or 1,
+            "content_locale": settings.public_content_locale,
             "published_at": view.published_at,
         }
 
@@ -332,13 +349,55 @@ class SubscriptionService:
         Raises:
             NotFoundError: When it is not published, not included, archived or suspended.
         """
-        found = await self._public(invention_id)
+        found = await self._public(invention_id, gate="page")
         if found is None:
             raise NotFoundError()
-        anonymous = found.pop("anonymous")
-        if anonymous:
-            found["inventor_name"] = mail.ANONYMOUS_INVENTOR[locale()]
-        return TeaserResponse(**found)
+        page = found["public_page"]
+        alt, width, height = found["photo"]
+        photo = None
+        # The photo and field-test summary belong to the public page; alerts alone show only the brief summary.
+        if page and found["photo_version_id"] is not None and width and height:
+            photo = TeaserPhoto(
+                url=f"/api/v1/teasers/inventions/{invention_id}/photo?v={str(found['photo_version_id'])[:8]}",
+                alt=alt or "",
+                width=width,
+                height=height,
+                orientation=found["orientation"],
+            )
+        return TeaserResponse(
+            id=found["id"],
+            title=found["title"],
+            summary=found["summary"],
+            sector=found["sector"],
+            stage=found["stage"],
+            keywords=found["keywords"],
+            inventor_name=mail.ANONYMOUS_INVENTOR[locale()] if found["anonymous"] else found["inventor_name"],
+            published_at=found["published_at"],
+            follow_enabled=page,
+            field_test_summary=found["field_test"] if page else None,
+            photo=photo,
+            content_locale=found["content_locale"],
+        )
+
+    async def teaser_photo(self, invention_id: UUID) -> CleanImage:
+        """The public page's photo without metadata; checked again on every request (051).
+
+        Args:
+            invention_id (UUID): The invention.
+
+        Returns:
+            CleanImage: The photo bytes and media type.
+
+        Raises:
+            NotFoundError: When the page is off, the invention is not public, or the photo is gone.
+        """
+        found = await self._public(invention_id, gate="page")
+        if found is None or not found["public_page"] or found["photo_version_id"] is None:
+            raise NotFoundError()
+        image = await public_image(self.session, found["photo_version_id"])
+        if image is None:
+            raise NotFoundError()
+        return image
 
     async def alert(self, invention_id: UUID) -> int:
         """Send a direct alert to every active subscriber whose topics all match, within the daily cap (FR-005).
