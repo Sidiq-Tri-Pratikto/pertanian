@@ -2,7 +2,7 @@ import type { CapabilityManifest } from '@/api/client';
 import { ApiError } from '@/api/errors';
 
 vi.mock('next/headers', () => ({
-  cookies: async () => ({ toString: () => 'tr_persona=mitra' }),
+  cookies: async () => ({ toString: () => 'tr_persona=mitra', get: () => undefined }),
   headers: async () => new Headers(),
 }));
 

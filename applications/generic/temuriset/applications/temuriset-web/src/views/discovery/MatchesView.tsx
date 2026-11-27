@@ -16,10 +16,11 @@ import { ExternalRoute } from '@/features/intake/ExternalRoute';
 import { readPersona } from '@/features/persona';
 import { labelTone, MatchCard } from '@/views/discovery/MatchCard';
 import { PROVENANCE } from '@/views/parts';
+import { t } from '@/features/i18n/t';
 
 /**
  * Investor finder: a compact list of recommended mandates beside the open one. On a phone the list and the open match
- * take turns, and "Kembali ke daftar" puts focus back on the row the person left.
+ * take turns, and t('Kembali ke daftar') puts focus back on the row the person left.
  */
 function MatchList({ results, source }: { results: MatchResult[]; source: MatchSourceRef }) {
   const [chosen, setChosen] = useState<string | null>(null);
@@ -47,15 +48,15 @@ function MatchList({ results, source }: { results: MatchResult[]; source: MatchS
               <span className="tr-muted tr-sys-type-support">{result.partner}</span>
             </button>
             <span>
-              <Status tone={labelTone(result)} icon={null} label={result.label} />
+              <Status tone={labelTone(result)} icon={null} label={t(result.label)} />
             </span>
           </li>
         ))}
       </ul>
-      <div ref={detail} tabIndex={-1} className="tr-listdetail__detail tr-stack" aria-label={`Rincian: ${open.title}`} role="region">
+      <div ref={detail} tabIndex={-1} className="tr-listdetail__detail tr-stack" aria-label={t('Rincian: {title}', { title: open.title })} role="region">
         <p className="tr-listdetail__back">
           <button type="button" className="tr-link tr-linkbutton" onClick={back}>
-            Kembali ke daftar
+            {t('Kembali ke daftar')}
           </button>
         </p>
         <MatchCard result={open} source={source} />
@@ -80,7 +81,7 @@ export function MatchesView({ me, source, externals }: Props) {
     try {
       setRun(await runMatch(source, me.active_party_id));
     } catch (error) {
-      setFailure(error instanceof ApiError ? error.message : 'Kecocokan belum dapat dihitung. Coba lagi.');
+      setFailure(error instanceof ApiError ? error.message : t('Kecocokan belum dapat dihitung. Coba lagi.'));
     }
   }, [source, me.active_party_id]);
 
@@ -94,39 +95,39 @@ export function MatchesView({ me, source, externals }: Props) {
     <Screen
       persona={persona}
       current="temukan"
-      title="Kecocokan"
-      subtitle={run ? `Untuk ${run.source.title}, versi ${run.source.version}` : undefined}
+      title={t('Kecocokan')}
+      subtitle={run ? t('Untuk {title}, versi {n}', { title: run.source.title, n: run.source.version }) : undefined}
       provenance={PROVENANCE}
       context={<ContextBar me={me} />}>
       {failure ? (
-        <Status tone="danger" label="Kecocokan belum dihitung" live="alert">
+        <Status tone="danger" label={t('Kecocokan belum dihitung')} live="alert">
           <p>{failure}</p>
-          <Button onClick={() => void load()}>Coba lagi</Button>
+          <Button onClick={() => void load()}>{t('Coba lagi')}</Button>
         </Status>
       ) : null}
       {run?.retrieval?.fallback_reason ? (
-        <Status tone="neutral" label="Pencarian eksperimental tidak tersedia" live>
-          <p>Kecocokan dihitung dengan kata kunci dan aturan yang berlaku.</p>
+        <Status tone="neutral" label={t('Pencarian eksperimental tidak tersedia')} live>
+          <p>{t('Kecocokan dihitung dengan kata kunci dan aturan yang berlaku.')}</p>
         </Status>
       ) : null}
-      {!run && !failure ? <Status tone="neutral" label="Menghitung kecocokan" live /> : null}
+      {!run && !failure ? <Status tone="neutral" label={t('Menghitung kecocokan')} live /> : null}
       {run ? (
         <>
           <section className="tr-stack" aria-labelledby="direkomendasikan">
             <h2 id="direkomendasikan" className="tr-sys-type-heading-sm">
-              Mandat yang sesuai
+              {t('Mandat yang sesuai')}
             </h2>
             {run.results.length ? (
               <MatchList results={run.results} source={source} />
             ) : (
-              <EmptyState icon="search" title="Belum ada mandat yang sesuai">
-                Tidak ada mandat aktif yang relevan dan memenuhi syarat masuk untuk kebutuhan ini.
+              <EmptyState icon="search" title={t('Belum ada mandat yang sesuai')}>
+                {t('Tidak ada mandat aktif yang relevan dan memenuhi syarat masuk untuk kebutuhan ini.')}
               </EmptyState>
             )}
           </section>
           {run.excluded.length ? (
-            <Disclosure label={`Mandat tidak direkomendasikan (${run.excluded.length})`}>
-              <p className="tr-muted">Mandat ini tidak cocok, atau belum ada sinyal relevansi dengan kebutuhan Anda.</p>
+            <Disclosure label={t('Mandat tidak direkomendasikan ({n})', { n: run.excluded.length })}>
+              <p className="tr-muted">{t('Mandat ini tidak cocok, atau belum ada sinyal relevansi dengan kebutuhan Anda.')}</p>
               <ul className="tr-stack">
                 {run.excluded.map((result) => (
                   <li key={result.opportunity_id}>
@@ -141,7 +142,7 @@ export function MatchesView({ me, source, externals }: Props) {
       {externals.length ? (
         <section className="tr-stack" aria-labelledby="formulir-mitra">
           <h2 id="formulir-mitra" className="tr-sys-type-heading-sm">
-            Mitra dengan formulir sendiri
+            {t('Mitra dengan formulir sendiri')}
           </h2>
           <ul className="tr-stack">
             {externals.map((partner) => (

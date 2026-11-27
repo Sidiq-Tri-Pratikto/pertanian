@@ -12,6 +12,7 @@ import { Status } from '@/components/tr/Status';
 import { TextArea } from '@/components/tr/TextArea';
 import { TextField } from '@/components/tr/TextField';
 import { formatDateTime } from '@/features/organizations';
+import { t } from '@/features/i18n/t';
 
 export type Message = components['schemas']['MessageResponse'];
 export type Task = components['schemas']['TaskResponse'];
@@ -50,7 +51,7 @@ export function DiscussionPanel({ pitchId, open, messages: initial, tasks, parti
 
   async function sendMessage() {
     if (!draft.trim()) {
-      setFailure('Tulis pesan terlebih dahulu.');
+      setFailure(t('Tulis pesan terlebih dahulu.'));
       return;
     }
     setBusy(true);
@@ -63,7 +64,7 @@ export function DiscussionPanel({ pitchId, open, messages: initial, tasks, parti
     } catch (error) {
       const failed = ApiError.from(error);
       if (!failed.recovery.retryable) key.current = newIdempotencyKey();
-      setFailure(`${failed.message} Pesan Anda masih ada di kotak isian.`);
+      setFailure(t('{message} Pesan Anda masih ada di kotak isian.', { message: failed.message }));
     } finally {
       setBusy(false);
     }
@@ -71,30 +72,30 @@ export function DiscussionPanel({ pitchId, open, messages: initial, tasks, parti
 
   return (
     <div className="tr-stack">
-      <h2 className="tr-sys-type-heading-sm">Diskusi</h2>
+      <h2 className="tr-sys-type-heading-sm">{t('Diskusi')}</h2>
       <section className="tr-stack" aria-labelledby="pesan">
         <h3 id="pesan" className="tr-sys-type-label">
-          Pesan
+          {t('Pesan')}
         </h3>
         {messages.length ? (
           <ol className="tr-stack" aria-live="polite">
             {messages.map((message) => (
               <li key={message.id} className="tr-panel tr-stack">
-                <p className="tr-muted tr-sys-type-support">{`${message.mine ? 'Anda' : message.author_name} · ${formatDateTime(message.created_at, zone)}`}</p>
+                <p className="tr-muted tr-sys-type-support">{`${message.mine ? t('Anda') : message.author_name} · ${formatDateTime(message.created_at, zone)}`}</p>
                 <p>{message.text}</p>
               </li>
             ))}
           </ol>
         ) : (
-          <p className="tr-muted">Belum ada pesan.</p>
+          <p className="tr-muted">{t('Belum ada pesan.')}</p>
         )}
         {open ? (
           <>
             {failure ? <Status tone="danger" icon="alert" label={failure} live="alert" /> : null}
-            <TextArea label="Pesan baru" rows={3} value={draft} onChange={setDraft} limit={4000} id="message" />
+            <TextArea label={t('Pesan baru')} rows={3} value={draft} onChange={setDraft} limit={4000} id="message" />
             <div className="tr-row">
-              <Button intent="primary" busy={busy} busyLabel="Mengirim…" onClick={() => void sendMessage()}>
-                Kirim pesan
+              <Button intent="primary" busy={busy} busyLabel={t('Mengirim…')} onClick={() => void sendMessage()}>
+                {t('Kirim pesan')}
               </Button>
             </div>
           </>
@@ -138,7 +139,7 @@ function TaskList({ pitchId, open, tasks, parties, actingPartyId }: { pitchId: s
 
   function add() {
     if (!title.trim()) {
-      setFailure('Tuliskan tugasnya.');
+      setFailure(t('Tuliskan tugasnya.'));
       return;
     }
     void run(
@@ -151,7 +152,7 @@ function TaskList({ pitchId, open, tasks, parties, actingPartyId }: { pitchId: s
   return (
     <section className="tr-stack" aria-labelledby="tugas">
       <h3 id="tugas" className="tr-sys-type-label">
-        Tugas
+        {t('Tugas')}
       </h3>
       {tasks.length ? (
         <ul className="tr-stack">
@@ -160,10 +161,10 @@ function TaskList({ pitchId, open, tasks, parties, actingPartyId }: { pitchId: s
               <p className="tr-sys-type-body-strong">{task.title}</p>
               <p className="tr-muted tr-sys-type-support">{[`Untuk ${task.owner_name}`, task.due_date ? `batas ${task.due_date}` : null, task.reference || null].filter(Boolean).join(' · ')}</p>
               <p className="tr-row">
-                <Status tone={task.status === 'DONE' ? 'success' : 'neutral'} label={task.status === 'DONE' ? 'Selesai' : 'Terbuka'} />
+                <Status tone={task.status === 'DONE' ? 'success' : 'neutral'} label={task.status === 'DONE' ? t('Selesai') : t('Terbuka')} />
                 {open && task.status === 'OPEN' ? (
                   <Button onClick={() => void run(() => send('POST', `/api/v1/tasks/${task.id}/complete`, { acting_party_id: actingPartyId, expected_version: task.version }, { idempotencyKey: key.current }))}>
-                    {`Tandai selesai: ${task.title}`}
+                    {t('Tandai selesai: {title}', { title: task.title })}
                   </Button>
                 ) : null}
               </p>
@@ -171,18 +172,18 @@ function TaskList({ pitchId, open, tasks, parties, actingPartyId }: { pitchId: s
           ))}
         </ul>
       ) : (
-        <p className="tr-muted">Belum ada tugas.</p>
+        <p className="tr-muted">{t('Belum ada tugas.')}</p>
       )}
       {failure ? <Status tone="danger" icon="alert" label={failure} live="alert" /> : null}
       {open ? (
         <div className="tr-panel tr-stack">
-          <TextField label="Tugas baru" value={title} onChange={setTitle} id="task-title" />
-          <Select label="Penanggung jawab" value={owner} onChange={setOwner} options={parties.map((party) => ({ value: party.id, label: party.name }))} emptyLabel={null} id="task-owner" />
-          <TextField label="Batas waktu" type="date" value={due} onChange={setDue} hint="Boleh dikosongkan." id="task-due" />
-          <TextField label="Terkait" value={reference} onChange={setReference} hint="Misalnya butir revisi atau bukti yang kurang." id="task-reference" />
+          <TextField label={t('Tugas baru')} value={title} onChange={setTitle} id="task-title" />
+          <Select label={t('Penanggung jawab')} value={owner} onChange={setOwner} options={parties.map((party) => ({ value: party.id, label: party.name }))} emptyLabel={null} id="task-owner" />
+          <TextField label={t('Batas waktu')} type="date" value={due} onChange={setDue} hint={t('Boleh dikosongkan.')} id="task-due" />
+          <TextField label={t('Terkait')} value={reference} onChange={setReference} hint={t('Misalnya butir revisi atau bukti yang kurang.')} id="task-reference" />
           <div className="tr-row">
-            <Button busy={busy} busyLabel="Menyimpan…" onClick={add}>
-              Tambah tugas
+            <Button busy={busy} busyLabel={t('Menyimpan…')} onClick={add}>
+              {t('Tambah tugas')}
             </Button>
           </div>
         </div>

@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { newIdempotencyKey } from '@/api/client';
 import { Link } from '@/components/tr/Link';
 import { recordHandoff } from '@/features/intake/api';
+import { t } from '@/features/i18n/t';
 
 type Props = { partyId: string; actingPartyId: string; url: string; /** False for the partner opening its own form. */ record: boolean };
 
@@ -21,15 +22,15 @@ export function ExternalRoute({ partyId, actingPartyId, url, record }: Props) {
 
   return (
     <div className="tr-stack">
-      <p className="tr-muted">Mitra ini menerima lewat formulirnya sendiri. Tautan ini membuka situs lain dan bukan pitching yang terkirim. TemuRiset hanya mencatat bahwa Anda membukanya.</p>
+      <p className="tr-muted">{t('Mitra ini menerima lewat formulirnya sendiri. Tautan ini membuka situs lain dan bukan pitching yang terkirim. TemuRiset hanya mencatat bahwa Anda membukanya.')}</p>
       <p>
         <Link href={url} external onClick={follow}>
-          Buka formulir mitra
+          {t('Buka formulir mitra')}
         </Link>
       </p>
       {unrecorded ? (
         <p className="tr-muted" role="status">
-          Pembukaan ini belum tercatat di TemuRiset. Anda tetap dapat mengisi formulirnya.
+          {t('Pembukaan ini belum tercatat di TemuRiset. Anda tetap dapat mengisi formulirnya.')}
         </p>
       ) : null}
     </div>

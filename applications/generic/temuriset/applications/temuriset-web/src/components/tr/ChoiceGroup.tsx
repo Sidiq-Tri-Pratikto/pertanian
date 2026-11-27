@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 
 import { FieldError } from '@/components/tr/FieldError';
 import { useMessages } from '@/features/i18n/LocaleProvider';
+import { tx } from '@/features/i18n/t';
 
 type Choice = { value: string; label: string; hint?: string };
 
@@ -34,15 +35,15 @@ export function ChoiceGroup({ legend, name, options, defaultValue, hint, require
   return (
     <fieldset className={error ? 'tr-fieldset tr-fieldset--error' : 'tr-fieldset'} aria-describedby={describedBy} aria-invalid={error ? true : undefined}>
       <legend className="tr-field__label tr-sys-type-label">
-        {legend}
+        {tx(legend)}
         {required ? <span className="tr-field__req tr-sys-type-support">{words.required}</span> : null}
       </legend>
       {hint ? (
         <p id={hintId} className="tr-field__hint tr-sys-type-support">
-          {hint}
+          {tx(hint)}
         </p>
       ) : null}
-      {error ? <FieldError id={errorId}>{error}</FieldError> : null}
+      {error ? <FieldError id={errorId}>{tx(error)}</FieldError> : null}
       <div className="tr-choices">
         {options.map((option) => {
           const id = `${name}-${option.value}`;
@@ -57,7 +58,7 @@ export function ChoiceGroup({ legend, name, options, defaultValue, hint, require
                 {...(onChange ? { checked: option.value === value, onChange: () => onChange(option.value) } : { defaultChecked: option.value === defaultValue })}
               />
               <span className="tr-choice__body">
-                <span className="tr-sys-type-label">{option.label}</span>
+                <span className="tr-sys-type-label">{tx(option.label)}</span>
                 {option.hint ? <span className="tr-choice__hint tr-sys-type-support">{option.hint}</span> : null}
               </span>
             </label>

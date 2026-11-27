@@ -17,6 +17,7 @@ import { RelationshipError } from '@/features/relationships/RelationshipError';
 import { CeilingFields, RelationshipFields } from '@/features/relationships/RelationshipFields';
 import { useRelationshipAction } from '@/features/relationships/useRelationshipAction';
 import { PROVENANCE } from '@/views/parts';
+import { t } from '@/features/i18n/t';
 
 export function ProposeView({ me, pitchId, types }: { me: Me; pitchId: string; types: PartnershipKind[] }) {
   const router = useRouter();
@@ -53,32 +54,32 @@ export function ProposeView({ me, pitchId, types }: { me: Me; pitchId: string; t
   }
 
   return (
-    <Screen persona={readPersona(me.account.persona) ?? 'inovator'} title="Usulkan ringkasan Kerja Sama" provenance={PROVENANCE}
-      context={<ContextBar me={me} />} back={<Link className="tr-link" href={`/pitches/${pitchId}`}>Kembali ke ruang pitching</Link>}>
+    <Screen persona={readPersona(me.account.persona) ?? 'inovator'} title={t('Usulkan ringkasan Kerja Sama')} provenance={PROVENANCE}
+      context={<ContextBar me={me} />} back={<Link className="tr-link" href={`/pitches/${pitchId}`}>{t('Kembali ke ruang pitching')}</Link>}>
       <form className="tr-section" onSubmit={submit}>
         {action.error ? <RelationshipError error={action.error} prefix="usul" /> : null}
-        {invalid ? <ErrorSummary focusKey={invalid} errors={[{ fieldId: 'usul-ceiling', message: 'Pilih setidaknya satu batas data publik.' }]} /> : null}
-        <section className="tr-panel tr-stack" aria-label="Isi ringkasan">
-          <Select id="usul-type" label="Jenis Kerja Sama" value={kind} onChange={changeKind} emptyLabel={null}
+        {invalid ? <ErrorSummary focusKey={invalid} errors={[{ fieldId: 'usul-ceiling', message: t('Pilih setidaknya satu batas data publik.') }]} /> : null}
+        <section className="tr-panel tr-stack" aria-label={t('Isi ringkasan')}>
+          <Select id="usul-type" label={t('Jenis Kerja Sama')} value={kind} onChange={changeKind} emptyLabel={null}
             options={(Object.keys(TYPE_LABEL) as PartnershipKind[]).map((type) => ({
               value: type, label: TYPE_LABEL[type],
-              disabledReason: types.includes(type) ? undefined : 'Perlu badan usaha yang sudah teridentifikasi',
+              disabledReason: types.includes(type) ? undefined : t('Perlu badan usaha yang sudah teridentifikasi'),
             }))} />
-          {blockedEquity ? <p className="tr-muted tr-sys-type-support">Ekuitas hanya bisa dicatat untuk badan usaha yang sudah teridentifikasi.</p> : null}
+          {blockedEquity ? <p className="tr-muted tr-sys-type-support">{t('Ekuitas hanya bisa dicatat untuk badan usaha yang sudah teridentifikasi.')}</p> : null}
           <RelationshipFields kind={kind} values={values} onChange={setValues} prefix="usul" />
         </section>
-        <section className="tr-panel tr-stack" aria-label="Izin publik">
+        <section className="tr-panel tr-stack" aria-label={t('Izin publik')}>
           <CeilingFields id="usul-ceiling" kind={kind} fields={ceiling} onToggle={(field, checked) => {
             setCeiling((previous) => toggleField(previous, field, checked));
             if (!checked) setSubset((previous) => toggleField(previous, field, false));
           }} />
-          <CheckboxGroup id="usul-subset" legend="Data yang Anda izinkan tampil" hint="Kosongkan jika Anda ingin menjaga semua data tetap privat.">
+          <CheckboxGroup id="usul-subset" legend={t('Data yang Anda izinkan tampil')} hint={t('Kosongkan jika Anda ingin menjaga semua data tetap privat.')}>
             {ceiling.map((field) => (
               <Checkbox key={field} label={FIELD_LABEL[field]} checked={subset.includes(field)} onChange={(checked) => setSubset((previous) => toggleField(previous, field, checked))} />
             ))}
           </CheckboxGroup>
         </section>
-        <p>Anda mengonfirmasi versi 1 saat mengirim. Pihak lain perlu mengonfirmasi versi yang sama.</p>
+        <p>{t('Anda mengonfirmasi versi 1 saat mengirim. Pihak lain perlu mengonfirmasi versi yang sama.')}</p>
         <div className="tr-row"><Button type="submit" intent="primary" busy={action.busy}>Kirim ringkasan versi 1</Button></div>
       </form>
     </Screen>

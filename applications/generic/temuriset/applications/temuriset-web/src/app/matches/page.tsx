@@ -1,4 +1,3 @@
-import type { Metadata } from 'next';
 import NextLink from 'next/link';
 
 import { serverGet } from '@/api/server';
@@ -11,8 +10,10 @@ import { fundingOn } from '@/features/needs/server';
 import { personaOf, requireMe } from '@/features/session';
 import { MatchesView, type ExternalPartner } from '@/views/discovery/MatchesView';
 import { PROVENANCE } from '@/views/parts';
+import { titled } from '@/features/i18n/server';
+import { t } from '@/features/i18n/t';
 
-export const metadata: Metadata = { title: 'Kecocokan' };
+export const generateMetadata = titled('Kecocokan');
 
 type Props = { searchParams: Promise<{ source?: string }> };
 
@@ -39,11 +40,11 @@ export default async function MatchesPage({ searchParams }: Props) {
     fundingOn(),
   ]);
   const choices = [
-    ...support.map((item) => ({ href: matchesHref({ type: 'SUPPORT_REQUEST', id: item.id }), label: `${item.invention_title}: ${item.outcome || 'Kebutuhan dukungan'}` })),
-    ...(on ? funding.map((item) => ({ href: matchesHref({ type: 'FUNDING_REQUEST', id: item.id }), label: `Pendanaan perusahaan: ${item.subject_label}` })) : []),
+    ...support.map((item) => ({ href: matchesHref({ type: 'SUPPORT_REQUEST', id: item.id }), label: `${item.invention_title}: ${item.outcome || t('Kebutuhan dukungan')}` })),
+    ...(on ? funding.map((item) => ({ href: matchesHref({ type: 'FUNDING_REQUEST', id: item.id }), label: t('Pendanaan perusahaan: {name}', { name: item.subject_label }) })) : []),
   ];
   return (
-    <Screen persona={personaOf(me)} current="temukan" title="Kecocokan" subtitle="Pilih kebutuhan yang ingin dicocokkan dengan mandat aktif." provenance={PROVENANCE} context={<ContextBar me={me} />}>
+    <Screen persona={personaOf(me)} current="temukan" title={t('Kecocokan')} subtitle={t('Pilih kebutuhan yang ingin dicocokkan dengan mandat aktif.')} provenance={PROVENANCE} context={<ContextBar me={me} />}>
       {choices.length ? (
         <ul className="tr-stack">
           {choices.map((choice) => (
@@ -57,13 +58,13 @@ export default async function MatchesPage({ searchParams }: Props) {
       ) : (
         <EmptyState
           icon="search"
-          title="Belum ada kebutuhan untuk dicocokkan"
+          title={t('Belum ada kebutuhan untuk dicocokkan')}
           action={
             <NextLink className="tr-btn tr-btn--primary" href="/support-requests">
-              Nyatakan kebutuhan
+              {t('Nyatakan kebutuhan')}
             </NextLink>
           }>
-          Kecocokan dihitung dari kebutuhan dukungan atau pendanaan perusahaan yang Anda nyatakan.
+          {t('Kecocokan dihitung dari kebutuhan dukungan atau pendanaan perusahaan yang Anda nyatakan.')}
         </EmptyState>
       )}
     </Screen>

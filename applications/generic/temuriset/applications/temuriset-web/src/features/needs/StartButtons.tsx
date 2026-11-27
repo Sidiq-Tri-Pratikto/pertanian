@@ -9,6 +9,7 @@ import { Button } from '@/components/tr/Button';
 import { Select } from '@/components/tr/Select';
 import { Status } from '@/components/tr/Status';
 import { createFundingRequest, createSupportRequest } from '@/features/needs/api';
+import { t } from '@/features/i18n/t';
 
 function Failure({ message, label }: { message: string | null; label: string }) {
   return message ? (
@@ -40,15 +41,15 @@ export function NewSupportRequest({ actingPartyId, inventions, initial }: { acti
   }
 
   if (!inventions.length) {
-    return <p className="tr-muted">Terbitkan inovasi terlebih dahulu. Kebutuhan dukungan selalu merujuk versi yang sudah terbit.</p>;
+    return <p className="tr-muted">{t('Terbitkan inovasi terlebih dahulu. Kebutuhan dukungan selalu merujuk versi yang sudah terbit.')}</p>;
   }
   return (
     <div className="tr-stack">
-      <Failure message={failure} label="Kebutuhan belum dibuat" />
+      <Failure message={failure} label={t('Kebutuhan belum dibuat')} />
       <Select label="Untuk inovasi" value={invention} onChange={setInvention} options={inventions.map((item) => ({ value: item.id, label: item.title }))} emptyLabel={null} />
       <div className="tr-row">
         <Button intent="primary" icon="arrow" busy={busy} busyLabel="Membuat…" onClick={start}>
-          Tambah kebutuhan dukungan
+          {t('Tambah kebutuhan dukungan')}
         </Button>
       </div>
     </div>
@@ -77,10 +78,10 @@ export function NewFundingRequest({ actingPartyId }: { actingPartyId: string }) 
 
   return (
     <div className="tr-stack">
-      <Failure message={failure} label="Pendanaan belum dibuat" />
+      <Failure message={failure} label={t('Pendanaan belum dibuat')} />
       <div className="tr-row">
         <Button icon="building" busy={busy} busyLabel="Membuat…" onClick={start}>
-          Mulai pendanaan perusahaan
+          {t('Mulai pendanaan perusahaan')}
         </Button>
       </div>
     </div>

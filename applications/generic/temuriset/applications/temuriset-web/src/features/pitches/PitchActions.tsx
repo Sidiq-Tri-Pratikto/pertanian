@@ -14,6 +14,7 @@ import { TextArea } from '@/components/tr/TextArea';
 import { VersionConflict } from '@/components/tr/VersionConflict';
 import type { Pitch } from '@/features/pitches/model';
 import { closeDiscussion, decide, moveTo } from '@/features/pitches/workspace';
+import { t } from '@/features/i18n/t';
 
 type Kind = 'approve' | 'reject' | 'withdraw' | 'close';
 
@@ -96,35 +97,35 @@ export function PitchActions({ pitch, actingPartyId }: Props) {
   const viewOnly = !allowed.length && !TERMINAL.includes(pitch.status);
   const dialog = open ? DIALOG[open] : null;
   return (
-    <section className="tr-stack" aria-label="Tindakan pitching">
+    <section className="tr-stack" aria-label={t('Tindakan pitching')}>
       {failure?.code === 'STALE_VERSION' ? (
-        <VersionConflict what="Pitching ini baru saja berubah. Muat versi terbaru sebelum memutuskan." onRefresh={() => { setFailure(null); router.refresh(); }} refreshLabel="Muat versi terbaru" />
+        <VersionConflict what={t('Pitching ini baru saja berubah. Muat versi terbaru sebelum memutuskan.')} onRefresh={() => { setFailure(null); router.refresh(); }} refreshLabel={t('Muat versi terbaru')} />
       ) : failure ? (
-        <ErrorSummary title="Tindakan belum tersimpan" focusKey={attempt} id="pitch-action-errors">
+        <ErrorSummary title={t('Tindakan belum tersimpan')} focusKey={attempt} id="pitch-action-errors">
           <p>{failure.message}</p>
           {failure.requestId ? <p className="tr-muted tr-sys-type-support">{`ID referensi: ${failure.requestId}`}</p> : null}
         </ErrorSummary>
       ) : null}
-      {viewOnly ? <Status tone="neutral" label="Akun Anda hanya dapat melihat pitching ini" /> : null}
+      {viewOnly ? <Status tone="neutral" label={t('Akun Anda hanya dapat melihat pitching ini')} /> : null}
       <div className="tr-row">
         {allowed.includes('approve') ? (
           <Button intent="primary" id="action-approve" onClick={() => openDialog('approve')}>
-            Setujui untuk diskusi
+            {t('Setujui untuk diskusi')}
           </Button>
         ) : null}
         {allowed.includes('request_revision') ? (
           <NextLink className="tr-btn tr-btn--secondary" href={`/pitches/${pitch.id}?tab=revisi`}>
-            Minta revisi
+            {t('Minta revisi')}
           </NextLink>
         ) : null}
         {allowed.includes('begin_review') ? (
           <Button busy={busy && !open} busyLabel="Menyimpan…" onClick={() => void run(() => moveTo(pitch, actingPartyId, 'begin-review', key.current))}>
-            Mulai tinjau
+            {t('Mulai tinjau')}
           </Button>
         ) : null}
         {allowed.includes('reject') ? (
           <Button intent="danger" id="action-reject" onClick={() => openDialog('reject')}>
-            Tolak
+            {t('Tolak')}
           </Button>
         ) : null}
         {allowed.includes('withdraw') ? (
@@ -144,9 +145,9 @@ export function PitchActions({ pitch, actingPartyId }: Props) {
         title={dialog?.title ?? ''}
         returnFocusId={open ? `action-${open}` : undefined}
         primary={open ? { label: dialog!.confirm, onClick: () => confirm(open), busy, busyLabel: dialog!.busy, intent: open === 'approve' ? 'primary' : 'danger' } : undefined}>
-        <p>{`Anda bertindak sebagai ${actor}.`}</p>
-        {open === 'approve' ? <p>Persetujuan ini membuka diskusi; belum merupakan pendanaan atau kerja sama.</p> : null}
-        {open === 'withdraw' ? <p>Pitching yang ditarik tidak dapat diputuskan lagi dan tidak dibuka kembali.</p> : null}
+        <p>{t('Anda bertindak sebagai {name}.', { name: actor })}</p>
+        {open === 'approve' ? <p>{t('Persetujuan ini membuka diskusi; belum merupakan pendanaan atau kerja sama.')}</p> : null}
+        {open === 'withdraw' ? <p>{t('Pitching yang ditarik tidak dapat diputuskan lagi dan tidak dibuka kembali.')}</p> : null}
         {dialog?.reason ? (
           <TextArea label={dialog.reason.label} hint={dialog.reason.hint} required rows={3} value={reason} onChange={setReason} error={reasonError ?? undefined} limit={500} id="action-reason" />
         ) : null}

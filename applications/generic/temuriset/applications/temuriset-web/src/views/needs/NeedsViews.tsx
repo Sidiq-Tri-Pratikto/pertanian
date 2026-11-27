@@ -15,6 +15,7 @@ import { SupportForm } from '@/features/needs/SupportForm';
 import { readPersona } from '@/features/persona';
 import { labelOf } from '@/features/portfolio/model';
 import { PROVENANCE } from '@/views/parts';
+import { t } from '@/features/i18n/t';
 
 type Published = { id: string; title: string };
 
@@ -22,8 +23,8 @@ export const FUNDING_OFF = 'Pendanaan Perusahaan tidak tersedia di layanan ini. 
 
 function OffNotice() {
   return (
-    <Status tone="neutral" icon="lock" label="Pendanaan Perusahaan tidak aktif">
-      <p>{FUNDING_OFF}</p>
+    <Status tone="neutral" icon="lock" label={t('Pendanaan Perusahaan tidak aktif')}>
+      <p>{t(FUNDING_OFF)}</p>
     </Status>
   );
 }
@@ -50,7 +51,7 @@ function FundingCard({ request, linkInventions, action }: { request: FundingRequ
   return (
     <FundingRequestCard
       headingLevel={linkInventions ? 2 : 3}
-      company={request.subject_type === 'PROPOSED_ENTITY' ? request.proposed_name || 'Perusahaan baru' : request.subject_label}
+      company={request.subject_type === 'PROPOSED_ENTITY' ? request.proposed_name || t('Perusahaan baru') : request.subject_label}
       proposedEntity={request.subject_type === 'PROPOSED_ENTITY'}
       stage={labelOf(FINANCING_STAGES, request.financing_stage)}
       form={labelOf(FINANCING_FORMS, request.financing_form)}
@@ -91,8 +92,8 @@ export function NeedsView({ me, support, funding, published, fundingOn, inventio
     <Screen
       persona={persona}
       current="inovasi"
-      title="Kebutuhan dan pendanaan"
-      subtitle="Dukungan proyek per inovasi, dan pendanaan perusahaan yang dapat didukung beberapa inovasi."
+      title={t('Kebutuhan dan pendanaan')}
+      subtitle={t('Dukungan proyek per inovasi, dan pendanaan perusahaan yang dapat didukung beberapa inovasi.')}
       provenance={PROVENANCE}
       context={<ContextBar me={me} />}>
       <section className="tr-stack" aria-labelledby="dukungan-proyek">
@@ -103,7 +104,7 @@ export function NeedsView({ me, support, funding, published, fundingOn, inventio
           <ul className="tr-stack">
             {support.map((request) => (
               <li key={request.id} className="tr-panel tr-stack">
-                <h3 className="tr-sys-type-label">{request.outcome || 'Kebutuhan tanpa judul'}</h3>
+                <h3 className="tr-sys-type-label">{request.outcome || t('Kebutuhan tanpa judul')}</h3>
                 <p className="tr-row">
                   <Status tone={request.status === 'ACTIVE' ? 'success' : 'neutral'} label={NEED_STATUS[request.status] ?? request.status} />
                   <span className="tr-muted">{`${request.invention_title}, versi ${request.invention_version}`}</span>
@@ -111,22 +112,22 @@ export function NeedsView({ me, support, funding, published, fundingOn, inventio
                 <SupportBudget request={request} compact />
                 <p>
                   <Link className="tr-link" href={`/support-requests/${request.id}`}>
-                    Buka<span className="tr-sr">{` ${request.outcome || 'kebutuhan tanpa judul'}`}</span>
+                    {t('Buka')}<span className="tr-sr">{` ${request.outcome || t('kebutuhan tanpa judul')}`}</span>
                   </Link>
                 </p>
               </li>
             ))}
           </ul>
         ) : (
-          <EmptyState icon="bulb" title="Belum ada kebutuhan dukungan">
-            Nyatakan hasil yang ingin dicapai, bentuk dukungan, dan kisaran biaya untuk satu inovasi yang sudah terbit.
+          <EmptyState icon="bulb" title={t('Belum ada kebutuhan dukungan')}>
+            {t('Nyatakan hasil yang ingin dicapai, bentuk dukungan, dan kisaran biaya untuk satu inovasi yang sudah terbit.')}
           </EmptyState>
         )}
         <NewSupportRequest actingPartyId={me.active_party_id} inventions={published} initial={invention} />
       </section>
       <section id="pendanaan" className="tr-stack" aria-labelledby="pendanaan-perusahaan">
         <h2 id="pendanaan-perusahaan" className="tr-sys-type-heading-sm">
-          Pendanaan Perusahaan
+          {t('Pendanaan Perusahaan')}
         </h2>
         {fundingOn ? null : <OffNotice />}
         {funding.length ? (
@@ -137,7 +138,7 @@ export function NeedsView({ me, support, funding, published, fundingOn, inventio
                   request={request}
                   action={
                     <Link className="tr-link" href={`/funding-requests/${request.id}`}>
-                      Buka<span className="tr-sr">{` pendanaan ${request.subject_label}`}</span>
+                      {t('Buka')}<span className="tr-sr">{` ${t('pendanaan {name}', { name: request.subject_label })}`}</span>
                     </Link>
                   }
                 />
@@ -145,7 +146,7 @@ export function NeedsView({ me, support, funding, published, fundingOn, inventio
             ))}
           </ul>
         ) : fundingOn ? (
-          <p className="tr-muted">Belum ada pendanaan perusahaan. Satu putaran dapat ditautkan ke beberapa inovasi.</p>
+          <p className="tr-muted">{t('Belum ada pendanaan perusahaan. Satu putaran dapat ditautkan ke beberapa inovasi.')}</p>
         ) : null}
         {fundingOn ? <NewFundingRequest actingPartyId={me.active_party_id} /> : null}
       </section>
@@ -161,24 +162,24 @@ export function SupportView({ me, request, returnTo }: { me: Me; request: Suppor
     <Screen
       persona={persona}
       current="inovasi"
-      title={request.outcome || 'Kebutuhan dukungan'}
+      title={request.outcome || t('Kebutuhan dukungan')}
       subtitle={`Untuk ${request.invention_title}, versi ${request.invention_version}`}
       back={
         <Link className="tr-link" href={returnTo ?? '/support-requests'}>
-          Kembali
+          {t('Kembali')}
         </Link>
       }
       provenance={PROVENANCE}
       context={<ContextBar me={me} />}>
       <section className="tr-panel tr-stack" aria-labelledby="ringkasan-kebutuhan">
         <h2 id="ringkasan-kebutuhan" className="tr-sys-type-heading-sm">
-          Ringkasan
+          {t('Ringkasan')}
         </h2>
         <p className="tr-row">
           <Status tone={request.status === 'ACTIVE' ? 'success' : 'neutral'} label={NEED_STATUS[request.status] ?? request.status} />
-          <span className="tr-muted">{`Versi ${request.version}`}</span>
+          <span className="tr-muted">{t('Versi {n}', { n: request.version })}</span>
         </p>
-        {forms ? <p>{`Bentuk dukungan: ${forms}`}</p> : null}
+        {forms ? <p>{t('Bentuk dukungan: {list}', { list: forms })}</p> : null}
         <SupportBudget request={request} />
       </section>
       <SupportForm key={request.version} request={request} actingPartyId={me.active_party_id} returnTo={returnTo} />
@@ -193,11 +194,11 @@ export function FundingView({ me, request, fundingOn }: { me: Me; request: Fundi
     <Screen
       persona={persona}
       current="inovasi"
-      title="Pendanaan Perusahaan"
-      subtitle={`Versi ${request.version} · ${NEED_STATUS[request.status] ?? request.status}`}
+      title={t('Pendanaan Perusahaan')}
+      subtitle={t('Versi {n} · {status}', { n: request.version, status: t(NEED_STATUS[request.status] ?? request.status) })}
       back={
         <Link className="tr-link" href="/support-requests#pendanaan">
-          Kembali
+          {t('Kembali')}
         </Link>
       }
       provenance={PROVENANCE}
@@ -209,13 +210,13 @@ export function FundingView({ me, request, fundingOn }: { me: Me; request: Fundi
         action={
           fundingOn ? (
             <Link className="tr-btn tr-btn--primary" href={`/funding-requests/${request.id}/edit`}>
-              Ubah pendanaan
+              {t('Ubah pendanaan')}
             </Link>
           ) : undefined
         }
       />
       {request.legal_entity ? (
-        <p className="tr-muted">{`${request.legal_entity.name}: dinyatakan sendiri, belum diperiksa.`}</p>
+        <p className="tr-muted">{t('{name}: dinyatakan sendiri, belum diperiksa.', { name: request.legal_entity.name })}</p>
       ) : null}
     </Screen>
   );
@@ -230,10 +231,10 @@ export function FundingEditView({ me, request, entities, published, fundingOn }:
     <Screen
       persona={persona}
       current="inovasi"
-      title="Ubah pendanaan perusahaan"
+      title={t('Ubah pendanaan perusahaan')}
       back={
         <Link className="tr-link" href={`/funding-requests/${request.id}`}>
-          Kembali
+          {t('Kembali')}
         </Link>
       }
       provenance={PROVENANCE}

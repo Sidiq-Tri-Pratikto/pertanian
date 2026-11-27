@@ -1,4 +1,6 @@
 import type { components } from '@/api/schema.generated';
+import { intlLocale } from '@/features/i18n/t';
+import { t } from '@/features/i18n/t';
 
 export type Member = components['schemas']['MemberResponse'];
 export type Invitation = components['schemas']['InvitationResponse'];
@@ -31,10 +33,10 @@ export const INVITATION_STATUS: Record<string, string> = {
 };
 
 export function capabilityList(capabilities: string[]): string {
-  return capabilities.map((capability) => CAPABILITY_LABEL[capability] ?? capability).join(', ');
+  return capabilities.map((capability) => t(CAPABILITY_LABEL[capability] ?? capability)).join(', ');
 }
 
 /** A date in the account's own time zone. */
 export function formatDateTime(value: string, timeZone: string): string {
-  return new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium', timeStyle: 'short', timeZone }).format(new Date(value));
+  return new Intl.DateTimeFormat(intlLocale(), { dateStyle: 'medium', timeStyle: 'short', timeZone }).format(new Date(value));
 }

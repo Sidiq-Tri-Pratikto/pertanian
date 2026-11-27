@@ -11,11 +11,12 @@ import { Status } from '@/components/tr/Status';
 import { ContextBar } from '@/features/ContextBar';
 import { ItemActions } from '@/features/discovery/ItemActions';
 import { FocusFromHash } from '@/features/discovery/FocusFromHash';
-import { appliedFilters, discoverHref, FILTER_LABELS, filterCount, RESULT_TYPES, SECTORS, type Discovery, type DiscoveryItem, type Filters, type ResultType } from '@/features/discovery/model';
+import { appliedFilters, discoverHref, FILTER_LABELS, filterCount, reasonText, RESULT_TYPES, SECTORS, type Discovery, type DiscoveryItem, type Filters, type ResultType } from '@/features/discovery/model';
 import { scopeProps, type StoredRange } from '@/features/intake/model';
 import { readPersona } from '@/features/persona';
 import { labelOf, STAGES } from '@/features/portfolio/model';
 import { PROVENANCE } from '@/views/parts';
+import { t } from '@/features/i18n/t';
 
 type Card = Record<string, unknown>;
 
@@ -35,11 +36,11 @@ function ResultCard({ item, actingPartyId }: { item: DiscoveryItem; actingPartyI
         manager={text(card, 'managing_party_name')}
         problem={text(card, 'summary')}
         maturity={text(card, 'stage') ? labelOf(STAGES, text(card, 'stage') as string) : undefined}
-        reasons={item.reasons}
+        reasons={item.reasons.map(reasonText)}
         action={
           <>
             <NextLink className="tr-btn tr-btn--primary" href={`/inventions/${item.subject_id}`}>
-              Lihat inovasi
+              {t('Lihat inovasi')}
             </NextLink>
             {actions}
           </>
@@ -63,7 +64,7 @@ function ResultCard({ item, actingPartyId }: { item: DiscoveryItem; actingPartyI
             {invention.title}
           </NextLink>
         ))}
-        reasons={item.reasons}
+        reasons={item.reasons.map(reasonText)}
         action={actions}
       />
     );
@@ -76,22 +77,22 @@ function ResultCard({ item, actingPartyId }: { item: DiscoveryItem; actingPartyI
         <h3 className="tr-sys-type-heading-sm">{item.title}</h3>
         {text(card, 'subtype') ? <p className="tr-muted tr-sys-type-support">{text(card, 'subtype')}</p> : null}
         <p className="tr-row">
-          <Status tone="neutral" label={text(card, 'availability_label') ?? ''} />
-          <span className="tr-tag tr-sys-type-support">{text(card, 'source_label')}</span>
+          <Status tone="neutral" label={t(text(card, 'availability_label') ?? '')} />
+          <span className="tr-tag tr-sys-type-support">{t(text(card, 'source_label') ?? '')}</span>
         </p>
         {text(card, 'thesis') ? <p>{text(card, 'thesis')}</p> : null}
         {check ? <FinancialScope {...scopeProps(check)} /> : null}
-        {opportunities.length ? <p>{`Mandat aktif: ${opportunities.map((opportunity) => opportunity.title).join('; ')}`}</p> : null}
+        {opportunities.length ? <p>{t('Mandat aktif: {list}', { list: opportunities.map((opportunity) => opportunity.title).join('; ') })}</p> : null}
         {item.reasons.length ? (
           <ul className="tr-reasons">
             {item.reasons.map((reason) => (
-              <li key={reason}>{reason}</li>
+              <li key={reason}>{reasonText(reason)}</li>
             ))}
           </ul>
         ) : null}
         <div className="tr-row">
           <NextLink className="tr-btn tr-btn--primary" href={`/partners/${item.subject_id}`}>
-            Lihat profil mitra
+            {t('Lihat profil mitra')}
           </NextLink>
           {actions}
         </div>
@@ -109,7 +110,7 @@ function rowFacts(item: DiscoveryItem): string {
   }
   if (item.subject_type === 'FUNDING_REQUEST') {
     const inventions = (card.inventions as { title: string }[] | undefined) ?? [];
-    return inventions.length ? `Pendanaan perusahaan untuk ${inventions.map((invention) => invention.title).join(', ')}` : 'Pendanaan perusahaan';
+    return inventions.length ? t('Pendanaan perusahaan untuk {list}', { list: inventions.map((invention) => invention.title).join(', ') }) : t('Pendanaan perusahaan');
   }
   return [text(card, 'subtype'), text(card, 'availability_label')].filter(Boolean).join(' · ');
 }
@@ -134,78 +135,78 @@ export function DiscoverView({ me, type, filters, page, fundingOn, matchesHref, 
       persona={persona}
       current={persona === 'mitra' ? 'jelajahi' : 'temukan'}
       title={persona === 'mitra' ? 'Jelajahi' : 'Temukan Investor/Mitra'}
-      subtitle="Hasil disusun menurut profil Anda dan tanggal terbit, bukan menurut popularitas."
+      subtitle={t('Hasil disusun menurut profil Anda dan tanggal terbit, bukan menurut popularitas.')}
       provenance={PROVENANCE}
       context={<ContextBar me={me} />}>
-      <nav aria-label="Jenis hasil" className="tr-row">
+      <nav aria-label={t('Jenis hasil')} className="tr-row">
         {types.map((item) => (
           <NextLink key={item.value} className={`tr-btn ${item.value === type ? 'tr-btn--primary' : 'tr-btn--secondary'}`} aria-current={item.value === type ? 'page' : undefined} href={discoverHref(item.value, filters)}>
-            {item.label}
+            {t(item.label)}
           </NextLink>
         ))}
       </nav>
       {matchesHref ? (
         <p>
           <NextLink className="tr-link" href={matchesHref}>
-            Lihat kecocokan untuk kebutuhan Anda
+            {t('Lihat kecocokan untuk kebutuhan Anda')}
           </NextLink>
         </p>
       ) : null}
-      <form method="get" action="/discover" className="tr-panel tr-stack" role="search" aria-label="Cari dan saring">
+      <form method="get" action="/discover" className="tr-panel tr-stack" role="search" aria-label={t('Cari dan saring')}>
         <input type="hidden" name="type" value={type} />
         <div className="tr-toolbar">
           <div className="tr-field">
             <label htmlFor="filter-q" className="tr-sys-type-label">
-              Kata kunci
+              {t('Kata kunci')}
             </label>
             <p id="filter-q-hint" className="tr-muted tr-sys-type-support">
-              Bahasa Indonesia atau Inggris, misalnya &quot;filter air&quot; atau &quot;water filter&quot;.
+              {t('Bahasa Indonesia atau Inggris, misalnya "filter air" atau "water filter".')}
             </p>
             <input id="filter-q" name="q" type="search" className="tr-input" defaultValue={filters.q ?? ''} aria-describedby="filter-q-hint" />
           </div>
           <button type="submit" className="tr-btn tr-btn--primary">
-            Cari
+            {t('Cari')}
           </button>
         </div>
         <details className="tr-disclosure">
           <summary className="tr-disclosure__toggle tr-sys-type-label">
             <Icon name="right" className="tr-disclosure__chev" />
-            <span>{narrowing ? `Filter (${narrowing})` : 'Filter'}</span>
+            <span>{narrowing ? t('Filter ({n})', { n: narrowing }) : t('Filter')}</span>
           </summary>
           <div className="tr-disclosure__body tr-stack">
             <div className="tr-field">
               <label htmlFor="filter-sector" className="tr-sys-type-label">
-                Sektor
+                {t('Sektor')}
               </label>
               <select id="filter-sector" name="sector" className="tr-input tr-select" defaultValue={filters.sector ?? ''}>
-                <option value="">Semua sektor</option>
+                <option value="">{t('Semua sektor')}</option>
                 {SECTORS.map((sector) => (
                   <option key={sector} value={sector}>
-                    {sector}
+                    {t(sector)}
                   </option>
                 ))}
               </select>
             </div>
             <div className="tr-field">
               <label htmlFor="filter-stage" className="tr-sys-type-label">
-                Tahap
+                {t('Tahap')}
               </label>
               <select id="filter-stage" name="stage" className="tr-input tr-select" defaultValue={filters.stage ?? ''}>
-                <option value="">Semua tahap</option>
+                <option value="">{t('Semua tahap')}</option>
                 {STAGES.map((stage) => (
                   <option key={stage.value} value={stage.value}>
-                    {stage.label}
+                    {t(stage.label)}
                   </option>
                 ))}
               </select>
             </div>
             <label className="tr-row">
               <input type="checkbox" name="saved" value="true" defaultChecked={filters.saved === 'true'} />
-              <span>Hanya yang saya simpan</span>
+              <span>{t('Hanya yang saya simpan')}</span>
             </label>
             <div className="tr-row">
               <button type="submit" className="tr-btn tr-btn--secondary">
-                Terapkan filter
+                {t('Terapkan filter')}
               </button>
             </div>
           </div>
@@ -213,18 +214,18 @@ export function DiscoverView({ me, type, filters, page, fundingOn, matchesHref, 
       </form>
       {applied.length ? (
         <div className="tr-row">
-          <ul className="tr-chips" aria-label="Filter aktif">
+          <ul className="tr-chips" aria-label={t('Filter aktif')}>
             {applied.map((filter) => (
               <li key={filter.name} className="tr-chip tr-sys-type-support-strong">
                 <span>{filter.text}</span>
-                <NextLink className="tr-chip__remove" href={discoverHref(type, without(filter.name))} aria-label={`Hapus filter ${filter.text}`}>
+                <NextLink className="tr-chip__remove" href={discoverHref(type, without(filter.name))} aria-label={t('Hapus filter {name}', { name: filter.text })}>
                   <Icon name="close" size="small" />
                 </NextLink>
               </li>
             ))}
           </ul>
           <NextLink className="tr-link" href={discoverHref(type)}>
-            Hapus semua filter
+            {t('Hapus semua filter')}
           </NextLink>
         </div>
       ) : null}
@@ -232,13 +233,13 @@ export function DiscoverView({ me, type, filters, page, fundingOn, matchesHref, 
         <div className={chosen ? 'tr-listdetail has-selected' : 'tr-listdetail'}>
           <FocusFromHash key={selected ?? ''} />
           <div className="tr-listdetail__list tr-stack">
-            <p className="tr-muted" role="status">{`${page.total_estimate} hasil`}</p>
+            <p className="tr-muted" role="status">{t('{n} hasil', { n: page.total_estimate })}</p>
             {page.sections
               .filter((section) => section.items.length)
               .map((section) => (
                 <section key={section.id} className="tr-stack" aria-labelledby={`bagian-${section.id}`}>
                   <h2 id={`bagian-${section.id}`} className="tr-sys-type-heading-sm">
-                    {section.title}
+                    {t(section.title)}
                   </h2>
                   <ul className="tr-list">
                     {section.items.map((item) => (
@@ -248,7 +249,7 @@ export function DiscoverView({ me, type, filters, page, fundingOn, matchesHref, 
                         </NextLink>
                         <span className="tr-muted tr-sys-type-support">
                           {rowFacts(item)}
-                          {item.saved ? ' · Disimpan' : ''}
+                          {item.saved ? t(' · Disimpan') : ''}
                         </span>
                       </li>
                     ))}
@@ -258,15 +259,15 @@ export function DiscoverView({ me, type, filters, page, fundingOn, matchesHref, 
             {page.next_cursor ? (
               <p>
                 <NextLink className="tr-link" href={`${discoverHref(type, filters)}&cursor=${encodeURIComponent(page.next_cursor)}`}>
-                  Hasil berikutnya
+                  {t('Hasil berikutnya')}
                 </NextLink>
               </p>
             ) : null}
           </div>
-          <section id="detail" tabIndex={-1} className="tr-listdetail__detail tr-stack" aria-label={`Rincian: ${open.title}`}>
+          <section id="detail" tabIndex={-1} className="tr-listdetail__detail tr-stack" aria-label={t('Rincian: {title}', { title: open.title })}>
             <p className="tr-listdetail__back">
               <NextLink className="tr-link" href={`${discoverHref(type, filters)}#hasil-${open.subject_id}`}>
-                Kembali ke hasil
+                {t('Kembali ke hasil')}
               </NextLink>
             </p>
             <ResultCard item={open} actingPartyId={me.active_party_id} />
@@ -275,24 +276,24 @@ export function DiscoverView({ me, type, filters, page, fundingOn, matchesHref, 
       ) : (
         <EmptyState
           icon="search"
-          title={applied.length ? 'Tidak ada hasil untuk filter ini' : 'Belum ada yang diterbitkan di sini'}
+          title={applied.length ? t('Tidak ada hasil untuk filter ini') : t('Belum ada yang diterbitkan di sini')}
           action={
             applied.length ? (
               <>
                 <NextLink className="tr-btn tr-btn--primary" href={discoverHref(type)}>
-                  Hapus semua filter
+                  {t('Hapus semua filter')}
                 </NextLink>
                 {page.relaxation && page.relaxation.remove !== 'all' ? (
                   <NextLink className="tr-btn tr-btn--secondary" href={discoverHref(type, { ...filters, [page.relaxation.remove]: undefined })}>
-                    {`${page.relaxation.label} (${page.relaxation.total_estimate} hasil)`}
+                    {t('{label} ({n} hasil)', { label: t(page.relaxation.label), n: page.relaxation.total_estimate })}
                   </NextLink>
                 ) : null}
               </>
             ) : undefined
           }>
           {applied.length
-            ? `Filter aktif: ${applied.map((filter) => (filter.name === 'saved' ? FILTER_LABELS.saved : `${filter.label} "${filter.value}"`)).join(', ')}. Syarat tidak dilonggarkan tanpa pilihan Anda.`
-            : 'Hasil muncul setelah pemiliknya menerbitkan profil atau inovasi.'}
+            ? t('Filter aktif: {list}. Syarat tidak dilonggarkan tanpa pilihan Anda.', { list: applied.map((filter) => (filter.name === 'saved' ? t(FILTER_LABELS.saved) : `${filter.label} "${filter.value}"`)).join(', ') })
+            : t('Hasil muncul setelah pemiliknya menerbitkan profil atau inovasi.')}
         </EmptyState>
       )}
     </Screen>

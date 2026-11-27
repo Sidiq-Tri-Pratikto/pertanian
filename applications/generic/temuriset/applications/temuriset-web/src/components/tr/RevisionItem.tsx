@@ -3,6 +3,8 @@ import type { ReactNode } from 'react';
 import { ChoiceGroup } from '@/components/tr/ChoiceGroup';
 import { Status } from '@/components/tr/Status';
 import { TextArea } from '@/components/tr/TextArea';
+import { intlLocale } from '@/features/i18n/t';
+import { t } from '@/features/i18n/t';
 
 export type RevisionValue = { response?: string; text?: string };
 
@@ -28,7 +30,7 @@ type RevisionItemProps = {
 };
 
 function dueDate(value: string): string {
-  return new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${value}T00:00:00Z`));
+  return new Intl.DateTimeFormat(intlLocale(), { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${value}T00:00:00Z`));
 }
 
 /** Port of TR.RevisionItem: one question, its reason, and an answer that may honestly be no. */
@@ -46,10 +48,10 @@ export function RevisionItem({ id, round, index, question, reason, required, due
           {reason}
         </p>
       ) : null}
-      {due ? <p className="tr-muted tr-sys-type-support">{`Batas waktu: ${dueDate(due)}`}</p> : null}
+      {due ? <p className="tr-muted tr-sys-type-support">{t('Batas waktu: {date}', { date: dueDate(due) })}</p> : null}
       <ChoiceGroup
         name={`${id}-response`}
-        legend="Tanggapan Anda"
+        legend={t('Tanggapan Anda')}
         required={required}
         options={RESPONSES}
         value={value.response}
@@ -57,8 +59,8 @@ export function RevisionItem({ id, round, index, question, reason, required, due
         error={error}
       />
       <TextArea
-        label="Penjelasan"
-        hint="Anda dapat menjelaskan apa yang sudah ada dan apa yang belum."
+        label={t('Penjelasan')}
+        hint={t('Anda dapat menjelaskan apa yang sudah ada dan apa yang belum.')}
         rows={3}
         value={value.text ?? ''}
         onChange={(text) => onChange({ ...value, text })}

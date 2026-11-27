@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 
 import { SummaryList } from '@/components/tr/SummaryList';
+import { t } from '@/features/i18n/t';
 
 export type MandateReviewValues = {
   title: string;
@@ -15,7 +16,7 @@ export type MandateReviewValues = {
   requirements: string[];
 };
 
-const EMPTY = <span className="tr-muted">Belum diisi</span>;
+const empty = () => <span className="tr-muted">{t('Belum diisi')}</span>;
 
 /** What the mandate will say, as a check-your-answers list, before it goes live. */
 export function MandateReview({ values }: { values: MandateReviewValues }) {
@@ -40,5 +41,5 @@ export function MandateReview({ values }: { values: MandateReviewValues }) {
       ) : null,
     ],
   ];
-  return <SummaryList rows={rows.map(([label, value]) => ({ id: label, label, value: value || EMPTY }))} />;
+  return <SummaryList rows={rows.map(([label, value]) => ({ id: label, label, value: value || empty() }))} />;
 }

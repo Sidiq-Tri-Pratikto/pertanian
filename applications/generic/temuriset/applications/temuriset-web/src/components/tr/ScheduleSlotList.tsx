@@ -5,6 +5,7 @@ import { useId, type ReactNode } from 'react';
 import { Button } from '@/components/tr/Button';
 import { Status } from '@/components/tr/Status';
 import { longDate, slotTime, zoneLabel } from '@/features/scheduling/time';
+import { t } from '@/features/i18n/t';
 
 export type Slot = { id: string; start: string; end: string; minutes: number; conflict?: boolean; externalAvailability?: 'busy' | 'free' };
 
@@ -41,14 +42,14 @@ export function ScheduleSlotList(props: ScheduleSlotListProps) {
     <div className="tr-slots">
       {agenda ? (
         <p>
-          <span className="tr-muted">Agenda: </span>
+          <span className="tr-muted">{t('Agenda: ')}</span>
           {agenda}
         </p>
       ) : null}
-      {note ? <Status tone="neutral" label={note} /> : null}
+      {note ? <Status tone="neutral" label={t(note)} /> : null}
       <fieldset className="tr-fieldset">
-        <legend className="tr-field__label tr-sys-type-label">Pilih waktu</legend>
-        <p className="tr-field__hint tr-sys-type-support">{`Waktu ditampilkan dalam ${zoneLabel(zone)}.`}</p>
+        <legend className="tr-field__label tr-sys-type-label">{t('Pilih waktu')}</legend>
+        <p className="tr-field__hint tr-sys-type-support">{t('Waktu ditampilkan dalam {zone}.', { zone: zoneLabel(zone) })}</p>
         <div className="tr-choices">
           {slots.map((slot) => {
             const selected = selectedId === slot.id;
@@ -62,11 +63,11 @@ export function ScheduleSlotList(props: ScheduleSlotListProps) {
                   <span className="tr-sys-type-label">{longDate(slot.start, zone)}</span>
                   <span className="tr-num">{slotTime(slot.start, slot.end, zone)}</span>
                   <span className="tr-choice__hint tr-sys-type-support">
-                    {`${slot.minutes} menit${otherZone && otherZone !== zone ? ` · Pihak lain: ${slotTime(slot.start, slot.end, otherZone)}` : ''}`}
+                    {`${t('{n} menit', { n: slot.minutes })}${otherZone && otherZone !== zone ? ` · ${t('Pihak lain')}: ${slotTime(slot.start, slot.end, otherZone)}` : ''}`}
                   </span>
                   {slot.externalAvailability ? (
                     <span className="tr-choice__hint tr-sys-type-support">
-                      {slot.externalAvailability === 'busy' ? 'Kalender Anda: sibuk' : 'Kalender Anda: kosong'}
+                      {slot.externalAvailability === 'busy' ? t('Kalender Anda: sibuk') : t('Kalender Anda: kosong')}
                     </span>
                   ) : null}
                   {slot.conflict ? <Status tone="warning" icon="alert" label="Waktu sudah bentrok" /> : null}
@@ -81,10 +82,10 @@ export function ScheduleSlotList(props: ScheduleSlotListProps) {
       {error}
       {!closed && !confirmedId && canConfirm ? (
         <div className="tr-row">
-          <Button intent="primary" busy={busy} busyLabel="Mengonfirmasi…" disabledReason={selectedId ? null : 'Pilih satu waktu terlebih dahulu.'} onClick={onConfirm}>
-            Konfirmasi waktu
+          <Button intent="primary" busy={busy} busyLabel="Mengonfirmasi…" disabledReason={selectedId ? null : t('Pilih satu waktu terlebih dahulu.')} onClick={onConfirm}>
+            {t('Konfirmasi waktu')}
           </Button>
-          <Button onClick={onPropose}>Usulkan waktu lain</Button>
+          <Button onClick={onPropose}>{t('Usulkan waktu lain')}</Button>
         </div>
       ) : null}
     </div>

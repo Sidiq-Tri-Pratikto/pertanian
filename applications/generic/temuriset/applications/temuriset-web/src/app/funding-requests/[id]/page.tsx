@@ -1,11 +1,10 @@
-import type { Metadata } from 'next';
-
 import type { FundingRequest } from '@/features/needs/model';
 import { fundingOn, ownedOr404 } from '@/features/needs/server';
 import { requireMe } from '@/features/session';
 import { FundingView } from '@/views/needs/NeedsViews';
+import { titled } from '@/features/i18n/server';
 
-export const metadata: Metadata = { title: 'Pendanaan Perusahaan' };
+export const generateMetadata = titled('Pendanaan Perusahaan');
 
 type Props = { params: Promise<{ id: string }> };
 

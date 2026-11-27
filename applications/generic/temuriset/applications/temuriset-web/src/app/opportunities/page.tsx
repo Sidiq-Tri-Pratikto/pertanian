@@ -1,12 +1,11 @@
-import type { Metadata } from 'next';
-
 import { serverGet } from '@/api/server';
 import { readCapabilities } from '@/features/capabilities';
 import type { Mandate } from '@/features/intake/model';
 import { requireMe } from '@/features/session';
 import { MandatesView } from '@/views/intake/MandatesView';
+import { titled } from '@/features/i18n/server';
 
-export const metadata: Metadata = { title: 'Kebutuhan/Mandat' };
+export const generateMetadata = titled('Kebutuhan/Mandat');
 
 type Props = { searchParams?: Promise<{ aktif?: string }> };
 

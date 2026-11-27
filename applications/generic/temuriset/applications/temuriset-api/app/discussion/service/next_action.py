@@ -7,6 +7,7 @@ from uuid import UUID
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.locale import locale
 from app.pitches.repository.sqlalchemy.models import PitchRecord
 
 Side = Literal["requester", "recipient"]
@@ -16,6 +17,63 @@ _ENDED = {
     "WITHDRAWN": "Pitching ditarik",
     "CLOSED": "Diskusi ditutup",
 }
+
+
+_EN = {
+    "Pitching ditolak": "Pitch declined",
+    "Pitching ditarik": "Pitch withdrawn",
+    "Diskusi ditutup": "Discussion closed",
+    "Menunggu tinjauan organisasi": "Waiting for organization review",
+    "Peninjau organisasi memeriksa versi yang tepat ini.": "An organization reviewer is checking this exact version.",
+    "Putuskan pitching ini": "Decide on this pitch",
+    "Setujui untuk diskusi, minta revisi, atau tolak dengan alasan.": (
+        "Approve for discussion, ask for a revision, or decline with a reason."
+    ),
+    "Pitching Anda sedang menunggu keputusan": "Your pitch is waiting for a decision",
+    "{other_name} dapat menyetujui, meminta revisi, atau menolak.": (
+        "{other_name} can approve, ask for a revision, or decline."
+    ),
+    "Menunggu jawaban revisi": "Waiting for the revision answers",
+    "{other_name} sedang menjawab permintaan Anda.": "{other_name} is answering your request.",
+    "Jawab permintaan revisi": "Answer the revision request",
+    "Pertanyaan wajib perlu dijawab sebelum mengirim ulang.": "Required questions need answers before you resubmit.",
+    "Waktu yang berlalu tidak otomatis berarti pertemuan selesai.": (
+        "A time that has passed does not mean the meeting took place."
+    ),
+    "Kerja Sama dikonfirmasi kedua pihak": "Partnership confirmed by both sides",
+    "Hanya data yang diizinkan kedua pihak yang tampil di publik.": "Only what both sides allow appears in public.",
+    "Ringkasan Kerja Sama ditolak": "Partnership summary declined",
+    "Menunggu konfirmasi pihak lain": "Waiting for the other side to confirm",
+    "{other_name} perlu mengonfirmasi ringkasan versi {number}.": (
+        "{other_name} needs to confirm summary version {number}."
+    ),
+    "Konfirmasi ringkasan Kerja Sama versi {number}": "Confirm partnership summary version {number}",
+    "Periksa isi ringkasan dan data yang boleh tampil di publik.": "Check the summary and what may appear in public.",
+    "Usulkan ringkasan Kerja Sama": "Propose a partnership summary",
+    "Diskusi selesai. Kerja Sama hanya tercatat setelah kedua pihak mengonfirmasi versi yang sama.": (
+        "The discussion is done. A partnership is recorded only after both sides confirm the same version."
+    ),
+    "Pertemuan sudah dikonfirmasi": "Meeting confirmed",
+    "Menunggu catatan pihak lain": "Waiting for the other side's notes",
+    "Catat hasil pertemuan": "Record the meeting outcome",
+    "Menunggu pihak lain memilih waktu": "Waiting for the other side to choose a time",
+    "{other_name} dapat memilih satu waktu atau mengusulkan waktu lain.": (
+        "{other_name} can choose a time or propose other times."
+    ),
+    "Pilih waktu pertemuan": "Choose a meeting time",
+    "Memilih belum memesan waktu. Konfirmasi agar pertemuan tercatat.": (
+        "Choosing does not book the time yet. Confirm so the meeting is recorded."
+    ),
+    "Usulkan waktu pertemuan": "Propose meeting times",
+    "Persetujuan ini membuka diskusi; belum merupakan pendanaan atau kerja sama.": (
+        "This approval opens a discussion; it is not yet funding or a partnership."
+    ),
+}
+
+
+def _t(text: str, **values: object) -> str:
+    """The text in the request's language; templates keep their ``{name}`` placeholders in both."""
+    return (_EN.get(text, text) if locale() == "en" else text).format(**values)
 
 
 @dataclass(frozen=True)
@@ -55,11 +113,11 @@ class NextAction(BaseModel):
 
 
 def _you(title: str, text: str, tab: str, action: str) -> NextAction:
-    return NextAction(who="you", title=title, text=text, tab=tab, action=action)
+    return NextAction(who="you", title=_t(title), text=_t(text), tab=tab, action=action)
 
 
 def _other(title: str, text: str, tab: str) -> NextAction:
-    return NextAction(who="other", title=title, text=text, tab=tab)
+    return NextAction(who="other", title=_t(title), text=_t(text), tab=tab)
 
 
 def next_action(status: str, side: Side, party_id: UUID, other_name: str, schedule: ScheduleState) -> NextAction:
@@ -90,12 +148,16 @@ def next_action(status: str, side: Side, party_id: UUID, other_name: str, schedu
             )
         return _other(
             "Pitching Anda sedang menunggu keputusan",
-            f"{other_name} dapat menyetujui, meminta revisi, atau menolak.",
+            _t("{other_name} dapat menyetujui, meminta revisi, atau menolak.", other_name=other_name),
             "ringkasan",
         )
     if status == "REVISION_REQUESTED":
         if recipient:
-            return _other("Menunggu jawaban revisi", f"{other_name} sedang menjawab permintaan Anda.", "revisi")
+            return _other(
+                "Menunggu jawaban revisi",
+                _t("{other_name} sedang menjawab permintaan Anda.", other_name=other_name),
+                "revisi",
+            )
         return _you(
             "Jawab permintaan revisi",
             "Pertanyaan wajib perlu dijawab sebelum mengirim ulang.",
@@ -103,27 +165,27 @@ def next_action(status: str, side: Side, party_id: UUID, other_name: str, schedu
             "answer_revision",
         )
     if status != "APPROVED_FOR_DISCUSSION":
-        return NextAction(who=None, title=_ENDED.get(status, status), text="", tab="ringkasan")
+        return NextAction(who=None, title=_t(_ENDED.get(status, status)), text="", tab="ringkasan")
     passing = "Waktu yang berlalu tidak otomatis berarti pertemuan selesai."
     if schedule.partnership_number is not None:
         number = schedule.partnership_number
         if schedule.partnership_status == "CONFIRMED":
             return NextAction(
                 who=None,
-                title="Kerja Sama dikonfirmasi kedua pihak",
-                text="Hanya data yang diizinkan kedua pihak yang tampil di publik.",
+                title=_t("Kerja Sama dikonfirmasi kedua pihak"),
+                text=_t("Hanya data yang diizinkan kedua pihak yang tampil di publik."),
                 tab="ringkasan",
             )
         if schedule.partnership_status == "DECLINED":
-            return NextAction(who=None, title="Ringkasan Kerja Sama ditolak", text="", tab="ringkasan")
+            return NextAction(who=None, title=_t("Ringkasan Kerja Sama ditolak"), text="", tab="ringkasan")
         if party_id in schedule.partnership_confirmed_by:
             return _other(
                 "Menunggu konfirmasi pihak lain",
-                f"{other_name} perlu mengonfirmasi ringkasan versi {number}.",
+                _t("{other_name} perlu mengonfirmasi ringkasan versi {number}.", other_name=other_name, number=number),
                 "ringkasan",
             )
         return _you(
-            f"Konfirmasi ringkasan Kerja Sama versi {number}",
+            _t("Konfirmasi ringkasan Kerja Sama versi {number}", number=number),
             "Periksa isi ringkasan dan data yang boleh tampil di publik.",
             "ringkasan",
             "confirm_partnership",
@@ -137,7 +199,7 @@ def next_action(status: str, side: Side, party_id: UUID, other_name: str, schedu
         )
     if schedule.meeting_starts_passed is not None:
         if not schedule.meeting_starts_passed:
-            return NextAction(who=None, title="Pertemuan sudah dikonfirmasi", text="", tab="jadwal")
+            return NextAction(who=None, title=_t("Pertemuan sudah dikonfirmasi"), text="", tab="jadwal")
         if party_id in schedule.outcomes_by:
             return _other("Menunggu catatan pihak lain", passing, "jadwal")
         return _you("Catat hasil pertemuan", passing, "jadwal", "record_outcome")
@@ -145,7 +207,7 @@ def next_action(status: str, side: Side, party_id: UUID, other_name: str, schedu
         if schedule.open_proposal_by == party_id:
             return _other(
                 "Menunggu pihak lain memilih waktu",
-                f"{other_name} dapat memilih satu waktu atau mengusulkan waktu lain.",
+                _t("{other_name} dapat memilih satu waktu atau mengusulkan waktu lain.", other_name=other_name),
                 "jadwal",
             )
         return _you(

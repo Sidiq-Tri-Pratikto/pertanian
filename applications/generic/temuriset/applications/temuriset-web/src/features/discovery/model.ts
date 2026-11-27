@@ -1,5 +1,6 @@
 import type { components } from '@/api/schema.generated';
 import type { Persona } from '@/features/persona';
+import { t } from '@/features/i18n/t';
 
 export type Discovery = components['schemas']['DiscoveryResponse'];
 export type DiscoveryItem = components['schemas']['DiscoveryItem'];
@@ -55,7 +56,7 @@ export function appliedFilters(applied: Record<string, unknown>, stageLabel: (va
     if (value === undefined || value === null || value === '' || value === false) return [];
     const raw = String(value);
     const shown = name === 'stage' ? stageLabel(raw) : raw;
-    return [{ name, label: FILTER_LABELS[name], value: raw, text: name === 'saved' ? FILTER_LABELS[name] : `${FILTER_LABELS[name]}: ${shown}` }];
+    return [{ name, label: t(FILTER_LABELS[name]), value: raw, text: name === 'saved' ? t(FILTER_LABELS[name]) : `${t(FILTER_LABELS[name])}: ${name === 'sector' ? t(shown) : shown}` }];
   });
 }
 
@@ -99,4 +100,13 @@ export function readSource(value: string | undefined): MatchSourceRef | null {
 
 export function matchesHref(source: MatchSourceRef): string {
   return `/matches?source=${source.type}:${source.id}`;
+}
+
+const SECTOR_REASON = 'Sesuai sektor pada profil Anda: ';
+
+/** A discovery reason in the page language; the sector reason carries the matching sector names. */
+export function reasonText(reason: string): string {
+  if (!reason.startsWith(SECTOR_REASON)) return t(reason);
+  const sectors = reason.slice(SECTOR_REASON.length).split(', ').map((sector) => t(sector));
+  return t('Sesuai sektor pada profil Anda: {sectors}', { sectors: sectors.join(', ') });
 }

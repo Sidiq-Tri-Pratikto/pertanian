@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 
 import { Status, type Tone } from '@/components/tr/Status';
+import { t } from '@/features/i18n/t';
 
 type Result = 'PASS' | 'FAIL' | 'UNKNOWN' | 'NOT_APPLICABLE';
 
@@ -41,17 +42,17 @@ export function RequirementRow({ label, result, stage, mandatory, mode, reason, 
   // Later-stage work keeps its real result but is never styled as a submission blocker.
   const later = Boolean(stage && stage !== 'SUBMISSION' && result !== 'PASS');
   const Heading = `h${headingLevel}` as const;
-  const facts = [stage ? STAGE[stage] : undefined, mandatory === false ? 'Preferensi' : 'Wajib', mode ? MODE[mode] : undefined].filter(Boolean).join(' · ');
+  const facts = [stage ? STAGE[stage] : undefined, mandatory === false ? 'Preferensi' : 'Wajib', mode ? MODE[mode] : undefined].filter((fact): fact is string => Boolean(fact)).map((fact) => t(fact)).join(' · ');
   return (
     <li className="tr-req">
       <div className="tr-req__head">
-        <Heading className="tr-sys-type-label">{label}</Heading>
-        <Status tone={later ? 'neutral' : tone} icon={result === 'NOT_APPLICABLE' ? 'minus' : undefined} label={text} />
+        <Heading className="tr-sys-type-label">{t(label)}</Heading>
+        <Status tone={later ? 'neutral' : tone} icon={result === 'NOT_APPLICABLE' ? 'minus' : undefined} label={t(text)} />
       </div>
       <p className="tr-muted tr-sys-type-support">{facts}</p>
-      {later ? <p className="tr-sys-type-support">Untuk tahap berikutnya. Tidak menghalangi pengajuan.</p> : null}
-      {reason ? <p>{reason}</p> : null}
-      {source ? <p className="tr-muted tr-sys-type-support">{`Sumber: ${source}`}</p> : null}
+      {later ? <p className="tr-sys-type-support">{t('Untuk tahap berikutnya. Tidak menghalangi pengajuan.')}</p> : null}
+      {reason ? <p>{t(reason)}</p> : null}
+      {source ? <p className="tr-muted tr-sys-type-support">{`${t('Sumber')}: ${source}`}</p> : null}
       {action ? <div className="tr-row">{action}</div> : null}
     </li>
   );

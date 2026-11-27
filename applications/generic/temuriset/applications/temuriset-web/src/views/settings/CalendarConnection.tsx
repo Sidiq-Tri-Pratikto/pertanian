@@ -10,6 +10,7 @@ import { Button } from '@/components/tr/Button';
 import { Checkbox } from '@/components/tr/Checkbox';
 import { Status } from '@/components/tr/Status';
 import { VersionConflict } from '@/components/tr/VersionConflict';
+import { t } from '@/features/i18n/t';
 
 export type CalendarStatus = components['schemas']['CalendarStatusResponse'];
 type Connected = components['schemas']['CalendarConnectResponse'];
@@ -89,30 +90,30 @@ export function CalendarConnection({ initial, initialFailure, callbackFailure }:
   const shownFailure = failure ?? initialFailure ?? callbackFailure;
   return (
     <section id="kalender" className="tr-panel tr-stack" aria-labelledby="judul-kalender">
-      <h2 id="judul-kalender" className="tr-sys-type-heading-sm">Kalender luar</h2>
+      <h2 id="judul-kalender" className="tr-sys-type-heading-sm">{t('Kalender luar')}</h2>
       {status ? <Status label={STATE_LABEL[status.state]} tone={status.state === 'connected' ? 'success' : 'neutral'} live /> : null}
       {notice ? <Status label={notice} live /> : null}
       {failure?.code === 'STALE_VERSION' ? (
-        <VersionConflict what="Sambungan kalender sudah berubah." onRefresh={() => router.refresh()} refreshLabel="Muat status terbaru" />
+        <VersionConflict what={t('Sambungan kalender sudah berubah.')} onRefresh={() => router.refresh()} refreshLabel={t('Muat status terbaru')} />
       ) : null}
       {shownFailure ? (
         <Status tone="danger" label={shownFailure.message} live="alert">
           {shownFailure.requestId ? <p>ID referensi {shownFailure.requestId}</p> : null}
-          {!status ? <Button onClick={() => router.refresh()}>Muat status kalender</Button> : null}
+          {!status ? <Button onClick={() => router.refresh()}>{t('Muat status kalender')}</Button> : null}
         </Status>
       ) : null}
       {status && ['disconnected', 'pending', 'expired'].includes(status.state) && !continuation ? (
         <>
-          <p>Gunakan kalender uji lokal. TemuRiset hanya membaca waktu sibuk atau kosong pada pilihan jadwal pertemuan Anda.</p>
-          <Checkbox label="Saya setuju TemuRiset membaca waktu sibuk atau kosong dari kalender uji saya." checked={consent} onChange={setConsent} />
-          <Button intent="primary" busy={busy} disabledReason={consent ? null : 'Berikan persetujuan terlebih dahulu.'} onClick={() => void change('connect')}>
-            {status.state === 'pending' ? 'Mulai ulang sambungan' : 'Siapkan sambungan kalender'}
+          <p>{t('Gunakan kalender uji lokal. TemuRiset hanya membaca waktu sibuk atau kosong pada pilihan jadwal pertemuan Anda.')}</p>
+          <Checkbox label={t('Saya setuju TemuRiset membaca waktu sibuk atau kosong dari kalender uji saya.')} checked={consent} onChange={setConsent} />
+          <Button intent="primary" busy={busy} disabledReason={consent ? null : t('Berikan persetujuan terlebih dahulu.')} onClick={() => void change('connect')}>
+            {status.state === 'pending' ? t('Mulai ulang sambungan') : t('Siapkan sambungan kalender')}
           </Button>
         </>
       ) : null}
-      {continuation ? <a className="tr-btn tr-btn--primary" href={continuation} referrerPolicy="no-referrer">Lanjut ke kalender uji</a> : null}
+      {continuation ? <a className="tr-btn tr-btn--primary" href={continuation} referrerPolicy="no-referrer">{t('Lanjut ke kalender uji')}</a> : null}
       {status && ['connected', 'pending', 'expired', 'off_with_connection'].includes(status.state) ? (
-        <Button busy={busy} onClick={() => void change('disconnect')}>Putuskan sambungan kalender</Button>
+        <Button busy={busy} onClick={() => void change('disconnect')}>{t('Putuskan sambungan kalender')}</Button>
       ) : null}
     </section>
   );

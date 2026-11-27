@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 
 import { FinancialScope } from '@/components/tr/FinancialScope';
 import { Icon } from '@/components/tr/Icon';
+import { t } from '@/features/i18n/t';
 
 type FundingRequestCardProps = {
   company: string;
@@ -40,13 +41,13 @@ export function FundingRequestCard(props: FundingRequestCardProps) {
       <div className="tr-card__body">
         <Heading className="tr-sys-type-heading-sm">{props.company}</Heading>
         <p className="tr-muted tr-sys-type-support">
-          {props.proposedEntity ? 'Perusahaan belum didirikan' : 'Badan usaha telah disebutkan, status pemeriksaan ditampilkan terpisah'}
+          {props.proposedEntity ? t('Perusahaan belum didirikan') : t('Badan usaha telah disebutkan, status pemeriksaan ditampilkan terpisah')}
         </p>
         {rows.length ? (
           <dl className="tr-facts">
             {rows.map(([label, value]) => (
               <div key={label}>
-                <dt className="tr-sys-type-support-strong">{label}</dt>
+                <dt className="tr-sys-type-support-strong">{t(label)}</dt>
                 <dd>{value}</dd>
               </div>
             ))}
@@ -55,7 +56,7 @@ export function FundingRequestCard(props: FundingRequestCardProps) {
         <FinancialScope compact subject="companyTarget" currency={props.currency} min={props.target} max={props.target} />
         <FinancialScope compact subject="contribution" currency={props.currency} min={props.desiredMin} max={props.desiredMax} />
         {props.partialAccepted ? <p className="tr-sys-type-support">Menerima pendanaan sebagian dan bersama investor lain.</p> : null}
-        <p className="tr-sys-type-label">{`${linked.length} inovasi terkait`}</p>
+        <p className="tr-sys-type-label">{t('{n} inovasi terkait', { n: linked.length })}</p>
         {linked.length ? (
           <ul className="tr-reasons tr-reasons--plain">
             {linked.map((item, index) => (

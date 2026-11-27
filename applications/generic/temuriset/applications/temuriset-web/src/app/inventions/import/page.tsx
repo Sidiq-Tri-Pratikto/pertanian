@@ -1,11 +1,10 @@
-import type { Metadata } from 'next';
-
 import { serverGet } from '@/api/server';
 import type { InventionSummary } from '@/features/portfolio/model';
 import { requireMe } from '@/features/session';
 import { PortabilityView } from '@/views/PortabilityView';
+import { titled } from '@/features/i18n/server';
 
-export const metadata: Metadata = { title: 'Impor dan ekspor data' };
+export const generateMetadata = titled('Impor dan ekspor data');
 
 export default async function PortabilityPage() {
   const me = await requireMe('/inventions/import');

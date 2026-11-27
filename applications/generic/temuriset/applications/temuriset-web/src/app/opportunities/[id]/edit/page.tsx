@@ -1,11 +1,10 @@
-import type { Metadata } from 'next';
-
 import type { Mandate } from '@/features/intake/model';
 import { ownedOr404 } from '@/features/needs/server';
 import { requireMe } from '@/features/session';
 import { MandateEditView } from '@/views/intake/MandateEditView';
+import { titled } from '@/features/i18n/server';
 
-export const metadata: Metadata = { title: 'Ubah mandat' };
+export const generateMetadata = titled('Ubah mandat');
 
 type Props = { params: Promise<{ id: string }> };
 

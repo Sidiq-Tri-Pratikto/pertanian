@@ -1,6 +1,7 @@
 import { send } from '@/api/client';
 import type { components } from '@/api/schema.generated';
 import type { Pitch, PitchSummary } from '@/features/pitches/model';
+import { t } from '@/features/i18n/t';
 
 export type RevisionRound = components['schemas']['RevisionRoundResponse'];
 export type RevisionItemView = components['schemas']['RevisionItemResponse'];
@@ -33,7 +34,8 @@ export function primaryFor(step: NextAction, current: TabId, pitchId: string): {
   if (step.who !== 'you' || step.action === 'decide' || step.action === 'propose_partnership') return null;
   const tab = tabOf(step.tab);
   if (tab === current) return null;
-  const label = (step.action && ACTION_LABEL[step.action]) ?? `Buka ${TABS.find((item) => item.id === tab)?.label ?? 'Ringkasan'}`;
+  const action = step.action ? ACTION_LABEL[step.action] : undefined;
+  const label = action ? t(action) : t('Buka {tab}', { tab: t(TABS.find((item) => item.id === tab)?.label ?? 'Ringkasan') });
   return { href: `/pitches/${pitchId}?tab=${tab}`, label };
 }
 

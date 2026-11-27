@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 
 import { Icon, type IconName } from '@/components/tr/Icon';
+import { tx } from '@/features/i18n/t';
 
 type EmptyStateProps = { title: string; icon: IconName; children: ReactNode; action?: ReactNode };
 
@@ -9,8 +10,8 @@ export function EmptyState({ title, icon, children, action }: EmptyStateProps) {
   return (
     <div className="tr-empty">
       <Icon name={icon} />
-      <h2 className="tr-sys-type-heading-sm">{title}</h2>
-      <p>{children}</p>
+      <h2 className="tr-sys-type-heading-sm">{tx(title)}</h2>
+      <p>{tx(children)}</p>
       {action ? <div className="tr-row tr-row--center">{action}</div> : null}
     </div>
   );

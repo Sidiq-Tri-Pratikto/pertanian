@@ -12,6 +12,7 @@ import { TextArea } from '@/components/tr/TextArea';
 import { VersionConflict } from '@/components/tr/VersionConflict';
 import type { ProfileSettings } from '@/features/relationships/model';
 import { RelationshipError } from '@/features/relationships/RelationshipError';
+import { t } from '@/features/i18n/t';
 
 export function ProfileForm({ profile }: { profile: ProfileSettings }) {
   const router = useRouter();
@@ -44,11 +45,11 @@ export function ProfileForm({ profile }: { profile: ProfileSettings }) {
       {error?.failure.code === 'STALE_VERSION' ? <VersionConflict what={error.failure.message}
         currentVersion={error.failure.currentVersion?.toString()} onRefresh={() => { setError(null); router.refresh(); }} /> :
         error ? <RelationshipError error={error} prefix="bio" /> : null}
-      <TextArea id="bio-bio" label="Biografi" rows={3} limit={2000} value={bio} onChange={setBio} />
-      <Checkbox id="bio-published" label="Tampilkan biografi di profil publik" checked={published} onChange={setPublished} />
-      <p className="tr-muted tr-sys-type-support">Pilihan ini hanya mengatur biografi. Inovasi terbit dan data Kerja Sama mengikuti izin masing-masing.</p>
-      <div className="tr-row"><Button type="submit" intent="primary" busy={busy}>Simpan biografi</Button></div>
-      {saved && !error ? <Status tone="success" live label={saved.published ? 'Biografi disimpan untuk publik' : 'Biografi disimpan secara privat'} /> : null}
+      <TextArea id="bio-bio" label={t('Biografi')} rows={3} limit={2000} value={bio} onChange={setBio} />
+      <Checkbox id="bio-published" label={t('Tampilkan biografi di profil publik')} checked={published} onChange={setPublished} />
+      <p className="tr-muted tr-sys-type-support">{t('Pilihan ini hanya mengatur biografi. Inovasi terbit dan data Kerja Sama mengikuti izin masing-masing.')}</p>
+      <div className="tr-row"><Button type="submit" intent="primary" busy={busy}>{t('Simpan biografi')}</Button></div>
+      {saved && !error ? <Status tone="success" live label={saved.published ? t('Biografi disimpan untuk publik') : t('Biografi disimpan secara privat')} /> : null}
     </form>
   );
 }

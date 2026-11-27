@@ -12,6 +12,7 @@ import { readPersona } from '@/features/persona';
 import { findFeature, isOffered, type Capabilities } from '@/features/registry';
 import { MandateCard } from '@/views/intake/MandateCard';
 import { FeatureList, PROVENANCE } from '@/views/parts';
+import { t } from '@/features/i18n/t';
 
 type Props = {
   me: Me;
@@ -33,19 +34,19 @@ export function MandatesView({ me, mandates, capabilities, activated }: Props) {
   return (
     <Screen persona={persona} current="mandat" title={destination.title} subtitle={destination.subtitle} provenance={PROVENANCE} context={<ContextBar me={me} />}>
       {activated ? (
-        <Status tone="success" label="Mandat diaktifkan" live>
-          <p>{`Mandat aktif sebagai versi ${activated}. Pitching yang sudah terkirim memakai versinya sendiri.`}</p>
+        <Status tone="success" label={t('Mandat diaktifkan')} live>
+          <p>{t('Mandat aktif sebagai versi {n}. Pitching yang sudah terkirim memakai versinya sendiri.', { n: activated })}</p>
         </Status>
       ) : null}
       <p>
         <NextLink className="tr-link" href={`/partners/${me.active_party_id}`}>
-          Profil mitra saya
+          {t('Profil mitra saya')}
         </NextLink>
       </p>
       {mandates.length ? (
         <section className="tr-stack" aria-labelledby="mandat-anda">
           <h2 id="mandat-anda" className="tr-sys-type-heading-sm">
-            Mandat Anda
+            {t('Mandat Anda')}
           </h2>
           <ul className="tr-stack">
             {mandates.map((mandate) => (
@@ -56,8 +57,8 @@ export function MandatesView({ me, mandates, capabilities, activated }: Props) {
           </ul>
         </section>
       ) : (
-        <EmptyState icon="file" title="Belum ada mandat">
-          Mandat menjelaskan dukungan yang Anda tawarkan dan syarat yang terlihat oleh pengirim.
+        <EmptyState icon="file" title={t('Belum ada mandat')}>
+          {t('Mandat menjelaskan dukungan yang Anda tawarkan dan syarat yang terlihat oleh pengirim.')}
         </EmptyState>
       )}
       {canEdit ? <NewMandate actingPartyId={me.active_party_id} /> : null}

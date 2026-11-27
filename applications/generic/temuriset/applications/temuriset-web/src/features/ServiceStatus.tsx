@@ -6,6 +6,7 @@ import { getCapabilities } from '@/api/client';
 import { ApiError } from '@/api/errors';
 import { Button } from '@/components/tr/Button';
 import { Status } from '@/components/tr/Status';
+import { t } from '@/features/i18n/t';
 
 type State = { kind: 'loading' } | { kind: 'available' } | { kind: 'failed'; error: ApiError };
 
@@ -30,7 +31,7 @@ export function ServiceStatus() {
 
   const { error } = state;
   return (
-    <Status tone="warning" icon="alert" label="Layanan belum tersedia" live="alert">
+    <Status tone="warning" icon="alert" label={t('Layanan belum tersedia')} live="alert">
       <p>{error.message}</p>
       {error.requestId ? <p className="tr-muted tr-sys-type-support">ID referensi: {error.requestId}</p> : null}
       {error.recovery.retryable ? (
@@ -41,7 +42,7 @@ export function ServiceStatus() {
               setState({ kind: 'loading' });
               setAttempt((value) => value + 1);
             }}>
-            Coba lagi
+            {t('Coba lagi')}
           </Button>
         </div>
       ) : null}

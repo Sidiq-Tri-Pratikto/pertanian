@@ -7,6 +7,7 @@ import { ApiError } from '@/api/errors';
 import { Checkbox } from '@/components/tr/Checkbox';
 import { Status } from '@/components/tr/Status';
 import { setInvestorDigest } from '@/features/subscriptions/api';
+import { t } from '@/features/i18n/t';
 
 type Props = { inventionId: string; actingPartyId: string; version: number; enabled: boolean };
 
@@ -25,19 +26,19 @@ export function InvestorDigestToggle({ inventionId, actingPartyId, version, enab
     } catch (error) {
       setOn(!next);
       const failed = ApiError.from(error);
-      setFailure(failed.code === 'STALE_VERSION' ? 'Inovasi ini baru saja berubah. Muat ulang halaman lalu coba lagi.' : failed.message);
+      setFailure(failed.code === 'STALE_VERSION' ? t('Inovasi ini baru saja berubah. Muat ulang halaman lalu coba lagi.') : failed.message);
     }
   }
 
   return (
     <section className="tr-panel tr-stack" aria-labelledby="kabar-investor">
       <h2 id="kabar-investor" className="tr-sys-type-heading-sm">
-        Kabar untuk investor
+        {t('Kabar untuk investor')}
       </h2>
       <Checkbox
         id="investor-digest"
-        label="Sertakan dalam kabar untuk investor yang berlangganan"
-        hint="Investor yang minatnya cocok menerima judul, ringkasan, sektor, tahap, dan nama Anda bila profil publik Anda terbit. Detail tetap memerlukan akun."
+        label={t('Sertakan dalam kabar untuk investor yang berlangganan')}
+        hint={t('Investor yang minatnya cocok menerima judul, ringkasan, sektor, tahap, dan nama Anda bila profil publik Anda terbit. Detail tetap memerlukan akun.')}
         checked={on}
         onChange={(next) => void change(next)}
       />

@@ -23,6 +23,7 @@ import { requestBriefSummary, runPreflight, submitPitch } from '@/features/pitch
 import { missingFiles, SOURCE_KIND, type Preflight } from '@/features/pitches/model';
 import { keepsKey, stateOf, type SubmitState } from '@/features/pitches/submit-state';
 import { PROVENANCE } from '@/views/parts';
+import { t } from '@/features/i18n/t';
 
 const BRIEF_LIMIT = 10000;
 const REVIEW: Record<string, string> = {
@@ -42,7 +43,7 @@ type SummaryState =
 /** The brief as the recipient will first read it: the opening words, never cut mid-word. */
 export function briefPreview(brief: string, limit = 160): string {
   const text = brief.replace(/\s+/g, ' ').trim();
-  if (!text) return 'Belum diisi';
+  if (!text) return t('Belum diisi');
   if (text.length <= limit) return text;
   return `${text.slice(0, text.lastIndexOf(' ', limit) > 0 ? text.lastIndexOf(' ', limit) : limit)}…`;
 }
@@ -108,7 +109,7 @@ export function PreflightView({ me, source, targetId, summaryAvailable = false }
         setSummary({
           kind: 'failure',
           refused: suggestion.summarizer_status === 'refused',
-          message: 'Lanjutkan dengan menyunting brief.',
+          message: t('Lanjutkan dengan menyunting brief.'),
           requestId: suggestion.summarizer_error?.request_id,
         });
       }
@@ -123,7 +124,7 @@ export function PreflightView({ me, source, targetId, summaryAvailable = false }
     if (!preflight || brief === null) return;
     const gaps = missingFiles(preflight, chosen);
     if (gaps.length) {
-      setMissing(gaps.map((gap) => `Pilih berkas untuk syarat “${gap.label}”.`));
+      setMissing(gaps.map((gap) => t('Pilih berkas untuk syarat “{label}”.', { label: gap.label })));
       setAttempt((value) => value + 1);
       return;
     }
@@ -148,21 +149,21 @@ export function PreflightView({ me, source, targetId, summaryAvailable = false }
     context: <ContextBar me={me} />,
     back: (
       <NextLink className="tr-link" href={matchesHref(source)}>
-        Kembali ke kecocokan
+        {t('Kembali ke kecocokan')}
       </NextLink>
     ),
   };
 
   if (!preflight) {
     return (
-      <Screen {...shell} title="Periksa sebelum mengirim">
+      <Screen {...shell} title={t('Periksa sebelum mengirim')}>
         {loadFailure ? (
-          <Status tone="danger" label="Pemeriksaan belum dapat dijalankan" live="alert">
+          <Status tone="danger" label={t('Pemeriksaan belum dapat dijalankan')} live="alert">
             <p>{loadFailure}</p>
-            <Button onClick={() => void check()}>Coba lagi</Button>
+            <Button onClick={() => void check()}>{t('Coba lagi')}</Button>
           </Status>
         ) : (
-          <Status tone="neutral" label="Memeriksa pitching" live />
+          <Status tone="neutral" label={t('Memeriksa pitching')} live />
         )}
       </Screen>
     );
@@ -171,49 +172,49 @@ export function PreflightView({ me, source, targetId, summaryAvailable = false }
   const ready = preflight.readiness === 'READY_TO_SUBMIT';
   const available = preflight.availability.available;
   const blockedReason = !ready
-    ? `Belum siap dikirim: ${preflight.gap?.reason ?? READINESS[preflight.readiness]}`
+    ? t('Belum siap dikirim: {reason}', { reason: t(preflight.gap?.reason ?? READINESS[preflight.readiness]) })
     : !available && preflight.availability.reason
-      ? AVAILABILITY_REASON[preflight.availability.reason]
+      ? t(AVAILABILITY_REASON[preflight.availability.reason])
       : preflight.duplicate_pitch_id
-        ? 'Pitching untuk mandat ini sudah ada.'
+        ? t('Pitching untuk mandat ini sudah ada.')
         : null;
   const recipient = preflight.recipient.name;
   const sender = preflight.sender.name;
   const errors = missing.map((message) => ({ fieldId: 'berkas-pilihan', message }));
   const chosenFiles = preflight.shareable_files.filter((file) => chosen.includes(file.version_id));
   return (
-    <Screen {...shell} title="Periksa sebelum mengirim" subtitle={`${preflight.source.title} kepada ${recipient}`}>
+    <Screen {...shell} title={t('Periksa sebelum mengirim')} subtitle={t('{source} kepada {name}', { source: preflight.source.title, name: recipient })}>
       {errors.length ? <ErrorSummary errors={errors} focusKey={attempt} /> : null}
       <section className="tr-panel tr-stack" aria-labelledby="ringkasan-kirim">
         <h2 id="ringkasan-kirim" className="tr-sys-type-heading-sm">
-          Yang akan dikirim
+          {t('Yang akan dikirim')}
         </h2>
         <p>
           <Status tone={ready ? 'neutral' : preflight.readiness === 'BLOCKED_FOR_THIS_TARGET' ? 'danger' : 'warning'} icon={null} label={READINESS[preflight.readiness]} />
         </p>
         <dl className="tr-facts">
           <div>
-            <dt className="tr-sys-type-support-strong">Penerima</dt>
+            <dt className="tr-sys-type-support-strong">{t('Penerima')}</dt>
             <dd>{`${recipient} · ${preflight.opportunity.title}, versi ${preflight.opportunity.version}`}</dd>
           </div>
           <div>
-            <dt className="tr-sys-type-support-strong">Pengirim</dt>
+            <dt className="tr-sys-type-support-strong">{t('Pengirim')}</dt>
             <dd>{sender}</dd>
           </div>
           <div>
-            <dt className="tr-sys-type-support-strong">Kebutuhan</dt>
+            <dt className="tr-sys-type-support-strong">{t('Kebutuhan')}</dt>
             <dd>{`${SOURCE_KIND[preflight.source.type]}: ${preflight.source.title}, versi ${preflight.source.version}`}</dd>
           </div>
           <div>
-            <dt className="tr-sys-type-support-strong">Inovasi</dt>
+            <dt className="tr-sys-type-support-strong">{t('Inovasi')}</dt>
             <dd>{preflight.inventions.map((invention) => `${invention.title}, versi ${invention.version}`).join('; ')}</dd>
           </div>
         </dl>
         {preflight.duplicate_pitch_id ? (
-          <Status tone="warning" label="Pitching untuk mandat ini sudah ada">
+          <Status tone="warning" label={t('Pitching untuk mandat ini sudah ada')}>
             <p>
               <NextLink className="tr-link" href={`/pitches/${preflight.duplicate_pitch_id}`}>
-                Buka pitching yang ada
+                {t('Buka pitching yang ada')}
               </NextLink>
             </p>
           </Status>
@@ -221,7 +222,7 @@ export function PreflightView({ me, source, targetId, summaryAvailable = false }
       </section>
       <section className="tr-stack" aria-labelledby="syarat-kirim">
         <h2 id="syarat-kirim" className="tr-sys-type-heading-sm">
-          Syarat mandat
+          {t('Syarat mandat')}
         </h2>
         <ul className="tr-stack">
           {preflight.rows.map((row) => (
@@ -230,92 +231,92 @@ export function PreflightView({ me, source, targetId, summaryAvailable = false }
         </ul>
       </section>
       <fieldset id="berkas-pilihan" className="tr-stack" tabIndex={-1}>
-        <legend className="tr-sys-type-heading-sm">Berkas yang dibagikan</legend>
-        <p className="tr-muted">{`Hanya versi yang Anda centang yang dapat diunduh ${recipient}. Akses dapat dicabut nanti, tetapi salinan yang sudah diunduh tidak dapat ditarik.`}</p>
+        <legend className="tr-sys-type-heading-sm">{t('Berkas yang dibagikan')}</legend>
+        <p className="tr-muted">{t('Hanya versi yang Anda centang yang dapat diunduh {name}. Akses dapat dicabut nanti, tetapi salinan yang sudah diunduh tidak dapat ditarik.', { name: recipient })}</p>
         {preflight.shareable_files.length ? (
           preflight.shareable_files.map((file) => (
             <Checkbox
               key={file.version_id}
               id={`berkas-${file.version_id}`}
-              label={`${file.title}, versi ${file.version}`}
-              hint={`Berkas tersedia · ${REVIEW[file.review_state] ?? file.review_state}`}
+              label={t('{title}, versi {n}', { title: file.title, n: file.version })}
+              hint={t('Berkas tersedia · {state}', { state: t(REVIEW[file.review_state] ?? file.review_state) })}
               checked={chosen.includes(file.version_id)}
               onChange={(on) => setChosen((current) => (on ? [...current, file.version_id] : current.filter((id) => id !== file.version_id)))}
             />
           ))
         ) : (
-          <p className="tr-muted">Belum ada berkas yang dapat dibagikan untuk inovasi ini.</p>
+          <p className="tr-muted">{t('Belum ada berkas yang dapat dibagikan untuk inovasi ini.')}</p>
         )}
       </fieldset>
-      <TextArea id="brief-pitching" label="Brief pitching" hint="Disusun dari fakta yang Anda nyatakan. Anda dapat mengubahnya sebelum mengirim." value={brief ?? ''} onChange={editBrief} rows={12} limit={BRIEF_LIMIT} />
+      <TextArea id="brief-pitching" label={t('Brief pitching')} hint={t('Disusun dari fakta yang Anda nyatakan. Anda dapat mengubahnya sebelum mengirim.')} value={brief ?? ''} onChange={editBrief} rows={12} limit={BRIEF_LIMIT} />
       {summaryAvailable && (state.kind === 'idle' || state.kind === 'failed' || state.kind === 'not_ready') ? (
         <div className="tr-stack">
-          <Button busy={summary.kind === 'pending'} busyLabel="Menyusun ringkasan…" onClick={() => void summarize()}>
-            Buat ringkasan otomatis
+          <Button busy={summary.kind === 'pending'} busyLabel={t('Menyusun ringkasan…')} onClick={() => void summarize()}>
+            {t('Buat ringkasan otomatis')}
           </Button>
           {summary.kind === 'suggestion' ? (
             <>
-              <Status tone="neutral" label="Ringkasan siap ditinjau" live>
+              <Status tone="neutral" label={t('Ringkasan siap ditinjau')} live>
                 <p className="tr-quote">{summary.text}</p>
               </Status>
-              <Button onClick={() => editBrief(summary.text)}>Ganti brief dengan ringkasan</Button>
+              <Button onClick={() => editBrief(summary.text)}>{t('Ganti brief dengan ringkasan')}</Button>
             </>
           ) : null}
           {summary.kind === 'failure' ? (
-            <Status tone="warning" label={summary.refused ? 'Ringkasan otomatis ditolak' : 'Ringkasan otomatis tidak tersedia'} live="alert">
+            <Status tone="warning" label={summary.refused ? t('Ringkasan otomatis ditolak') : t('Ringkasan otomatis tidak tersedia')} live="alert">
               <p>{summary.message}</p>
-              {summary.requestId ? <p className="tr-muted tr-sys-type-support">{`ID referensi: ${summary.requestId}`}</p> : null}
+              {summary.requestId ? <p className="tr-muted tr-sys-type-support">{t('ID referensi: {id}', { id: summary.requestId })}</p> : null}
             </Status>
           ) : null}
         </div>
       ) : null}
       {state.kind === 'stale' ? (
-        <VersionConflict what={`${state.reason} Periksa ulang sebelum mengirim.`} draft={brief} onRefresh={() => void check()} refreshLabel="Periksa ulang" />
+        <VersionConflict what={t('{reason} Periksa ulang sebelum mengirim.', { reason: t(state.reason) })} draft={brief} onRefresh={() => void check()} refreshLabel={t('Periksa ulang')} />
       ) : null}
       {state.kind === 'lost' ? (
-        <Status tone="warning" label="Status pengiriman belum diketahui" live="alert">
-          <p>Jawaban layanan tidak sampai. Mengirim lagi aman: pitching yang sama tidak akan terkirim dua kali.</p>
+        <Status tone="warning" label={t('Status pengiriman belum diketahui')} live="alert">
+          <p>{t('Jawaban layanan tidak sampai. Mengirim lagi aman: pitching yang sama tidak akan terkirim dua kali.')}</p>
           <Button intent="primary" onClick={() => void send()}>
-            Coba kirim lagi
+            {t('Coba kirim lagi')}
           </Button>
         </Status>
       ) : null}
       {state.kind === 'duplicate' ? (
-        <Status tone="warning" label="Pitching ini sudah ada" live="alert">
+        <Status tone="warning" label={t('Pitching ini sudah ada')} live="alert">
           <p>
             <NextLink className="tr-link" href={`/pitches/${state.pitchId}`}>
-              Buka pitching yang ada
+              {t('Buka pitching yang ada')}
             </NextLink>
           </p>
         </Status>
       ) : null}
       {state.kind === 'not_ready' || state.kind === 'failed' ? (
-        <Status tone="danger" label="Pitching belum terkirim" live="alert">
+        <Status tone="danger" label={t('Pitching belum terkirim')} live="alert">
           <p>{state.message}</p>
-          {state.kind === 'not_ready' && state.requirement ? <p>{`Syarat: ${state.requirement}`}</p> : null}
-          {state.kind === 'failed' && state.requestId ? <p className="tr-muted tr-sys-type-support">{`ID referensi: ${state.requestId}`}</p> : null}
+          {state.kind === 'not_ready' && state.requirement ? <p>{t('Syarat: {text}', { text: t(state.requirement) })}</p> : null}
+          {state.kind === 'failed' && state.requestId ? <p className="tr-muted tr-sys-type-support">{t('ID referensi: {id}', { id: state.requestId })}</p> : null}
         </Status>
       ) : null}
       <section className="tr-panel tr-stack" aria-labelledby="efek-kirim">
         <h2 id="efek-kirim" className="tr-sys-type-heading-sm">
-          {`Yang akan diterima ${recipient}`}
+          {t('Yang akan diterima {name}', { name: recipient })}
         </h2>
         <SummaryList
           rows={[
-            { id: 'pengirim', label: 'Dikirim oleh', value: sender },
-            { id: 'brief', label: 'Brief pitching', value: briefPreview(brief ?? ''), changeHref: '#brief-pitching' },
+            { id: 'pengirim', label: t('Dikirim oleh'), value: sender },
+            { id: 'brief', label: t('Brief pitching'), value: briefPreview(brief ?? ''), changeHref: '#brief-pitching' },
             {
               id: 'berkas',
-              label: 'Berkas yang dapat diunduh',
-              value: chosenFiles.length ? chosenFiles.map((file) => `${file.title}, versi ${file.version}`).join('; ') : 'Tidak ada berkas',
+              label: t('Berkas yang dapat diunduh'),
+              value: chosenFiles.length ? chosenFiles.map((file) => t('{title}, versi {n}', { title: file.title, n: file.version })).join('; ') : t('Tidak ada berkas'),
               changeHref: '#berkas-pilihan',
             },
           ]}
         />
-        <p>{`${sender} mengirim brief ini kepada ${recipient}, beserta akses unduh ke ${chosen.length} berkas yang dicentang. Kebutuhan dan inovasi dibekukan pada versi di atas; perubahan nanti tidak mengubah pitching ini.`}</p>
+        <p>{t('{sender} mengirim brief ini kepada {name}, beserta akses unduh ke {n} berkas yang dicentang. Kebutuhan dan inovasi dibekukan pada versi di atas; perubahan nanti tidak mengubah pitching ini.', { sender, name: recipient, n: chosen.length })}</p>
         <div className="tr-row">
-          <Button intent="primary" icon="arrow" busy={state.kind === 'sending'} busyLabel="Mengirim…" disabledReason={blockedReason} onClick={() => void send()}>
-            {`Kirim pitching kepada ${recipient}`}
+          <Button intent="primary" icon="arrow" busy={state.kind === 'sending'} busyLabel={t('Mengirim…')} disabledReason={blockedReason} onClick={() => void send()}>
+            {t('Kirim pitching kepada {name}', { name: recipient })}
           </Button>
         </div>
       </section>

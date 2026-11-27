@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { Button } from '@/components/tr/Button';
 import { mark } from '@/features/discovery/api';
 import { SaveButton } from '@/features/discovery/SaveButton';
+import { t } from '@/features/i18n/t';
 
 type Props = { subjectType: string; subjectId: string; title: string; saved: boolean; actingPartyId: string };
 
@@ -31,13 +32,13 @@ export function ItemActions({ subjectType, subjectId, title, saved, actingPartyI
   return (
     <>
       <SaveButton subjectType={subjectType} subjectId={subjectId} title={title} saved={saved} actingPartyId={actingPartyId} />
-      <Button busy={busy} busyLabel="Menyimpan" onClick={() => void hide()}>
+      <Button busy={busy} busyLabel={t('Menyimpan')} onClick={() => void hide()}>
         Kurang relevan
         <span className="tr-sr">{`: ${title}`}</span>
       </Button>
       {failed ? (
         <span role="status" className="tr-muted tr-sys-type-support">
-          Belum tersimpan. Coba lagi.
+          {t('Belum tersimpan. Coba lagi.')}
         </span>
       ) : null}
     </>

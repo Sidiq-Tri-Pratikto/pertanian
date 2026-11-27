@@ -4,6 +4,7 @@ import { useId, type ReactNode } from 'react';
 
 import { Field, fieldIds } from '@/components/tr/Field';
 import { useMessages } from '@/features/i18n/LocaleProvider';
+import { t } from '@/features/i18n/t';
 
 export type SelectOption = { value: string; label: string; disabledReason?: string };
 
@@ -37,10 +38,10 @@ export function Select({ label, value, onChange, options, emptyLabel, hint, requ
         aria-invalid={error ? true : undefined}
         aria-describedby={ids.describedBy}
         onChange={(event) => onChange(event.target.value)}>
-        {emptyLabel !== null ? <option value="">{emptyLabel ?? words.chooseOne}</option> : null}
+        {emptyLabel !== null ? <option value="">{emptyLabel ? t(emptyLabel) : words.chooseOne}</option> : null}
         {options.map((option) => (
           <option key={option.value} value={option.value} disabled={Boolean(option.disabledReason)}>
-            {option.label + (option.disabledReason ? ` (${option.disabledReason})` : '')}
+            {t(option.label) + (option.disabledReason ? ` (${t(option.disabledReason)})` : '')}
           </option>
         ))}
       </select>

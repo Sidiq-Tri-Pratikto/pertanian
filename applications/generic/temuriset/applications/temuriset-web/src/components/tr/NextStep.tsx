@@ -1,6 +1,7 @@
 import { useId, type ReactNode } from 'react';
 
 import { Status } from '@/components/tr/Status';
+import { tx } from '@/features/i18n/t';
 
 type NextStepProps = { who: 'you' | 'other'; title: string; children?: ReactNode; action?: ReactNode };
 
@@ -12,9 +13,9 @@ export function NextStep({ who, title, children, action }: NextStepProps) {
     <section className={mine ? 'tr-next tr-next--you' : 'tr-next'} aria-labelledby={headingId}>
       <Status tone={mine ? 'action' : 'neutral'} label={mine ? 'Menunggu Anda' : 'Menunggu pihak lain'} />
       <h2 id={headingId} className="tr-sys-type-heading-sm">
-        {title}
+        {tx(title)}
       </h2>
-      {children ? <p>{children}</p> : null}
+      {children ? <p>{tx(children)}</p> : null}
       {action ? <div className="tr-row">{action}</div> : null}
     </section>
   );

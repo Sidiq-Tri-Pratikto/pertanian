@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 
 import { Icon, type IconName } from '@/components/tr/Icon';
+import { tx } from '@/features/i18n/t';
 
 export type Tone = 'neutral' | 'success' | 'danger' | 'warning' | 'action';
 
@@ -23,7 +24,7 @@ export function Status({ label, tone = 'neutral', icon, children, live }: Status
   const tag = (
     <span className={`tr-status tr-status--${tone}`}>
       {shown ? <Icon name={shown} size="small" /> : null}
-      <span>{label}</span>
+      <span>{tx(label)}</span>
     </span>
   );
   if (!children) {
@@ -36,7 +37,7 @@ export function Status({ label, tone = 'neutral', icon, children, live }: Status
   return (
     <div className={`tr-notice tr-notice--${tone}`} role={role}>
       {tag}
-      <div className="tr-notice__body">{children}</div>
+      <div className="tr-notice__body">{tx(children)}</div>
     </div>
   );
 }

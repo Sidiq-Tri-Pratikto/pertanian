@@ -1,13 +1,12 @@
-import type { Metadata } from 'next';
-
 import { serverGet } from '@/api/server';
 import { matchesHref, readFilters, readType, type Discovery } from '@/features/discovery/model';
 import type { FundingRequest, SupportRequest } from '@/features/needs/model';
 import { fundingOn } from '@/features/needs/server';
 import { personaOf, requireMe } from '@/features/session';
 import { DiscoverView } from '@/views/discovery/DiscoverView';
+import { titled } from '@/features/i18n/server';
 
-export const metadata: Metadata = { title: 'Temukan dan jelajahi' };
+export const generateMetadata = titled('Temukan dan jelajahi');
 
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 

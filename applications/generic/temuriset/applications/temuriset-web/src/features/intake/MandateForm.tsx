@@ -35,6 +35,7 @@ import { rangeErrorIds, RangeFields } from '@/features/intake/RangeFields';
 import { fieldErrors } from '@/features/needs/model';
 import { labelOf, STAGES } from '@/features/portfolio/model';
 import { MandateReview } from '@/views/intake/MandateReview';
+import { t } from '@/features/i18n/t';
 
 type Row = {
   rowId: number;
@@ -176,14 +177,14 @@ function bodyOf(values: Values, mandate: Mandate, actingPartyId: string) {
 function typedRow(row: NewRow): { field: string; operator: string; value: unknown; mandatory: boolean } | string {
   switch (row.kind) {
     case 'stage':
-      return row.stages.length ? { field: 'stage', operator: 'in_set', value: row.stages, mandatory: true } : 'Pilih tahap yang dipersyaratkan.';
+      return row.stages.length ? { field: 'stage', operator: 'in_set', value: row.stages, mandatory: true } : t('Pilih tahap yang dipersyaratkan.');
     case 'relationship':
       return { field: 'relationship', operator: 'equals', value: row.relationship, mandatory: true };
     case 'document':
       return { field: `document:${row.document}`, operator: 'exists', value: true, mandatory: true };
     case 'feature': {
       const name = row.feature.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-      return name ? { field: `feature:${name}`, operator: 'equals', value: 'CURRENT', mandatory: true } : 'Isi nama fitur.';
+      return name ? { field: `feature:${name}`, operator: 'equals', value: 'CURRENT', mandatory: true } : t('Isi nama fitur.');
     }
     case 'budget':
     case 'contribution':
@@ -239,7 +240,7 @@ export function MandateForm({ mandate: initial, actingPartyId }: Props) {
 
   function addRow() {
     if (!newRow.label.trim()) {
-      setNewRowError('Isi nama syarat.');
+      setNewRowError(t('Isi nama syarat.'));
       return;
     }
     const typed = typedRow(newRow);
@@ -343,24 +344,24 @@ export function MandateForm({ mandate: initial, actingPartyId }: Props) {
   return (
     <div className="tr-stack">
       {failure ? (
-        <ErrorSummary errors={summary} focusKey={attempt} title={failure.code === 'VALIDATION_FAILED' ? undefined : 'Mandat belum tersimpan'}>
+        <ErrorSummary errors={summary} focusKey={attempt} title={failure.code === 'VALIDATION_FAILED' ? undefined : t('Mandat belum tersimpan')}>
           {summary.length ? null : `${failure.message} Kode rujukan: ${failure.requestId ?? '-'}.`}
         </ErrorSummary>
       ) : null}
       {conflict ? (
-        <VersionConflict what="Mandat ini sudah diubah di tempat lain. Isian Anda belum hilang." draft={values.title} onRefresh={useLatest} refreshLabel="Pakai versi terbaru, pertahankan isian saya" />
+        <VersionConflict what={t('Mandat ini sudah diubah di tempat lain. Isian Anda belum hilang.')} draft={values.title} onRefresh={useLatest} refreshLabel={t('Pakai versi terbaru, pertahankan isian saya')} />
       ) : null}
       {errors['m-profile'] ? (
         <p id="m-profile" tabIndex={-1}>
           <NextLink className="tr-link" href={`/partners/${mandate.partner_party_id}`}>
-            Buka profil mitra
+            {t('Buka profil mitra')}
           </NextLink>
         </p>
       ) : null}
       {reviewing ? (
         <section className="tr-stack" aria-labelledby="tinjau-mandat">
           <h2 id="tinjau-mandat" ref={reviewHeading} tabIndex={-1} className="tr-sys-type-heading-sm">
-            Tinjau mandat
+            {t('Tinjau mandat')}
           </h2>
           <div className="tr-panel">
             <MandateReview
@@ -380,51 +381,51 @@ export function MandateForm({ mandate: initial, actingPartyId }: Props) {
           </div>
           <div className="tr-row">
             <Button intent="primary" icon="check" busy={activating} busyLabel="Mengaktifkan…" onClick={activate}>
-              {`Aktifkan versi ${nextNumber}`}
+              {t('Aktifkan versi {n}', { n: nextNumber })}
             </Button>
-            <Button onClick={() => setReviewing(false)}>Kembali mengubah</Button>
+            <Button onClick={() => setReviewing(false)}>{t('Kembali mengubah')}</Button>
           </div>
         </section>
       ) : (
         <>
           <section className="tr-panel tr-stack" aria-labelledby="isi-mandat">
             <h2 id="isi-mandat" className="tr-sys-type-heading-sm">
-              Isi mandat
+              {t('Isi mandat')}
             </h2>
-            <TextField id="m-title" label="Judul mandat" value={values.title} onChange={edit('title')} error={errors['m-title']} />
-            <TextArea id="m-outcome" label="Hasil yang dicari" rows={2} value={values.outcome} onChange={edit('outcome')} error={errors['m-outcome']} />
-            <TextArea id="m-included" label="Termasuk" rows={2} value={values.included} onChange={edit('included')} error={errors['m-included']} />
-            <TextArea id="m-excluded" label="Tidak termasuk" rows={2} value={values.excluded} onChange={edit('excluded')} error={errors['m-excluded']} />
-            <TextField id="m-support" label="Dukungan yang ditawarkan" value={values.support} onChange={edit('support')} error={errors['m-support']} />
-            <TextField id="m-timing" label="Waktu penerimaan" hint="Misalnya: Dibuka sampai 31 Desember 2026." value={values.timing} onChange={edit('timing')} error={errors['m-timing']} />
-            <CheckboxGroup id="m-stages" legend="Tahap yang diterima" error={errors['m-stages']}>
+            <TextField id="m-title" label={t('Judul mandat')} value={values.title} onChange={edit('title')} error={errors['m-title']} />
+            <TextArea id="m-outcome" label={t('Hasil yang dicari')} rows={2} value={values.outcome} onChange={edit('outcome')} error={errors['m-outcome']} />
+            <TextArea id="m-included" label={t('Termasuk')} rows={2} value={values.included} onChange={edit('included')} error={errors['m-included']} />
+            <TextArea id="m-excluded" label={t('Tidak termasuk')} rows={2} value={values.excluded} onChange={edit('excluded')} error={errors['m-excluded']} />
+            <TextField id="m-support" label={t('Dukungan yang ditawarkan')} value={values.support} onChange={edit('support')} error={errors['m-support']} />
+            <TextField id="m-timing" label={t('Waktu penerimaan')} hint={t('Misalnya: Dibuka sampai 31 Desember 2026.')} value={values.timing} onChange={edit('timing')} error={errors['m-timing']} />
+            <CheckboxGroup id="m-stages" legend={t('Tahap yang diterima')} error={errors['m-stages']}>
               {STAGES.map((stage) => (
                 <Checkbox key={stage.value} label={stage.label} checked={values.accepted_stages.includes(stage.value)} onChange={toggle('accepted_stages', stage.value)} />
               ))}
             </CheckboxGroup>
-            <CheckboxGroup id="m-forms" legend="Bentuk kerja sama" error={errors['m-forms']}>
+            <CheckboxGroup id="m-forms" legend={t('Bentuk kerja sama')} error={errors['m-forms']}>
               {RELATIONSHIP_FORMS.map((form) => (
                 <Checkbox key={form.value} label={form.label} checked={values.relationship_forms.includes(form.value)} onChange={toggle('relationship_forms', form.value)} />
               ))}
             </CheckboxGroup>
-            <TextField label="Sektor" hint="Pisahkan dengan koma." value={values.sectors} onChange={edit('sectors')} />
-            <TextField label="Kata kunci" hint="Pisahkan dengan koma." value={values.keywords} onChange={edit('keywords')} />
+            <TextField label={t('Sektor')} hint={t('Pisahkan dengan koma.')} value={values.sectors} onChange={edit('sectors')} />
+            <TextField label={t('Kata kunci')} hint={t('Pisahkan dengan koma.')} value={values.keywords} onChange={edit('keywords')} />
           </section>
           <section className="tr-panel tr-stack" aria-labelledby="keuangan-mandat">
             <h2 id="keuangan-mandat" className="tr-sys-type-heading-sm">
-              Dasar keuangan
+              {t('Dasar keuangan')}
             </h2>
-            <p className="tr-muted">Isi kisaran, dukungan nontunai atau ketentuan. Belum ditentukan tidak pernah dianggap nol.</p>
-            <RangeFields prefix="m" subjectLabel="Dasar keuangan" values={values.range} onChange={(field, value) => change({ range: { ...values.range, [field]: value } })} errors={errors} />
-            <TextField label="Cakupan" hint="Misalnya: biaya pilot enam bulan." value={values.scope} onChange={edit('scope')} />
-            <TextField label="Dukungan nontunai" value={values.noncash} onChange={edit('noncash')} />
-            <TextField label="Ketentuan" hint="Misalnya: ketentuan lisensi." value={values.terms} onChange={edit('terms')} />
+            <p className="tr-muted">{t('Isi kisaran, dukungan nontunai atau ketentuan. Belum ditentukan tidak pernah dianggap nol.')}</p>
+            <RangeFields prefix="m" subjectLabel={t('Dasar keuangan')} values={values.range} onChange={(field, value) => change({ range: { ...values.range, [field]: value } })} errors={errors} />
+            <TextField label={t('Cakupan')} hint={t('Misalnya: biaya pilot enam bulan.')} value={values.scope} onChange={edit('scope')} />
+            <TextField label={t('Dukungan nontunai')} value={values.noncash} onChange={edit('noncash')} />
+            <TextField label={t('Ketentuan')} hint={t('Misalnya: ketentuan lisensi.')} value={values.terms} onChange={edit('terms')} />
           </section>
           <section className="tr-stack" aria-labelledby="syarat-mandat">
             <h2 id="syarat-mandat" className="tr-sys-type-heading-sm">
-              Syarat
+              {t('Syarat')}
             </h2>
-            <p className="tr-muted">Syarat wajib terlihat oleh pengirim beserta alasannya. Tidak ada syarat tersembunyi yang menolak otomatis.</p>
+            <p className="tr-muted">{t('Syarat wajib terlihat oleh pengirim beserta alasannya. Tidak ada syarat tersembunyi yang menolak otomatis.')}</p>
             {values.requirements.map((row, index) => (
               <div key={row.rowId} className="tr-panel tr-stack" data-requirement>
                 <ul>
@@ -438,19 +439,19 @@ export function MandateForm({ mandate: initial, actingPartyId }: Props) {
                     action={row.operator === 'manual_review' ? MANUAL_REVIEW_TAG : undefined}
                   />
                 </ul>
-                <Select label={`Tahap berlaku: ${row.label}`} value={row.applies_at} onChange={(value) => editRow(row.rowId, { applies_at: value })} options={APPLIES_AT} emptyLabel={null} />
+                <Select label={t('Tahap berlaku: {label}', { label: row.label })} value={row.applies_at} onChange={(value) => editRow(row.rowId, { applies_at: value })} options={APPLIES_AT} emptyLabel={null} />
                 <Select label={`Cara pemeriksaan: ${row.label}`} value={row.verification_mode} onChange={(value) => editRow(row.rowId, { verification_mode: value })} options={VERIFICATION_MODES} emptyLabel={null} />
-                <TextArea id={`m-req-reason-${index}`} label={`Alasan: ${row.label}`} rows={2} value={row.reason} onChange={(value) => editRow(row.rowId, { reason: value })} error={errors[`m-req-reason-${index}`]} />
+                <TextArea id={`m-req-reason-${index}`} label={t('Alasan: {label}', { label: row.label })} rows={2} value={row.reason} onChange={(value) => editRow(row.rowId, { reason: value })} error={errors[`m-req-reason-${index}`]} />
                 <div className="tr-row">
-                  <Button onClick={() => change({ requirements: values.requirements.filter((item) => item.rowId !== row.rowId) })}>{`Hapus syarat ${row.label}`}</Button>
+                  <Button onClick={() => change({ requirements: values.requirements.filter((item) => item.rowId !== row.rowId) })}>{t('Hapus syarat {label}', { label: row.label })}</Button>
                 </div>
               </div>
             ))}
             <div className="tr-panel tr-stack">
-              <Select label="Jenis syarat" value={newRow.kind} onChange={(kind) => setNewRow({ ...newRow, kind })} options={REQUIREMENT_KINDS} emptyLabel={null} />
-              <TextField label="Syarat baru" hint="Syarat naratif tanpa pemetaan ditinjau manual dan tidak menolak otomatis." value={newRow.label} onChange={(label) => setNewRow({ ...newRow, label })} error={newRowError} />
+              <Select label={t('Jenis syarat')} value={newRow.kind} onChange={(kind) => setNewRow({ ...newRow, kind })} options={REQUIREMENT_KINDS} emptyLabel={null} />
+              <TextField label={t('Syarat baru')} hint={t('Syarat naratif tanpa pemetaan ditinjau manual dan tidak menolak otomatis.')} value={newRow.label} onChange={(label) => setNewRow({ ...newRow, label })} error={newRowError} />
               {newRow.kind === 'stage' ? (
-                <CheckboxGroup id="m-new-stages" legend="Tahap yang dipersyaratkan">
+                <CheckboxGroup id="m-new-stages" legend={t('Tahap yang dipersyaratkan')}>
                   {STAGES.map((stage) => (
                     <Checkbox
                       key={stage.value}
@@ -461,25 +462,25 @@ export function MandateForm({ mandate: initial, actingPartyId }: Props) {
                   ))}
                 </CheckboxGroup>
               ) : null}
-              {newRow.kind === 'relationship' ? <Select label="Bentuk yang dipersyaratkan" value={newRow.relationship} onChange={(relationship) => setNewRow({ ...newRow, relationship })} options={RELATIONSHIP_FORMS} emptyLabel={null} /> : null}
-              {newRow.kind === 'document' ? <Select label="Jenis berkas" value={newRow.document} onChange={(document) => setNewRow({ ...newRow, document })} options={DOCUMENT_KINDS} emptyLabel={null} /> : null}
-              {newRow.kind === 'feature' ? <TextField label="Nama fitur" hint="Fitur yang harus sudah berjalan, bukan rencana." value={newRow.feature} onChange={(feature) => setNewRow({ ...newRow, feature })} /> : null}
-              <TextArea label="Alasan syarat baru" rows={2} value={newRow.reason} onChange={(reason) => setNewRow({ ...newRow, reason })} />
-              <Select label="Tahap berlaku" value={newRow.applies_at} onChange={(applies_at) => setNewRow({ ...newRow, applies_at })} options={APPLIES_AT} emptyLabel={null} />
-              <Select label="Cara pemeriksaan" value={newRow.verification_mode} onChange={(verification_mode) => setNewRow({ ...newRow, verification_mode })} options={VERIFICATION_MODES} emptyLabel={null} />
+              {newRow.kind === 'relationship' ? <Select label={t('Bentuk yang dipersyaratkan')} value={newRow.relationship} onChange={(relationship) => setNewRow({ ...newRow, relationship })} options={RELATIONSHIP_FORMS} emptyLabel={null} /> : null}
+              {newRow.kind === 'document' ? <Select label={t('Jenis berkas')} value={newRow.document} onChange={(document) => setNewRow({ ...newRow, document })} options={DOCUMENT_KINDS} emptyLabel={null} /> : null}
+              {newRow.kind === 'feature' ? <TextField label={t('Nama fitur')} hint={t('Fitur yang harus sudah berjalan, bukan rencana.')} value={newRow.feature} onChange={(feature) => setNewRow({ ...newRow, feature })} /> : null}
+              <TextArea label={t('Alasan syarat baru')} rows={2} value={newRow.reason} onChange={(reason) => setNewRow({ ...newRow, reason })} />
+              <Select label={t('Tahap berlaku')} value={newRow.applies_at} onChange={(applies_at) => setNewRow({ ...newRow, applies_at })} options={APPLIES_AT} emptyLabel={null} />
+              <Select label={t('Cara pemeriksaan')} value={newRow.verification_mode} onChange={(verification_mode) => setNewRow({ ...newRow, verification_mode })} options={VERIFICATION_MODES} emptyLabel={null} />
               <div className="tr-row">
-                <Button onClick={addRow}>Tambah syarat</Button>
+                <Button onClick={addRow}>{t('Tambah syarat')}</Button>
               </div>
             </div>
           </section>
           {saveState !== 'idle' ? <SaveState state={saveState === 'failed' && conflict ? 'conflict' : saveState} onRetry={saveDraft} /> : null}
           <div className="tr-row">
             <Button intent="primary" icon="arrow" onClick={() => setReviewing(true)}>
-              Tinjau mandat
+              {t('Tinjau mandat')}
             </Button>
             {mandate.status === 'DRAFT' ? (
-              <Button icon="check" busy={saveState === 'saving'} busyLabel="Menyimpan…" onClick={saveDraft}>
-                Simpan draf
+              <Button icon="check" busy={saveState === 'saving'} busyLabel={t('Menyimpan…')} onClick={saveDraft}>
+                {t('Simpan draf')}
               </Button>
             ) : null}
           </div>

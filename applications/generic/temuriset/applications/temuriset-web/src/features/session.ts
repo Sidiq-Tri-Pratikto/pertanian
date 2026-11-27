@@ -5,6 +5,7 @@ import { cache } from 'react';
 import type { Me } from '@/api/client';
 import { ApiError } from '@/api/errors';
 import { serverGet } from '@/api/server';
+import { resolveRequestLocale } from '@/features/i18n/server';
 import { PERSONA_COOKIE, readPersona, type Persona } from '@/features/persona';
 
 /** Reads `/me` once per server render with the visitor's cookies; `null` when nobody is signed in. */
@@ -26,6 +27,7 @@ export function safeReturn(value: string | null | undefined): string | null {
 export async function requireMe(returnTo: string): Promise<Me> {
   const me = await getMe();
   if (!me) redirect(`/start?kembali=${encodeURIComponent(returnTo)}`);
+  await resolveRequestLocale();
   return me;
 }
 

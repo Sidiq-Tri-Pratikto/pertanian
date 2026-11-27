@@ -24,6 +24,7 @@ import { PublicPageForm } from '@/features/portfolio/PublicPageForm';
 import { PublicUpdatesPanel, type PublicUpdate } from '@/features/portfolio/PublicUpdatesPanel';
 import type { DocumentView } from '@/features/documents/model';
 import { PROVENANCE } from '@/views/parts';
+import { t } from '@/features/i18n/t';
 
 /** S04 list: the acting party's inventions, drafts and archived ones included. */
 export function InventionsView({ me, inventions }: { me: Me; inventions: InventionSummary[] }) {
@@ -33,24 +34,24 @@ export function InventionsView({ me, inventions }: { me: Me; inventions: Inventi
       persona={persona}
       current="inovasi"
       title="Inovasi Saya"
-      subtitle="Profil inovasi yang Anda kelola. Draf hanya terlihat oleh Anda."
+      subtitle={t('Profil inovasi yang Anda kelola. Draf hanya terlihat oleh Anda.')}
       provenance={PROVENANCE}
       context={<ContextBar me={me} />}>
-      <p><Link className="tr-link" href="/inventions/import">Impor dan ekspor data</Link></p>
+      <p><Link className="tr-link" href="/inventions/import">{t('Impor dan ekspor data')}</Link></p>
       {inventions.length ? (
         <>
           <ul className="tr-stack">
             {inventions.map((invention) => (
               <li key={invention.id} className="tr-panel tr-stack">
-                <h2 className="tr-sys-type-heading-sm">{invention.title || 'Inovasi tanpa judul'}</h2>
+                <h2 className="tr-sys-type-heading-sm">{invention.title || t('Inovasi tanpa judul')}</h2>
                 <p className="tr-row">
                   <Status tone={invention.status === 'PUBLISHED' ? 'success' : 'neutral'} label={STATUS_LABEL[invention.status] ?? invention.status} />
-                  {invention.published_number ? <span className="tr-muted">{`Versi terbit ${invention.published_number}`}</span> : null}
-                  {invention.published_number && invention.has_draft ? <span className="tr-tag tr-sys-type-support">Ada draf perubahan</span> : null}
+                  {invention.published_number ? <span className="tr-muted">{t('Versi terbit {n}', { n: invention.published_number })}</span> : null}
+                  {invention.published_number && invention.has_draft ? <span className="tr-tag tr-sys-type-support">{t('Ada draf perubahan')}</span> : null}
                 </p>
                 <p>
                   <Link className="tr-link" href={`/inventions/${invention.id}`}>
-                    Buka<span className="tr-sr">{` ${invention.title || 'inovasi tanpa judul'}`}</span>
+                    {t('Buka')}<span className="tr-sr">{` ${invention.title || t('inovasi tanpa judul')}`}</span>
                   </Link>
                 </p>
               </li>
@@ -59,8 +60,8 @@ export function InventionsView({ me, inventions }: { me: Me; inventions: Inventi
           <NewInventionButton actingPartyId={me.active_party_id} />
         </>
       ) : (
-        <EmptyState icon="bulb" title="Belum ada inovasi" action={<NewInventionButton actingPartyId={me.active_party_id} />}>
-          Susun profil dalam empat langkah. Draf tersimpan walau belum lengkap, dan hanya versi yang Anda terbitkan yang terlihat oleh orang lain.
+        <EmptyState icon="bulb" title={t('Belum ada inovasi')} action={<NewInventionButton actingPartyId={me.active_party_id} />}>
+          {t('Susun profil dalam empat langkah. Draf tersimpan walau belum lengkap, dan hanya versi yang Anda terbitkan yang terlihat oleh orang lain.')}
         </EmptyState>
       )}
     </Screen>
@@ -89,9 +90,9 @@ export function InventionView({ me, invention, publicView, justPublished, saved 
   const owner = Boolean(invention);
   if (!shown) {
     return (
-      <Screen persona={persona} title="Inovasi tidak ditemukan" provenance={PROVENANCE} context={<ContextBar me={me} />}>
-        <EmptyState icon="question" title="Inovasi ini tidak tersedia" action={<Link className="tr-link" href="/inventions">Kembali ke Inovasi Saya</Link>}>
-          Inovasi mungkin belum terbit, sudah diarsipkan, atau dikelola pihak lain.
+      <Screen persona={persona} title={t('Inovasi tidak ditemukan')} provenance={PROVENANCE} context={<ContextBar me={me} />}>
+        <EmptyState icon="question" title={t('Inovasi ini tidak tersedia')} action={<Link className="tr-link" href="/inventions">{t('Kembali ke Inovasi Saya')}</Link>}>
+          {t('Inovasi mungkin belum terbit, sudah diarsipkan, atau dikelola pihak lain.')}
         </EmptyState>
       </Screen>
     );
@@ -100,31 +101,31 @@ export function InventionView({ me, invention, publicView, justPublished, saved 
   const planned = shown.facts.filter((fact) => fact.timing !== 'CURRENT');
   const action = owner ? (
     <Link className="tr-btn tr-btn--primary" href={`/inventions/${invention!.id}/edit?step=1`}>
-      {invention!.draft && invention!.published ? 'Lanjutkan draf perubahan' : 'Ubah inovasi'}
+      {invention!.draft && invention!.published ? t('Lanjutkan draf perubahan') : t('Ubah inovasi')}
     </Link>
   ) : (
-    <SaveButton subjectType="INVENTION" subjectId={publicView!.id} title={shown.title} saved={saved} actingPartyId={me.active_party_id} label="Simpan inovasi" intent="primary" />
+    <SaveButton subjectType="INVENTION" subjectId={publicView!.id} title={shown.title} saved={saved} actingPartyId={me.active_party_id} label={t('Simpan inovasi')} intent="primary" />
   );
   return (
     <Screen
       persona={persona}
       current={owner ? 'inovasi' : undefined}
-      title={shown.title || 'Inovasi tanpa judul'}
-      subtitle={owner ? undefined : `Dikelola ${publicView!.managing_party_name}`}
+      title={shown.title || t('Inovasi tanpa judul')}
+      subtitle={owner ? undefined : t('Dikelola {name}', { name: publicView!.managing_party_name })}
       back={
         <Link className="tr-link" href={owner ? '/inventions' : '/discover'}>
-          Kembali
+          {t('Kembali')}
         </Link>
       }
       provenance={PROVENANCE}
       context={<ContextBar me={me} />}>
-      {justPublished ? <Status tone="success" label={`Versi ${justPublished} sudah terbit`} live /> : null}
-      {owner && !invention!.published ? <Status tone="neutral" label="Draf, belum terbit" /> : null}
+      {justPublished ? <Status tone="success" label={t('Versi {n} sudah terbit', { n: justPublished })} live /> : null}
+      {owner && !invention!.published ? <Status tone="neutral" label={t('Draf, belum terbit')} /> : null}
       {owner && invention!.status === 'ARCHIVED' ? <Status tone="warning" label="Diarsipkan" /> : null}
       <div className="tr-row">
         {action}
         {/* Scenario 5 of the demo: an investor inviting an inventor to pitch is announced, not built yet. */}
-        {!owner && persona === 'mitra' ? <Status tone="neutral" label="Ajak pitching · segera hadir" /> : null}
+        {!owner && persona === 'mitra' ? <Status tone="neutral" label={t('Ajak pitching · segera hadir')} /> : null}
       </div>
       {owner && invention!.published && invention!.status !== 'ARCHIVED' ? (
         <>
@@ -135,31 +136,31 @@ export function InventionView({ me, invention, publicView, justPublished, saved 
       ) : null}
       <section className="tr-panel tr-stack" aria-labelledby="ringkasan-inovasi">
         <h2 id="ringkasan-inovasi" className="tr-sys-type-heading-sm">
-          Ringkasan
+          {t('Ringkasan')}
         </h2>
         {shown.summary ? <p>{shown.summary}</p> : null}
         <dl className="tr-facts">
           <div>
-            <dt className="tr-sys-type-support-strong">Masalah</dt>
-            <dd>{shown.problem || 'Belum diisi'}</dd>
+            <dt className="tr-sys-type-support-strong">{t('Masalah')}</dt>
+            <dd>{shown.problem || t('Belum diisi')}</dd>
           </div>
           <div>
-            <dt className="tr-sys-type-support-strong">Solusi saat ini</dt>
-            <dd>{shown.solution || 'Belum diisi'}</dd>
+            <dt className="tr-sys-type-support-strong">{t('Solusi saat ini')}</dt>
+            <dd>{shown.solution || t('Belum diisi')}</dd>
           </div>
           <div>
-            <dt className="tr-sys-type-support-strong">Tahap</dt>
-            <dd>{labelOf(STAGES, shown.stage) || 'Belum diisi'}</dd>
+            <dt className="tr-sys-type-support-strong">{t('Tahap')}</dt>
+            <dd>{labelOf(STAGES, shown.stage) || t('Belum diisi')}</dd>
           </div>
           <div>
-            <dt className="tr-sys-type-support-strong">Pengguna</dt>
-            <dd>{shown.intended_users || 'Belum diisi'}</dd>
+            <dt className="tr-sys-type-support-strong">{t('Pengguna')}</dt>
+            <dd>{shown.intended_users || t('Belum diisi')}</dd>
           </div>
         </dl>
       </section>
       <section className="tr-panel tr-stack" aria-labelledby="fakta-inovasi">
         <h2 id="fakta-inovasi" className="tr-sys-type-heading-sm">
-          Saat ini dan direncanakan
+          {t('Saat ini dan direncanakan')}
         </h2>
         {[...current, ...planned].length ? (
           <ul className="tr-stack">
@@ -171,48 +172,48 @@ export function InventionView({ me, invention, publicView, justPublished, saved 
             ))}
           </ul>
         ) : (
-          <p className="tr-muted">Belum ada fakta.</p>
+          <p className="tr-muted">{t('Belum ada fakta.')}</p>
         )}
       </section>
       <section className="tr-panel tr-stack" aria-labelledby="orang-hak">
         <h2 id="orang-hak" className="tr-sys-type-heading-sm">
-          Orang dan hak
+          {t('Orang dan hak')}
         </h2>
         {shown.claims.length ? (
           <ul className="tr-stack">
             {shown.claims.map((claim, index) => (
               <li key={index}>
                 <strong>{claim.subject_name}</strong>
-                {` · ${labelOf(CLAIM_KINDS, claim.kind)} · ${labelOf(CLAIM_STATUSES, claim.status) || 'Diperiksa'}`}
-                {claim.scope ? <span className="tr-muted">{` · Cakupan: ${claim.scope}`}</span> : null}
-                {claim.source ? <span className="tr-muted">{` · Sumber: ${claim.source}`}</span> : null}
+                {` · ${labelOf(CLAIM_KINDS, claim.kind)} · ${labelOf(CLAIM_STATUSES, claim.status) || t('Diperiksa')}`}
+                {claim.scope ? <span className="tr-muted">{` · ${t('Cakupan')}: ${claim.scope}`}</span> : null}
+                {claim.source ? <span className="tr-muted">{` · ${t('Sumber')}: ${claim.source}`}</span> : null}
               </li>
             ))}
           </ul>
         ) : (
-          <p className="tr-muted">Belum ada klaim. Klaim bukan sertifikat kepemilikan.</p>
+          <p className="tr-muted">{t('Belum ada klaim. Klaim bukan sertifikat kepemilikan.')}</p>
         )}
       </section>
       <section className="tr-panel tr-stack" aria-labelledby="dokumen-inovasi">
         <h2 id="dokumen-inovasi" className="tr-sys-type-heading-sm">
-          Dokumen
+          {t('Dokumen')}
         </h2>
         <p className="tr-muted">
-          {owner ? 'Dokumen bukti privat. Kelola di langkah 2 editor.' : 'Dokumen dibagikan per pitching, hanya kepada penerima pitching tersebut.'}
+          {owner ? t('Dokumen bukti privat. Kelola di langkah 2 editor.') : t('Dokumen dibagikan per pitching, hanya kepada penerima pitching tersebut.')}
         </p>
       </section>
       <section className="tr-panel tr-stack" aria-labelledby="dukungan-inovasi">
         <h2 id="dukungan-inovasi" className="tr-sys-type-heading-sm">
-          Kebutuhan dukungan
+          {t('Kebutuhan dukungan')}
         </h2>
         {owner ? (
           <p>
             <Link className="tr-link" href={`/support-requests?invention=${invention!.id}`}>
-              Lihat kebutuhan dukungan dan pendanaan
+              {t('Lihat kebutuhan dukungan dan pendanaan')}
             </Link>
           </p>
         ) : (
-          <p className="tr-muted">Kebutuhan dukungan tampil bersama fitur Jelajahi.</p>
+          <p className="tr-muted">{t('Kebutuhan dukungan tampil bersama fitur Jelajahi.')}</p>
         )}
       </section>
     </Screen>

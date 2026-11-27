@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 
 import { Icon, type IconName } from '@/components/tr/Icon';
 import { Status, type Tone } from '@/components/tr/Status';
+import { t } from '@/features/i18n/t';
 
 type Axis = [label: string, tone: Tone, icon: IconName];
 
@@ -45,7 +46,7 @@ type DocumentItemProps = {
 function axis(label: string, [text, tone, icon]: Axis) {
   return (
     <div className="tr-doc__axis">
-      <dt className="tr-sys-type-support">{label}</dt>
+      <dt className="tr-sys-type-support">{t(label)}</dt>
       <dd>
         <Status tone={tone} icon={icon} label={text} />
       </dd>
@@ -63,9 +64,9 @@ export function DocumentItem({ title, version, file = 'CREATED', extraction = 'N
       <article className="tr-doc">
         <div className="tr-doc__head">
           <Icon name="lock" />
-          <h4 className="tr-sys-type-label">Dokumen terbatas</h4>
+          <h4 className="tr-sys-type-label">{t('Dokumen terbatas')}</h4>
         </div>
-        <p>Anda tidak memiliki akses ke dokumen ini.</p>
+        <p>{t('Anda tidak memiliki akses ke dokumen ini.')}</p>
         {action ? <div className="tr-row">{action}</div> : null}
       </article>
     );
@@ -75,7 +76,7 @@ export function DocumentItem({ title, version, file = 'CREATED', extraction = 'N
       <div className="tr-doc__head">
         <Icon name="file" />
         <h4 className="tr-sys-type-label">{title}</h4>
-        {version ? <span className="tr-muted tr-sys-type-support">{`Versi ${version}`}</span> : null}
+        {version ? <span className="tr-muted tr-sys-type-support">{t('Versi {n}', { n: version })}</span> : null}
       </div>
       <dl className="tr-doc__axes">
         {axis('Berkas', FILE[file] ?? FILE.CREATED)}
@@ -85,8 +86,8 @@ export function DocumentItem({ title, version, file = 'CREATED', extraction = 'N
       {grants.map((grant, index) => (
         <p key={index} className="tr-sys-type-support">
           {grant.revoked
-            ? `Akses ${grant.recipient} dicabut. Unduhan baru diblokir, tetapi salinan yang sudah diunduh tidak dapat ditarik.`
-            : `Dibagikan hanya kepada ${grant.recipient}, hanya versi ${grant.version ?? version}.`}
+            ? t('Akses {recipient} dicabut. Unduhan baru diblokir, tetapi salinan yang sudah diunduh tidak dapat ditarik.', { recipient: grant.recipient })
+            : t('Dibagikan hanya kepada {recipient}, hanya versi {n}.', { recipient: grant.recipient, n: grant.version ?? version ?? '' })}
         </p>
       ))}
       {grants.length ? null : <p className="tr-muted tr-sys-type-support">Privat. Belum dibagikan kepada siapa pun.</p>}

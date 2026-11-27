@@ -1,12 +1,11 @@
-import type { Metadata } from 'next';
-
 import { ApiError } from '@/api/errors';
 import { serverGet } from '@/api/server';
 import type { InvitationDetail } from '@/features/organizations';
 import { requireMe } from '@/features/session';
 import { InvitationView } from '@/views/InvitationView';
+import { titled } from '@/features/i18n/server';
 
-export const metadata: Metadata = { title: 'Undangan organisasi' };
+export const generateMetadata = titled('Undangan organisasi');
 
 type Props = { params: Promise<{ token: string }> };
 

@@ -7,6 +7,7 @@ import { ApiError } from '@/api/errors';
 import { Button } from '@/components/tr/Button';
 import { Status } from '@/components/tr/Status';
 import { createInvention } from '@/features/portfolio/api';
+import { t } from '@/features/i18n/t';
 
 /** Starts an empty draft and opens step 1 of the editor. */
 export function NewInventionButton({ actingPartyId }: { actingPartyId: string }) {
@@ -30,13 +31,13 @@ export function NewInventionButton({ actingPartyId }: { actingPartyId: string })
   return (
     <div className="tr-stack">
       {failure ? (
-        <Status tone="danger" icon="alert" label="Inovasi belum dibuat" live="alert">
+        <Status tone="danger" icon="alert" label={t('Inovasi belum dibuat')} live="alert">
           <p>{failure}</p>
         </Status>
       ) : null}
       <div className="tr-row">
         <Button intent="primary" icon="plus" busy={busy} busyLabel="Membuat…" onClick={create}>
-          Tambah inovasi
+          {t('Tambah inovasi')}
         </Button>
       </div>
     </div>

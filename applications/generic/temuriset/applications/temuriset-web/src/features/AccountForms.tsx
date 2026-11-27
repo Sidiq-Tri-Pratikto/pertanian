@@ -14,6 +14,8 @@ import { TextField } from '@/components/tr/TextField';
 import { contextOptions } from '@/features/ContextBar';
 import { CAPABILITY_LABEL, ORGANIZATION_KINDS } from '@/features/organizations';
 import { EMAIL_PATTERN, LOCALES, TIME_ZONES } from '@/features/signIn';
+import { rememberLocale } from '@/features/i18n/locale';
+import { t } from '@/features/i18n/t';
 
 const PERSONAS = [
   { value: 'inovator', label: 'Inovator' },
@@ -51,7 +53,7 @@ function useSubmission() {
         {failure ? (
           <ErrorSummary id={`${id}-galat`} errors={failure.fieldId ? [{ fieldId: failure.fieldId, message: failure.message }] : []} focusKey={attempt}>
             {failure.fieldId ? null : failure.message}
-            {failure.requestId ? <span> Referensi {failure.requestId}</span> : null}
+            {failure.requestId ? <span>{` ${t('Referensi {id}', { id: failure.requestId })}`}</span> : null}
           </ErrorSummary>
         ) : null}
         <div aria-live="polite">{done ? <Status tone="success" label={done} /> : null}</div>
@@ -74,7 +76,7 @@ export function AccountForm({ me, emailNotificationsAvailable = false }: { me: M
 
   function save(event: FormEvent) {
     event.preventDefault();
-    if (!name.trim()) return submission.invalid('akun-nama', 'Isi nama tampilan.');
+    if (!name.trim()) return submission.invalid('akun-nama', t('Isi nama tampilan.'));
     return submission.run(async () => {
       const saved = await send<Me>('PATCH', '/api/v1/me', {
         display_name: name.trim(),
@@ -86,8 +88,13 @@ export function AccountForm({ me, emailNotificationsAvailable = false }: { me: M
       });
       setVersion(saved.account.version);
       setEmailNotifications(saved.account.email_notifications);
+      if (locale !== me.account.locale) {
+        // The page language follows the account's language right away.
+        rememberLocale(locale === 'en' ? 'en' : 'id');
+        window.location.reload();
+      }
       router.refresh();
-      return 'Akun tersimpan';
+      return t('Akun tersimpan');
     });
   }
 
@@ -95,10 +102,10 @@ export function AccountForm({ me, emailNotificationsAvailable = false }: { me: M
   return (
     <form onSubmit={save} noValidate className="tr-stack">
       {submission.feedback('akun')}
-      <TextField id="akun-nama" label="Nama tampilan" value={name} onChange={setName} error={submission.fieldError('akun-nama')} required />
-      <Select id="akun-tampilan" label="Menu yang ditampilkan" hint="Mengubah tampilan tidak mengubah data atau hak akses." value={persona} onChange={setPersona} options={PERSONAS} emptyLabel={null} />
-      <Select id="akun-bahasa" label="Bahasa" value={locale} onChange={setLocale} options={LOCALES} emptyLabel={null} />
-      <Select id="akun-zona" label="Zona waktu" value={timeZone} onChange={setTimeZone} options={zones} emptyLabel={null} />
+      <TextField id="akun-nama" label={t('Nama tampilan')} value={name} onChange={setName} error={submission.fieldError('akun-nama')} required />
+      <Select id="akun-tampilan" label={t('Menu yang ditampilkan')} hint={t('Mengubah tampilan tidak mengubah data atau hak akses.')} value={persona} onChange={setPersona} options={PERSONAS} emptyLabel={null} />
+      <Select id="akun-bahasa" label={t('Bahasa')} value={locale} onChange={setLocale} options={LOCALES} emptyLabel={null} />
+      <Select id="akun-zona" label={t('Zona waktu')} value={timeZone} onChange={setTimeZone} options={zones} emptyLabel={null} />
       {emailNotificationsAvailable ? (
         <label className="tr-choice" htmlFor="akun-pemberitahuan-email">
           <input
@@ -111,16 +118,16 @@ export function AccountForm({ me, emailNotificationsAvailable = false }: { me: M
             aria-describedby="akun-pemberitahuan-email-petunjuk"
           />
           <span className="tr-choice__body">
-            <span id="akun-pemberitahuan-email-label" className="tr-sys-type-label">Pemberitahuan lewat email</span>
+            <span id="akun-pemberitahuan-email-label" className="tr-sys-type-label">{t('Pemberitahuan lewat email')}</span>
             <span id="akun-pemberitahuan-email-petunjuk" className="tr-sys-type-support">
-              Dapatkan pemberitahuan umum tentang aktivitas pitching. Kode masuk dan undangan tetap dikirim terpisah.
+              {t('Dapatkan pemberitahuan umum tentang aktivitas pitching. Kode masuk dan undangan tetap dikirim terpisah.')}
             </span>
           </span>
         </label>
       ) : null}
       <div className="tr-row">
-        <Button type="submit" intent="primary" busy={submission.busy} busyLabel="Menyimpan…">
-          Simpan akun
+        <Button type="submit" intent="primary" busy={submission.busy} busyLabel={t('Menyimpan…')}>
+          {t('Simpan akun')}
         </Button>
       </div>
     </form>
@@ -137,26 +144,26 @@ export function CreateOrganizationForm() {
 
   function create(event: FormEvent) {
     event.preventDefault();
-    if (!name.trim()) return submission.invalid('organisasi-nama', 'Isi nama organisasi.');
-    if (!kind) return submission.invalid('organisasi-jenis', 'Pilih jenis organisasi.');
+    if (!name.trim()) return submission.invalid('organisasi-nama', t('Isi nama organisasi.'));
+    if (!kind) return submission.invalid('organisasi-jenis', t('Pilih jenis organisasi.'));
     return submission.run(async () => {
       await send('POST', '/api/v1/organizations', { name: name.trim(), kind }, { idempotencyKey: key.current });
       key.current = newIdempotencyKey();
       setName('');
       setKind('');
       router.refresh();
-      return 'Organisasi dibuat. Pilih organisasi itu di "Bertindak sebagai" untuk mengelolanya.';
+      return t('Organisasi dibuat. Pilih organisasi itu di "Bertindak sebagai" untuk mengelolanya.');
     });
   }
 
   return (
     <form onSubmit={create} noValidate className="tr-stack">
       {submission.feedback('organisasi')}
-      <TextField id="organisasi-nama" label="Nama organisasi" value={name} onChange={(value) => { setName(value); key.current = newIdempotencyKey(); }} error={submission.fieldError('organisasi-nama')} required />
-      <Select id="organisasi-jenis" label="Jenis organisasi" value={kind} onChange={(value) => { setKind(value); key.current = newIdempotencyKey(); }} options={ORGANIZATION_KINDS} error={submission.fieldError('organisasi-jenis')} required />
+      <TextField id="organisasi-nama" label={t('Nama organisasi')} value={name} onChange={(value) => { setName(value); key.current = newIdempotencyKey(); }} error={submission.fieldError('organisasi-nama')} required />
+      <Select id="organisasi-jenis" label={t('Jenis organisasi')} value={kind} onChange={(value) => { setKind(value); key.current = newIdempotencyKey(); }} options={ORGANIZATION_KINDS} error={submission.fieldError('organisasi-jenis')} required />
       <div className="tr-row">
-        <Button type="submit" busy={submission.busy} busyLabel="Membuat…">
-          Buat organisasi
+        <Button type="submit" busy={submission.busy} busyLabel={t('Membuat…')}>
+          {t('Buat organisasi')}
         </Button>
       </div>
     </form>
@@ -178,8 +185,8 @@ export function InviteForm({ me, organizationId }: { me: Me; organizationId: str
 
   function invite(event: FormEvent) {
     event.preventDefault();
-    if (!EMAIL_PATTERN.test(email.trim())) return submission.invalid('undang-email', 'Isi email dengan format nama@contoh.com.');
-    if (!chosen.length) return submission.invalid('undang-edit_portfolio', 'Pilih setidaknya satu kewenangan.');
+    if (!EMAIL_PATTERN.test(email.trim())) return submission.invalid('undang-email', t('Isi email dengan format nama@contoh.com.'));
+    if (!chosen.length) return submission.invalid('undang-edit_portfolio', t('Pilih setidaknya satu kewenangan.'));
     return submission.run(async () => {
       await send(
         'POST',
@@ -191,31 +198,31 @@ export function InviteForm({ me, organizationId }: { me: Me; organizationId: str
       setEmail('');
       setChosen([]);
       router.refresh();
-      return 'Undangan dikirim. Berlaku 7 hari.';
+      return t('Undangan dikirim. Berlaku 7 hari.');
     });
   }
 
   return (
     <form onSubmit={invite} noValidate className="tr-stack">
       {submission.feedback('undang')}
-      <TextField id="undang-email" type="email" label="Email anggota" value={email} onChange={(value) => { setEmail(value); key.current = newIdempotencyKey(); }} error={submission.fieldError('undang-email')} required />
+      <TextField id="undang-email" type="email" label={t('Email anggota')} value={email} onChange={(value) => { setEmail(value); key.current = newIdempotencyKey(); }} error={submission.fieldError('undang-email')} required />
       <fieldset className="tr-fieldset">
-        <legend className="tr-field__label tr-sys-type-label">Kewenangan</legend>
+        <legend className="tr-field__label tr-sys-type-label">{t('Kewenangan')}</legend>
         <div className="tr-choices">
           {Object.entries(CAPABILITY_LABEL).map(([capability, label]) => (
             <label key={capability} htmlFor={`undang-${capability}`} className="tr-choice">
               <input type="checkbox" id={`undang-${capability}`} checked={chosen.includes(capability)} onChange={() => toggle(capability)} />
               <span className="tr-choice__body">
-                <span className="tr-sys-type-label">{label}</span>
+                <span className="tr-sys-type-label">{t(label)}</span>
               </span>
             </label>
           ))}
         </div>
       </fieldset>
-      <ContextSwitcher readOnly value={me.active_party_id} options={contextOptions(me)} actionLabel="Mengundang sebagai" />
+      <ContextSwitcher readOnly value={me.active_party_id} options={contextOptions(me)} actionLabel={t('Mengundang sebagai')} />
       <div className="tr-row">
-        <Button type="submit" intent="primary" busy={submission.busy} busyLabel="Mengirim…">
-          Kirim undangan
+        <Button type="submit" intent="primary" busy={submission.busy} busyLabel={t('Mengirim…')}>
+          {t('Kirim undangan')}
         </Button>
       </div>
     </form>
@@ -231,12 +238,12 @@ export function RevokeButton({ me, invitationId, email }: { me: Me; invitationId
       {submission.feedback(`cabut-${invitationId}`)}
       <Button
         busy={submission.busy}
-        busyLabel="Mencabut…"
+        busyLabel={t('Mencabut…')}
         onClick={() =>
           submission.run(async () => {
             await send('POST', `/api/v1/invitations/${invitationId}/revoke`, { acting_party_id: me.active_party_id });
             router.refresh();
-            return 'Undangan dicabut';
+            return t('Undangan dicabut');
           })
         }>
         Cabut undangan<span className="tr-sr"> untuk {email}</span>
@@ -256,16 +263,16 @@ export function AcceptInvitationButton({ token }: { token: string }) {
         <Button
           intent="primary"
           busy={submission.busy}
-          busyLabel="Bergabung…"
+          busyLabel={t('Bergabung…')}
           onClick={() =>
             submission.run(async () => {
               await send('POST', `/api/v1/invitations/${token}/accept`);
               router.push('/settings?bergabung=1');
               router.refresh();
-              return 'Anda sudah bergabung';
+              return t('Anda sudah bergabung');
             })
           }>
-          Terima undangan
+          {t('Terima undangan')}
         </Button>
       </div>
     </div>
@@ -282,16 +289,16 @@ export function SignOutButton() {
       <div className="tr-row">
         <Button
           busy={submission.busy}
-          busyLabel="Keluar…"
+          busyLabel={t('Keluar…')}
           onClick={() =>
             submission.run(async () => {
               await send('POST', '/api/v1/auth/sign-out');
               router.push('/start?masuk=1');
               router.refresh();
-              return 'Anda sudah keluar';
+              return t('Anda sudah keluar');
             })
           }>
-          Keluar
+          {t('Keluar')}
         </Button>
       </div>
     </div>
