@@ -26,7 +26,7 @@ from app.portfolio.model.schema import (
     UpdateRequest,
     VersionedActionRequest,
 )
-from app.portfolio.repository.sqlalchemy.models import InventionRecord, InventionUpdateRecord
+from app.portfolio.repository.sqlalchemy.models import InventionPublicPageRecord, InventionRecord, InventionUpdateRecord
 from app.portfolio.repository.sqlalchemy.repository import SqlAlchemyPortfolioRepository
 
 _ARCHIVED = {
@@ -190,7 +190,7 @@ class UpdateService:
             return InventionUpdateResponse.model_validate(update)
         if (
             invention.status != "PUBLISHED"
-            or not invention.public_page
+            or not await self._page_enabled(invention.id)
             or await is_suspended(self.session, "INVENTION", invention.id)
         ):
             raise InvalidTransitionError(_NOT_PUBLIC[locale()])
@@ -208,6 +208,13 @@ class UpdateService:
             )
         await self._audit(principal, "invention_update.published", update)
         return InventionUpdateResponse.model_validate(update)
+
+    async def _page_enabled(self, invention_id: UUID) -> bool:
+        """Whether the invention's public page (051) is switched on; no page row means off."""
+        enabled = await self.session.scalar(
+            select(InventionPublicPageRecord.enabled).where(InventionPublicPageRecord.invention_id == invention_id)
+        )
+        return bool(enabled)
 
     async def withdraw(
         self, principal: Principal, invention_id: UUID, update_id: UUID, request: VersionedActionRequest

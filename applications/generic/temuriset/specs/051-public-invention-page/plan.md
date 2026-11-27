@@ -4,7 +4,7 @@
 
 ## API
 
-1. `migrations/versions/0023_public_invention_page.py` and the `InventionRecord` columns.
+1. `migrations/versions/0023_public_invention_page.py` (new table `invention_public_pages`) and `InventionPublicPageRecord`; `InventionRecord` is unchanged.
 2. `app/documents/service/public_image.py`: `clean_image()` for JPEG (drops APP1/APP12/APP13/COM, reads SOF size and EXIF orientation), PNG (drops eXIf/tEXt/iTXt/zTXt/tIME) and WebP (drops EXIF/XMP, clears the VP8X flags).
 3. `app/documents/service/service.py`: `owned_public_image()` validates the owner's chosen version; `public_image()` reads and cleans it per request (`ponytail:` note on the cost).
 4. `app/portfolio`: `PublicPageRequest`/`PublicPageResponse`, `set_public_page()`, `PUT /{id}/public-page`; the invention view echoes the settings.

@@ -1,5 +1,6 @@
 """Inventions: drafts that save anything, versions that never change once published."""
 
+from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
 
@@ -34,7 +35,11 @@ from app.portfolio.model.schema import (
     PublishResponse,
     VersionedActionRequest,
 )
-from app.portfolio.repository.sqlalchemy.models import InventionRecord, InventionVersionRecord
+from app.portfolio.repository.sqlalchemy.models import (
+    InventionPublicPageRecord,
+    InventionRecord,
+    InventionVersionRecord,
+)
 from app.portfolio.repository.sqlalchemy.repository import SqlAlchemyPortfolioRepository
 from app.portfolio.service.review_hook import PassThroughGate, PublicationGate
 from app.portfolio.service.validation import PublicationInvalidError, publication_errors
@@ -125,23 +130,26 @@ class PortfolioService:
         )
 
     async def _public_page(self, invention: InventionRecord) -> PublicPageResponse:
+        page = await _page_record(self.session, invention.id)
+        if page is None:
+            return PublicPageResponse()
         photo = None
-        if invention.public_photo_version_id is not None:
-            found = await document_version_number(self.session, invention.public_photo_version_id)
+        if page.photo_version_id is not None:
+            found = await document_version_number(self.session, page.photo_version_id)
             if found is not None:
                 photo = PublicPhotoResponse(
                     document_id=found[0],
                     version=found[1],
-                    alt=invention.public_photo_alt or "",
-                    width=invention.public_photo_width or 0,
-                    height=invention.public_photo_height or 0,
-                    orientation=invention.public_photo_orientation or 1,
+                    alt=page.photo_alt or "",
+                    width=page.photo_width or 0,
+                    height=page.photo_height or 0,
+                    orientation=page.photo_orientation or 1,
                 )
         return PublicPageResponse(
-            enabled=invention.public_page,
-            field_test=invention.public_field_test,
+            enabled=page.enabled,
+            field_test=page.field_test,
             photo=photo,
-            content_locale=invention.public_content_locale,  # type: ignore[arg-type]
+            content_locale=page.content_locale,  # type: ignore[arg-type]
         )
 
     async def set_public_page(
@@ -175,22 +183,26 @@ class PortfolioService:
             raise FieldsInvalidError(
                 [{"loc": ["body", "photo_alt"], "msg": _ALT_REQUIRED[locale()], "type": "photo_alt"}]
             )
+        page = await _page_record(self.session, invention.id)
+        if page is None:
+            page = InventionPublicPageRecord(invention_id=invention.id, enabled=False, content_locale="id")
+            self.session.add(page)
         if request.photo is None:
-            invention.public_photo_version_id = None
-            invention.public_photo_width = invention.public_photo_height = invention.public_photo_orientation = None
+            page.photo_version_id = None
+            page.photo_width = page.photo_height = page.photo_orientation = None
         else:
             version_id, image = await owned_public_image(
                 self.session, invention.managing_party_id, request.photo.document_id, request.photo.version
             )
-            invention.public_photo_version_id = version_id
-            invention.public_photo_width, invention.public_photo_height = image.width, image.height
-            invention.public_photo_orientation = image.orientation
-        if request.enabled and not invention.public_page:
-            invention.public_page_at = clock.now()
-        invention.public_page = request.enabled
-        invention.public_field_test = (request.field_test or "").strip() or None
-        invention.public_photo_alt = alt or None
-        invention.public_content_locale = request.content_locale
+            page.photo_version_id = version_id
+            page.photo_width, page.photo_height = image.width, image.height
+            page.photo_orientation = image.orientation
+        if request.enabled and not page.enabled:
+            page.enabled_at = clock.now()
+        page.enabled = request.enabled
+        page.field_test = (request.field_test or "").strip() or None
+        page.photo_alt = alt or None
+        page.content_locale = request.content_locale
         invention.version += 1
         await self.session.flush()
         await record_audit(
@@ -592,7 +604,40 @@ async def digest_candidates(session: AsyncSession, since: datetime) -> list[UUID
     return list(await session.scalars(query))
 
 
-async def public_page_settings(session: AsyncSession, invention_id: UUID) -> InventionRecord | None:
+async def _page_record(session: AsyncSession, invention_id: UUID) -> InventionPublicPageRecord | None:
+    return await session.scalar(
+        select(InventionPublicPageRecord).where(InventionPublicPageRecord.invention_id == invention_id)
+    )
+
+
+@dataclass(frozen=True)
+class PublicPageSettings:
+    """The switches and additions the signed-out summary reads (051).
+
+    Attributes:
+        investor_digest (bool): Included in investor alerts and digests (046).
+        public_page (bool): The public invention page is on.
+        public_field_test (str | None): Field-test summary.
+        public_photo_version_id (UUID | None): The published photo's document version.
+        public_photo_alt (str | None): What the photo shows.
+        public_photo_width (int | None): Width in pixels.
+        public_photo_height (int | None): Height in pixels.
+        public_photo_orientation (int | None): EXIF orientation the page applies.
+        public_content_locale (str): Language the inventor wrote in, ``id`` or ``en``.
+    """
+
+    investor_digest: bool
+    public_page: bool = False
+    public_field_test: str | None = None
+    public_photo_version_id: UUID | None = None
+    public_photo_alt: str | None = None
+    public_photo_width: int | None = None
+    public_photo_height: int | None = None
+    public_photo_orientation: int | None = None
+    public_content_locale: str = "id"
+
+
+async def public_page_settings(session: AsyncSession, invention_id: UUID) -> PublicPageSettings | None:
     """The invention's public-page and investor-alert switches, for the signed-out summary (051).
 
     Args:
@@ -600,9 +645,25 @@ async def public_page_settings(session: AsyncSession, invention_id: UUID) -> Inv
         invention_id (UUID): The invention.
 
     Returns:
-        InventionRecord | None: The record, or None when unknown.
+        PublicPageSettings | None: The settings, or None when the invention is unknown.
     """
-    return await session.get(InventionRecord, invention_id)
+    invention = await session.get(InventionRecord, invention_id)
+    if invention is None:
+        return None
+    page = await _page_record(session, invention_id)
+    if page is None:
+        return PublicPageSettings(investor_digest=invention.investor_digest)
+    return PublicPageSettings(
+        investor_digest=invention.investor_digest,
+        public_page=page.enabled,
+        public_field_test=page.field_test,
+        public_photo_version_id=page.photo_version_id,
+        public_photo_alt=page.photo_alt,
+        public_photo_width=page.photo_width,
+        public_photo_height=page.photo_height,
+        public_photo_orientation=page.photo_orientation,
+        public_content_locale=page.content_locale,
+    )
 
 
 async def investor_digest_enabled(session: AsyncSession, invention_id: UUID) -> bool:
