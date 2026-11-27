@@ -74,7 +74,7 @@
   "fingerprints": {
     "tokens.json": "sha256:81eb9fc690a09f7d99b50c30f6b6c8fcbf343bfa27a3f67152623b70e3e56bdd",
     "components/bundle.js": "sha256:6d357f738f8fffa7a5cb67fff44fd98c23e9fdf76ce0ef66ecdb8910ccbd98ce",
-    "components/bundle.css": "sha256:ca2ad200184ec2627e455bc31fd1b6177b19ccce98d5c5e6cb556f1f760bf3ae",
+    "components/bundle.css": "sha256:8c02d79f1fa466667d7d3b76f7185b7017b80bb9fc11d82dbf1c04b6f2c15e5d",
     "components/index.d.ts": "sha256:f9d31c5e9e7c9ebd860b11deb333fe1ff81b50e69def7272e5aa6949f8f5d993"
   },
   "limitations": [

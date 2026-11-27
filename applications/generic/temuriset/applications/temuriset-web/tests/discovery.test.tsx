@@ -6,7 +6,7 @@ import { resolve } from 'node:path';
 import type { ReactElement } from 'react';
 
 import type { Discovery, DiscoveryItem, MatchResult, MatchRun } from '@/features/discovery/model';
-import { readFilters, readSource, readType } from '@/features/discovery/model';
+import { appliedFilters, discoverHref, readFilters, readSource, readType } from '@/features/discovery/model';
 import { DiscoverView } from '@/views/discovery/DiscoverView';
 import { MatchesView } from '@/views/discovery/MatchesView';
 
@@ -187,6 +187,34 @@ describe('discovery (S03)', () => {
     expect(readSource('DROP:1')).toBeNull();
   });
 
+  it('keeps narrowing filters behind "Filter (n)" and shows each applied filter as a removable chip', () => {
+    const applied = page({ total_estimate: 1, filters: { q: 'air', sector: 'Energi', stage: 'PROTOTYPE' } }, { relevant: [CLEARSPRING] });
+    render(<DiscoverView me={makeMe({ persona: 'mitra' })} type="inventions" filters={{ q: 'air', sector: 'Energi', stage: 'PROTOTYPE' }} page={applied} fundingOn matchesHref={null} />);
+
+    expect(screen.getByText('Filter (2)')).toBeInTheDocument();
+    expect(screen.getByRole('searchbox', { name: 'Kata kunci' })).toHaveValue('air');
+    const chips = within(screen.getByRole('list', { name: 'Filter aktif' }));
+    expect(chips.getByText('Tahap: Prototipe')).toBeInTheDocument();
+    expect(chips.getByRole('link', { name: 'Hapus filter Sektor: Energi' })).toHaveAttribute('href', '/discover?type=inventions&q=air&stage=PROTOTYPE');
+  });
+
+  it('lists results compactly and opens the chosen one beside the list, with the way back to the same row', () => {
+    const results = page({ total_estimate: 2 }, { relevant: [CLEARSPRING], new: [RAISE] });
+    render(<DiscoverView me={makeMe({ persona: 'mitra' })} type="inventions" filters={{ q: 'air' }} page={results} fundingOn matchesHref={null} selected="fraise01" />);
+
+    expect(screen.getByRole('link', { name: 'ClearSpring' })).toHaveAttribute('href', '/discover?type=inventions&q=air&selected=inv-f01#detail');
+    expect(screen.getByText('Pendanaan perusahaan untuk LoopMaterial, ReFormPress · Disimpan')).toBeInTheDocument();
+    const detail = screen.getByRole('region', { name: 'Rincian: Demo Circular Materials Ltd' });
+    expect(within(detail).getByRole('article')).toBeInTheDocument();
+    expect(within(detail).getByRole('link', { name: 'Kembali ke hasil' })).toHaveAttribute('href', '/discover?type=inventions&q=air#hasil-fraise01');
+    expect(screen.getByText('Demo Circular Materials Ltd', { selector: 'a' }).closest('li')).toHaveAttribute('aria-current', 'true');
+  });
+
+  it('builds addresses and chips from the applied filters only', () => {
+    expect(discoverHref('partners', { sector: 'Energi' }, 'p1')).toBe('/discover?type=partners&sector=Energi&selected=p1');
+    expect(appliedFilters({ saved: true, q: 'air', other: 'x' }, (value) => value).map((filter) => filter.text)).toEqual(['Kata kunci: air', 'Hanya yang disimpan']);
+  });
+
   it('has no axe violations', async () => {
     expect(await violations(<DiscoverView me={makeMe({ persona: 'mitra' })} type="inventions" filters={{}} page={page({ total_estimate: 2 }, { relevant: [CLEARSPRING], new: [RAISE] })} fundingOn matchesHref={null} />)).toEqual([]);
   });
@@ -235,6 +263,23 @@ describe('matches (S10)', () => {
     expect(screen.getByRole('link', { name: 'Lihat mandat' }).getAttribute('href')).toMatch(/^\/partners\/[0-9a-f-]+$/);
   });
 
+  it('lists recommended mandates and opens one at a time, leading with intake and the deciding requirement', async () => {
+    const user = userEvent.setup();
+    replies = [{ status: 201, body: runOf([golden('match-f01-a1', 'eeeeeeee'), golden('match-f03-d1', 'ffffffff')]) }];
+    render(<MatchesView me={makeMe()} source={SOURCE} externals={[]} />);
+
+    const first = await screen.findByRole('article');
+    expect(within(first).getByText('Penerimaan')).toBeInTheDocument();
+    expect(within(first).getByText('Tidak ada syarat wajib yang menghalangi')).toBeInTheDocument();
+    const rows = screen.getAllByRole('button', { name: /Validasi prototipe enam bulan|Lisensi perangkat lunak korporasi/ });
+    expect(rows).toHaveLength(2);
+
+    await user.click(rows[1]);
+    expect(screen.getByRole('article')).toHaveTextContent(/Menghalangi: /);
+    await user.click(screen.getByRole('button', { name: 'Kembali ke daftar' }));
+    await waitFor(() => expect(rows[1]).toHaveFocus());
+  });
+
   it('explains the lexical fallback while preserving the ordinary match cards', async () => {
     replies = [{ status: 201, body: {
       ...runOf([golden('match-f01-a1', 'bbbbbbbb')]),
@@ -244,7 +289,7 @@ describe('matches (S10)', () => {
 
     expect(await screen.findByText('Pencarian eksperimental tidak tersedia')).toBeInTheDocument();
     expect(screen.getByText('Kecocokan dihitung dengan kata kunci dan aturan yang berlaku.')).toBeInTheDocument();
-    expect(screen.getByText('Kecocokan kuat')).toBeInTheDocument();
+    expect(within(screen.getByRole('article')).getByText('Kecocokan kuat')).toBeInTheDocument();
   });
 
   it('keeps the source and offers a retry when matching fails', async () => {
@@ -258,7 +303,7 @@ describe('matches (S10)', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('Layanan sedang sibuk.');
     await user.click(screen.getByRole('button', { name: 'Coba lagi' }));
 
-    expect(await screen.findByText('Kecocokan kuat')).toBeInTheDocument();
+    expect(await screen.findByRole('article')).toHaveTextContent('Kecocokan kuat');
     const bodies = fetchMock.mock.calls.map((call) => JSON.parse(String((call as unknown as [string, RequestInit])[1].body)));
     expect(bodies.every((body) => body.source_id === SOURCE.id)).toBe(true);
   });

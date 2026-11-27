@@ -5,6 +5,7 @@ import { useState } from 'react';
 
 import { Button } from '@/components/tr/Button';
 import { mark } from '@/features/discovery/api';
+import { SaveButton } from '@/features/discovery/SaveButton';
 
 type Props = { subjectType: string; subjectId: string; title: string; saved: boolean; actingPartyId: string };
 
@@ -14,11 +15,11 @@ export function ItemActions({ subjectType, subjectId, title, saved, actingPartyI
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
 
-  async function act(kind: 'saved-items' | 'discovery-feedback', on: boolean) {
+  async function hide() {
     setBusy(true);
     setFailed(false);
     try {
-      await mark(kind, subjectType, subjectId, actingPartyId, on);
+      await mark('discovery-feedback', subjectType, subjectId, actingPartyId, true);
       router.refresh();
     } catch {
       setFailed(true);
@@ -29,11 +30,8 @@ export function ItemActions({ subjectType, subjectId, title, saved, actingPartyI
 
   return (
     <>
-      <Button busy={busy} busyLabel="Menyimpan" onClick={() => act('saved-items', !saved)}>
-        {saved ? 'Hapus dari simpanan' : 'Simpan'}
-        <span className="tr-sr">{`: ${title}`}</span>
-      </Button>
-      <Button busy={busy} busyLabel="Menyimpan" onClick={() => act('discovery-feedback', true)}>
+      <SaveButton subjectType={subjectType} subjectId={subjectId} title={title} saved={saved} actingPartyId={actingPartyId} />
+      <Button busy={busy} busyLabel="Menyimpan" onClick={() => void hide()}>
         Kurang relevan
         <span className="tr-sr">{`: ${title}`}</span>
       </Button>

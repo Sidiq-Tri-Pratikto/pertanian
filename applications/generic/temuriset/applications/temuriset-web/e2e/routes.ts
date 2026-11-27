@@ -33,6 +33,7 @@ export const ROUTES: Route[] = [
   { path: '/partnerships/00000000-0000-4000-8000-000000000000', persona: 'inovator' },
   { path: '/profiles/00000000-0000-4000-8000-000000000000', persona: null },
   { path: '/discover?type=inventions&q=air', persona: 'inovator' },
+  { path: '/discover?type=inventions&selected=:published', persona: 'inovator' },
   { path: '/matches', persona: 'inovator' },
   { path: '/matches?source=SUPPORT_REQUEST::support', persona: 'inovator' },
   { path: '/inventions/:draft/edit?step=1', persona: 'inovator', primary: 'Simpan dan lanjutkan' },

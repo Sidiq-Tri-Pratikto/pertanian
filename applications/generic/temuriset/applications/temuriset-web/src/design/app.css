@@ -3,11 +3,3 @@ body {
   margin: 0;
   background: var(--tr-sys-color-canvas);
 }
-
-/* D15: on a laptop the filter form pushed the first result below the fold. From 64 rem the filters sit in a
-   column beside the results, first in reading order; below that they stay above, as before. Not sticky, so
-   200% text can still scroll to every filter. */
-.tr-discover { display: grid; gap: var(--tr-sys-space-section); align-items: start; }
-@media (min-width: 64rem) {
-  .tr-discover { grid-template-columns: var(--tr-sys-layout-asideWidth) minmax(0, 1fr); }
-}
