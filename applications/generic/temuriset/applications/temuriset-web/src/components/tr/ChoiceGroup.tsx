@@ -1,6 +1,9 @@
+'use client';
+
 import type { ReactNode } from 'react';
 
 import { FieldError } from '@/components/tr/FieldError';
+import { useMessages } from '@/features/i18n/LocaleProvider';
 
 type Choice = { value: string; label: string; hint?: string };
 
@@ -24,6 +27,7 @@ type ChoiceGroupProps = {
  * Selection styling comes from `:has(:checked)` in `src/design/app.css`, which mirrors `.is-selected`.
  */
 export function ChoiceGroup({ legend, name, options, defaultValue, hint, required, error, value, onChange }: ChoiceGroupProps) {
+  const words = useMessages().components;
   const hintId = `${name}-hint`;
   const errorId = `${name}-error`;
   const describedBy = [hint ? hintId : null, error ? errorId : null].filter(Boolean).join(' ') || undefined;
@@ -31,7 +35,7 @@ export function ChoiceGroup({ legend, name, options, defaultValue, hint, require
     <fieldset className={error ? 'tr-fieldset tr-fieldset--error' : 'tr-fieldset'} aria-describedby={describedBy} aria-invalid={error ? true : undefined}>
       <legend className="tr-field__label tr-sys-type-label">
         {legend}
-        {required ? <span className="tr-field__req tr-sys-type-support"> (wajib)</span> : null}
+        {required ? <span className="tr-field__req tr-sys-type-support">{words.required}</span> : null}
       </legend>
       {hint ? (
         <p id={hintId} className="tr-field__hint tr-sys-type-support">

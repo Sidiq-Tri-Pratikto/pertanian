@@ -1,10 +1,14 @@
 import type { components } from '@/api/schema.generated';
+import { en } from '@/features/i18n/en';
+import { id } from '@/features/i18n/id';
 
 type ErrorBody = components['schemas']['ErrorBody'];
 export type Recovery = components['schemas']['ErrorRecovery'];
 
-const UNREACHABLE_MESSAGE = 'Layanan belum dapat dihubungi. Periksa koneksi Anda lalu coba lagi.';
-const UNEXPECTED_MESSAGE = 'Layanan mengirim jawaban yang tidak dikenali. Coba lagi nanti.';
+/** The page language, read when the failure happens; Indonesian on the server and in tests. */
+function fallback() {
+  return typeof document !== 'undefined' && document.documentElement.lang === 'en' ? en.clientErrors : id.clientErrors;
+}
 
 /** One client-side failure. Branch on `code`; show `message` and `requestId`. */
 export class ApiError extends Error {
@@ -50,11 +54,11 @@ export class ApiError extends Error {
   }
 
   static unreachable(): ApiError {
-    return new ApiError('NETWORK_UNREACHABLE', UNREACHABLE_MESSAGE, { retryable: true, max_attempts: 3 });
+    return new ApiError('NETWORK_UNREACHABLE', fallback().unreachable, { retryable: true, max_attempts: 3 });
   }
 
   static unexpected(): ApiError {
-    return new ApiError('UNEXPECTED_RESPONSE', UNEXPECTED_MESSAGE, { retryable: false });
+    return new ApiError('UNEXPECTED_RESPONSE', fallback().unexpected, { retryable: false });
   }
 
   /** Normalize anything caught at a call site. */

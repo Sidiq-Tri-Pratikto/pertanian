@@ -1,4 +1,5 @@
 import { ApiError, readFailure } from '@/api/errors';
+import { API_LOCALE_HEADER } from '@/features/i18n/locale';
 import type { components, paths } from '@/api/schema.generated';
 
 // Same origin: next.config.ts forwards /api/v1 to the service, so cookies stay first-party.
@@ -10,11 +11,17 @@ type JsonOf<Path extends keyof paths> = paths[Path] extends {
   ? Body
   : never;
 
+function pageLocale(): string {
+  return typeof document !== 'undefined' && document.documentElement.lang === 'en' ? 'en' : 'id';
+}
+
 /** Make one bounded same-origin request and normalize the registered failure envelope. */
 export async function getResponse(path: string, options?: RequestInit): Promise<Response> {
   let response: Response;
   try {
-    response = await fetch(path, { ...options, signal: AbortSignal.timeout(TIMEOUT_MS), cache: 'no-store' });
+    // The page language travels with every request, so the service's messages match the page.
+    const headers = { ...(options?.headers as Record<string, string> | undefined), [API_LOCALE_HEADER]: pageLocale() };
+    response = await fetch(path, { ...options, headers, signal: AbortSignal.timeout(TIMEOUT_MS), cache: 'no-store' });
   } catch {
     throw ApiError.unreachable();
   }

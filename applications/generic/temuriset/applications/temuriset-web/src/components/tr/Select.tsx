@@ -3,6 +3,7 @@
 import { useId, type ReactNode } from 'react';
 
 import { Field, fieldIds } from '@/components/tr/Field';
+import { useMessages } from '@/features/i18n/LocaleProvider';
 
 export type SelectOption = { value: string; label: string; disabledReason?: string };
 
@@ -22,6 +23,7 @@ type SelectProps = {
 
 /** Port of TR.Select: native selection with a visible empty choice unless the caller removes it. */
 export function Select({ label, value, onChange, options, emptyLabel, hint, required, error, id, name }: SelectProps) {
+  const words = useMessages().components;
   const auto = useId();
   const ids = fieldIds(id ?? auto, hint, error);
   return (
@@ -35,7 +37,7 @@ export function Select({ label, value, onChange, options, emptyLabel, hint, requ
         aria-invalid={error ? true : undefined}
         aria-describedby={ids.describedBy}
         onChange={(event) => onChange(event.target.value)}>
-        {emptyLabel !== null ? <option value="">{emptyLabel ?? 'Pilih salah satu'}</option> : null}
+        {emptyLabel !== null ? <option value="">{emptyLabel ?? words.chooseOne}</option> : null}
         {options.map((option) => (
           <option key={option.value} value={option.value} disabled={Boolean(option.disabledReason)}>
             {option.label + (option.disabledReason ? ` (${option.disabledReason})` : '')}

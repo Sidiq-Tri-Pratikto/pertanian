@@ -393,3 +393,43 @@ def test_the_digest_runs_on_monday_at_nine_in_jakarta() -> None:
     """
     assert next_digest_at(datetime(2026, 11, 15, 10, tzinfo=UTC)) == datetime(2026, 11, 16, 2, tzinfo=UTC)
     assert next_digest_at(datetime(2026, 11, 16, 2, tzinfo=UTC)) == datetime(2026, 11, 23, 2, tzinfo=UTC)
+
+
+async def test_an_english_subscriber_gets_english_mail_with_english_links_and_errors_follow_the_header(
+    inventor: tuple[AsyncClient, str], new_client: Callable[[], AsyncClient]
+) -> None:
+    """
+    Condition:
+    - A visitor subscribes from the English page (locale ``en``) and confirms; Rani publishes a matching invention.
+      The same visitor then sends an empty topic list with the English header (spec 050).
+
+    Expected:
+    - The confirmation and the alert are in English with ``/en/...`` links, the anonymous inventor reads "An inventor
+      on TemuRiset", and the error message is English with ``Content-Language: en`` while the code stays the same.
+    """
+    client, party = inventor
+    async with new_client() as visitor:
+        sent = await visitor.post("/api/v1/subscriptions", json={"email": INVESTOR, "topics": WATER, "locale": "en"})
+        assert sent.status_code == 202, sent.text
+        confirmation = (await _mail(visitor))[0]
+        token = _token(confirmation["body"], "/en/subscribe/confirm")
+        assert (await visitor.post("/api/v1/subscriptions/confirm", json={"token": token})).status_code == 200
+        invention = await publish_invention(client, party, "F01")
+        await _include(client, party, invention)
+        await _deliver()
+        alert = (await _mail(visitor))[0]
+        refused = await visitor.post(
+            "/api/v1/subscriptions",
+            json={"email": "other@example.com", "topics": {}, "locale": "en"},
+            headers={"X-TemuRiset-Locale": "en"},
+        )
+
+    assert confirmation["subject"] == "Confirm your TemuRiset invention news subscription"
+    assert "sector Air dan sanitasi; stage Prototype" in confirmation["body"]
+    assert alert["subject"] == "An invention that matches your interests: ClearSpring"
+    assert "Inventor: An inventor on TemuRiset" in alert["body"]
+    assert "it matches your interests, sector Air dan sanitasi, stage Prototype" in alert["body"]
+    assert f"/en/inventions/{invention}" in alert["body"] and "/en/subscribe/manage?token=" in alert["body"]
+    assert refused.headers["content-language"] == "en"
+    assert refused.json()["error"]["code"] == "VALIDATION_FAILED"
+    assert refused.json()["error"]["message"].isascii()

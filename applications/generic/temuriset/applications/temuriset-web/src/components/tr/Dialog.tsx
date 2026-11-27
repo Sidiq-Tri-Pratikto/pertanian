@@ -4,6 +4,7 @@ import { useEffect, useId, useRef, type KeyboardEvent, type ReactNode } from 're
 
 import { Button } from '@/components/tr/Button';
 import { Icon } from '@/components/tr/Icon';
+import { useMessages } from '@/features/i18n/LocaleProvider';
 
 const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), summary, [tabindex="0"]';
 
@@ -20,6 +21,7 @@ type DialogProps = {
 
 /** Port of TR.Dialog: a native modal, labelled by its title. Escape closes without committing; focus returns. */
 export function Dialog({ open, onClose, title, children, primary, secondary, returnFocusId }: DialogProps) {
+  const words = useMessages().components;
   const dialog = useRef<HTMLDialogElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const opener = useRef<Element | null>(null);
@@ -71,7 +73,7 @@ export function Dialog({ open, onClose, title, children, primary, secondary, ret
             <h2 id={titleId} ref={heading} tabIndex={-1} className="tr-sys-type-heading-md">
               {title}
             </h2>
-            <button type="button" className="tr-icon-btn" aria-label="Tutup" onClick={onClose}>
+            <button type="button" className="tr-icon-btn" aria-label={words.close} onClick={onClose}>
               <Icon name="close" />
             </button>
           </div>

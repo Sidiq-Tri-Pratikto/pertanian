@@ -5,8 +5,9 @@ export type Topics = components['schemas']['Topics'];
 export type Subscription = components['schemas']['SubscriptionResponse'];
 export type Teaser = components['schemas']['TeaserResponse'];
 
-export function subscribe(email: string, topics: Topics): Promise<{ status: string }> {
-  return send('POST', '/api/v1/subscriptions', { email, topics });
+/** The page's language becomes the language of every email this subscription receives. */
+export function subscribe(email: string, topics: Topics, locale: 'id' | 'en' = 'id'): Promise<{ status: string }> {
+  return send('POST', '/api/v1/subscriptions', { email, topics, locale });
 }
 
 export function confirmSubscription(token: string): Promise<Subscription> {

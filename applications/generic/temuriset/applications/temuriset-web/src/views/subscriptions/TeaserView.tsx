@@ -1,51 +1,64 @@
 import Link from 'next/link';
 
 import { EmptyState } from '@/components/tr/EmptyState';
-import { STAGES } from '@/features/portfolio/model';
 import type { Teaser } from '@/features/subscriptions/api';
 import { AuthShell } from '@/views/AuthShell';
+import type { Locale } from '@/features/i18n/locale';
+import { localHref } from '@/features/i18n/locale';
+import { messagesFor, sectorLabel, stageLabel } from '@/features/i18n/messages';
 
-/** The brief public summary an investor opens from an email. Anything more needs a normal signup. */
-export function TeaserView({ teaser }: { teaser: Teaser | null }) {
+/**
+ * The brief public summary an investor opens from an email. Anything more needs a normal signup. Inventor content is
+ * shown as written; on an English page it carries `lang="id"` and a "Written in Indonesian" label (spec 050).
+ */
+export function TeaserView({ teaser, locale = 'id' }: { teaser: Teaser | null; locale?: Locale }) {
+  const messages = messagesFor(locale);
+  const words = messages.teaser;
   if (!teaser) {
     return (
-      <AuthShell title="Inovasi tidak tersedia">
+      <AuthShell title={words.unavailableTitle}>
         <EmptyState
           icon="question"
-          title="Ringkasan ini tidak tersedia"
+          title={words.unavailableHeading}
           action={
-            <Link className="tr-link" href="/langganan">
-              Atur kabar inovasi Anda
+            <Link className="tr-link" href={localHref(locale, '/langganan')}>
+              {words.unavailableAction}
             </Link>
           }>
-          Pengelolanya mungkin sudah menarik inovasi ini dari kabar untuk investor.
+          {words.unavailableBody}
         </EmptyState>
       </AuthShell>
     );
   }
-  const stage = STAGES.find((item) => item.value === teaser.stage)?.label;
   const detail = `/inventions/${teaser.id}`;
+  const content = locale === 'en' ? 'id' : undefined;
   return (
-    <AuthShell title={teaser.title} subtitle={`Inovator: ${teaser.inventor_name}`}>
+    <AuthShell title={teaser.title} subtitle={words.inventor(teaser.inventor_name)}>
       <section className="tr-panel tr-stack" aria-labelledby="ringkasan">
         <h2 id="ringkasan" className="tr-sys-type-heading-sm">
-          Ringkasan
+          {words.summary}
         </h2>
-        <p>{teaser.summary}</p>
-        <p className="tr-muted">{[teaser.sector, stage].filter(Boolean).join(' · ')}</p>
-        {teaser.keywords.length ? <p className="tr-muted tr-sys-type-support">{`Kata kunci: ${teaser.keywords.join(', ')}`}</p> : null}
+        {content ? <p className="tr-muted tr-sys-type-support">{words.writtenIn}</p> : null}
+        <p lang={content}>{teaser.summary}</p>
+        <p className="tr-muted">{[sectorLabel(messages, teaser.sector), stageLabel(messages, teaser.stage)].filter(Boolean).join(' · ')}</p>
+        {teaser.keywords.length ? (
+          <p className="tr-muted tr-sys-type-support">
+            {words.keywords('')}
+            <span lang={content}>{teaser.keywords.join(', ')}</span>
+          </p>
+        ) : null}
       </section>
       <section className="tr-panel tr-stack" aria-labelledby="detail">
         <h2 id="detail" className="tr-sys-type-heading-sm">
-          Ingin tahu lebih banyak?
+          {words.moreTitle}
         </h2>
-        <p>Masalah, solusi, fakta, bukti, dan cara menghubungi inovator tersedia untuk akun investor.</p>
+        <p>{words.moreBody}</p>
         <div className="tr-row">
-          <Link className="tr-btn tr-btn--primary" href={`/start?kembali=${encodeURIComponent(detail)}`}>
-            Daftar untuk melihat detail
+          <Link className="tr-btn tr-btn--primary" href={localHref(locale, `/start?kembali=${encodeURIComponent(detail)}`)}>
+            {words.signUp}
           </Link>
-          <Link className="tr-link" href={`/start?masuk=1&kembali=${encodeURIComponent(detail)}`}>
-            Sudah punya akun? Masuk
+          <Link className="tr-link" href={localHref(locale, `/start?masuk=1&kembali=${encodeURIComponent(detail)}`)}>
+            {words.signIn}
           </Link>
         </div>
       </section>

@@ -12,6 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.access.service.service import find_party
 from app.core import clock
 from app.core.errors.base import FieldsInvalidError, NotFoundError
+from app.core.locale import locale
 from app.core.settings import get_settings
 from app.identity.service.mailbox_service import DisabledMailbox, MailReference, MailUnavailableError, mailbox_for
 from app.identity.service.service import RateLimitedError, hash_address
@@ -44,7 +45,6 @@ ALERTS_PER_DAY = 3
 DIGEST_ITEMS = 5
 PER_EMAIL_PER_HOUR = 3
 PER_ADDRESS_PER_HOUR = 20
-ANONYMOUS_INVENTOR = "Inovator di TemuRiset"
 # Monday 09:00 Asia/Jakarta is Monday 02:00 UTC.
 _DIGEST_WEEKDAY, _DIGEST_HOUR_UTC = 0, 2
 
@@ -155,7 +155,9 @@ class SubscriptionService:
                 [
                     {
                         "loc": ["body", "topics"],
-                        "msg": "Pilih setidaknya satu sektor, tahap, atau kata kunci.",
+                        "msg": "Choose at least one sector, stage or keyword."
+                        if locale() == "en"
+                        else "Pilih setidaknya satu sektor, tahap, atau kata kunci.",
                         "type": "topics",
                     }
                 ]
@@ -200,12 +202,12 @@ class SubscriptionService:
                 return SubscribeResponse()
         if record.status == "ACTIVE":
             token = await self._link(record, "manage", MANAGE_LIFETIME)
-            subject, body = mail.already_subscribed(self.settings.web_origin, token)
+            subject, body = mail.already_subscribed(self.settings.web_origin, token, record.locale)
         else:
             record.topics, record.status, record.locale = topics, "PENDING", request.locale
             record.version += 1
             token = await self._link(record, "confirm", CONFIRM_LIFETIME)
-            subject, body = mail.confirm(self.settings.web_origin, token, topics)
+            subject, body = mail.confirm(self.settings.web_origin, token, topics, request.locale)
         await self.session.flush()
         await self._send(record, subject, body)
         return SubscribeResponse()
@@ -305,7 +307,7 @@ class SubscriptionService:
         except NotFoundError:
             return None
         party = await find_party(self.session, view.managing_party_id)
-        name = party.display_name if party is not None and party.profile_published else ANONYMOUS_INVENTOR
+        anonymous = party is None or not party.profile_published
         return {
             "id": view.id,
             "title": view.title,
@@ -313,7 +315,8 @@ class SubscriptionService:
             "sector": view.sector,
             "stage": view.stage,
             "keywords": view.keywords,
-            "inventor_name": name,
+            "inventor_name": mail.ANONYMOUS_INVENTOR["id"] if anonymous else party.display_name,
+            "anonymous": anonymous,
             "published_at": view.published_at,
         }
 
@@ -332,6 +335,9 @@ class SubscriptionService:
         found = await self._public(invention_id)
         if found is None:
             raise NotFoundError()
+        anonymous = found.pop("anonymous")
+        if anonymous:
+            found["inventor_name"] = mail.ANONYMOUS_INVENTOR[locale()]
         return TeaserResponse(**found)
 
     async def alert(self, invention_id: UUID) -> int:
@@ -348,7 +354,7 @@ class SubscriptionService:
             return 0
         now, sent = clock.now(), 0
         for record in await self.repository.active():
-            found = match(record.topics, invention)
+            found = match(record.topics, invention, record.locale)
             if found is None or found.level != "ALERT":
                 continue
             if await self.repository.alerts_since(record.id, now - timedelta(days=1)) >= ALERTS_PER_DAY:
@@ -378,7 +384,7 @@ class SubscriptionService:
             done = await self.repository.delivered(record.id)
             picked: list[tuple[dict[str, Any], Match]] = []
             for invention in candidates:
-                found = match(record.topics, invention)
+                found = match(record.topics, invention, record.locale)
                 if found is not None and invention["id"] not in done:
                     picked.append((invention, found))
             picked.sort(key=lambda pair: pair[1].level != "ALERT")

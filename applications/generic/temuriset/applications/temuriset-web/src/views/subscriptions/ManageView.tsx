@@ -10,9 +10,14 @@ import { Status } from '@/components/tr/Status';
 import { hasTopics, keywordsOf, readSubscription, unsubscribe, updateTopics, type Subscription, type Topics } from '@/features/subscriptions/api';
 import { TopicsFields } from '@/features/subscriptions/TopicsFields';
 import { AuthShell } from '@/views/AuthShell';
+import { useLocale, useMessages } from '@/features/i18n/LocaleProvider';
+import { localHref } from '@/features/i18n/locale';
 
 /** Change topics or leave, from the link in any email; no account needed. */
 export function ManageView({ token }: { token: string }) {
+  const page = useLocale();
+  const messages = useMessages();
+  const words = messages.manage;
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [topics, setTopics] = useState<Topics>({ sectors: [], stages: [], keywords: [] });
   const [keywords, setKeywords] = useState('');
@@ -33,7 +38,7 @@ export function ManageView({ token }: { token: string }) {
   async function saveTopics() {
     const chosen = { ...topics, keywords: keywordsOf(keywords) };
     if (!hasTopics(chosen)) {
-      setMessage('Pilih setidaknya satu sektor, tahap, atau kata kunci.');
+      setMessage(messages.topics.required);
       return;
     }
     setSave('saving');
@@ -57,32 +62,32 @@ export function ManageView({ token }: { token: string }) {
 
   if (missing) {
     return (
-      <AuthShell title="Tautan tidak berlaku">
-        <p>Tautan ini sudah kedaluwarsa. Buka tautan dari email kabar inovasi yang terbaru.</p>
+      <AuthShell title={words.expiredTitle}>
+        <p>{words.expiredBody}</p>
       </AuthShell>
     );
   }
   if (!subscription) {
     return (
-      <AuthShell title="Langganan kabar inovasi">
-        <p role="status">Memuat langganan…</p>
+      <AuthShell title={words.title}>
+        <p role="status">{words.loading}</p>
       </AuthShell>
     );
   }
   if (subscription.status === 'UNSUBSCRIBED') {
     return (
-      <AuthShell title="Anda sudah berhenti berlangganan" subtitle={subscription.email}>
-        <Status tone="neutral" label="Tidak ada lagi kabar inovasi yang dikirim ke email ini" live />
+      <AuthShell title={words.stoppedTitle} subtitle={subscription.email}>
+        <Status tone="neutral" label={words.stoppedStatus} live />
         <p>
-          <Link className="tr-link" href="/langganan">
-            Berlangganan lagi
+          <Link className="tr-link" href={localHref(page, '/langganan')}>
+            {words.again}
           </Link>
         </p>
       </AuthShell>
     );
   }
   return (
-    <AuthShell title="Langganan kabar inovasi" subtitle={subscription.email}>
+    <AuthShell title={words.title} subtitle={subscription.email}>
       {message ? <Status tone="danger" icon="alert" label={message} live="alert" /> : null}
       <TopicsFields
         topics={topics}
@@ -97,19 +102,19 @@ export function ManageView({ token }: { token: string }) {
         }}
       />
       <div className="tr-row">
-        <Button intent="primary" busy={save === 'saving'} busyLabel="Menyimpan…" onClick={() => void saveTopics()}>
-          Simpan minat
+        <Button intent="primary" busy={save === 'saving'} busyLabel={words.saving} onClick={() => void saveTopics()}>
+          {words.save}
         </Button>
         <SaveState state={save} onRetry={() => void saveTopics()} />
       </div>
       <section className="tr-panel tr-stack" aria-labelledby="berhenti">
         <h2 id="berhenti" className="tr-sys-type-heading-sm">
-          Berhenti berlangganan
+          {words.stopTitle}
         </h2>
-        <p>Tidak ada lagi alert atau rangkuman mingguan yang dikirim ke email ini.</p>
+        <p>{words.stopBody}</p>
         <div className="tr-row">
           <Button intent="danger" onClick={() => void leave()}>
-            Berhenti berlangganan
+            {words.stop}
           </Button>
         </div>
       </section>

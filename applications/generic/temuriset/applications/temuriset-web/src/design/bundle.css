@@ -140,6 +140,7 @@ body { margin: 0; font-family: var(--font-sans); background: var(--tr-sys-color-
 .tr-bar__in { display: flex; flex-wrap: wrap; align-items: center; gap: var(--tr-ref-space-8) var(--tr-ref-space-16); max-width: var(--tr-sys-layout-contentMax); margin: 0 auto; padding: var(--tr-ref-space-8) var(--tr-gutter); }
 .tr-logo { display: inline-flex; align-items: center; gap: var(--tr-ref-space-8); min-height: var(--tr-sys-size-controlComfort); color: var(--tr-sys-color-text-primary); font-size: 1.25rem; font-weight: var(--tr-ref-weight-bold); line-height: 1; text-decoration: none; border-radius: var(--tr-sys-radius-control); }
 .tr-logo__mark { flex: none; width: 2rem; height: 2rem; }
+.tr-langswitch { display: inline-flex; align-items: center; justify-content: center; min-width: var(--tr-sys-size-controlComfort); min-height: var(--tr-sys-size-controlComfort); margin-left: auto; padding: 0 var(--tr-ref-space-12); font-weight: var(--tr-ref-weight-semibold); border: var(--tr-sys-size-border) solid var(--tr-sys-color-border-control); border-radius: var(--tr-sys-radius-control); }
 .tr-provenance { padding: 0 var(--tr-ref-space-8); color: var(--tr-sys-color-text-secondary); border: var(--tr-sys-size-border) dashed var(--tr-sys-color-border-control); border-radius: var(--tr-sys-radius-control); }
 .tr-bar__context { flex: 1 1 14rem; min-width: 0; }
 .tr-bar__context .tr-field { flex-direction: row; flex-wrap: wrap; align-items: center; gap: var(--tr-sys-space-controlGap); }

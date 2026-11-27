@@ -556,3 +556,23 @@ async def test_verification_does_not_wait_for_the_worker_acknowledgement(
     finally:
         acknowledgement.set()
         assert await delivery == 1
+
+
+async def test_the_code_email_speaks_the_language_of_the_page_or_the_account(client: AsyncClient) -> None:
+    """
+    Condition:
+    - A new address signs up from the English page (locale ``en``); an unknown address asks to sign in from it.
+
+    Expected:
+    - Both emails are in English (spec 050).
+    """
+    signup = {"email": "english@example.com", "purpose": "sign_up", "display_name": "Ada", "locale": "en"}
+    assert (await client.post("/api/v1/auth/code", json=signup)).status_code == 202
+    unknown = {"email": "nobody-en@example.com", "purpose": "sign_in", "locale": "en"}
+    assert (await client.post("/api/v1/auth/code", json=unknown)).status_code == 202
+
+    code_mail = (await client.get("/api/v1/dev/mailbox", params={"email": "english@example.com"})).json()[0]
+    none_mail = (await client.get("/api/v1/dev/mailbox", params={"email": "nobody-en@example.com"})).json()[0]
+    assert code_mail["subject"] == "Your TemuRiset verification code"
+    assert code_mail["body"].startswith("Your verification code: ")
+    assert none_mail["body"].startswith("There is no TemuRiset account for this email yet.")

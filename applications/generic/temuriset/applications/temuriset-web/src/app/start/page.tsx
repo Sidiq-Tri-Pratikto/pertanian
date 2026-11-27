@@ -7,8 +7,12 @@ import { DemoPanel, type DemoAccount } from '@/features/demo/DemoPanel';
 import { homeFor } from '@/features/persona';
 import { getMe, personaOf, safeReturn, seededPersona } from '@/features/session';
 import { StartView } from '@/views/StartView';
+import { messagesFor } from '@/features/i18n/messages';
+import { serverLocale } from '@/features/i18n/server';
 
-export const metadata: Metadata = { title: 'Mulai' };
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: messagesFor(await serverLocale()).meta.start };
+}
 
 type Props = { searchParams: Promise<{ masuk?: string; kembali?: string }> };
 

@@ -3,6 +3,7 @@ import { ApiError } from '@/api/errors';
 
 vi.mock('next/headers', () => ({
   cookies: async () => ({ toString: () => 'tr_persona=mitra' }),
+  headers: async () => new Headers(),
 }));
 
 const { serverGet } = await import('@/api/server');
@@ -32,7 +33,7 @@ describe('server reads', () => {
     expect(await serverGet('/api/v1/capabilities')).toEqual(manifest);
     expect(fetch).toHaveBeenCalledWith(
       'http://localhost:8020/api/v1/capabilities',
-      expect.objectContaining({ headers: { cookie: 'tr_persona=mitra' }, cache: 'no-store' }),
+      expect.objectContaining({ headers: { cookie: 'tr_persona=mitra', 'X-TemuRiset-Locale': 'id' }, cache: 'no-store' }),
     );
   });
 

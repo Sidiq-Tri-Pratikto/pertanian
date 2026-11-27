@@ -12,7 +12,11 @@ import { Disclosure } from '@/components/tr/Disclosure';
 import { ErrorSummary } from '@/components/tr/ErrorSummary';
 import { Select } from '@/components/tr/Select';
 import { TextField } from '@/components/tr/TextField';
-import { PERSONA_LABEL, type Persona } from '@/features/persona';
+import { carriedEmail, forgetEmail } from '@/features/i18n/carry';
+import { useLocale, useMessages } from '@/features/i18n/LocaleProvider';
+import { localHref } from '@/features/i18n/locale';
+import type { Messages } from '@/features/i18n/messages';
+import type { Persona } from '@/features/persona';
 import { codeRequest, EMAIL_PATTERN, LOCALES, savePending, TIME_ZONES, type PendingSignIn } from '@/features/signIn';
 import { AuthShell } from '@/views/AuthShell';
 
@@ -31,10 +35,12 @@ function labelOf(options: { value: string; label: string }[], value: string): st
   return options.find((option) => option.value === value)?.label ?? value;
 }
 
-export const PERSONA_CHOICES = [
-  { value: 'inovator', label: 'Saya punya inovasi dan mencari dukungan', hint: PERSONA_LABEL.inovator },
-  { value: 'mitra', label: 'Saya berinvestasi atau memberi dukungan', hint: PERSONA_LABEL.mitra },
-];
+function personaChoices(words: Messages['start']) {
+  return [
+    { value: 'inovator', label: words.personaInventor, hint: words.personaInventorHint },
+    { value: 'mitra', label: words.personaPartner, hint: words.personaPartnerHint },
+  ];
+}
 
 type StartViewProps = {
   /** Pre-selected from the persona chosen before accounts existed. */
@@ -56,10 +62,16 @@ const FIELD_ID = { persona: 'persona-inovator', nama: 'nama', email: 'email' } a
 export function StartView({ persona, mode, returnTo, demo }: StartViewProps) {
   const router = useRouter();
   const form = useRef<HTMLFormElement>(null);
+  const page = useLocale();
+  const words = useMessages().start;
   const signUp = mode === 'sign_up';
   const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [locale, setLocale] = useState('id');
+  // An email typed before switching language starts the field; nothing else is carried.
+  const carried = useSyncExternalStore(subscribeNever, carriedEmail, () => '');
+  const [typedEmail, setEmail] = useState<string | null>(null);
+  const email = typedEmail ?? carried;
+  // The account's language starts as the page's; the visitor can still change it below.
+  const [locale, setLocale] = useState<string>(page);
   // Start from the browser's zone when the list has it, so most people never open the settings.
   const browserZone = useSyncExternalStore(subscribeNever, supportedBrowserZone, () => DEFAULT_ZONE);
   const [chosenZone, setTimeZone] = useState<string | null>(null);
@@ -71,9 +83,9 @@ export function StartView({ persona, mode, returnTo, demo }: StartViewProps) {
 
   function validate(chosen: string | null): Errors {
     const found: Errors = {};
-    if (signUp && !chosen) found.persona = 'Pilih cara Anda memakai TemuRiset.';
-    if (signUp && !name.trim()) found.nama = 'Isi nama tampilan.';
-    if (!EMAIL_PATTERN.test(email.trim())) found.email = 'Isi email dengan format nama@contoh.com.';
+    if (signUp && !chosen) found.persona = words.errorPersona;
+    if (signUp && !name.trim()) found.nama = words.errorName;
+    if (!EMAIL_PATTERN.test(email.trim())) found.email = words.errorEmail;
     return found;
   }
 
@@ -90,16 +102,17 @@ export function StartView({ persona, mode, returnTo, demo }: StartViewProps) {
     }
     const pending: PendingSignIn = signUp
       ? { email: email.trim(), purpose: 'sign_up', display_name: name.trim(), locale, time_zone: timeZone, persona: chosen ?? 'inovator', returnTo }
-      : { email: email.trim(), purpose: 'sign_in', returnTo };
+      : { email: email.trim(), purpose: 'sign_in', locale: page, returnTo };
     setBusy(true);
     try {
       await send('POST', '/api/v1/auth/code', codeRequest(pending));
       savePending(pending);
-      router.push('/start/kode');
+      forgetEmail();
+      router.push(localHref(page, '/start/kode'));
     } catch (error) {
       const apiError = ApiError.from(error);
       const wait = apiError.recovery.retry_after_seconds;
-      setFailure(wait ? `${apiError.message} Coba lagi dalam ${Math.ceil(wait / 60)} menit.` : apiError.message);
+      setFailure(wait ? `${apiError.message} ${words.retryIn(Math.ceil(wait / 60))}` : apiError.message);
       setAttempt((count) => count + 1);
       setBusy(false);
     }
@@ -107,13 +120,13 @@ export function StartView({ persona, mode, returnTo, demo }: StartViewProps) {
 
   // Switching between sign-up and sign-in keeps where the visitor was going.
   const back = returnTo ? `kembali=${encodeURIComponent(returnTo)}` : '';
-  const switchHref = signUp ? `/start?masuk=1${back ? `&${back}` : ''}` : `/start${back ? `?${back}` : ''}`;
+  const otherMode = localHref(page, signUp ? `/start?masuk=1${back ? `&${back}` : ''}` : `/start${back ? `?${back}` : ''}`);
   const summary = Object.entries(errors).map(([field, message]) => ({ fieldId: FIELD_ID[field as keyof Errors], message }));
 
   return (
     <AuthShell
-      title={signUp ? 'Selamat datang di TemuRiset' : 'Masuk ke TemuRiset'}
-      subtitle={signUp ? 'Pertemukan inovasi dengan investor dan mitra yang tepat.' : 'Kami kirim kode verifikasi ke email akun Anda.'}>
+      title={signUp ? words.titleSignUp : words.titleSignIn}
+      subtitle={signUp ? words.subtitleSignUp : words.subtitleSignIn}>
       {demo}
       {summary.length || failure ? (
         <ErrorSummary errors={summary} focusKey={attempt}>
@@ -124,22 +137,22 @@ export function StartView({ persona, mode, returnTo, demo }: StartViewProps) {
         {signUp ? (
           <>
             <ChoiceGroup
-              legend="Apa yang ingin Anda lakukan?"
+              legend={words.personaLegend}
               name="persona"
-              hint="Pilihan ini hanya mengatur menu dan bahasa, bukan hak akses."
-              options={PERSONA_CHOICES}
+              hint={words.personaHint}
+              options={personaChoices(words)}
               defaultValue={persona ?? undefined}
               error={errors.persona}
               required
             />
-            <TextField id="nama" label="Nama tampilan" value={name} onChange={setName} error={errors.nama} autoComplete="name" required />
+            <TextField id="nama" label={words.name} value={name} onChange={setName} error={errors.nama} autoComplete="name" required />
           </>
         ) : null}
         <TextField
           id="email"
           type="email"
-          label="Email"
-          hint="Kode verifikasi dikirim ke sini. Email terverifikasi hanya membuktikan Anda memegang alamat ini."
+          label={words.email}
+          hint={words.emailHint}
           value={email}
           onChange={setEmail}
           error={errors.email}
@@ -148,31 +161,31 @@ export function StartView({ persona, mode, returnTo, demo }: StartViewProps) {
         />
         {signUp ? (
           <>
-            <Disclosure label={`Bahasa dan zona waktu: ${labelOf(LOCALES, locale)}, ${labelOf(TIME_ZONES, timeZone)}`}>
+            <Disclosure label={words.settings(labelOf(LOCALES, locale), labelOf(TIME_ZONES, timeZone))}>
               <div className="tr-stack">
-                <Select id="bahasa" label="Bahasa" value={locale} onChange={setLocale} options={LOCALES} emptyLabel={null} />
-                <Select id="zona-waktu" label="Zona waktu" hint="Jadwal pertemuan ditampilkan dalam zona ini." value={timeZone} onChange={setTimeZone} options={TIME_ZONES} emptyLabel={null} />
+                <Select id="bahasa" label={words.language} value={locale} onChange={setLocale} options={LOCALES} emptyLabel={null} />
+                <Select id="zona-waktu" label={words.zone} hint={words.zoneHint} value={timeZone} onChange={setTimeZone} options={TIME_ZONES} emptyLabel={null} />
               </div>
             </Disclosure>
-            <p className="tr-muted">Tanpa perusahaan atau institusi pun Anda dapat mulai.</p>
+            <p className="tr-muted">{words.noOrganization}</p>
           </>
         ) : null}
         <div className="tr-row">
-          <Button type="submit" intent="primary" icon="arrow" busy={busy} busyLabel="Mengirim kode…">
-            Kirim kode
+          <Button type="submit" intent="primary" icon="arrow" busy={busy} busyLabel={words.sending}>
+            {words.send}
           </Button>
         </div>
       </form>
       <p>
-        {signUp ? 'Sudah punya akun? ' : 'Belum punya akun? '}
-        <Link className="tr-link" href={switchHref}>
-          {signUp ? 'Masuk' : 'Daftar'}
+        {signUp ? words.haveAccount : words.noAccount}
+        <Link className="tr-link" href={otherMode}>
+          {signUp ? words.signIn : words.signUp}
         </Link>
       </p>
       <p>
-        Investor dan cukup ingin kabar lewat email?{' '}
-        <Link className="tr-link" href="/langganan">
-          Berlangganan kabar inovasi
+        {words.newsQuestion}{' '}
+        <Link className="tr-link" href={localHref(page, '/langganan')}>
+          {words.newsLink}
         </Link>
       </p>
     </AuthShell>

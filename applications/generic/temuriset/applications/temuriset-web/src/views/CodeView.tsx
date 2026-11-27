@@ -14,6 +14,8 @@ import { forgetPersona } from '@/features/actions';
 import { homeFor, readPersona } from '@/features/persona';
 import { clearPending, codeRequest, parsePending, readPendingRaw } from '@/features/signIn';
 import { AuthShell } from '@/views/AuthShell';
+import { useLocale, useMessages } from '@/features/i18n/LocaleProvider';
+import { localHref } from '@/features/i18n/locale';
 
 function noSubscription() {
   return () => {};
@@ -25,6 +27,8 @@ function noSubscription() {
  */
 export function CodeView() {
   const router = useRouter();
+  const page = useLocale();
+  const words = useMessages().code;
   // The hand-off lives in this tab's sessionStorage; the server renders nothing until the browser reads it.
   const raw = useSyncExternalStore(noSubscription, readPendingRaw, () => undefined);
   const pending = raw === undefined ? null : parsePending(raw);
@@ -36,8 +40,8 @@ export function CodeView() {
   const [resent, setResent] = useState(false);
 
   useEffect(() => {
-    if (raw !== undefined && !parsePending(raw)) router.replace('/start');
-  }, [raw, router]);
+    if (raw !== undefined && !parsePending(raw)) router.replace(localHref(page, '/start'));
+  }, [raw, router, page]);
 
   if (!pending) return null;
 
@@ -51,7 +55,7 @@ export function CodeView() {
     event.preventDefault();
     if (busy || !pending) return;
     if (!/^\d{6}$/.test(code.trim())) {
-      fail('Isi kode verifikasi enam angka dari email Anda.', false, 'Isi kode verifikasi enam angka dari email Anda.');
+      fail(words.invalidFormat, false, words.invalidFormat);
       return;
     }
     setBusy(true);
@@ -66,7 +70,7 @@ export function CodeView() {
       const apiError = ApiError.from(error);
       setBusy(false);
       if (apiError.code === 'CODE_INVALID') {
-        const left = `Kode tidak cocok. Sisa percobaan: ${apiError.attemptsLeft ?? 0}.`;
+        const left = words.wrong(apiError.attemptsLeft ?? 0);
         fail(left, apiError.attemptsLeft === 0, left);
       } else {
         fail(apiError.message, apiError.code === 'CODE_EXPIRED');
@@ -84,26 +88,26 @@ export function CodeView() {
     } catch (error) {
       const apiError = ApiError.from(error);
       const wait = apiError.recovery.retry_after_seconds;
-      fail(wait ? `${apiError.message} Kode baru dapat diminta dalam ${Math.ceil(wait / 60)} menit.` : apiError.message, false);
+      fail(wait ? `${apiError.message} ${words.resendIn(Math.ceil(wait / 60))}` : apiError.message, false);
     }
   }
 
   return (
-    <AuthShell title="Masukkan kode verifikasi" subtitle={`Kami mengirim kode enam angka ke ${pending.email}. Kode berlaku 10 menit.`}>
+    <AuthShell title={words.title} subtitle={words.subtitle(pending.email)}>
       {failure ? (
         <ErrorSummary
           errors={fieldError ? [{ fieldId: 'kode', message: fieldError }] : []}
           focusKey={attempt}
-          retry={failure.resend ? { label: 'Kirim ulang kode', onClick: resend } : undefined}>
+          retry={failure.resend ? { label: words.resend, onClick: resend } : undefined}>
           {fieldError ? null : failure.message}
         </ErrorSummary>
       ) : null}
-      {resent ? <Status tone="success" label="Kode baru sudah dikirim" live /> : null}
+      {resent ? <Status tone="success" label={words.resent} live /> : null}
       <form onSubmit={verify} noValidate className="tr-panel tr-stack">
         <TextField
           id="kode"
-          label="Kode verifikasi"
-          hint="Enam angka dari email TemuRiset."
+          label={words.label}
+          hint={words.hint}
           value={code}
           onChange={setCode}
           error={fieldError}
@@ -112,15 +116,15 @@ export function CodeView() {
           required
         />
         <div className="tr-row">
-          <Button type="submit" intent="primary" icon="arrow" busy={busy} busyLabel="Memeriksa…">
-            Masuk
+          <Button type="submit" intent="primary" icon="arrow" busy={busy} busyLabel={words.checking}>
+            {words.submit}
           </Button>
-          <Button onClick={resend}>Kirim ulang kode</Button>
+          <Button onClick={resend}>{words.resend}</Button>
         </div>
       </form>
       <p>
-        <Link className="tr-link" href={pending.purpose === 'sign_up' ? '/start' : '/start?masuk=1'}>
-          Ubah email
+        <Link className="tr-link" href={localHref(page, pending.purpose === 'sign_up' ? '/start' : '/start?masuk=1')}>
+          {words.changeEmail}
         </Link>
       </p>
     </AuthShell>

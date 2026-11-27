@@ -8,9 +8,13 @@ import { Button } from '@/components/tr/Button';
 import { Status } from '@/components/tr/Status';
 import { confirmSubscription, type Subscription } from '@/features/subscriptions/api';
 import { AuthShell } from '@/views/AuthShell';
+import { useLocale, useMessages } from '@/features/i18n/LocaleProvider';
+import { localHref } from '@/features/i18n/locale';
 
 /** Opening the link confirms nothing; the investor presses the button, so mail scanners cannot subscribe anyone. */
 export function ConfirmView({ token }: { token: string }) {
+  const page = useLocale();
+  const words = useMessages().confirm;
   const [done, setDone] = useState<Subscription | null>(null);
   const [failure, setFailure] = useState<ApiError | null>(null);
   const [busy, setBusy] = useState(false);
@@ -29,13 +33,13 @@ export function ConfirmView({ token }: { token: string }) {
 
   if (done) {
     return (
-      <AuthShell title="Langganan aktif" subtitle={done.email}>
-        <Status tone="success" label="Kabar inovasi akan dikirim ke email ini" live />
-        <p>Inovasi yang sangat sesuai minat Anda dikirim langsung. Sisanya dirangkum setiap Senin pukul 09.00 WIB.</p>
+      <AuthShell title={words.activeTitle} subtitle={done.email}>
+        <Status tone="success" label={words.activeStatus} live />
+        <p>{words.activeBody}</p>
         {done.manage_token ? (
           <p>
-            <Link className="tr-link" href={`/langganan/atur?token=${encodeURIComponent(done.manage_token)}`}>
-              Ubah minat atau berhenti berlangganan
+            <Link className="tr-link" href={localHref(page, `/langganan/atur?token=${encodeURIComponent(done.manage_token)}`)}>
+              {words.manage}
             </Link>
           </p>
         ) : null}
@@ -43,20 +47,20 @@ export function ConfirmView({ token }: { token: string }) {
     );
   }
   return (
-    <AuthShell title="Konfirmasi langganan" subtitle="Tekan tombol di bawah untuk mulai menerima kabar inovasi.">
+    <AuthShell title={words.title} subtitle={words.subtitle}>
       {failure ? (
-        <Status tone="danger" icon="alert" label={failure.code === 'NOT_FOUND' ? 'Tautan tidak berlaku' : 'Belum terkonfirmasi'} live="alert">
-          <p>{failure.code === 'NOT_FOUND' ? 'Tautan ini sudah dipakai atau kedaluwarsa. Berlangganan lagi untuk tautan baru.' : failure.message}</p>
+        <Status tone="danger" icon="alert" label={failure.code === 'NOT_FOUND' ? words.invalidLabel : words.failedLabel} live="alert">
+          <p>{failure.code === 'NOT_FOUND' ? words.invalidBody : failure.message}</p>
         </Status>
       ) : null}
       <div className="tr-row">
-        <Button intent="primary" busy={busy} busyLabel="Mengonfirmasi…" onClick={() => void confirm()}>
-          Konfirmasi langganan
+        <Button intent="primary" busy={busy} busyLabel={words.confirming} onClick={() => void confirm()}>
+          {words.submit}
         </Button>
       </div>
       <p>
-        <Link className="tr-link" href="/langganan">
-          Berlangganan dengan email lain
+        <Link className="tr-link" href={localHref(page, '/langganan')}>
+          {words.other}
         </Link>
       </p>
     </AuthShell>
