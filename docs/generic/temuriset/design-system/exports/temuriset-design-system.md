@@ -1,11 +1,11 @@
-# TemuRiset Design System 1.0.0-draft
+# TemuRiset Design System 1.1.0-draft
 
 Single-file guide concatenated from the system's README, guide sections and component READMEs. Authority remains project/tokens.json and the component files.
 
 
 TemuRiset helps inventors find investors and partners who can advance an invention. This system exists so every screen answers two questions within seconds: **what can I do next, and what does the current evidence mean?** It serves independent inventors and individual investors as comfortably as organization teams, in calm, plain Indonesian.
 
-Release **1.0.0-draft** · review status: draft, not owner-approved · product contract: TemuRiset PRD generic v1.1 · namespace `window.TR` · React 18.3.1 · light theme only. Evidence is in *Validation report*; how the application stage binds to this system is in *Release and consuming*.
+Release **1.1.0-draft** · review status: draft, not owner-approved · product contract: TemuRiset PRD generic v1.1 · namespace `window.TR` · React 18.3.1 · light theme only. Evidence is in *Validation report*; how the application stage binds to this system is in *Release and consuming*.
 
 ## Product rules every screen keeps
 
@@ -38,7 +38,7 @@ Open each workspace with `TR.NextStep`: whose turn it is, one sentence, one acti
 - **Colour.** Slate canvas `tr-sys-color-canvas`, white content `tr-sys-color-surface`, teal only for the one primary action, selection and the your-turn band. Success green appears only after a real result, never for pending work. Amber marks UNKNOWN; red marks a known failure or a rejected input. Blue `tr-sys-color-focus` is reserved for keyboard focus.
 - **Components read aliases.** Use `tr-sys-*` or `tr-comp-*` tokens. Never use `tr-ref-*` or raw values in a component.
 - **Borders.** `tr-sys-color-border-decorative` separates groups and fails 3:1 on purpose. Every control boundary uses `tr-sys-color-border-control`.
-- **Type.** System sans via `--font-sans`, no font downloads. Style classes are `tr-sys-type-body`, `-body-strong`, `-label`, `-support`, `-support-strong`, `-heading-sm`, `-heading-md`, `-heading-lg`, `-amount`. Sizes are rem, so text settings scale them. `tr-sys-type-support` never carries a primary action or a critical gap.
+- **Type.** IBM Plex Sans via `--font-sans`, self-hosted from `project/fonts/` (load `fonts/fonts.css` before the tokens), with system sans as the fallback. Three weights ship: 400, 600 and 700. Style classes are `tr-sys-type-body`, `-body-strong`, `-label`, `-support`, `-support-strong`, `-heading-sm`, `-heading-md`, `-heading-lg`, `-display`, `-amount`. `-display` is the one page title per screen. Sizes are rem, so text settings scale them. `tr-sys-type-support` never carries a primary action or a critical gap.
 - **Space and shape.** Spacing steps 4 to 64 behind aliases: `tr-sys-space-controlGap`, `tr-sys-space-stack`, `tr-sys-space-section` (`sectionWide` from 48 rem), `tr-sys-layout-gutter` (`gutterWide` from 48 rem). Radii: `tr-sys-radius-control` 6, `tr-sys-radius-surface` 8, `tr-sys-radius-dialog` 12.
 - **Layout.** Maximum width `tr-sys-layout-contentMax`, long prose at `tr-sys-layout-readingMeasure`. Below 48 rem one column; above it an optional 20 rem supporting column. No cards inside cards, no big hero areas, no decorative dashboards.
 - **Targets and focus.** Common controls are at least `tr-sys-size-controlComfort` (44 CSS px, a product preference; AA asks 24 with exceptions). Focus is a 2 px white gap, then a 2 px blue ring. Selected states always add a non-colour cue: `tr-sys-size-borderSelected`, weight, or a check.
@@ -47,7 +47,7 @@ Open each workspace with `TR.NextStep`: whose turn it is, one sentence, one acti
 
 ## Iconography
 
-A small own stroke set (24 grid, 2-unit round stroke, `currentColor`), shipped in the bundle as `TR.Icon`, with no icon library or licence. Icons always support a word; the only exception is the dialog close button, which has the accessible name "Tutup". Sizes are `tr-sys-size-icon` and `tr-sys-size-iconSmall`. There is no logo asset in this release: the wordmark is the word "TemuRiset" in system text. Without a supplied product image, cards use a labelled category band; a missing image is not a problem state. Never invent a product photo, investor credential, rating or funding chart.
+A small own stroke set (24 grid, 2-unit round stroke, `currentColor`), shipped in the bundle as `TR.Icon`, with no icon library or licence. Icons always support a word; the only exception is the dialog close button, which has the accessible name "Tutup". Sizes are `tr-sys-size-icon` and `tr-sys-size-iconSmall`. `TR.Logo` is the mark (two paths meeting at one node: the inventor and the investor who meet) beside the word "TemuRiset" as text; the mark is decorative and the word names it. Photos sit in `tr-media` frames (4:3, `tr-sys-radius-media`) only when an owner published them; without one, cards use a labelled category band, and a missing image is not a problem state. Never invent a product photo, investor credential, rating or funding chart.
 
 ## Components
 
@@ -61,16 +61,28 @@ Pattern pages, which compose only the components above: *PatternDiscovery* (P01)
 
 Load, in order: the compiled tokens CSS, `components/bundle.css`, React 18.3.1 and ReactDOM (`components/lib/`), then `components/bundle.js`. Render with `React.createElement(TR.Button, {…})`. Put `lang="id"` on the document. Pass amounts as decimal strings and `null` for unknown; let components format them. Pass authorized projections only: these components display what they receive and enforce no access rule. Report a save or decision as done only after the server acknowledges it.
 
+## Fonts
+
+IBM Plex Sans 2.0.0 from the `@ibm/plex-sans` package, Latin1 split files, unmodified, under the SIL Open Font License 1.1 (`project/fonts/OFL.txt`; "Plex" is a Reserved Font Name, so the files are never renamed or modified here). Latin1 covers Indonesian and English. SHA-256:
+
+| File | SHA-256 |
+|---|---|
+| `IBMPlexSans-Regular-Latin1.woff2` | `bdb53f2af84b15e0a742428f5e199dacc3e6fd60776f0aebd9f700e2c97c960f` |
+| `IBMPlexSans-SemiBold-Latin1.woff2` | `8251b7fc61b580c2f52550fa69b3c49fb94fc333815ad301ca6b1f6d15420f85` |
+| `IBMPlexSans-Bold-Latin1.woff2` | `098277f28ccff8b6128068edc357d59cb9cb3d4e3d15d77e7757c85ba1162c73` |
+
+Release 1.1 (owner decision, 27 November 2026) replaces the 1.0 rules "system sans, no font downloads" and "no logo asset". It also adds `tr-chips`, `tr-list`/`tr-listrow`, `tr-listdetail`, `tr-toolbar` and `tr-media`, and folds in the application's deviations D1 (`:has(input:checked)` choices), D2 (whole words in the tab bar), D11 (`plus` icon) and D16 (compact context bar).
+
 
 ## Token registry
 
-Generated by `tools/build.mjs` from `tokens.json` (sha256 `311fe8545a4561c3…`). Do not edit by hand: change `tokens.json`, then rebuild.
+Generated by `tools/build.mjs` from `tokens.json` (sha256 `81eb9fc690a09f7d…`). Do not edit by hand: change `tokens.json`, then rebuild.
 
 **Rules.** Components read semantic or component aliases, never primitives. Logical id `TR.sys.color.action.primary.background` is CSS `--tr-sys-color-action-primary-background`; camelCase segments are kept, so the mapping reverses. Colour aliases are live (`{tr-ref-color-teal-700}`); spacing and radius aliases are recorded as `Alias: <token>.` in the usage note and checked for equality on every build. Type styles are classes sized in rem.
 
 **Export format.** `exports/temuriset-design-system.tokens.json` is custom JSON, `temuriset-tokens/1`. It is not a DTCG file and no DTCG 2025.10 compatibility is claimed; its `dtcgConversion` field states the conversion.
 
-Build result: **0 integrity errors** — 104 tokens, every alias resolves, no cycles, no duplicate names, no raw colours in bundle.css/bundle.js, every `var(--…)` used exists.
+Build result: **0 integrity errors** — 106 tokens, every alias resolves, no cycles, no duplicate names, no raw colours in bundle.css/bundle.js, every `var(--…)` used exists.
 
 ## Semantic tokens
 
@@ -116,6 +128,7 @@ Build result: **0 integrity errors** — 104 tokens, every alias resolves, no cy
 | `TR.sys.radius.control` | `--tr-sys-radius-control` | dimension | `6px` | `6px` | Alias: tr-ref-radius-6. Controls and status labels. |
 | `TR.sys.radius.surface` | `--tr-sys-radius-surface` | dimension | `8px` | `8px` | Alias: tr-ref-radius-8. Ordinary surfaces. |
 | `TR.sys.radius.dialog` | `--tr-sys-radius-dialog` | dimension | `12px` | `12px` | Alias: tr-ref-radius-12. Large dialogs. |
+| `TR.sys.radius.media` | `--tr-sys-radius-media` | dimension | `12px` | `12px` | Alias: tr-ref-radius-12. Photos and media frames. |
 | `TR.sys.size.controlComfort` | `--tr-sys-size-controlComfort` | dimension | `2.75rem` | `2.75rem` | Comfortable 44 CSS px minimum for common controls. A product preference; AA itself asks 24 CSS px with exceptions. |
 | `TR.sys.size.icon` | `--tr-sys-size-icon` | dimension | `1.25rem` | `1.25rem` | Default glyph, 20 CSS px. |
 | `TR.sys.size.iconSmall` | `--tr-sys-size-iconSmall` | dimension | `1.125rem` | `1.125rem` | Small glyph inside status labels, 18 CSS px. |
@@ -132,12 +145,13 @@ Build result: **0 integrity errors** — 104 tokens, every alias resolves, no cy
 | `TR.sys.shadow.dialog` | `--tr-sys-shadow-dialog` | shadow | `0 8px 32px rgba(15, 23, 42, 0.24)` | `0 8px 32px rgba(15, 23, 42, 0.24)` | Dialogs only. Cards and pages stay flat. |
 | `TR.sys.type.body` | `.tr-sys-type-body` | typography | `1rem / 1.5 · 400` |  | Running text and answers. |
 | `TR.sys.type.body.strong` | `.tr-sys-type-body-strong` | typography | `1rem / 1.5 · 600` |  | Emphasis inside running text. |
-| `TR.sys.type.label` | `.tr-sys-type-label` | typography | `1rem / 1.4 · 500` |  | Field labels, buttons and tabs. |
+| `TR.sys.type.label` | `.tr-sys-type-label` | typography | `1rem / 1.4 · 600` |  | Field labels, buttons and tabs. |
 | `TR.sys.type.support` | `.tr-sys-type-support` | typography | `0.875rem / 1.5 · 400` |  | Hints and metadata. Never the sole carrier of a primary action or a critical gap. |
 | `TR.sys.type.support.strong` | `.tr-sys-type-support-strong` | typography | `0.875rem / 1.5 · 600` |  | Status labels and short tags. |
 | `TR.sys.type.heading.sm` | `.tr-sys-type-heading-sm` | typography | `1.25rem / 1.4 · 600` |  | Card and section headings. |
 | `TR.sys.type.heading.md` | `.tr-sys-type-heading-md` | typography | `1.5rem / 1.3 · 600` |  | Task region headings and dialog titles. |
-| `TR.sys.type.heading.lg` | `.tr-sys-type-heading-lg` | typography | `2rem / 1.2 · 600` |  | Page titles. |
+| `TR.sys.type.heading.lg` | `.tr-sys-type-heading-lg` | typography | `2rem / 1.2 · 700` |  | Page titles. |
+| `TR.sys.type.display` | `.tr-sys-type-display` | typography | `clamp(2rem, 1.5rem + 1.5vw, 2.5rem) / 1.15 · 700` |  | One per page: the page title on signed-out and public pages, and the h1 of every workspace. |
 | `TR.sys.type.amount` | `.tr-sys-type-amount` | typography | `1.25rem / 1.4 · 600` |  | Money with its currency; always tabular and kept with its unit. |
 
 ## Component tokens
@@ -185,11 +199,11 @@ Build result: **0 integrity errors** — 104 tokens, every alias resolves, no cy
 | `TR.ref.space.64` | `--tr-ref-space-64` | dimension | `4rem` | `4rem` | Primitive. 64 CSS px. |
 | `TR.ref.radius.6` | `--tr-ref-radius-6` | dimension | `6px` | `6px` | Primitive. Read through tr-sys-radius-control. |
 | `TR.ref.radius.8` | `--tr-ref-radius-8` | dimension | `8px` | `8px` | Primitive. Read through tr-sys-radius-surface. |
-| `TR.ref.radius.12` | `--tr-ref-radius-12` | dimension | `12px` | `12px` | Primitive. Read through tr-sys-radius-dialog. |
+| `TR.ref.radius.12` | `--tr-ref-radius-12` | dimension | `12px` | `12px` | Primitive. Read through tr-sys-radius-dialog and tr-sys-radius-media. |
 | `TR.ref.weight.regular` | `--tr-ref-weight-regular` | fontWeight | `400` | `400` | Body text. |
-| `TR.ref.weight.medium` | `--tr-ref-weight-medium` | fontWeight | `500` | `500` | Labels and actions. |
-| `TR.ref.weight.semibold` | `--tr-ref-weight-semibold` | fontWeight | `600` | `600` | Headings, amounts and status labels. |
-| `TR.font.sans` | `--font-sans` | fontFamily | `system-ui, -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif` | `system-ui, -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif` | System sans-serif stack; no font files are fetched. |
+| `TR.ref.weight.semibold` | `--tr-ref-weight-semibold` | fontWeight | `600` | `600` | Labels, actions, headings, amounts and status labels. |
+| `TR.ref.weight.bold` | `--tr-ref-weight-bold` | fontWeight | `700` | `700` | Display and page titles. |
+| `TR.font.sans` | `--font-sans` | fontFamily | `"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif` | `"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif` | System sans-serif stack; no font files are fetched. |
 
 ## Computed contrast of resolved pairs
 
@@ -1182,3 +1196,24 @@ Small own stroke set; always beside text unless the control has a name.
 **Do.** Support a word.
 
 **Don't.** Do not use an icon as the only signal of a status.
+
+
+### TR.Logo
+
+The TemuRiset mark and word: two paths meeting at one node, the inventor and the investor who meet ("temu").
+
+**Anatomy.** Square mark in the primary action colour with two light paths and a node, then the word "TemuRiset" as text.
+
+**Consumer provides.** `href` (optional; renders a link, usually to the home destination).
+
+**States.** Default, focus (as a link).
+
+**Keyboard and screen reader.** The mark is `aria-hidden`; the visible word names the link.
+
+**Tokens.** `tr-sys-color-action-primary-background`, `tr-sys-color-action-primary-foreground`, `tr-sys-color-selected-surface`, `tr-sys-color-text-primary`.
+
+**Responsive.** Mark 2 rem; the word wraps never.
+
+**Do.** Use once per page, at the start of the bar.
+
+**Don't.** Do not recolour the mark, rotate it or show it without the word in product chrome.

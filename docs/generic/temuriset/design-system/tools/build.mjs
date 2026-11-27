@@ -10,7 +10,7 @@ import { components, pages } from './catalog.mjs';
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const P = (...p) => join(ROOT, ...p);
 const SYSTEM = 'TemuRiset Design System';
-const VERSION = '1.0.0-draft';
+const VERSION = '1.1.0-draft';
 const errors = [];
 const fail = (m) => errors.push(m);
 

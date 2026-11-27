@@ -551,8 +551,22 @@ export const components = [
     do: 'Support a word.',
     dont: 'Do not use an icon as the only signal of a status.',
     demo: `
-  var names = ['check', 'cross', 'question', 'minus', 'alert', 'clock', 'lock', 'shield', 'file', 'upload', 'external', 'down', 'right', 'left', 'arrow', 'close', 'user', 'building', 'search', 'home', 'bulb', 'chat', 'inbox', 'calendar', 'more', 'refresh', 'edit', 'eye', 'eyeOff', 'partner'];
+  var names = ['check', 'cross', 'question', 'minus', 'plus', 'alert', 'clock', 'lock', 'shield', 'file', 'upload', 'external', 'down', 'right', 'left', 'arrow', 'close', 'user', 'building', 'search', 'home', 'bulb', 'chat', 'inbox', 'calendar', 'more', 'refresh', 'edit', 'eye', 'eyeOff', 'partner'];
   return h('div', { className: 'tr-row' }, names.map(function (n) { return h('span', { key: n, title: n }, h(TR.Icon, { name: n })); }));`
+  },
+  {
+    name: 'Logo', group: 'Layout', height: 140,
+    summary: 'The TemuRiset mark and word: two paths meeting at one node, the inventor and the investor who meet ("temu").',
+    anatomy: 'Square mark in the primary action colour with two light paths and a node, then the word "TemuRiset" as text.',
+    provides: '`href` (optional; renders a link, usually to the home destination).',
+    states: 'Default, focus (as a link).',
+    a11y: 'The mark is `aria-hidden`; the visible word names the link.',
+    tokens: '`tr-sys-color-action-primary-background`, `tr-sys-color-action-primary-foreground`, `tr-sys-color-selected-surface`, `tr-sys-color-text-primary`.',
+    responsive: 'Mark 2 rem; the word wraps never.',
+    do: 'Use once per page, at the start of the bar.',
+    dont: 'Do not recolour the mark, rotate it or show it without the word in product chrome.',
+    demo: `
+  return h('div', { className: 'tr-stack' }, h(TR.Logo, { href: '#beranda' }), h(TR.Logo, null));`
   }
 ];
 

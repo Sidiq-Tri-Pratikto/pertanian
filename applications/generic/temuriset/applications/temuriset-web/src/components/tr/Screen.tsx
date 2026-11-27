@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 
 import { Icon } from '@/components/tr/Icon';
+import { Logo } from '@/components/tr/Logo';
 import { NAV, type NavItem, type Persona } from '@/features/persona';
 
 type ScreenProps = {
@@ -79,7 +80,7 @@ export function Screen({ persona, current, title, subtitle, back, context, prove
       </a>
       <header className="tr-bar">
         <div className="tr-bar__in">
-          <span className="tr-wordmark tr-sys-type-body-strong">TemuRiset</span>
+          <Logo href="/" />
           {provenance ? <span className="tr-provenance tr-sys-type-support">{provenance}</span> : null}
           <nav className="tr-topnav" aria-label="Navigasi utama">
             {items.map((entry) => item(entry, 'tr-topnav__item tr-sys-type-label', false))}
@@ -91,7 +92,7 @@ export function Screen({ persona, current, title, subtitle, back, context, prove
         <main id="isi" ref={main} tabIndex={-1} className="tr-page__main tr-section">
           <div className="tr-page__head">
             {back ? <div>{back}</div> : null}
-            <h1 className="tr-sys-type-heading-lg">{title}</h1>
+            <h1 className="tr-sys-type-display">{title}</h1>
             {subtitle ? <p className="tr-muted">{subtitle}</p> : null}
           </div>
           {children}

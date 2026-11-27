@@ -1,4 +1,4 @@
-/* @ds-bundle: {"format":4,"namespace":"TR","components":[{"name":"Button"},{"name":"Link"},{"name":"TextField"},{"name":"TextArea"},{"name":"Select"},{"name":"ChoiceGroup"},{"name":"Checkbox"},{"name":"FieldError"},{"name":"ErrorSummary"},{"name":"Dialog"},{"name":"Disclosure"},{"name":"Tabs"},{"name":"Status"},{"name":"EmptyState"},{"name":"SaveState"},{"name":"ContextSwitcher"},{"name":"InventionCard"},{"name":"FundingRequestCard"},{"name":"FinancialScope"},{"name":"RequirementRow"},{"name":"FactSource"},{"name":"DocumentItem"},{"name":"RevisionItem"},{"name":"ScheduleSlotList"},{"name":"PartnershipConsent"},{"name":"VersionConflict"},{"name":"NextStep"},{"name":"Steps"},{"name":"SummaryList"},{"name":"Screen"},{"name":"Icon"}]} */
+/* @ds-bundle: {"format":4,"namespace":"TR","components":[{"name":"Button"},{"name":"Link"},{"name":"TextField"},{"name":"TextArea"},{"name":"Select"},{"name":"ChoiceGroup"},{"name":"Checkbox"},{"name":"FieldError"},{"name":"ErrorSummary"},{"name":"Dialog"},{"name":"Disclosure"},{"name":"Tabs"},{"name":"Status"},{"name":"EmptyState"},{"name":"SaveState"},{"name":"ContextSwitcher"},{"name":"InventionCard"},{"name":"FundingRequestCard"},{"name":"FinancialScope"},{"name":"RequirementRow"},{"name":"FactSource"},{"name":"DocumentItem"},{"name":"RevisionItem"},{"name":"ScheduleSlotList"},{"name":"PartnershipConsent"},{"name":"VersionConflict"},{"name":"NextStep"},{"name":"Steps"},{"name":"SummaryList"},{"name":"Screen"},{"name":"Icon"},{"name":"Logo"}]} */
 /* TemuRiset Design System 1.0.0-draft — window.TR. Hand-written, no build step; reads window.React. */
 (function () {
   'use strict';
@@ -55,6 +55,7 @@
     cross: 'M6 6l12 12M18 6L6 18',
     question: 'M9 9.2a3 3 0 1 1 4.6 2.5c-1 .7-1.6 1.3-1.6 2.5M12 17.6v.1',
     minus: 'M6 12h12',
+    plus: 'M12 5v14M5 12h14',
     alert: 'M12 4l9 16H3L12 4zM12 10v4.5M12 17.2v.1',
     clock: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7.5V12l3 2',
     lock: 'M7 11V8a5 5 0 0 1 10 0v3M6 11h12v9H6z',
@@ -85,6 +86,15 @@
   function Icon(p) {
     return h('svg', { className: cx('tr-icon', p.size === 'small' && 'tr-icon--small', p.className), viewBox: '0 0 24 24', 'aria-hidden': true, focusable: 'false' },
       h('path', { d: ICONS[p.name] || ICONS.minus }));
+  }
+  /* The mark: two paths meeting at one node, the inventor and the investor who meet ("temu"). The word stays text. */
+  function Logo(p) {
+    return h(p.href ? 'a' : 'span', { className: 'tr-logo', href: p.href },
+      h('svg', { className: 'tr-logo__mark', viewBox: '0 0 32 32', 'aria-hidden': true, focusable: 'false' },
+        h('rect', { width: 32, height: 32, rx: 7, fill: 'var(--tr-sys-color-action-primary-background)' }),
+        h('path', { d: 'M7 24c5 0 7-3 8.4-6.6M25 8c-5 0-7 3-8.4 6.6', fill: 'none', stroke: 'var(--tr-sys-color-action-primary-foreground)', strokeWidth: 3, strokeLinecap: 'round' }),
+        h('circle', { cx: 16, cy: 16, r: 3.2, fill: 'var(--tr-sys-color-selected-surface)' })),
+      h('span', null, 'TemuRiset'));
   }
   function Spinner() { return h('span', { className: 'tr-spinner', 'aria-hidden': true }); }
 
@@ -361,7 +371,7 @@
     return h('div', { className: 'tr-root tr-screen' },
       h('a', { className: 'tr-skip tr-link', href: '#isi', onClick: function (e) { e.preventDefault(); main.current.focus(); } }, 'Langsung ke isi utama'),
       h('header', { className: 'tr-bar' }, h('div', { className: 'tr-bar__in' },
-        h('span', { className: 'tr-wordmark tr-sys-type-body-strong' }, 'TemuRiset'),
+        h(Logo, { href: '#beranda' }),
         when(p.provenance, h('span', { className: 'tr-provenance tr-sys-type-support' }, p.provenance)),
         h('nav', { className: 'tr-topnav', 'aria-label': 'Navigasi utama' }, items.map(function (n) { return item(n, 'tr-topnav__item tr-sys-type-label'); })),
         when(p.context, h('div', { className: 'tr-bar__context' }, p.context)))),
@@ -369,7 +379,7 @@
         h('main', { id: 'isi', ref: main, tabIndex: -1, className: 'tr-page__main tr-section' },
           h('div', { className: 'tr-page__head' },
             when(p.back, h('div', null, p.back)),
-            h('h1', { className: 'tr-sys-type-heading-lg' }, p.title),
+            h('h1', { className: 'tr-sys-type-display' }, p.title),
             when(p.subtitle, h('p', { className: 'tr-muted' }, p.subtitle)),
             when(p.save, p.save)),
           p.next, p.children),
@@ -672,6 +682,6 @@
     FieldError: FieldError, ErrorSummary: ErrorSummary, Dialog: Dialog, Disclosure: Disclosure, Tabs: Tabs, Status: Status, EmptyState: EmptyState,
     SaveState: SaveState, ContextSwitcher: ContextSwitcher, InventionCard: InventionCard, FundingRequestCard: FundingRequestCard, FinancialScope: FinancialScope,
     RequirementRow: RequirementRow, FactSource: FactSource, DocumentItem: DocumentItem, RevisionItem: RevisionItem, ScheduleSlotList: ScheduleSlotList,
-    PartnershipConsent: PartnershipConsent, VersionConflict: VersionConflict, NextStep: NextStep, Steps: Steps, SummaryList: SummaryList, Screen: Screen, Icon: Icon
+    PartnershipConsent: PartnershipConsent, VersionConflict: VersionConflict, NextStep: NextStep, Steps: Steps, SummaryList: SummaryList, Screen: Screen, Icon: Icon, Logo: Logo
   };
 })();

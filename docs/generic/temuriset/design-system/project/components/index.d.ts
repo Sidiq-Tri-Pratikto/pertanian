@@ -5,7 +5,7 @@ type Node = React.ReactNode;
 /** Decimal money as a string, so values never pass through floating point. null means unknown, never zero. */
 export type Decimal = string | null;
 export type Tone = 'neutral' | 'success' | 'danger' | 'warning' | 'action';
-export type IconName = 'check' | 'cross' | 'question' | 'minus' | 'alert' | 'clock' | 'lock' | 'shield' | 'file' | 'upload' | 'external' | 'down' | 'right' | 'left' | 'arrow' | 'close' | 'user' | 'building' | 'search' | 'home' | 'bulb' | 'chat' | 'inbox' | 'calendar' | 'more' | 'refresh' | 'edit' | 'eye' | 'eyeOff' | 'partner';
+export type IconName = 'check' | 'cross' | 'question' | 'minus' | 'plus' | 'alert' | 'clock' | 'lock' | 'shield' | 'file' | 'upload' | 'external' | 'down' | 'right' | 'left' | 'arrow' | 'close' | 'user' | 'building' | 'search' | 'home' | 'bulb' | 'chat' | 'inbox' | 'calendar' | 'more' | 'refresh' | 'edit' | 'eye' | 'eyeOff' | 'partner';
 
 /* ---------- primitives ---------- */
 export interface ButtonProps {
@@ -93,3 +93,5 @@ export interface ScreenProps { persona?: 'inovator' | 'mitra'; current?: string;
 export declare function Screen(props: ScreenProps): React.ReactElement;
 export interface IconProps { name: IconName; size?: 'small'; className?: string; }
 export declare function Icon(props: IconProps): React.ReactElement;
+export interface LogoProps { href?: string; }
+export declare function Logo(props: LogoProps): React.ReactElement;

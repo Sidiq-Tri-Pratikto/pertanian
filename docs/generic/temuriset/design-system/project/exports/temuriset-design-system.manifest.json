@@ -1,6 +1,6 @@
 {
   "system": "TemuRiset Design System",
-  "version": "1.0.0-draft",
+  "version": "1.1.0-draft",
   "reviewStatus": "draft — not owner-approved; validation recorded in guide/05-validation-report.md",
   "productContract": "TemuRiset PRD generic v1.1",
   "handoff": "04_Claude_Design_System_TemuRiset_EN.md v1.0",
@@ -52,7 +52,8 @@
     "TR.Steps",
     "TR.SummaryList",
     "TR.Screen",
-    "TR.Icon"
+    "TR.Icon",
+    "TR.Logo"
   ],
   "intentionalAdditions": [
     "TR.NextStep",
@@ -71,10 +72,10 @@
     "PatternRelationship"
   ],
   "fingerprints": {
-    "tokens.json": "sha256:311fe8545a4561c32580f108774b7aba0df7d251f3c5b3553e1e8145c0b55d2c",
-    "components/bundle.js": "sha256:41dd7f2f5f3084d84301bee55a7208d279a217cda6aef6e9fee6caa49bb8bc43",
-    "components/bundle.css": "sha256:7189831e86b576f5f55465b1f9422f47086854ce89499af316cd754236b568f1",
-    "components/index.d.ts": "sha256:d666de04c646302e64bc165da56c005bd74f90c46567118a01d6ea485b7aea58"
+    "tokens.json": "sha256:81eb9fc690a09f7d99b50c30f6b6c8fcbf343bfa27a3f67152623b70e3e56bdd",
+    "components/bundle.js": "sha256:6d357f738f8fffa7a5cb67fff44fd98c23e9fdf76ce0ef66ecdb8910ccbd98ce",
+    "components/bundle.css": "sha256:ca2ad200184ec2627e455bc31fd1b6177b19ccce98d5c5e6cb556f1f760bf3ae",
+    "components/index.d.ts": "sha256:f9d31c5e9e7c9ebd860b11deb333fe1ff81b50e69def7272e5aa6949f8f5d993"
   },
   "limitations": [
     "Light theme only.",

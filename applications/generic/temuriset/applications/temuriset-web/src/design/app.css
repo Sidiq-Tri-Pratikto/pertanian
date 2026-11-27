@@ -4,19 +4,6 @@ body {
   background: var(--tr-sys-color-canvas);
 }
 
-/* D1: TR.ChoiceGroup marks selection with a class set in JavaScript; server-rendered forms use :has instead. */
-.tr-choice:has(input:checked) {
-  background: var(--tr-sys-color-selected-surface);
-  border: var(--tr-sys-size-borderSelected) solid var(--tr-sys-color-selected-border);
-}
-
-/* D2: at 320 px the design system's overflow-wrap split "Temukan" across lines in the tab bar. */
-.tr-tabbar__item {
-  overflow-wrap: normal;
-  padding-left: 0;
-  padding-right: 0;
-}
-
 /* D15: on a laptop the filter form pushed the first result below the fold. From 64 rem the filters sit in a
    column beside the results, first in reading order; below that they stay above, as before. Not sticky, so
    200% text can still scroll to every filter. */
@@ -24,12 +11,3 @@ body {
 @media (min-width: 64rem) {
   .tr-discover { grid-template-columns: var(--tr-sys-layout-asideWidth) minmax(0, 1fr); }
 }
-
-/* D16: on a phone the signed-in header stacked the demo tag, the "Bertindak sebagai" label and the select on three
-   lines (about 180 px before any content). The label now sits beside its select at every width, as the design
-   system already does from 48 rem, and the demo tag shares a line when it fits. */
-.tr-bar__context .tr-field { flex-direction: row; flex-wrap: wrap; align-items: center; gap: var(--tr-sys-space-controlGap); }
-/* The label may wrap between words: at 200% text on 320 px it is wider than half the bar. */
-.tr-bar__context .tr-field__label { flex: 0 1 auto; min-width: 0; }
-.tr-bar__context .tr-row > .tr-field { flex: 1 1 14rem; min-width: 0; }
-.tr-bar__context .tr-field > select { flex: 1 1 10rem; min-width: 0; }

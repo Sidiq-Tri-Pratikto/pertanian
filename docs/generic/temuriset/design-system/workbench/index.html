@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>TemuRiset workbench</title>
+<link rel="stylesheet" href="../project/fonts/fonts.css">
 <link rel="stylesheet" href="tokens.css">
 <style>
   /* Workbench chrome only (test surface, not product UI). Reads the same tokens. */
@@ -59,7 +60,7 @@
 // The frame reproduces the design-system preview frame: tokens.css, bundle.css, React 18.3.1, bundle.js, then the
 // component's own preview.html, loaded from the same files that are published under project/.
 var BASE = '../project/components/';
-var HEAD = '<link rel="stylesheet" href="' + location.href.replace(/[#?].*$/, '').replace(/[^/]*$/, '') + 'tokens.css">' +
+var HEAD = '<link rel="stylesheet" href="' + location.href.replace(/[#?].*$/, '').replace(/[^/]*$/, '') + '../project/fonts/fonts.css"><link rel="stylesheet" href="' + location.href.replace(/[#?].*$/, '').replace(/[^/]*$/, '') + 'tokens.css">' +
   '<link rel="stylesheet" href="' + new URL(BASE + 'bundle.css', location.href) + '">' +
   ['lib/react.production.min.js', 'lib/react-dom.production.min.js', 'bundle.js'].map(function (f) { return '<script src="' + new URL(BASE + f, location.href) + '"><\/script>'; }).join('');
 var frame = document.getElementById('frame');
