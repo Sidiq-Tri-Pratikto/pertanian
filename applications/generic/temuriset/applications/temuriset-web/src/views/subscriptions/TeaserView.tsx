@@ -59,6 +59,30 @@ export function TeaserView({ teaser, locale = 'id' }: { teaser: Teaser | null; l
         </section>
         {teaser.photo ? <PublicPhoto photo={teaser.photo} /> : null}
       </div>
+      {teaser.latest_updates?.length ? (
+        <section className="tr-panel tr-stack" aria-labelledby="kabar-terbaru">
+          <h2 id="kabar-terbaru" className="tr-sys-type-heading-sm">
+            {words.updates}
+          </h2>
+          <ul className="tr-list">
+            {teaser.latest_updates.map((update) => {
+              const lang = update.content_locale !== locale ? update.content_locale : undefined;
+              return (
+                <li key={update.id} className="tr-listrow tr-stack">
+                  <h3 className="tr-sys-type-label" lang={lang}>
+                    {update.title}
+                  </h3>
+                  <p className="tr-muted tr-sys-type-support">
+                    <time dateTime={update.published_at}>{publishedOn(update.published_at, locale)}</time>
+                    {lang ? ` · ${words.writtenIn}` : null}
+                  </p>
+                  <p lang={lang}>{update.body}</p>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      ) : null}
       <section className="tr-panel tr-stack" aria-labelledby="detail">
         <h2 id="detail" className="tr-sys-type-heading-sm">
           {words.moreTitle}
@@ -75,6 +99,11 @@ export function TeaserView({ teaser, locale = 'id' }: { teaser: Teaser | null; l
       </section>
     </AuthShell>
   );
+}
+
+/** A calendar date in Jakarta time, in the page's language. */
+function publishedOn(iso: string, locale: Locale): string {
+  return new Intl.DateTimeFormat(locale === 'en' ? 'en-GB' : 'id-ID', { dateStyle: 'long', timeZone: 'Asia/Jakarta' }).format(new Date(iso));
 }
 
 type Photo = NonNullable<Teaser['photo']>;

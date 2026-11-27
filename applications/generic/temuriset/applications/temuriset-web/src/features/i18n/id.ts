@@ -162,6 +162,7 @@ export const id = {
     signIn: 'Sudah punya akun? Masuk',
     writtenIn: 'Ditulis dalam bahasa Inggris',
     fieldTest: 'Uji lapangan',
+    updates: 'Kabar terbaru',
   },
   notFound: {
     title: 'Halaman tidak ditemukan',

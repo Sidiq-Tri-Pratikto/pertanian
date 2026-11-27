@@ -260,7 +260,7 @@ img.tr-art { display: block; width: 100%; padding: 0; object-fit: cover; }
 .tr-showcase__media > img { display: block; width: 100%; height: auto; }
 .tr-showcase__media > img.is-turned { position: absolute; top: 50%; left: 50%; max-width: none; }
 @media (min-width: 48rem) {
-  .tr-showcase { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .tr-showcase:has(> .tr-showcase__media) { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   .tr-showcase__media { order: -1; }
 }
 .tr-listdetail { display: grid; gap: var(--tr-sys-space-section); align-items: start; }

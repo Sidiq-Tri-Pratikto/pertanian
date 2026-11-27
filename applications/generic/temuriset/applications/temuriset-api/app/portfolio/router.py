@@ -1,4 +1,4 @@
-"""Inventions: create, list, read, save draft, publish, archive, public view."""
+"""Inventions: create, list, read, save draft, publish, archive, public view, public updates."""
 
 from uuid import UUID
 
@@ -11,15 +11,19 @@ from app.platform.service.idempotency import Idempotency, idempotent
 from app.portfolio.model.schema import (
     CreateInventionRequest,
     DraftRequest,
+    EditUpdateRequest,
     InventionResponse,
     InventionSummaryResponse,
+    InventionUpdateResponse,
     InvestorDigestRequest,
     PublicInventionResponse,
     PublicPageRequest,
     PublishResponse,
+    UpdateRequest,
     VersionedActionRequest,
 )
 from app.portfolio.service.service import PortfolioService
+from app.portfolio.service.updates import UpdateService
 
 router = APIRouter(prefix="/inventions", tags=["inventions"])
 
@@ -206,3 +210,124 @@ async def read_public(invention_id: UUID, _: PrincipalDep, session: SessionDep) 
         PublicInventionResponse: The projection.
     """
     return await PortfolioService(session).public_view(invention_id)
+
+
+@router.get("/{invention_id}/updates", summary="List the invention's public updates")
+async def list_updates(
+    invention_id: UUID, principal: PrincipalDep, session: SessionDep
+) -> list[InventionUpdateResponse]:
+    """List drafts, published and withdrawn updates, newest first, for the managing party.
+
+    Args:
+        invention_id (UUID): The invention.
+        principal (PrincipalDep): Who is signed in.
+        session (SessionDep): Database session.
+
+    Returns:
+        list[InventionUpdateResponse]: Up to 100 updates.
+    """
+    return await UpdateService(session).list_for_owner(principal, invention_id)
+
+
+@router.post("/{invention_id}/updates", status_code=status.HTTP_201_CREATED, summary="Write a public update")
+async def create_update(
+    invention_id: UUID,
+    body: UpdateRequest,
+    principal: PrincipalDep,
+    session: SessionDep,
+    operation: Idempotency = idempotent("inventions.updates.create"),
+) -> InventionUpdateResponse:
+    """Save a new update as a draft; nothing is shown or sent yet.
+
+    Args:
+        invention_id (UUID): The invention.
+        body (UpdateRequest): Acting party, title, body and language.
+        principal (PrincipalDep): Who is signed in.
+        session (SessionDep): Database session.
+        operation (Idempotency): Replays a retried request.
+
+    Returns:
+        InventionUpdateResponse: The draft.
+    """
+    update = await UpdateService(session).create(principal, invention_id, body)
+    update.operation_id = operation.operation_id
+    return await operation.respond(  # type: ignore[return-value]
+        update, status_code=201, result=OperationResult(type="invention_update", id=str(update.id))
+    )
+
+
+@router.put("/{invention_id}/updates/{update_id}", summary="Correct a public update")
+async def edit_update(
+    invention_id: UUID, update_id: UUID, body: EditUpdateRequest, principal: PrincipalDep, session: SessionDep
+) -> InventionUpdateResponse:
+    """Correct the text against ``expected_version``; a published update is never announced again.
+
+    Args:
+        invention_id (UUID): The invention.
+        update_id (UUID): The update.
+        body (EditUpdateRequest): The corrected text.
+        principal (PrincipalDep): Who is signed in.
+        session (SessionDep): Database session.
+
+    Returns:
+        InventionUpdateResponse: The update.
+    """
+    return await UpdateService(session).edit(principal, invention_id, update_id, body)
+
+
+@router.post("/{invention_id}/updates/{update_id}/publish", summary="Publish a public update")
+async def publish_update(
+    invention_id: UUID,
+    update_id: UUID,
+    body: VersionedActionRequest,
+    principal: PrincipalDep,
+    session: SessionDep,
+    operation: Idempotency = idempotent("inventions.updates.publish"),
+) -> InventionUpdateResponse:
+    """Show the update on the public page; needs the invention published and its public page on.
+
+    Args:
+        invention_id (UUID): The invention.
+        update_id (UUID): The update.
+        body (VersionedActionRequest): Acting party and ``expected_version``.
+        principal (PrincipalDep): Who is signed in.
+        session (SessionDep): Database session.
+        operation (Idempotency): Replays a retried request.
+
+    Returns:
+        InventionUpdateResponse: The published update.
+    """
+    update = await UpdateService(session).publish(principal, invention_id, update_id, body)
+    update.operation_id = operation.operation_id
+    return await operation.respond(  # type: ignore[return-value]
+        update, result=OperationResult(type="invention_update", id=str(update.id))
+    )
+
+
+@router.post("/{invention_id}/updates/{update_id}/withdraw", summary="Withdraw a public update")
+async def withdraw_update(
+    invention_id: UUID,
+    update_id: UUID,
+    body: VersionedActionRequest,
+    principal: PrincipalDep,
+    session: SessionDep,
+    operation: Idempotency = idempotent("inventions.updates.withdraw"),
+) -> InventionUpdateResponse:
+    """Take a published update off the public page.
+
+    Args:
+        invention_id (UUID): The invention.
+        update_id (UUID): The update.
+        body (VersionedActionRequest): Acting party and ``expected_version``.
+        principal (PrincipalDep): Who is signed in.
+        session (SessionDep): Database session.
+        operation (Idempotency): Replays a retried request.
+
+    Returns:
+        InventionUpdateResponse: The withdrawn update.
+    """
+    update = await UpdateService(session).withdraw(principal, invention_id, update_id, body)
+    update.operation_id = operation.operation_id
+    return await operation.respond(  # type: ignore[return-value]
+        update, result=OperationResult(type="invention_update", id=str(update.id))
+    )

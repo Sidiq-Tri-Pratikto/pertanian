@@ -76,6 +76,16 @@ class TeaserPhoto(BaseModel):
     orientation: int = 1
 
 
+class TeaserUpdate(BaseModel):
+    """A published public update (052)."""
+
+    id: UUID
+    title: str
+    body: str
+    content_locale: Literal["id", "en"]
+    published_at: datetime
+
+
 class TeaserResponse(BaseModel):
     """What anyone may see of an invention whose managing party published its page or included it in alerts."""
 
@@ -93,3 +103,6 @@ class TeaserResponse(BaseModel):
     field_test_summary: str | None = None
     photo: TeaserPhoto | None = None
     content_locale: Literal["id", "en"] = "id"
+    latest_updates: list[TeaserUpdate] = Field(
+        default_factory=list, description="Up to three published updates, newest first; only with the public page."
+    )

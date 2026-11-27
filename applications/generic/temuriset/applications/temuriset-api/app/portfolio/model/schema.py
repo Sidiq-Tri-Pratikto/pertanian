@@ -227,3 +227,42 @@ class PublicInventionResponse(BaseModel):
     facts: list[PublicFactResponse]
     claims: list[PublicClaimResponse]
     published_at: datetime | None
+
+
+UpdateStatus = Literal["DRAFT", "PUBLISHED", "WITHDRAWN"]
+
+
+class UpdateRequest(BaseModel):
+    """A new public update, saved as a draft (052)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    acting_party_id: UUID
+    title: _text(120, 1)
+    body: _text(1200, 1)
+    content_locale: Literal["id", "en"] = Field(default="id", description="The language the owner wrote in.")
+
+
+class EditUpdateRequest(UpdateRequest):
+    """Correct an update's text against the version the client saw; a published one is never announced again."""
+
+    expected_version: int
+
+
+class InventionUpdateResponse(BaseModel):
+    """A public update as its managing party sees it."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    invention_id: UUID
+    title: str
+    body: str
+    content_locale: Literal["id", "en"]
+    status: UpdateStatus
+    published_at: datetime | None
+    withdrawn_at: datetime | None
+    version: int
+    created_at: datetime
+    updated_at: datetime
+    operation_id: UUID | None = None

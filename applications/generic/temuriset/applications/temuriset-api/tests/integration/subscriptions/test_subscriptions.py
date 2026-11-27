@@ -310,9 +310,15 @@ async def test_the_teaser_shows_only_the_brief_public_summary(
         "field_test_summary",
         "photo",
         "content_locale",
+        "latest_updates",
     }
-    # Investor news alone opens no public page: no field test, no photo, not indexable (spec 051).
-    assert (body["follow_enabled"], body["field_test_summary"], body["photo"]) == (False, None, None)
+    # Investor news alone opens no public page: no field test, photo or updates, not indexable (specs 051, 052).
+    assert (body["follow_enabled"], body["field_test_summary"], body["photo"], body["latest_updates"]) == (
+        False,
+        None,
+        None,
+        [],
+    )
 
 
 @pytest.mark.parametrize(

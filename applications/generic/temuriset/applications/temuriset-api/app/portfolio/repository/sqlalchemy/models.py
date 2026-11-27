@@ -3,7 +3,7 @@
 from datetime import datetime
 from uuid import UUID
 
-from sqlalchemy import CheckConstraint, ForeignKey, String, Text, UniqueConstraint
+from sqlalchemy import CheckConstraint, ForeignKey, Index, String, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -117,3 +117,29 @@ class InventionClaimRecord(Row, Base):
     status: Mapped[str] = mapped_column(String(16))
     source: Mapped[str] = mapped_column(String(200), default="")
     asserted_at: Mapped[datetime | None]
+
+
+class InventionUpdateRecord(MutableRow, Base):
+    """A public update the managing party writes about an invention (052).
+
+    ``published_at`` is set on the first publication and never reset, so a correction or a withdrawal and
+    republication never announces the update again.
+    """
+
+    __tablename__ = "invention_updates"
+    __table_args__ = (
+        CheckConstraint("status IN ('DRAFT', 'PUBLISHED', 'WITHDRAWN')", name="status"),
+        CheckConstraint("content_locale IN ('id', 'en')", name="content_locale"),
+        CheckConstraint("length(body) <= 1200", name="body_length"),
+        Index("ix_invention_updates_invention_status_published", "invention_id", "status", "published_at"),
+    )
+
+    invention_id: Mapped[UUID] = mapped_column(ForeignKey("inventions.id", ondelete="CASCADE"))
+    author_account_id: Mapped[UUID]
+    author_party_id: Mapped[UUID]
+    title: Mapped[str] = mapped_column(String(120))
+    body: Mapped[str] = mapped_column(Text)
+    content_locale: Mapped[str] = mapped_column(String(2), default="id", server_default="id")
+    status: Mapped[str] = mapped_column(String(16), default="DRAFT", server_default="DRAFT")
+    published_at: Mapped[datetime | None]
+    withdrawn_at: Mapped[datetime | None]

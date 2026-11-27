@@ -21,6 +21,7 @@ import {
 } from '@/features/portfolio/model';
 import { InvestorDigestToggle } from '@/features/subscriptions/InvestorDigestToggle';
 import { PublicPageForm } from '@/features/portfolio/PublicPageForm';
+import { PublicUpdatesPanel, type PublicUpdate } from '@/features/portfolio/PublicUpdatesPanel';
 import type { DocumentView } from '@/features/documents/model';
 import { PROVENANCE } from '@/views/parts';
 
@@ -77,10 +78,12 @@ type DetailProps = {
   saved?: boolean;
   /** The owner's documents, for the public photo choice. */
   documents?: DocumentView[];
+  /** The owner's public updates (052). */
+  updates?: PublicUpdate[];
 };
 
 /** S04 detail: honest about what exists now, what is planned, and who says so (UX-04). */
-export function InventionView({ me, invention, publicView, justPublished, saved = false, documents = [] }: DetailProps) {
+export function InventionView({ me, invention, publicView, justPublished, saved = false, documents = [], updates = [] }: DetailProps) {
   const persona = readPersona(me.account.persona) ?? 'inovator';
   const shown = invention ? (invention.published ?? invention.draft) : publicView;
   const owner = Boolean(invention);
@@ -122,6 +125,7 @@ export function InventionView({ me, invention, publicView, justPublished, saved 
       {owner && invention!.published && invention!.status !== 'ARCHIVED' ? (
         <>
           <PublicPageForm inventionId={invention!.id} actingPartyId={me.active_party_id} version={invention!.version} page={invention!.public_page ?? {}} documents={documents} />
+          <PublicUpdatesPanel inventionId={invention!.id} actingPartyId={me.active_party_id} updates={updates} pageOn={Boolean(invention!.public_page?.enabled)} />
           <InvestorDigestToggle inventionId={invention!.id} actingPartyId={me.active_party_id} version={invention!.version} enabled={Boolean(invention!.investor_digest)} />
         </>
       ) : null}

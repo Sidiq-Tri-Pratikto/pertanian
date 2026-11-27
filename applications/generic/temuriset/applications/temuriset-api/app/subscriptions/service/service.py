@@ -24,12 +24,14 @@ from app.portfolio.service.service import (
     digest_candidates,
     public_page_settings,
 )
+from app.portfolio.service.updates import published_updates
 from app.subscriptions.model.schema import (
     SubscribeRequest,
     SubscribeResponse,
     SubscriptionResponse,
     TeaserPhoto,
     TeaserResponse,
+    TeaserUpdate,
     Topics,
 )
 from app.subscriptions.repository.sqlalchemy.models import (
@@ -377,6 +379,16 @@ class SubscriptionService:
             field_test_summary=found["field_test"] if page else None,
             photo=photo,
             content_locale=found["content_locale"],
+            latest_updates=[
+                TeaserUpdate(
+                    id=update.id,
+                    title=update.title,
+                    body=update.body,
+                    content_locale=update.content_locale,  # type: ignore[arg-type]
+                    published_at=update.published_at,  # type: ignore[arg-type]
+                )
+                for update in (await published_updates(self.session, invention_id) if page else [])
+            ],
         )
 
     async def teaser_photo(self, invention_id: UUID) -> CleanImage:

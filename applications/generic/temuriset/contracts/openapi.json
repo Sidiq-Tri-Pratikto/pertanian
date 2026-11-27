@@ -2586,6 +2586,51 @@
         "title": "DraftRequest",
         "type": "object"
       },
+      "EditUpdateRequest": {
+        "additionalProperties": false,
+        "description": "Correct an update's text against the version the client saw; a published one is never announced again.",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "body": {
+            "maxLength": 1200,
+            "minLength": 1,
+            "title": "Body",
+            "type": "string"
+          },
+          "content_locale": {
+            "default": "id",
+            "description": "The language the owner wrote in.",
+            "enum": [
+              "id",
+              "en"
+            ],
+            "title": "Content Locale",
+            "type": "string"
+          },
+          "expected_version": {
+            "title": "Expected Version",
+            "type": "integer"
+          },
+          "title": {
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "title",
+          "body",
+          "expected_version"
+        ],
+        "title": "EditUpdateRequest",
+        "type": "object"
+      },
       "EffectiveResponse": {
         "description": "What may be public now: the newest version both confirmed, cut by subsets and restrictions.",
         "properties": {
@@ -4063,6 +4108,111 @@
           "published_number"
         ],
         "title": "InventionSummaryResponse",
+        "type": "object"
+      },
+      "InventionUpdateResponse": {
+        "description": "A public update as its managing party sees it.",
+        "properties": {
+          "body": {
+            "title": "Body",
+            "type": "string"
+          },
+          "content_locale": {
+            "enum": [
+              "id",
+              "en"
+            ],
+            "title": "Content Locale",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "invention_id": {
+            "format": "uuid",
+            "title": "Invention Id",
+            "type": "string"
+          },
+          "operation_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operation Id"
+          },
+          "published_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Published At"
+          },
+          "status": {
+            "enum": [
+              "DRAFT",
+              "PUBLISHED",
+              "WITHDRAWN"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          },
+          "withdrawn_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Withdrawn At"
+          }
+        },
+        "required": [
+          "id",
+          "invention_id",
+          "title",
+          "body",
+          "content_locale",
+          "status",
+          "published_at",
+          "withdrawn_at",
+          "version",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "InventionUpdateResponse",
         "type": "object"
       },
       "InventionVersionResponse": {
@@ -10400,6 +10550,14 @@
             "title": "Keywords",
             "type": "array"
           },
+          "latest_updates": {
+            "description": "Up to three published updates, newest first; only with the public page.",
+            "items": {
+              "$ref": "#/components/schemas/TeaserUpdate"
+            },
+            "title": "Latest Updates",
+            "type": "array"
+          },
           "photo": {
             "anyOf": [
               {
@@ -10464,6 +10622,46 @@
           "published_at"
         ],
         "title": "TeaserResponse",
+        "type": "object"
+      },
+      "TeaserUpdate": {
+        "description": "A published public update (052).",
+        "properties": {
+          "body": {
+            "title": "Body",
+            "type": "string"
+          },
+          "content_locale": {
+            "enum": [
+              "id",
+              "en"
+            ],
+            "title": "Content Locale",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "published_at": {
+            "format": "date-time",
+            "title": "Published At",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "body",
+          "content_locale",
+          "published_at"
+        ],
+        "title": "TeaserUpdate",
         "type": "object"
       },
       "TokenRequest": {
@@ -10794,6 +10992,46 @@
           "expected_version"
         ],
         "title": "UpdateMeRequest",
+        "type": "object"
+      },
+      "UpdateRequest": {
+        "additionalProperties": false,
+        "description": "A new public update, saved as a draft (052).",
+        "properties": {
+          "acting_party_id": {
+            "format": "uuid",
+            "title": "Acting Party Id",
+            "type": "string"
+          },
+          "body": {
+            "maxLength": 1200,
+            "minLength": 1,
+            "title": "Body",
+            "type": "string"
+          },
+          "content_locale": {
+            "default": "id",
+            "description": "The language the owner wrote in.",
+            "enum": [
+              "id",
+              "en"
+            ],
+            "title": "Content Locale",
+            "type": "string"
+          },
+          "title": {
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "acting_party_id",
+          "title",
+          "body"
+        ],
+        "title": "UpdateRequest",
         "type": "object"
       },
       "UpdateSupportRequest": {
@@ -14129,6 +14367,348 @@
           }
         },
         "summary": "Publish the draft",
+        "tags": [
+          "inventions"
+        ]
+      }
+    },
+    "/api/v1/inventions/{invention_id}/updates": {
+      "get": {
+        "description": "List drafts, published and withdrawn updates, newest first, for the managing party.\n\nArgs:\n    invention_id (UUID): The invention.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    list[InventionUpdateResponse]: Up to 100 updates.",
+        "operationId": "list_updates_api_v1_inventions__invention_id__updates_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "invention_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Invention Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/InventionUpdateResponse"
+                  },
+                  "title": "Response List Updates Api V1 Inventions  Invention Id  Updates Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "List the invention's public updates",
+        "tags": [
+          "inventions"
+        ]
+      },
+      "post": {
+        "description": "Save a new update as a draft; nothing is shown or sent yet.\n\nArgs:\n    invention_id (UUID): The invention.\n    body (UpdateRequest): Acting party, title, body and language.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    InventionUpdateResponse: The draft.",
+        "operationId": "create_update_api_v1_inventions__invention_id__updates_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "invention_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Invention Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InventionUpdateResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Write a public update",
+        "tags": [
+          "inventions"
+        ]
+      }
+    },
+    "/api/v1/inventions/{invention_id}/updates/{update_id}": {
+      "put": {
+        "description": "Correct the text against ``expected_version``; a published update is never announced again.\n\nArgs:\n    invention_id (UUID): The invention.\n    update_id (UUID): The update.\n    body (EditUpdateRequest): The corrected text.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n\nReturns:\n    InventionUpdateResponse: The update.",
+        "operationId": "edit_update_api_v1_inventions__invention_id__updates__update_id__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "invention_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Invention Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "update_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Update Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditUpdateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InventionUpdateResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Correct a public update",
+        "tags": [
+          "inventions"
+        ]
+      }
+    },
+    "/api/v1/inventions/{invention_id}/updates/{update_id}/publish": {
+      "post": {
+        "description": "Show the update on the public page; needs the invention published and its public page on.\n\nArgs:\n    invention_id (UUID): The invention.\n    update_id (UUID): The update.\n    body (VersionedActionRequest): Acting party and ``expected_version``.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    InventionUpdateResponse: The published update.",
+        "operationId": "publish_update_api_v1_inventions__invention_id__updates__update_id__publish_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "invention_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Invention Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "update_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Update Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VersionedActionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InventionUpdateResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Publish a public update",
+        "tags": [
+          "inventions"
+        ]
+      }
+    },
+    "/api/v1/inventions/{invention_id}/updates/{update_id}/withdraw": {
+      "post": {
+        "description": "Take a published update off the public page.\n\nArgs:\n    invention_id (UUID): The invention.\n    update_id (UUID): The update.\n    body (VersionedActionRequest): Acting party and ``expected_version``.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    operation (Idempotency): Replays a retried request.\n\nReturns:\n    InventionUpdateResponse: The withdrawn update.",
+        "operationId": "withdraw_update_api_v1_inventions__invention_id__updates__update_id__withdraw_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "invention_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Invention Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "update_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Update Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VersionedActionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InventionUpdateResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Withdraw a public update",
         "tags": [
           "inventions"
         ]
