@@ -160,7 +160,7 @@ class ErrorBoundaryMiddleware:
             _record(Request(scope), internal, FALLBACK_PUBLIC_ERROR.http_status)
             # Once headers are sent, closing is the only safe move (X-05).
             if not started:
-                await respond(FALLBACK_PUBLIC_ERROR, internal.reference_id)(scope, receive, send)
+                await respond(public_error_for_code(internal.code), internal.reference_id)(scope, receive, send)
 
 
 def register_exception_handlers(app: FastAPI) -> None:

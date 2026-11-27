@@ -14,6 +14,7 @@ const cookieJar = new Map<string, string>();
 
 vi.mock('next/headers', () => ({
   cookies: async () => ({ get: (name: string) => (cookieJar.has(name) ? { value: cookieJar.get(name) } : undefined), delete: vi.fn() }),
+  headers: async () => new Headers(),
 }));
 
 vi.mock('@/features/capabilities', () => ({ readCapabilities: async () => deployed, readCapabilityManifest: async () => null }));
@@ -368,8 +369,8 @@ describe('features of optional capabilities', () => {
 });
 
 describe('unknown addresses', () => {
-  it('offer a way back', () => {
-    render(<NotFound />);
+  it('offer a way back', async () => {
+    render((await NotFound()) as ReactElement);
 
     expect(screen.getByRole('link', { name: 'Kembali ke awal' })).toHaveAttribute('href', '/');
   });

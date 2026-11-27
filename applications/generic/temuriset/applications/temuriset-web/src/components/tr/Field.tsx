@@ -1,6 +1,9 @@
+'use client';
+
 import type { ReactNode } from 'react';
 
 import { FieldError } from '@/components/tr/FieldError';
+import { useMessages } from '@/features/i18n/LocaleProvider';
 
 export type FieldIds = { id: string; hintId: string; errorId: string; describedBy: string | undefined };
 
@@ -24,11 +27,12 @@ type FieldProps = {
 
 /** Port of the bundle's `Field`: visible label, requiredness, hint and inline error around one control. */
 export function Field({ ids, label, hint, error, errorCode, required, children }: FieldProps) {
+  const words = useMessages().components;
   return (
     <div className={error ? 'tr-field tr-field--error' : 'tr-field'}>
       <label className="tr-field__label tr-sys-type-label" htmlFor={ids.id}>
         {label}
-        {required ? <span className="tr-field__req tr-sys-type-support"> (wajib)</span> : null}
+        {required ? <span className="tr-field__req tr-sys-type-support">{words.required}</span> : null}
       </label>
       {hint ? (
         <p id={ids.hintId} className="tr-field__hint tr-sys-type-support">

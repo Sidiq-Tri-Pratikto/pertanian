@@ -1,11 +1,13 @@
 """Public error definitions: the one place internal codes map to what clients see."""
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Any
 
 from app.core.errors import codes
+from app.core.locale import locale
 
 _FALLBACK_MESSAGE = "Permintaan belum dapat diselesaikan. Hubungi dukungan dan sebutkan ID referensi yang ditampilkan."
+_FALLBACK_MESSAGE_EN = "The request could not be completed. Contact support and quote the reference ID shown."
 
 
 @dataclass(frozen=True)
@@ -227,6 +229,78 @@ PUBLIC_ERROR_BY_STATUS: dict[int, PublicError] = {
 }
 
 
+# English for every message above, keyed like the Indonesian source; codes and recovery stay language-neutral.
+_EN_BY_CODE: dict[str, str] = {
+    codes.APP_UNKNOWN: _FALLBACK_MESSAGE_EN,
+    codes.APP_REQUEST_INVALID: "The request could not be processed. Check your entries and try again.",
+    codes.APP_NOT_FOUND: "The requested item was not found. Check the address and try again.",
+    codes.APP_CONFLICT: "The request conflicts with the current state. Review the data and try again.",
+    codes.APP_DB_ERROR: "The request failed because of a data error. Contact support and quote the reference ID.",
+    codes.APP_DB_UNAVAILABLE: "The data service is unavailable right now. Try again in a few minutes.",
+    codes.APP_MAIL_UNAVAILABLE: "Email delivery is not available yet. Contact the service operator.",
+    codes.APP_MAIL_RELAY_RETRY: "Email delivery is delayed. Wait while the service retries.",
+    codes.APP_MAIL_RELAY_REJECTED: "The email could not be sent. Contact the service operator.",
+    codes.APP_CALENDAR_UNAVAILABLE: "The external calendar cannot be reached. Check your calendar connection.",
+    codes.APP_CALENDAR_CALLBACK_INVALID: "The calendar is not connected. Start again from the calendar settings.",
+    codes.APP_STORAGE_UNAVAILABLE: "File storage cannot be reached. Try again later.",
+    codes.APP_CAPABILITY_UNAVAILABLE: (
+        "This feature is not available on this service. Contact the operator if you need it."
+    ),
+    codes.APP_UNAUTHENTICATED: "You need to sign in first. Sign in and try again.",
+    codes.APP_STALE_VERSION: "This was changed after you opened it. Reload the latest version and repeat your change.",
+    codes.APP_IDEMPOTENCY_CONFLICT: "This request key was used for different content. Use a new key for a new request.",
+    codes.APP_FORBIDDEN: "You do not have access to this request. Ask the data owner if you need access.",
+    codes.APP_CODE_INVALID: "The verification code does not match. Check the code in your email and try again.",
+    codes.APP_CODE_EXPIRED: "The verification code has expired. Request a new code and enter it.",
+    codes.APP_RATE_LIMITED: "Too many code requests. Wait a moment and try again.",
+    codes.APP_STALE_CONTEXT: "You now act as another party in a different tab. Reload the page and repeat your action.",
+    codes.APP_INVITATION_EXPIRED: "This invitation has expired. Ask the organization manager for a new one.",
+    codes.APP_PUBLICATION_INVALID: "The draft is not ready to publish. Complete the marked fields and publish again.",
+    codes.APP_FILE_TOO_LARGE: "The file is over the size limit. Make it smaller and upload it again.",
+    codes.APP_FILE_TYPE_UNSUPPORTED: "This file type is not supported. Upload a PDF, DOCX, PNG, JPEG or WEBP.",
+    codes.APP_FILE_NOT_AVAILABLE: (
+        "This file is not available yet or was rejected by the check. Wait for the check to finish."
+    ),
+    codes.APP_GRANT_REVOKED: "Access to this document was revoked. Copies downloaded earlier cannot be recalled.",
+    codes.APP_FIELDS_INVALID: "Some entries are not valid. Fix the marked entries and save again.",
+    codes.APP_INVALID_TRANSITION: "This status cannot be changed that way. Reload to see the latest status.",
+    codes.APP_DUPLICATE_PITCH: "A pitch for this need and mandate already exists. Open it to continue.",
+    codes.APP_TARGET_CLOSED: "This mandate no longer accepts new pitches. Discussions already under way continue.",
+    codes.APP_PREFLIGHT_STALE: "Something changed since the check. Check again before sending; your brief is kept.",
+    codes.APP_NOT_READY: (
+        "Some submission requirements are not complete. Complete the named requirement and check again."
+    ),
+    codes.APP_REQUIRED_ANSWERS_MISSING: (
+        "Some required questions are unanswered. Answer the marked questions and resubmit."
+    ),
+    codes.APP_BOOKING_CONFLICT: (
+        "This time clashes with a participant's schedule. Choose another time or propose a new one."
+    ),
+    codes.APP_PROPOSAL_CLOSED: "This time proposal is no longer open. Reload to see the latest proposal.",
+    codes.APP_ENTITY_REQUIRED: (
+        "An equity partnership needs an incorporated company. Choose another type or incorporate first."
+    ),
+    codes.APP_MEETING_NOT_COMPLETED: (
+        "A partnership summary follows a completed meeting. Record the meeting outcome with the other party first."
+    ),
+    codes.APP_LISTING_SUSPENDED: (
+        "This listing is suspended. Contact the service operator if you think this is a mistake."
+    ),
+    codes.APP_SUMMARY_REFUSED: "The automatic summary was refused. Continue by editing the brief.",
+    codes.APP_SUMMARY_UNAVAILABLE: "The automatic summary is not available. Continue by editing the brief.",
+}
+
+_EN_BY_STATUS: dict[int, str] = {
+    400: "The request could not be processed. Check your entries and try again.",
+    401: "You need to sign in first. Sign in and try again.",
+    403: "You do not have access to this request. Ask the data owner if you need access.",
+    404: "The requested item was not found. Check the address and try again.",
+    405: "This request method is not supported. Use a supported method.",
+    409: "The request conflicts with the current state. Review the data and try again.",
+    422: "Some entries are not valid. Fix them and try again.",
+    429: "Too many requests were received. Wait a moment and try again.",
+}
+
 _DEFAULT_FIELD_MESSAGE = "Nilai isian ini belum valid. Periksa lalu coba lagi."
 _FIELD_MESSAGES = {
     "missing": "Isian ini wajib diisi.",
@@ -253,10 +327,36 @@ _FIELD_MESSAGES = {
     "literal_error": "Pilih salah satu nilai yang tersedia.",
     "json_invalid": "Isi permintaan bukan JSON yang valid.",
 }
+_DEFAULT_FIELD_MESSAGE_EN = "This value is not valid. Check it and try again."
+_FIELD_MESSAGES_EN = {
+    "missing": "This field is required.",
+    "string_type": "Enter text.",
+    "string_too_short": "This entry is too short.",
+    "string_too_long": "This entry is too long.",
+    "int_type": "Enter a whole number.",
+    "int_parsing": "Enter a whole number.",
+    "float_type": "Enter a number.",
+    "float_parsing": "Enter a number.",
+    "decimal_type": "Enter a decimal number.",
+    "decimal_parsing": "Enter a decimal number.",
+    "bool_type": "Choose true or false.",
+    "bool_parsing": "Choose true or false.",
+    "uuid_type": "This identifier is not valid.",
+    "uuid_parsing": "This identifier is not valid.",
+    "date_parsing": "Enter a valid date.",
+    "datetime_parsing": "Enter a valid date and time.",
+    "greater_than": "The value is too small.",
+    "greater_than_equal": "The value is too small.",
+    "less_than": "The value is too large.",
+    "less_than_equal": "The value is too large.",
+    "enum": "Choose one of the available values.",
+    "literal_error": "Choose one of the available values.",
+    "json_invalid": "The request body is not valid JSON.",
+}
 
 
 def field_message(error_type: str) -> str:
-    """Resolve a validation error type to an Indonesian field message.
+    """Resolve a validation error type to a field message in the request's language.
 
     Args:
         error_type (str): The validator's error type.
@@ -264,11 +364,13 @@ def field_message(error_type: str) -> str:
     Returns:
         str: The field message, or a safe default for an unmapped type.
     """
+    if locale() == "en":
+        return _FIELD_MESSAGES_EN.get(error_type, _DEFAULT_FIELD_MESSAGE_EN)
     return _FIELD_MESSAGES.get(error_type, _DEFAULT_FIELD_MESSAGE)
 
 
 def public_error_for_code(code: str) -> PublicError:
-    """Resolve an internal code to its public definition.
+    """Resolve an internal code to its public definition, worded in the request's language.
 
     Args:
         code (str): Internal error code.
@@ -276,11 +378,14 @@ def public_error_for_code(code: str) -> PublicError:
     Returns:
         PublicError: The mapped definition, or the fallback for an unregistered code.
     """
-    return PUBLIC_ERROR_BY_CODE.get(code, FALLBACK_PUBLIC_ERROR)
+    public = PUBLIC_ERROR_BY_CODE.get(code, FALLBACK_PUBLIC_ERROR)
+    if locale() == "en":
+        return replace(public, message=_EN_BY_CODE.get(code, _FALLBACK_MESSAGE_EN))
+    return public
 
 
 def public_error_for_status(status_code: int) -> PublicError:
-    """Resolve a framework HTTP status to a fixed public definition.
+    """Resolve a framework HTTP status to a fixed public definition in the request's language.
 
     Args:
         status_code (int): HTTP status raised by the framework.
@@ -288,11 +393,12 @@ def public_error_for_status(status_code: int) -> PublicError:
     Returns:
         PublicError: A safe definition carrying that status.
     """
+    english = locale() == "en"
     known = PUBLIC_ERROR_BY_STATUS.get(status_code)
     if known is not None:
-        return known
+        return replace(known, message=_EN_BY_STATUS[status_code]) if english else known
     code = "INTERNAL_ERROR" if status_code >= 500 else "HTTP_ERROR"
-    return PublicError(code, status_code, _FALLBACK_MESSAGE)
+    return PublicError(code, status_code, _FALLBACK_MESSAGE_EN if english else _FALLBACK_MESSAGE)
 
 
 def error_response(

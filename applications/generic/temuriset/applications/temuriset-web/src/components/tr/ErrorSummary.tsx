@@ -3,6 +3,7 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 
 import { Button } from '@/components/tr/Button';
+import { useMessages } from '@/features/i18n/LocaleProvider';
 
 type ErrorSummaryProps = {
   errors?: { fieldId: string; message: string }[];
@@ -16,6 +17,7 @@ type ErrorSummaryProps = {
 
 /** Port of TR.ErrorSummary: what stopped a submission, each item linked to its field. */
 export function ErrorSummary({ errors = [], focusKey, title, children, retry, id = 'tr-errors' }: ErrorSummaryProps) {
+  const words = useMessages().components;
   const region = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (focusKey) region.current?.focus();
@@ -23,7 +25,7 @@ export function ErrorSummary({ errors = [], focusKey, title, children, retry, id
   return (
     <div ref={region} tabIndex={-1} className="tr-error-summary" role="group" aria-labelledby={`${id}-t`} id={id}>
       <h2 id={`${id}-t`} className="tr-sys-type-heading-sm">
-        {title ?? 'Masih ada yang perlu diperbaiki'}
+        {title ?? words.errorSummary}
       </h2>
       {errors.length ? (
         <ul className="tr-error-summary__list">

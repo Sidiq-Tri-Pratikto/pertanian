@@ -15,6 +15,7 @@ from app.capabilities.service.service import SOURCE_RELEASE
 from app.core.database import get_engine
 from app.core.errors.database import handle_database_error
 from app.core.errors.handlers import ErrorBoundaryMiddleware, register_exception_handlers
+from app.core.locale import LocaleMiddleware
 from app.core.logging import setup_logging
 from app.core.openapi import install_error_schema
 from app.core.security import OriginCheckMiddleware
@@ -66,6 +67,8 @@ def create_app() -> FastAPI:
     app.add_middleware(OriginCheckMiddleware)
     app.add_middleware(ErrorBoundaryMiddleware)
     app.add_middleware(CalendarPrivacyMiddleware)
+    # Outside the error boundary, so even its fallback answer speaks the request's language.
+    app.add_middleware(LocaleMiddleware)
     if settings.cors_allowed_origins:
         # Added after the boundary so it wraps it: failure responses keep their CORS headers.
         app.add_middleware(

@@ -11,6 +11,7 @@ from app.access.service.service import capabilities_for, create_personal_party, 
 from app.core import clock
 from app.core.errors import codes as error_codes
 from app.core.errors.base import AppError, NotFoundError, UnauthenticatedError
+from app.core.locale import as_locale
 from app.core.settings import Settings
 from app.identity.model.models import AccountModel, Principal
 from app.identity.model.schema import (
@@ -47,12 +48,28 @@ SESSION_LIFETIME = timedelta(days=30)
 SESSION_REFRESH = timedelta(hours=1)
 RATE_WINDOW = timedelta(hours=1)
 
-_CODE_SUBJECT = "Kode verifikasi TemuRiset"
-_CODE_BODY = "Kode verifikasi Anda: {code}\n\nKode berlaku 10 menit. Abaikan email ini bila Anda tidak memintanya."
-_NO_ACCOUNT_BODY = (
-    "Belum ada akun TemuRiset untuk email ini. Buka halaman Mulai untuk mendaftar.\n\n"
-    "Abaikan email ini bila Anda tidak memintanya."
-)
+# The code email in the reader's language: the account's for an existing account, the page's for a new address.
+_CODE_MAIL = {
+    "id": {
+        "subject": "Kode verifikasi TemuRiset",
+        "body": "Kode verifikasi Anda: {code}\n\nKode berlaku 10 menit. Abaikan email ini bila Anda tidak memintanya.",
+        "no_account": (
+            "Belum ada akun TemuRiset untuk email ini. Buka halaman Mulai untuk mendaftar.\n\n"
+            "Abaikan email ini bila Anda tidak memintanya."
+        ),
+    },
+    "en": {
+        "subject": "Your TemuRiset verification code",
+        "body": (
+            "Your verification code: {code}\n\n"
+            "The code is valid for 10 minutes. Ignore this email if you did not ask for it."
+        ),
+        "no_account": (
+            "There is no TemuRiset account for this email yet. Open the Start page to sign up.\n\n"
+            "Ignore this email if you did not ask for it."
+        ),
+    },
+}
 
 
 class CodeInvalidError(AppError):
@@ -138,11 +155,12 @@ class IdentityService:
         # Demo accounts sign in only from the demo picker and never receive email.
         if account is not None and (account.kind == "demo" or account.status != "active"):
             return
+        words = _CODE_MAIL[as_locale(account.locale if account is not None else request.locale)]
         if account is None and request.purpose == "sign_in":
             # Unknown-address requests do not produce a challenge and therefore cannot use its mail rate limit.
             if not isinstance(self.mailbox, LoopbackMailbox):
                 await self.mailbox.send(
-                    self.session, to_email=request.email, subject=_CODE_SUBJECT, body=_NO_ACCOUNT_BODY
+                    self.session, to_email=request.email, subject=words["subject"], body=words["no_account"]
                 )
             return
         if account is None and not request.display_name:
@@ -172,8 +190,8 @@ class IdentityService:
         await self.mailbox.send(
             self.session,
             to_email=request.email,
-            subject=_CODE_SUBJECT,
-            body=_CODE_BODY.format(code=code),
+            subject=words["subject"],
+            body=words["body"].format(code=code),
             reference=MailReference("code", code_id, expires_at),
         )
 
