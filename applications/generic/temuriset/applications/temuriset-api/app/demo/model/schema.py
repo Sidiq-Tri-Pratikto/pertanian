@@ -24,18 +24,8 @@ class DemoSignInRequest(BaseModel):
     key: str
 
 
-class DemoResetRequest(BaseModel):
-    """Recreate the demo, optionally in a fixture state such as F01-GAP."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    gap: bool = False
-    scan: bool = False
-    proposed_entity: bool = False
-
-
 class DemoResetResponse(BaseModel):
-    """What the reset recreated."""
+    """What the reset recreated: the scenario's starting point."""
 
     accounts: int
     inventions: int

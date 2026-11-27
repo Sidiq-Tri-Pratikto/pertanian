@@ -1,38 +1,30 @@
-"""Seed and reset the labelled demo: F01–F06, FRaise01 and Recipients A–E, written through the domain services so they
-obey the same rules as real data (spec 021, FR-001). Ids are seeded, so a reset recreates the same ids and versions."""
+"""Seed and reset the labelled demo scenario, written through the domain services so it obeys the same rules as real
+data (spec 021, FR-001). Ids are seeded, so a reset recreates the same ids and versions.
 
-import io
+The reset is the scenario's starting point (``app/demo/service/scenario.py``): Inovator A with Produk A, Investor A
+with one open opportunity, and Investor B as an empty account for the presenter to fill in.
+"""
+
 import struct
 import zlib
-from dataclasses import dataclass
 from typing import Any
 from uuid import UUID, uuid4
 
-from pypdf import PdfWriter
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.access.model.schema import CreateOrganizationRequest
-from app.access.service.service import AccessService, capabilities_for
+from app.access.service.service import capabilities_for
 from app.core.database import seeded_ids
 from app.core.settings import Settings
 from app.demo.repository.sqlalchemy.repository import SqlAlchemyDemoRepository
-from app.demo.service import data
+from app.demo.service import scenario
 from app.discovery.repository.sqlalchemy.repository import SqlAlchemyDiscoveryRepository
-from app.discovery.service.projection import refresh_funding, refresh_invention, refresh_partner
-from app.discovery.service.service import DiscoveryService
+from app.discovery.service.projection import refresh_invention, refresh_partner
 from app.documents.model.schema import UploadIntentRequest
 from app.documents.service import jobs as document_jobs
 from app.documents.service.service import DocumentService, document_version_number
-from app.funding.model.schema import FundingRequestInput, LegalEntityInput
-from app.funding.service.service import FundingService
 from app.identity.model.models import Principal
 from app.identity.service.service import create_demo_account
-from app.intake.model.schema import (
-    CreateOpportunityRequest,
-    OpportunityTransitionRequest,
-    PartnerProfileContent,
-    SavePartnerProfileRequest,
-)
+from app.intake.model.schema import CreateOpportunityRequest, OpportunityTransitionRequest, SavePartnerProfileRequest
 from app.intake.service.service import IntakeService
 from app.needs.model.schema import CreateSupportRequest, TransitionRequest
 from app.needs.service.service import NeedsService
@@ -52,44 +44,20 @@ DEMO_EMAIL_DOMAIN = "demo.invalid"
 DEMO_LABEL = "Akun demo · data fiktif"
 
 
-@dataclass(frozen=True)
-class Variants:
-    """Selectable fixture states (FR-003).
-
-    Attributes:
-        gap (bool): F01-GAP: F01's range is not filled in yet.
-        scan (bool): F01-SCAN: F01's test report is a scan with no text.
-        proposed_entity (bool): FRaise01 for a company not founded yet.
-    """
-
-    gap: bool = False
-    scan: bool = False
-    proposed_entity: bool = False
-
-
 def demo_accounts() -> list[dict[str, str]]:
     """List the demo picker's accounts in a stable order.
 
     Returns:
         list[dict[str, str]]: Key, name, persona, the fixture it holds, what a visitor can try, and the label.
     """
-    inventors = [
-        {"key": key, "name": account["name"], "persona": "inovator", "fixture": data.INVENTOR_FIXTURES[key]}
-        for key, account in data.ACCOUNTS.items()
-    ]
-    partners = [
-        {"key": account["key"], "name": account["name"], "persona": "mitra", "fixture": f"Recipient {recipient}"}
-        for recipient, account in data.RECIPIENT_ACCOUNTS.items()
-    ]
-    accounts = inventors + partners
-    return [{**account, "summary": data.ACCOUNT_SUMMARIES[account["key"]], "label": DEMO_LABEL} for account in accounts]
+    return [{**account, "label": DEMO_LABEL} for account in scenario.ACCOUNTS]
 
 
 def demo_email(key: str) -> str:
     """The reserved address of a demo account; ``.invalid`` can never receive mail.
 
     Args:
-        key (str): Account key, such as ``rani``.
+        key (str): Account key, such as ``inovator-a``.
 
     Returns:
         str: The address.
@@ -97,37 +65,10 @@ def demo_email(key: str) -> str:
     return f"{key}@{DEMO_EMAIL_DOMAIN}"
 
 
-def _pdf(text: str | None) -> bytes:
-    """A one-page PDF. With text it can be read; without, it reads like a scan, which needs a person to read it."""
-    if text is None:
-        writer, buffer = PdfWriter(), io.BytesIO()
-        writer.add_blank_page(width=612, height=792)
-        writer.write(buffer)
-        return buffer.getvalue()
-    stream = f"BT /F1 12 Tf 72 720 Td ({text}) Tj ET".encode()
-    objects = [
-        b"<< /Type /Catalog /Pages 2 0 R >>",
-        b"<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
-        b"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R "
-        b"/Resources << /Font << /F1 5 0 R >> >> >>",
-        b"<< /Length " + str(len(stream)).encode() + b" >>\nstream\n" + stream + b"\nendstream",
-        b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
-    ]
-    out, offsets = bytearray(b"%PDF-1.4\n"), []
-    for number, body in enumerate(objects, start=1):
-        offsets.append(len(out))
-        out += f"{number} 0 obj\n".encode() + body + b"\nendobj\n"
-    xref = len(out)
-    out += f"xref\n0 {len(objects) + 1}\n0000000000 65535 f \n".encode()
-    out += b"".join(f"{offset:010d} 00000 n \n".encode() for offset in offsets)
-    out += f"trailer\n<< /Size {len(objects) + 1} /Root 1 0 R >>\nstartxref\n{xref}\n%%EOF\n".encode()
-    return bytes(out)
-
-
 def _illustration(
     dark: tuple[int, int, int], light: tuple[int, int, int], width: int = 960, height: int = 640
 ) -> bytes:
-    """A plain PNG illustration: a vertical gradient with a lighter rounded block, so the demo photo needs no file."""
+    """A plain PNG illustration: a vertical gradient with a lighter block, so the demo photo needs no file."""
     rows = []
     for y in range(height):
         shade = y / (height - 1)
@@ -151,7 +92,7 @@ def _illustration(
 
 
 class DemoSeeder:
-    """Writes the demo through the services, as each demo account would."""
+    """Writes the scenario's starting point through the services, as each demo account would."""
 
     def __init__(self, session: AsyncSession, settings: Settings) -> None:
         """Bind to a transaction.
@@ -162,236 +103,153 @@ class DemoSeeder:
         """
         self.session = session
         self.settings = settings
-        self.principals: dict[str, Principal] = {}
 
-    async def _account(self, key: str, name: str, persona: str, zone: str, organization: str | None) -> Principal:
+    async def _account(self, account: dict[str, str]) -> Principal:
         account_id, party_id = await create_demo_account(
-            self.session, email=demo_email(key), display_name=name, persona=persona, time_zone=zone
+            self.session,
+            email=demo_email(account["key"]),
+            display_name=account["name"],
+            persona=account["persona"],
+            time_zone="Asia/Jakarta",
         )
-        principal = Principal(
+        return Principal(
             account_id=account_id,
             session_id=uuid4(),
             personal_party_id=party_id,
             active_party_id=party_id,
             capabilities=await capabilities_for(self.session, account_id, party_id) or frozenset(),
         )
-        if organization is not None:
-            created = await AccessService(self.session, self.settings).create_organization(
-                principal, CreateOrganizationRequest(name=organization, kind="company")
-            )
-            principal = Principal(
-                account_id=account_id,
-                session_id=principal.session_id,
-                personal_party_id=party_id,
-                active_party_id=created.party_id,
-                capabilities=await capabilities_for(self.session, account_id, created.party_id) or frozenset(),
-            )
-        self.principals[key] = principal
-        return principal
 
-    async def _document(self, principal: Principal, title: str, scan: bool, image: bytes | None = None) -> UUID:
+    async def _photo(self, principal: Principal, title: str, image: bytes) -> tuple[UUID, int]:
         documents = DocumentService(self.session, self.settings)
-        content = image if image is not None else _pdf(None if scan else title)
         intent = await documents.create_intent(
             principal,
             UploadIntentRequest(
                 acting_party_id=principal.active_party_id,
                 title=title,
                 kind="evidence",
-                media_type="image/png" if image is not None else "application/pdf",
-                size_bytes=len(content),
+                media_type="image/png",
+                size_bytes=len(image),
             ),
         )
 
         async def body() -> Any:  # noqa: ANN401 - an async byte stream
-            yield content
+            yield image
 
         uploaded = await documents.receive(principal, intent.intent_id, body())
-        version_id = uploaded.version_id
-        await document_jobs.scan(self.session, {"version_id": str(version_id)})
-        await document_jobs.extract(self.session, {"version_id": str(version_id)})
-        return version_id
+        await document_jobs.scan(self.session, {"version_id": str(uploaded.version_id)})
+        found = await document_version_number(self.session, uploaded.version_id)
+        if found is None:  # the seed just stored it; nothing else can remove it in this transaction
+            raise LookupError(uploaded.version_id)
+        return found
 
-    async def _invention(self, key: str, variants: Variants) -> UUID:
-        fixture = data.INVENTIONS[key]
-        principal = self.principals[fixture["account"]]
-        content = {**fixture["content"], "facts": [dict(fact) for fact in fixture["content"]["facts"]]}
-        for fact in content["facts"]:
-            if fact["key"] in fixture.get("documents", {}):
-                fact["document_version_id"] = await self._document(
-                    principal, fixture["documents"][fact["key"]], scan=variants.scan
-                )
-        portfolio = PortfolioService(self.session)
+    async def _product(self, principal: Principal, product: dict[str, Any]) -> UUID:
+        """Publish an invention with its need, its public page, an illustration and its updates."""
         party = principal.active_party_id
+        portfolio = PortfolioService(self.session)
         created = await portfolio.create(principal, CreateInventionRequest(acting_party_id=party))
         saved = await portfolio.save_draft(
             principal,
             created.id,
-            DraftRequest(acting_party_id=party, expected_version=created.version, **content),
+            DraftRequest(acting_party_id=party, expected_version=created.version, **product["content"]),
         )
         await portfolio.publish(
             principal, created.id, VersionedActionRequest(acting_party_id=party, expected_version=saved.version)
         )
-        # Demo inventions are included in investor alerts and digests, so the quick subscription can be shown (046).
+        # Included in investor news too, so the quick subscription (046) can be shown.
         current = await portfolio.owner_view(principal, created.id)
         await portfolio.set_investor_digest(
             principal,
             created.id,
             InvestorDigestRequest(acting_party_id=party, expected_version=current.version, enabled=True),
         )
-        if key in data.PUBLIC_PAGES:
-            await self._public_page(principal, created.id, data.PUBLIC_PAGES[key])
-        return created.id
-
-    async def _public_page(self, principal: Principal, invention_id: UUID, page: dict[str, Any]) -> None:
-        """Publish the invention's public page with an illustration and its updates (051, 052)."""
-        party = principal.active_party_id
-        version_id = await self._document(
-            principal, page["photo"]["title"], scan=False, image=_illustration(*page["photo"]["colors"])
+        page = product["public_page"]
+        document_id, number = await self._photo(
+            principal, page["photo"]["title"], _illustration(*page["photo"]["colors"])
         )
-        found = await document_version_number(self.session, version_id)
-        if found is None:  # the seed just stored it; nothing else can remove it in this transaction
-            raise LookupError(version_id)
-        portfolio = PortfolioService(self.session)
-        current = await portfolio.owner_view(principal, invention_id)
+        current = await portfolio.owner_view(principal, created.id)
         await portfolio.set_public_page(
             principal,
-            invention_id,
+            created.id,
             PublicPageRequest(
                 acting_party_id=party,
                 expected_version=current.version,
                 enabled=True,
                 field_test=page["field_test"],
-                photo=PublicPhotoChoice(document_id=found[0], version=found[1]),
+                photo=PublicPhotoChoice(document_id=document_id, version=number),
                 photo_alt=page["photo_alt"],
             ),
         )
         updates = UpdateService(self.session)
-        for title, body in page["updates"]:
+        for title, text in page["updates"]:
             written = await updates.create(
-                principal, invention_id, UpdateRequest(acting_party_id=party, title=title, body=body)
+                principal, created.id, UpdateRequest(acting_party_id=party, title=title, body=text)
             )
             await updates.publish(
                 principal,
-                invention_id,
+                created.id,
                 written.id,
                 VersionedActionRequest(acting_party_id=party, expected_version=written.version),
             )
-
-    async def _inventors(self, variants: Variants) -> dict[str, UUID]:
-        for key, account in data.ACCOUNTS.items():
-            zone = data.INVENTOR_ZONES.get(key, "Asia/Jakarta")
-            await self._account(key, account["name"], "inovator", zone, account["organization"])
-        inventions = {key: await self._invention(key, variants) for key in data.INVENTIONS}
         needs = NeedsService(self.session)
-        for key, content in data.SUPPORT_REQUESTS.items():
-            principal = self.principals[data.INVENTIONS[key]["account"]]
-            party = principal.active_party_id
-            budget = data.F01_GAP_BUDGET if key == "F01" and variants.gap else content["budget"]
-            created = await needs.create(
-                principal,
-                CreateSupportRequest(
-                    acting_party_id=party, invention_id=inventions[key], **{**content, "budget": budget}
-                ),
-            )
-            await needs.transition(
-                principal,
-                created.id,
-                "activate",
-                TransitionRequest(acting_party_id=party, expected_version=created.version),
-            )
-        principal = self.principals["bima"]
+        need = await needs.create(
+            principal, CreateSupportRequest(acting_party_id=party, invention_id=created.id, **product["need"])
+        )
+        await needs.transition(
+            principal, need.id, "activate", TransitionRequest(acting_party_id=party, expected_version=need.version)
+        )
+        return created.id
+
+    async def _investor(self, principal: Principal, investor: dict[str, Any]) -> None:
+        """Save the investor's profile and open its opportunity."""
         party = principal.active_party_id
-        funding = FundingService(self.session)
-        subject: dict[str, Any] = {"subject_type": "PROPOSED_ENTITY", "proposed_name": data.FRAISE01["entity"]["name"]}
-        if not variants.proposed_entity:
-            entity = await funding.declare_entity(
-                principal, LegalEntityInput(acting_party_id=party, **data.FRAISE01["entity"])
-            )
-            subject = {"subject_type": "EXISTING_ENTITY", "legal_entity_id": entity.id}
-        raise_ = await funding.create(
-            principal,
-            FundingRequestInput(
-                acting_party_id=party,
-                **subject,
-                **data.FRAISE01["content"],
-                invention_ids=[inventions[key] for key in data.FRAISE01["inventions"]],
-            ),
-        )
-        await funding.transition(
-            principal, raise_.id, "activate", TransitionRequest(acting_party_id=party, expected_version=raise_.version)
-        )
-        inventions["FRaise01"] = raise_.id
-        return inventions
-
-    async def _recipients(self) -> list[UUID]:
         intake = IntakeService(self.session)
-        parties: dict[str, UUID] = {}
-        for recipient, profile in data.PROFILES.items():
-            account = data.RECIPIENT_ACCOUNTS[recipient]
-            organization = profile["party"]["name"] if profile["party"]["kind"] == "organization" else None
-            principal = await self._account(account["key"], account["name"], "mitra", account["zone"], organization)
-            party = principal.active_party_id
-            parties[recipient] = party
-            content = PartnerProfileContent.model_validate(profile["content"])
-            if recipient == "E":
-                await intake.record_directory_profile(party, content)
-            else:
-                await intake.save_profile(
-                    principal,
-                    party,
-                    SavePartnerProfileRequest(acting_party_id=party, expected_version=None, **profile["content"]),
-                )
-        for opportunity in data.OPPORTUNITIES.values():
-            principal = self.principals[data.RECIPIENT_ACCOUNTS[opportunity["partner"]]["key"]]
-            party = principal.active_party_id
-            created = await intake.create(
-                principal, CreateOpportunityRequest(acting_party_id=party, **opportunity["content"])
-            )
-            await intake.transition(
-                principal,
-                created.id,
-                "activate",
-                OpportunityTransitionRequest(acting_party_id=party, expected_version=created.version),
-            )
-        return list(parties.values())
+        await intake.save_profile(
+            principal,
+            party,
+            SavePartnerProfileRequest(acting_party_id=party, expected_version=None, **investor["profile"]),
+        )
+        created = await intake.create(
+            principal, CreateOpportunityRequest(acting_party_id=party, **investor["opportunity"])
+        )
+        await intake.transition(
+            principal,
+            created.id,
+            "activate",
+            OpportunityTransitionRequest(acting_party_id=party, expected_version=created.version),
+        )
 
-    async def seed(self, variants: Variants) -> dict[str, UUID]:
-        """Write the whole demo with seeded ids, then project it for discovery.
-
-        Args:
-            variants (Variants): Fixture states.
+    async def seed(self) -> dict[str, UUID]:
+        """Write the scenario's starting point with seeded ids, then project it for discovery.
 
         Returns:
-            dict[str, UUID]: Invention ids per fixture, and FRaise01's id.
+            dict[str, UUID]: Produk A's invention id, and Investor A's party id.
         """
+        inventor_a, investor_a, investor_b = scenario.ACCOUNTS
         with seeded_ids("demo"):
-            subjects = await self._inventors(variants)
-            partners = await self._recipients()
+            inventor = await self._account(inventor_a)
+            product_a = await self._product(inventor, scenario.PRODUCT_A)
+            investor = await self._account(investor_a)
+            await self._investor(investor, scenario.INVESTOR_A)
+            # Investor B starts empty: scenario 1 fills it in live.
+            await self._account(investor_b)
         # The worker would project these from the outbox; doing it now makes the demo searchable at once.
-        for key in data.INVENTIONS:
-            await refresh_invention(self.session, subjects[key])
-        await refresh_funding(self.session, subjects["FRaise01"])
-        for party in partners:
-            await refresh_partner(self.session, party)
-        for key, fixture in data.INVENTIONS.items():
-            if fixture.get("curated"):
-                await DiscoveryService(self.session).set_curated("INVENTION", subjects[key], True)
-        return subjects
+        await refresh_invention(self.session, product_a)
+        await refresh_partner(self.session, investor.active_party_id)
+        return {"product_a": product_a, "investor_a": investor.active_party_id}
 
 
-async def reset(session: AsyncSession, settings: Settings, variants: Variants | None = None) -> dict[str, UUID]:
-    """Remove every demo row and seed the demo again; real accounts are untouched.
+async def reset(session: AsyncSession, settings: Settings) -> dict[str, UUID]:
+    """Remove every demo row and seed the scenario's starting point again; real accounts are untouched.
 
     Args:
         session (AsyncSession): One transaction for the whole reset.
         settings (Settings): Settings.
-        variants (Variants | None, optional): Fixture states. Defaults to the baseline.
 
     Returns:
-        dict[str, UUID]: Invention ids per fixture, and FRaise01's id.
+        dict[str, UUID]: Produk A's invention id, and Investor A's party id.
     """
     await SqlAlchemyDiscoveryRepository(session).lock_updates(exclusive=True)
     await SqlAlchemyDemoRepository(session).remove_namespace()
     await session.flush()
-    return await DemoSeeder(session, settings).seed(variants or Variants())
+    return await DemoSeeder(session, settings).seed()

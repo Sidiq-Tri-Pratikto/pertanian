@@ -121,7 +121,11 @@ export function InventionView({ me, invention, publicView, justPublished, saved 
       {justPublished ? <Status tone="success" label={`Versi ${justPublished} sudah terbit`} live /> : null}
       {owner && !invention!.published ? <Status tone="neutral" label="Draf, belum terbit" /> : null}
       {owner && invention!.status === 'ARCHIVED' ? <Status tone="warning" label="Diarsipkan" /> : null}
-      <div className="tr-row">{action}</div>
+      <div className="tr-row">
+        {action}
+        {/* Scenario 5 of the demo: an investor inviting an inventor to pitch is announced, not built yet. */}
+        {!owner && persona === 'mitra' ? <Status tone="neutral" label="Ajak pitching · segera hadir" /> : null}
+      </div>
       {owner && invention!.published && invention!.status !== 'ARCHIVED' ? (
         <>
           <PublicPageForm inventionId={invention!.id} actingPartyId={me.active_party_id} version={invention!.version} page={invention!.public_page ?? {}} documents={documents} />

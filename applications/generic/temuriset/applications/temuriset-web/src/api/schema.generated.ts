@@ -228,10 +228,9 @@ export interface paths {
         put?: never;
         /**
          * Reset the demo
-         * @description Delete only demo rows and recreate them with the same ids; real accounts are untouched.
+         * @description Delete only demo rows and recreate the scenario's starting point with the same ids; real accounts are untouched.
          *
          *     Args:
-         *         body (DemoResetRequest): Fixture states.
          *         session (SessionDep): Database session.
          *
          *     Returns:
@@ -5110,29 +5109,8 @@ export interface components {
             summary: string;
         };
         /**
-         * DemoResetRequest
-         * @description Recreate the demo, optionally in a fixture state such as F01-GAP.
-         */
-        DemoResetRequest: {
-            /**
-             * Gap
-             * @default false
-             */
-            gap?: boolean;
-            /**
-             * Proposed Entity
-             * @default false
-             */
-            proposed_entity?: boolean;
-            /**
-             * Scan
-             * @default false
-             */
-            scan?: boolean;
-        };
-        /**
          * DemoResetResponse
-         * @description What the reset recreated.
+         * @description What the reset recreated: the scenario's starting point.
          */
         DemoResetResponse: {
             /** Accounts */
@@ -9657,11 +9635,7 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["DemoResetRequest"];
-            };
-        };
+        requestBody?: never;
         responses: {
             /** @description Successful Response */
             200: {
@@ -9670,15 +9644,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["DemoResetResponse"];
-                };
-            };
-            /** @description Validation failed */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
             /** @description Failure */

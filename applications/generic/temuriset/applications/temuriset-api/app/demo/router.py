@@ -6,8 +6,8 @@ from app.core.database import SessionDep
 from app.core.errors.base import NotFoundError
 from app.core.security import SESSION_COOKIE
 from app.core.settings import get_settings
-from app.demo.model.schema import DemoAccount, DemoResetRequest, DemoResetResponse, DemoSignInRequest
-from app.demo.service.fixtures import Variants, demo_accounts, demo_email, reset
+from app.demo.model.schema import DemoAccount, DemoResetResponse, DemoSignInRequest
+from app.demo.service.fixtures import demo_accounts, demo_email, reset
 from app.identity.model.schema import MeResponse
 from app.identity.service.service import SESSION_LIFETIME, IdentityService, start_demo_session
 
@@ -65,15 +65,14 @@ async def demo_sign_in(body: DemoSignInRequest, response: Response, session: Ses
 
 
 @router.post("/reset", summary="Reset the demo")
-async def reset_demo(body: DemoResetRequest, session: SessionDep) -> DemoResetResponse:
-    """Delete only demo rows and recreate them with the same ids; real accounts are untouched.
+async def reset_demo(session: SessionDep) -> DemoResetResponse:
+    """Delete only demo rows and recreate the scenario's starting point with the same ids; real accounts are untouched.
 
     Args:
-        body (DemoResetRequest): Fixture states.
         session (SessionDep): Database session.
 
     Returns:
         DemoResetResponse: What was recreated.
     """
-    subjects = await reset(session, get_settings(), Variants(**body.model_dump()))
-    return DemoResetResponse(accounts=len(demo_accounts()), inventions=len(subjects) - 1)
+    await reset(session, get_settings())
+    return DemoResetResponse(accounts=len(demo_accounts()), inventions=1)

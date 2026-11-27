@@ -12,8 +12,8 @@ async def main() -> None:
     settings = get_settings()
     try:
         async with get_session_factory()() as session, session.begin():
-            subjects = await reset(session, settings)
-        print(f"Demo siap: {len(subjects) - 1} inovasi dan satu pendanaan perusahaan.")  # noqa: T201 - a command's output
+            await reset(session, settings)
+        print("Demo siap: Inovator A dengan Produk A, Investor A, dan Investor B yang masih kosong.")  # noqa: T201 - a command's output
     finally:
         await get_engine().dispose()
 

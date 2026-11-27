@@ -2114,31 +2114,8 @@
         "title": "DemoAccount",
         "type": "object"
       },
-      "DemoResetRequest": {
-        "additionalProperties": false,
-        "description": "Recreate the demo, optionally in a fixture state such as F01-GAP.",
-        "properties": {
-          "gap": {
-            "default": false,
-            "title": "Gap",
-            "type": "boolean"
-          },
-          "proposed_entity": {
-            "default": false,
-            "title": "Proposed Entity",
-            "type": "boolean"
-          },
-          "scan": {
-            "default": false,
-            "title": "Scan",
-            "type": "boolean"
-          }
-        },
-        "title": "DemoResetRequest",
-        "type": "object"
-      },
       "DemoResetResponse": {
-        "description": "What the reset recreated.",
+        "description": "What the reset recreated: the scenario's starting point.",
         "properties": {
           "accounts": {
             "title": "Accounts",
@@ -11943,18 +11920,8 @@
     },
     "/api/v1/demo/reset": {
       "post": {
-        "description": "Delete only demo rows and recreate them with the same ids; real accounts are untouched.\n\nArgs:\n    body (DemoResetRequest): Fixture states.\n    session (SessionDep): Database session.\n\nReturns:\n    DemoResetResponse: What was recreated.",
+        "description": "Delete only demo rows and recreate the scenario's starting point with the same ids; real accounts are untouched.\n\nArgs:\n    session (SessionDep): Database session.\n\nReturns:\n    DemoResetResponse: What was recreated.",
         "operationId": "reset_demo_api_v1_demo_reset_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DemoResetRequest"
-              }
-            }
-          },
-          "required": true
-        },
         "responses": {
           "200": {
             "content": {
@@ -11965,16 +11932,6 @@
               }
             },
             "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorEnvelope"
-                }
-              }
-            },
-            "description": "Validation failed"
           },
           "default": {
             "content": {

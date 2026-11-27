@@ -1,4 +1,4 @@
-"""Fixtures F01–F06, FRaise01 and Recipients A–E as plain data, shared by demo seeding (021) and tests (016, 019).
+"""Fixtures F01–F06, FRaise01 and Recipients A–E as plain data for tests (016, 019); the demo seeds ``scenario.py``.
 
 Every value is fictional. This module imports nothing, so engine tests can read it without a database. Where it
 differs from the prototype's ``domain.js``, the reasons are in ``specs/016-partner-intake-api/tasks.md`` and
@@ -595,25 +595,4 @@ ACCOUNT_SUMMARIES = {
     "distributor-c": "Distributor produk siap pasar yang mensyaratkan sertifikasi.",
     "lisensi-d": "Mitra lisensi perangkat lunak untuk pelanggan korporasi.",
     "direktori-e": "Entri direktori dari sumber publik yang belum dikonfirmasi pemiliknya.",
-}
-
-
-# The public invention page (051) and its updates (052), so the follow journey (053) can be shown from a reset.
-# The photo is a generated illustration, described as one.
-PUBLIC_PAGES: dict[str, dict[str, Any]] = {
-    "F01": {
-        "field_test": "Diuji 10 L/jam di satu rumah tangga selama dua minggu. Hasil dilaporkan oleh inovator.",
-        "photo": {"title": "Ilustrasi ClearSpring", "colors": ((15, 118, 110), (204, 251, 241))},
-        "photo_alt": "Ilustrasi demo ClearSpring: wadah saringan di atas latar hijau toska",
-        "updates": [
-            ("Uji rumah tangga selesai", "Saringan dipakai satu keluarga selama dua minggu. Air jernih setiap hari."),
-            ("Uji desa disiapkan", "Rani menyiapkan tiga unit untuk uji di satu desa. Jadwal uji sedang dibahas."),
-        ],
-    },
-    "F02": {
-        "field_test": "Dua siklus pengeringan selesai di satu kelompok tani. Hasil dilaporkan oleh inovator.",
-        "photo": {"title": "Ilustrasi FieldDry", "colors": ((146, 64, 14), (254, 243, 199))},
-        "photo_alt": "Ilustrasi demo FieldDry: ruang pengering di atas latar cokelat muda",
-        "updates": [("Pilot musim hujan berjalan", "Pengering dipakai kelompok tani selama musim hujan pertama.")],
-    },
 }
