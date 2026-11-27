@@ -125,3 +125,15 @@ export const FIELD_ID: Record<string, string> = {
   stage: 'tahap',
   facts: 'fakta-0-label',
 };
+
+/**
+ * The editor step to resume a draft at: the first step with a missing field, or the public preview (step 4) when
+ * everything the editor asks for is there. Step 3 only links onward, so it never holds work.
+ */
+export function resumeStep(version: InventionVersion | null | undefined): number {
+  const values = valuesFrom(version);
+  const empty = (Object.keys(FIELD_STEP) as (keyof typeof FIELD_STEP)[]).filter((field) =>
+    field === 'facts' ? !values.facts.some((fact) => fact.label.trim() && fact.value.trim()) : !String(values[field as keyof DraftValues] ?? '').trim(),
+  );
+  return empty.length ? Math.min(...empty.map((field) => FIELD_STEP[field])) : 4;
+}

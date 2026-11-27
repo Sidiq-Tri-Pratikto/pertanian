@@ -78,6 +78,13 @@ export function DestinationView({ me, destination, capabilities, queue = [], not
           {destination.empty.body}
         </EmptyState>
       )}
+      {destination.savedLink ? (
+        <p>
+          <Link className="tr-link" href="/discover?type=inventions&saved=true">
+            Lihat inovasi yang Anda simpan
+          </Link>
+        </p>
+      ) : null}
       {notifications.length ? <NotificationList notifications={notifications} zone={me.account.time_zone} /> : null}
       <FeatureList ids={destination.features} capabilities={capabilities} />
     </Screen>

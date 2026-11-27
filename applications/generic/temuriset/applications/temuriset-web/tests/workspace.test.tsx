@@ -4,7 +4,7 @@ import axe from 'axe-core';
 import type { ReactElement } from 'react';
 
 import type { Pitch, PitchSummary } from '@/features/pitches/model';
-import { filterPitches, tabOf, turnOf } from '@/features/pitches/workspace';
+import { filterPitches, primaryFor, tabOf, turnOf } from '@/features/pitches/workspace';
 import { PitchesView } from '@/views/pitches/PitchesView';
 import { NoAccessView, WorkspaceView } from '@/views/pitches/WorkspaceView';
 
@@ -169,6 +169,24 @@ describe('pitch lists (S12)', () => {
 });
 
 describe('pitch workspace (S13)', () => {
+  it('sums up the room above the tabs and links the next step into the tab where the work is', () => {
+    const answer = { ...room('you', 'Jawab permintaan revisi', 'Pertanyaan wajib perlu dijawab.'), next: { who: 'you' as const, title: 'Jawab permintaan revisi', text: 'Pertanyaan wajib perlu dijawab.', tab: 'revisi', action: 'answer_revision' } };
+    render(<WorkspaceView me={makeMe()} pitch={pitch()} tab="ringkasan" files={[]} justSent={false} room={answer} />);
+
+    const facts = within(screen.getByLabelText('Ringkasan pitching'));
+    expect(facts.getByText('Penerima')).toBeInTheDocument();
+    expect(facts.getByText('Kiriman 1')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Jawab revisi' })).toHaveAttribute('href', '/pitches/pitch-1?tab=revisi');
+  });
+
+  it('offers no link when the work is on this tab, when deciding, or when it is not this party\'s turn', () => {
+    const step = (who: 'you' | 'other' | null, tab: string, action: string | null) => ({ who, title: 't', text: '', tab, action });
+    expect(primaryFor(step('you', 'revisi', 'answer_revision'), 'revisi', 'p')).toBeNull();
+    expect(primaryFor(step('you', 'ringkasan', 'decide'), 'dokumen', 'p')).toBeNull();
+    expect(primaryFor(step('other', 'jadwal', null), 'ringkasan', 'p')).toBeNull();
+    expect(primaryFor(step('you', 'jadwal', 'pick_slot'), 'ringkasan', 'p')).toEqual({ href: '/pitches/p?tab=jadwal', label: 'Buka Jadwal' });
+  });
+
   it('shows the frozen submission, whose turn it is and the tabs, keeping the tab in the address', async () => {
     render(<WorkspaceView me={makeMe()} pitch={pitch()} tab="ringkasan" files={[]} justSent room={WAITING_MITRA} />);
 

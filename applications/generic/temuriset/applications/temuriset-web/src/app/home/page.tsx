@@ -6,6 +6,8 @@ import type { components } from '@/api/schema.generated';
 import { destinationFor } from '@/features/destinations';
 import type { Notice } from '@/features/discussion/NotificationList';
 import { matchesHref } from '@/features/discovery/model';
+import type { Invention, InventionSummary } from '@/features/portfolio/model';
+import { resumeStep } from '@/features/portfolio/editor-state';
 import { needsRange, type SupportRequest } from '@/features/needs/model';
 import { personaOf, requireMe } from '@/features/session';
 import { DestinationView, type QueueItem } from '@/views/DestinationView';
@@ -15,8 +17,9 @@ export const metadata: Metadata = { title: 'Beranda' };
 export default async function Page() {
   const me = await requireMe('/home');
   const persona = personaOf(me);
-  const [support, pitches, notifications] = await Promise.all([
+  const [support, inventions, pitches, notifications] = await Promise.all([
     persona === 'inovator' ? serverGet<SupportRequest[]>('/api/v1/support-requests') : Promise.resolve([]),
+    persona === 'inovator' ? serverGet<InventionSummary[]>('/api/v1/inventions') : Promise.resolve([]),
     serverGet<components['schemas']['QueueItem'][]>('/api/v1/me/queue'),
     serverGet<Notice[]>('/api/v1/notifications?limit=5'),
   ]);
@@ -34,10 +37,22 @@ export default async function Page() {
     context: `${request.outcome || 'Kebutuhan tanpa judul'} · ${request.invention_title}`,
     who: 'you',
   }));
-  const queue = [...fromPitches, ...needs].sort((a, b) => Number(a.who === 'other') - Number(b.who === 'other'));
-  // Nothing waits, but an open need can still go somewhere: point at its matches instead of an empty screen.
+  const queue = [...fromPitches, ...needs];
+  // Nothing waits on this person: an unfinished first draft comes first, then an open need's matches.
+  const draft = inventions.find((invention) => invention.status === 'DRAFT' && invention.has_draft);
+  if (queue.every((item) => item.who !== 'you') && draft) {
+    const step = resumeStep((await serverGet<Invention>(`/api/v1/inventions/${encodeURIComponent(draft.id)}`)).draft);
+    queue.push({
+      href: `/inventions/${draft.id}/edit?step=${step}`,
+      label: 'Lanjutkan draf inovasi Anda',
+      context: draft.title || 'Inovasi tanpa judul',
+      who: 'you',
+      text: step === 4 ? 'Semua bagian sudah terisi. Periksa pratinjau publik, lalu terbitkan.' : `Lanjutkan dari langkah ${step} dari 4.`,
+      action: 'Lanjutkan draf',
+    });
+  }
   const open = support.find((request) => request.status === 'ACTIVE');
-  if (!queue.length && open) {
+  if (queue.every((item) => item.who !== 'you') && open) {
     queue.push({
       href: matchesHref({ type: 'SUPPORT_REQUEST', id: open.id }),
       label: 'Temukan investor atau mitra untuk kebutuhan Anda',
@@ -47,5 +62,6 @@ export default async function Page() {
       action: 'Lihat kecocokan',
     });
   }
+  queue.sort((a, b) => Number(a.who === 'other') - Number(b.who === 'other'));
   return <DestinationView me={me} destination={destinationFor('home', persona)} capabilities={await readCapabilities()} queue={queue} notifications={notifications} />;
 }

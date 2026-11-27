@@ -19,6 +19,24 @@ export const TABS = [
 ] as const;
 export type TabId = (typeof TABS)[number]['id'];
 
+const ACTION_LABEL: Record<string, string> = {
+  answer_revision: 'Jawab revisi',
+  record_outcome: 'Catat hasil pertemuan',
+  confirm_partnership: 'Periksa ringkasan Kerja Sama',
+};
+
+/**
+ * The one link from the next step into the room, when it is this party's turn and the work sits on another tab.
+ * Deciding uses the actions right below the step, and proposing a summary has its own button, so neither gets one.
+ */
+export function primaryFor(step: NextAction, current: TabId, pitchId: string): { href: string; label: string } | null {
+  if (step.who !== 'you' || step.action === 'decide' || step.action === 'propose_partnership') return null;
+  const tab = tabOf(step.tab);
+  if (tab === current) return null;
+  const label = (step.action && ACTION_LABEL[step.action]) ?? `Buka ${TABS.find((item) => item.id === tab)?.label ?? 'Ringkasan'}`;
+  return { href: `/pitches/${pitchId}?tab=${tab}`, label };
+}
+
 export function tabOf(value: string | undefined): TabId {
   return TABS.find((tab) => tab.id === value)?.id ?? 'ringkasan';
 }

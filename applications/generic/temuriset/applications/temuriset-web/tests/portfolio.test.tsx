@@ -1,7 +1,7 @@
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { draftRequest, initialState, reduce } from '@/features/portfolio/editor-state';
+import { draftRequest, initialState, reduce, resumeStep } from '@/features/portfolio/editor-state';
 import type { Invention, PublicInvention } from '@/features/portfolio/model';
 import { EditorView } from '@/views/portfolio/EditorView';
 import { InventionsView, InventionView } from '@/views/portfolio/InventionViews';
@@ -65,6 +65,15 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.unstubAllGlobals();
+});
+
+describe('resuming a draft', () => {
+  it('picks the first step with a missing field, or the preview when nothing is missing', () => {
+    const full = { title: 'T', summary: 'S', problem: 'P', solution: 'S', intended_users: 'U', stage: 'IDEA', keywords: [], claims: [] };
+    expect(resumeStep(null)).toBe(1);
+    expect(resumeStep({ ...full, facts: [] } as never)).toBe(2);
+    expect(resumeStep({ ...full, facts: [{ label: 'Kapasitas', value: '10' }] } as never)).toBe(4);
+  });
 });
 
 describe('editor state machine', () => {

@@ -8,6 +8,8 @@ export type Destination = {
   title: string;
   subtitle: string;
   showServiceStatus?: boolean;
+  /** Offers the way back to what this party saved, for partners who browse and return. */
+  savedLink?: boolean;
   /** The one action that fills an empty destination, when there is one. */
   empty: { icon: IconName; title: string; body: string; action?: { label: string; href: string } };
   /** Feature ids from the registry, in reading order. */
@@ -35,6 +37,7 @@ const HOME: Record<Persona, Destination> = {
   mitra: {
     nav: '',
     title: 'Beranda',
+    savedLink: true,
     subtitle: 'Pitching yang menunggu keputusan Anda akan tampil di sini.',
     showServiceStatus: true,
     empty: {
