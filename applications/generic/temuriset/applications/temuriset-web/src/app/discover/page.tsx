@@ -31,11 +31,13 @@ export default async function DiscoverPage({ searchParams }: Props) {
   const persona = personaOf(me);
   const type = readType(typeof params.type === 'string' ? params.type : undefined, persona);
   const filters = readFilters(params);
+  const selected = typeof params.selected === 'string' ? params.selected : undefined;
   query.set('type', type);
+  query.delete('selected');
   const [page, on, matches] = await Promise.all([
     serverGet<Discovery>(`/api/v1/discovery?${query.toString()}`),
     fundingOn(),
     persona === 'inovator' ? firstSource() : Promise.resolve(null),
   ]);
-  return <DiscoverView me={me} type={type} filters={filters} page={page} fundingOn={on} matchesHref={matches} />;
+  return <DiscoverView me={me} type={type} filters={filters} page={page} fundingOn={on} matchesHref={matches} selected={selected} />;
 }

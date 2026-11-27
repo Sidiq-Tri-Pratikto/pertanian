@@ -26,6 +26,7 @@ export default async function InventionPage({ params, searchParams }: Props) {
   const path = `/api/v1/inventions/${encodeURIComponent(id)}` as const;
   const invention = await orNull(serverGet<Invention>(path));
   const publicView = invention ? null : await orNull(serverGet<PublicInvention>(`${path}/public`));
+  const saved = publicView ? (await serverGet<{ subject_type: string; subject_id: string }[]>('/api/v1/saved-items')).some((item) => item.subject_type === 'INVENTION' && item.subject_id === publicView.id) : false;
   const terbit = Number((await searchParams).terbit);
   return (
     <InventionView
@@ -33,6 +34,7 @@ export default async function InventionPage({ params, searchParams }: Props) {
       invention={invention ?? undefined}
       publicView={publicView ?? undefined}
       justPublished={Number.isInteger(terbit) && terbit > 0 ? terbit : undefined}
+      saved={saved}
     />
   );
 }

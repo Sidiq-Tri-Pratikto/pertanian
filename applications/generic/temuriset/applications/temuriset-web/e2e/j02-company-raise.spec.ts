@@ -78,8 +78,9 @@ test('J02: Bima pitches one company raise to an equity mandate, and the second l
   expect(live.status(), await live.text()).toBe(200);
 
   await page.goto(`/matches?source=FUNDING_REQUEST:${raiseId}`);
+  await page.getByRole('button', { name: new RegExp(title) }).click();
   const card = page.getByRole('article', { name: title });
-  await expect(card.getByText('Siap dikirim')).toBeVisible();
+  await expect(card.getByText('Tidak ada syarat wajib yang menghalangi')).toBeVisible();
   await card.getByRole('link', { name: 'Siapkan pitching' }).click();
 
   await expect(page.getByText('Pendanaan Perusahaan: Demo Circular Materials Ltd, versi 2')).toBeVisible();

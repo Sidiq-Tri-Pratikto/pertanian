@@ -49,6 +49,8 @@ test('J01: from Beranda through the range repair and the match to a submitted pi
   await page.getByRole('link', { name: 'Lihat kecocokan untuk kebutuhan Anda' }).click();
   await expect(page).toHaveURL(new RegExp(`/matches\\?source=SUPPORT_REQUEST:${need}$`));
 
+  // Investor finder: open this mandate from the list, then read its card.
+  await page.getByRole('button', { name: new RegExp(title) }).click();
   const card = page.getByRole('article', { name: title });
   await expect(card.getByText('Perlu konfirmasi')).toBeVisible();
   await card.getByRole('link', { name: 'Lengkapi kisaran biaya' }).click();
@@ -64,9 +66,10 @@ test('J01: from Beranda through the range repair and the match to a submitted pi
   await page.getByRole('button', { name: 'Simpan kebutuhan' }).click();
 
   await expect(page).toHaveURL(new RegExp(`/matches\\?source=SUPPORT_REQUEST:${need}$`));
+  await page.getByRole('button', { name: new RegExp(title) }).click();
   await expect(card.getByText('Kecocokan kuat')).toBeVisible();
+  await card.getByText('Mengapa cocok?').click();
   await expect(card.getByText('Siap dikirim')).toBeVisible();
-  await card.getByText('Tentang kisaran kecocokan').click();
   await expect(card.getByText(/bukan peluang pendanaan/)).toBeVisible();
   await card.getByRole('link', { name: 'Siapkan pitching' }).click();
 
@@ -91,14 +94,18 @@ test('discovery keeps its filters in the address, so Back returns to them', asyn
   await signUp(page, 'mitra');
   await page.goto('/discover?type=inventions');
   await page.getByRole('searchbox', { name: /Kata kunci/ }).fill('water filter');
+  await page.getByText('Filter', { exact: true }).click();
   await page.getByRole('combobox', { name: 'Sektor' }).selectOption('Pertanian');
   await page.getByRole('button', { name: 'Terapkan' }).click();
   await expect(page).toHaveURL(/q=water\+filter/);
   await expect(page.getByRole('link', { name: 'Hapus semua filter' }).first()).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Hapus filter Sektor: Pertanian' })).toBeVisible();
 
   await page.goto('/settings');
   await page.goBack();
 
   await expect(page.getByRole('searchbox', { name: /Kata kunci/ })).toHaveValue('water filter');
+  await expect(page.getByRole('link', { name: 'Hapus filter Sektor: Pertanian' })).toBeVisible();
+  await page.getByText('Filter (1)', { exact: true }).click();
   await expect(page.getByRole('combobox', { name: 'Sektor' })).toHaveValue('Pertanian');
 });

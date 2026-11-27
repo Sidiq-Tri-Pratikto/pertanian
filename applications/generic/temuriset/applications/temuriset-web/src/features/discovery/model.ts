@@ -36,10 +36,32 @@ export function readFilters(params: Record<string, string | string[] | undefined
   return filters;
 }
 
-export function discoverHref(type: ResultType, filters: Filters = {}): string {
+/** The address of one search; `selected` opens one result beside the list. */
+export function discoverHref(type: ResultType, filters: Filters = {}, selected?: string): string {
   const query = new URLSearchParams({ type });
   for (const [name, value] of Object.entries(filters)) if (value) query.set(name, value);
+  if (selected) query.set('selected', selected);
   return `/discover?${query.toString()}`;
+}
+
+export const FILTER_LABELS: Record<(typeof FILTER_NAMES)[number], string> = { q: 'Kata kunci', sector: 'Sektor', stage: 'Tahap', saved: 'Hanya yang disimpan' };
+
+export type AppliedFilter = { name: (typeof FILTER_NAMES)[number]; label: string; value: string; text: string };
+
+/** Filters the service applied, in a fixed order, with the words a chip shows. */
+export function appliedFilters(applied: Record<string, unknown>, stageLabel: (value: string) => string): AppliedFilter[] {
+  return FILTER_NAMES.flatMap((name) => {
+    const value = applied[name];
+    if (value === undefined || value === null || value === '' || value === false) return [];
+    const raw = String(value);
+    const shown = name === 'stage' ? stageLabel(raw) : raw;
+    return [{ name, label: FILTER_LABELS[name], value: raw, text: name === 'saved' ? FILTER_LABELS[name] : `${FILTER_LABELS[name]}: ${shown}` }];
+  });
+}
+
+/** Number of narrowing filters behind the "Filter" button; the keyword has its own field. */
+export function filterCount(filters: Filters): number {
+  return (['sector', 'stage', 'saved'] as const).filter((name) => filters[name]).length;
 }
 
 export const SECTORS = ['Air dan sanitasi', 'Pertanian', 'Perangkat lunak', 'Material', 'Manufaktur', 'Energi'];

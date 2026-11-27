@@ -270,8 +270,21 @@ describe('Inovasi Saya and the detail (S04)', () => {
 
     expect(screen.getByText('Dikelola Rani')).toBeInTheDocument();
     expect(screen.getByText(/Dokumen dibagikan per pitching/)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Simpan inovasi' })).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByRole('button', { name: 'Simpan inovasi: Saringan air keramik desa' })).not.toHaveAttribute('aria-disabled');
     expect(screen.queryByRole('link', { name: 'Ubah inovasi' })).toBeNull();
+  });
+
+  it('saves someone else\'s invention for the acting party', async () => {
+    const user = userEvent.setup();
+    replies = [{ status: 200, body: {} }];
+    const publicView = { id: ID, managing_party_id: 'p', managing_party_name: 'Rani', number: 1, title: 'Saringan', summary: 's', problem: 'p', solution: 's', intended_users: 'u', sector: 'Air', stage: null, keywords: [], facts: [], claims: [], published_at: null } as unknown as PublicInvention;
+    render(<InventionView me={makeMe({ persona: 'mitra' })} publicView={publicView} />);
+
+    await user.click(screen.getByRole('button', { name: 'Simpan inovasi: Saringan' }));
+
+    await waitFor(() => expect(router.refresh).toHaveBeenCalled());
+    const [path, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    expect([path, init.method]).toEqual([`/api/v1/saved-items/INVENTION/${ID}`, 'PUT']);
   });
 
   it('says so when the invention is not available', () => {

@@ -11,11 +11,58 @@ import { Screen } from '@/components/tr/Screen';
 import { Status } from '@/components/tr/Status';
 import { ContextBar } from '@/features/ContextBar';
 import { runMatch } from '@/features/discovery/api';
-import type { MatchRun, MatchSourceRef } from '@/features/discovery/model';
+import type { MatchResult, MatchRun, MatchSourceRef } from '@/features/discovery/model';
 import { ExternalRoute } from '@/features/intake/ExternalRoute';
 import { readPersona } from '@/features/persona';
-import { MatchCard } from '@/views/discovery/MatchCard';
+import { labelTone, MatchCard } from '@/views/discovery/MatchCard';
 import { PROVENANCE } from '@/views/parts';
+
+/**
+ * Investor finder: a compact list of recommended mandates beside the open one. On a phone the list and the open match
+ * take turns, and "Kembali ke daftar" puts focus back on the row the person left.
+ */
+function MatchList({ results, source }: { results: MatchResult[]; source: MatchSourceRef }) {
+  const [chosen, setChosen] = useState<string | null>(null);
+  const detail = useRef<HTMLDivElement>(null);
+  const open = results.find((result) => result.opportunity_id === chosen) ?? results[0];
+
+  function choose(id: string) {
+    setChosen(id);
+    requestAnimationFrame(() => detail.current?.focus());
+  }
+
+  function back() {
+    const id = open.opportunity_id;
+    setChosen(null);
+    requestAnimationFrame(() => document.getElementById(`baris-${id}`)?.focus());
+  }
+
+  return (
+    <div className={chosen ? 'tr-listdetail has-selected' : 'tr-listdetail'}>
+      <ul className="tr-list tr-listdetail__list">
+        {results.map((result) => (
+          <li key={result.opportunity_id} className="tr-listrow" aria-current={result.opportunity_id === open.opportunity_id ? 'true' : undefined}>
+            <button id={`baris-${result.opportunity_id}`} type="button" className="tr-rowbutton" onClick={() => choose(result.opportunity_id)}>
+              <span className="tr-sys-type-body-strong">{result.title}</span>
+              <span className="tr-muted tr-sys-type-support">{result.partner}</span>
+            </button>
+            <span>
+              <Status tone={labelTone(result)} icon={null} label={result.label} />
+            </span>
+          </li>
+        ))}
+      </ul>
+      <div ref={detail} tabIndex={-1} className="tr-listdetail__detail tr-stack" aria-label={`Rincian: ${open.title}`} role="region">
+        <p className="tr-listdetail__back">
+          <button type="button" className="tr-link tr-linkbutton" onClick={back}>
+            Kembali ke daftar
+          </button>
+        </p>
+        <MatchCard result={open} source={source} />
+      </div>
+    </div>
+  );
+}
 
 export type ExternalPartner = { id: string; name: string; url: string };
 
@@ -70,13 +117,7 @@ export function MatchesView({ me, source, externals }: Props) {
               Mandat yang sesuai
             </h2>
             {run.results.length ? (
-              <ul className="tr-stack">
-                {run.results.map((result) => (
-                  <li key={result.opportunity_id}>
-                    <MatchCard result={result} source={source} />
-                  </li>
-                ))}
-              </ul>
+              <MatchList results={run.results} source={source} />
             ) : (
               <EmptyState icon="search" title="Belum ada mandat yang sesuai">
                 Tidak ada mandat aktif yang relevan dan memenuhi syarat masuk untuk kebutuhan ini.

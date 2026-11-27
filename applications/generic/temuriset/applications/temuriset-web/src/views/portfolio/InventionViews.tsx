@@ -1,12 +1,12 @@
 import Link from 'next/link';
 
 import type { Me } from '@/api/client';
-import { Button } from '@/components/tr/Button';
 import { EmptyState } from '@/components/tr/EmptyState';
 import { FactSource } from '@/components/tr/FactSource';
 import { Screen } from '@/components/tr/Screen';
 import { Status } from '@/components/tr/Status';
 import { ContextBar } from '@/features/ContextBar';
+import { SaveButton } from '@/features/discovery/SaveButton';
 import { readPersona } from '@/features/persona';
 import { NewInventionButton } from '@/features/portfolio/NewInventionButton';
 import {
@@ -71,10 +71,12 @@ type DetailProps = {
   /** The public projection, for everyone else. */
   publicView?: PublicInvention;
   justPublished?: number;
+  /** Whether the acting party saved this invention; only read for someone else's invention. */
+  saved?: boolean;
 };
 
 /** S04 detail: honest about what exists now, what is planned, and who says so (UX-04). */
-export function InventionView({ me, invention, publicView, justPublished }: DetailProps) {
+export function InventionView({ me, invention, publicView, justPublished, saved = false }: DetailProps) {
   const persona = readPersona(me.account.persona) ?? 'inovator';
   const shown = invention ? (invention.published ?? invention.draft) : publicView;
   const owner = Boolean(invention);
@@ -94,9 +96,7 @@ export function InventionView({ me, invention, publicView, justPublished }: Deta
       {invention!.draft && invention!.published ? 'Lanjutkan draf perubahan' : 'Ubah inovasi'}
     </Link>
   ) : (
-    <Button intent="primary" disabledReason="Menyimpan inovasi tersedia bersama fitur Jelajahi.">
-      Simpan inovasi
-    </Button>
+    <SaveButton subjectType="INVENTION" subjectId={publicView!.id} title={shown.title} saved={saved} actingPartyId={me.active_party_id} label="Simpan inovasi" intent="primary" />
   );
   return (
     <Screen
