@@ -168,6 +168,7 @@ export const en: Messages = {
     signIn: 'Already have an account? Sign in',
     writtenIn: 'Written in Indonesian',
     fieldTest: 'Field testing',
+    updates: 'Latest updates',
   },
   notFound: {
     title: 'Page not found',

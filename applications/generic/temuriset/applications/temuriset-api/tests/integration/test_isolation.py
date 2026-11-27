@@ -84,6 +84,7 @@ class Owner:
     grant_id: str
     support_request_id: str = ""
     published_invention_id: str = ""
+    update_id: str = ""
     funding_request_id: str = ""
     opportunity_id: str = ""
     match_run_id: str = ""
@@ -209,6 +210,32 @@ ROUTES: dict[tuple[str, str], Case] = {
         "PUT",
         lambda o: f"/api/v1/inventions/{o.published_invention_id}/public-page",
         lambda _o, actor: {"acting_party_id": actor, "expected_version": 1, "enabled": True},
+    ),
+    ("GET", "/api/v1/inventions/{invention_id}/updates"): Case(
+        "GET", lambda o: f"/api/v1/inventions/{o.published_invention_id}/updates"
+    ),
+    ("POST", "/api/v1/inventions/{invention_id}/updates"): Case(
+        "POST",
+        lambda o: f"/api/v1/inventions/{o.published_invention_id}/updates",
+        lambda _o, actor: {"acting_party_id": actor, "title": "x", "body": "x"},
+        {"Idempotency-Key": "isolation-update-create"},
+    ),
+    ("PUT", "/api/v1/inventions/{invention_id}/updates/{update_id}"): Case(
+        "PUT",
+        lambda o: f"/api/v1/inventions/{o.published_invention_id}/updates/{o.update_id}",
+        lambda _o, actor: {"acting_party_id": actor, "expected_version": 1, "title": "x", "body": "x"},
+    ),
+    ("POST", "/api/v1/inventions/{invention_id}/updates/{update_id}/publish"): Case(
+        "POST",
+        lambda o: f"/api/v1/inventions/{o.published_invention_id}/updates/{o.update_id}/publish",
+        lambda _o, actor: {"acting_party_id": actor, "expected_version": 1},
+        {"Idempotency-Key": "isolation-update-publish"},
+    ),
+    ("POST", "/api/v1/inventions/{invention_id}/updates/{update_id}/withdraw"): Case(
+        "POST",
+        lambda o: f"/api/v1/inventions/{o.published_invention_id}/updates/{o.update_id}/withdraw",
+        lambda _o, actor: {"acting_party_id": actor, "expected_version": 1},
+        {"Idempotency-Key": "isolation-update-withdraw"},
     ),
     ("PUT", "/api/v1/inventions/{invention_id}/draft"): Case(
         "PUT",
@@ -764,6 +791,12 @@ async def owner(
         )
     ).json()
     published = await published_invention(client, "Owner Co published invention")
+    update = await client.post(
+        f"/api/v1/inventions/{published['id']}/updates",
+        json={"acting_party_id": party, "title": "Owner Co update", "body": "Owner Co private draft"},
+        headers={"Idempotency-Key": "isolation-owner-update"},
+    )
+    assert update.status_code == 201, update.text
     support = (
         await client.post(
             "/api/v1/support-requests",
@@ -838,6 +871,7 @@ async def owner(
         grant_id=grant["id"],
         support_request_id=support["id"],
         published_invention_id=published["id"],
+        update_id=update.json()["id"],
         funding_request_id=funding["id"],
         opportunity_id=opportunity["id"],
         match_run_id=match_run["run_id"],
@@ -891,6 +925,8 @@ async def test_unrelated_party_sees_nothing(
         "Owner Co document",
         owner.support_request_id,
         owner.published_invention_id,
+        owner.update_id,
+        "Owner Co private draft",
         owner.funding_request_id,
         owner.opportunity_id,
         owner.match_run_id,

@@ -247,6 +247,10 @@ Indonesian is the default and the source; English exists for every signed-out sc
 
 The owner turns a public page on separately from investor news (`PUT /inventions/{id}/public-page`, `edit_portfolio`). The signed-out summary `GET /teasers/inventions/{id}` shows when either is on, but `SubscriptionService._public(gate="digest")` keeps alerts and the weekly digest on `investor_digest` alone, so a public page never mails anyone. The field-test summary and photo show only with the page on. The photo is one of the owner's own uploaded JPEG, PNG or WebP versions; `GET /teasers/inventions/{id}/photo` rechecks every condition per request and serves the stored bytes through `app/documents/service/public_image.py`, a standard-library walker that drops EXIF, XMP, IPTC and text chunks (no image dependency). Width, height and EXIF orientation are stored when the owner saves, so the page reserves the space and rotates the image. Unavailable addresses answer a real 404, and only pages with the public page on are indexable.
 
+### Public updates (052)
+
+`invention_updates` holds short news the managing party writes. A new update is a draft; publishing needs the invention published, not suspended, and its public page on. `published_at` is set once and never reset, and only that first publication emits `invention.update_published`, so corrections and a later republication never announce the update again. The public summary shows the newest three published updates, only with the public page on. No consumer listens yet; following by email (053) will.
+
 ## Recorded deviations from the design system
 
 | ID | Deviation | Reason | Remove when |

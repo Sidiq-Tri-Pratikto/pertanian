@@ -1249,6 +1249,140 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/inventions/{invention_id}/updates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List the invention's public updates
+         * @description List drafts, published and withdrawn updates, newest first, for the managing party.
+         *
+         *     Args:
+         *         invention_id (UUID): The invention.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         list[InventionUpdateResponse]: Up to 100 updates.
+         */
+        get: operations["list_updates_api_v1_inventions__invention_id__updates_get"];
+        put?: never;
+        /**
+         * Write a public update
+         * @description Save a new update as a draft; nothing is shown or sent yet.
+         *
+         *     Args:
+         *         invention_id (UUID): The invention.
+         *         body (UpdateRequest): Acting party, title, body and language.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         InventionUpdateResponse: The draft.
+         */
+        post: operations["create_update_api_v1_inventions__invention_id__updates_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/inventions/{invention_id}/updates/{update_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Correct a public update
+         * @description Correct the text against ``expected_version``; a published update is never announced again.
+         *
+         *     Args:
+         *         invention_id (UUID): The invention.
+         *         update_id (UUID): The update.
+         *         body (EditUpdateRequest): The corrected text.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *
+         *     Returns:
+         *         InventionUpdateResponse: The update.
+         */
+        put: operations["edit_update_api_v1_inventions__invention_id__updates__update_id__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/inventions/{invention_id}/updates/{update_id}/publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Publish a public update
+         * @description Show the update on the public page; needs the invention published and its public page on.
+         *
+         *     Args:
+         *         invention_id (UUID): The invention.
+         *         update_id (UUID): The update.
+         *         body (VersionedActionRequest): Acting party and ``expected_version``.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         InventionUpdateResponse: The published update.
+         */
+        post: operations["publish_update_api_v1_inventions__invention_id__updates__update_id__publish_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/inventions/{invention_id}/updates/{update_id}/withdraw": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Withdraw a public update
+         * @description Take a published update off the public page.
+         *
+         *     Args:
+         *         invention_id (UUID): The invention.
+         *         update_id (UUID): The update.
+         *         body (VersionedActionRequest): Acting party and ``expected_version``.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         operation (Idempotency): Replays a retried request.
+         *
+         *     Returns:
+         *         InventionUpdateResponse: The withdrawn update.
+         */
+        post: operations["withdraw_update_api_v1_inventions__invention_id__updates__update_id__withdraw_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/invitations/{invitation_id}/revoke": {
         parameters: {
             query?: never;
@@ -5086,6 +5220,30 @@ export interface components {
             title?: string;
         };
         /**
+         * EditUpdateRequest
+         * @description Correct an update's text against the version the client saw; a published one is never announced again.
+         */
+        EditUpdateRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /** Body */
+            body: string;
+            /**
+             * Content Locale
+             * @description The language the owner wrote in.
+             * @default id
+             * @enum {string}
+             */
+            content_locale?: "id" | "en";
+            /** Expected Version */
+            expected_version: number;
+            /** Title */
+            title: string;
+        };
+        /**
          * EffectiveResponse
          * @description What may be public now: the newest version both confirmed, cut by subsets and restrictions.
          */
@@ -5686,6 +5844,54 @@ export interface components {
             title: string;
             /** Version */
             version: number;
+        };
+        /**
+         * InventionUpdateResponse
+         * @description A public update as its managing party sees it.
+         */
+        InventionUpdateResponse: {
+            /** Body */
+            body: string;
+            /**
+             * Content Locale
+             * @enum {string}
+             */
+            content_locale: "id" | "en";
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Invention Id
+             * Format: uuid
+             */
+            invention_id: string;
+            /** Operation Id */
+            operation_id?: string | null;
+            /** Published At */
+            published_at: string | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "DRAFT" | "PUBLISHED" | "WITHDRAWN";
+            /** Title */
+            title: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Version */
+            version: number;
+            /** Withdrawn At */
+            withdrawn_at: string | null;
         };
         /**
          * InventionVersionResponse
@@ -8519,6 +8725,11 @@ export interface components {
             inventor_name: string;
             /** Keywords */
             keywords: string[];
+            /**
+             * Latest Updates
+             * @description Up to three published updates, newest first; only with the public page.
+             */
+            latest_updates?: components["schemas"]["TeaserUpdate"][];
             photo?: components["schemas"]["TeaserPhoto"] | null;
             /** Published At */
             published_at: string | null;
@@ -8528,6 +8739,31 @@ export interface components {
             stage: ("IDEA" | "PROTOTYPE" | "PILOT" | "WORKING" | "MARKET") | null;
             /** Summary */
             summary: string;
+            /** Title */
+            title: string;
+        };
+        /**
+         * TeaserUpdate
+         * @description A published public update (052).
+         */
+        TeaserUpdate: {
+            /** Body */
+            body: string;
+            /**
+             * Content Locale
+             * @enum {string}
+             */
+            content_locale: "id" | "en";
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Published At
+             * Format: date-time
+             */
+            published_at: string;
             /** Title */
             title: string;
         };
@@ -8652,6 +8888,28 @@ export interface components {
             persona?: ("inovator" | "mitra") | null;
             /** Time Zone */
             time_zone?: string | null;
+        };
+        /**
+         * UpdateRequest
+         * @description A new public update, saved as a draft (052).
+         */
+        UpdateRequest: {
+            /**
+             * Acting Party Id
+             * Format: uuid
+             */
+            acting_party_id: string;
+            /** Body */
+            body: string;
+            /**
+             * Content Locale
+             * @description The language the owner wrote in.
+             * @default id
+             * @enum {string}
+             */
+            content_locale?: "id" | "en";
+            /** Title */
+            title: string;
         };
         /**
          * UpdateSupportRequest
@@ -10818,6 +11076,225 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PublishResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    list_updates_api_v1_inventions__invention_id__updates_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                invention_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventionUpdateResponse"][];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    create_update_api_v1_inventions__invention_id__updates_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                invention_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventionUpdateResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    edit_update_api_v1_inventions__invention_id__updates__update_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                invention_id: string;
+                update_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EditUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventionUpdateResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    publish_update_api_v1_inventions__invention_id__updates__update_id__publish_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                invention_id: string;
+                update_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VersionedActionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventionUpdateResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    withdraw_update_api_v1_inventions__invention_id__updates__update_id__withdraw_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                invention_id: string;
+                update_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VersionedActionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventionUpdateResponse"];
                 };
             };
             /** @description Validation failed */
