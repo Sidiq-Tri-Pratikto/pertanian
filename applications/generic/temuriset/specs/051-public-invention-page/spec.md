@@ -33,7 +33,7 @@ The investor summary at `/temuan/{id}` was only visible when the owner opted int
 
 ## Requirements
 
-- **FR-001**: Migration 0023 adds `public_page`, `public_page_at`, `public_field_test`, `public_photo_version_id` (foreign key, `ON DELETE SET NULL`), `public_photo_alt` (CHECK: required with a photo), `public_photo_width`, `public_photo_height`, `public_photo_orientation` and `public_content_locale` (CHECK `id`/`en`) to `inventions`.
+- **FR-001**: Migration 0023 adds one new table, `invention_public_pages` (one row per invention, `invention_id` unique with `ON DELETE CASCADE`), holding `enabled`, `enabled_at`, `field_test`, `photo_version_id` (foreign key, `ON DELETE SET NULL`), `photo_alt` (CHECK: required with a photo), `photo_width`, `photo_height`, `photo_orientation` and `content_locale` (CHECK `id`/`en`). It changes no existing table, so the expand-only migration check passes; an invention without a row has the page off.
 - **FR-002**: `PUT /api/v1/inventions/{id}/public-page` needs `EDIT_PORTFOLIO`, `expected_version`, and records audit `invention.public_page`.
 - **FR-003**: `GET /api/v1/teasers/inventions/{id}` is visible when `investor_digest OR public_page`; alerts and the digest still require `investor_digest`. It adds `follow_enabled`, `field_test_summary`, `photo` and `content_locale`; the field test and photo appear only with the public page on.
 - **FR-004**: `GET /api/v1/teasers/inventions/{id}/photo` serves the chosen version with metadata stripped by a standard-library walker (`app/documents/service/public_image.py`). No new dependency.
