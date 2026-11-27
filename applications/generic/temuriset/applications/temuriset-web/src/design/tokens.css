@@ -80,6 +80,7 @@
   --tr-sys-radius-control: 6px;
   --tr-sys-radius-surface: 8px;
   --tr-sys-radius-dialog: 12px;
+  --tr-sys-radius-media: 12px;
   --tr-sys-size-controlComfort: 2.75rem;
   --tr-sys-size-icon: 1.25rem;
   --tr-sys-size-iconSmall: 1.125rem;
@@ -92,18 +93,19 @@
   --tr-sys-layout-asideWidth: 20rem;
   --tr-sys-layout-breakpointWide: 48rem;
   --tr-ref-weight-regular: 400;
-  --tr-ref-weight-medium: 500;
   --tr-ref-weight-semibold: 600;
+  --tr-ref-weight-bold: 700;
   --tr-sys-motion-feedback: 150ms;
   --tr-sys-motion-easing: cubic-bezier(0.2, 0, 0, 1);
-  --font-sans: system-ui, -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
 }
 .tr-sys-type-body { font-family: var(--font-sans); font-size: 1rem; line-height: 1.5; font-weight: 400; }
 .tr-sys-type-body-strong { font-family: var(--font-sans); font-size: 1rem; line-height: 1.5; font-weight: 600; }
-.tr-sys-type-label { font-family: var(--font-sans); font-size: 1rem; line-height: 1.4; font-weight: 500; }
+.tr-sys-type-label { font-family: var(--font-sans); font-size: 1rem; line-height: 1.4; font-weight: 600; }
 .tr-sys-type-support { font-family: var(--font-sans); font-size: 0.875rem; line-height: 1.5; font-weight: 400; }
 .tr-sys-type-support-strong { font-family: var(--font-sans); font-size: 0.875rem; line-height: 1.5; font-weight: 600; }
 .tr-sys-type-heading-sm { font-family: var(--font-sans); font-size: 1.25rem; line-height: 1.4; font-weight: 600; }
 .tr-sys-type-heading-md { font-family: var(--font-sans); font-size: 1.5rem; line-height: 1.3; font-weight: 600; }
-.tr-sys-type-heading-lg { font-family: var(--font-sans); font-size: 2rem; line-height: 1.2; font-weight: 600; }
+.tr-sys-type-heading-lg { font-family: var(--font-sans); font-size: 2rem; line-height: 1.2; font-weight: 700; }
+.tr-sys-type-display { font-family: var(--font-sans); font-size: clamp(2rem, 1.5rem + 1.5vw, 2.5rem); line-height: 1.15; font-weight: 700; }
 .tr-sys-type-amount { font-family: var(--font-sans); font-size: 1.25rem; line-height: 1.4; font-weight: 600; }

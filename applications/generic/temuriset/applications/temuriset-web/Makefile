@@ -52,11 +52,13 @@ e2e: .env
 e2e-install:
 	npx playwright install --with-deps chromium
 
-# Copies the design system stylesheets verbatim. CI fails when the copy drifts from the source.
+# Copies the design system stylesheets and fonts verbatim. CI fails when the copy drifts from the source.
 .PHONY: design
 design:
 	cp $(DESIGN_SYSTEM)/workbench/tokens.css src/design/tokens.css
 	cp $(DESIGN_SYSTEM)/project/components/bundle.css src/design/bundle.css
+	mkdir -p src/design/fonts
+	cp $(DESIGN_SYSTEM)/project/fonts/fonts.css $(DESIGN_SYSTEM)/project/fonts/OFL.txt $(DESIGN_SYSTEM)/project/fonts/*.woff2 src/design/fonts/
 
 .PHONY: generate-api
 generate-api:

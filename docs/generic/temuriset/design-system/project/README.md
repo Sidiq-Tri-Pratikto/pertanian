@@ -1,6 +1,6 @@
 TemuRiset helps inventors find investors and partners who can advance an invention. This system exists so every screen answers two questions within seconds: **what can I do next, and what does the current evidence mean?** It serves independent inventors and individual investors as comfortably as organization teams, in calm, plain Indonesian.
 
-Release **1.0.0-draft** · review status: draft, not owner-approved · product contract: TemuRiset PRD generic v1.1 · namespace `window.TR` · React 18.3.1 · light theme only. Evidence is in *Validation report*; how the application stage binds to this system is in *Release and consuming*.
+Release **1.1.0-draft** · review status: draft, not owner-approved · product contract: TemuRiset PRD generic v1.1 · namespace `window.TR` · React 18.3.1 · light theme only. Evidence is in *Validation report*; how the application stage binds to this system is in *Release and consuming*.
 
 ## Product rules every screen keeps
 
@@ -33,7 +33,7 @@ Open each workspace with `TR.NextStep`: whose turn it is, one sentence, one acti
 - **Colour.** Slate canvas `tr-sys-color-canvas`, white content `tr-sys-color-surface`, teal only for the one primary action, selection and the your-turn band. Success green appears only after a real result, never for pending work. Amber marks UNKNOWN; red marks a known failure or a rejected input. Blue `tr-sys-color-focus` is reserved for keyboard focus.
 - **Components read aliases.** Use `tr-sys-*` or `tr-comp-*` tokens. Never use `tr-ref-*` or raw values in a component.
 - **Borders.** `tr-sys-color-border-decorative` separates groups and fails 3:1 on purpose. Every control boundary uses `tr-sys-color-border-control`.
-- **Type.** System sans via `--font-sans`, no font downloads. Style classes are `tr-sys-type-body`, `-body-strong`, `-label`, `-support`, `-support-strong`, `-heading-sm`, `-heading-md`, `-heading-lg`, `-amount`. Sizes are rem, so text settings scale them. `tr-sys-type-support` never carries a primary action or a critical gap.
+- **Type.** IBM Plex Sans via `--font-sans`, self-hosted from `project/fonts/` (load `fonts/fonts.css` before the tokens), with system sans as the fallback. Three weights ship: 400, 600 and 700. Style classes are `tr-sys-type-body`, `-body-strong`, `-label`, `-support`, `-support-strong`, `-heading-sm`, `-heading-md`, `-heading-lg`, `-display`, `-amount`. `-display` is the one page title per screen. Sizes are rem, so text settings scale them. `tr-sys-type-support` never carries a primary action or a critical gap.
 - **Space and shape.** Spacing steps 4 to 64 behind aliases: `tr-sys-space-controlGap`, `tr-sys-space-stack`, `tr-sys-space-section` (`sectionWide` from 48 rem), `tr-sys-layout-gutter` (`gutterWide` from 48 rem). Radii: `tr-sys-radius-control` 6, `tr-sys-radius-surface` 8, `tr-sys-radius-dialog` 12.
 - **Layout.** Maximum width `tr-sys-layout-contentMax`, long prose at `tr-sys-layout-readingMeasure`. Below 48 rem one column; above it an optional 20 rem supporting column. No cards inside cards, no big hero areas, no decorative dashboards.
 - **Targets and focus.** Common controls are at least `tr-sys-size-controlComfort` (44 CSS px, a product preference; AA asks 24 with exceptions). Focus is a 2 px white gap, then a 2 px blue ring. Selected states always add a non-colour cue: `tr-sys-size-borderSelected`, weight, or a check.
@@ -42,7 +42,7 @@ Open each workspace with `TR.NextStep`: whose turn it is, one sentence, one acti
 
 ## Iconography
 
-A small own stroke set (24 grid, 2-unit round stroke, `currentColor`), shipped in the bundle as `TR.Icon`, with no icon library or licence. Icons always support a word; the only exception is the dialog close button, which has the accessible name "Tutup". Sizes are `tr-sys-size-icon` and `tr-sys-size-iconSmall`. There is no logo asset in this release: the wordmark is the word "TemuRiset" in system text. Without a supplied product image, cards use a labelled category band; a missing image is not a problem state. Never invent a product photo, investor credential, rating or funding chart.
+A small own stroke set (24 grid, 2-unit round stroke, `currentColor`), shipped in the bundle as `TR.Icon`, with no icon library or licence. Icons always support a word; the only exception is the dialog close button, which has the accessible name "Tutup". Sizes are `tr-sys-size-icon` and `tr-sys-size-iconSmall`. `TR.Logo` is the mark (two paths meeting at one node: the inventor and the investor who meet) beside the word "TemuRiset" as text; the mark is decorative and the word names it. Photos sit in `tr-media` frames (4:3, `tr-sys-radius-media`) only when an owner published them; without one, cards use a labelled category band, and a missing image is not a problem state. Never invent a product photo, investor credential, rating or funding chart.
 
 ## Components
 
@@ -55,3 +55,15 @@ Pattern pages, which compose only the components above: *PatternDiscovery* (P01)
 ## Using it in a page
 
 Load, in order: the compiled tokens CSS, `components/bundle.css`, React 18.3.1 and ReactDOM (`components/lib/`), then `components/bundle.js`. Render with `React.createElement(TR.Button, {…})`. Put `lang="id"` on the document. Pass amounts as decimal strings and `null` for unknown; let components format them. Pass authorized projections only: these components display what they receive and enforce no access rule. Report a save or decision as done only after the server acknowledges it.
+
+## Fonts
+
+IBM Plex Sans 2.0.0 from the `@ibm/plex-sans` package, Latin1 split files, unmodified, under the SIL Open Font License 1.1 (`project/fonts/OFL.txt`; "Plex" is a Reserved Font Name, so the files are never renamed or modified here). Latin1 covers Indonesian and English. SHA-256:
+
+| File | SHA-256 |
+|---|---|
+| `IBMPlexSans-Regular-Latin1.woff2` | `bdb53f2af84b15e0a742428f5e199dacc3e6fd60776f0aebd9f700e2c97c960f` |
+| `IBMPlexSans-SemiBold-Latin1.woff2` | `8251b7fc61b580c2f52550fa69b3c49fb94fc333815ad301ca6b1f6d15420f85` |
+| `IBMPlexSans-Bold-Latin1.woff2` | `098277f28ccff8b6128068edc357d59cb9cb3d4e3d15d77e7757c85ba1162c73` |
+
+Release 1.1 (owner decision, 27 November 2026) replaces the 1.0 rules "system sans, no font downloads" and "no logo asset". It also adds `tr-chips`, `tr-list`/`tr-listrow`, `tr-listdetail`, `tr-toolbar` and `tr-media`, and folds in the application's deviations D1 (`:has(input:checked)` choices), D2 (whole words in the tab bar), D11 (`plus` icon) and D16 (compact context bar).

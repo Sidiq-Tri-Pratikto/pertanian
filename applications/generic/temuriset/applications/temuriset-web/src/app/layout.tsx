@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 
+import '@/design/fonts/fonts.css';
 import '@/design/tokens.css';
 import '@/design/bundle.css';
 import '@/design/app.css';

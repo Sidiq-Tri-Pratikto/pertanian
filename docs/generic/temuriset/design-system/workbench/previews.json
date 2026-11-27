@@ -183,5 +183,10 @@
     "name": "Icon",
     "group": "Layout",
     "page": false
+  },
+  {
+    "name": "Logo",
+    "group": "Layout",
+    "page": false
   }
 ]

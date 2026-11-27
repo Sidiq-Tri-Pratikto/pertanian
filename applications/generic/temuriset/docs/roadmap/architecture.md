@@ -243,8 +243,8 @@ Publishing never includes an invention: the managing party switches on `inventio
 
 | ID | Deviation | Reason | Remove when |
 |---|---|---|---|
-| D1 | `.tr-choice:has(input:checked)` in `src/design/app.css` | TR.ChoiceGroup sets `.is-selected` from JavaScript; server-rendered forms need a CSS selector | The design system adds the selector |
-| D2 | `.tr-tabbar__item` keeps whole words and drops side padding | At 320 px the design system split "Temukan" across lines | The design system fixes the tab bar |
+| D1 | `.tr-choice:has(input:checked)` in `src/design/app.css` | TR.ChoiceGroup sets `.is-selected` from JavaScript; server-rendered forms need a CSS selector | Folded into design system 1.1 (spec 047); removed from `app.css` |
+| D2 | `.tr-tabbar__item` keeps whole words and drops side padding | At 320 px the design system split "Temukan" across lines | Folded into design system 1.1 (spec 047); removed from `app.css` |
 | D3 | `Screen` takes real links instead of `onNavigate` | Next.js routing and prefetch | Never; documented port |
 | D4 | `Screen` scrolls a focused control clear of the sticky tab bar | Chrome does not scroll a partly visible control, so a tall textarea took focus under the bar at 360 px (found by the 003 keyboard check) | The design system handles focus scrolling |
 | D5 | `Checkbox.Group` is the named export `CheckboxGroup`, and `FundingRequestCard` takes linked inventions as nodes, not only titles | Static members do not survive a `'use client'` boundary; S07 links each invention so Back returns to the raise | Never; documented port |
@@ -253,12 +253,13 @@ Publishing never includes an invention: the managing party switches on `inventio
 | D8 | `Tabs` is controlled (`value` and `onChange` required), and `ChoiceGroup` takes an optional `value` and `onChange` | S13 keeps the tab in the address (`?tab=`), and `RevisionItem` holds each answer in state so a failed save keeps it | Never; documented port |
 | D9 | `ScheduleSlotList` takes `canConfirm`, an `accepted` state, and slots with an `end` | The proposer sees its own slots read-only, and slot ends come from the API rather than from the client's arithmetic | The design system adds the props |
 | D10 | `PartnershipConsent` takes the status and effective public fields from the API | The prototype computes them in browser state. The production component renders the server's decision and retains the design-system classes. | Never, since the service owns consent |
-| D11 | `Icon` adds `plus` | "Tambah inovasi" and "Tambah fakta" carried a check, which reads as done rather than add | The design system ships an add glyph |
+| D11 | `Icon` adds `plus` | "Tambah inovasi" and "Tambah fakta" carried a check, which reads as done rather than add | Folded into design system 1.1 (spec 047); `Icon.tsx` now matches the bundle |
 | D12 | `ServiceStatus` says nothing while the service answers | A version banner on every Beranda was engineering status on a business screen; only a failure helps the reader | Never; failure handling is unchanged |
 | D13 | Sign-up keeps language and time zone in a `Disclosure` and starts from the browser's zone | Six visible fields became four; most people never change either | Never; documented composition |
 | D14 | An empty destination may carry one filling action, and Beranda points an active need at its matches when nothing else waits | The demo journey J01 starts on "a useful home queue"; an empty Beranda gave no next step | Never; NextStep keeps one owner |
 | D15 | `.tr-discover` puts the filter form in a 20 rem column beside the results from 64 rem | On a laptop the filters pushed the first result below the fold; below 64 rem they stay above, and they are not sticky so 200% text still reaches every filter | The design system adds a filter layout |
-| D16 | The context bar puts "Bertindak sebagai" beside its select at every width, with the demo tag on the same row when it fits | On a phone the header took about 180 px before any content; it is now about 147 px at 375 px | The design system compacts the bar |
+| D16 | The context bar puts "Bertindak sebagai" beside its select at every width, with the demo tag on the same row when it fits | On a phone the header took about 180 px before any content; it is now about 147 px at 375 px | Folded into design system 1.1 (spec 047); removed from `app.css` |
+| D17 | `Logo` is a link to `/`, where the design system shows a `#beranda` anchor | `/` already sends each persona to its own home | Never; documented port |
 
 ## API conventions
 
