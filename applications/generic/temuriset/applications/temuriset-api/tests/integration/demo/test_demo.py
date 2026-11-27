@@ -90,7 +90,7 @@ async def test_the_picker_lists_labelled_accounts_and_signs_in_without_email(cli
     - Demo mode is on and the demo is seeded (scenario 1).
 
     Expected:
-    - Ten accounts labelled "Akun demo · data fiktif"; signing in as Rani gives a demo account; asking for an email
+    - Twelve accounts labelled "Akun demo · data fiktif"; signing in as Rani gives a demo account; asking for an email
       code for her sends nothing; an unknown key is NOT_FOUND.
     """
     await _reset(client)
@@ -103,7 +103,7 @@ async def test_the_picker_lists_labelled_accounts_and_signs_in_without_email(cli
     assert all(account["summary"] for account in accounts)
     assert accounts[0]["summary"].startswith("Inovator perorangan")
     assert [account["key"] for account in accounts][:5] == ["rani", "dewi", "galih", "bima", "sinta"]
-    assert len(accounts) == 10
+    assert len(accounts) == 12
     assert (me["account"]["kind"], me["account"]["display_name"]) == ("demo", "Rani")
     assert code.status_code == 202
     assert (await client.get("/api/v1/dev/mailbox", params={"email": "rani@demo.invalid"})).json() == []
