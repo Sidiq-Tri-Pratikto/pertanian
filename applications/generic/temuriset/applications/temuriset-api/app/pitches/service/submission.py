@@ -234,6 +234,11 @@ class PitchService:
                     "number": version.number,
                     "title": version.title,
                     "stage": version.stage,
+                    "readiness": (
+                        version.readiness.model_copy(update={"evidence": None})
+                        if version.readiness is not None
+                        else None
+                    ),
                     "facts": [
                         {"label": fact.label, "value": fact.value, "unit": fact.unit, "timing": fact.timing}
                         for fact in version.facts

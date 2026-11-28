@@ -42,7 +42,7 @@ from app.core.errors.public import error_response, public_error_for_code
 from app.core.errors.recorder import record_failure
 from app.core.openapi import ErrorBody
 from app.core.settings import get_settings
-from app.documents.service.service import evidence_results, owned_version_details
+from app.documents.service.service import evidence_results, owned_file, owned_version_details
 from app.funding.service.service import FundingService
 from app.identity.model.models import Principal
 from app.intake.service.service import IntakeService
@@ -179,13 +179,29 @@ class BriefService:
         else:
             raise_, _ = await FundingService(self.session).source(principal, request.source_id)
         keys: dict[str, list[str]] = {}
+        tkt_versions: set[UUID] = set()
         for version in versions:
             for fact in version.facts:
                 if fact.document_version_id and fact.key:
                     keys.setdefault(str(fact.document_version_id), []).append(fact.key)
-        files = await owned_version_details(self.session, principal.active_party_id, [UUID(key) for key in keys])
+            if version.readiness is not None and version.readiness.evidence is not None:
+                found_tkt = await owned_file(
+                    self.session,
+                    principal.active_party_id,
+                    version.readiness.evidence.document_id,
+                    version.readiness.evidence.version,
+                )
+                if found_tkt is not None:
+                    tkt_versions.add(UUID(found_tkt["version_id"]))
+        candidate_ids = list({*(UUID(key) for key in keys), *tkt_versions})
+        files = await owned_version_details(self.session, principal.active_party_id, candidate_ids)
         files = [
-            {**item, "fact_keys": sorted(set(keys[item["version_id"]]))}
+            {
+                **item,
+                "fact_keys": sorted(set(keys.get(item["version_id"], []))),
+                "kind": "tkt" if UUID(item["version_id"]) in tkt_versions else "document",
+                "selected": UUID(item["version_id"]) in tkt_versions,
+            }
             for item in files
             if item["file_state"] == "AVAILABLE"
         ]

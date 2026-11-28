@@ -30,10 +30,12 @@ from app.needs.model.schema import CreateSupportRequest, TransitionRequest
 from app.needs.service.service import NeedsService
 from app.portfolio.model.schema import (
     CreateInventionRequest,
+    DocumentVersionChoice,
     DraftRequest,
     InvestorDigestRequest,
     PublicPageRequest,
     PublicPhotoChoice,
+    ReadinessInput,
     UpdateRequest,
     VersionedActionRequest,
 )
@@ -148,10 +150,22 @@ class DemoSeeder:
         party = principal.active_party_id
         portfolio = PortfolioService(self.session)
         created = await portfolio.create(principal, CreateInventionRequest(acting_party_id=party))
+        readiness = None
+        if "readiness" in product:
+            spec = product["readiness"]
+            ev = None
+            if "evidence_photo" in spec:
+                ev_doc, ev_num = await self._photo(
+                    principal, spec["evidence_photo"]["title"], _illustration(*spec["evidence_photo"]["colors"])
+                )
+                ev = DocumentVersionChoice(document_id=ev_doc, version=ev_num)
+            readiness = ReadinessInput(tkt_level=spec["tkt_level"], note=spec.get("note", ""), evidence=ev)
         saved = await portfolio.save_draft(
             principal,
             created.id,
-            DraftRequest(acting_party_id=party, expected_version=created.version, **product["content"]),
+            DraftRequest(
+                acting_party_id=party, expected_version=created.version, readiness=readiness, **product["content"]
+            ),
         )
         await portfolio.publish(
             principal, created.id, VersionedActionRequest(acting_party_id=party, expected_version=saved.version)

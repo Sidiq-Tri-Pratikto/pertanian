@@ -29,6 +29,7 @@ async def discover(  # noqa: PLR0913 - one argument per filter
     q: Annotated[str, Query(max_length=200)] = "",
     sector: str | None = None,
     stage: str | None = None,
+    min_tkt: Annotated[int | None, Query(ge=1, le=9)] = None,
     support_form: str | None = None,
     region: str | None = None,
     purpose: str | None = None,
@@ -68,6 +69,7 @@ async def discover(  # noqa: PLR0913 - one argument per filter
     filters = {
         "sector": sector,
         "stage": stage,
+        "min_tkt": min_tkt,
         "support_form": support_form,
         "region": region,
         "purpose": purpose,

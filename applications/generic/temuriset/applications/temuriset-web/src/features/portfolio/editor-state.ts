@@ -1,4 +1,5 @@
 import type { Claim, Fact, Invention, InventionVersion } from '@/features/portfolio/model';
+import type { ReadinessDraft } from '@/features/portfolio/TktSteps';
 
 /** Everything the editor shows, kept across steps, failed saves and stale versions. */
 export type DraftValues = {
@@ -13,6 +14,7 @@ export type DraftValues = {
   facts: Fact[];
   claims: Claim[];
   private_notes: string;
+  readiness: ReadinessDraft | null;
 };
 
 export type SaveStatus = 'local' | 'saving' | 'saved' | 'failed' | 'conflict';
@@ -43,6 +45,15 @@ export function valuesFrom(version: InventionVersion | null | undefined): DraftV
     facts: (version?.facts ?? []).map((fact) => ({ ...fact })),
     claims: (version?.claims ?? []).map((claim) => ({ ...claim })),
     private_notes: version?.private_notes ?? '',
+    readiness: version?.readiness
+      ? {
+          tkt_level: version.readiness.tkt_level,
+          note: version.readiness.note ?? '',
+          evidence: version.readiness.evidence
+            ? { document_id: version.readiness.evidence.document_id, version: version.readiness.evidence.version }
+            : null,
+        }
+      : null,
   };
 }
 
@@ -75,6 +86,13 @@ export function draftRequest(values: DraftValues, version: number, actingPartyId
     facts: values.facts.filter((fact) => fact.label.trim() && fact.value.trim()),
     claims: values.claims.filter((claim) => claim.subject_name.trim()),
     private_notes: values.private_notes,
+    readiness: values.readiness
+      ? {
+          tkt_level: values.readiness.tkt_level,
+          note: values.readiness.note.trim(),
+          evidence: values.readiness.evidence,
+        }
+      : null,
   };
 }
 

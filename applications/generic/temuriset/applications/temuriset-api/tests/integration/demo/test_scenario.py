@@ -117,7 +117,13 @@ async def test_the_reset_starts_with_one_inventor_one_product_and_two_investors(
     assert [need["status"] for need in needs] == ["ACTIVE"]
     teaser = _ok(await client.get(f"/api/v1/teasers/inventions/{inventions[0]['id']}"))
     assert teaser["follow_enabled"] is True and teaser["photo"] is not None
-    assert [(item["title"], item["status"]) for item in opportunities] == [("Pendanaan pilot pertanian", "ACTIVE")]
+    assert teaser["tkt_level"] == 4
+    detail = _ok(await client.get(f"/api/v1/inventions/{inventions[0]['id']}"))
+    assert detail["published"]["readiness"]["tkt_level"] == 4
+    assert detail["published"]["readiness"]["has_evidence"] is True
+    assert [(item["title"], item["status"], item["min_tkt"]) for item in opportunities] == [
+        ("Pendanaan pilot pertanian", "ACTIVE", 6)
+    ]
     assert profile.status_code == 404
 
 
