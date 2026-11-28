@@ -16,6 +16,8 @@ import type { Dimension } from '@/features/discovery/breakdown';
 import { matchesHref, type MatchResult, type MatchRun, type MatchSourceRef } from '@/features/discovery/model';
 import {
   deltasFor,
+  readSavedScores,
+  writeSavedScores,
   recommendationAction,
   recommendationCopy,
   scoresOf,
@@ -28,23 +30,6 @@ import { readPersona } from '@/features/persona';
 import { labelTone, MatchCard } from '@/views/discovery/MatchCard';
 import { PROVENANCE } from '@/views/parts';
 import { t } from '@/features/i18n/t';
-
-function readPrevScores(sourceId: string): SavedScores | null {
-  try {
-    const raw = window.sessionStorage.getItem(`tr_match_prev_${sourceId}`);
-    return raw ? (JSON.parse(raw) as SavedScores) : null;
-  } catch {
-    return null;
-  }
-}
-
-function writePrevScores(sourceId: string, scores: SavedScores): void {
-  try {
-    window.sessionStorage.setItem(`tr_match_prev_${sourceId}`, JSON.stringify(scores));
-  } catch {
-    // Ignore storage quota or private-mode restrictions.
-  }
-}
 
 /**
  * Investor finder: a compact list of recommended mandates beside the open one. On a phone the list and the open match
@@ -122,13 +107,13 @@ export function MatchesView({ me, source, externals }: Props) {
 
   const load = useCallback(async () => {
     setFailure(null);
-    const prev = readPrevScores(source.id);
+    const prev = readSavedScores(`tr_match_prev_${source.id}`);
     try {
       const next = await runMatch(source, me.active_party_id);
       setPrevious(prev);
       setRun(next);
-      writePrevScores(
-        source.id,
+      writeSavedScores(
+        `tr_match_prev_${source.id}`,
         scoresOf([...next.results, ...next.excluded] as { opportunity_id: string; breakdown?: Dimension[] }[]),
       );
     } catch (error) {

@@ -161,7 +161,7 @@ describe('recommendations (spec 058)', () => {
       'href',
       '/matches?source=SUPPORT_REQUEST:need-1',
     );
-    expect(screen.getByRole('button', { name: 'Terbitkan, lalu kembali ke kecocokan' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Periksa dan terbitkan' })).toBeInTheDocument();
   });
 
   it('is axe clean', async () => {

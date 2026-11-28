@@ -71,10 +71,10 @@ PRODUCT_A: dict[str, Any] = {
         "scope": "biaya uji lapangan enam bulan",
         "months": 6,
         "region": "Indonesia",
-        "accepts_partial": True,
+        "accepts_partial": False,
         "budget": {
-            "min": "20000",
-            "max": "30000",
+            "min": "10000",
+            "max": "15000",
             "currency": "USD",
             "basis": "total_period",
             "period": "6 bulan",

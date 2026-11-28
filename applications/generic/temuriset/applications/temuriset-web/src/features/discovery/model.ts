@@ -126,3 +126,8 @@ export function reasonText(reason: string): string {
   const sectors = reason.slice(SECTOR_REASON.length).split(', ').map((sector) => t(sector));
   return t('Sesuai sektor pada profil Anda: {sectors}', { sectors: sectors.join(', ') });
 }
+
+/** "1 hasil" / "{n} hasil": Indonesian has one form, English needs the singular ("1 result"). */
+export function resultCount(n: number): string {
+  return n === 1 ? t('1 hasil') : t('{n} hasil', { n });
+}

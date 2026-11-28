@@ -13,7 +13,7 @@ import { ContextBar } from '@/features/ContextBar';
 import type { FitItem, MyProduct } from '@/features/discovery/fit';
 import { ItemActions } from '@/features/discovery/ItemActions';
 import { FocusFromHash } from '@/features/discovery/FocusFromHash';
-import { appliedFilters, discoverHref, FILTER_LABELS, filterCount, reasonText, RESULT_TYPES, SECTORS, type Discovery, type DiscoveryItem, type Filters, type ResultType } from '@/features/discovery/model';
+import { appliedFilters, discoverHref, FILTER_LABELS, filterCount, reasonText, resultCount, RESULT_TYPES, SECTORS, type Discovery, type DiscoveryItem, type Filters, type ResultType } from '@/features/discovery/model';
 import { scopeProps, type StoredRange } from '@/features/intake/model';
 import { readPersona } from '@/features/persona';
 import { labelOf, STAGES } from '@/features/portfolio/model';
@@ -293,7 +293,7 @@ export function DiscoverView({
         <div className={chosen ? 'tr-listdetail has-selected' : 'tr-listdetail'}>
           <FocusFromHash key={selected ?? ''} />
           <div className="tr-listdetail__list tr-stack">
-            <p className="tr-muted" role="status">{t('{n} hasil', { n: page.total_estimate })}</p>
+            <p className="tr-muted" role="status">{resultCount(page.total_estimate)}</p>
             {page.sections
               .filter((section) => section.items.length)
               .map((section) => (

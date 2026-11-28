@@ -29,14 +29,14 @@ export const MATCHING_EN: Record<string, string> = {
   // Dimension help tooltips
   'Bernilai 100% jika sektor inovasi termasuk sektor yang dicari mandat, 0% jika berbeda, dan belum diketahui jika salah satu belum mengisi.':
     'Scores 100% if the invention sector is among the mandate sectors, 0% if different, and unknown if either side leaves it blank.',
-  'Persentase kata kunci mandat yang muncul sebagai kata utuh pada kata kunci, judul, ringkasan, masalah, atau solusi inovasi Anda.':
-    'Share of mandate keywords appearing as whole words in your invention keywords, title, summary, problem, or solution.',
+  'Persentase kata kunci mandat yang muncul sebagai kata utuh pada kata kunci, judul, ringkasan, masalah, atau solusi inovasi.':
+    'Share of mandate keywords appearing as whole words in the invention keywords, title, summary, problem, or solution.',
   'Rata-rata kecocokan tahap inovasi dan TKT (Tingkat Kesiapterapan Teknologi) terhadap preferensi mandat. Bagian yang belum diisi tidak dihitung sebagai nol.':
     'Mean of invention stage and TKT (technology readiness level) match against the mandate preferences. Unstated parts are never treated as zero.',
   'Bernilai 100% jika kisaran dana beririsan pada mata uang, periode, dan cakupan yang sama; 50% jika tidak beririsan tetapi dukungan sebagian diterima; 0% jika tidak beririsan.':
     'Scores 100% when ranges overlap on the same currency, period, and scope; 50% when they do not overlap but partial support is accepted; 0% otherwise.',
-  'Bernilai 100% jika bentuk kerja sama kebutuhan Anda termasuk yang diterima mandat, 0% jika berbeda, dan belum diketahui pada pratinjau tanpa kebutuhan.':
-    'Scores 100% if your need partnership form is accepted by the mandate, 0% if different, and unknown in a preview without a need.',
+  'Bernilai 100% jika bentuk kerja sama kebutuhan termasuk yang diterima mandat, 0% jika berbeda, dan belum diketahui pada pratinjau tanpa kebutuhan.':
+    'Scores 100% if the need\'s partnership form is accepted by the mandate, 0% if different, and unknown in a preview without a need.',
   'Persentase syarat wajib saat pengajuan yang terpenuhi. Jika ada syarat wajib yang gagal, hasil tetap tidak cocok meski aspek lain tinggi.':
     'Share of submission-stage required items that pass. If any required item fails, the match stays incompatible regardless of other scores.',
   'Persentase syarat yang sudah didukung berkas atau pernyataan yang tersedia maupun diperiksa. Ditampilkan untuk transparansi kepercayaan.':
@@ -46,27 +46,26 @@ export const MATCHING_EN: Record<string, string> = {
   // Dimension sentences
   'Bidang belum dinyatakan oleh salah satu pihak.': 'Field is not stated by one of the sides yet.',
   'Bidang {source} sesuai dengan mandat.': 'Field {source} matches this mandate.',
-  'Mandat mencari bidang {target}; produk Anda di bidang {source}.': 'This mandate looks for {target}; your product is in {source}.',
+  'Mandat mencari bidang {target}; produk ini di bidang {source}.': 'This mandate looks for {target}; this product is in {source}.',
   'Mandat tidak mencantumkan kata kunci topik.': 'This mandate lists no topic keywords.',
   'Semua kata kunci mandat ditemukan: {matched}.': 'All mandate keywords found: {matched}.',
   'Belum ada kata kunci mandat yang ditemukan: {missing}.': 'None of the mandate keywords found yet: {missing}.',
   'Ditemukan: {matched}. Belum muncul: {missing}.': 'Found: {matched}. Not found yet: {missing}.',
   'Tahap {stage} diterima mandat.': 'Stage {stage} is accepted by this mandate.',
-  'Mandat menerima tahap {accepted}; produk Anda {stage}.': 'This mandate accepts {accepted}; your product is at {stage}.',
+  'Mandat menerima tahap {accepted}; produk ini {stage}.': 'This mandate accepts {accepted}; this product is at {stage}.',
   'TKT {tkt} memenuhi preferensi TKT {min} ke atas.': 'TKT {tkt} meets the TKT {min}+ preference.',
-  'Mandat mencari TKT {min} ke atas; produk Anda TKT {tkt}.': 'This mandate looks for TKT {min} or above; your product is TKT {tkt}.',
+  'Mandat mencari TKT {min} ke atas; produk ini TKT {tkt}.': 'This mandate looks for TKT {min} or above; this product states TKT {tkt}.',
   'Mandat mencari TKT {min} ke atas; TKT produk belum dinyatakan.': 'This mandate looks for TKT {min} or above; product TKT is not stated yet.',
-  'Produk Anda menyatakan TKT {tkt}.': 'Your product states TKT {tkt}.',
+  'Produk ini menyatakan TKT {tkt}.': 'This product states TKT {tkt}.',
   'Tahap dan TKT belum cukup untuk dibandingkan.': 'Stage and TKT are not complete enough to compare yet.',
   'Kisaran dana belum dapat dibandingkan.': 'Funding range cannot be compared yet.',
-  'Kisaran Anda ({source}) beririsan dengan mandat ({target}).': 'Your range ({source}) overlaps the mandate ({target}).',
-  'Kisaran Anda ({source}) tidak beririsan dengan {target}, tetapi dukungan sebagian diterima.':
-    'Your range ({source}) does not overlap {target}, but partial support is accepted.',
-  'Kisaran Anda ({source}) tidak beririsan dengan {target}.': 'Your range ({source}) does not overlap {target}.',
+  'Kisaran kebutuhan ({source}) beririsan dengan mandat ({target}).': 'The need\'s range ({source}) overlaps the mandate ({target}).',
+  'Kisaran kebutuhan ({source}) tidak beririsan dengan {target}, tetapi dukungan sebagian diterima.': 'The need\'s range ({source}) does not overlap {target}, but partial support is accepted.',
+  'Kisaran kebutuhan ({source}) tidak beririsan dengan {target}.': 'The need\'s range ({source}) does not overlap {target}.',
   'Kisaran dana sudah dibandingkan.': 'Funding range has been compared.',
   'Bentuk kerja sama belum dinyatakan.': 'Form of partnership is not stated yet.',
   'Bentuk kerja sama {source} diterima mandat.': 'Partnership form {source} is accepted by this mandate.',
-  'Mandat menerima {target}; kebutuhan Anda {source}.': 'This mandate accepts {target}; your need is {source}.',
+  'Mandat menerima {target}; kebutuhan ini {source}.': 'This mandate accepts {target}; this need is {source}.',
   'Mandat tidak mencantumkan syarat wajib saat pengajuan.': 'This mandate lists no required items at submission.',
   'Syarat wajib belum terpenuhi: {items}.': 'Required items not met: {items}.',
   'Syarat wajib perlu dilengkapi: {items}.': 'Required items needing completion: {items}.',
@@ -127,4 +126,5 @@ export const MATCHING_EN: Record<string, string> = {
   'Perubahan baru terlihat investor setelah versi baru diterbitkan.':
     'Investors see your changes only after you publish the new version.',
   'Terbitkan, lalu kembali ke kecocokan': 'Publish, then return to matches',
+  'Periksa dan terbitkan': 'Review and publish',
 };

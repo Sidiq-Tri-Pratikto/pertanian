@@ -128,7 +128,7 @@ export function TktSteps({ value, onChange, stage, actingPartyId, documents: ini
       </p>
 
       <div className="tr-tkt-steps tr-stack">
-        <label className="tr-tkt-row">
+        <label className="tr-tkt-row__label">
           <input type="radio" name="tkt-level" value="" checked={value === null} onChange={() => selectLevel(null)} />
           <span className="tr-sys-type-label">{t('Belum mengisi TKT')}</span>
         </label>

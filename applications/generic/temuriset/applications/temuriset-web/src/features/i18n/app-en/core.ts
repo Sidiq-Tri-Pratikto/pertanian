@@ -576,6 +576,7 @@ export const CORE_EN: Record<string, string> = {
   "Filter ({n})": "Filter ({n})",
   "Hapus filter {name}": "Remove filter {name}",
   "{n} hasil": "{n} results",
+  "1 hasil": "1 result",
   " · Disimpan": " · Saved",
   "{label} ({n} hasil)": "{label} ({n} results)",
   "Filter aktif: {list}. Syarat tidak dilonggarkan tanpa pilihan Anda.": "Active filters: {list}. Nothing is loosened without your choice.",
