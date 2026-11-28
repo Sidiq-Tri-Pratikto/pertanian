@@ -267,6 +267,7 @@ ROUTES: dict[tuple[str, str], Case] = {
         {"Idempotency-Key": "isolation-archive"},
     ),
     ("GET", "/api/v1/inventions/{invention_id}/fit"): Case("GET", lambda o: f"/api/v1/inventions/{o.invention_id}/fit"),
+    ("GET", "/api/v1/fit"): Case("GET", lambda o: f"/api/v1/fit?invention_id={o.published_invention_id}"),
     ("POST", "/api/v1/documents/upload-intents"): Case(
         "POST",
         lambda _o: "/api/v1/documents/upload-intents",

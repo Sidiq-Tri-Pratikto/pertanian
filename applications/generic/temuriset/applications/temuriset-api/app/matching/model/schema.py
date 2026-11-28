@@ -166,3 +166,44 @@ class MatchRunResponse(BaseModel):
     excluded: list[MatchResultResponse]
     operation_id: UUID | None = None
     retrieval: MatchRetrieval | None = Field(default=None, exclude_if=lambda value: value is None)
+
+
+class FitInvention(BaseModel):
+    """Summary of one of the acting party's published inventions in a fit matrix (spec 059)."""
+
+    id: UUID
+    title: str
+    stage: str | None
+    tkt_level: int | None
+
+
+class FitOpportunity(BaseModel):
+    """Summary of one active mandate in a fit matrix (spec 059)."""
+
+    id: UUID
+    title: str
+    partner_party_id: UUID
+    partner: str
+
+
+class FitItem(BaseModel):
+    """One own-product × active-mandate score, read-only and never stored (spec 059)."""
+
+    invention: FitInvention
+    source: MatchSource | None
+    opportunity: FitOpportunity
+    result: MatchResultResponse
+    preview: bool
+
+
+class PartnerBestFit(BaseModel):
+    """Best fit summary for one partner in the investor finder list (spec 059)."""
+
+    label: str
+    eligibility: Literal["ELIGIBLE", "NEEDS_VERIFICATION", "INCOMPATIBLE"]
+    fit: FitResponse
+    invention_id: UUID
+    invention_title: str
+    opportunity_id: UUID
+    preview: bool = False
+    matching_products: int = 0

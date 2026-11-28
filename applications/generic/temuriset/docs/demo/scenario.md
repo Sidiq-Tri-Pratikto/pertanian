@@ -50,7 +50,7 @@ Setelah itu buat kebutuhan dukungan untuk SolarBox Desa lalu aktifkan:
 
 ## Skenario 3: Peluang tiap produk
 
-Masih sebagai Inovator A, buka **Kecocokan** untuk kedua kebutuhan.
+Masih sebagai Inovator A, buka **Temukan Investor/Mitra** (`/discover?type=partners`), lalu pilih **Investor B** atau **Investor A** untuk langsung melihat tabel **Kecocokan dengan produk Anda** bagi kedua produk (atau pilih satu produk di dropdown **Cocokkan untuk** agar investor diurutkan menurut kecocokan produk itu). Halaman **Kecocokan** per kebutuhan tetap tersedia dari tautan di dalam rincian.
 
 | Produk | Investor A, pertanian | Investor B, energi |
 |---|---|---|
