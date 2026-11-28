@@ -26,4 +26,5 @@ export const FINDER_EN: Record<string, string> = {
     'Results are ordered by fit with your products, not by popularity.',
   'Rincian kecocokan {product} × {mandate}': 'Match details for {product} × {mandate}',
   'TKT {n}': 'TKT {n}',
+  'Kurang relevan': 'Less relevant',
 };
