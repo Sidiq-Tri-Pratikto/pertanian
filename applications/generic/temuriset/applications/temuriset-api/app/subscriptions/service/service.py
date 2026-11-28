@@ -42,6 +42,7 @@ from app.subscriptions.repository.sqlalchemy.models import (
 from app.subscriptions.repository.sqlalchemy.repository import SqlAlchemySubscriptionRepository
 from app.subscriptions.service import mail
 from app.subscriptions.service.matching import Match, match
+from app.subscriptions.service.unsubscribe import mint_unsubscribe_token
 
 DIGEST_JOB = "subscriptions.weekly_digest"
 CONFIRM_LIFETIME = timedelta(days=7)
@@ -174,12 +175,27 @@ class SubscriptionService:
         return token
 
     async def _send(
-        self, record: InvestorSubscriptionRecord, subject: str, body: str, inventions: tuple[UUID, ...] = ()
+        self,
+        record: InvestorSubscriptionRecord,
+        subject: str,
+        body: str,
+        inventions: tuple[UUID, ...] = (),
+        *,
+        html: str | None = None,
+        headers: dict[str, str] | None = None,
     ) -> None:
         reference = MailReference(
             kind="subscription", id=record.id, expires_at=clock.now() + timedelta(hours=1), subjects=inventions
         )
-        await self.mailbox.send(self.session, to_email=record.email, subject=subject, body=body, reference=reference)
+        await self.mailbox.send(
+            self.session,
+            to_email=record.email,
+            subject=subject,
+            body=body,
+            html=html,
+            headers=headers,
+            reference=reference,
+        )
 
     async def _rate_limit(self, email: str, client_address: str) -> None:
         await rate_limit(self.session, email, client_address)
@@ -238,14 +254,18 @@ class SubscriptionService:
                 return SubscribeResponse()
         if record.status == "ACTIVE":
             token = await self._link(record, "manage", MANAGE_LIFETIME)
-            subject, body = mail.already_subscribed(self.settings.web_origin, token, record.locale)
+            subject, body, html, headers = mail.already_subscribed(
+                self.settings.web_origin, token, record.locale, demo=self.settings.demo_mode
+            )
         else:
             record.topics, record.status, record.locale = topics, "PENDING", request.locale
             record.version += 1
             token = await self._link(record, "confirm", CONFIRM_LIFETIME)
-            subject, body = mail.confirm(self.settings.web_origin, token, topics, request.locale)
+            subject, body, html, headers = mail.confirm(
+                self.settings.web_origin, token, topics, request.locale, demo=self.settings.demo_mode
+            )
         await self.session.flush()
-        await self._send(record, subject, body)
+        await self._send(record, subject, body, html=html, headers=headers)
         return SubscribeResponse()
 
     async def _by_token(
@@ -266,6 +286,7 @@ class SubscriptionService:
             email=masked(record.email),
             topics=Topics.model_validate(record.topics),
             status=record.status,  # type: ignore[arg-type]
+            locale="en" if record.locale == "en" else "id",
             confirmed_at=record.confirmed_at,
             manage_token=manage_token,
         )
@@ -302,20 +323,21 @@ class SubscriptionService:
         record, _ = await self._by_token(token, ("manage",))
         return self._view(record)
 
-    async def update(self, token: str, topics: Topics) -> SubscriptionResponse:
-        """Change topics through a manage link.
-
-        Args:
-            token (str): The manage token.
-            topics (Topics): The new topics.
-
-        Returns:
-            SubscriptionResponse: The subscription.
-        """
+    async def update(
+        self, token: str, topics: Topics | None = None, new_locale: Literal["id", "en"] | None = None
+    ) -> SubscriptionResponse:
+        """Change topics and/or email language through a manage link."""
         record, _ = await self._by_token(token, ("manage",))
-        record.topics = self._topics(topics)
-        record.version += 1
-        await self.session.flush()
+        changed = False
+        if topics is not None:
+            record.topics = self._topics(topics)
+            changed = True
+        if new_locale is not None and record.locale != new_locale:
+            record.locale = new_locale
+            changed = True
+        if changed:
+            record.version += 1
+            await self.session.flush()
         return self._view(record)
 
     async def unsubscribe(self, token: str) -> SubscriptionResponse:
@@ -466,8 +488,11 @@ class SubscriptionService:
             if not await self.repository.record_delivery(record.id, invention_id, "ALERT", now):
                 continue
             token = await self._link(record, "manage", MANAGE_LIFETIME)
-            subject, body = mail.alert(self.settings, invention, found, record, token)
-            await self._send(record, subject, body, (invention_id,))
+            unsub_token = await mint_unsubscribe_token(self.session, "subscription", record.id)
+            subject, body, html, headers = mail.alert(
+                self.settings, invention, found, record, token, unsubscribe_token=unsub_token
+            )
+            await self._send(record, subject, body, (invention_id,), html=html, headers=headers)
             sent += 1
         return sent
 
@@ -499,7 +524,12 @@ class SubscriptionService:
             if not items:
                 continue
             token = await self._link(record, "manage", MANAGE_LIFETIME)
-            subject, body = mail.digest(self.settings, items, record, token)
-            await self._send(record, subject, body, tuple(invention["id"] for invention, _ in items))
+            unsub_token = await mint_unsubscribe_token(self.session, "subscription", record.id)
+            subject, body, html, headers = mail.digest(
+                self.settings, items, record, token, unsubscribe_token=unsub_token
+            )
+            await self._send(
+                record, subject, body, tuple(invention["id"] for invention, _ in items), html=html, headers=headers
+            )
             sent += 1
         return sent

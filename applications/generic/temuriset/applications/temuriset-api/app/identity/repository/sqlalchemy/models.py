@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import CheckConstraint, ForeignKey, Index, String, false
+from sqlalchemy import CheckConstraint, ForeignKey, Index, String, Text, false
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -76,3 +76,4 @@ class MailboxMessageRecord(Row, Base):
     to_email: Mapped[str] = mapped_column(String(254))
     subject: Mapped[str] = mapped_column(String(200))
     body: Mapped[str]
+    html: Mapped[str | None] = mapped_column(Text, default=None)

@@ -49,9 +49,16 @@ class TokenRequest(BaseModel):
 
 
 class UpdateTopicsRequest(TokenRequest):
-    """New topics, through a manage link."""
+    """New topics and/or email language, through a manage link."""
 
-    topics: Topics
+    topics: Topics | None = None
+    locale: Literal["id", "en"] | None = None
+
+
+class OneClickUnsubscribeResponse(BaseModel):
+    """RFC 8058 one-click unsubscribe confirmation."""
+
+    status: Literal["unsubscribed"] = "unsubscribed"
 
 
 class SubscriptionResponse(BaseModel):
@@ -60,6 +67,7 @@ class SubscriptionResponse(BaseModel):
     email: str
     topics: Topics
     status: Literal["PENDING", "ACTIVE", "UNSUBSCRIBED"]
+    locale: Literal["id", "en"] = "id"
     confirmed_at: datetime | None
     manage_token: str | None = Field(
         default=None, description="A fresh manage link token, returned once after confirmation."

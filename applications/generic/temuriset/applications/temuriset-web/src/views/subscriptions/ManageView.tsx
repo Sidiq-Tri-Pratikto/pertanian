@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { ApiError } from '@/api/errors';
 import { Button } from '@/components/tr/Button';
 import { SaveState, type SaveStatus } from '@/components/tr/SaveState';
+import { Select } from '@/components/tr/Select';
 import { Status } from '@/components/tr/Status';
 import { hasTopics, keywordsOf, readSubscription, unsubscribe, updateTopics, type Subscription, type Topics } from '@/features/subscriptions/api';
 import { TopicsFields } from '@/features/subscriptions/TopicsFields';
@@ -13,7 +14,12 @@ import { AuthShell } from '@/views/AuthShell';
 import { useLocale, useMessages } from '@/features/i18n/LocaleProvider';
 import { localHref } from '@/features/i18n/locale';
 
-/** Change topics or leave, from the link in any email; no account needed. */
+const LANGUAGES = [
+  { value: 'id', label: 'Bahasa Indonesia' },
+  { value: 'en', label: 'English' },
+];
+
+/** Change topics, email language, or leave, from the link in any email; no account needed. */
 export function ManageView({ token }: { token: string }) {
   const page = useLocale();
   const messages = useMessages();
@@ -21,6 +27,7 @@ export function ManageView({ token }: { token: string }) {
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [topics, setTopics] = useState<Topics>({ sectors: [], stages: [], keywords: [] });
   const [keywords, setKeywords] = useState('');
+  const [language, setLanguage] = useState<'id' | 'en'>('id');
   const [missing, setMissing] = useState(false);
   const [save, setSave] = useState<SaveStatus>('saved');
   const [message, setMessage] = useState<string | null>(null);
@@ -31,6 +38,7 @@ export function ManageView({ token }: { token: string }) {
         setSubscription(found);
         setTopics(found.topics);
         setKeywords((found.topics.keywords ?? []).join(', '));
+        setLanguage(found.locale === 'en' ? 'en' : 'id');
       })
       .catch(() => setMissing(true));
   }, [token]);
@@ -44,7 +52,7 @@ export function ManageView({ token }: { token: string }) {
     setSave('saving');
     setMessage(null);
     try {
-      setSubscription(await updateTopics(token, chosen));
+      setSubscription(await updateTopics(token, chosen, language));
       setSave('saved');
     } catch (error) {
       setSave('failed');
@@ -100,6 +108,18 @@ export function ManageView({ token }: { token: string }) {
           setKeywords(next);
           setSave('local');
         }}
+      />
+      <Select
+        id="bahasa-email"
+        label={words.language}
+        hint={words.languageHint}
+        value={language}
+        onChange={(next) => {
+          setLanguage(next === 'en' ? 'en' : 'id');
+          setSave('local');
+        }}
+        options={LANGUAGES}
+        emptyLabel={null}
       />
       <div className="tr-row">
         <Button intent="primary" busy={save === 'saving'} busyLabel={words.saving} onClick={() => void saveTopics()}>

@@ -84,3 +84,9 @@ Urutan yang disarankan untuk demo pendek: 1 → 2 → 3 → 4 → 6 → 8 → 5.
 - **Reset awal:** Produk A (ClearSpring) memiliki **TKT 4 · Uji laboratorium** dengan dokumentasi bukti privat; mandat Investor A menetapkan **TKT minimum 6**.
 - **Inovator A:** buka editor ClearSpring langkah 2 (`#tkt`), tunjukkan daftar 9 tingkat TKT beserta Toggletip penjelasan & contoh bukti, bar 9 segmen, dan catatan bahwa berkas bukti tetap privat.
 - **Investor:** buka **Jelajahi** → saring dengan **TKT minimum**, lihat lencana TKT pada daftar, kartu detail, halaman publik `/temuan/{id}` (atau `/en/inventions/{id}`), dan pratinjau berkas TKT yang otomatis tercentang di pemeriksaan sebelum pitching.
+
+## Tunjukkan email investor (spec 060)
+
+- **Pratinjau HTML (pengembangan):** buka `/api/v1/dev/mail-preview/alert?lang=id` (dan `?lang=en`) untuk menampilkan kartu inovasi HTML lengkap dengan lencana demo, TKT, chip alasan kecocokan, tombol utama, dan footer pengaturan bahasa/berhenti berlangganan.
+- **Rangkuman mingguan & pembaruan:** buka `/api/v1/dev/mail-preview/digest?lang=id` dan `/api/v1/dev/mail-preview/follow_update?lang=en`.
+- **Kotak surat pengembangan:** buka `/api/v1/dev/mailbox?email=...` untuk melihat teks polos (`body`) berdampingan dengan `html`.

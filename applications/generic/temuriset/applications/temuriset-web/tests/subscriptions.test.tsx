@@ -136,7 +136,7 @@ describe('confirm and manage links', () => {
     expect(await screen.findByLabelText('Energi')).toBeChecked();
     expect(screen.getByLabelText('Kata kunci')).toHaveValue('surya');
     await userEvent.click(screen.getByLabelText('Material'));
-    await userEvent.click(screen.getByRole('button', { name: 'Simpan minat' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Simpan perubahan' }));
     await waitFor(() => expect(screen.getAllByText('Tersimpan').length).toBeGreaterThan(0));
     await userEvent.click(screen.getByRole('button', { name: 'Berhenti berlangganan' }));
 

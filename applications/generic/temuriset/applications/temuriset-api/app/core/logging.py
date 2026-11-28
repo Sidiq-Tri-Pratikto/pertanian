@@ -24,10 +24,16 @@ _CALLBACK_ACCESS_FILTER = _CallbackAccessFilter()
 logger = logging.getLogger("app")
 
 
+ONE_CLICK_UNSUBSCRIBE_PATH = "/api/v1/unsubscribe/one-click"
+
+
 def _redact_email_access(record: logging.LogRecord) -> bool:
     args = record.args
     if isinstance(args, tuple) and len(args) == 5 and isinstance(args[2], str):
         path = args[2].partition("?")[0]
+        if path.rstrip("/") == ONE_CLICK_UNSUBSCRIBE_PATH:
+            # RFC 8058 carries the single-purpose token in the query string; never log this path.
+            return False
         if path.startswith("/api/v1/invitations/"):
             prefix = "/api/v1/invitations/"
             action = path.removeprefix(prefix).partition("/")[2].rstrip("/")
