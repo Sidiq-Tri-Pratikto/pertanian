@@ -6,7 +6,7 @@ from decimal import Decimal
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import ColumnElement, Numeric, and_, delete, func, or_, select, tuple_
+from sqlalchemy import ColumnElement, Integer, Numeric, and_, delete, func, or_, select, tuple_
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -218,6 +218,8 @@ class SqlAlchemyDiscoveryRepository:
                 conditions.append(row.filters[key].contains([query.filters[name]]))
         if query.filters.get("intake"):
             conditions.append(row.filters["intake"].astext == query.filters["intake"])
+        if query.subject_type == "INVENTION" and query.filters.get("min_tkt") is not None:
+            conditions.append(row.filters["tkt_level"].astext.cast(Integer) >= int(query.filters["min_tkt"]))
         if query.filters.get("currency"):
             conditions.extend(self._money(query.filters))
         return conditions

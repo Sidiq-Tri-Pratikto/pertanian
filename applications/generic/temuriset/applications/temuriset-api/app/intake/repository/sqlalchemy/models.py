@@ -5,7 +5,7 @@ from decimal import Decimal
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import CheckConstraint, ForeignKey, Index, Numeric, String, Text, UniqueConstraint, text
+from sqlalchemy import CheckConstraint, ForeignKey, Index, Numeric, SmallInteger, String, Text, UniqueConstraint, text
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -110,6 +110,8 @@ class OpportunityVersionRecord(Row, Base):
     keywords: Mapped[list[str]] = mapped_column(ARRAY(String(120)), default=list)
     financial: Mapped[dict[str, Any] | None] = mapped_column(JSONB(none_as_null=True))
     timing: Mapped[str] = mapped_column(Text, default="")
+    # Validated 1-9 in the API; no table constraint so expand-only migration compatibility holds (055).
+    min_tkt: Mapped[int | None] = mapped_column(SmallInteger)
 
 
 class RequirementRecord(Row, Base):

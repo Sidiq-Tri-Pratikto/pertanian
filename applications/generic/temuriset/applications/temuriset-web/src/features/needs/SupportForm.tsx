@@ -185,18 +185,20 @@ export function SupportForm({ request: initial, actingPartyId, returnTo }: Props
           {t('Hasil dan bentuk dukungan')}
         </h2>
         <TextField id="sr-outcome" label={t('Hasil yang ingin dicapai')} hint={t('Misalnya: Validasi prototipe enam bulan.')} value={values.outcome} onChange={edit('outcome')} error={errors['sr-outcome']} />
-        <CheckboxGroup id="sr-forms" legend={t('Bentuk dukungan')} error={errors['sr-forms']}>
-          {SUPPORT_FORMS.map((form) => (
-            <Checkbox
-              key={form.value}
-              label={form.label}
-              checked={values.support_forms.includes(form.value)}
-              onChange={(checked) =>
-                edit('support_forms')(checked ? [...values.support_forms, form.value] : values.support_forms.filter((value) => value !== form.value))
-              }
-            />
-          ))}
-        </CheckboxGroup>
+        <div id="bentuk">
+          <CheckboxGroup id="sr-forms" legend={t('Bentuk dukungan')} error={errors['sr-forms']}>
+            {SUPPORT_FORMS.map((form) => (
+              <Checkbox
+                key={form.value}
+                label={form.label}
+                checked={values.support_forms.includes(form.value)}
+                onChange={(checked) =>
+                  edit('support_forms')(checked ? [...values.support_forms, form.value] : values.support_forms.filter((value) => value !== form.value))
+                }
+              />
+            ))}
+          </CheckboxGroup>
+        </div>
         <TextArea label={t('Cakupan pekerjaan')} value={values.scope} onChange={edit('scope')} rows={3} />
         <TextField id="sr-months" label="Durasi (bulan)" type="text" inputMode="numeric" value={values.months} onChange={edit('months')} error={errors['sr-months']} />
         <TextField label={t('Wilayah')} value={values.region} onChange={edit('region')} />
@@ -204,7 +206,7 @@ export function SupportForm({ request: initial, actingPartyId, returnTo }: Props
         <Checkbox label="Menerima dukungan nontunai" checked={values.accepts_noncash} onChange={edit('accepts_noncash')} />
         {values.accepts_noncash ? <TextArea label={t('Dukungan nontunai yang dicari')} value={values.noncash_description} onChange={edit('noncash_description')} rows={2} /> : null}
       </section>
-      <section className="tr-panel tr-stack" aria-labelledby="sr-biaya">
+      <section id="kisaran" className="tr-panel tr-stack" aria-labelledby="sr-biaya">
         <h2 id="sr-biaya" className="tr-sys-type-heading-sm">
           {t('Kisaran biaya')}
         </h2>

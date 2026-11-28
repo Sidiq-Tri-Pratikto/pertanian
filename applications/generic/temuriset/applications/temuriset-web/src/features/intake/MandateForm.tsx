@@ -15,6 +15,7 @@ import { SaveState } from '@/components/tr/SaveState';
 import { Select } from '@/components/tr/Select';
 import { TextArea } from '@/components/tr/TextArea';
 import { TextField } from '@/components/tr/TextField';
+import { Toggletip } from '@/components/tr/Toggletip';
 import { VersionConflict } from '@/components/tr/VersionConflict';
 import { moveMandate, readMandate, saveMandate } from '@/features/intake/api';
 import {
@@ -34,6 +35,7 @@ import {
 import { rangeErrorIds, RangeFields } from '@/features/intake/RangeFields';
 import { fieldErrors } from '@/features/needs/model';
 import { labelOf, STAGES } from '@/features/portfolio/model';
+import { TKT_DEFINITION, TKT_LEVELS } from '@/features/portfolio/tkt';
 import { MandateReview } from '@/views/intake/MandateReview';
 import { t } from '@/features/i18n/t';
 
@@ -58,6 +60,7 @@ type Values = {
   support: string;
   timing: string;
   accepted_stages: string[];
+  min_tkt: string;
   relationship_forms: string[];
   sectors: string;
   keywords: string;
@@ -102,6 +105,7 @@ const IDS: Record<string, string> = {
   support: 'm-support',
   timing: 'm-timing',
   accepted_stages: 'm-stages',
+  min_tkt: 'm-min-tkt',
   relationship_forms: 'm-forms',
   partner_profile: 'm-profile',
 };
@@ -115,6 +119,7 @@ function initialValues(mandate: Mandate): Values {
     support: mandate.support,
     timing: mandate.timing,
     accepted_stages: [...mandate.accepted_stages],
+    min_tkt: mandate.min_tkt == null ? '' : String(mandate.min_tkt),
     relationship_forms: [...mandate.relationship_forms],
     sectors: mandate.sectors.join(', '),
     keywords: mandate.keywords.join(', '),
@@ -153,6 +158,7 @@ function bodyOf(values: Values, mandate: Mandate, actingPartyId: string) {
     support: values.support,
     timing: values.timing,
     accepted_stages: values.accepted_stages,
+    min_tkt: values.min_tkt ? Number(values.min_tkt) : null,
     relationship_forms: values.relationship_forms,
     sectors: splitList(values.sectors),
     keywords: splitList(values.keywords),
@@ -372,6 +378,7 @@ export function MandateForm({ mandate: initial, actingPartyId }: Props) {
                 excluded: values.excluded,
                 support: values.support,
                 stages: values.accepted_stages.map((stage) => labelOf(STAGES, stage)).join(', '),
+                minTkt: values.min_tkt ? t('Mencari TKT {n} ke atas', { n: Number(values.min_tkt) }) : '',
                 forms: values.relationship_forms.map((form) => labelOf(RELATIONSHIP_FORMS, form)).join(', '),
                 timing: values.timing,
                 financial: financial ? <FinancialScope compact {...scopeProps(financial as unknown as Financial)} /> : null,
@@ -403,6 +410,22 @@ export function MandateForm({ mandate: initial, actingPartyId }: Props) {
                 <Checkbox key={stage.value} label={stage.label} checked={values.accepted_stages.includes(stage.value)} onChange={toggle('accepted_stages', stage.value)} />
               ))}
             </CheckboxGroup>
+            <div className="tr-stack">
+              <div className="tr-row">
+                <span className="tr-sys-type-support-strong">{t('TKT minimum (opsional)')}</span>
+                <Toggletip label={t('Apa itu TKT?')}>{t(TKT_DEFINITION)}</Toggletip>
+              </div>
+              <Select
+                id="m-min-tkt"
+                label={t('TKT minimum')}
+                hint={t('Tingkat Kesiapterapan Teknologi minimum yang Anda cari. Kosongkan jika semua TKT dapat mengajukan.')}
+                value={values.min_tkt}
+                onChange={(min_tkt) => change({ min_tkt })}
+                options={TKT_LEVELS.map((item) => ({ value: String(item.level), label: `TKT ${item.level} · ${t(item.name)}` }))}
+                emptyLabel={t('Semua TKT')}
+                error={errors['m-min-tkt']}
+              />
+            </div>
             <CheckboxGroup id="m-forms" legend={t('Bentuk kerja sama')} error={errors['m-forms']}>
               {RELATIONSHIP_FORMS.map((form) => (
                 <Checkbox key={form.value} label={form.label} checked={values.relationship_forms.includes(form.value)} onChange={toggle('relationship_forms', form.value)} />

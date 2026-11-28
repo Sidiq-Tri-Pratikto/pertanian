@@ -2,31 +2,31 @@
 
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 
+import { Icon } from '@/components/tr/Icon';
 import { t } from '@/features/i18n/t';
 
-type Props = {
-  /** Short term being explained; used in the button's accessible name. */
+type ToggletipProps = {
   label: string;
   children: ReactNode;
   id?: string;
 };
 
 /**
- * Accessible click/keyboard toggletip: opens on click or Enter, closes on Escape or outside click,
- * and announces its content via a status region (spec 055 FR-005).
+ * Port of TR.Toggletip (spec 055): a 24 px info trigger that opens a short explanation on click or Enter,
+ * closes on Escape or outside click, and announces its content via a live `role="status"` region.
  */
-export function Toggletip({ label, children, id }: Props) {
-  const [open, setOpen] = useState(false);
-  const autoId = useId();
-  const panelId = id ?? `tip-${autoId}`;
+export function Toggletip({ label, children, id }: ToggletipProps) {
+  const generated = useId();
+  const panelId = `${id ?? generated}-panel`;
   const rootRef = useRef<HTMLSpanElement>(null);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     if (!open) return;
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === 'Escape') setOpen(false);
     }
-    function onPointerDown(event: MouseEvent) {
+    function onPointerDown(event: MouseEvent | PointerEvent) {
       if (rootRef.current && !rootRef.current.contains(event.target as Node)) setOpen(false);
     }
     document.addEventListener('keydown', onKeyDown);
@@ -40,16 +40,17 @@ export function Toggletip({ label, children, id }: Props) {
   return (
     <span ref={rootRef} className="tr-tip">
       <button
+        id={id}
         type="button"
-        className="tr-tip__btn"
+        className="tr-tip__button"
         aria-expanded={open}
         aria-controls={panelId}
-        aria-label={t('Penjelasan: {label}', { label: t(label) })}
+        aria-label={t('Penjelasan: {label}', { label })}
         onClick={() => setOpen((current) => !current)}>
-        <span aria-hidden="true">i</span>
+        <Icon name="question" size="small" />
       </button>
-      <span id={panelId} role="status" className="tr-tip__panel" hidden={!open}>
-        {open ? children : null}
+      <span id={panelId} role="status" className="tr-tip__status">
+        {open ? <span className="tr-tip__panel tr-sys-type-support">{children}</span> : null}
       </span>
     </span>
   );

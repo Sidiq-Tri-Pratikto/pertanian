@@ -6,6 +6,7 @@ import { FactSource } from '@/components/tr/FactSource';
 import { ScoreBreakdown } from '@/components/tr/ScoreBreakdown';
 import { Screen } from '@/components/tr/Screen';
 import { Status } from '@/components/tr/Status';
+import { TktBadge } from '@/components/tr/TktBadge';
 import { ContextBar } from '@/features/ContextBar';
 import type { Dimension } from '@/features/discovery/breakdown';
 import { percent, score, type MatchResult } from '@/features/discovery/model';
@@ -171,6 +172,16 @@ export function InventionView({ me, invention, publicView, justPublished, saved 
         <h2 id="ringkasan-inovasi" className="tr-sys-type-heading-sm">
           {t('Ringkasan')}
         </h2>
+        {shown.readiness ? (
+          <TktBadge
+            level={shown.readiness.tkt_level}
+            stageLabel={labelOf(STAGES, shown.stage)}
+            note={shown.readiness.note}
+            hasEvidence={shown.readiness.has_evidence}
+            showBar
+            showMeta
+          />
+        ) : null}
         {shown.summary ? <p>{shown.summary}</p> : null}
         <dl className="tr-facts">
           <div>
