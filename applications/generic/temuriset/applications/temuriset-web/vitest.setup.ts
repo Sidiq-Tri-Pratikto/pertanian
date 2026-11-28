@@ -3,8 +3,11 @@ import '@testing-library/jest-dom/vitest';
 import { cleanup } from '@testing-library/react';
 import { afterEach } from 'vitest';
 
+import { setAppLocale } from '@/features/i18n/t';
+
 afterEach(() => {
   cleanup();
+  setAppLocale('id');
 });
 
 // jsdom has no modal dialogs; these mirror the open state the way browsers do.

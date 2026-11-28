@@ -3,6 +3,7 @@
 import { useId, type ReactNode } from 'react';
 
 import { FieldError } from '@/components/tr/FieldError';
+import { tx } from '@/features/i18n/t';
 
 type CheckboxProps = {
   label: ReactNode;
@@ -32,10 +33,10 @@ export function Checkbox({ label, checked, onChange, hint, disabledReason, error
         onChange={(event) => onChange(event.target.checked)}
       />
       <span className="tr-choice__body">
-        <span className="tr-sys-type-label">{label}</span>
-        {hint ? <span className="tr-choice__hint tr-sys-type-support">{hint}</span> : null}
-        {blocked ? <span className="tr-choice__hint tr-sys-type-support">{disabledReason}</span> : null}
-        {error ? <FieldError id={`${inputId}-error`}>{error}</FieldError> : null}
+        <span className="tr-sys-type-label">{tx(label)}</span>
+        {hint ? <span className="tr-choice__hint tr-sys-type-support">{tx(hint)}</span> : null}
+        {blocked ? <span className="tr-choice__hint tr-sys-type-support">{tx(disabledReason)}</span> : null}
+        {error ? <FieldError id={`${inputId}-error`}>{tx(error)}</FieldError> : null}
       </span>
     </label>
   );
@@ -47,9 +48,9 @@ export function CheckboxGroup({ legend, hint, error, id, children }: { legend: R
   const errorId = `${id ?? auto}-error`;
   return (
     <fieldset id={id} tabIndex={id ? -1 : undefined} className={error ? 'tr-fieldset tr-fieldset--error' : 'tr-fieldset'} aria-invalid={error ? true : undefined} aria-describedby={error ? errorId : undefined}>
-      <legend className="tr-field__label tr-sys-type-label">{legend}</legend>
-      {hint ? <p className="tr-field__hint tr-sys-type-support">{hint}</p> : null}
-      {error ? <FieldError id={errorId}>{error}</FieldError> : null}
+      <legend className="tr-field__label tr-sys-type-label">{tx(legend)}</legend>
+      {hint ? <p className="tr-field__hint tr-sys-type-support">{tx(hint)}</p> : null}
+      {error ? <FieldError id={errorId}>{tx(error)}</FieldError> : null}
       <div className="tr-choices">{children}</div>
     </fieldset>
   );

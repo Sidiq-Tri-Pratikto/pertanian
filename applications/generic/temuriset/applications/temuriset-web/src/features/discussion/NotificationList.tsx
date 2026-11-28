@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { send } from '@/api/client';
 import type { components } from '@/api/schema.generated';
 import { formatDateTime } from '@/features/organizations';
+import { t } from '@/features/i18n/t';
 
 export type Notice = components['schemas']['NotificationResponse'];
 
@@ -15,14 +16,14 @@ export function NotificationList({ notifications, zone }: { notifications: Notic
   return (
     <section className="tr-stack" aria-labelledby="pemberitahuan">
       <h2 id="pemberitahuan" className="tr-sys-type-heading-sm">
-        Pemberitahuan
+        {t('Pemberitahuan')}
       </h2>
       <ul className="tr-stack">
         {notifications.map((notice) => {
           const unread = !notice.read && !read.includes(notice.id);
           return (
             <li key={notice.id} className="tr-panel tr-stack">
-              <p className="tr-muted tr-sys-type-support">{`${formatDateTime(notice.created_at, zone)}${unread ? ' · Belum dibaca' : ''}`}</p>
+              <p className="tr-muted tr-sys-type-support">{`${formatDateTime(notice.created_at, zone)}${unread ? t(' · Belum dibaca') : ''}`}</p>
               {notice.pitch_id ? (
                 <NextLink
                   className="tr-link"

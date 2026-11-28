@@ -14,6 +14,7 @@ import { TextArea } from '@/components/tr/TextArea';
 import { TextField } from '@/components/tr/TextField';
 import { declareEntity, saveFundingRequest } from '@/features/needs/api';
 import { CURRENCIES, FINANCING_FORMS, FINANCING_STAGES, fieldErrors, type FundingRequest, type LegalEntity } from '@/features/needs/model';
+import { t } from '@/features/i18n/t';
 
 const NEW_ENTITY = 'baru';
 const IDS: Record<string, string> = {
@@ -121,7 +122,7 @@ export function FundingForm({ request, entities, inventions, actingPartyId }: Pr
   return (
     <div className="tr-stack">
       {failure ? (
-        <ErrorSummary errors={summary} focusKey={attempt} title={failure.code === 'VALIDATION_FAILED' ? undefined : 'Pendanaan belum tersimpan'}>
+        <ErrorSummary errors={summary} focusKey={attempt} title={failure.code === 'VALIDATION_FAILED' ? undefined : t('Pendanaan belum tersimpan')}>
           {summary.length ? null : `${failure.message} Kode rujukan: ${failure.requestId ?? '-'}.`}
         </ErrorSummary>
       ) : null}
@@ -135,8 +136,8 @@ export function FundingForm({ request, entities, inventions, actingPartyId }: Pr
           onChange={edit('subject')}
           emptyLabel={null}
           options={[
-            { value: 'EXISTING_ENTITY', label: 'Sudah berbadan hukum' },
-            { value: 'PROPOSED_ENTITY', label: 'Perusahaan belum didirikan' },
+            { value: 'EXISTING_ENTITY', label: t('Sudah berbadan hukum') },
+            { value: 'PROPOSED_ENTITY', label: t('Perusahaan belum didirikan') },
           ]}
         />
         {values.subject === 'EXISTING_ENTITY' ? (
@@ -144,33 +145,33 @@ export function FundingForm({ request, entities, inventions, actingPartyId }: Pr
             <Select id="fr-entity" label="Badan hukum" value={values.entity} onChange={edit('entity')} emptyLabel={null} options={entityOptions} error={errors['fr-entity']} />
             {values.entity === NEW_ENTITY ? (
               <>
-                <TextField id="fr-entity-name" label="Nama badan hukum" value={values.entity_name} onChange={edit('entity_name')} error={errors['fr-entity-name']} />
+                <TextField id="fr-entity-name" label={t('Nama badan hukum')} value={values.entity_name} onChange={edit('entity_name')} error={errors['fr-entity-name']} />
                 <TextField label="Yurisdiksi" value={values.jurisdiction} onChange={edit('jurisdiction')} />
-                <TextField label="Nomor registrasi" hint="Dicatat sebagai pernyataan Anda; pemeriksaan ditampilkan terpisah." value={values.registration} onChange={edit('registration')} />
+                <TextField label={t('Nomor registrasi')} hint={t('Dicatat sebagai pernyataan Anda; pemeriksaan ditampilkan terpisah.')} value={values.registration} onChange={edit('registration')} />
               </>
             ) : null}
           </>
         ) : (
-          <TextField label="Nama rencana perusahaan" hint="Ditampilkan dengan label Perusahaan belum didirikan." value={values.proposed_name} onChange={edit('proposed_name')} />
+          <TextField label={t('Nama rencana perusahaan')} hint={t('Ditampilkan dengan label Perusahaan belum didirikan.')} value={values.proposed_name} onChange={edit('proposed_name')} />
         )}
-        <Select label="Tahap pendanaan perusahaan" hint="Terpisah dari tahap tiap inovasi." value={values.stage} onChange={edit('stage')} options={FINANCING_STAGES} />
-        <Select label="Bentuk pendanaan" value={values.form} onChange={edit('form')} options={FINANCING_FORMS} />
+        <Select label={t('Tahap pendanaan perusahaan')} hint={t('Terpisah dari tahap tiap inovasi.')} value={values.stage} onChange={edit('stage')} options={FINANCING_STAGES} />
+        <Select label={t('Bentuk pendanaan')} value={values.form} onChange={edit('form')} options={FINANCING_FORMS} />
       </section>
       <section className="tr-panel tr-stack" aria-labelledby="fr-jumlah">
         <h2 id="fr-jumlah" className="tr-sys-type-heading-sm">
-          Target dan kontribusi
+          {t('Target dan kontribusi')}
         </h2>
-        <p className="tr-muted">Target Pendanaan milik putaran ini, bukan milik tiap inovasi. Tidak ada valuasi atau persentase kepemilikan yang dihitung.</p>
-        <Select id="fr-currency" label="Mata uang" value={values.currency} onChange={edit('currency')} options={CURRENCIES} error={errors['fr-currency']} />
-        <TextField id="fr-target" label="Target Pendanaan" type="decimal" hint="Angka tanpa titik ribuan, misalnya 500000." value={values.target} onChange={edit('target')} error={errors['fr-target']} />
+        <p className="tr-muted">{t('Target Pendanaan milik putaran ini, bukan milik tiap inovasi. Tidak ada valuasi atau persentase kepemilikan yang dihitung.')}</p>
+        <Select id="fr-currency" label={t('Mata uang')} value={values.currency} onChange={edit('currency')} options={CURRENCIES} error={errors['fr-currency']} />
+        <TextField id="fr-target" label={t('Target Pendanaan')} type="decimal" hint={t('Angka tanpa titik ribuan, misalnya 500000.')} value={values.target} onChange={edit('target')} error={errors['fr-target']} />
         <TextField id="fr-min" label="Kontribusi per investor, batas bawah" type="decimal" value={values.min} onChange={edit('min')} error={errors['fr-min']} />
         <TextField id="fr-max" label="Kontribusi per investor, batas atas" type="decimal" value={values.max} onChange={edit('max')} error={errors['fr-max']} />
         <Checkbox label="Menerima pendanaan sebagian" checked={values.partial} onChange={edit('partial')} />
         <Checkbox label="Menerima pendanaan bersama investor lain" checked={values.syndicated} onChange={edit('syndicated')} />
         <TextArea label="Tujuan penggunaan dana" value={values.use} onChange={edit('use')} rows={3} />
-        <TextField label="Waktu" hint="Misalnya: Dibuka sampai Maret 2027." value={values.timing} onChange={edit('timing')} />
+        <TextField label={t('Waktu')} hint={t('Misalnya: Dibuka sampai Maret 2027.')} value={values.timing} onChange={edit('timing')} />
       </section>
-      <CheckboxGroup id="fr-inventions" legend="Inovasi yang dikembangkan" hint="Hanya inovasi yang sudah terbit. Jumlah pendanaan tidak disalin ke inovasi." error={errors['fr-inventions']}>
+      <CheckboxGroup id="fr-inventions" legend={t('Inovasi yang dikembangkan')} hint={t('Hanya inovasi yang sudah terbit. Jumlah pendanaan tidak disalin ke inovasi.')} error={errors['fr-inventions']}>
         {inventions.length ? (
           inventions.map((invention) => (
             <Checkbox
@@ -181,13 +182,13 @@ export function FundingForm({ request, entities, inventions, actingPartyId }: Pr
             />
           ))
         ) : (
-          <p className="tr-muted">Belum ada inovasi yang terbit.</p>
+          <p className="tr-muted">{t('Belum ada inovasi yang terbit.')}</p>
         )}
       </CheckboxGroup>
       {state !== 'idle' ? <SaveState state={state === 'failed' && failure?.code === 'STALE_VERSION' ? 'conflict' : state} onRetry={save} /> : null}
       <div className="tr-row">
         <Button intent="primary" icon="check" busy={state === 'saving'} busyLabel="Menyimpan…" onClick={save}>
-          Simpan pendanaan
+          {t('Simpan pendanaan')}
         </Button>
       </div>
     </div>

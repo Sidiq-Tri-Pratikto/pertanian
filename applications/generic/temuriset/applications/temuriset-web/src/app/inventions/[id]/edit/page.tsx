@@ -1,4 +1,3 @@
-import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import { ApiError } from '@/api/errors';
@@ -9,8 +8,9 @@ import { fundingOn } from '@/features/needs/server';
 import { DocumentsPanel } from '@/features/documents/DocumentsPanel';
 import type { DocumentView } from '@/features/documents/model';
 import { EditorView } from '@/views/portfolio/EditorView';
+import { titled } from '@/features/i18n/server';
 
-export const metadata: Metadata = { title: 'Ubah inovasi' };
+export const generateMetadata = titled('Ubah inovasi');
 
 type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ step?: string }> };
 

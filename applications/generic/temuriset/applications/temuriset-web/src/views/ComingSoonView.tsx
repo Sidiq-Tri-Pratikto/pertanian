@@ -8,6 +8,7 @@ import { ContextBar } from '@/features/ContextBar';
 import { homeFor, readPersona } from '@/features/persona';
 import type { Feature } from '@/features/registry';
 import { PROVENANCE } from '@/views/parts';
+import { t } from '@/features/i18n/t';
 
 type ComingSoonViewProps = {
   me: Me;
@@ -22,22 +23,22 @@ export function ComingSoonView({ me, feature, showSpecs = false }: ComingSoonVie
   const home = homeFor(persona);
   const back = (
     <Link className="tr-link" href={home}>
-      Kembali
+      {t('Kembali')}
     </Link>
   );
 
   if (!feature) {
     return (
-      <Screen persona={persona} title="Fitur tidak dikenal" provenance={PROVENANCE} context={<ContextBar me={me} />}>
+      <Screen persona={persona} title={t('Fitur tidak dikenal')} provenance={PROVENANCE} context={<ContextBar me={me} />}>
         <EmptyState
           icon="question"
-          title="Alamat ini tidak menunjuk ke fitur yang direncanakan"
+          title={t('Alamat ini tidak menunjuk ke fitur yang direncanakan')}
           action={
             <Link className="tr-link" href="/settings#rencana">
-              Lihat semua rencana fitur
+              {t('Lihat semua rencana fitur')}
             </Link>
           }>
-          Periksa alamatnya, atau buka daftar rencana fitur.
+          {t('Periksa alamatnya, atau buka daftar rencana fitur.')}
         </EmptyState>
       </Screen>
     );
@@ -52,19 +53,19 @@ export function ComingSoonView({ me, feature, showSpecs = false }: ComingSoonVie
       provenance={PROVENANCE}
       context={<ContextBar me={me} />}>
       <Status tone="neutral" label="Segera hadir">
-        <p>Fitur ini belum tersedia pada versi ini. Tidak ada data yang dibuat atau disimpan.</p>
+        <p>{t('Fitur ini belum tersedia pada versi ini. Tidak ada data yang dibuat atau disimpan.')}</p>
       </Status>
       <section className="tr-panel tr-stack" aria-labelledby="yang-direncanakan">
         <h2 id="yang-direncanakan" className="tr-sys-type-heading-sm">
-          Yang direncanakan
+          {t('Yang direncanakan')}
         </h2>
         <ul className="tr-reasons">
           {feature.points.map((point) => (
-            <li key={point}>{point}</li>
+            <li key={point}>{t(point)}</li>
           ))}
         </ul>
       </section>
-      {showSpecs ? <p className="tr-muted tr-sys-type-support">Spesifikasi: {feature.specs.join(', ')}</p> : null}
+      {showSpecs ? <p className="tr-muted tr-sys-type-support">{t('Spesifikasi')}: {feature.specs.join(', ')}</p> : null}
     </Screen>
   );
 }

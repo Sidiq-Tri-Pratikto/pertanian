@@ -1,9 +1,11 @@
+import { intlLocale } from '@/features/i18n/t';
+
 /** Time on screen: stored instants are UTC; every reader sees them in their own IANA zone (FR-002). */
 
 const ZONES: Record<string, string> = { 'Asia/Jakarta': 'WIB', 'Asia/Makassar': 'WITA', 'Asia/Jayapura': 'WIT' };
 
 function format(iso: string, zone: string, options: Intl.DateTimeFormatOptions): string {
-  return new Intl.DateTimeFormat('id-ID', { timeZone: zone, ...options }).format(new Date(iso));
+  return new Intl.DateTimeFormat(intlLocale(), { timeZone: zone, ...options }).format(new Date(iso));
 }
 
 /** "WIB (Asia/Jakarta)", or the IANA name for zones without an Indonesian abbreviation. */

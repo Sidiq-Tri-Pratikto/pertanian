@@ -14,6 +14,7 @@ import { TextArea } from '@/components/tr/TextArea';
 import { TextField } from '@/components/tr/TextField';
 import { moveSupportRequest, saveSupportRequest } from '@/features/needs/api';
 import { BASES, CURRENCIES, fieldErrors, SUPPORT_FORMS, UNKNOWN_REASONS, type SupportRequest } from '@/features/needs/model';
+import { t } from '@/features/i18n/t';
 
 // Where each service field error is shown.
 const IDS: Record<string, string> = {
@@ -175,16 +176,16 @@ export function SupportForm({ request: initial, actingPartyId, returnTo }: Props
   return (
     <div className="tr-stack">
       {failure ? (
-        <ErrorSummary errors={summary} focusKey={attempt} title={failure.code === 'VALIDATION_FAILED' ? undefined : 'Kebutuhan belum tersimpan'}>
+        <ErrorSummary errors={summary} focusKey={attempt} title={failure.code === 'VALIDATION_FAILED' ? undefined : t('Kebutuhan belum tersimpan')}>
           {summary.length ? null : `${failure.message} Kode rujukan: ${failure.requestId ?? '-'}.`}
         </ErrorSummary>
       ) : null}
       <section className="tr-panel tr-stack" aria-labelledby="sr-hasil">
         <h2 id="sr-hasil" className="tr-sys-type-heading-sm">
-          Hasil dan bentuk dukungan
+          {t('Hasil dan bentuk dukungan')}
         </h2>
-        <TextField id="sr-outcome" label="Hasil yang ingin dicapai" hint="Misalnya: Validasi prototipe enam bulan." value={values.outcome} onChange={edit('outcome')} error={errors['sr-outcome']} />
-        <CheckboxGroup id="sr-forms" legend="Bentuk dukungan" error={errors['sr-forms']}>
+        <TextField id="sr-outcome" label={t('Hasil yang ingin dicapai')} hint={t('Misalnya: Validasi prototipe enam bulan.')} value={values.outcome} onChange={edit('outcome')} error={errors['sr-outcome']} />
+        <CheckboxGroup id="sr-forms" legend={t('Bentuk dukungan')} error={errors['sr-forms']}>
           {SUPPORT_FORMS.map((form) => (
             <Checkbox
               key={form.value}
@@ -196,35 +197,35 @@ export function SupportForm({ request: initial, actingPartyId, returnTo }: Props
             />
           ))}
         </CheckboxGroup>
-        <TextArea label="Cakupan pekerjaan" value={values.scope} onChange={edit('scope')} rows={3} />
+        <TextArea label={t('Cakupan pekerjaan')} value={values.scope} onChange={edit('scope')} rows={3} />
         <TextField id="sr-months" label="Durasi (bulan)" type="text" inputMode="numeric" value={values.months} onChange={edit('months')} error={errors['sr-months']} />
-        <TextField label="Wilayah" value={values.region} onChange={edit('region')} />
+        <TextField label={t('Wilayah')} value={values.region} onChange={edit('region')} />
         <Checkbox label="Menerima dukungan sebagian" checked={values.accepts_partial} onChange={edit('accepts_partial')} />
         <Checkbox label="Menerima dukungan nontunai" checked={values.accepts_noncash} onChange={edit('accepts_noncash')} />
-        {values.accepts_noncash ? <TextArea label="Dukungan nontunai yang dicari" value={values.noncash_description} onChange={edit('noncash_description')} rows={2} /> : null}
+        {values.accepts_noncash ? <TextArea label={t('Dukungan nontunai yang dicari')} value={values.noncash_description} onChange={edit('noncash_description')} rows={2} /> : null}
       </section>
       <section className="tr-panel tr-stack" aria-labelledby="sr-biaya">
         <h2 id="sr-biaya" className="tr-sys-type-heading-sm">
-          Kisaran biaya
+          {t('Kisaran biaya')}
         </h2>
-        <p className="tr-muted">Kosongkan biaya minimum dan maksimum bila belum diketahui, lalu pilih alasannya. Belum ditentukan tidak pernah dianggap nol.</p>
-        <Select id="sr-currency" label="Mata uang" value={values.currency} onChange={edit('currency')} options={CURRENCIES} error={errors['sr-currency']} />
-        <TextField id="sr-min" label="Biaya minimum" type="decimal" hint="Angka tanpa titik ribuan, misalnya 20000." value={values.min} onChange={edit('min')} error={errors['sr-min']} />
-        <TextField id="sr-max" label="Biaya maksimum" type="decimal" value={values.max} onChange={edit('max')} error={errors['sr-max']} />
+        <p className="tr-muted">{t('Kosongkan biaya minimum dan maksimum bila belum diketahui, lalu pilih alasannya. Belum ditentukan tidak pernah dianggap nol.')}</p>
+        <Select id="sr-currency" label={t('Mata uang')} value={values.currency} onChange={edit('currency')} options={CURRENCIES} error={errors['sr-currency']} />
+        <TextField id="sr-min" label={t('Biaya minimum')} type="decimal" hint={t('Angka tanpa titik ribuan, misalnya 20000.')} value={values.min} onChange={edit('min')} error={errors['sr-min']} />
+        <TextField id="sr-max" label={t('Biaya maksimum')} type="decimal" value={values.max} onChange={edit('max')} error={errors['sr-max']} />
         <Select label="Dasar perhitungan" value={values.basis} onChange={edit('basis')} options={BASES} emptyLabel={null} />
-        <TextField label="Periode" hint="Misalnya: 6 bulan." value={values.period} onChange={edit('period')} />
-        <TextField label="Cakupan biaya" hint="Misalnya: biaya pilot enam bulan." value={values.budget_scope} onChange={edit('budget_scope')} />
+        <TextField label={t('Periode')} hint={t('Misalnya: 6 bulan.')} value={values.period} onChange={edit('period')} />
+        <TextField label={t('Cakupan biaya')} hint={t('Misalnya: biaya pilot enam bulan.')} value={values.budget_scope} onChange={edit('budget_scope')} />
         <TextArea label="Asumsi" value={values.assumptions} onChange={edit('assumptions')} rows={2} />
-        <Select id="sr-unknown" label="Bila kisaran belum diketahui" value={values.unknown_reason} onChange={edit('unknown_reason')} options={UNKNOWN_REASONS} emptyLabel="Kisaran sudah diketahui" error={errors['sr-unknown']} />
+        <Select id="sr-unknown" label={t('Bila kisaran belum diketahui')} value={values.unknown_reason} onChange={edit('unknown_reason')} options={UNKNOWN_REASONS} emptyLabel={t('Kisaran sudah diketahui')} error={errors['sr-unknown']} />
       </section>
       {state !== 'idle' ? <SaveState state={state === 'failed' && failure?.code === 'STALE_VERSION' ? 'conflict' : state} onRetry={save} /> : null}
       <div className="tr-row">
-        <Button intent="primary" icon="check" busy={state === 'saving'} busyLabel="Menyimpan…" onClick={save} disabledReason={closed ? 'Kebutuhan ini sudah ditutup.' : undefined}>
-          Simpan kebutuhan
+        <Button intent="primary" icon="check" busy={state === 'saving'} busyLabel="Menyimpan…" onClick={save} disabledReason={closed ? t('Kebutuhan ini sudah ditutup.') : undefined}>
+          {t('Simpan kebutuhan')}
         </Button>
         {request.status === 'DRAFT' || request.status === 'PAUSED' ? (
           <Button icon="arrow" onClick={activate}>
-            Aktifkan kebutuhan
+            {t('Aktifkan kebutuhan')}
           </Button>
         ) : null}
       </div>

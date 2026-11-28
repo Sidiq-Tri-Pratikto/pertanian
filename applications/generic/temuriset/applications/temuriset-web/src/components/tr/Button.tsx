@@ -3,6 +3,7 @@
 import { useId, type MouseEvent, type ReactNode } from 'react';
 
 import { Icon, type IconName } from '@/components/tr/Icon';
+import { t, tx } from '@/features/i18n/t';
 
 type ButtonProps = {
   children: ReactNode;
@@ -38,7 +39,7 @@ export function Button({ children, intent = 'secondary', type = 'button', icon, 
         onClick?.(event);
       }}>
       {busy ? <span className="tr-spinner" aria-hidden="true" /> : icon ? <Icon name={icon} /> : null}
-      <span>{busy ? (busyLabel ?? 'Memproses…') : children}</span>
+      <span>{busy ? t(busyLabel ?? 'Memproses…') : tx(children)}</span>
     </button>
   );
   if (!blocked) return button;
@@ -46,7 +47,7 @@ export function Button({ children, intent = 'secondary', type = 'button', icon, 
     <span className="tr-btn-wrap">
       {button}
       <span id={reasonId} className="tr-reason tr-sys-type-support">
-        {disabledReason}
+        {tx(disabledReason)}
       </span>
     </span>
   );

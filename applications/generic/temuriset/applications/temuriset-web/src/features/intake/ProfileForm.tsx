@@ -17,6 +17,7 @@ import { CONTACT_ROUTES, INTAKE_CHOICES, RELATIONSHIP_FORMS, rangeBody, rangeVal
 import { rangeErrorIds, RangeFields } from '@/features/intake/RangeFields';
 import { fieldErrors } from '@/features/needs/model';
 import { STAGES } from '@/features/portfolio/model';
+import { t } from '@/features/i18n/t';
 
 const IDS: Record<string, string> = {
   ...rangeErrorIds('check_range', 'p'),
@@ -130,37 +131,37 @@ export function ProfileForm({ profile, partyId, actingPartyId }: Props) {
   return (
     <div id="profil-mitra" className="tr-stack">
       {failure ? (
-        <ErrorSummary errors={summary} focusKey={attempt} title={failure.code === 'VALIDATION_FAILED' ? undefined : 'Profil belum tersimpan'}>
+        <ErrorSummary errors={summary} focusKey={attempt} title={failure.code === 'VALIDATION_FAILED' ? undefined : t('Profil belum tersimpan')}>
           {summary.length ? null : `${failure.message} Kode rujukan: ${failure.requestId ?? '-'}.`}
         </ErrorSummary>
       ) : null}
-      <TextField label="Jenis mitra" hint="Misalnya: Mitra validasi prototipe." value={values.subtype} onChange={edit('subtype')} />
-      <TextArea label="Minat umum" value={values.thesis} onChange={edit('thesis')} rows={3} />
-      <TextField label="Sektor" hint="Pisahkan dengan koma." value={values.sectors} onChange={edit('sectors')} />
-      <CheckboxGroup id="p-stages" legend="Tahap yang diterima">
+      <TextField label={t('Jenis mitra')} hint={t('Misalnya: Mitra validasi prototipe.')} value={values.subtype} onChange={edit('subtype')} />
+      <TextArea label={t('Minat umum')} value={values.thesis} onChange={edit('thesis')} rows={3} />
+      <TextField label={t('Sektor')} hint={t('Pisahkan dengan koma.')} value={values.sectors} onChange={edit('sectors')} />
+      <CheckboxGroup id="p-stages" legend={t('Tahap yang diterima')}>
         {STAGES.map((stage) => (
           <Checkbox key={stage.value} label={stage.label} checked={values.stages.includes(stage.value)} onChange={toggle('stages', stage.value)} />
         ))}
       </CheckboxGroup>
-      <TextField label="Wilayah" hint="Pisahkan dengan koma." value={values.regions} onChange={edit('regions')} />
-      <TextField label="Bentuk dukungan" hint="Pisahkan dengan koma." value={values.support_forms} onChange={edit('support_forms')} />
-      <CheckboxGroup id="p-forms" legend="Bentuk kerja sama">
+      <TextField label={t('Wilayah')} hint={t('Pisahkan dengan koma.')} value={values.regions} onChange={edit('regions')} />
+      <TextField label={t('Bentuk dukungan')} hint={t('Pisahkan dengan koma.')} value={values.support_forms} onChange={edit('support_forms')} />
+      <CheckboxGroup id="p-forms" legend={t('Bentuk kerja sama')}>
         {RELATIONSHIP_FORMS.map((form) => (
           <Checkbox key={form.value} label={form.label} checked={values.relationship_forms.includes(form.value)} onChange={toggle('relationship_forms', form.value)} />
         ))}
       </CheckboxGroup>
-      <TextArea label="Ekspektasi peninjauan" value={values.review_expectations} onChange={edit('review_expectations')} rows={2} />
-      <p className="tr-muted">Isi kisaran hanya bila Anda bersedia menyatakannya. Belum ditentukan tidak pernah dianggap nol.</p>
+      <TextArea label={t('Ekspektasi peninjauan')} value={values.review_expectations} onChange={edit('review_expectations')} rows={2} />
+      <p className="tr-muted">{t('Isi kisaran hanya bila Anda bersedia menyatakannya. Belum ditentukan tidak pernah dianggap nol.')}</p>
       <RangeFields prefix="p" subjectLabel="Jenis kisaran" values={values.range} onChange={(field, value) => edit('range')({ ...values.range, [field]: value })} errors={errors} />
-      <Select label="Penerimaan saat ini" value={values.intake_status} onChange={edit('intake_status')} options={INTAKE_CHOICES} emptyLabel={null} />
-      <TextField id="p-from" label="Penerimaan dibuka sejak" hint="Format: TTTT-BB-HH. Boleh dikosongkan." value={values.intake_from} onChange={edit('intake_from')} error={errors['p-from']} />
-      <TextField id="p-until" label="Penerimaan dibuka sampai" hint="Format: TTTT-BB-HH. Boleh dikosongkan." value={values.intake_until} onChange={edit('intake_until')} error={errors['p-until']} />
-      <Select label="Jalur kontak" value={values.contact_route} onChange={edit('contact_route')} options={CONTACT_ROUTES} emptyLabel={null} />
-      {values.contact_route === 'EXTERNAL' ? <TextField id="p-url" label="Alamat formulir" value={values.external_url} onChange={edit('external_url')} error={errors['p-url']} /> : null}
+      <Select label={t('Penerimaan saat ini')} value={values.intake_status} onChange={edit('intake_status')} options={INTAKE_CHOICES} emptyLabel={null} />
+      <TextField id="p-from" label={t('Penerimaan dibuka sejak')} hint={t('Format: TTTT-BB-HH. Boleh dikosongkan.')} value={values.intake_from} onChange={edit('intake_from')} error={errors['p-from']} />
+      <TextField id="p-until" label={t('Penerimaan dibuka sampai')} hint={t('Format: TTTT-BB-HH. Boleh dikosongkan.')} value={values.intake_until} onChange={edit('intake_until')} error={errors['p-until']} />
+      <Select label={t('Jalur kontak')} value={values.contact_route} onChange={edit('contact_route')} options={CONTACT_ROUTES} emptyLabel={null} />
+      {values.contact_route === 'EXTERNAL' ? <TextField id="p-url" label={t('Alamat formulir')} value={values.external_url} onChange={edit('external_url')} error={errors['p-url']} /> : null}
       {state !== 'idle' ? <SaveState state={state === 'failed' && failure?.code === 'STALE_VERSION' ? 'conflict' : state} onRetry={save} /> : null}
       <div className="tr-row">
         <Button intent="primary" icon="check" busy={state === 'saving'} busyLabel="Menyimpan…" onClick={save}>
-          Simpan profil
+          {t('Simpan profil')}
         </Button>
       </div>
     </div>

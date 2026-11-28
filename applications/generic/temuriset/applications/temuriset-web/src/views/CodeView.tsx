@@ -15,7 +15,7 @@ import { homeFor, readPersona } from '@/features/persona';
 import { clearPending, codeRequest, parsePending, readPendingRaw } from '@/features/signIn';
 import { AuthShell } from '@/views/AuthShell';
 import { useLocale, useMessages } from '@/features/i18n/LocaleProvider';
-import { localHref } from '@/features/i18n/locale';
+import { localHref, rememberLocale } from '@/features/i18n/locale';
 
 function noSubscription() {
   return () => {};
@@ -64,6 +64,7 @@ export function CodeView() {
       const me = await send<Me>('POST', '/api/v1/auth/verify', { email: pending.email, code: code.trim() });
       await forgetPersona();
       clearPending();
+      rememberLocale(page);
       router.replace(pending.returnTo ?? homeFor(readPersona(me.account.persona) ?? 'inovator'));
       router.refresh();
     } catch (error) {

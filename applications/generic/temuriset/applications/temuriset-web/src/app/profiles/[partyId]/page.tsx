@@ -1,11 +1,10 @@
-import type { Metadata } from 'next';
-
 import { ApiError } from '@/api/errors';
 import { serverGet } from '@/api/server';
 import { validId, type Profile } from '@/features/relationships/model';
 import { PublicProfileView } from '@/views/relationships/PublicProfileView';
+import { titled } from '@/features/i18n/server';
 
-export const metadata: Metadata = { title: 'Profil publik' };
+export const generateMetadata = titled('Profil publik');
 
 export default async function PublicProfilePage({ params }: { params: Promise<{ partyId: string }> }) {
   const { partyId } = await params;

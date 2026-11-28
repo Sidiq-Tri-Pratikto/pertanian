@@ -11,6 +11,7 @@ import { PITCH_STATUS, SOURCE_KIND, type PitchSummary } from '@/features/pitches
 import { TURN_LABEL, turnOf, type ListFilters } from '@/features/pitches/workspace';
 import { FeatureList, PROVENANCE } from '@/views/parts';
 import type { Capabilities } from '@/features/registry';
+import { t } from '@/features/i18n/t';
 
 type Box = 'outgoing' | 'masuk' | 'diskusi';
 
@@ -56,40 +57,40 @@ export function PitchesView({ me, box, pitches, total, filters, capabilities }: 
   return (
     <Screen persona={persona} current={copy.nav} title={copy.title} subtitle={copy.subtitle} provenance={PROVENANCE} context={<ContextBar me={me} />}>
       {total ? (
-        <form method="get" action="/pitches" className="tr-panel tr-stack" aria-label="Saring pitching">
+        <form method="get" action="/pitches" className="tr-panel tr-stack" aria-label={t('Saring pitching')}>
           {param ? <input type="hidden" name="box" value={param} /> : null}
           <div className="tr-field">
             <label htmlFor="filter-turn" className="tr-sys-type-label">
-              Giliran
+              {t('Giliran')}
             </label>
             <select id="filter-turn" name="giliran" className="tr-input tr-select" defaultValue={filters.giliran ?? ''}>
-              <option value="">Semua</option>
-              <option value="anda">{TURN_LABEL.you}</option>
-              <option value="lain">{TURN_LABEL.other}</option>
+              <option value="">{t('Semua')}</option>
+              <option value="anda">{t(TURN_LABEL.you)}</option>
+              <option value="lain">{t(TURN_LABEL.other)}</option>
             </select>
           </div>
           <div className="tr-field">
             <label htmlFor="filter-status" className="tr-sys-type-label">
-              Status
+              {t('Status')}
             </label>
             <select id="filter-status" name="status" className="tr-input tr-select" defaultValue={filters.status ?? ''}>
-              <option value="">Semua status</option>
+              <option value="">{t('Semua status')}</option>
               {Object.entries(PITCH_STATUS)
                 .filter(([value]) => value !== 'DRAFT')
                 .map(([value, label]) => (
                   <option key={value} value={value}>
-                    {label}
+                    {t(label)}
                   </option>
                 ))}
             </select>
           </div>
           <div className="tr-row">
             <button type="submit" className="tr-btn tr-btn--secondary">
-              Terapkan
+              {t('Terapkan')}
             </button>
             {filtered ? (
               <NextLink className="tr-link" href={clearHref}>
-                Hapus semua filter
+                {t('Hapus semua filter')}
               </NextLink>
             ) : null}
           </div>
@@ -101,16 +102,16 @@ export function PitchesView({ me, box, pitches, total, filters, capabilities }: 
             const turn = turnOf(pitch, me.active_party_id);
             return (
               <li key={pitch.id} className="tr-panel tr-stack">
-                <p className="tr-muted tr-sys-type-support">{`${SOURCE_KIND[pitch.subject_type]} · ${incoming ? `dari ${pitch.requester_name}` : `kepada ${pitch.recipient_name}`}`}</p>
-                <h2 className="tr-sys-type-heading-sm">{`${pitch.subject_title} untuk ${pitch.opportunity_title}`}</h2>
+                <p className="tr-muted tr-sys-type-support">{`${t(SOURCE_KIND[pitch.subject_type])} · ${incoming ? t('dari {name}', { name: pitch.requester_name }) : t('kepada {name}', { name: pitch.recipient_name })}`}</p>
+                <h2 className="tr-sys-type-heading-sm">{t('{subject} untuk {opportunity}', { subject: pitch.subject_title, opportunity: pitch.opportunity_title })}</h2>
                 <p className="tr-row">
                   <Status tone="neutral" label={PITCH_STATUS[pitch.status] ?? pitch.status} />
                   {turn ? <Status tone={turn === 'you' ? 'action' : 'neutral'} icon={turn === 'you' ? 'right' : 'clock'} label={TURN_LABEL[turn]} /> : null}
                 </p>
-                <p className="tr-muted tr-sys-type-support">{`Diperbarui ${formatDateTime(pitch.updated_at, me.account.time_zone)}`}</p>
+                <p className="tr-muted tr-sys-type-support">{t('Diperbarui {time}', { time: formatDateTime(pitch.updated_at, me.account.time_zone) })}</p>
                 <p>
                   <NextLink className="tr-link" href={`/pitches/${pitch.id}`}>
-                    Buka pitching <span className="tr-sr">{`${pitch.subject_title} untuk ${pitch.opportunity_title}`}</span>
+                    {t('Buka pitching')} <span className="tr-sr">{t('{subject} untuk {opportunity}', { subject: pitch.subject_title, opportunity: pitch.opportunity_title })}</span>
                   </NextLink>
                 </p>
               </li>
@@ -118,12 +119,12 @@ export function PitchesView({ me, box, pitches, total, filters, capabilities }: 
           })}
         </ul>
       ) : filtered ? (
-        <EmptyState icon="search" title="Tidak ada pitching dengan filter ini">
-          Ubah atau hapus filter untuk melihat pitching lainnya.
+        <EmptyState icon="search" title={t('Tidak ada pitching dengan filter ini')}>
+          {t('Ubah atau hapus filter untuk melihat pitching lainnya.')}
         </EmptyState>
       ) : (
         <EmptyState icon={incoming ? 'inbox' : 'chat'} title={copy.empty}>
-          {copy.body}
+          {t(copy.body)}
         </EmptyState>
       )}
       <FeatureList ids={copy.features} capabilities={capabilities} />

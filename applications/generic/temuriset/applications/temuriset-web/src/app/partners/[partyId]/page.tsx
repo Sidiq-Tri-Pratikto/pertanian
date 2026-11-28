@@ -1,4 +1,3 @@
-import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import { ApiError } from '@/api/errors';
@@ -6,8 +5,9 @@ import { serverGet } from '@/api/server';
 import type { Mandate, PartnerProfile } from '@/features/intake/model';
 import { requireMe } from '@/features/session';
 import { PartnerView } from '@/views/intake/PartnerView';
+import { titled } from '@/features/i18n/server';
 
-export const metadata: Metadata = { title: 'Profil mitra' };
+export const generateMetadata = titled('Profil mitra');
 
 type Props = { params: Promise<{ partyId: string }> };
 

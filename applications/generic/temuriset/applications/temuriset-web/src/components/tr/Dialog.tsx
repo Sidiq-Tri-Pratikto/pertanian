@@ -5,6 +5,7 @@ import { useEffect, useId, useRef, type KeyboardEvent, type ReactNode } from 're
 import { Button } from '@/components/tr/Button';
 import { Icon } from '@/components/tr/Icon';
 import { useMessages } from '@/features/i18n/LocaleProvider';
+import { tx } from '@/features/i18n/t';
 
 const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), summary, [tabindex="0"]';
 
@@ -71,7 +72,7 @@ export function Dialog({ open, onClose, title, children, primary, secondary, ret
         <>
           <div className="tr-dialog__head">
             <h2 id={titleId} ref={heading} tabIndex={-1} className="tr-sys-type-heading-md">
-              {title}
+              {tx(title)}
             </h2>
             <button type="button" className="tr-icon-btn" aria-label={words.close} onClick={onClose}>
               <Icon name="close" />
@@ -81,7 +82,7 @@ export function Dialog({ open, onClose, title, children, primary, secondary, ret
           <div className="tr-dialog__foot">
             {primary ? (
               <Button intent={primary.intent ?? 'primary'} busy={primary.busy} busyLabel={primary.busyLabel} onClick={primary.onClick}>
-                {primary.label}
+                {tx(primary.label)}
               </Button>
             ) : null}
             <Button onClick={secondary?.onClick ?? onClose}>{secondary?.label ?? 'Batal'}</Button>

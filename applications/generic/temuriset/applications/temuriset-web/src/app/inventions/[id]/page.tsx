@@ -1,5 +1,3 @@
-import type { Metadata } from 'next';
-
 import { ApiError } from '@/api/errors';
 import { serverGet } from '@/api/server';
 import type { DocumentView } from '@/features/documents/model';
@@ -7,8 +5,9 @@ import type { Invention, PublicInvention } from '@/features/portfolio/model';
 import type { PublicUpdate } from '@/features/portfolio/PublicUpdatesPanel';
 import { requireMe } from '@/features/session';
 import { InventionView } from '@/views/portfolio/InventionViews';
+import { titled } from '@/features/i18n/server';
 
-export const metadata: Metadata = { title: 'Inovasi' };
+export const generateMetadata = titled('Inovasi');
 
 type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ terbit?: string }> };
 

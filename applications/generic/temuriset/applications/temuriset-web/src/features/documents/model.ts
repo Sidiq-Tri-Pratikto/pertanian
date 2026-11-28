@@ -1,4 +1,5 @@
 import type { components } from '@/api/schema.generated';
+import { t } from '@/features/i18n/t';
 
 export type DocumentView = components['schemas']['DocumentResponse'];
 export type UploadIntent = components['schemas']['UploadIntentResponse'];
@@ -19,8 +20,8 @@ export const ACCEPT_ATTRIBUTE = '.pdf,.docx,.png,.jpg,.jpeg,.webp';
 /** Why a chosen file cannot be sent, before any byte moves; null when it may be. */
 export function refusal(file: { type: string; size: number }): string | null {
   const accepted = ACCEPTED[file.type];
-  if (!accepted) return 'Jenis berkas ini tidak didukung. Pilih PDF, DOCX, PNG, JPEG atau WEBP.';
-  if (file.size > accepted.limit) return `Berkas melebihi batas ${accepted.text}. Pilih berkas yang lebih kecil.`;
+  if (!accepted) return t('Jenis berkas ini tidak didukung. Pilih PDF, DOCX, PNG, JPEG atau WEBP.');
+  if (file.size > accepted.limit) return t('Berkas melebihi batas {limit}. Pilih berkas yang lebih kecil.', { limit: accepted.text });
   return null;
 }
 

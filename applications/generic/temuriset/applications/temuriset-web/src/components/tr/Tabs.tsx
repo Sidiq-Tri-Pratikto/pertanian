@@ -1,6 +1,7 @@
 'use client';
 
 import { useId, useRef, type KeyboardEvent, type ReactNode } from 'react';
+import { t, tx } from '@/features/i18n/t';
 
 type Tab = { id: string; label: string; content: ReactNode };
 
@@ -20,7 +21,7 @@ export function Tabs({ label, tabs, value, onChange }: TabsProps) {
   }
   return (
     <div className="tr-tabs">
-      <div role="tablist" aria-label={label} className="tr-tabs__list">
+      <div role="tablist" aria-label={t(label)} className="tr-tabs__list">
         {tabs.map((tab, index) => {
           const on = tab.id === value;
           return (
@@ -38,7 +39,7 @@ export function Tabs({ label, tabs, value, onChange }: TabsProps) {
               className={on ? 'tr-tab tr-sys-type-label is-selected' : 'tr-tab tr-sys-type-label'}
               onClick={() => onChange(tab.id)}
               onKeyDown={(event) => key(event, index)}>
-              {tab.label}
+              {tx(tab.label)}
             </button>
           );
         })}

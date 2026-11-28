@@ -1,12 +1,11 @@
-import type { Metadata } from 'next';
-
 import { serverGet } from '@/api/server';
 import type { FundingRequest, SupportRequest } from '@/features/needs/model';
 import { fundingOn, publishedInventions } from '@/features/needs/server';
 import { requireMe } from '@/features/session';
 import { NeedsView } from '@/views/needs/NeedsViews';
+import { titled } from '@/features/i18n/server';
 
-export const metadata: Metadata = { title: 'Kebutuhan dan pendanaan' };
+export const generateMetadata = titled('Kebutuhan dan pendanaan');
 
 type Props = { searchParams: Promise<{ invention?: string }> };
 

@@ -1,5 +1,3 @@
-import type { Metadata } from 'next';
-
 import { ApiError } from '@/api/errors';
 import { serverGet } from '@/api/server';
 import { readCapabilities, readCapabilityManifest } from '@/features/capabilities';
@@ -9,8 +7,10 @@ import type { ProfileSettings } from '@/features/relationships/model';
 import { requireMe } from '@/features/session';
 import type { CalendarConnectionProps, CalendarStatus } from '@/views/settings/CalendarConnection';
 import { SettingsView } from '@/views/SettingsView';
+import { titled } from '@/features/i18n/server';
+import { t } from '@/features/i18n/t';
 
-export const metadata: Metadata = { title: 'Profil dan privasi' };
+export const generateMetadata = titled('Profil dan privasi');
 
 type Props = { searchParams: Promise<{ bergabung?: string; lapor?: string | string[]; objek?: string | string[]; kalender?: string; ref?: string }> };
 
@@ -56,7 +56,7 @@ export default async function SettingsPage({ searchParams }: Props) {
       calendar={{
         ...calendar,
         callbackFailure: kalender === 'gagal'
-          ? { message: 'Kalender belum tersambung. Mulai lagi dari pengaturan kalender.', requestId: ref && /^ref_[a-f0-9]{32}$/.test(ref) ? ref : null }
+          ? { message: t('Kalender belum tersambung. Mulai lagi dari pengaturan kalender.'), requestId: ref && /^ref_[a-f0-9]{32}$/.test(ref) ? ref : null }
           : null,
       }}
       members={members}

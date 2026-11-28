@@ -1,4 +1,3 @@
-import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 
 import { ApiError } from '@/api/errors';
@@ -7,8 +6,9 @@ import { validId, type Partnership, type ProposalOptions } from '@/features/rela
 import { requireMe } from '@/features/session';
 import { RelationshipUnavailable } from '@/views/relationships/PartnershipView';
 import { ProposeView } from '@/views/relationships/ProposeView';
+import { titled } from '@/features/i18n/server';
 
-export const metadata: Metadata = { title: 'Usulkan Kerja Sama' };
+export const generateMetadata = titled('Usulkan Kerja Sama');
 
 export default async function ProposePage({ searchParams }: { searchParams: Promise<{ pitch?: string }> }) {
   const { pitch } = await searchParams;

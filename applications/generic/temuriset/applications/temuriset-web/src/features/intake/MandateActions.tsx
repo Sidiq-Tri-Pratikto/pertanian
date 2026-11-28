@@ -11,6 +11,7 @@ import { Dialog } from '@/components/tr/Dialog';
 import { Status } from '@/components/tr/Status';
 import { moveMandate, type MandateAction } from '@/features/intake/api';
 import type { Mandate } from '@/features/intake/model';
+import { t } from '@/features/i18n/t';
 
 const FAILURE_LABEL: Record<MandateAction, string> = {
   activate: 'Mandat belum diaktifkan',
@@ -41,7 +42,7 @@ export function MandateActions({ mandate, actingPartyId }: { mandate: Mandate; a
       // Only a request that may not have arrived is retried with the same key; anything the service refused is not.
       if (!apiError.recovery.retryable) pending.current = null;
       setConfirming(false);
-      setFailure({ label: FAILURE_LABEL[action], message: `${apiError.message} Kode rujukan: ${apiError.requestId ?? '-'}.` });
+      setFailure({ label: FAILURE_LABEL[action], message: `${apiError.message} ${t('Kode rujukan: {id}.', { id: apiError.requestId ?? '-' })}` });
     } finally {
       setBusy(null);
     }
@@ -57,26 +58,26 @@ export function MandateActions({ mandate, actingPartyId }: { mandate: Mandate; a
       ) : null}
       <div className="tr-row">
         <NextLink className="tr-btn tr-btn--secondary" href={`/opportunities/${mandate.id}/edit`}>
-          Ubah mandat<span className="tr-sr">{` ${mandate.title || 'tanpa judul'}`}</span>
+          {t('Ubah mandat')}<span className="tr-sr">{` ${mandate.title || t('tanpa judul')}`}</span>
         </NextLink>
         {mandate.status === 'ACTIVE' ? (
-          <Button busy={busy === 'pause'} busyLabel="Menjeda…" onClick={() => move('pause')}>
-            Jeda penerimaan
+          <Button busy={busy === 'pause'} busyLabel={t('Menjeda…')} onClick={() => move('pause')}>
+            {t('Jeda penerimaan')}
           </Button>
         ) : null}
         {mandate.status === 'PAUSED' ? (
-          <Button busy={busy === 'activate'} busyLabel="Mengaktifkan…" onClick={() => move('activate')}>
-            Aktifkan lagi
+          <Button busy={busy === 'activate'} busyLabel={t('Mengaktifkan…')} onClick={() => move('activate')}>
+            {t('Aktifkan lagi')}
           </Button>
         ) : null}
-        {mandate.status === 'ACTIVE' || mandate.status === 'PAUSED' ? <Button onClick={() => setConfirming(true)}>Tutup penerimaan</Button> : null}
+        {mandate.status === 'ACTIVE' || mandate.status === 'PAUSED' ? <Button onClick={() => setConfirming(true)}>{t('Tutup penerimaan')}</Button> : null}
       </div>
       <Dialog
         open={confirming}
         onClose={() => setConfirming(false)}
-        title={`Tutup penerimaan ${mandate.title}?`}
-        primary={{ label: 'Tutup penerimaan', intent: 'danger', busy: busy === 'close', busyLabel: 'Menutup…', onClick: () => move('close') }}>
-        <p>Pitching baru berhenti, dan mandat ini tidak dapat dibuka kembali. Pitching yang sudah terkirim tidak berubah.</p>
+        title={t('Tutup penerimaan {title}?', { title: mandate.title })}
+        primary={{ label: t('Tutup penerimaan'), intent: 'danger', busy: busy === 'close', busyLabel: t('Menutup…'), onClick: () => move('close') }}>
+        <p>{t('Pitching baru berhenti, dan mandat ini tidak dapat dibuka kembali. Pitching yang sudah terkirim tidak berubah.')}</p>
       </Dialog>
     </div>
   );

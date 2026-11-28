@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { tx } from '@/features/i18n/t';
 
 export type SummaryRow = { id: string; label: string; value: ReactNode; changeHref?: string };
 
@@ -8,7 +9,7 @@ export function SummaryList({ rows }: { rows: SummaryRow[] }) {
     <dl className="tr-summary">
       {rows.map((row) => (
         <div key={row.id} className="tr-summary__row">
-          <dt className="tr-sys-type-label">{row.label}</dt>
+          <dt className="tr-sys-type-label">{tx(row.label)}</dt>
           <dd className="tr-summary__value">{row.value}</dd>
           {row.changeHref ? (
             <dd className="tr-summary__change">

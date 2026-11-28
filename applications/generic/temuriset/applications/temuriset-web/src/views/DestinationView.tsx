@@ -12,6 +12,7 @@ import { readPersona } from '@/features/persona';
 import type { Capabilities } from '@/features/registry';
 import { ServiceStatus } from '@/features/ServiceStatus';
 import { FeatureList, PROVENANCE } from '@/views/parts';
+import { t } from '@/features/i18n/t';
 
 /** One primary destination: what waits first, then the rest of the queue, notifications, and what is coming. */
 export type QueueItem = { href: string; label: string; context: string; who?: 'you' | 'other'; text?: string; action?: string };
@@ -37,25 +38,25 @@ export function DestinationView({ me, destination, capabilities, queue = [], not
             title={queue[0].label}
             action={
               <Link className="tr-btn tr-btn--primary" href={queue[0].href}>
-                {queue[0].action ?? (queue[0].who === 'other' ? 'Buka' : 'Kerjakan sekarang')}
+                {t(queue[0].action ?? (queue[0].who === 'other' ? 'Buka' : 'Kerjakan sekarang'))}
                 <span className="tr-sr">{`: ${queue[0].context}`}</span>
               </Link>
             }>
-            {queue[0].text ? `${queue[0].context}. ${queue[0].text}` : queue[0].context}
+            {queue[0].text ? `${queue[0].context}. ${t(queue[0].text)}` : queue[0].context}
           </NextStep>
           {queue.length > 1 ? (
             <section className="tr-stack" aria-labelledby="perlu-dikerjakan">
               <h2 id="perlu-dikerjakan" className="tr-sys-type-heading-sm">
-                Perlu diperhatikan
+                {t('Perlu diperhatikan')}
               </h2>
               <ul className="tr-stack">
                 {queue.slice(1).map((item) => (
                   <li key={item.href} className="tr-panel tr-stack">
-                    {item.who ? <Status tone={item.who === 'you' ? 'action' : 'neutral'} label={TURN[item.who]} /> : null}
+                    {item.who ? <Status tone={item.who === 'you' ? 'action' : 'neutral'} label={t(TURN[item.who])} /> : null}
                     <p className="tr-muted tr-sys-type-support">{item.context}</p>
                     <p>
                       <Link className="tr-link" href={item.href}>
-                        {item.label}
+                        {t(item.label)}
                       </Link>
                     </p>
                   </li>
@@ -71,7 +72,7 @@ export function DestinationView({ me, destination, capabilities, queue = [], not
           action={
             destination.empty.action ? (
               <Link className="tr-btn tr-btn--secondary" href={destination.empty.action.href}>
-                {destination.empty.action.label}
+                {t(destination.empty.action.label)}
               </Link>
             ) : undefined
           }>
@@ -81,7 +82,7 @@ export function DestinationView({ me, destination, capabilities, queue = [], not
       {destination.savedLink ? (
         <p>
           <Link className="tr-link" href="/discover?type=inventions&saved=true">
-            Lihat inovasi yang Anda simpan
+            {t('Lihat inovasi yang Anda simpan')}
           </Link>
         </p>
       ) : null}

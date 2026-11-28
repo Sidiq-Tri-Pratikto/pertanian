@@ -1,12 +1,11 @@
-import type { Metadata } from 'next';
-
 import { ApiError } from '@/api/errors';
 import { serverGet } from '@/api/server';
 import { validId, type Partnership } from '@/features/relationships/model';
 import { requireMe } from '@/features/session';
 import { PartnershipView, RelationshipUnavailable } from '@/views/relationships/PartnershipView';
+import { titled } from '@/features/i18n/server';
 
-export const metadata: Metadata = { title: 'Kerja Sama' };
+export const generateMetadata = titled('Kerja Sama');
 
 export default async function PartnershipPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

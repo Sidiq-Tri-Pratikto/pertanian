@@ -1,12 +1,12 @@
-import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import { readAdapterAvailability } from '@/features/capabilities';
 import { readSource } from '@/features/discovery/model';
 import { requireMe } from '@/features/session';
 import { PreflightView } from '@/views/pitches/PreflightView';
+import { titled } from '@/features/i18n/server';
 
-export const metadata: Metadata = { title: 'Periksa sebelum mengirim' };
+export const generateMetadata = titled('Periksa sebelum mengirim');
 
 type Props = { searchParams: Promise<{ source?: string; target?: string }> };
 

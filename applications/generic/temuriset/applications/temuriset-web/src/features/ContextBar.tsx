@@ -7,6 +7,7 @@ import { send, type Me } from '@/api/client';
 import { ApiError } from '@/api/errors';
 import { ContextSwitcher, type ContextOption } from '@/components/tr/ContextSwitcher';
 import { Status } from '@/components/tr/Status';
+import { t } from '@/features/i18n/t';
 
 export function contextOptions(me: Me): ContextOption[] {
   return [
@@ -36,14 +37,14 @@ export function ContextBar({ me }: { me: Me }) {
     } catch (error) {
       setValue(previous);
       const failure = ApiError.from(error);
-      setNotice({ tone: 'danger', label: 'Konteks tidak berubah', body: failure.message });
+      setNotice({ tone: 'danger', label: t('Konteks tidak berubah'), body: failure.message });
     }
   }
 
   return (
     <div className="tr-stack">
       <div className="tr-row">
-        {me.account.kind === 'demo' ? <span className="tr-tag tr-sys-type-support-strong">Demo · Data fiktif</span> : null}
+        {me.account.kind === 'demo' ? <span className="tr-tag tr-sys-type-support-strong">{t('Demo · Data fiktif')}</span> : null}
         <ContextSwitcher id="konteks" value={value} options={options} onChange={change} />
       </div>
       <div aria-live="polite">

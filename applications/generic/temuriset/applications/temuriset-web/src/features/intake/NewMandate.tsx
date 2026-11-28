@@ -8,6 +8,7 @@ import { ApiError } from '@/api/errors';
 import { Button } from '@/components/tr/Button';
 import { Status } from '@/components/tr/Status';
 import { createMandate } from '@/features/intake/api';
+import { t } from '@/features/i18n/t';
 
 /** Starts a mandate as a draft and opens its editor. */
 export function NewMandate({ actingPartyId }: { actingPartyId: string }) {
@@ -32,13 +33,13 @@ export function NewMandate({ actingPartyId }: { actingPartyId: string }) {
   return (
     <div className="tr-stack">
       {failure ? (
-        <Status tone="danger" icon="alert" label="Mandat belum dibuat" live="alert">
+        <Status tone="danger" icon="alert" label={t('Mandat belum dibuat')} live="alert">
           <p>{failure}</p>
         </Status>
       ) : null}
       <div className="tr-row">
-        <Button intent="primary" icon="arrow" busy={busy} busyLabel="Membuat…" onClick={start}>
-          Buat mandat
+        <Button intent="primary" icon="arrow" busy={busy} busyLabel={t('Membuat…')} onClick={start}>
+          {t('Buat mandat')}
         </Button>
       </div>
     </div>

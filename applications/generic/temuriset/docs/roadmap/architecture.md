@@ -255,6 +255,10 @@ The owner turns a public page on separately from investor news (`PUT /inventions
 
 A visitor follows one invention with only an email (`app/subscriptions/service/follows.py`), under the same rules as quick subscriptions: double opt-in, the same `check_email` answer for every address, hashed links in request bodies, and the shared `subscription_requests` rate limit. The consumer `follows.update_fanout` on `invention.update_published` writes `invention_follow_deliveries` (unique per follow and update) before queuing each email, and only to followers confirmed before the update's first publication. Every queued follow, alert or digest message carries the ids it names (`MailReference.subjects`), and `deliver_secret` rechecks them before relaying: an unfollow, a withdrawn update, a page switched off or an invention leaving investor news stops mail already queued. Emails stay plain text; `List-Unsubscribe` waits for the real provider (042).
 
+### English for signed-in screens (054)
+
+Signed-in copy goes through `t('teks Indonesia')` with English in `src/features/i18n/app-en.ts`, keyed by the Indonesian source so a missing entry falls back to Indonesian instead of a blank. The language comes from the `/en` address or the `tr_locale` cookie (the ID/EN switch, the signed-out switch, or the account language in Profil). Server components read it from a per-request `react` `cache` store that `requireMe` fills; client components from `LocaleProvider`. Shared components translate the plain text they receive, so module-level label maps stay data and are translated where they render; a test fails if `t()` ever runs while a module loads. Text people wrote is never translated.
+
 ## Recorded deviations from the design system
 
 | ID | Deviation | Reason | Remove when |

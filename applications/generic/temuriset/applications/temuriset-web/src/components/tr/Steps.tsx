@@ -1,6 +1,7 @@
 'use client';
 
 import { Icon } from '@/components/tr/Icon';
+import { t } from '@/features/i18n/t';
 
 export type Step = { id: string; label: string; done?: boolean };
 
@@ -10,8 +11,8 @@ type StepsProps = { steps: Step[]; current: string; onSelect?: (id: string) => v
 export function Steps({ steps, current, onSelect, label }: StepsProps) {
   const index = steps.findIndex((step) => step.id === current);
   return (
-    <nav className="tr-steps" aria-label={label ?? 'Langkah pengisian'}>
-      <p className="tr-sys-type-label">{`Langkah ${index + 1} dari ${steps.length}: ${steps[index]?.label ?? ''}`}</p>
+    <nav className="tr-steps" aria-label={t(label ?? 'Langkah pengisian')}>
+      <p className="tr-sys-type-label">{t('Langkah {n} dari {total}: {label}', { n: index + 1, total: steps.length, label: t(steps[index]?.label ?? '') })}</p>
       <ol className="tr-steps__list">
         {steps.map((step, position) => {
           const done = position < index || Boolean(step.done);
@@ -20,8 +21,8 @@ export function Steps({ steps, current, onSelect, label }: StepsProps) {
             <>
               <span className="tr-steps__mark">{done && !on ? <Icon name="check" size="small" /> : position + 1}</span>
               <span className="tr-steps__text tr-sys-type-support">
-                {step.label}
-                {done && !on ? <span className="tr-sr"> (selesai)</span> : null}
+                {t(step.label)}
+                {done && !on ? <span className="tr-sr">{` (${t('selesai')})`}</span> : null}
               </span>
             </>
           );

@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 
 import { range } from '@/features/money';
+import { intlLocale, t } from '@/features/i18n/t';
 
 export type FinancialSubject = 'project' | 'companyTarget' | 'contribution' | 'investorCheck' | 'partner' | 'license';
 
@@ -32,7 +33,7 @@ type FinancialScopeProps = {
 };
 
 function longDate(iso: string): string {
-  return new Intl.DateTimeFormat('id-ID', { timeZone: 'Asia/Jakarta', day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(iso));
+  return new Intl.DateTimeFormat(intlLocale(), { timeZone: 'Asia/Jakarta', day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(iso));
 }
 
 /** Port of TR.FinancialScope: an amount that always says what it is an amount of (UX-05). */
@@ -40,14 +41,14 @@ export function FinancialScope({ subject, currency, min, max, period, scope, est
   const main = noncash || terms || range(currency, min, max);
   return (
     <div className={compact ? 'tr-fin tr-fin--compact' : 'tr-fin'}>
-      <p className="tr-fin__subject tr-sys-type-support-strong">{label || SUBJECT[subject]}</p>
+      <p className="tr-fin__subject tr-sys-type-support-strong">{t(label || SUBJECT[subject])}</p>
       <p className="tr-fin__line">
         <span className="tr-fin__amount tr-sys-type-amount">{main}</span>
-        {period ? <span className="tr-fin__period">{` selama ${period}`}</span> : null}
+        {period ? <span className="tr-fin__period">{` ${t('selama')} ${period}`}</span> : null}
       </p>
-      {scope ? <p className="tr-muted tr-sys-type-support">{`Cakupan: ${scope}`}</p> : null}
-      {estimateDate ? <p className="tr-muted tr-sys-type-support">{`Perkiraan per ${longDate(estimateDate)}`}</p> : null}
-      {assumptions ? <p className="tr-muted tr-sys-type-support">{`Asumsi: ${assumptions}`}</p> : null}
+      {scope ? <p className="tr-muted tr-sys-type-support">{`${t('Cakupan')}: ${scope}`}</p> : null}
+      {estimateDate ? <p className="tr-muted tr-sys-type-support">{t('Perkiraan per {date}', { date: longDate(estimateDate) })}</p> : null}
+      {assumptions ? <p className="tr-muted tr-sys-type-support">{`${t('Asumsi')}: ${assumptions}`}</p> : null}
       {edit ? <div className="tr-fin__edit">{edit}</div> : null}
     </div>
   );

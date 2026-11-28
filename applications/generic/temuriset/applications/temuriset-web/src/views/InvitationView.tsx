@@ -10,40 +10,41 @@ import { ContextBar } from '@/features/ContextBar';
 import { capabilityList, formatDateTime, INVITATION_STATUS, type InvitationDetail } from '@/features/organizations';
 import { readPersona } from '@/features/persona';
 import { PROVENANCE } from '@/views/parts';
+import { t } from '@/features/i18n/t';
 
 /** What an invitation grants, shown before "Terima undangan". */
 export function InvitationView({ me, token, invitation }: { me: Me; token: string; invitation: InvitationDetail | null }) {
   const persona = readPersona(me.account.persona) ?? 'inovator';
   return (
-    <Screen persona={persona} current="profil" title="Undangan organisasi" provenance={PROVENANCE} context={<ContextBar me={me} />}>
+    <Screen persona={persona} current="profil" title={t('Undangan organisasi')} provenance={PROVENANCE} context={<ContextBar me={me} />}>
       {invitation ? (
         <>
           <SummaryList
             rows={[
-              { id: 'undangan-organisasi', label: 'Organisasi', value: invitation.organization_name },
-              { id: 'undangan-kewenangan', label: 'Kewenangan', value: capabilityList(invitation.capabilities) },
-              { id: 'undangan-berlaku', label: 'Berlaku sampai', value: formatDateTime(invitation.expires_at, me.account.time_zone) },
-              { id: 'undangan-status', label: 'Status', value: INVITATION_STATUS[invitation.status] },
+              { id: 'undangan-organisasi', label: t('Organisasi'), value: invitation.organization_name },
+              { id: 'undangan-kewenangan', label: t('Kewenangan'), value: capabilityList(invitation.capabilities) },
+              { id: 'undangan-berlaku', label: t('Berlaku sampai'), value: formatDateTime(invitation.expires_at, me.account.time_zone) },
+              { id: 'undangan-status', label: t('Status'), value: t(INVITATION_STATUS[invitation.status]) },
             ]}
           />
           {invitation.status === 'pending' ? (
             <AcceptInvitationButton token={token} />
           ) : (
-            <Status tone="warning" label="Undangan ini tidak dapat diterima">
-              <p>Minta undangan baru kepada pengelola organisasi.</p>
+            <Status tone="warning" label={t('Undangan ini tidak dapat diterima')}>
+              <p>{t('Minta undangan baru kepada pengelola organisasi.')}</p>
             </Status>
           )}
         </>
       ) : (
         <EmptyState
           icon="question"
-          title="Undangan tidak ditemukan"
+          title={t('Undangan tidak ditemukan')}
           action={
             <Link className="tr-link" href="/settings">
-              Kembali ke profil
+              {t('Kembali ke profil')}
             </Link>
           }>
-          Undangan hanya terbuka untuk akun dengan email yang diundang. Periksa bahwa Anda masuk dengan email tersebut.
+          {t('Undangan hanya terbuka untuk akun dengan email yang diundang. Periksa bahwa Anda masuk dengan email tersebut.')}
         </EmptyState>
       )}
     </Screen>

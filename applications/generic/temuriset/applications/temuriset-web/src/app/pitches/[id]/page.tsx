@@ -1,5 +1,3 @@
-import type { Metadata } from 'next';
-
 import { ApiError } from '@/api/errors';
 import { serverGet } from '@/api/server';
 import type { DocumentView } from '@/features/documents/model';
@@ -9,8 +7,9 @@ import { tabOf } from '@/features/pitches/workspace';
 import type { Partnership } from '@/features/relationships/model';
 import { requireMe } from '@/features/session';
 import { NoAccessView, WorkspaceView, type Room } from '@/views/pitches/WorkspaceView';
+import { titled } from '@/features/i18n/server';
 
-export const metadata: Metadata = { title: 'Pitching' };
+export const generateMetadata = titled('Pitching');
 
 type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ terkirim?: string; tab?: string }> };
 

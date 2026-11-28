@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 
 import { FieldError } from '@/components/tr/FieldError';
 import { useMessages } from '@/features/i18n/LocaleProvider';
+import { tx } from '@/features/i18n/t';
 
 export type FieldIds = { id: string; hintId: string; errorId: string; describedBy: string | undefined };
 
@@ -31,17 +32,17 @@ export function Field({ ids, label, hint, error, errorCode, required, children }
   return (
     <div className={error ? 'tr-field tr-field--error' : 'tr-field'}>
       <label className="tr-field__label tr-sys-type-label" htmlFor={ids.id}>
-        {label}
+        {tx(label)}
         {required ? <span className="tr-field__req tr-sys-type-support">{words.required}</span> : null}
       </label>
       {hint ? (
         <p id={ids.hintId} className="tr-field__hint tr-sys-type-support">
-          {hint}
+          {tx(hint)}
         </p>
       ) : null}
       {error ? (
         <FieldError id={ids.errorId} code={errorCode}>
-          {error}
+          {tx(error)}
         </FieldError>
       ) : null}
       {children}

@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 
 import { Icon } from '@/components/tr/Icon';
+import { t } from '@/features/i18n/t';
 
 type InventionCardProps = {
   title: string;
@@ -29,7 +30,7 @@ export function InventionCard({ title, category, manager, problem, solution, mat
     <article className="tr-card">
       <div className="tr-art">
         <Icon name="bulb" />
-        <span className="tr-sys-type-support-strong">{category || 'Inovasi'}</span>
+        <span className="tr-sys-type-support-strong">{t(category || 'Inovasi')}</span>
       </div>
       <div className="tr-card__body">
         <Heading className="tr-sys-type-heading-sm">{title}</Heading>
@@ -38,7 +39,7 @@ export function InventionCard({ title, category, manager, problem, solution, mat
           <dl className="tr-facts">
             {rows.map(([label, value]) => (
               <div key={label}>
-                <dt className="tr-sys-type-support-strong">{label}</dt>
+                <dt className="tr-sys-type-support-strong">{t(label)}</dt>
                 <dd>{value}</dd>
               </div>
             ))}

@@ -1,4 +1,5 @@
 import type { components } from '@/api/schema.generated';
+import { t } from '@/features/i18n/t';
 
 export type Invention = components['schemas']['InventionResponse'];
 export type InventionSummary = components['schemas']['InventionSummaryResponse'];
@@ -42,7 +43,8 @@ export const CLAIM_STATUSES = [
 ];
 
 export function labelOf(options: { value: string; label: string }[], value: string | null | undefined): string {
-  return options.find((option) => option.value === value)?.label ?? '';
+  const label = options.find((option) => option.value === value)?.label;
+  return label ? t(label) : '';
 }
 
 export const STATUS_LABEL: Record<string, string> = {

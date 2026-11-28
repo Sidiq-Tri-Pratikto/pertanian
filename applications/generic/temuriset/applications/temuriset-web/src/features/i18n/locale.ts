@@ -5,6 +5,13 @@ export type Locale = 'id' | 'en';
 export const LOCALE_HEADER = 'x-tr-locale';
 /** Sent to the service so its messages and emails use the same language. */
 export const API_LOCALE_HEADER = 'X-TemuRiset-Locale';
+/** The visitor's choice from the ID/EN switch, for pages without an `/en` address (revamp R7). */
+export const LOCALE_COOKIE = 'tr_locale';
+
+/** Remember the language in the browser for a year; the next page load reads it. */
+export function rememberLocale(locale: Locale): void {
+  document.cookie = `${LOCALE_COOKIE}=${locale}; path=/; max-age=31536000; samesite=lax`;
+}
 
 export function asLocale(value: string | null | undefined): Locale {
   return value === 'en' ? 'en' : 'id';

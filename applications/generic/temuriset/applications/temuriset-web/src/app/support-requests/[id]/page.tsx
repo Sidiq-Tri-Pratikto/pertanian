@@ -1,11 +1,10 @@
-import type { Metadata } from 'next';
-
 import type { SupportRequest } from '@/features/needs/model';
 import { ownedOr404 } from '@/features/needs/server';
 import { requireMe, safeReturn } from '@/features/session';
 import { SupportView } from '@/views/needs/NeedsViews';
+import { titled } from '@/features/i18n/server';
 
-export const metadata: Metadata = { title: 'Kebutuhan dukungan' };
+export const generateMetadata = titled('Kebutuhan dukungan');
 
 type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ return?: string }> };
 

@@ -18,6 +18,7 @@ import { FeatureList, PROVENANCE } from '@/views/parts';
 import { CalendarConnection, type CalendarConnectionProps } from '@/views/settings/CalendarConnection';
 import { PrivacyRequests } from '@/views/settings/PrivacyRequests';
 import { ReportForm } from '@/views/settings/ReportForm';
+import { t } from '@/features/i18n/t';
 
 type SettingsViewProps = {
   me: Me;
@@ -40,37 +41,37 @@ export function SettingsView({ me, capabilities, members, invitations, joined, c
   const persona = readPersona(me.account.persona) ?? 'inovator';
   const organizations = me.organizations ?? [];
   const acting = organizations.find((organization) => organization.party_id === me.active_party_id);
-  const scope = { id: me.active_party_id, label: acting?.name ?? 'Diri sendiri' };
+  const scope = { id: me.active_party_id, label: acting?.name ?? t('Diri sendiri') };
   return (
     <Screen
       persona={persona}
       current="profil"
-      title="Profil dan privasi"
-      subtitle="Akun, organisasi, dan siapa yang bertindak atas nama siapa."
+      title={t('Profil dan privasi')}
+      subtitle={t('Akun, organisasi, dan siapa yang bertindak atas nama siapa.')}
       provenance={PROVENANCE}
       context={<ContextBar me={me} />}>
-      {joined ? <Status tone="success" label="Anda sudah bergabung dengan organisasi" live /> : null}
+      {joined ? <Status tone="success" label={t('Anda sudah bergabung dengan organisasi')} live /> : null}
       <section className="tr-panel tr-stack" aria-labelledby="judul-akun">
         <h2 id="judul-akun" className="tr-sys-type-heading-sm">
-          Akun
+          {t('Akun')}
         </h2>
         <SummaryList
           rows={[
-            { id: 'akun-nama', label: 'Nama tampilan', value: me.account.display_name },
-            { id: 'akun-email', label: 'Email', value: `${me.account.email} · Email terverifikasi` },
-            { id: 'akun-tampilan', label: 'Menu yang ditampilkan', value: PERSONA_LABEL[persona] },
-            { id: 'akun-bahasa', label: 'Bahasa', value: LOCALES.find((locale) => locale.value === me.account.locale)?.label ?? me.account.locale },
-            { id: 'akun-zona', label: 'Zona waktu', value: me.account.time_zone },
+            { id: 'akun-nama', label: t('Nama tampilan'), value: me.account.display_name },
+            { id: 'akun-email', label: t('Email'), value: t('{email} · Email terverifikasi', { email: me.account.email }) },
+            { id: 'akun-tampilan', label: t('Menu yang ditampilkan'), value: t(PERSONA_LABEL[persona]) },
+            { id: 'akun-bahasa', label: t('Bahasa'), value: t(LOCALES.find((locale) => locale.value === me.account.locale)?.label ?? me.account.locale) },
+            { id: 'akun-zona', label: t('Zona waktu'), value: me.account.time_zone },
           ]}
         />
         <details className="tr-disclosure">
-          <summary className="tr-link">Ubah akun</summary>
+          <summary className="tr-link">{t('Ubah akun')}</summary>
           <AccountForm me={me} emailNotificationsAvailable={emailNotificationsAvailable} />
         </details>
       </section>
       <section className="tr-panel tr-stack" aria-labelledby="judul-organisasi">
         <h2 id="judul-organisasi" className="tr-sys-type-heading-sm">
-          Organisasi
+          {t('Organisasi')}
         </h2>
         {organizations.length ? (
           <ul className="tr-stack">
@@ -82,10 +83,10 @@ export function SettingsView({ me, capabilities, members, invitations, joined, c
             ))}
           </ul>
         ) : (
-          <p className="tr-muted">Anda bertindak atas nama sendiri. Organisasi tidak wajib.</p>
+          <p className="tr-muted">{t('Anda bertindak atas nama sendiri. Organisasi tidak wajib.')}</p>
         )}
         <details className="tr-disclosure">
-          <summary className="tr-link">Buat organisasi</summary>
+          <summary className="tr-link">{t('Buat organisasi')}</summary>
           <CreateOrganizationForm />
         </details>
       </section>
@@ -104,13 +105,13 @@ export function SettingsView({ me, capabilities, members, invitations, joined, c
           </ul>
           {invitations ? (
             <>
-              <h3 className="tr-sys-type-label">Undangan</h3>
+              <h3 className="tr-sys-type-label">{t('Undangan')}</h3>
               {invitations.length ? (
                 <ul className="tr-stack">
                   {invitations.map((invitation) => (
                     <li key={invitation.id} className="tr-stack">
                       <span>
-                        <strong>{invitation.email}</strong> · {INVITATION_STATUS[invitation.status]} · berlaku sampai{' '}
+                        <strong>{invitation.email}</strong> · {t(INVITATION_STATUS[invitation.status])} · {t('berlaku sampai')}{' '}
                         {formatDateTime(invitation.expires_at, me.account.time_zone)}
                       </span>
                       <span className="tr-muted tr-sys-type-support">{capabilityList(invitation.capabilities)}</span>
@@ -119,10 +120,10 @@ export function SettingsView({ me, capabilities, members, invitations, joined, c
                   ))}
                 </ul>
               ) : (
-                <p className="tr-muted">Belum ada undangan.</p>
+                <p className="tr-muted">{t('Belum ada undangan.')}</p>
               )}
               <details className="tr-disclosure">
-                <summary className="tr-link">Undang anggota</summary>
+                <summary className="tr-link">{t('Undang anggota')}</summary>
                 <InviteForm me={me} organizationId={acting.organization_id} />
               </details>
             </>
@@ -130,8 +131,8 @@ export function SettingsView({ me, capabilities, members, invitations, joined, c
         </section>
       ) : null}
       <section className="tr-panel tr-stack" id="profil-publik" aria-labelledby="judul-profil-publik">
-        <h2 id="judul-profil-publik" className="tr-sys-type-heading-sm">Profil publik</h2>
-        <Link className="tr-link" href={`/profiles/${me.active_party_id}`}>Lihat profil publik</Link>
+        <h2 id="judul-profil-publik" className="tr-sys-type-heading-sm">{t('Profil publik')}</h2>
+        <Link className="tr-link" href={`/profiles/${me.active_party_id}`}>{t('Lihat profil publik')}</Link>
         {profile ? <ProfileForm key={profile.party_id} profile={profile} /> : null}
       </section>
       {reports ? <ReportForm key={reportSubject?.id ?? 'blank'} scope={scope} subject={reportSubject ?? null} initial={reports} /> : null}
@@ -139,12 +140,12 @@ export function SettingsView({ me, capabilities, members, invitations, joined, c
       {privacy ? <PrivacyRequests scope={scope} initial={privacy} /> : null}
       <section className="tr-stack" aria-labelledby="judul-layanan">
         <h2 id="judul-layanan" className="tr-sys-type-heading-sm">
-          Layanan
+          {t('Layanan')}
         </h2>
         <ServiceStatus />
       </section>
       <div id="rencana">
-        <FeatureList ids={FEATURES.map((feature) => feature.id)} capabilities={capabilities} title="Rencana fitur" />
+        <FeatureList ids={FEATURES.map((feature) => feature.id)} capabilities={capabilities} title={t('Rencana fitur')} />
       </div>
       <SignOutButton />
     </Screen>

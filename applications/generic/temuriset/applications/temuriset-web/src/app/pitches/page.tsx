@@ -1,13 +1,12 @@
-import type { Metadata } from 'next';
-
 import { serverGet } from '@/api/server';
 import { readCapabilities } from '@/features/capabilities';
 import type { PitchSummary } from '@/features/pitches/model';
 import { filterPitches } from '@/features/pitches/workspace';
 import { personaOf, requireMe } from '@/features/session';
 import { PitchesView } from '@/views/pitches/PitchesView';
+import { titled } from '@/features/i18n/server';
 
-export const metadata: Metadata = { title: 'Pitching' };
+export const generateMetadata = titled('Pitching');
 
 type Props = { searchParams: Promise<{ box?: string; status?: string; giliran?: string }> };
 

@@ -27,6 +27,7 @@ import {
   type RevisionItemView,
   type RevisionRound,
 } from '@/features/pitches/workspace';
+import { t } from '@/features/i18n/t';
 
 export type OwnFile = ChosenFile & { title: string };
 
@@ -61,7 +62,7 @@ export function RevisionPanel({ pitch, actingPartyId, files }: Props) {
   const open = pitch.rounds.find((round) => round.open);
   return (
     <div className="tr-stack">
-      <h2 className="tr-sys-type-heading-sm">Revisi</h2>
+      <h2 className="tr-sys-type-heading-sm">{t('Revisi')}</h2>
       {allowed.includes('request_revision') ? <RequestForm pitch={pitch} actingPartyId={actingPartyId} /> : null}
       {open && allowed.includes('answer') ? <AnswerRound pitch={pitch} round={open} actingPartyId={actingPartyId} files={files} /> : null}
       {pitch.rounds
@@ -69,7 +70,7 @@ export function RevisionPanel({ pitch, actingPartyId, files }: Props) {
         .map((round) => (
           <PastRound key={round.number} pitch={pitch} round={round} actingPartyId={actingPartyId} canReview={allowed.includes('review_items')} />
         ))}
-      {!pitch.rounds.length && !allowed.includes('request_revision') ? <p className="tr-muted">Belum ada permintaan revisi.</p> : null}
+      {!pitch.rounds.length && !allowed.includes('request_revision') ? <p className="tr-muted">{t('Belum ada permintaan revisi.')}</p> : null}
     </div>
   );
 }
@@ -91,7 +92,7 @@ function AnswerRound({ pitch, round, actingPartyId, files }: { pitch: Pitch; rou
   async function save(item: RevisionItemView) {
     const draft = values[item.id];
     if (!draft.response) {
-      setValues((current) => ({ ...current, [item.id]: { ...draft, save: 'failed', message: 'Pilih tanggapan terlebih dahulu.' } }));
+      setValues((current) => ({ ...current, [item.id]: { ...draft, save: 'failed', message: t('Pilih tanggapan terlebih dahulu.') } }));
       return;
     }
     setValues((current) => ({ ...current, [item.id]: { ...draft, save: 'saving', message: undefined } }));
@@ -116,7 +117,7 @@ function AnswerRound({ pitch, round, actingPartyId, files }: { pitch: Pitch; rou
   async function send() {
     const unanswered = round.items.filter((item) => item.required && values[item.id].save !== 'saved');
     if (unanswered.length) {
-      setMissing(unanswered.map((item) => ({ fieldId: `${fieldOf(item.id)}-response-CAN`, message: `Simpan jawaban untuk “${item.question}”.` })));
+      setMissing(unanswered.map((item) => ({ fieldId: `${fieldOf(item.id)}-response-CAN`, message: t('Simpan jawaban untuk “{question}”.', { question: item.question }) })));
       setAttempt((value) => value + 1);
       return;
     }
@@ -144,8 +145,8 @@ function AnswerRound({ pitch, round, actingPartyId, files }: { pitch: Pitch; rou
 
   return (
     <section className="tr-stack" aria-labelledby={`putaran-${round.number}`}>
-      <h3 id={`putaran-${round.number}`} className="tr-sys-type-label">{`Putaran ${round.number} · menunggu jawaban Anda`}</h3>
-      {missing.length ? <ErrorSummary errors={missing} focusKey={attempt} title="Jawaban wajib belum tersimpan" id="revision-errors" /> : null}
+      <h3 id={`putaran-${round.number}`} className="tr-sys-type-label">{t('Putaran {n} · menunggu jawaban Anda', { n: round.number })}</h3>
+      {missing.length ? <ErrorSummary errors={missing} focusKey={attempt} title={t('Jawaban wajib belum tersimpan')} id="revision-errors" /> : null}
       {round.items.map((item) => {
         const draft = values[item.id];
         return (
@@ -162,7 +163,7 @@ function AnswerRound({ pitch, round, actingPartyId, files }: { pitch: Pitch; rou
               onChange={(next) => change(item.id, next)}
               attachments={
                 files.length ? (
-                  <CheckboxGroup legend="Lampiran" hint="Berkas dibagikan kepada penerima saat Anda mengirim ulang.">
+                  <CheckboxGroup legend={t('Lampiran')} hint={t('Berkas dibagikan kepada penerima saat Anda mengirim ulang.')}>
                     {files.map((file) => (
                       <Checkbox
                         key={fileKey(file)}
@@ -178,11 +179,11 @@ function AnswerRound({ pitch, round, actingPartyId, files }: { pitch: Pitch; rou
             />
             {draft.message ? <p className="tr-sys-type-support">{draft.message}</p> : null}
             {draft.save === 'conflict' ? (
-              <VersionConflict what="Jawaban ini sudah diubah di tempat lain. Jawaban Anda tetap ada di halaman ini." onRefresh={() => router.refresh()} refreshLabel="Muat versi terbaru" />
+              <VersionConflict what={t('Jawaban ini sudah diubah di tempat lain. Jawaban Anda tetap ada di halaman ini.')} onRefresh={() => router.refresh()} refreshLabel={t('Muat versi terbaru')} />
             ) : null}
             <div className="tr-row">
-              <Button busy={draft.save === 'saving'} busyLabel="Menyimpan…" onClick={() => void save(item)}>
-                {`Simpan jawaban ${item.position}`}
+              <Button busy={draft.save === 'saving'} busyLabel={t('Menyimpan…')} onClick={() => void save(item)}>
+                {t('Simpan jawaban {n}', { n: item.position })}
               </Button>
               <SaveState state={draft.save} onRetry={() => void save(item)} />
             </div>
@@ -190,10 +191,10 @@ function AnswerRound({ pitch, round, actingPartyId, files }: { pitch: Pitch; rou
         );
       })}
       <section className="tr-panel tr-stack" aria-labelledby="kirim-ulang">
-        <h3 id="kirim-ulang" className="tr-sys-type-label">Kirim ulang</h3>
-        <p>{`Kiriman ${pitch.submissions.length + 1} membekukan kebutuhan dan inovasi seperti sekarang. Kiriman dan jawaban sebelumnya tetap tersimpan.`}</p>
+        <h3 id="kirim-ulang" className="tr-sys-type-label">{t('Kirim ulang')}</h3>
+        <p>{t('Kiriman {n} membekukan kebutuhan dan inovasi seperti sekarang. Kiriman dan jawaban sebelumnya tetap tersimpan.', { n: pitch.submissions.length + 1 })}</p>
         {files.length ? (
-          <CheckboxGroup legend="Berkas untuk kiriman ini" hint="Pilih versi berkas yang ingin Anda bagikan. Lampiran jawaban ikut dibagikan.">
+          <CheckboxGroup legend={t('Berkas untuk kiriman ini')} hint={t('Pilih versi berkas yang ingin Anda bagikan. Lampiran jawaban ikut dibagikan.')}>
             {files.map((file) => (
               <Checkbox
                 key={fileKey(file)}
@@ -206,15 +207,15 @@ function AnswerRound({ pitch, round, actingPartyId, files }: { pitch: Pitch; rou
           </CheckboxGroup>
         ) : null}
         {failure?.code === 'STALE_VERSION' ? (
-          <VersionConflict what="Pitching ini baru saja berubah. Jawaban Anda tetap ada." onRefresh={() => router.refresh()} refreshLabel="Muat versi terbaru" />
+          <VersionConflict what={t('Pitching ini baru saja berubah. Jawaban Anda tetap ada.')} onRefresh={() => router.refresh()} refreshLabel={t('Muat versi terbaru')} />
         ) : failure ? (
-          <Status tone="danger" icon="alert" label="Belum terkirim ulang" live="alert">
+          <Status tone="danger" icon="alert" label={t('Belum terkirim ulang')} live="alert">
             <p>{failure.message}</p>
             {failure.requestId ? <p className="tr-sys-type-support">{`ID referensi: ${failure.requestId}`}</p> : null}
           </Status>
         ) : null}
-        <Button intent="primary" busy={busy} busyLabel="Mengirim ulang…" onClick={() => void send()}>
-          {`Kirim ulang kepada ${pitch.recipient_name}`}
+        <Button intent="primary" busy={busy} busyLabel={t('Mengirim ulang…')} onClick={() => void send()}>
+          {t('Kirim ulang kepada {name}', { name: pitch.recipient_name })}
         </Button>
       </section>
     </section>
@@ -236,8 +237,8 @@ function PastRound({ pitch, round, actingPartyId, canReview }: { pitch: Pitch; r
   }
   return (
     <section className="tr-stack" aria-labelledby={`putaran-${round.number}`}>
-      <h3 id={`putaran-${round.number}`} className="tr-sys-type-label">{`Putaran ${round.number} · untuk kiriman ${round.submission_number}`}</h3>
-      {hidden ? <p className="tr-muted">Jawaban terlihat setelah pengirim mengirim ulang.</p> : null}
+      <h3 id={`putaran-${round.number}`} className="tr-sys-type-label">{t('Putaran {n} · untuk kiriman {s}', { n: round.number, s: round.submission_number })}</h3>
+      {hidden ? <p className="tr-muted">{t('Jawaban terlihat setelah pengirim mengirim ulang.')}</p> : null}
       {failure ? <Status tone="danger" icon="alert" label={failure} live="alert" /> : null}
       {round.items.map((item) => (
         <article key={item.id} className="tr-revision">
@@ -253,19 +254,19 @@ function PastRound({ pitch, round, actingPartyId, canReview }: { pitch: Pitch; r
           {item.answer ? (
             <>
               <p>
-                <Status tone="neutral" icon={null} label={RESPONSE_LABEL[item.answer.response]} />
+                <Status tone="neutral" icon={null} label={t(RESPONSE_LABEL[item.answer.response])} />
               </p>
               {item.answer.text ? <p>{item.answer.text}</p> : null}
-              {item.answer.files.length ? <p className="tr-sys-type-support">{`Lampiran: ${item.answer.files.map((file) => `${file.title}, versi ${file.version}`).join('; ')}`}</p> : null}
+              {item.answer.files.length ? <p className="tr-sys-type-support">{t('Lampiran: {list}', { list: item.answer.files.map((file) => t('{title}, versi {n}', { title: file.title, n: file.version })).join('; ') })}</p> : null}
             </>
           ) : hidden ? null : (
-            <p className="tr-muted">Tidak dijawab.</p>
+            <p className="tr-muted">{t('Tidak dijawab.')}</p>
           )}
-          {item.review ? <Status tone="neutral" label={`Tinjauan: ${ITEM_REVIEW[item.review]}`} /> : null}
+          {item.review ? <Status tone="neutral" label={t('Tinjauan: {review}', { review: t(ITEM_REVIEW[item.review]) })} /> : null}
           {canReview && item.answer ? (
             <div className="tr-row">
-              <Button onClick={() => void mark(item, 'ACCEPTED')}>{`Terima jawaban ${item.position}`}</Button>
-              <Button onClick={() => void mark(item, 'NEEDS_DETAIL')}>{`Perlu detail ${item.position}`}</Button>
+              <Button onClick={() => void mark(item, 'ACCEPTED')}>{t('Terima jawaban {n}', { n: item.position })}</Button>
+              <Button onClick={() => void mark(item, 'NEEDS_DETAIL')}>{t('Perlu detail {n}', { n: item.position })}</Button>
             </div>
           ) : null}
         </article>
@@ -291,9 +292,9 @@ function RequestForm({ pitch, actingPartyId }: { pitch: Pitch; actingPartyId: st
 
   async function send() {
     const found = items.flatMap((item, index) => [
-      ...(item.category.trim() ? [] : [{ fieldId: `item-${index}-category`, message: `Butir ${index + 1}: isi kategori.` }]),
-      ...(item.question.trim() ? [] : [{ fieldId: `item-${index}-question`, message: `Butir ${index + 1}: tulis pertanyaan.` }]),
-      ...(item.reason.trim() ? [] : [{ fieldId: `item-${index}-reason`, message: `Butir ${index + 1}: tulis alasan.` }]),
+      ...(item.category.trim() ? [] : [{ fieldId: `item-${index}-category`, message: t('Butir {n}: isi kategori.', { n: index + 1 }) }]),
+      ...(item.question.trim() ? [] : [{ fieldId: `item-${index}-question`, message: t('Butir {n}: tulis pertanyaan.', { n: index + 1 }) }]),
+      ...(item.reason.trim() ? [] : [{ fieldId: `item-${index}-reason`, message: t('Butir {n}: tulis alasan.', { n: index + 1 }) }]),
     ]);
     setErrors(found);
     setFailure(null);
@@ -318,33 +319,33 @@ function RequestForm({ pitch, actingPartyId }: { pitch: Pitch; actingPartyId: st
 
   return (
     <section className="tr-panel tr-stack" aria-labelledby="minta-revisi">
-      <h3 id="minta-revisi" className="tr-sys-type-label">Minta revisi per butir</h3>
-      <p className="tr-muted tr-sys-type-support">Setiap butir perlu kategori, pertanyaan, dan alasan. Jawaban jujur bahwa sesuatu belum dapat dipenuhi tetap sah.</p>
+      <h3 id="minta-revisi" className="tr-sys-type-label">{t('Minta revisi per butir')}</h3>
+      <p className="tr-muted tr-sys-type-support">{t('Setiap butir perlu kategori, pertanyaan, dan alasan. Jawaban jujur bahwa sesuatu belum dapat dipenuhi tetap sah.')}</p>
       {errors.length ? <ErrorSummary errors={errors} focusKey={attempt} id="request-errors" /> : null}
       {failure?.code === 'STALE_VERSION' ? (
-        <VersionConflict what="Pitching ini baru saja berubah. Butir yang Anda tulis tetap ada." onRefresh={() => router.refresh()} refreshLabel="Muat versi terbaru" />
+        <VersionConflict what={t('Pitching ini baru saja berubah. Butir yang Anda tulis tetap ada.')} onRefresh={() => router.refresh()} refreshLabel={t('Muat versi terbaru')} />
       ) : failure ? (
-        <Status tone="danger" icon="alert" label="Permintaan belum terkirim" live="alert">
+        <Status tone="danger" icon="alert" label={t('Permintaan belum terkirim')} live="alert">
           <p>{failure.message}</p>
         </Status>
       ) : null}
       {items.map((item, index) => (
         <fieldset key={index} className="tr-fieldset tr-stack">
           <legend className="tr-field__label tr-sys-type-label">{`Butir ${index + 1}`}</legend>
-          <TextField label="Kategori" required value={item.category} onChange={(category) => edit(index, { category })} id={`item-${index}-category`} hint="Misalnya Anggaran atau Fitur." />
-          <TextArea label="Pertanyaan" required rows={2} value={item.question} onChange={(question) => edit(index, { question })} id={`item-${index}-question`} />
-          <TextArea label="Alasan" required rows={2} value={item.reason} onChange={(reason) => edit(index, { reason })} id={`item-${index}-reason`} />
-          <TextField label="Bukti yang diharapkan" value={item.expected_evidence} onChange={(expected_evidence) => edit(index, { expected_evidence })} id={`item-${index}-evidence`} />
-          <TextField label="Batas waktu" type="date" value={item.due_date ?? ''} onChange={(due_date) => edit(index, { due_date })} id={`item-${index}-due`} hint="Boleh dikosongkan." />
+          <TextField label={t('Kategori')} required value={item.category} onChange={(category) => edit(index, { category })} id={`item-${index}-category`} hint={t('Misalnya Anggaran atau Fitur.')} />
+          <TextArea label={t('Pertanyaan')} required rows={2} value={item.question} onChange={(question) => edit(index, { question })} id={`item-${index}-question`} />
+          <TextArea label={t('Alasan')} required rows={2} value={item.reason} onChange={(reason) => edit(index, { reason })} id={`item-${index}-reason`} />
+          <TextField label={t('Bukti yang diharapkan')} value={item.expected_evidence} onChange={(expected_evidence) => edit(index, { expected_evidence })} id={`item-${index}-evidence`} />
+          <TextField label={t('Batas waktu')} type="date" value={item.due_date ?? ''} onChange={(due_date) => edit(index, { due_date })} id={`item-${index}-due`} hint={t('Boleh dikosongkan.')} />
           <Checkbox label="Wajib dijawab" checked={item.required} onChange={(required) => edit(index, { required })} id={`item-${index}-required`} />
         </fieldset>
       ))}
       <div className="tr-row">
         <Button onClick={() => setItems((current) => [...current, { ...EMPTY_ITEM, required: false }])}>
-          Tambah butir
+          {t('Tambah butir')}
         </Button>
-        <Button intent="primary" busy={busy} busyLabel="Mengirim…" onClick={() => void send()}>
-          {`Kirim permintaan revisi kepada ${pitch.requester_name}`}
+        <Button intent="primary" busy={busy} busyLabel={t('Mengirim…')} onClick={() => void send()}>
+          {t('Kirim permintaan revisi kepada {name}', { name: pitch.requester_name })}
         </Button>
       </div>
     </section>

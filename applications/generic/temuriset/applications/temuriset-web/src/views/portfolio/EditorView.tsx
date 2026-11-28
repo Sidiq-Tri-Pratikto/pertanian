@@ -34,6 +34,7 @@ import {
 } from '@/features/portfolio/editor-state';
 import { CLAIM_KINDS, CLAIM_STATUSES, labelOf, PROVENANCES, STAGES, TIMINGS, type Invention } from '@/features/portfolio/model';
 import { PROVENANCE } from '@/views/parts';
+import { t } from '@/features/i18n/t';
 
 const STEPS = [
   { id: '1', label: 'Dasar' },
@@ -153,17 +154,17 @@ export function EditorView({ me, invention, initialStep, documents, fundingOn = 
     <Screen
       persona={persona}
       current={persona === 'inovator' ? 'inovasi' : undefined}
-      title={values.title || 'Inovasi tanpa judul'}
-      subtitle="Simpan kapan saja; aturan terbit hanya berlaku saat menerbitkan."
+      title={values.title || t('Inovasi tanpa judul')}
+      subtitle={t('Simpan kapan saja; aturan terbit hanya berlaku saat menerbitkan.')}
       provenance={PROVENANCE}
       context={<ContextBar me={me} />}>
       <Steps steps={STEPS} current={String(step)} onSelect={(id) => goTo(Number(id))} />
       <SaveState state={state.status} onRetry={save} />
       {state.status === 'conflict' ? (
         <VersionConflict
-          what="Draf ini sudah disimpan dari tab atau perangkat lain sejak Anda membukanya."
+          what={t('Draf ini sudah disimpan dari tab atau perangkat lain sejak Anda membukanya.')}
           currentVersion={state.currentVersion ? String(state.currentVersion) : undefined}
-          draft={values.title || values.summary || 'Isian Anda masih ada di halaman ini.'}
+          draft={values.title || values.summary || t('Isian Anda masih ada di halaman ini.')}
           onRefresh={reload}
         />
       ) : null}
@@ -181,26 +182,25 @@ export function EditorView({ me, invention, initialStep, documents, fundingOn = 
         {/* Kept mounted on every step, so a transfer continues while the person moves on. */}
         {documents ? (
           <div hidden={step !== 2} className="tr-stack">
-            <h3 className="tr-sys-type-heading-sm">Dokumen bukti</h3>
+            <h3 className="tr-sys-type-heading-sm">{t('Dokumen bukti')}</h3>
             {documents}
           </div>
         ) : null}
         {step === 3 ? (
           <div className="tr-stack">
             <p>
-              Kebutuhan dukungan dan pendanaan dicatat terpisah dari profil, dengan mata uang, periode, dan cakupan pada setiap jumlah. Keduanya
-              merujuk versi inovasi yang sudah terbit.
+              {t('Kebutuhan dukungan dan pendanaan dicatat terpisah dari profil, dengan mata uang, periode, dan cakupan pada setiap jumlah. Keduanya merujuk versi inovasi yang sudah terbit.')}
             </p>
             <ul className="tr-stack">
               <li>
                 <Link className="tr-link" href={`/support-requests?invention=${invention.id}`}>
-                  Nyatakan kebutuhan Dukungan Proyek
+                  {t('Nyatakan kebutuhan Dukungan Proyek')}
                 </Link>
               </li>
               {fundingOn ? (
                 <li>
                   <Link className="tr-link" href="/support-requests#pendanaan">
-                    Catat Pendanaan Perusahaan
+                    {t('Catat Pendanaan Perusahaan')}
                   </Link>
                 </li>
               ) : null}
@@ -211,18 +211,18 @@ export function EditorView({ me, invention, initialStep, documents, fundingOn = 
         <div className="tr-row">
           {step > 1 ? (
             <Button icon="left" onClick={() => goTo(step - 1)}>
-              Kembali
+              {t('Kembali')}
             </Button>
           ) : null}
           {step < 4 ? (
             <Button intent="primary" icon="arrow" busy={state.status === 'saving'} busyLabel="Menyimpan…" onClick={saveAndContinue}>
-              Simpan dan lanjutkan
+              {t('Simpan dan lanjutkan')}
             </Button>
           ) : (
             <>
               <ContextSwitcher readOnly value={me.active_party_id} options={contextOptions(me)} actionLabel="Diterbitkan atas nama" />
-              <Button intent="primary" busy={publishing} busyLabel="Menerbitkan…" onClick={publish}>
-                {`Terbitkan versi ${nextNumber}`}
+              <Button intent="primary" busy={publishing} busyLabel={t('Menerbitkan…')} onClick={publish}>
+                {t('Terbitkan versi {n}', { n: nextNumber })}
               </Button>
             </>
           )}
@@ -237,14 +237,14 @@ type StepProps = { values: DraftValues; errors: Record<string, string>; edit: (p
 function BasicsStep({ values, errors, edit }: StepProps) {
   return (
     <div className="tr-stack">
-      <TextField id="judul" label="Judul" hint="5 sampai 120 karakter." value={values.title} onChange={(title) => edit({ title })} error={errors.title} required />
-      <TextArea id="ringkasan" label="Ringkasan" limit={350} rows={3} value={values.summary} onChange={(summary) => edit({ summary })} error={errors.summary} />
-      <TextArea id="masalah" label="Masalah yang diselesaikan" value={values.problem} onChange={(problem) => edit({ problem })} error={errors.problem} required />
-      <TextArea id="solusi" label="Solusi saat ini" value={values.solution} onChange={(solution) => edit({ solution })} error={errors.solution} required />
-      <TextField id="pengguna" label="Siapa penggunanya" value={values.intended_users} onChange={(intended_users) => edit({ intended_users })} error={errors.intended_users} required />
-      <TextField id="sektor" label="Sektor" value={values.sector} onChange={(sector) => edit({ sector })} />
-      <Select id="tahap" label="Tahap inovasi" value={values.stage} onChange={(stage) => edit({ stage })} options={STAGES} error={errors.stage} required />
-      <TextField id="kata-kunci" label="Kata kunci" hint="Pisahkan dengan koma." value={values.keywords} onChange={(keywords) => edit({ keywords })} />
+      <TextField id="judul" label={t('Judul')} hint={t('5 sampai 120 karakter.')} value={values.title} onChange={(title) => edit({ title })} error={errors.title} required />
+      <TextArea id="ringkasan" label={t('Ringkasan')} limit={350} rows={3} value={values.summary} onChange={(summary) => edit({ summary })} error={errors.summary} />
+      <TextArea id="masalah" label={t('Masalah yang diselesaikan')} value={values.problem} onChange={(problem) => edit({ problem })} error={errors.problem} required />
+      <TextArea id="solusi" label={t('Solusi saat ini')} value={values.solution} onChange={(solution) => edit({ solution })} error={errors.solution} required />
+      <TextField id="pengguna" label={t('Siapa penggunanya')} value={values.intended_users} onChange={(intended_users) => edit({ intended_users })} error={errors.intended_users} required />
+      <TextField id="sektor" label={t('Sektor')} value={values.sector} onChange={(sector) => edit({ sector })} />
+      <Select id="tahap" label={t('Tahap inovasi')} value={values.stage} onChange={(stage) => edit({ stage })} options={STAGES} error={errors.stage} required />
+      <TextField id="kata-kunci" label={t('Kata kunci')} hint={t('Pisahkan dengan koma.')} value={values.keywords} onChange={(keywords) => edit({ keywords })} />
     </div>
   );
 }
@@ -259,63 +259,63 @@ function EvidenceStep({ values, errors, edit, hasDocuments }: StepProps & { hasD
   const facts = values.facts.length ? values.facts : [];
   return (
     <div className="tr-stack">
-      <h3 className="tr-sys-type-heading-sm">Fakta</h3>
-      <p className="tr-muted">Pisahkan yang sudah ada saat ini dari yang direncanakan, dan sebutkan siapa yang menyatakannya.</p>
+      <h3 className="tr-sys-type-heading-sm">{t('Fakta')}</h3>
+      <p className="tr-muted">{t('Pisahkan yang sudah ada saat ini dari yang direncanakan, dan sebutkan siapa yang menyatakannya.')}</p>
       {errors.facts ? (
         <Status tone="danger" icon="alert" label={errors.facts} />
       ) : null}
       {facts.map((fact, index) => (
         <fieldset key={index} className="tr-fieldset tr-stack">
-          <legend className="tr-field__label tr-sys-type-label">{`Fakta ${index + 1}`}</legend>
-          <TextField id={`fakta-${index}-label`} label="Apa yang diukur" value={fact.label} onChange={(label) => setFact(index, { label })} />
-          <TextField id={`fakta-${index}-nilai`} label="Nilai" value={fact.value} onChange={(value) => setFact(index, { value })} />
-          <TextField id={`fakta-${index}-satuan`} label="Satuan" value={fact.unit ?? ''} onChange={(unit) => setFact(index, { unit })} />
-          <Select id={`fakta-${index}-waktu`} label="Kapan" value={fact.timing} onChange={(timing) => setFact(index, { timing: timing as typeof fact.timing })} options={TIMINGS} emptyLabel={null} />
-          <Select id={`fakta-${index}-sumber`} label="Sumber" value={fact.provenance ?? 'SELF_DECLARED'} onChange={(provenance) => setFact(index, { provenance: provenance as typeof fact.provenance })} options={PROVENANCES} emptyLabel={null} />
+          <legend className="tr-field__label tr-sys-type-label">{t('Fakta {n}', { n: index + 1 })}</legend>
+          <TextField id={`fakta-${index}-label`} label={t('Apa yang diukur')} value={fact.label} onChange={(label) => setFact(index, { label })} />
+          <TextField id={`fakta-${index}-nilai`} label={t('Nilai')} value={fact.value} onChange={(value) => setFact(index, { value })} />
+          <TextField id={`fakta-${index}-satuan`} label={t('Satuan')} value={fact.unit ?? ''} onChange={(unit) => setFact(index, { unit })} />
+          <Select id={`fakta-${index}-waktu`} label={t('Kapan')} value={fact.timing} onChange={(timing) => setFact(index, { timing: timing as typeof fact.timing })} options={TIMINGS} emptyLabel={null} />
+          <Select id={`fakta-${index}-sumber`} label={t('Sumber')} value={fact.provenance ?? 'SELF_DECLARED'} onChange={(provenance) => setFact(index, { provenance: provenance as typeof fact.provenance })} options={PROVENANCES} emptyLabel={null} />
           <div className="tr-row">
             <Button onClick={() => edit({ facts: values.facts.filter((_, position) => position !== index) })}>
-              Hapus fakta<span className="tr-sr">{` ${index + 1}`}</span>
+              {t('Hapus fakta')}<span className="tr-sr">{` ${index + 1}`}</span>
             </Button>
           </div>
         </fieldset>
       ))}
       <div className="tr-row">
         <Button icon="plus" onClick={() => edit({ facts: [...values.facts, { ...EMPTY_FACT }] })}>
-          Tambah fakta
+          {t('Tambah fakta')}
         </Button>
       </div>
-      <h3 className="tr-sys-type-heading-sm">Orang dan hak</h3>
-      <p className="tr-muted">Klaim bukan sertifikat. Pencipta, pemegang hak, dan kewenangan bertindak dicatat terpisah.</p>
+      <h3 className="tr-sys-type-heading-sm">{t('Orang dan hak')}</h3>
+      <p className="tr-muted">{t('Klaim bukan sertifikat. Pencipta, pemegang hak, dan kewenangan bertindak dicatat terpisah.')}</p>
       {values.claims.map((claim, index) => (
         <fieldset key={index} className="tr-fieldset tr-stack">
-          <legend className="tr-field__label tr-sys-type-label">{`Klaim ${index + 1}`}</legend>
-          <Select id={`klaim-${index}-jenis`} label="Jenis" value={claim.kind} onChange={(kind) => setClaim(index, { kind: kind as typeof claim.kind })} options={CLAIM_KINDS} emptyLabel={null} />
-          <TextField id={`klaim-${index}-nama`} label="Nama" value={claim.subject_name} onChange={(subject_name) => setClaim(index, { subject_name })} />
-          <TextField id={`klaim-${index}-cakupan`} label="Cakupan" value={claim.scope ?? ''} onChange={(scope) => setClaim(index, { scope })} />
-          <Select id={`klaim-${index}-status`} label="Status" value={claim.status ?? 'asserted'} onChange={(status) => setClaim(index, { status: status as typeof claim.status })} options={CLAIM_STATUSES} emptyLabel={null} />
-          <TextField id={`klaim-${index}-sumber`} label="Sumber" value={claim.source ?? ''} onChange={(source) => setClaim(index, { source })} />
+          <legend className="tr-field__label tr-sys-type-label">{t('Klaim {n}', { n: index + 1 })}</legend>
+          <Select id={`klaim-${index}-jenis`} label={t('Jenis')} value={claim.kind} onChange={(kind) => setClaim(index, { kind: kind as typeof claim.kind })} options={CLAIM_KINDS} emptyLabel={null} />
+          <TextField id={`klaim-${index}-nama`} label={t('Nama')} value={claim.subject_name} onChange={(subject_name) => setClaim(index, { subject_name })} />
+          <TextField id={`klaim-${index}-cakupan`} label={t('Cakupan')} value={claim.scope ?? ''} onChange={(scope) => setClaim(index, { scope })} />
+          <Select id={`klaim-${index}-status`} label={t('Status')} value={claim.status ?? 'asserted'} onChange={(status) => setClaim(index, { status: status as typeof claim.status })} options={CLAIM_STATUSES} emptyLabel={null} />
+          <TextField id={`klaim-${index}-sumber`} label={t('Sumber')} value={claim.source ?? ''} onChange={(source) => setClaim(index, { source })} />
           <div className="tr-row">
             <Button onClick={() => edit({ claims: values.claims.filter((_, position) => position !== index) })}>
-              Hapus klaim<span className="tr-sr">{` ${index + 1}`}</span>
+              {t('Hapus klaim')}<span className="tr-sr">{` ${index + 1}`}</span>
             </Button>
           </div>
         </fieldset>
       ))}
       <div className="tr-row">
-        <Button onClick={() => edit({ claims: [...values.claims, { ...EMPTY_CLAIM }] })}>Tambah klaim</Button>
+        <Button onClick={() => edit({ claims: [...values.claims, { ...EMPTY_CLAIM }] })}>{t('Tambah klaim')}</Button>
       </div>
       {hasDocuments ? null : (
         <>
-          <h3 className="tr-sys-type-heading-sm">Dokumen bukti</h3>
-          <Status tone="neutral" label="Segera hadir">
-            <p>Dokumen bukti dapat diunggah di langkah ini segera. Dokumen selalu privat sampai Anda membagikannya.</p>
+          <h3 className="tr-sys-type-heading-sm">{t('Dokumen bukti')}</h3>
+          <Status tone="neutral" label={t('Segera hadir')}>
+            <p>{t('Dokumen bukti dapat diunggah di langkah ini segera. Dokumen selalu privat sampai Anda membagikannya.')}</p>
           </Status>
         </>
       )}
       <TextArea
         id="catatan"
-        label="Catatan pribadi"
-        hint="Tidak pernah ditampilkan kepada siapa pun dan tidak ikut terbit."
+        label={t('Catatan pribadi')}
+        hint={t('Tidak pernah ditampilkan kepada siapa pun dan tidak ikut terbit.')}
         value={values.private_notes}
         onChange={(private_notes) => edit({ private_notes })}
         rows={3}
@@ -328,11 +328,11 @@ function PreviewStep({ values, manager, number }: { values: DraftValues; manager
   const facts = values.facts.filter((fact) => fact.label && fact.value);
   return (
     <div className="tr-stack">
-      <p>Ini yang akan dilihat pengguna lain setelah terbit.</p>
+      <p>{t('Ini yang akan dilihat pengguna lain setelah terbit.')}</p>
       <InventionCard
-        title={values.title || 'Inovasi tanpa judul'}
+        title={values.title || t('Inovasi tanpa judul')}
         category={values.sector}
-        manager={`Dikelola ${manager.organizations?.find((item) => item.party_id === manager.active_party_id)?.name ?? manager.account.display_name}`}
+        manager={t('Dikelola {name}', { name: manager.organizations?.find((item) => item.party_id === manager.active_party_id)?.name ?? manager.account.display_name })}
         problem={values.problem}
         solution={values.solution}
         maturity={labelOf(STAGES, values.stage)}
@@ -351,19 +351,19 @@ function PreviewStep({ values, manager, number }: { values: DraftValues; manager
       />
       <section className="tr-stack" aria-labelledby="tetap-privat">
         <h3 id="tetap-privat" className="tr-sys-type-heading-sm">
-          Yang tetap privat
+          {t('Yang tetap privat')}
         </h3>
         <ul className="tr-reasons">
-          <li>Catatan pribadi</li>
-          <li>Dokumen bukti, kecuali yang Anda bagikan per pitching</li>
-          <li>Draf perubahan berikutnya</li>
+          <li>{t('Catatan pribadi')}</li>
+          <li>{t('Dokumen bukti, kecuali yang Anda bagikan per pitching')}</li>
+          <li>{t('Draf perubahan berikutnya')}</li>
         </ul>
       </section>
       <section className="tr-stack" aria-labelledby="akibat-terbit">
         <h3 id="akibat-terbit" className="tr-sys-type-heading-sm">
-          Akibat menerbitkan
+          {t('Akibat menerbitkan')}
         </h3>
-        <p>{`Versi ${number} dapat dilihat semua pengguna yang masuk. Versi ini tidak berubah lagi; perubahan berikutnya menjadi draf baru.`}</p>
+        <p>{t('Versi {n} dapat dilihat semua pengguna yang masuk. Versi ini tidak berubah lagi; perubahan berikutnya menjadi draf baru.', { n: number })}</p>
       </section>
     </div>
   );

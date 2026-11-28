@@ -4,6 +4,7 @@ import { RequirementRow } from '@/components/tr/RequirementRow';
 import { Status } from '@/components/tr/Status';
 import { MandateActions } from '@/features/intake/MandateActions';
 import { AVAILABILITY_REASON, MANDATE_STATUS, scopeProps, type Mandate } from '@/features/intake/model';
+import { t } from '@/features/i18n/t';
 
 export const MANUAL_REVIEW_TAG = <span className="tr-tag tr-sys-type-support">Ditinjau manual</span>;
 
@@ -15,7 +16,7 @@ type Props = {
 
 /** One mandate: status, version, what it offers, and its requirements with no pass or fail implied. */
 export function MandateCard({ mandate, editingAs }: Props) {
-  const title = mandate.title || 'Mandat tanpa judul';
+  const title = mandate.title || t('Mandat tanpa judul');
   const headingId = `mandat-${mandate.id}`;
   const reason = mandate.target_availability.reason;
   const support = [mandate.support, mandate.timing]
@@ -29,15 +30,15 @@ export function MandateCard({ mandate, editingAs }: Props) {
       </h3>
       <p className="tr-row">
         <Status tone={mandate.status === 'ACTIVE' ? 'success' : 'neutral'} label={MANDATE_STATUS[mandate.status] ?? mandate.status} />
-        <span className="tr-muted">{`Versi ${mandate.number}`}</span>
+        <span className="tr-muted">{t('Versi {n}', { n: mandate.number })}</span>
         {mandate.general_intake_label ? <span className="tr-tag tr-sys-type-support">{mandate.general_intake_label}</span> : null}
       </p>
       {mandate.outcome ? <p>{mandate.outcome}</p> : null}
-      {support ? <p className="tr-muted">{`Dukungan: ${support}`}</p> : null}
+      {support ? <p className="tr-muted">{t('Dukungan: {text}', { text: support })}</p> : null}
       {mandate.financial ? <FinancialScope compact {...scopeProps(mandate.financial)} /> : null}
-      {reason ? <p className="tr-muted">{AVAILABILITY_REASON[reason]}</p> : null}
+      {reason ? <p className="tr-muted">{t(AVAILABILITY_REASON[reason])}</p> : null}
       {mandate.requirements.length ? (
-        <Disclosure label="Syarat mandat ini">
+        <Disclosure label={t('Syarat mandat ini')}>
           <ul>
             {mandate.requirements.map((row) => (
               <RequirementRow

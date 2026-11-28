@@ -5,11 +5,14 @@ import { readCapabilities } from '@/features/capabilities';
 import { findFeature, isOffered } from '@/features/registry';
 import { requireMe } from '@/features/session';
 import { ComingSoonView } from '@/views/ComingSoonView';
+import { resolveRequestLocale } from '@/features/i18n/server';
+import { t } from '@/features/i18n/t';
 
 type Props = { params: Promise<{ feature: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  return { title: findFeature((await params).feature)?.title ?? 'Fitur tidak dikenal' };
+  await resolveRequestLocale();
+  return { title: t(findFeature((await params).feature)?.title ?? 'Fitur tidak dikenal') };
 }
 
 export default async function ComingSoonPage({ params }: Props) {

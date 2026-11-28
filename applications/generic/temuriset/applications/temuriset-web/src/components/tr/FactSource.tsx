@@ -1,4 +1,5 @@
 import { Status } from '@/components/tr/Status';
+import { t } from '@/features/i18n/t';
 
 export const TIMING_LABEL: Record<string, string> = { CURRENT: 'Saat ini', PLANNED: 'Direncanakan', REQUESTED: 'Diminta' };
 export const SOURCE_LABEL: Record<string, string> = {
@@ -15,12 +16,12 @@ export function FactSource({ value, timing, provenance }: { value?: string; timi
   return (
     <span className="tr-fact">
       {value ? <strong className="tr-fact__value">{value}</strong> : null}
-      {timing ? <span className={`tr-tag tr-sys-type-support tr-tag--${timing.toLowerCase()}`}>{TIMING_LABEL[timing]}</span> : null}
+      {timing ? <span className={`tr-tag tr-sys-type-support tr-tag--${timing.toLowerCase()}`}>{t(TIMING_LABEL[timing])}</span> : null}
       {provenance ? (
         reviewed ? (
-          <Status tone="success" label={SOURCE_LABEL.REVIEWED} />
+          <Status tone="success" label={t(SOURCE_LABEL.REVIEWED)} />
         ) : (
-          <span className="tr-tag tr-sys-type-support">{SOURCE_LABEL[provenance]}</span>
+          <span className="tr-tag tr-sys-type-support">{t(SOURCE_LABEL[provenance])}</span>
         )
       ) : null}
     </span>

@@ -3,6 +3,7 @@
 import { useId, type ReactNode } from 'react';
 
 import { Field, fieldIds } from '@/components/tr/Field';
+import { t } from '@/features/i18n/t';
 
 type TextAreaProps = {
   label: ReactNode;
@@ -37,7 +38,7 @@ export function TextArea({ label, value, onChange, hint, required, error, rows =
       />
       {limit ? (
         <p id={countId} className={over ? 'tr-count tr-sys-type-support is-over' : 'tr-count tr-sys-type-support'}>
-          {over ? `Lebih ${value.length - limit} karakter dari batas ${limit}` : `${value.length} dari ${limit} karakter`}
+          {over ? t('Lebih {n} karakter dari batas {limit}', { n: value.length - limit, limit }) : t('{n} dari {limit} karakter', { n: value.length, limit })}
         </p>
       ) : null}
     </Field>

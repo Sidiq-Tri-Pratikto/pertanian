@@ -11,6 +11,7 @@ import { FieldError } from '@/components/tr/FieldError';
 import { Status } from '@/components/tr/Status';
 import { ACCEPT_ATTRIBUTE, refusal, settled, type DocumentView } from '@/features/documents/model';
 import { uploadFile, type Upload } from '@/features/documents/upload';
+import { t } from '@/features/i18n/t';
 
 const POLL_MS = 1500;
 
@@ -76,16 +77,16 @@ export function DocumentsPanel({ me, initial }: { me: Me; initial: DocumentView[
     setFieldError(refused);
     if (refused) return;
     const id = newIdempotencyKey();
-    const title = file.name.replace(/\.[^.]+$/, '') || 'Dokumen';
+    const title = file.name.replace(/\.[^.]+$/, '') || t('Dokumen');
     const upload = uploadFile(file, title, me.active_party_id, (progress) =>
       setTransfers((current) => current.map((transfer) => (transfer.id === id ? { ...transfer, progress } : transfer))),
     );
     setTransfers((current) => [...current, { id, title, progress: 0, upload }]);
-    setAnnouncement(`${title}: Sedang diunggah`);
+    setAnnouncement(t('{title}: Sedang diunggah', { title }));
     upload.promise
       .then(() => refresh())
       .catch((error: unknown) => {
-        if (error instanceof DOMException && error.name === 'AbortError') setAnnouncement(`${title}: Unggahan dibatalkan`);
+        if (error instanceof DOMException && error.name === 'AbortError') setAnnouncement(t('{title}: Unggahan dibatalkan', { title }));
         else setFieldError(ApiError.from(error).message);
       })
       .finally(() => setTransfers((current) => current.filter((transfer) => transfer.id !== id)));
@@ -97,7 +98,7 @@ export function DocumentsPanel({ me, initial }: { me: Me; initial: DocumentView[
     setRevokeFailure(null);
     try {
       await send('POST', `/api/v1/grants/${revoking.grantId}/revoke`, { acting_party_id: me.active_party_id }, { idempotencyKey: newIdempotencyKey() });
-      setAnnouncement(`Akses ${revoking.recipient} dicabut. Salinan yang sudah diunduh tidak dapat ditarik kembali.`);
+      setAnnouncement(t('Akses {name} dicabut. Salinan yang sudah diunduh tidak dapat ditarik kembali.', { name: revoking.recipient }));
       setReturnId('unggah-berkas');
       setRevoking(null);
       await refresh();
@@ -110,10 +111,10 @@ export function DocumentsPanel({ me, initial }: { me: Me; initial: DocumentView[
 
   return (
     <div className="tr-stack">
-      <p className="tr-muted">Dokumen selalu privat sampai Anda membagikan satu versi kepada satu penerima pitching. PDF dan DOCX sampai 20 MB, gambar sampai 5 MB.</p>
+      <p className="tr-muted">{t('Dokumen selalu privat sampai Anda membagikan satu versi kepada satu penerima pitching. PDF dan DOCX sampai 20 MB, gambar sampai 5 MB.')}</p>
       <div className={fieldError ? 'tr-field tr-field--error' : 'tr-field'}>
         <label className="tr-field__label tr-sys-type-label" htmlFor="unggah-berkas">
-          Unggah dokumen bukti
+          {t('Unggah dokumen bukti')}
         </label>
         {fieldError ? <FieldError id="unggah-berkas-error">{fieldError}</FieldError> : null}
         <input
@@ -138,7 +139,7 @@ export function DocumentsPanel({ me, initial }: { me: Me; initial: DocumentView[
               file="UPLOADING"
               action={
                 <>
-                  <progress max={1} value={transfer.progress} aria-label={`Kemajuan unggahan ${transfer.title}`} />
+                  <progress max={1} value={transfer.progress} aria-label={t('Kemajuan unggahan {title}', { title: transfer.title })} />
                   <Button onClick={() => transfer.upload.cancel()}>
                     Batalkan unggahan<span className="tr-sr">{` ${transfer.title}`}</span>
                   </Button>
@@ -168,7 +169,7 @@ export function DocumentsPanel({ me, initial }: { me: Me; initial: DocumentView[
                       setReturnId(`cabut-${grant.id}`);
                       setRevoking({ grantId: grant.id, recipient: grant.grantee_name, openerId: `cabut-${grant.id}` });
                     }}>
-                    Cabut akses<span className="tr-sr">{` ${grant.grantee_name} untuk ${document.title}`}</span>
+                    {t('Cabut akses')}<span className="tr-sr">{` ${grant.grantee_name} untuk ${document.title}`}</span>
                   </Button>
                 ))}
               />
@@ -176,16 +177,16 @@ export function DocumentsPanel({ me, initial }: { me: Me; initial: DocumentView[
           );
         })}
       </ul>
-      {!documents.length && !transfers.length ? <p className="tr-muted">Belum ada dokumen.</p> : null}
+      {!documents.length && !transfers.length ? <p className="tr-muted">{t('Belum ada dokumen.')}</p> : null}
       <Dialog
         open={revoking !== null}
         onClose={() => setRevoking(null)}
-        title={revoking ? `Cabut akses ${revoking.recipient}?` : ''}
+        title={revoking ? t('Cabut akses {name}?', { name: revoking.recipient }) : ''}
         returnFocusId={returnId}
-        primary={{ label: 'Cabut akses', intent: 'danger', busy: revokeBusy, busyLabel: 'Mencabut…', onClick: revoke }}>
-        <p>Unduhan baru akan diblokir sejak sekarang. Salinan yang sudah diunduh sebelumnya tidak dapat ditarik kembali.</p>
+        primary={{ label: t('Cabut akses'), intent: 'danger', busy: revokeBusy, busyLabel: t('Mencabut…'), onClick: revoke }}>
+        <p>{t('Unduhan baru akan diblokir sejak sekarang. Salinan yang sudah diunduh sebelumnya tidak dapat ditarik kembali.')}</p>
         {revokeFailure ? (
-          <Status tone="danger" icon="alert" label="Akses belum dicabut" live="alert">
+          <Status tone="danger" icon="alert" label={t('Akses belum dicabut')} live="alert">
             <p>{revokeFailure}</p>
           </Status>
         ) : null}

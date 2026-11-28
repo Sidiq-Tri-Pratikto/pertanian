@@ -17,6 +17,7 @@ import { TextField } from '@/components/tr/TextField';
 import { VersionConflict } from '@/components/tr/VersionConflict';
 import { acceptSlot, calendarHref, cancelMeeting, EXPIRED_REASON, proposeSlots, recordOutcome, type Meeting, type Proposal, type Schedule } from '@/features/scheduling/api';
 import { clock, fromLocalInput, longDate, slotTime, toLocalInput, zoneLabel } from '@/features/scheduling/time';
+import { t } from '@/features/i18n/t';
 
 type Props = { pitchId: string; approved: boolean; schedule: Schedule; actingPartyId: string; zone: string };
 
@@ -34,8 +35,8 @@ export function SchedulePanel({ pitchId, approved, schedule, actingPartyId, zone
   if (!approved) {
     return (
       <div className="tr-stack">
-        <h2 className="tr-sys-type-heading-sm">Jadwal</h2>
-        <p className="tr-muted">Jadwal tersedia setelah pitching disetujui untuk diskusi.</p>
+        <h2 className="tr-sys-type-heading-sm">{t('Jadwal')}</h2>
+        <p className="tr-muted">{t('Jadwal tersedia setelah pitching disetujui untuk diskusi.')}</p>
       </div>
     );
   }
@@ -47,16 +48,16 @@ export function SchedulePanel({ pitchId, approved, schedule, actingPartyId, zone
 
   return (
     <div className="tr-stack">
-      <h2 className="tr-sys-type-heading-sm">Jadwal</h2>
+      <h2 className="tr-sys-type-heading-sm">{t('Jadwal')}</h2>
       <p className="tr-muted tr-sys-type-support">
         {schedule.external_calendar === 'advisory'
-          ? 'Ketersediaan di bawah berasal dari kalender Anda. Konfirmasi tetap mengikuti jadwal di TemuRiset.'
-          : 'Ketersediaan di kalender luar belum diketahui. TemuRiset tetap memeriksa jadwal yang tercatat di sini.'}
+          ? t('Ketersediaan di bawah berasal dari kalender Anda. Konfirmasi tetap mengikuti jadwal di TemuRiset.')
+          : t('Ketersediaan di kalender luar belum diketahui. TemuRiset tetap memeriksa jadwal yang tercatat di sini.')}
       </p>
-      {!schedule.can_schedule ? <Status tone="neutral" label="Akun Anda hanya dapat melihat jadwal ini" /> : null}
+      {!schedule.can_schedule ? <Status tone="neutral" label={t('Akun Anda hanya dapat melihat jadwal ini')} /> : null}
       {completed ? (
         <section className="tr-panel tr-stack" aria-labelledby="pertemuan-selesai">
-          <h3 id="pertemuan-selesai" className="tr-sys-type-label">Pertemuan selesai dicatat kedua pihak</h3>
+          <h3 id="pertemuan-selesai" className="tr-sys-type-label">{t('Pertemuan selesai dicatat kedua pihak')}</h3>
           <p>{`${longDate(completed.starts_at, zone)}, ${slotTime(completed.starts_at, completed.ends_at, zone)}`}</p>
         </section>
       ) : null}
@@ -80,8 +81,8 @@ export function SchedulePanel({ pitchId, approved, schedule, actingPartyId, zone
           onPropose={(skip) => proposeFrom(open, open.replaces_meeting_id, skip)}
         />
       ) : latest && latest.state === 'EXPIRED' && !active ? (
-        <Status tone="neutral" label="Usulan waktu sudah kedaluwarsa">
-          <p>{`${EXPIRED_REASON[latest.expired_reason ?? 'AGE']} Pitching tetap disetujui untuk diskusi.`}</p>
+        <Status tone="neutral" label={t('Usulan waktu sudah kedaluwarsa')}>
+          <p>{t('{reason} Pitching tetap disetujui untuk diskusi.', { reason: t(EXPIRED_REASON[latest.expired_reason ?? 'AGE']) })}</p>
         </Status>
       ) : null}
       {schedule.can_schedule && !completed && (form || (!open && !active)) ? (
@@ -133,20 +134,20 @@ function OpenProposal({ proposal, zone, actingPartyId, canSchedule, onPropose }:
 
   const error =
     failure?.code === 'STALE_VERSION' ? (
-      <VersionConflict what="Usulan ini baru saja berubah. Muat usulan terbaru." onRefresh={() => router.refresh()} refreshLabel="Muat versi terbaru" />
+      <VersionConflict what={t('Usulan ini baru saja berubah. Muat usulan terbaru.')} onRefresh={() => router.refresh()} refreshLabel={t('Muat versi terbaru')} />
     ) : failure ? (
-      <Status tone="danger" icon="alert" label={failure.code === 'BOOKING_CONFLICT' ? 'Waktu ini bentrok' : 'Belum dikonfirmasi'} live="alert">
+      <Status tone="danger" icon="alert" label={failure.code === 'BOOKING_CONFLICT' ? t('Waktu ini bentrok') : t('Belum dikonfirmasi')} live="alert">
         <p>{failure.field('reason') ?? failure.message}</p>
-        {failure.code === 'BOOKING_CONFLICT' ? <p>Agenda dan waktu lain tetap ada. Pilih waktu lain atau usulkan waktu baru.</p> : null}
+        {failure.code === 'BOOKING_CONFLICT' ? <p>{t('Agenda dan waktu lain tetap ada. Pilih waktu lain atau usulkan waktu baru.')}</p> : null}
       </Status>
     ) : null;
 
   return (
     <section className="tr-panel tr-stack" aria-labelledby="usulan-terbuka">
       <h3 id="usulan-terbuka" className="tr-sys-type-label">
-        {proposal.replaces_meeting_id ? 'Usulan jadwal pengganti' : proposal.mine ? 'Usulan Anda, menunggu pihak lain memilih' : `Usulan dari ${proposal.proposed_by_name}`}
+        {proposal.replaces_meeting_id ? t('Usulan jadwal pengganti') : proposal.mine ? t('Usulan Anda, menunggu pihak lain memilih') : t('Usulan dari {name}', { name: proposal.proposed_by_name })}
       </h3>
-      <p className="tr-muted tr-sys-type-support">{`Berlaku sampai ${longDate(proposal.expires_at, zone)}, ${clock(proposal.expires_at, zone)} ${zoneLabel(zone)}.`}</p>
+      <p className="tr-muted tr-sys-type-support">{t('Berlaku sampai {date}, {time} {zone}.', { date: longDate(proposal.expires_at, zone), time: clock(proposal.expires_at, zone), zone: zoneLabel(zone) })}</p>
       {proposal.link ? (
         <p>
           <span className="tr-muted">Tautan: </span>
@@ -167,7 +168,7 @@ function OpenProposal({ proposal, zone, actingPartyId, canSchedule, onPropose }:
         agenda={proposal.agenda}
         error={error}
       />
-      {proposal.mine && canSchedule ? <Button onClick={() => onPropose([])}>Ubah usulan</Button> : null}
+      {proposal.mine && canSchedule ? <Button onClick={() => onPropose([])}>{t('Ubah usulan')}</Button> : null}
     </section>
   );
 }
@@ -211,16 +212,16 @@ function MeetingPanel({ meeting, zone, actingPartyId, canSchedule, onReplace, re
   return (
     <section className="tr-panel tr-stack" aria-labelledby="pertemuan">
       <h3 id="pertemuan" className="tr-sys-type-label">
-        Pertemuan dikonfirmasi
+        {t('Pertemuan dikonfirmasi')}
       </h3>
       <p className="tr-sys-type-body-strong">{longDate(meeting.starts_at, zone)}</p>
       <p className="tr-num">{slotTime(meeting.starts_at, meeting.ends_at, zone)}</p>
-      {meeting.time_zone !== zone ? <p className="tr-muted tr-sys-type-support">{`Pihak lain: ${slotTime(meeting.starts_at, meeting.ends_at, meeting.time_zone)}`}</p> : null}
+      {meeting.time_zone !== zone ? <p className="tr-muted tr-sys-type-support">{t('Pihak lain: {time}', { time: slotTime(meeting.starts_at, meeting.ends_at, meeting.time_zone) })}</p> : null}
       <p>
         <span className="tr-muted">Agenda: </span>
         {meeting.agenda}
       </p>
-      {replacing ? <Status tone="neutral" label="Jadwal pengganti diusulkan; pertemuan ini tetap berlaku sampai penggantinya dikonfirmasi" /> : null}
+      {replacing ? <Status tone="neutral" label={t('Jadwal pengganti diusulkan; pertemuan ini tetap berlaku sampai penggantinya dikonfirmasi')} /> : null}
       {failure ? <Status tone="danger" icon="alert" label={failure} live="alert" /> : null}
       <p>
         <a className="tr-link" href={calendarHref(meeting)} download="pertemuan-temuriset.ics">
@@ -228,20 +229,20 @@ function MeetingPanel({ meeting, zone, actingPartyId, canSchedule, onReplace, re
         </a>
       </p>
       {ics ? (
-        <Disclosure label="Lihat isi berkas ICS">
+        <Disclosure label={t('Lihat isi berkas ICS')}>
           <pre className="tr-sys-type-support">{ics}</pre>
         </Disclosure>
       ) : null}
       {meeting.started ? (
         <div className="tr-stack">
-          <p className="tr-muted">Waktu yang berlalu tidak otomatis berarti pertemuan selesai. Catat hasilnya.</p>
+          <p className="tr-muted">{t('Waktu yang berlalu tidak otomatis berarti pertemuan selesai. Catat hasilnya.')}</p>
           {meeting.outcomes.map((outcome) => (
-            <p key={outcome.party_id}>{`${outcome.party_name}: ${OUTCOME[outcome.result]}`}</p>
+            <p key={outcome.party_id}>{`${outcome.party_name}: ${t(OUTCOME[outcome.result])}`}</p>
           ))}
-          {meeting.disagreement ? <Status tone="warning" icon="alert" label="Catatan kedua pihak berbeda" /> : null}
+          {meeting.disagreement ? <Status tone="warning" icon="alert" label={t('Catatan kedua pihak berbeda')} /> : null}
           {canSchedule ? (
             <div className="tr-row">
-              <Button intent={mine ? 'secondary' : 'primary'} busy={busy} busyLabel="Menyimpan…" onClick={() => void run(() => recordOutcome(meeting, actingPartyId, 'COMPLETED', key.current))}>
+              <Button intent={mine ? 'secondary' : 'primary'} busy={busy} busyLabel={t('Menyimpan…')} onClick={() => void run(() => recordOutcome(meeting, actingPartyId, 'COMPLETED', key.current))}>
                 Pertemuan selesai
               </Button>
               <Button onClick={() => void run(() => recordOutcome(meeting, actingPartyId, 'NO_SHOW', key.current))}>Tidak terlaksana</Button>
@@ -250,20 +251,20 @@ function MeetingPanel({ meeting, zone, actingPartyId, canSchedule, onReplace, re
         </div>
       ) : canSchedule && !replacing ? (
         <div className="tr-row">
-          <Button onClick={onReplace}>Usulkan jadwal pengganti</Button>
+          <Button onClick={onReplace}>{t('Usulkan jadwal pengganti')}</Button>
           <Button intent="danger" id="cancel-meeting" onClick={() => setCancelling(true)}>
-            Batalkan pertemuan
+            {t('Batalkan pertemuan')}
           </Button>
         </div>
       ) : null}
       <Dialog
         open={cancelling}
         onClose={() => setCancelling(false)}
-        title="Batalkan pertemuan"
+        title={t('Batalkan pertemuan')}
         returnFocusId="cancel-meeting"
-        primary={{ label: 'Batalkan pertemuan', intent: 'danger', busy, busyLabel: 'Membatalkan…', onClick: () => void run(() => cancelMeeting(meeting, actingPartyId, key.current)) }}
-        secondary={{ label: 'Kembali', onClick: () => setCancelling(false) }}>
-        <p>Waktu kedua pihak dibebaskan. Pitching tetap disetujui untuk diskusi.</p>
+        primary={{ label: t('Batalkan pertemuan'), intent: 'danger', busy, busyLabel: t('Membatalkan…'), onClick: () => void run(() => cancelMeeting(meeting, actingPartyId, key.current)) }}
+        secondary={{ label: t('Kembali'), onClick: () => setCancelling(false) }}>
+        <p>{t('Waktu kedua pihak dibebaskan. Pitching tetap disetujui untuk diskusi.')}</p>
       </Dialog>
     </section>
   );
@@ -283,9 +284,9 @@ function ProposeForm({ pitchId, zone, actingPartyId, initial, replaces, onDone, 
   async function send() {
     const filled = slots.filter(Boolean);
     const found = [
-      ...(filled.length < 2 ? [{ fieldId: 'slot-0', message: 'Usulkan setidaknya 2 waktu.' }] : []),
-      ...(agenda.trim() ? [] : [{ fieldId: 'agenda', message: 'Tuliskan agenda singkat.' }]),
-      ...(link && !link.startsWith('https://') ? [{ fieldId: 'link', message: 'Tautan pertemuan harus memakai https.' }] : []),
+      ...(filled.length < 2 ? [{ fieldId: 'slot-0', message: t('Usulkan setidaknya 2 waktu.') }] : []),
+      ...(agenda.trim() ? [] : [{ fieldId: 'agenda', message: t('Tuliskan agenda singkat.') }]),
+      ...(link && !link.startsWith('https://') ? [{ fieldId: 'link', message: t('Tautan pertemuan harus memakai https.') }] : []),
     ];
     setErrors(found);
     setFailure(null);
@@ -315,27 +316,27 @@ function ProposeForm({ pitchId, zone, actingPartyId, initial, replaces, onDone, 
   return (
     <section className="tr-panel tr-stack" aria-labelledby="usulkan-waktu">
       <h3 id="usulkan-waktu" className="tr-sys-type-label">
-        {replaces ? 'Usulkan jadwal pengganti' : 'Usulkan waktu pertemuan'}
+        {replaces ? t('Usulkan jadwal pengganti') : t('Usulkan waktu pertemuan')}
       </h3>
-      <p className="tr-muted tr-sys-type-support">{`Isi 2 sampai 5 waktu dalam ${zoneLabel(zone)}. Pihak lain melihatnya dalam zona waktu mereka.`}</p>
+      <p className="tr-muted tr-sys-type-support">{t('Isi 2 sampai 5 waktu dalam {zone}. Pihak lain melihatnya dalam zona waktu mereka.', { zone: zoneLabel(zone) })}</p>
       {errors.length ? <ErrorSummary errors={errors} focusKey={attempt} id="propose-errors" /> : null}
       {failure ? (
-        <Status tone="danger" icon="alert" label="Usulan belum terkirim" live="alert">
+        <Status tone="danger" icon="alert" label={t('Usulan belum terkirim')} live="alert">
           <p>{failure}</p>
         </Status>
       ) : null}
       {slots.map((value, index) => (
         <TextField key={index} label={`Waktu ${index + 1}`} type="datetime-local" value={value} onChange={(next) => setSlots((current) => current.map((item, at) => (at === index ? next : item)))} id={`slot-${index}`} />
       ))}
-      {slots.length < 5 ? <Button onClick={() => setSlots((current) => [...current, ''])}>Tambah waktu</Button> : null}
-      <Select label="Durasi" value={minutes} onChange={setMinutes} options={[{ value: '30', label: '30 menit' }, { value: '60', label: '60 menit' }]} emptyLabel={null} id="minutes" />
-      <TextArea label="Agenda" required rows={2} value={agenda} onChange={setAgenda} id="agenda" />
-      <TextField label="Tautan pertemuan" hint="Opsional, harus https." value={link} onChange={setLink} id="link" />
+      {slots.length < 5 ? <Button onClick={() => setSlots((current) => [...current, ''])}>{t('Tambah waktu')}</Button> : null}
+      <Select label={t('Durasi')} value={minutes} onChange={setMinutes} options={[{ value: '30', label: t('30 menit') }, { value: '60', label: t('60 menit') }]} emptyLabel={null} id="minutes" />
+      <TextArea label={t('Agenda')} required rows={2} value={agenda} onChange={setAgenda} id="agenda" />
+      <TextField label={t('Tautan pertemuan')} hint={t('Opsional, harus https.')} value={link} onChange={setLink} id="link" />
       <div className="tr-row">
-        <Button intent="primary" busy={busy} busyLabel="Mengirim…" onClick={() => void send()}>
-          {replaces ? 'Kirim usulan pengganti' : 'Kirim usulan waktu'}
+        <Button intent="primary" busy={busy} busyLabel={t('Mengirim…')} onClick={() => void send()}>
+          {replaces ? t('Kirim usulan pengganti') : t('Kirim usulan waktu')}
         </Button>
-        {onCancel ? <Button onClick={onCancel}>Batal</Button> : null}
+        {onCancel ? <Button onClick={onCancel}>{t('Batal')}</Button> : null}
       </div>
     </section>
   );

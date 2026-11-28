@@ -2,6 +2,7 @@
 
 import { Icon } from '@/components/tr/Icon';
 import { Select } from '@/components/tr/Select';
+import { t } from '@/features/i18n/t';
 
 export type ContextOption = { id: string; kind: 'personal' | 'organization'; name: string; disabledReason?: string };
 
@@ -27,9 +28,9 @@ export function ContextSwitcher({ value, options, onChange, readOnly, actionLabe
       <p className="tr-context">
         <Icon name={current.kind === 'organization' ? 'building' : 'user'} />
         <span>
-          {`${actionLabel ?? 'Bertindak sebagai'}: `}
+          {`${t(actionLabel ?? 'Bertindak sebagai')}: `}
           <strong>{current.name}</strong>
-          {` · ${KIND[current.kind]}`}
+          {` · ${t(KIND[current.kind])}`}
         </span>
       </p>
     );
@@ -37,14 +38,14 @@ export function ContextSwitcher({ value, options, onChange, readOnly, actionLabe
   return (
     <Select
       id={id}
-      label={label ?? 'Bertindak sebagai'}
+      label={label ?? t('Bertindak sebagai')}
       hint={hint}
       value={value}
       emptyLabel={null}
       onChange={(next) => onChange?.(next)}
       options={options.map((option) => ({
         value: option.id,
-        label: `${option.name} · ${KIND[option.kind]}`,
+        label: `${option.name} · ${t(KIND[option.kind])}`,
         disabledReason: option.disabledReason,
       }))}
     />

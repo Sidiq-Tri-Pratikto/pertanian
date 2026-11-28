@@ -1,11 +1,10 @@
-import type { Metadata } from 'next';
-
 import { serverGet } from '@/api/server';
 import type { InventionSummary } from '@/features/portfolio/model';
 import { requireMe } from '@/features/session';
 import { InventionsView } from '@/views/portfolio/InventionViews';
+import { titled } from '@/features/i18n/server';
 
-export const metadata: Metadata = { title: 'Inovasi Saya' };
+export const generateMetadata = titled('Inovasi Saya');
 
 export default async function InventionsPage() {
   const me = await requireMe('/inventions');

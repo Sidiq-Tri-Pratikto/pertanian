@@ -5,7 +5,7 @@ import { useSyncExternalStore, type MouseEvent, type ReactNode } from 'react';
 import { Logo } from '@/components/tr/Logo';
 import { rememberEmail, subscribeNever } from '@/features/i18n/carry';
 import { useLocale, useMessages } from '@/features/i18n/LocaleProvider';
-import { localHref, switchHref } from '@/features/i18n/locale';
+import { localHref, rememberLocale, switchHref } from '@/features/i18n/locale';
 
 function currentAddress(): string {
   return `${window.location.pathname}${window.location.search}`;
@@ -26,6 +26,7 @@ export function AuthShell({ title, subtitle, children }: { title: string; subtit
     event.preventDefault();
     const typed = document.querySelector<HTMLInputElement>('input[type="email"]')?.value;
     if (typed) rememberEmail(typed);
+    rememberLocale(locale === 'en' ? 'id' : 'en');
     window.location.assign(switchHref(locale, currentAddress()));
   }
 
