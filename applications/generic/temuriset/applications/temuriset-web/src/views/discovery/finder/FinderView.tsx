@@ -12,6 +12,7 @@ import {
   discoverHref,
   FILTER_LABELS,
   filterCount,
+  resultCount,
   RESULT_TYPES,
   SECTORS,
   type Discovery,
@@ -182,7 +183,7 @@ export function FinderView({
           <FocusFromHash key={selected ?? ''} />
           <div className="tr-listdetail__list tr-stack">
             <p className="tr-muted" role="status">
-              {t('{n} hasil', { n: page.total_estimate })}
+              {resultCount(page.total_estimate)}
             </p>
             {page.sections
               .filter((section) => section.items.length)

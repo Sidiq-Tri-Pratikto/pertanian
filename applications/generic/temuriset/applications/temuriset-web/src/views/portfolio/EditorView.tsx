@@ -176,9 +176,14 @@ export function EditorView({ me, invention, initialStep, documents, availableDoc
       }>
       {returnTo && invention.published ? (
         <Status tone="neutral" label={t('Perubahan baru terlihat investor setelah versi baru diterbitkan.')}>
-          <p>
-            <Button onClick={() => goTo(4)}>{t('Terbitkan, lalu kembali ke kecocokan')}</Button>
-          </p>
+          {step < 4 ? (
+            <p>
+              {/* Publishing happens on step 4, where the acting party is shown first; this button only leads there. */}
+              <Button onClick={() => goTo(4)}>{t('Periksa dan terbitkan')}</Button>
+            </p>
+          ) : (
+            <p>{t('Terbitkan, lalu kembali ke kecocokan')}</p>
+          )}
         </Status>
       ) : null}
       <Steps steps={STEPS} current={String(step)} onSelect={(id) => goTo(Number(id))} />

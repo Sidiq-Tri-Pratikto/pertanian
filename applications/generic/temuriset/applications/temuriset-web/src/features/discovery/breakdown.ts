@@ -33,7 +33,7 @@ export const DIMENSION_META: Record<DimensionId, { label: string; help: string }
   },
   topic: {
     label: 'Topik dan detail produk',
-    help: 'Persentase kata kunci mandat yang muncul sebagai kata utuh pada kata kunci, judul, ringkasan, masalah, atau solusi inovasi Anda.',
+    help: 'Persentase kata kunci mandat yang muncul sebagai kata utuh pada kata kunci, judul, ringkasan, masalah, atau solusi inovasi.',
   },
   readiness: {
     label: 'Tahap dan TKT',
@@ -45,7 +45,7 @@ export const DIMENSION_META: Record<DimensionId, { label: string; help: string }
   },
   form: {
     label: 'Bentuk kerja sama',
-    help: 'Bernilai 100% jika bentuk kerja sama kebutuhan Anda termasuk yang diterima mandat, 0% jika berbeda, dan belum diketahui pada pratinjau tanpa kebutuhan.',
+    help: 'Bernilai 100% jika bentuk kerja sama kebutuhan termasuk yang diterima mandat, 0% jika berbeda, dan belum diketahui pada pratinjau tanpa kebutuhan.',
   },
   requirements: {
     label: 'Syarat wajib',
@@ -120,7 +120,7 @@ export function dimensionSentence(dimension: Dimension): string {
       const targets = asStringList(values.target);
       if (!source || !targets.length) return t('Bidang belum dinyatakan oleh salah satu pihak.');
       if (dimension.status === 'MATCH') return t('Bidang {source} sesuai dengan mandat.', { source: t(source) });
-      return t('Mandat mencari bidang {target}; produk Anda di bidang {source}.', {
+      return t('Mandat mencari bidang {target}; produk ini di bidang {source}.', {
         target: targets.map((item) => t(item)).join(', '),
         source: t(source),
       });
@@ -144,7 +144,7 @@ export function dimensionSentence(dimension: Dimension): string {
           parts.push(t('Tahap {stage} diterima mandat.', { stage: stageLabel(stage) }));
         } else {
           parts.push(
-            t('Mandat menerima tahap {accepted}; produk Anda {stage}.', {
+            t('Mandat menerima tahap {accepted}; produk ini {stage}.', {
               accepted: accepted.map(stageLabel).join(', '),
               stage: stageLabel(stage),
             }),
@@ -155,12 +155,12 @@ export function dimensionSentence(dimension: Dimension): string {
         if (tkt >= minTkt) {
           parts.push(t('TKT {tkt} memenuhi preferensi TKT {min} ke atas.', { tkt, min: minTkt }));
         } else {
-          parts.push(t('Mandat mencari TKT {min} ke atas; produk Anda TKT {tkt}.', { min: minTkt, tkt }));
+          parts.push(t('Mandat mencari TKT {min} ke atas; produk ini TKT {tkt}.', { min: minTkt, tkt }));
         }
       } else if (minTkt !== null) {
         parts.push(t('Mandat mencari TKT {min} ke atas; TKT produk belum dinyatakan.', { min: minTkt }));
       } else if (tkt !== null && !parts.length) {
-        parts.push(t('Produk Anda menyatakan TKT {tkt}.', { tkt }));
+        parts.push(t('Produk ini menyatakan TKT {tkt}.', { tkt }));
       }
       return parts.length ? parts.join(' ') : t('Tahap dan TKT belum cukup untuk dibandingkan.');
     }
@@ -173,12 +173,12 @@ export function dimensionSentence(dimension: Dimension): string {
       }
       if (source && target) {
         if (dimension.score === 100) {
-          return t('Kisaran Anda ({source}) beririsan dengan mandat ({target}).', { source, target });
+          return t('Kisaran kebutuhan ({source}) beririsan dengan mandat ({target}).', { source, target });
         }
         if (dimension.score === 50) {
-          return t('Kisaran Anda ({source}) tidak beririsan dengan {target}, tetapi dukungan sebagian diterima.', { source, target });
+          return t('Kisaran kebutuhan ({source}) tidak beririsan dengan {target}, tetapi dukungan sebagian diterima.', { source, target });
         }
-        return t('Kisaran Anda ({source}) tidak beririsan dengan {target}.', { source, target });
+        return t('Kisaran kebutuhan ({source}) tidak beririsan dengan {target}.', { source, target });
       }
       return reason ? t(reason) : t('Kisaran dana sudah dibandingkan.');
     }
@@ -187,7 +187,7 @@ export function dimensionSentence(dimension: Dimension): string {
       const targets = asStringList(values.target);
       if (!source || !targets.length) return t('Bentuk kerja sama belum dinyatakan.');
       if (dimension.status === 'MATCH') return t('Bentuk kerja sama {source} diterima mandat.', { source: formLabel(source) });
-      return t('Mandat menerima {target}; kebutuhan Anda {source}.', {
+      return t('Mandat menerima {target}; kebutuhan ini {source}.', {
         target: targets.map(formLabel).join(', '),
         source: formLabel(source),
       });

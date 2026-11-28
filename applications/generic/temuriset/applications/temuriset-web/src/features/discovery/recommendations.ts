@@ -291,3 +291,22 @@ export function deltasFor(
   }
   return out;
 }
+
+/** Reads scores saved on an earlier visit, so a return from the editor can show "Topik 25 → 100" (AC81). */
+export function readSavedScores(key: string): SavedScores | null {
+  try {
+    const raw = window.sessionStorage.getItem(key);
+    return raw ? (JSON.parse(raw) as SavedScores) : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Saves this visit's scores for the next comparison; storage failures (quota, private mode) are ignored. */
+export function writeSavedScores(key: string, scores: SavedScores): void {
+  try {
+    window.sessionStorage.setItem(key, JSON.stringify(scores));
+  } catch {
+    // Without storage the change marker is simply not shown.
+  }
+}

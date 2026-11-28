@@ -153,11 +153,9 @@ async def test_scenarios_one_to_three_give_weak_matches_for_product_a_and_a_stro
     for_a = await _labels(client, inventor, product_a, "match-a")
     for_b = await _labels(client, inventor, product_b, "match-b")
 
-    # Spec 057 compares money even without a budget requirement row; Produk A's USD 20–30k overlaps Investor B's
-    # USD 25–60k (6 months, same scope), lifting Produk A × Investor B to "Kecocokan potensial" until 056 updates
-    # scenario.py's Produk A budget to USD 10–15k.
+    # Produk A asks USD 10–15k without partial support, so it overlaps neither mandate and stays weak for both.
     assert for_a == {
         "Pendanaan pilot pertanian": "Kecocokan lemah",
-        "Pendanaan energi surya desa": "Kecocokan potensial",
+        "Pendanaan energi surya desa": "Kecocokan lemah",
     }
     assert for_b == {"Pendanaan energi surya desa": "Kecocokan kuat", "Pendanaan pilot pertanian": "Kecocokan lemah"}

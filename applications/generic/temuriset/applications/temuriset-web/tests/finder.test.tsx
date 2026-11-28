@@ -4,6 +4,8 @@ import axe from 'axe-core';
 import type { ReactElement } from 'react';
 
 import { finderHref, sortFitItems, topDimensions, type FitItem, type MyProduct } from '@/features/discovery/fit';
+import { resultCount } from '@/features/discovery/model';
+import { FitTable } from '@/views/discovery/finder/FitTable';
 import type { Discovery, DiscoveryItem } from '@/features/discovery/model';
 import { LocaleProvider } from '@/features/i18n/LocaleProvider';
 import { setAppLocale } from '@/features/i18n/t';
@@ -234,6 +236,31 @@ describe('investor finder revamp (spec 059)', () => {
     expect(
       screen.getByText('Investor ini belum membuka mandat. Simpan atau ikuti untuk kabar berikutnya.'),
     ).toBeInTheDocument();
+  });
+
+  it('shows "Tahap dan TKT 25 → 100" after a return, then forgets it once seen (AC81)', () => {
+    window.sessionStorage.setItem(
+      'tr_fit_prev',
+      JSON.stringify({ 'inv-a:opp-b': { readiness: 25, topic: 25 } }),
+    );
+    const { unmount } = render(<FitTable items={FIT_ITEMS} returnTo="/discover?type=partners" />);
+    expect(screen.getAllByText('Tahap dan TKT 25 → 100').length).toBeGreaterThan(0);
+    expect(screen.queryByText(/Topik dan detail produk 25 →/)).toBeNull();
+    unmount();
+
+    render(<FitTable items={FIT_ITEMS} returnTo="/discover?type=partners" />);
+    expect(screen.queryByText(/→/)).toBeNull();
+  });
+
+  it('counts one result in the singular in English', () => {
+    setAppLocale('en');
+    try {
+      expect(resultCount(1)).toBe('1 result');
+      expect(resultCount(3)).toBe('3 results');
+    } finally {
+      setAppLocale('id');
+    }
+    expect(resultCount(1)).toBe('1 hasil');
   });
 
   it('is axe clean', async () => {

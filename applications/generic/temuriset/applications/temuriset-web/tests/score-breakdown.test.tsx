@@ -68,7 +68,7 @@ describe('ScoreBreakdown (spec 057)', () => {
     expect(screen.getByRole('heading', { name: 'Rincian kecocokan' })).toBeInTheDocument();
     const rows = screen.getAllByRole('listitem');
     expect(rows).toHaveLength(8);
-    expect(screen.getByText('Mandat mencari TKT 6 ke atas; produk Anda TKT 4.', { exact: false })).toBeInTheDocument();
+    expect(screen.getByText('Mandat mencari TKT 6 ke atas; produk ini TKT 4.', { exact: false })).toBeInTheDocument();
     expect(screen.getByText('Topik dan detail produk 25 → 50')).toBeInTheDocument();
     const moneyRow = rows[3];
     expect(within(moneyRow).getAllByText('Belum diketahui').length).toBeGreaterThanOrEqual(1);
@@ -80,7 +80,7 @@ describe('ScoreBreakdown (spec 057)', () => {
       </LocaleProvider>,
     );
     expect(screen.getByRole('heading', { name: 'Match breakdown' })).toBeInTheDocument();
-    expect(screen.getByText(/This mandate looks for TKT 6 or above; your product is TKT 4\./)).toBeInTheDocument();
+    expect(screen.getByText(/This mandate looks for TKT 6 or above; this product states TKT 4\./)).toBeInTheDocument();
   });
 
   it('shows recalculate prompt when an old run has no breakdown', async () => {
