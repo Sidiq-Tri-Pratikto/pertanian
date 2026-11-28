@@ -33,6 +33,7 @@
     "TR.ErrorSummary",
     "TR.Dialog",
     "TR.Disclosure",
+    "TR.Toggletip",
     "TR.Tabs",
     "TR.Status",
     "TR.EmptyState",
@@ -73,9 +74,9 @@
   ],
   "fingerprints": {
     "tokens.json": "sha256:81eb9fc690a09f7d99b50c30f6b6c8fcbf343bfa27a3f67152623b70e3e56bdd",
-    "components/bundle.js": "sha256:6d357f738f8fffa7a5cb67fff44fd98c23e9fdf76ce0ef66ecdb8910ccbd98ce",
-    "components/bundle.css": "sha256:223f80c52d2b29195fbf0cc083afd4ce8a161e38cce09459ddfc60379f2c8102",
-    "components/index.d.ts": "sha256:f9d31c5e9e7c9ebd860b11deb333fe1ff81b50e69def7272e5aa6949f8f5d993"
+    "components/bundle.js": "sha256:094de68822a1c81df964bf495dc1f0cccc2325fbd28ed5d4e59752651b2522f6",
+    "components/bundle.css": "sha256:df181c49dd85c610f8771baa3ec4f622c0b443a947618553b888e19344a6d817",
+    "components/index.d.ts": "sha256:b55de5d959c69364a3b86a1a915d4caab5b343acff5bcac875f8235aced33318"
   },
   "limitations": [
     "Light theme only.",

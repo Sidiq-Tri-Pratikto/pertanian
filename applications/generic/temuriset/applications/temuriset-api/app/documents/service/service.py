@@ -205,6 +205,43 @@ async def document_version_number(session: AsyncSession, version_id: UUID) -> tu
     return (version.document_id, version.number) if version is not None else None
 
 
+async def available_document_version_number(session: AsyncSession, version_id: UUID) -> tuple[UUID, int] | None:
+    """The document and version number of an available version id, or None when gone or not available (055).
+
+    Args:
+        session (AsyncSession): The request's session.
+        version_id (UUID): The version.
+
+    Returns:
+        tuple[UUID, int] | None: Document id and number when the file is still AVAILABLE.
+    """
+    version = await session.get(DocumentVersionRecord, version_id)
+    if version is None or version.file_state != "AVAILABLE":
+        return None
+    return version.document_id, version.number
+
+
+async def owned_document_version(session: AsyncSession, owner_party_id: UUID, document_id: UUID, number: int) -> UUID:
+    """Check that one of the party's own document versions exists and is AVAILABLE, accepting any file type (055).
+
+    Args:
+        session (AsyncSession): The request's session.
+        owner_party_id (UUID): The managing party.
+        document_id (UUID): The document.
+        number (int): The version number.
+
+    Returns:
+        UUID: The document version id.
+
+    Raises:
+        FileNotAvailableError: Another party's document, an unknown version, or one not AVAILABLE.
+    """
+    found = await owned_file(session, owner_party_id, document_id, number)
+    if found is None:
+        raise FileNotAvailableError()
+    return UUID(found["version_id"])
+
+
 PUBLIC_IMAGE_TYPES = frozenset({"image/jpeg", "image/png", "image/webp"})
 
 

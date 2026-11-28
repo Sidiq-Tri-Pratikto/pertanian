@@ -49,6 +49,7 @@ async def refresh_invention(session: AsyncSession, invention_id: UUID) -> None:
             "summary": view.summary,
             "sector": view.sector,
             "stage": view.stage,
+            "tkt_level": view.readiness.tkt_level if view.readiness is not None else None,
             "keywords": view.keywords,
             "managing_party_name": view.managing_party_name,
         },

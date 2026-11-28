@@ -41,6 +41,35 @@ class ClaimInput(BaseModel):
     asserted_at: datetime | None = None
 
 
+class DocumentVersionChoice(BaseModel):
+    """One version of the managing party's own document (055)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document_id: UUID
+    version: int = Field(ge=1)
+
+
+class ReadinessInput(BaseModel):
+    """Self-declared technology readiness level (TKT 1-9), optional note and optional private evidence (055)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    tkt_level: int = Field(ge=1, le=9)
+    note: _text(500) = ""
+    evidence: DocumentVersionChoice | None = None
+
+
+class ReadinessResponse(BaseModel):
+    """Stored TKT readiness. ``evidence`` is returned only to the managing party; never to other readers."""
+
+    tkt_level: int
+    note: str
+    provenance: Literal["SELF_DECLARED"] = "SELF_DECLARED"
+    has_evidence: bool
+    evidence: DocumentVersionChoice | None = None
+
+
 class CreateInventionRequest(BaseModel):
     """Start an invention for the acting party."""
 
@@ -63,6 +92,7 @@ class DraftRequest(BaseModel):
     facts: Annotated[list[FactInput], Field(max_length=50)] = []
     claims: Annotated[list[ClaimInput], Field(max_length=50)] = []
     private_notes: _text(5000) = ""
+    readiness: ReadinessInput | None = None
 
 
 class VersionedActionRequest(BaseModel):
@@ -97,6 +127,7 @@ class InventionVersionResponse(BaseModel):
     claims: list[ClaimResponse]
     private_notes: str
     published_at: datetime | None
+    readiness: ReadinessResponse | None = None
 
 
 class PublicPhotoResponse(BaseModel):
@@ -227,6 +258,7 @@ class PublicInventionResponse(BaseModel):
     facts: list[PublicFactResponse]
     claims: list[PublicClaimResponse]
     published_at: datetime | None
+    readiness: ReadinessResponse | None = None
 
 
 UpdateStatus = Literal["DRAFT", "PUBLISHED", "WITHDRAWN"]
