@@ -33,7 +33,7 @@ export function ItemActions({ subjectType, subjectId, title, saved, actingPartyI
     <>
       <SaveButton subjectType={subjectType} subjectId={subjectId} title={title} saved={saved} actingPartyId={actingPartyId} />
       <Button busy={busy} busyLabel={t('Menyimpan')} onClick={() => void hide()}>
-        Kurang relevan
+        {t('Kurang relevan')}
         <span className="tr-sr">{`: ${title}`}</span>
       </Button>
       {failed ? (

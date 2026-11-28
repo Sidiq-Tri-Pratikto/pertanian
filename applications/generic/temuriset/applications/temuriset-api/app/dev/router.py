@@ -87,8 +87,16 @@ async def preview_mail(template: str, lang: Literal["id", "en"] = Query(default=
         "tkt_level": 5,
         "field_test": None,
     }
-    reason_a = Match(level="ALERT", reasons=["Air dan sanitasi", "Prototipe", "air"])
-    reason_b = Match(level="DIGEST", reasons=["Pertanian", "Pilot"])
+    reason_a = Match(
+        level="ALERT",
+        reasons=["Water and sanitation", "Prototype", "water"]
+        if lang == "en"
+        else ["Air dan sanitasi", "Prototipe", "air"],
+    )
+    reason_b = Match(
+        level="DIGEST",
+        reasons=["Agriculture", "Pilot"] if lang == "en" else ["Pertanian", "Pilot"],
+    )
 
     if template == "confirm":
         _, _, html, _ = mail.confirm(origin, "sample-confirm-token", topics, lang, demo=settings.demo_mode)

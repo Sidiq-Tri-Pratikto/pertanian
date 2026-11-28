@@ -191,7 +191,13 @@ class NeedsService:
             NotFoundError: When the acting party does not own it.
         """
         record = await self._owned(principal, request_id)
-        return await self.view(record), record.invention_version_id
+        try:
+            current_version_id = await owned_submittable_version(
+                self.session, record.invention_id, principal.active_party_id
+            )
+        except (InvalidTransitionError, NotFoundError):
+            current_version_id = record.invention_version_id
+        return await self.view(record), current_version_id
 
     async def version(self, principal: Principal, request_id: UUID, number: int) -> dict:
         """Read the request as it stood at an earlier version, for submissions that reference it.

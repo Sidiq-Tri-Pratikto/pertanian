@@ -111,9 +111,10 @@ function ResultCard({ item, actingPartyId }: { item: DiscoveryItem; actingPartyI
 function rowFacts(item: DiscoveryItem): string {
   const card = item.card as Card;
   if (item.subject_type === 'INVENTION') {
+    const sector = text(card, 'sector');
     const stage = text(card, 'stage');
     const tktLevel = typeof card.tkt_level === 'number' ? `TKT ${card.tkt_level}` : undefined;
-    return [text(card, 'sector'), stage ? labelOf(STAGES, stage) : undefined, tktLevel].filter(Boolean).join(' · ');
+    return [sector ? t(sector) : undefined, stage ? t(labelOf(STAGES, stage)) : undefined, tktLevel].filter(Boolean).join(' · ');
   }
   if (item.subject_type === 'FUNDING_REQUEST') {
     const inventions = (card.inventions as { title: string }[] | undefined) ?? [];
