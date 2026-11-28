@@ -3,7 +3,12 @@ name: TemuRiset Release
 on:
   pull_request:
     paths:
-      - applications/generic/temuriset/**
+      - applications/generic/temuriset/applications/**
+      - applications/generic/temuriset/contracts/**
+      - applications/generic/temuriset/Makefile
+      - applications/generic/temuriset/.nvmrc
+      - applications/generic/temuriset/ruff.toml
+      - docs/generic/temuriset/design-system/**
       - deployment/temuriset/**
       - .github/workflows/temuriset-release.yml
   push:

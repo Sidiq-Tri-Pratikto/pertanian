@@ -4,11 +4,17 @@ on:
   push:
     branches: [main]
     paths:
-      - applications/generic/temuriset/**
+      - applications/generic/temuriset/applications/temuriset-api/**
+      - applications/generic/temuriset/contracts/**
+      - applications/generic/temuriset/.pre-commit-config.yaml
+      - applications/generic/temuriset/ruff.toml
       - .github/workflows/temuriset-api.yml
   pull_request:
     paths:
-      - applications/generic/temuriset/**
+      - applications/generic/temuriset/applications/temuriset-api/**
+      - applications/generic/temuriset/contracts/**
+      - applications/generic/temuriset/.pre-commit-config.yaml
+      - applications/generic/temuriset/ruff.toml
       - .github/workflows/temuriset-api.yml
 
 jobs:

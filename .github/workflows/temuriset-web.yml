@@ -4,12 +4,20 @@ on:
   push:
     branches: [main]
     paths:
-      - applications/generic/temuriset/**
+      - applications/generic/temuriset/applications/temuriset-web/**
+      - applications/generic/temuriset/applications/temuriset-api/**
+      - applications/generic/temuriset/contracts/**
+      - applications/generic/temuriset/Makefile
+      - applications/generic/temuriset/.nvmrc
       - docs/generic/temuriset/design-system/**
       - .github/workflows/temuriset-web.yml
   pull_request:
     paths:
-      - applications/generic/temuriset/**
+      - applications/generic/temuriset/applications/temuriset-web/**
+      - applications/generic/temuriset/applications/temuriset-api/**
+      - applications/generic/temuriset/contracts/**
+      - applications/generic/temuriset/Makefile
+      - applications/generic/temuriset/.nvmrc
       - docs/generic/temuriset/design-system/**
       - .github/workflows/temuriset-web.yml
 
