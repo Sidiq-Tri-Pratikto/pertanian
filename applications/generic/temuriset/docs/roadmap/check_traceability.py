@@ -13,8 +13,8 @@ OUTPUT = ROOT / "docs/roadmap/traceability.md"
 TOKEN = re.compile(r"\bFR\d{2}\b|\bAC\d{2}\b|\bUX-\d{2}\b|\bS\d{2}\b|\bJ\d{2}\b")
 FIELD = re.compile(r"^\*\*(Covers|Depends on)\*\*: (.*)$", re.MULTILINE)
 GROUPS = {
-    "Functional requirements": [f"FR{n:02}" for n in range(1, 25)],
-    "Acceptance scenarios": [f"AC{n:02}" for n in range(1, 73)],
+    "Functional requirements": [f"FR{n:02}" for n in range(1, 27)],
+    "Acceptance scenarios": [f"AC{n:02}" for n in range(1, 89)],
     "UX checks": [f"UX-{n:02}" for n in range(1, 25)],
     "Screens": [f"S{n:02}" for n in range(1, 19)],
     "Journeys": [f"J{n:02}" for n in range(1, 6)],

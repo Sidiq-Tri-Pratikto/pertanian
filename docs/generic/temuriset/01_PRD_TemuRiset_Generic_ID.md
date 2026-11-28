@@ -1,6 +1,8 @@
 # TemuRiset — Kebutuhan produk generik
 
-Versi 1.1 · 31 Oktober 2026 · Asia/Jakarta
+Versi 1.2 · 28 November 2026 · Asia/Jakarta
+
+Perubahan di 1.2 (masukan demo): tingkat kesiapterapan teknologi (TKT) opsional pada inovasi dan TKT minimum opsional pada mandat (FR03, FR09, FR25); rincian kecocokan per aspek dan rekomendasi perbaikan (FR11); pencari investor yang menilai setiap produk inovator terhadap investor yang dipilih (FR10); format HTML yang mudah dibaca untuk email investor tanpa akun (FR26). Penerimaan AC73–AC88. Rencana pengerjaan: `applications/generic/temuriset/docs/roadmap/revamp-2-demo-feedback.md`, spec 055–060.
 
 Status: arah produk dan arsitektur telah disetujui pengguna; rincian awal implementasi tetap merupakan usulan pada bagian yang menyatakannya. Perilaku aplikasi dan design system belum diimplementasikan atau diverifikasi berdasarkan dokumen ini.
 
@@ -102,7 +104,7 @@ Workspace pribadi langsung tersedia. Undangan organisasi menyatakan capability, 
 
 Satu konteks pengelola dapat mempunyai banyak inovasi. Isian publikasi wajib adalah judul, ringkasan masalah dan solusi nonrahasia, pengguna sasaran, tahap saat ini, kemampuan saat ini serta konteks kontak/pengelola. Rincian dukungan diperlukan ketika membuka pengajuan, bukan untuk menyimpan draf. Panjang judul awal 5–120 karakter dan ringkasan singkat maksimal 350 karakter. Sektor, kata kunci dan gambar yang sesuai membantu penemuan; ilustrasi kategori menjadi fallback.
 
-Gunakan editor empat langkah: dasar; yang sudah ada dan buktinya; dukungan serta lingkup keuangan; pratinjau publik. Simpan draf dengan status tersimpan/belum tersimpan/error yang terlihat. Terbitkan versi immutable, setelah review bila dikonfigurasi. Edit material menghasilkan draf penerus sementara versi publik saat ini tetap tersedia hingga penggantinya disetujui. Arsip menghilangkan penemuan dan pengajuan baru, mempertahankan riwayat berizin dan tidak membatalkan diskusi yang berjalan. Penerimaan: AC07–AC09.
+Gunakan editor empat langkah: dasar; yang sudah ada dan buktinya; dukungan serta lingkup keuangan; pratinjau publik. Langkah kedua juga memuat tingkat kesiapterapan teknologi (TKT 1–9) opsional dengan catatan dan berkas bukti opsional (FR25). Simpan draf dengan status tersimpan/belum tersimpan/error yang terlihat. Terbitkan versi immutable, setelah review bila dikonfigurasi. Edit material menghasilkan draf penerus sementara versi publik saat ini tetap tersedia hingga penggantinya disetujui. Arsip menghilangkan penemuan dan pengajuan baru, mempertahankan riwayat berizin dan tidak membatalkan diskusi yang berjalan. Penerimaan: AC07–AC09.
 
 ### FR04 — Klaim hak dan pengungkapan yang disengaja
 
@@ -132,7 +134,7 @@ Mitra menyatakan subtipe, sektor/masalah minat, tahap yang diterima, wilayah, du
 
 ### FR09 — Peluang, mandat dan penerimaan langsung
 
-Mitra dapat menerbitkan beberapa peluang atau mandat berversi, masing-masing dengan hasil jelas, cakupan masuk/keluar, dukungan yang disediakan, tahap diterima, waktu, basis keuangan dan persyaratan bertipe. Gunakan DRAFT, ACTIVE, PAUSED, CLOSED dan EXPIRED. Pemohon dapat membaca semua persyaratan yang dapat menghalangi pengajuannya. Kriteria naratif tetap menjadi pertanyaan review sampai memiliki pemetaan bertipe yang disetujui. Tidak ada kriteria rahasia yang otomatis menolak pitching.
+Mitra dapat menerbitkan beberapa peluang atau mandat berversi, masing-masing dengan hasil jelas, cakupan masuk/keluar, dukungan yang disediakan, tahap diterima, waktu, basis keuangan dan persyaratan bertipe. Gunakan DRAFT, ACTIVE, PAUSED, CLOSED dan EXPIRED. Mandat dapat menyatakan TKT minimum opsional (FR25); ini preferensi untuk matching, bukan penolakan tersembunyi. Pemohon dapat membaca semua persyaratan yang dapat menghalangi pengajuannya. Kriteria naratif tetap menjadi pertanyaan review sampai memiliki pemetaan bertipe yang disetujui. Tidak ada kriteria rahasia yang otomatis menolak pitching.
 
 Peluang spesifik aktif menjadi target. Profil penerimaan umum berversi hanya boleh dipakai bila pitching langsung diaktifkan, dengan label “berdasarkan profil umum mitra.” Jangan menggabungkan persyaratan menguntungkan dari satu mandat dan sumber daya dari mandat lain. Klik jalur aplikasi eksternal dicatat sebagai pengalihan eksternal, bukan pitching terkirim atau disetujui di aplikasi. Penerimaan: AC25–AC27.
 
@@ -142,9 +144,13 @@ Sediakan saran relevan berdasarkan preferensi eksplisit atau kebutuhan aktif, pi
 
 Kartu mengutamakan masalah, solusi yang ada, dukungan yang diminta, tahap dan beberapa alasan. Simpan dan feedback “kurang sesuai” memengaruhi daftar pribadi, bukan reputasi publik. Label tren tidak muncul dari event demo atau aktivitas yang belum memadai. Usulan trending memerlukan sedikitnya lima pelaku mitra independen yang memenuhi syarat dalam jendela 14 hari, dengan event sendiri/bot dikeluarkan dan batas per pelaku; kemampuan ini opsional dan terpisah dari kecocokan. Penerimaan: AC28–AC30.
 
+**R2 (1.2).** Inovator yang menjelajahi investor dapat memilih salah satu produknya untuk mengurutkan investor menurut kecocokan produk itu, atau membuka seorang investor untuk melihat setiap produk terbitnya dinilai terhadap setiap mandat aktif investor tersebut. Produk tanpa kebutuhan aktif dinilai dalam pratinjau berlabel dari versi terbitnya, dengan dana dan bentuk kerja sama belum diketahui; hasil pratinjau tidak disimpan dan tidak dapat dipitching. Urutan hanya memakai kecocokan, tidak pernah popularitas. Penerimaan: AC82–AC84.
+
 ### FR11 — Matching yang dapat dijelaskan dan hasil persyaratan
 
 Engine menilai permintaan/versi sumber terpilih terhadap satu versi peluang atau penerimaan umum dalam konteks berizin. Pertahankan tujuan sumber/target, izin bukti dan basis keuangan. Keluarkan eligibility, kesiapan khusus target, batas skor/coverage, jumlah bukti tersedia/direview, alasan, kekurangan dan tindakan berikutnya. Persyaratan wajib yang diketahui gagal tidak dapat dikompensasi kemiripan semantik. Tampilkan “Perlu konfirmasi” ketika fakta wajib UNKNOWN dan jangan masukkan pasangan INCOMPATIBLE ke shortlist positif. Rincian ranking berada di aksi sekunder. Penerimaan: AC31–AC33.
+
+**R2 (1.2).** Setiap hasil juga memuat rincian delapan aspek, masing-masing bernilai 0–100 atau belum diketahui, dengan status dan nilai mentah yang menjelaskannya: bidang, topik dan detail produk, tahap dan TKT, dana, bentuk kerja sama, syarat wajib, bukti, dan ketersediaan investor. Belum diketahui tidak pernah ditampilkan sebagai nol, dan syarat wajib yang gagal tetap membuat pasangan tidak memenuhi syarat apa pun nilai aspek lainnya. Penerima pitching melihat rincian yang dibekukan pada kiriman itu. Khusus untuk pemohon, setiap kekurangan menjadi rekomendasi: apa yang dicari target, apa yang dinyatakan sumber, di mana mengubahnya, dan perkiraan dampak yang dihitung mesin. Rekomendasi bersifat bersyarat, tidak pernah mengubah data, dan tidak pernah menyarankan mengganti bidang atau tahap demi skor. Penerimaan: AC77–AC81.
 
 ### FR12 — Preflight dan brief yang dapat diedit
 
@@ -211,6 +217,14 @@ Komposisi yang didukung menunjuk rilis sumber, schema/versi konfigurasi, brand/l
 ### FR24 — Rilis, operasi dan pemulihan
 
 Pelihara satu riwayat sumber dan rilis reproducible untuk varian terkait. Setiap environment mencatat versi kode, konfigurasi, capability, adapter dan schema database. Perbaikan bersama diimplementasikan serta diuji regresi sekali, lalu sengaja di-rollout ke setiap komposisi yang didukung. Gunakan perubahan schema expand/migrate/contract yang kompatibel ke depan, backup/restore teruji serta rencana rollback atau forward repair untuk deployment terkait. Menerbitkan rilis tidak otomatis memperbarui semua deployment. Operasi harus membedakan kegagalan pengiriman parsial dari niat bisnis yang sudah commit. Penerimaan: AC70–AC72.
+
+### FR25 — Tingkat kesiapterapan teknologi (TKT) — R2
+
+Versi inovasi dapat menyatakan tingkat kesiapterapan teknologi (TKT) 1 sampai 9 menurut Permenristekdikti No. 42 Tahun 2016: 1–3 riset dasar, 4–6 riset terapan, 7–9 pengembangan dan komersialisasi. Sifatnya opsional, dinyatakan sendiri dan diberi label demikian, dengan catatan opsional (paling banyak 500 karakter) dan berkas bukti opsional milik pihak pengelola. Bukti tetap privat dan sampai ke investor hanya melalui izin pitching; pembaca lain hanya tahu bahwa bukti ada. Setiap tempat yang menampilkan TKT menjelaskannya di tempat, termasuk arti setiap tingkat, lewat kontrol yang aksesibel dengan keyboard dan sentuhan. Mandat dapat menyatakan TKT minimum opsional. Matching memakai TKT di aspek tahap dan TKT (FR11). Penerimaan: AC73–AC76, AC88.
+
+### FR26 — Tampilan email investor — R2
+
+Email untuk investor yang berlangganan atau mengikuti tanpa akun (konfirmasi, tautan pengaturan, alert langsung, rangkuman mingguan, konfirmasi mengikuti dan kabar yang diikuti) dikirim sebagai pesan multipart: bagian HTML satu kolom yang aksesibel dan bagian teks biasa yang dibuat dari isi yang sama, sehingga keduanya selalu memuat fakta dan tautan yang sama. Setiap inovasi tampil sebagai kartu dengan fakta publiknya (bidang, tahap, TKT bila dinyatakan), ringkasan singkat, alasan penerima menerimanya, dan satu tindakan utama. Pesan massal memuat header berhenti langganan sekali klik RFC 8058; berhenti tidak perlu masuk dan aman diulang. Penerima dapat mengganti bahasa email. Tanpa piksel pelacak. Kode masuk dan undangan tetap teks biasa. Penerimaan: AC85–AC87.
 
 ## 6. Model inti dan batas kepemilikan
 
@@ -565,6 +579,22 @@ Seluruh skenario berikut berstatus **NOT RUN**, belum dijalankan. Implementasi h
 | AC70 | FR24 | Perbaikan bersama dirilis untuk dua komposisi klien | Kedua suite dan inventaris versi diperlukan; ketersediaan rilis tidak disamakan rollout |
 | AC71 | FR24 | Perubahan schema dipasang dengan kode lama/baru yang didukung | Kompatibilitas expand/migrate diverifikasi; contract/penghapusan menunggu rilis lama dipensiunkan |
 | AC72 | FR24 | Migrasi tidak dapat dibalik rollback kode | Prosedur forward repair/restore dan jendela kehilangan data diuji/didokumentasikan |
+| AC73 | FR25 | Pemilik menyimpan TKT 6 dengan catatan dan bukti pada draf, lalu menerbitkan | Versi terbit memuat TKT 6, catatan, provenance SELF_DECLARED; draf baru dimulai dengan nilai yang sama |
+| AC74 | FR25 | Pihak lain membaca inovasi dengan bukti TKT | Melihat tingkat, catatan dan bahwa bukti ada; tidak pernah berkas atau pengenalnya di luar izin pitching |
+| AC75 | FR25 | Pemakaian pemilih TKT dan tooltip hanya dengan keyboard dan di 320 px | Setiap penjelasan terbuka dan tertutup dengan keyboard dan sentuhan; tanpa overflow; axe bersih |
+| AC76 | FR25 | Investor melihat inovasi ber-TKT di jelajahi, detail, halaman publik dan pitching yang diterima | Lencana tingkat dan tahap, penjelasan, label dinyatakan sendiri dan catatan bukti; tidak ada apa pun tanpa TKT |
+| AC77 | FR11 | Inovator membuka hasil kecocokan | Delapan aspek dengan nilai atau belum diketahui, status dan nilai penjelas; belum diketahui tidak pernah 0 % |
+| AC78 | FR11 | Syarat wajib gagal sementara aspek lain bernilai 100 | Hasil tetap tidak memenuhi syarat dan berlabel tidak cocok; syarat yang gagal disebutkan |
+| AC79 | FR11 | Penerima membuka pitching terkirim, lalu kiriman ulang | Rincian yang tampil adalah yang dibekukan pada kiriman yang dibaca |
+| AC80 | FR11 | Inovator membuka kecocokan lemah | Paling banyak lima rekomendasi, yang menghalangi lebih dulu, masing-masing bersyarat dengan tautan langsung dan perkiraan mesin; tidak ada untuk perubahan bidang atau tahap |
+| AC81 | FR11 | Inovator mengikuti rekomendasi, menerbitkan dan kembali | Matching dijalankan ulang dan aspek yang berubah menampilkan nilai sebelum dan sesudah |
+| AC82 | FR10 | Inovator membuka investor di pencari | Setiap produk terbit dinilai terhadap setiap mandat aktif, terbaik lebih dulu, yang tidak cocok terakhir |
+| AC83 | FR10 | Produk tanpa kebutuhan aktif | Dinilai dalam pratinjau berlabel dengan dana dan bentuk belum diketahui; tidak disimpan; ditawari membuat kebutuhan |
+| AC84 | FR10 | Inovator memilih satu produk di pencari | Investor diurutkan menurut kecocokan terbaik produk itu; urutan mengabaikan popularitas |
+| AC85 | FR26 | Alert, rangkuman dan kabar yang diikuti terkirim | HTML dan teks multipart dengan fakta dan tautan yang sama; HTML di bawah 100 KB; nilai di-escape |
+| AC86 | FR26 | Klien email mengirim berhenti langganan sekali klik | Langganan atau mengikuti berakhir tanpa masuk; pengulangan tidak berdampak; email antre dibatalkan |
+| AC87 | FR26 | Pelanggan berbahasa Inggris menerima alert | Semua kata, tanggal dan nama tahap dalam bahasa Inggris dengan lang="en"; terbaca utuh tanpa gambar |
+| AC88 | FR09 | Mitra menetapkan TKT minimum pada mandat | Pemohon melihatnya; matching memperlakukannya sebagai preferensi di aspek tahap dan TKT |
 
 ## 24. Penyelesaian, asumsi dan batas bukti
 
