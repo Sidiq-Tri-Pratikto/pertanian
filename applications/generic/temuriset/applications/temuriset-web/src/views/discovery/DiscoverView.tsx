@@ -9,12 +9,14 @@ import { InventionCard } from '@/components/tr/InventionCard';
 import { Screen } from '@/components/tr/Screen';
 import { Status } from '@/components/tr/Status';
 import { ContextBar } from '@/features/ContextBar';
+import type { FitItem, MyProduct } from '@/features/discovery/fit';
 import { ItemActions } from '@/features/discovery/ItemActions';
 import { FocusFromHash } from '@/features/discovery/FocusFromHash';
 import { appliedFilters, discoverHref, FILTER_LABELS, filterCount, reasonText, RESULT_TYPES, SECTORS, type Discovery, type DiscoveryItem, type Filters, type ResultType } from '@/features/discovery/model';
 import { scopeProps, type StoredRange } from '@/features/intake/model';
 import { readPersona } from '@/features/persona';
 import { labelOf, STAGES } from '@/features/portfolio/model';
+import { FinderView } from '@/views/discovery/finder/FinderView';
 import { PROVENANCE } from '@/views/parts';
 import { t } from '@/features/i18n/t';
 
@@ -115,14 +117,51 @@ function rowFacts(item: DiscoveryItem): string {
   return [text(card, 'subtype'), text(card, 'availability_label')].filter(Boolean).join(' · ');
 }
 
-type Props = { me: Me; type: ResultType; filters: Filters; page: Discovery; fundingOn: boolean; matchesHref: string | null; selected?: string };
+type Props = {
+  me: Me;
+  type: ResultType;
+  filters: Filters;
+  page: Discovery;
+  fundingOn: boolean;
+  matchesHref: string | null;
+  selected?: string;
+  products?: MyProduct[];
+  selectedProduct?: string;
+  initialFit?: FitItem[] | null;
+};
 
 /**
  * S03: separate result types, a search toolbar with filters behind "Filter (n)", removable chips, and a compact list
  * beside one open result. Everything lives in the address, so Back returns to the same search and the same result.
  */
-export function DiscoverView({ me, type, filters, page, fundingOn, matchesHref, selected }: Props) {
+export function DiscoverView({
+  me,
+  type,
+  filters,
+  page,
+  fundingOn,
+  matchesHref,
+  selected,
+  products,
+  selectedProduct,
+  initialFit,
+}: Props) {
   const persona = readPersona(me.account.persona) ?? 'inovator';
+  if (persona === 'inovator' && type === 'partners' && products !== undefined) {
+    return (
+      <FinderView
+        me={me}
+        filters={filters}
+        page={page}
+        fundingOn={fundingOn}
+        matchesHref={matchesHref}
+        selected={selected}
+        products={products}
+        selectedProduct={selectedProduct}
+        initialFit={initialFit}
+      />
+    );
+  }
   const items = page.sections.flatMap((section) => section.items);
   const applied = appliedFilters(page.filters, (value) => labelOf(STAGES, value));
   const types = RESULT_TYPES.filter((item) => !item.capability || fundingOn);

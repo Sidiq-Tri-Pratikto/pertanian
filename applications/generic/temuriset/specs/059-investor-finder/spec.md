@@ -2,7 +2,7 @@
 
 **Feature Branch**: `059-investor-finder`
 **Created**: 2026-11-28
-**Status**: Seeded, not started
+**Status**: Built, awaiting review
 **Milestone**: Revamp 2, demo feedback ([plan](../../docs/roadmap/revamp-2-demo-feedback.md)); Track A
 **Depends on**: 057, 058
 **Size**: L

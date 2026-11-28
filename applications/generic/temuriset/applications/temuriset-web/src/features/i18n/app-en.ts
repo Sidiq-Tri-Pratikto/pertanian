@@ -1,3 +1,4 @@
+import { FINDER_EN } from '@/features/i18n/app-en/finder';
 import { MATCHING_EN } from '@/features/i18n/app-en/matching';
 
 /**
@@ -6,6 +7,7 @@ import { MATCHING_EN } from '@/features/i18n/app-en/matching';
  */
 export const APP_EN: Record<string, string> = {
   ...MATCHING_EN,
+  ...FINDER_EN,
   "Beranda": "Home",
   "Inovasi Saya": "My inventions",
   "Temukan": "Find",
