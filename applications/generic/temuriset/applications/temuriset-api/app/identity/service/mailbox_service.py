@@ -4,7 +4,7 @@ import asyncio
 import json
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import Literal, Protocol
+from typing import Any, Literal, Protocol
 from uuid import UUID, uuid4
 
 from httpx import (
@@ -32,7 +32,7 @@ SECRET_PURPOSE = "temuriset:email:delivery:v1"
 SECRET_RETENTION = timedelta(minutes=10)
 NOTIFICATION_RETRY_WINDOW = timedelta(minutes=15)
 _REQUEST_TIMEOUT_SECONDS = 5.0
-_MAX_MESSAGE_BYTES = 8192
+_MAX_MESSAGE_BYTES = 128 * 1024
 
 
 @dataclass(frozen=True)
@@ -50,19 +50,36 @@ class MailboxAdapter(Protocol):
     """Accepts one message in the caller's transaction."""
 
     async def send(
-        self, session: AsyncSession, *, to_email: str, subject: str, body: str, reference: MailReference | None = None
+        self,
+        session: AsyncSession,
+        *,
+        to_email: str,
+        subject: str,
+        body: str,
+        html: str | None = None,
+        headers: dict[str, str] | None = None,
+        reference: MailReference | None = None,
     ) -> None:
-        """Accept plain text mail, with the originating record for secret delivery."""
+        """Accept plain text (and optional HTML + headers) mail, with the originating record for secret delivery."""
 
 
 class DevelopmentMailbox:
     """Writes messages to ``mailbox_messages``, readable only in development and tests."""
 
     async def send(
-        self, session: AsyncSession, *, to_email: str, subject: str, body: str, reference: MailReference | None = None
+        self,
+        session: AsyncSession,
+        *,
+        to_email: str,
+        subject: str,
+        body: str,
+        html: str | None = None,
+        headers: dict[str, str] | None = None,
+        reference: MailReference | None = None,
     ) -> None:
         """Store the message in the request's transaction."""
-        session.add(MailboxMessageRecord(to_email=to_email, subject=subject, body=body))
+        _ = headers, reference
+        session.add(MailboxMessageRecord(to_email=to_email, subject=subject, body=body, html=html))
         await session.flush()
 
 
@@ -88,7 +105,15 @@ class DisabledMailbox:
     """Fail before giving any caller a false delivery acknowledgement."""
 
     async def send(
-        self, session: AsyncSession, *, to_email: str, subject: str, body: str, reference: MailReference | None = None
+        self,
+        session: AsyncSession,
+        *,
+        to_email: str,
+        subject: str,
+        body: str,
+        html: str | None = None,
+        headers: dict[str, str] | None = None,
+        reference: MailReference | None = None,
     ) -> None:
         """Refuse an email-dependent operation with a safe public error."""
         raise MailUnavailableError()
@@ -102,20 +127,32 @@ class LoopbackMailbox:
         self.key = key
 
     async def send(
-        self, session: AsyncSession, *, to_email: str, subject: str, body: str, reference: MailReference | None = None
+        self,
+        session: AsyncSession,
+        *,
+        to_email: str,
+        subject: str,
+        body: str,
+        html: str | None = None,
+        headers: dict[str, str] | None = None,
+        reference: MailReference | None = None,
     ) -> None:
         """Write the sealed message and deadline to a job in the caller's transaction."""
         if reference is None:
             raise MailRelayRejectedError()
         deadline = min(reference.expires_at, clock.now() + SECRET_RETENTION)
         delivery_key = uuid4().hex
-        fields: dict[str, str | list[str]] = {
+        fields: dict[str, Any] = {
             "to": to_email,
             "subject": subject,
             "body": body,
             "source_kind": reference.kind,
             "source_id": str(reference.id),
         }
+        if html is not None:
+            fields["html"] = html
+        if headers:
+            fields["headers"] = headers
         if reference.subjects:
             fields["subjects"] = [str(subject_id) for subject_id in reference.subjects]
         message = _message_bytes(fields)
@@ -149,7 +186,7 @@ def privacy_mailbox_for(settings: Settings) -> DevelopmentMailbox | DisabledMail
     return DisabledMailbox()
 
 
-def _message_bytes(fields: dict[str, str | list[str]]) -> bytes:
+def _message_bytes(fields: dict[str, Any]) -> bytes:
     payload = json.dumps(fields, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
     if len(payload) > _MAX_MESSAGE_BYTES:
         raise MailRelayRejectedError()
@@ -170,13 +207,30 @@ def _resolve_relay_failure(error: HTTPError | InvalidURL | TimeoutError) -> AppE
     return failure
 
 
-async def deliver_to_relay(settings: Settings, *, delivery_key: str, to_email: str, subject: str, body: str) -> None:
-    """Post one bounded text message. The relay deduplicates acceptance by delivery key."""
+async def deliver_to_relay(
+    settings: Settings,
+    *,
+    delivery_key: str,
+    to_email: str,
+    subject: str,
+    body: str,
+    html: str | None = None,
+    headers: dict[str, str] | None = None,
+) -> None:
+    """Post one bounded message (text, optional HTML and headers). The relay deduplicates by delivery key."""
     if not loopback_mail_enabled(settings) or settings.email_relay_url is None or settings.email_relay_sender is None:
         raise MailUnavailableError()
-    payload = _message_bytes(
-        {"from": settings.email_relay_sender.get_secret_value(), "to": to_email, "subject": subject, "body": body}
-    )
+    fields: dict[str, Any] = {
+        "from": settings.email_relay_sender.get_secret_value(),
+        "to": to_email,
+        "subject": subject,
+        "body": body,
+    }
+    if html is not None:
+        fields["html"] = html
+    if headers:
+        fields["headers"] = headers
+    payload = _message_bytes(fields)
     try:
         async with (
             asyncio.timeout(_REQUEST_TIMEOUT_SECONDS),

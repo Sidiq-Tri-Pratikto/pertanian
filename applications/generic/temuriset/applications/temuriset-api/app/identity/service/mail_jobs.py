@@ -26,6 +26,8 @@ class _SecretMessage(BaseModel):
     to: str
     subject: str
     body: str
+    html: str | None = None
+    headers: dict[str, str] | None = None
     source_kind: Literal["code", "invitation", "subscription", "follow"]
     source_id: UUID
     subjects: list[UUID] = []
@@ -78,5 +80,11 @@ async def deliver_secret(session: AsyncSession, job_input: dict[str, Any]) -> No
     if not deliverable:
         return
     await deliver_to_relay(
-        settings, delivery_key=delivery_key, to_email=message.to, subject=message.subject, body=message.body
+        settings,
+        delivery_key=delivery_key,
+        to_email=message.to,
+        subject=message.subject,
+        body=message.body,
+        html=message.html,
+        headers=message.headers,
     )

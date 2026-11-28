@@ -204,7 +204,7 @@ async def test_a_partial_match_waits_for_the_digest_and_an_empty_week_sends_noth
 
     assert after_alerts == 1
     assert (first, second) == ({"sent": 1}, {"sent": 0})
-    assert digest["subject"] == "Kabar inovasi mingguan TemuRiset: 1 inovasi sesuai minat Anda"
+    assert digest["subject"] == "1 inovasi sesuai minat Anda minggu ini"
     assert "cocok dengan minat Anda, sektor Air dan sanitasi." in digest["body"]
 
 

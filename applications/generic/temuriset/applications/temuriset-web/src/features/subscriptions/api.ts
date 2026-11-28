@@ -18,8 +18,12 @@ export function readSubscription(token: string): Promise<Subscription> {
   return send('POST', '/api/v1/subscriptions/manage', { token });
 }
 
-export function updateTopics(token: string, topics: Topics): Promise<Subscription> {
-  return send('PUT', '/api/v1/subscriptions/manage', { token, topics });
+export function updateTopics(token: string, topics: Topics, locale?: 'id' | 'en'): Promise<Subscription> {
+  return send('PUT', '/api/v1/subscriptions/manage', locale ? { token, topics, locale } : { token, topics });
+}
+
+export function setSubscriptionLanguage(token: string, locale: 'id' | 'en'): Promise<Subscription> {
+  return send('PUT', '/api/v1/subscriptions/manage', { token, locale });
 }
 
 export function unsubscribe(token: string): Promise<Subscription> {

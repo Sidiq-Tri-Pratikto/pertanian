@@ -324,6 +324,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/dev/mail-preview/{template}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Preview one investor email template
+         * @description Render an investor email template with sample data in development (spec 060).
+         */
+        get: operations["preview_mail_api_v1_dev_mail_preview__template__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/dev/mailbox": {
         parameters: {
             query?: never;
@@ -3703,15 +3723,8 @@ export interface paths {
         };
         get?: never;
         /**
-         * Change subscription topics
-         * @description Change topics through a manage link.
-         *
-         *     Args:
-         *         body (UpdateTopicsRequest): The manage token and topics.
-         *         session (SessionDep): Database session.
-         *
-         *     Returns:
-         *         SubscriptionResponse: The subscription.
+         * Change subscription topics or email language
+         * @description Change topics and/or email language through a manage link.
          */
         put: operations["update_api_v1_subscriptions_manage_put"];
         /**
@@ -4041,6 +4054,28 @@ export interface paths {
         get: operations["teaser_photo_api_v1_teasers_inventions__invention_id__photo_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/unsubscribe/one-click": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * RFC 8058 one-click unsubscribe
+         * @description Unsubscribe a subscription or follow in one POST without cookies (RFC 8058).
+         *
+         *     Accepts ``application/x-www-form-urlencoded`` body ``List-Unsubscribe=One-Click``. Repeating it is idempotent.
+         */
+        post: operations["one_click_unsubscribe_api_v1_unsubscribe_one_click_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -6317,6 +6352,8 @@ export interface components {
         MailboxMessageResponse: {
             /** Body */
             body: string;
+            /** Html */
+            html?: string | null;
             /** Subject */
             subject: string;
             /** To Email */
@@ -6678,6 +6715,18 @@ export interface components {
             tab: string;
             /** Text */
             text: string;
+        };
+        /**
+         * OneClickUnsubscribeResponse
+         * @description RFC 8058 one-click unsubscribe confirmation.
+         */
+        OneClickUnsubscribeResponse: {
+            /**
+             * Status
+             * @default unsubscribed
+             * @constant
+             */
+            status?: "unsubscribed";
         };
         /**
          * OperationResponse
@@ -8816,6 +8865,12 @@ export interface components {
             /** Email */
             email: string;
             /**
+             * Locale
+             * @default id
+             * @enum {string}
+             */
+            locale?: "id" | "en";
+            /**
              * Manage Token
              * @description A fresh manage link token, returned once after confirmation.
              */
@@ -9229,12 +9284,14 @@ export interface components {
         };
         /**
          * UpdateTopicsRequest
-         * @description New topics, through a manage link.
+         * @description New topics and/or email language, through a manage link.
          */
         UpdateTopicsRequest: {
+            /** Locale */
+            locale?: ("id" | "en") | null;
             /** Token */
             token: string;
-            topics: components["schemas"]["Topics"];
+            topics?: components["schemas"]["Topics"] | null;
         };
         /**
          * UploadIntentRequest
@@ -9831,6 +9888,48 @@ export interface operations {
                     "application/json": {
                         [key: string]: number;
                     };
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    preview_mail_api_v1_dev_mail_preview__template__get: {
+        parameters: {
+            query?: {
+                lang?: "id" | "en";
+            };
+            header?: never;
+            path: {
+                template: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/html": string;
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
                 };
             };
             /** @description Failure */
@@ -15982,6 +16081,46 @@ export interface operations {
                     "image/jpeg": unknown;
                     "image/png": unknown;
                     "image/webp": unknown;
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    one_click_unsubscribe_api_v1_unsubscribe_one_click_post: {
+        parameters: {
+            query?: {
+                t?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OneClickUnsubscribeResponse"];
                 };
             };
             /** @description Validation failed */

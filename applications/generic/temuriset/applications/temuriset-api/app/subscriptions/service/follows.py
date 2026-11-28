@@ -37,6 +37,7 @@ from app.subscriptions.service.service import (
     masked,
     rate_limit,
 )
+from app.subscriptions.service.unsubscribe import mint_unsubscribe_token
 from app.worker.registry import registry
 
 FANOUT_CONSUMER = "follows.update_fanout"
@@ -102,7 +103,14 @@ class FollowService:
         return token
 
     async def _send(
-        self, record: InventionFollowRecord, subject: str, body: str, update_id: UUID | None = None
+        self,
+        record: InventionFollowRecord,
+        subject: str,
+        body: str,
+        update_id: UUID | None = None,
+        *,
+        html: str | None = None,
+        headers: dict[str, str] | None = None,
     ) -> None:
         reference = MailReference(
             kind="follow",
@@ -110,7 +118,15 @@ class FollowService:
             expires_at=clock.now() + timedelta(hours=1),
             subjects=(update_id,) if update_id is not None else (),
         )
-        await self.mailbox.send(self.session, to_email=record.email, subject=subject, body=body, reference=reference)
+        await self.mailbox.send(
+            self.session,
+            to_email=record.email,
+            subject=subject,
+            body=body,
+            html=html,
+            headers=headers,
+            reference=reference,
+        )
 
     async def follow(self, request: FollowRequest, client_address: str) -> SubscribeResponse:
         """Store a pending follow and email a confirmation link; the answer never reveals what exists.
@@ -155,14 +171,18 @@ class FollowService:
         origin = self.settings.web_origin
         if record.status == "ACTIVE":
             token = await self._link(record, "manage", MANAGE_LIFETIME)
-            subject, body = mail.already_following(origin, token, invention["title"], record.locale)
+            subject, body, html, headers = mail.already_following(
+                origin, token, invention["title"], record.locale, demo=self.settings.demo_mode
+            )
         else:
             record.status, record.locale = "PENDING", request.locale
             record.version += 1
             token = await self._link(record, "confirm", CONFIRM_LIFETIME)
-            subject, body = mail.follow_confirm(origin, token, invention["title"], request.locale)
+            subject, body, html, headers = mail.follow_confirm(
+                origin, token, invention["title"], request.locale, demo=self.settings.demo_mode
+            )
         await self.session.flush()
-        await self._send(record, subject, body)
+        await self._send(record, subject, body, html=html, headers=headers)
         return SubscribeResponse()
 
     async def _by_token(self, token: str, purpose: str) -> tuple[InventionFollowRecord, InventionFollowLinkRecord]:
@@ -309,7 +329,8 @@ class FollowService:
             if claimed is None:
                 continue
             token = await self._link(record, "manage", MANAGE_LIFETIME)
-            subject, body = mail.follow_update(
+            unsub_token = await mint_unsubscribe_token(self.session, "follow", record.id)
+            subject, body, html, headers = mail.follow_update(
                 self.settings,
                 str(update.invention_id),
                 invention["title"],
@@ -317,8 +338,9 @@ class FollowService:
                 update.body,
                 token,
                 record.locale,
+                unsubscribe_token=unsub_token,
             )
-            await self._send(record, subject, body, update.id)
+            await self._send(record, subject, body, update.id, html=html, headers=headers)
             sent += 1
         return sent
 

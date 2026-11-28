@@ -2,7 +2,7 @@
 
 **Feature Branch**: `060-investor-email`
 **Created**: 2026-11-28
-**Status**: Seeded, not started
+**Status**: Built, awaiting review
 **Milestone**: Revamp 2, demo feedback ([plan](../../docs/roadmap/revamp-2-demo-feedback.md)); Track B
 **Depends on**: 046, 053, 056
 **Size**: L

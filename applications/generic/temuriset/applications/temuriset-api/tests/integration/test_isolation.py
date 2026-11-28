@@ -41,6 +41,8 @@ NOT_DATA_ROUTES = {
     ("POST", "/api/v1/dev/bookings"),
     # Development only: runs the weekly investor digest now.
     ("POST", "/api/v1/dev/digest"),
+    # Development only: renders sample investor emails (spec 060).
+    ("GET", "/api/v1/dev/mail-preview/{template}"),
     # Quick subscriptions need no account: the email is the subscriber and each link carries its own token. The
     # teaser shows only what the managing party included for investors. Both are proven in
     # tests/integration/subscriptions.
@@ -49,6 +51,8 @@ NOT_DATA_ROUTES = {
     ("POST", "/api/v1/subscriptions/manage"),
     ("PUT", "/api/v1/subscriptions/manage"),
     ("POST", "/api/v1/subscriptions/unsubscribe"),
+    # RFC 8058 one-click unsubscribe: no account, token-only (spec 060).
+    ("POST", "/api/v1/unsubscribe/one-click"),
     # Following one invention (053): no account; a link token in the body is the only key.
     ("POST", "/api/v1/follows"),
     ("POST", "/api/v1/follows/preview"),

@@ -4828,6 +4828,17 @@
             "title": "Body",
             "type": "string"
           },
+          "html": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Html"
+          },
           "subject": {
             "title": "Subject",
             "type": "string"
@@ -5623,6 +5634,19 @@
           "read"
         ],
         "title": "NotificationResponse",
+        "type": "object"
+      },
+      "OneClickUnsubscribeResponse": {
+        "description": "RFC 8058 one-click unsubscribe confirmation.",
+        "properties": {
+          "status": {
+            "const": "unsubscribed",
+            "default": "unsubscribed",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "title": "OneClickUnsubscribeResponse",
         "type": "object"
       },
       "OperationResponse": {
@@ -10467,6 +10491,15 @@
             "title": "Email",
             "type": "string"
           },
+          "locale": {
+            "default": "id",
+            "enum": [
+              "id",
+              "en"
+            ],
+            "title": "Locale",
+            "type": "string"
+          },
           "manage_token": {
             "anyOf": [
               {
@@ -11443,8 +11476,23 @@
       },
       "UpdateTopicsRequest": {
         "additionalProperties": false,
-        "description": "New topics, through a manage link.",
+        "description": "New topics and/or email language, through a manage link.",
         "properties": {
+          "locale": {
+            "anyOf": [
+              {
+                "enum": [
+                  "id",
+                  "en"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Locale"
+          },
           "token": {
             "maxLength": 200,
             "minLength": 20,
@@ -11452,12 +11500,18 @@
             "type": "string"
           },
           "topics": {
-            "$ref": "#/components/schemas/Topics"
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Topics"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
-          "token",
-          "topics"
+          "token"
         ],
         "title": "UpdateTopicsRequest",
         "type": "object"
@@ -12288,6 +12342,73 @@
           }
         },
         "summary": "Send the weekly investor digest now, for tests",
+        "tags": [
+          "development"
+        ]
+      }
+    },
+    "/api/v1/dev/mail-preview/{template}": {
+      "get": {
+        "description": "Render an investor email template with sample data in development (spec 060).",
+        "operationId": "preview_mail_api_v1_dev_mail_preview__template__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "template",
+            "required": true,
+            "schema": {
+              "title": "Template",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "lang",
+            "required": false,
+            "schema": {
+              "default": "id",
+              "enum": [
+                "id",
+                "en"
+              ],
+              "title": "Lang",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Preview one investor email template",
         "tags": [
           "development"
         ]
@@ -20446,7 +20567,7 @@
         ]
       },
       "put": {
-        "description": "Change topics through a manage link.\n\nArgs:\n    body (UpdateTopicsRequest): The manage token and topics.\n    session (SessionDep): Database session.\n\nReturns:\n    SubscriptionResponse: The subscription.",
+        "description": "Change topics and/or email language through a manage link.",
         "operationId": "update_api_v1_subscriptions_manage_put",
         "requestBody": {
           "content": {
@@ -20490,7 +20611,7 @@
             "description": "Failure"
           }
         },
-        "summary": "Change subscription topics",
+        "summary": "Change subscription topics or email language",
         "tags": [
           "subscriptions"
         ]
@@ -21201,6 +21322,60 @@
           }
         },
         "summary": "Read the public page's photo",
+        "tags": [
+          "subscriptions"
+        ]
+      }
+    },
+    "/api/v1/unsubscribe/one-click": {
+      "post": {
+        "description": "Unsubscribe a subscription or follow in one POST without cookies (RFC 8058).\n\nAccepts ``application/x-www-form-urlencoded`` body ``List-Unsubscribe=One-Click``. Repeating it is idempotent.",
+        "operationId": "one_click_unsubscribe_api_v1_unsubscribe_one_click_post",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "t",
+            "required": false,
+            "schema": {
+              "default": "",
+              "title": "T",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OneClickUnsubscribeResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "RFC 8058 one-click unsubscribe",
         "tags": [
           "subscriptions"
         ]

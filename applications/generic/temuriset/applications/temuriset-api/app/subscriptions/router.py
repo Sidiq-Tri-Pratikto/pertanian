@@ -1,15 +1,18 @@
 """Investor quick subscriptions and teasers. No route here needs sign-in; links carry their own tokens."""
 
+from urllib.parse import parse_qs
 from uuid import UUID
 
-from fastapi import APIRouter, Request, Response, status
+from fastapi import APIRouter, Query, Request, Response, status
 
 from app.core.database import SessionDep
+from app.core.errors.base import FieldsInvalidError
 from app.identity.router import _client_address
 from app.subscriptions.model.schema import (
     FollowLanguageRequest,
     FollowRequest,
     FollowResponse,
+    OneClickUnsubscribeResponse,
     SubscribeRequest,
     SubscribeResponse,
     SubscriptionResponse,
@@ -19,6 +22,7 @@ from app.subscriptions.model.schema import (
 )
 from app.subscriptions.service.follows import FollowService
 from app.subscriptions.service.service import SubscriptionService
+from app.subscriptions.service.unsubscribe import consume_one_click
 
 router = APIRouter(tags=["subscriptions"])
 
@@ -66,18 +70,29 @@ async def read(body: TokenRequest, session: SessionDep) -> SubscriptionResponse:
     return await SubscriptionService(session).read(body.token)
 
 
-@router.put("/subscriptions/manage", summary="Change subscription topics")
+@router.put("/subscriptions/manage", summary="Change subscription topics or email language")
 async def update(body: UpdateTopicsRequest, session: SessionDep) -> SubscriptionResponse:
-    """Change topics through a manage link.
+    """Change topics and/or email language through a manage link."""
+    return await SubscriptionService(session).update(body.token, body.topics, body.locale)
 
-    Args:
-        body (UpdateTopicsRequest): The manage token and topics.
-        session (SessionDep): Database session.
 
-    Returns:
-        SubscriptionResponse: The subscription.
+@router.post("/unsubscribe/one-click", summary="RFC 8058 one-click unsubscribe")
+async def one_click_unsubscribe(
+    request: Request, session: SessionDep, t: str = Query(default="")
+) -> OneClickUnsubscribeResponse:
+    """Unsubscribe a subscription or follow in one POST without cookies (RFC 8058).
+
+    Accepts ``application/x-www-form-urlencoded`` body ``List-Unsubscribe=One-Click``. Repeating it is idempotent.
     """
-    return await SubscriptionService(session).update(body.token, body.topics)
+    raw = (await request.body()).decode("utf-8", errors="ignore").strip()
+    if raw:
+        parsed = parse_qs(raw, keep_blank_values=True)
+        if parsed.get("List-Unsubscribe") != ["One-Click"]:
+            raise FieldsInvalidError(
+                [{"loc": ["body", "List-Unsubscribe"], "msg": "Expected List-Unsubscribe=One-Click.", "type": "value"}]
+            )
+    await consume_one_click(session, t)
+    return OneClickUnsubscribeResponse()
 
 
 @router.post("/subscriptions/unsubscribe", summary="Unsubscribe")

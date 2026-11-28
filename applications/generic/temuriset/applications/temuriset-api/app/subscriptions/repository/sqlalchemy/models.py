@@ -110,3 +110,15 @@ class InventionFollowDeliveryRecord(Row, Base):
 
     follow_id: Mapped[UUID] = mapped_column(ForeignKey("invention_follows.id", ondelete="CASCADE"))
     update_id: Mapped[UUID] = mapped_column(ForeignKey("invention_updates.id", ondelete="CASCADE"), index=True)
+
+
+class UnsubscribeLinkRecord(Row, Base):
+    """A 365-day single-purpose RFC 8058 one-click unsubscribe token for a subscription or follow, hashed at rest."""
+
+    __tablename__ = "unsubscribe_links"
+    __table_args__ = (CheckConstraint("kind IN ('subscription', 'follow')", name="kind"),)
+
+    kind: Mapped[str] = mapped_column(String(16))
+    target_id: Mapped[UUID] = mapped_column(index=True)
+    token_sha256: Mapped[str] = mapped_column(String(64), unique=True)
+    expires_at: Mapped[datetime]
