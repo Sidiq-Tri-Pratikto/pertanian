@@ -1,0 +1,49 @@
+name: TemuRiset Docs
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - applications/generic/temuriset/docs/**
+      - applications/generic/temuriset/specs/**
+      - docs/generic/temuriset/**
+      - .github/workflows/temuriset-docs.yml
+  pull_request:
+    paths:
+      - applications/generic/temuriset/docs/**
+      - applications/generic/temuriset/specs/**
+      - docs/generic/temuriset/**
+      - .github/workflows/temuriset-docs.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: temuriset-docs-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  traceability:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check PRD-to-spec traceability
+        run: python3 applications/generic/temuriset/docs/roadmap/check_traceability.py
+      - name: Check feature registry spec folders exist
+        run: |
+          python3 - <<'PY'
+          import pathlib, re, sys
+
+          root = pathlib.Path("applications/generic/temuriset")
+          registry = (root / "applications/temuriset-web/src/features/registry.ts").read_text(encoding="utf-8")
+          specs = sorted(p.name for p in (root / "specs").iterdir() if p.is_dir())
+          missing = []
+          for match in re.finditer(r"specs:\s*\[([^\]]*)\]", registry):
+              for spec_id in re.findall(r"['\"](\d{3})['\"]", match.group(1)):
+                  if not any(folder.startswith(f"{spec_id}-") for folder in specs):
+                      missing.append(spec_id)
+          if missing:
+              print(f"Missing spec folders referenced in registry.ts: {missing}", file=sys.stderr)
+              sys.exit(1)
+          print("All registry spec references resolve.")
+          PY
