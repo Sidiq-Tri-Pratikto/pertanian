@@ -28,6 +28,7 @@ export const ROUTES: Route[] = [
   { path: '/inventions', persona: 'inovator' },
   { path: '/inventions/import', persona: 'inovator' },
   { path: '/discover', persona: 'inovator' },
+  { path: '/discover?type=partners&produk=:published', persona: 'inovator' },
   { path: '/pitches', persona: 'inovator' },
   { path: '/pitches/00000000-0000-4000-8000-000000000000', persona: 'inovator' },
   { path: '/settings', persona: 'inovator', primary: 'Keluar' },

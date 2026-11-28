@@ -44,12 +44,7 @@ export function FitTable({ items, returnTo }: Props) {
                 </div>
               ) : null}
               <details className="tr-disclosure">
-                <summary
-                  className="tr-disclosure__toggle"
-                  aria-label={t('Rincian kecocokan {product} × {mandate}', {
-                    product: item.invention.title,
-                    mandate: item.opportunity.title,
-                  })}>
+                <summary className="tr-disclosure__toggle">
                   <div className="tr-stack">
                     <div className="tr-row">
                       <strong className="tr-sys-type-body-strong">{item.invention.title}</strong>
