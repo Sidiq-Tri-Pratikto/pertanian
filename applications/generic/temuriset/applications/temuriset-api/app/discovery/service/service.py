@@ -2,6 +2,7 @@
 
 import re
 from datetime import datetime
+from decimal import Decimal
 from typing import Any
 from uuid import UUID
 
@@ -23,6 +24,8 @@ from app.discovery.model.schema import (
 from app.discovery.repository.sqlalchemy.models import RelevanceFeedbackRecord, SavedItemRecord, SearchDocumentRecord
 from app.discovery.repository.sqlalchemy.repository import SearchQuery, SqlAlchemyDiscoveryRepository
 from app.identity.model.models import Principal
+from app.matching.model.schema import PartnerBestFit
+from app.matching.service.fit import FitService
 
 MAX_WORDS = 8
 _WORD = re.compile(r"\w+", re.UNICODE)
@@ -149,6 +152,7 @@ class DiscoveryService:
         text: str = "",
         filters: dict[str, Any] | None = None,
         saved: bool = False,
+        produk: str | None = None,
         cursor: str | None = None,
         limit: int = 20,
     ) -> DiscoveryResponse:
@@ -189,6 +193,27 @@ class DiscoveryService:
             position = decode_cursor(cursor)
             after = (datetime.fromisoformat(position["published_at"]), UUID(position["id"]))
         query = await self._query(principal, result_type, text, parsed, saved)
+        fit_mode = result_type == "partners" and bool(produk)
+        if fit_mode:
+            invention_id: UUID | None = None
+            if produk and produk != "all":
+                try:
+                    invention_id = UUID(produk)
+                except ValueError as error:
+                    raise FieldsInvalidError(
+                        [{"loc": ["query", "produk"], "msg": "Pilih produk yang valid.", "type": "filter"}]
+                    ) from error
+            rows = await self.repository.search(query, after=None, limit=max(limit, 200))
+            total = await self.repository.count(query)
+            if not rows:
+                empty.total_estimate = total
+                if echoed:
+                    empty.relaxation = await self._relaxation(principal, result_type, text, parsed, saved)
+                return empty
+            saved_keys = await self.repository.keys_of(SavedItemRecord, principal.active_party_id)
+            best_map = await FitService(self.session).best_by_partner(principal, invention_id=invention_id)
+            return self._partner_fit_response(rows, saved_keys, best_map, echoed, total, limit)
+
         rows = await self.repository.search(query, after=after, limit=limit + 1)
         total = await self.repository.count(query)
         if not rows:
@@ -226,6 +251,61 @@ class DiscoveryService:
             next_cursor=encode_cursor({"published_at": last.published_at.isoformat(), "id": str(last.id)})
             if more
             else None,
+            total_estimate=total,
+            relaxation=None,
+        )
+
+    @staticmethod
+    def _partner_fit_response(
+        rows: list[SearchDocumentRecord],
+        saved_keys: set[tuple[str, UUID]],
+        best_map: dict[UUID, PartnerBestFit],
+        echoed: dict[str, Any],
+        total: int,
+        limit: int,
+    ) -> DiscoveryResponse:
+        """Order partners strictly by fit (never popularity/curation), incompatible and unranked last (spec 059)."""
+
+        def _rank_key(item: DiscoveryItem) -> tuple[int, int, Decimal, Decimal, str]:
+            bf = item.best_fit
+            if bf is None:
+                return (2, 1, Decimal(0), Decimal(0), item.title.casefold())
+            incompatible = 1 if bf.eligibility == "INCOMPATIBLE" else 0
+            no_signal = 1 if bf.label == "Belum ada sinyal relevansi" else 0
+            return (incompatible, no_signal, -Decimal(bf.fit.lower), -Decimal(bf.fit.coverage), item.title.casefold())
+
+        items = [
+            DiscoveryItem(
+                subject_type=row.subject_type,  # type: ignore[arg-type]
+                subject_id=row.subject_id,
+                title=row.title,
+                card=row.card,
+                curated=row.curated,
+                saved=(row.subject_type, row.subject_id) in saved_keys,
+                reasons=[],
+                best_fit=best_map.get(row.subject_id),
+            )
+            for row in rows
+        ]
+        items.sort(key=_rank_key)
+        page_items = items[:limit]
+        matched = [
+            item
+            for item in page_items
+            if item.best_fit is not None
+            and item.best_fit.eligibility != "INCOMPATIBLE"
+            and item.best_fit.label != "Belum ada sinyal relevansi"
+        ]
+        unmatched = [item for item in page_items if item not in matched]
+        return DiscoveryResponse(
+            type="partners",
+            sections=[
+                DiscoverySection(id="relevant", title="Sesuai produk Anda", items=matched),
+                DiscoverySection(id="new", title="Belum cocok", items=unmatched),
+                DiscoverySection(id="curated", title=_SECTION_TITLES["curated"], items=[]),
+            ],
+            filters=echoed,
+            next_cursor=None,
             total_estimate=total,
             relaxation=None,
         )

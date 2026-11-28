@@ -6,7 +6,8 @@ from fastapi import APIRouter, Request, status
 
 from app.core.database import SessionDep
 from app.core.security import PrincipalDep
-from app.matching.model.schema import MatchRequest, MatchResultResponse, MatchRunResponse
+from app.matching.model.schema import FitItem, MatchRequest, MatchResultResponse, MatchRunResponse
+from app.matching.service.fit import FitService
 from app.matching.service.service import MatchingService
 from app.platform.model.schema import OperationResult
 from app.platform.service.idempotency import Idempotency, idempotent
@@ -76,3 +77,31 @@ async def preview_invention_fit(
         list[MatchResultResponse]: One preview result per active mandate; nothing is stored.
     """
     return await MatchingService(session).invention_fit(principal, invention_id, acting_party_id)
+
+
+@router.get("/fit", summary="Score my published products against active mandates")
+async def list_fit(
+    principal: PrincipalDep,
+    session: SessionDep,
+    acting_party_id: UUID | None = None,
+    partner_party_id: UUID | None = None,
+    invention_id: UUID | None = None,
+) -> list[FitItem]:
+    """Read-only product × mandate fit matrix for the acting party's published products (spec 059).
+
+    Args:
+        principal (PrincipalDep): Who is signed in.
+        session (SessionDep): Database session.
+        acting_party_id (UUID | None, optional): Optional acting party check. Defaults to None.
+        partner_party_id (UUID | None, optional): Filter to one partner. Defaults to None.
+        invention_id (UUID | None, optional): Filter to one own product. Defaults to None.
+
+    Returns:
+        list[FitItem]: Ordered fit items with breakdown and recommendations; never stored.
+    """
+    return await FitService(session).list(
+        principal,
+        acting_party_id=acting_party_id,
+        partner_party_id=partner_party_id,
+        invention_id=invention_id,
+    )

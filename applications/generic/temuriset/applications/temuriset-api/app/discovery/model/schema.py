@@ -5,6 +5,8 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
+from app.matching.model.schema import PartnerBestFit
+
 ResultType = Literal["inventions", "funding", "partners"]
 SubjectType = Literal["INVENTION", "FUNDING_REQUEST", "PARTNER"]
 SectionId = Literal["relevant", "new", "curated"]
@@ -22,6 +24,7 @@ class DiscoveryItem(BaseModel):
     curated: bool
     saved: bool
     reasons: list[str]
+    best_fit: PartnerBestFit | None = None
 
 
 class DiscoverySection(BaseModel):

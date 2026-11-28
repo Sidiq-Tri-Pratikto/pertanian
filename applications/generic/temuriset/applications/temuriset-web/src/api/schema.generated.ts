@@ -713,6 +713,36 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/fit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Score my published products against active mandates
+         * @description Read-only product × mandate fit matrix for the acting party's published products (spec 059).
+         *
+         *     Args:
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         acting_party_id (UUID | None, optional): Optional acting party check. Defaults to None.
+         *         partner_party_id (UUID | None, optional): Filter to one partner. Defaults to None.
+         *         invention_id (UUID | None, optional): Filter to one own product. Defaults to None.
+         *
+         *     Returns:
+         *         list[FitItem]: Ordered fit items with breakdown and recommendations; never stored.
+         */
+        get: operations["list_fit_api_v1_fit_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/follows": {
         parameters: {
             query?: never;
@@ -5247,6 +5277,7 @@ export interface components {
          * @description One result card. ``card`` holds what the owner published, by subject type.
          */
         DiscoveryItem: {
+            best_fit?: components["schemas"]["PartnerBestFit"] | null;
             /** Card */
             card: {
                 [key: string]: unknown;
@@ -5747,6 +5778,55 @@ export interface components {
             terms?: string;
             /** Unknown Reason */
             unknown_reason?: ("not_determined" | "not_disclosed") | null;
+        };
+        /**
+         * FitInvention
+         * @description Summary of one of the acting party's published inventions in a fit matrix (spec 059).
+         */
+        FitInvention: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Stage */
+            stage: string | null;
+            /** Title */
+            title: string;
+            /** Tkt Level */
+            tkt_level: number | null;
+        };
+        /**
+         * FitItem
+         * @description One own-product × active-mandate score, read-only and never stored (spec 059).
+         */
+        FitItem: {
+            invention: components["schemas"]["FitInvention"];
+            opportunity: components["schemas"]["FitOpportunity"];
+            /** Preview */
+            preview: boolean;
+            result: components["schemas"]["MatchResultResponse"];
+            source: components["schemas"]["MatchSource"] | null;
+        };
+        /**
+         * FitOpportunity
+         * @description Summary of one active mandate in a fit matrix (spec 059).
+         */
+        FitOpportunity: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Partner */
+            partner: string;
+            /**
+             * Partner Party Id
+             * Format: uuid
+             */
+            partner_party_id: string;
+            /** Title */
+            title: string;
         };
         /**
          * FitResponse
@@ -7118,6 +7198,42 @@ export interface components {
              * @enum {string}
              */
             result: "COMPLETED" | "NO_SHOW";
+        };
+        /**
+         * PartnerBestFit
+         * @description Best fit summary for one partner in the investor finder list (spec 059).
+         */
+        PartnerBestFit: {
+            /**
+             * Eligibility
+             * @enum {string}
+             */
+            eligibility: "ELIGIBLE" | "NEEDS_VERIFICATION" | "INCOMPATIBLE";
+            fit: components["schemas"]["FitResponse"];
+            /**
+             * Invention Id
+             * Format: uuid
+             */
+            invention_id: string;
+            /** Invention Title */
+            invention_title: string;
+            /** Label */
+            label: string;
+            /**
+             * Matching Products
+             * @default 0
+             */
+            matching_products?: number;
+            /**
+             * Opportunity Id
+             * Format: uuid
+             */
+            opportunity_id: string;
+            /**
+             * Preview
+             * @default false
+             */
+            preview?: boolean;
         };
         /**
          * PartnerProfileResponse
@@ -10098,6 +10214,7 @@ export interface operations {
                 amount_min?: string | null;
                 amount_max?: string | null;
                 saved?: boolean;
+                produk?: string | null;
                 cursor?: string | null;
                 limit?: number;
             };
@@ -10591,6 +10708,48 @@ export interface operations {
                 };
                 content: {
                     "application/json": string;
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    list_fit_api_v1_fit_get: {
+        parameters: {
+            query?: {
+                acting_party_id?: string | null;
+                partner_party_id?: string | null;
+                invention_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FitItem"][];
                 };
             };
             /** @description Validation failed */
