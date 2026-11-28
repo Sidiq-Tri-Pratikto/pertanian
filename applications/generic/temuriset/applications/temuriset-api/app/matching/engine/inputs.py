@@ -52,6 +52,7 @@ class Source:
         accepts_partial (bool): Whether partial support is accepted.
         contribution (Money | None): A raise's desired contribution per investor.
         documents (dict[str, tuple[dict[str, str], ...]]): Per fact key, the evaluation of each linked file.
+        tkt (int | None): Lowest stated TKT (1-9) across linked inventions, or None when none is stated.
     """
 
     type: str
@@ -92,7 +93,7 @@ class Target:
         financial (Money | None): Its financial basis, when it states a range.
         requirements (tuple[dict[str, Any], ...]): Public requirements in order.
         availability (dict[str, Any]): Whether a pitch may target it now, from intake.
-        min_tkt (int | None): Optional minimum technology readiness level preference (1–9).
+        min_tkt (int | None): Optional minimum TKT (1-9) preference on the mandate.
     """
 
     opportunity_id: str

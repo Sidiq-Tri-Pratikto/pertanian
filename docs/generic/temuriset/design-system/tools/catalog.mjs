@@ -201,6 +201,22 @@ export const components = [
     h('p', { className: 'tr-muted tr-sys-type-support' }, 'Rentang ini menunjukkan informasi yang belum lengkap. Ini bukan peluang pendanaan.'));`
   },
   {
+    name: 'Toggletip', group: 'Overlays', height: 180,
+    summary: 'Explains a term in place on click or keyboard activation, never hover-only.',
+    anatomy: '24 px icon button with question mark and a live-region panel.',
+    provides: '`label` (term explained), `children` (short explanation), `id`.',
+    states: 'Collapsed, expanded, hover, focus.',
+    a11y: 'Button with `aria-expanded`, `aria-controls` and accessible name "Penjelasan: {label}". Panel mounts inside `role="status"`. Opens on click or Enter; closes on Escape or outside click.',
+    tokens: '`tr-sys-color-surface`, `tr-sys-color-border-control`, `tr-sys-color-selected-*`, `tr-sys-shadow-dialog`.',
+    responsive: 'Panel width caps at viewport width minus gutter so 320 px never overflows.',
+    do: 'Use for short definitions such as TKT levels or match dimensions.',
+    dont: 'Do not put interactive forms or long sections inside a toggletip; use Disclosure or Dialog.',
+    demo: `
+  return h('div', { className: 'tr-row' },
+    h('span', { className: 'tr-sys-type-label' }, 'TKT 6 · Prototipe teruji'),
+    h(TR.Toggletip, { label: 'TKT 6' }, 'Prototipe sudah didemonstrasikan di lingkungan yang relevan. Contoh bukti: foto atau video prototipe, laporan demonstrasi.'));`
+  },
+  {
     name: 'Tabs', group: 'Overlays', height: 230,
     summary: 'Related views inside one pitch workspace.',
     anatomy: 'Tab list, tabs, one panel.',

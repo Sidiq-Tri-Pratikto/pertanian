@@ -181,7 +181,7 @@ export function EditorView({ me, invention, initialStep, documents, fundingOn = 
         {step === 2 ? <EvidenceStep values={values} errors={errors} edit={edit} hasDocuments={Boolean(documents)} /> : null}
         {/* Kept mounted on every step, so a transfer continues while the person moves on. */}
         {documents ? (
-          <div hidden={step !== 2} className="tr-stack">
+          <div id="dokumen" hidden={step !== 2} className="tr-stack">
             <h3 className="tr-sys-type-heading-sm">{t('Dokumen bukti')}</h3>
             {documents}
           </div>
@@ -259,7 +259,8 @@ function EvidenceStep({ values, errors, edit, hasDocuments }: StepProps & { hasD
   const facts = values.facts.length ? values.facts : [];
   return (
     <div className="tr-stack">
-      <h3 className="tr-sys-type-heading-sm">{t('Fakta')}</h3>
+      <div id="tkt" />
+      <h3 id="fakta" className="tr-sys-type-heading-sm">{t('Fakta')}</h3>
       <p className="tr-muted">{t('Pisahkan yang sudah ada saat ini dari yang direncanakan, dan sebutkan siapa yang menyatakannya.')}</p>
       {errors.facts ? (
         <Status tone="danger" icon="alert" label={errors.facts} />
@@ -305,12 +306,12 @@ function EvidenceStep({ values, errors, edit, hasDocuments }: StepProps & { hasD
         <Button onClick={() => edit({ claims: [...values.claims, { ...EMPTY_CLAIM }] })}>{t('Tambah klaim')}</Button>
       </div>
       {hasDocuments ? null : (
-        <>
+        <div id="dokumen" className="tr-stack">
           <h3 className="tr-sys-type-heading-sm">{t('Dokumen bukti')}</h3>
           <Status tone="neutral" label={t('Segera hadir')}>
             <p>{t('Dokumen bukti dapat diunggah di langkah ini segera. Dokumen selalu privat sampai Anda membagikannya.')}</p>
           </Status>
-        </>
+        </div>
       )}
       <TextArea
         id="catatan"

@@ -97,7 +97,7 @@ def target_of(opportunity: OpportunityResponse, partner_name: str) -> Target:
             for row in opportunity.requirements
         ),
         availability=opportunity.target_availability.model_dump(),
-        min_tkt=getattr(opportunity, "min_tkt", None),
+        min_tkt=opportunity.min_tkt,
     )
 
 

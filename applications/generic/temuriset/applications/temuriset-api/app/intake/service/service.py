@@ -84,6 +84,7 @@ _VERSION_FIELDS = (
     "sectors",
     "keywords",
     "timing",
+    "min_tkt",
 )
 _REQUIREMENT_FIELDS = (
     "label",

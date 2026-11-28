@@ -1,4 +1,4 @@
-/* @ds-bundle: {"format":4,"namespace":"TR","components":[{"name":"Button"},{"name":"Link"},{"name":"TextField"},{"name":"TextArea"},{"name":"Select"},{"name":"ChoiceGroup"},{"name":"Checkbox"},{"name":"FieldError"},{"name":"ErrorSummary"},{"name":"Dialog"},{"name":"Disclosure"},{"name":"Tabs"},{"name":"Status"},{"name":"EmptyState"},{"name":"SaveState"},{"name":"ContextSwitcher"},{"name":"InventionCard"},{"name":"FundingRequestCard"},{"name":"FinancialScope"},{"name":"RequirementRow"},{"name":"FactSource"},{"name":"DocumentItem"},{"name":"RevisionItem"},{"name":"ScheduleSlotList"},{"name":"PartnershipConsent"},{"name":"VersionConflict"},{"name":"NextStep"},{"name":"Steps"},{"name":"SummaryList"},{"name":"Screen"},{"name":"Icon"},{"name":"Logo"}]} */
+/* @ds-bundle: {"format":4,"namespace":"TR","components":[{"name":"Button"},{"name":"Link"},{"name":"TextField"},{"name":"TextArea"},{"name":"Select"},{"name":"ChoiceGroup"},{"name":"Checkbox"},{"name":"FieldError"},{"name":"ErrorSummary"},{"name":"Dialog"},{"name":"Disclosure"},{"name":"Toggletip"},{"name":"Tabs"},{"name":"Status"},{"name":"EmptyState"},{"name":"SaveState"},{"name":"ContextSwitcher"},{"name":"InventionCard"},{"name":"FundingRequestCard"},{"name":"FinancialScope"},{"name":"RequirementRow"},{"name":"FactSource"},{"name":"DocumentItem"},{"name":"RevisionItem"},{"name":"ScheduleSlotList"},{"name":"PartnershipConsent"},{"name":"VersionConflict"},{"name":"NextStep"},{"name":"Steps"},{"name":"SummaryList"},{"name":"Screen"},{"name":"Icon"},{"name":"Logo"}]} */
 /* TemuRiset Design System 1.0.0-draft — window.TR. Hand-written, no build step; reads window.React. */
 (function () {
   'use strict';
@@ -633,6 +633,35 @@
         when(p.onCopy, h(Button, { intent: 'secondary', onClick: p.onCopy }, 'Salin draf saya')),
         when(p.onCompare, h(Button, { intent: 'secondary', onClick: p.onCompare }, 'Bandingkan'))));
   }
+  function Toggletip(p) {
+    var gen = useId();
+    var panelId = (p.id || gen) + '-panel';
+    var rootRef = useRef(null);
+    var state = useState(false), open = state[0], setOpen = state[1];
+    useEffect(function () {
+      if (!open) return;
+      function onKey(e) { if (e.key === 'Escape') setOpen(false); }
+      function onDown(e) { if (rootRef.current && !rootRef.current.contains(e.target)) setOpen(false); }
+      document.addEventListener('keydown', onKey);
+      document.addEventListener('mousedown', onDown);
+      return function () {
+        document.removeEventListener('keydown', onKey);
+        document.removeEventListener('mousedown', onDown);
+      };
+    }, [open]);
+    return h('span', { ref: rootRef, className: 'tr-tip' },
+      h('button', {
+        id: p.id,
+        type: 'button',
+        className: 'tr-tip__button',
+        'aria-expanded': open,
+        'aria-controls': panelId,
+        'aria-label': 'Penjelasan: ' + p.label,
+        onClick: function () { setOpen(function (v) { return !v; }); }
+      }, h(Icon, { name: 'question', size: 'small' })),
+      h('span', { id: panelId, role: 'status', className: 'tr-tip__status' },
+        when(open, h('span', { className: 'tr-tip__panel tr-sys-type-support' }, p.children))));
+  }
 
   /* ================= fictional demo fixtures and test controls (workbench only) ================= */
   var fixtures = {
@@ -679,7 +708,7 @@
     effectiveFields: effectiveFields,
     demo: { fixtures: fixtures, Controls: Controls, useAxes: useAxes },
     Button: Button, Link: Link, TextField: TextField, TextArea: TextArea, Select: Select, ChoiceGroup: ChoiceGroup, Checkbox: Checkbox,
-    FieldError: FieldError, ErrorSummary: ErrorSummary, Dialog: Dialog, Disclosure: Disclosure, Tabs: Tabs, Status: Status, EmptyState: EmptyState,
+    FieldError: FieldError, ErrorSummary: ErrorSummary, Dialog: Dialog, Disclosure: Disclosure, Toggletip: Toggletip, Tabs: Tabs, Status: Status, EmptyState: EmptyState,
     SaveState: SaveState, ContextSwitcher: ContextSwitcher, InventionCard: InventionCard, FundingRequestCard: FundingRequestCard, FinancialScope: FinancialScope,
     RequirementRow: RequirementRow, FactSource: FactSource, DocumentItem: DocumentItem, RevisionItem: RevisionItem, ScheduleSlotList: ScheduleSlotList,
     PartnershipConsent: PartnershipConsent, VersionConflict: VersionConflict, NextStep: NextStep, Steps: Steps, SummaryList: SummaryList, Screen: Screen, Icon: Icon, Logo: Logo
