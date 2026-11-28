@@ -8,6 +8,7 @@ import { NextStep } from '@/components/tr/NextStep';
 import { ScoreBreakdown } from '@/components/tr/ScoreBreakdown';
 import { Screen } from '@/components/tr/Screen';
 import { Status } from '@/components/tr/Status';
+import { TktBadge } from '@/components/tr/TktBadge';
 import { ContextBar } from '@/features/ContextBar';
 import type { Dimension } from '@/features/discovery/breakdown';
 import { percent, score } from '@/features/discovery/model';
@@ -28,7 +29,12 @@ import { t } from '@/features/i18n/t';
 
 type Submission = Pitch['submissions'][number];
 type FrozenMatch = { label?: string; fit?: { lower: string; upper: string; coverage: string }; breakdown?: Dimension[] };
-type Snapshot = { opportunity?: { version?: number }; inventions?: { title: string; number: number }[]; match?: FrozenMatch };
+type FrozenReadiness = { tkt_level?: number; note?: string | null; has_evidence?: boolean } | null;
+type Snapshot = {
+  opportunity?: { version?: number };
+  inventions?: { title: string; number: number; readiness?: FrozenReadiness }[];
+  match?: FrozenMatch;
+};
 
 export type Room = { next: NextAction; schedule: Schedule; messages: Message[]; tasks: Task[]; relationship?: Partnership | null };
 
@@ -42,10 +48,22 @@ function pins(submission: Submission): string {
 }
 
 function Frozen({ submission, showMatch }: { submission: Submission; showMatch?: boolean }) {
-  const match = ((submission.snapshot ?? {}) as Snapshot).match;
+  const snapshot = (submission.snapshot ?? {}) as Snapshot;
+  const match = snapshot.match;
+  const readinessItems = (snapshot.inventions ?? []).filter((invention) => invention.readiness?.tkt_level);
   return (
     <div className="tr-stack">
       <p className="tr-muted tr-sys-type-support">{pins(submission)}</p>
+      {readinessItems.map((invention) => (
+        <TktBadge
+          key={`${invention.title}-${invention.number}`}
+          level={invention.readiness?.tkt_level}
+          note={invention.readiness?.note}
+          hasEvidence={invention.readiness?.has_evidence}
+          showBar
+          showMeta
+        />
+      ))}
       {showMatch && match?.breakdown?.length ? (
         <section className="tr-panel tr-stack" aria-label={t('Kecocokan dengan mandat Anda')}>
           <h3 className="tr-sys-type-heading-sm">{t('Kecocokan dengan mandat Anda')}</h3>

@@ -4918,6 +4918,8 @@ export interface components {
              * @enum {string}
              */
             kind?: "SPECIFIC" | "GENERAL_INTAKE";
+            /** Min Tkt */
+            min_tkt?: number | null;
             /**
              * Outcome
              * @default
@@ -5339,6 +5341,19 @@ export interface components {
             version: number;
         };
         /**
+         * DocumentVersionChoice
+         * @description One version of the managing party's own document (055).
+         */
+        DocumentVersionChoice: {
+            /**
+             * Document Id
+             * Format: uuid
+             */
+            document_id: string;
+            /** Version */
+            version: number;
+        };
+        /**
          * DocumentVersionResponse
          * @description One version's three independent states.
          */
@@ -5405,6 +5420,7 @@ export interface components {
              * @default
              */
             problem?: string;
+            readiness?: components["schemas"]["ReadinessInput"] | null;
             /**
              * Sector
              * @default
@@ -6247,6 +6263,7 @@ export interface components {
             problem: string;
             /** Published At */
             published_at: string | null;
+            readiness?: components["schemas"]["ReadinessResponse"] | null;
             /** Sector */
             sector: string;
             /** Solution */
@@ -6973,6 +6990,8 @@ export interface components {
              * @enum {string}
              */
             kind: "SPECIFIC" | "GENERAL_INTAKE";
+            /** Min Tkt */
+            min_tkt?: number | null;
             /** Number */
             number: number;
             /** Operation Id */
@@ -7037,6 +7056,8 @@ export interface components {
             included: string;
             /** Keywords */
             keywords: string[];
+            /** Min Tkt */
+            min_tkt?: number | null;
             /** Number */
             number: number;
             /**
@@ -7966,6 +7987,7 @@ export interface components {
             problem: string;
             /** Published At */
             published_at: string | null;
+            readiness?: components["schemas"]["ReadinessResponse"] | null;
             /** Sector */
             sector: string;
             /** Solution */
@@ -8207,6 +8229,39 @@ export interface components {
             subject: "partner" | "investorCheck" | "license";
             /** Unknown Reason */
             unknown_reason: ("not_determined" | "not_disclosed") | null;
+        };
+        /**
+         * ReadinessInput
+         * @description Self-declared technology readiness level (TKT 1-9), optional note and optional private evidence (055).
+         */
+        ReadinessInput: {
+            evidence?: components["schemas"]["DocumentVersionChoice"] | null;
+            /**
+             * Note
+             * @default
+             */
+            note?: string;
+            /** Tkt Level */
+            tkt_level: number;
+        };
+        /**
+         * ReadinessResponse
+         * @description Stored TKT readiness. ``evidence`` is returned only to the managing party; never to other readers.
+         */
+        ReadinessResponse: {
+            evidence?: components["schemas"]["DocumentVersionChoice"] | null;
+            /** Has Evidence */
+            has_evidence: boolean;
+            /** Note */
+            note: string;
+            /**
+             * Provenance
+             * @default SELF_DECLARED
+             * @constant
+             */
+            provenance?: "SELF_DECLARED";
+            /** Tkt Level */
+            tkt_level: number;
         };
         /**
          * Recommendation
@@ -8623,6 +8678,8 @@ export interface components {
              * @default []
              */
             keywords?: string[];
+            /** Min Tkt */
+            min_tkt?: number | null;
             /**
              * Outcome
              * @default
@@ -8797,8 +8854,19 @@ export interface components {
             fact_keys: string[];
             /** File State */
             file_state: string;
+            /**
+             * Kind
+             * @default document
+             * @enum {string}
+             */
+            kind?: "document" | "tkt";
             /** Review State */
             review_state: string;
+            /**
+             * Selected
+             * @default false
+             */
+            selected?: boolean;
             /** Title */
             title: string;
             /** Version */
@@ -9144,6 +9212,8 @@ export interface components {
             summary: string;
             /** Title */
             title: string;
+            /** Tkt Level */
+            tkt_level?: number | null;
         };
         /**
          * TeaserUpdate
@@ -10035,6 +10105,7 @@ export interface operations {
                 q?: string;
                 sector?: string | null;
                 stage?: string | null;
+                min_tkt?: number | null;
                 support_form?: string | null;
                 region?: string | null;
                 purpose?: string | null;

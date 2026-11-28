@@ -123,7 +123,9 @@ export function NeedsView({ me, support, funding, published, fundingOn, inventio
             {t('Nyatakan hasil yang ingin dicapai, bentuk dukungan, dan kisaran biaya untuk satu inovasi yang sudah terbit.')}
           </EmptyState>
         )}
-        <NewSupportRequest actingPartyId={me.active_party_id} inventions={published} initial={invention} />
+        <div id="baru">
+          <NewSupportRequest actingPartyId={me.active_party_id} inventions={published} initial={invention} />
+        </div>
       </section>
       <section id="pendanaan" className="tr-stack" aria-labelledby="pendanaan-perusahaan">
         <h2 id="pendanaan-perusahaan" className="tr-sys-type-heading-sm">

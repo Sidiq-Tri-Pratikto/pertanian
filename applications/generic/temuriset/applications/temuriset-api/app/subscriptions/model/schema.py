@@ -94,6 +94,7 @@ class TeaserResponse(BaseModel):
     summary: str
     sector: str
     stage: Stage | None
+    tkt_level: int | None = None
     keywords: list[str]
     inventor_name: str
     published_at: datetime | None

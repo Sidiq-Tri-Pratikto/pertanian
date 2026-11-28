@@ -3,7 +3,7 @@
 from datetime import datetime
 from uuid import UUID
 
-from sqlalchemy import CheckConstraint, ForeignKey, Index, String, Text, UniqueConstraint
+from sqlalchemy import CheckConstraint, ForeignKey, Index, SmallInteger, String, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -74,6 +74,24 @@ class InventionVersionRecord(MutableRow, Base):
     # Never part of the public projection.
     private_notes: Mapped[str] = mapped_column(Text, default="")
     published_at: Mapped[datetime | None]
+
+
+class InventionReadinessRecord(MutableRow, Base):
+    """Self-declared technology readiness level (TKT 1-9) attached to one invention version (055).
+
+    Stored in its own table so constraints never alter ``invention_versions`` (expand-only migration rule).
+    """
+
+    __tablename__ = "invention_readiness"
+    __table_args__ = (
+        CheckConstraint("tkt_level >= 1 AND tkt_level <= 9", name="tkt_level"),
+        CheckConstraint("length(note) <= 500", name="note_length"),
+    )
+
+    version_id: Mapped[UUID] = mapped_column(ForeignKey("invention_versions.id", ondelete="CASCADE"), unique=True)
+    tkt_level: Mapped[int] = mapped_column(SmallInteger)
+    note: Mapped[str] = mapped_column(Text, default="", server_default="")
+    evidence_version_id: Mapped[UUID | None] = mapped_column(ForeignKey("document_versions.id", ondelete="SET NULL"))
 
 
 class InventionFactRecord(Row, Base):

@@ -18,10 +18,13 @@ import { Status } from '@/components/tr/Status';
 import { Steps } from '@/components/tr/Steps';
 import { TextArea } from '@/components/tr/TextArea';
 import { TextField } from '@/components/tr/TextField';
+import { TktBadge } from '@/components/tr/TktBadge';
 import { VersionConflict } from '@/components/tr/VersionConflict';
 import { ContextBar, contextOptions } from '@/features/ContextBar';
+import type { DocumentView } from '@/features/documents/model';
 import { readPersona } from '@/features/persona';
 import { publishInvention, readInvention, saveDraft } from '@/features/portfolio/api';
+import { TktSteps } from '@/features/portfolio/TktSteps';
 import {
   draftRequest,
   EMPTY_CLAIM,
@@ -49,6 +52,8 @@ type EditorViewProps = {
   initialStep: number;
   /** Step 2's document area; spec 012 fills it. */
   documents?: ReactNode;
+  /** Owner's uploaded documents, for choosing TKT documentation in step 2 (spec 056). */
+  availableDocuments?: DocumentView[];
   /** Whether this deployment runs company funding; step 3 links to it only then. */
   fundingOn?: boolean;
   /** Same-origin return address from a match recommendation (spec 058). */
@@ -59,7 +64,7 @@ type EditorViewProps = {
  * S05: four steps. Values survive step changes, Back, failed saves and stale versions (UX-03). Every save sends
  * `expected_version` and an idempotency key; a retry of the same save reuses its key.
  */
-export function EditorView({ me, invention, initialStep, documents, fundingOn = false, returnTo = null }: EditorViewProps) {
+export function EditorView({ me, invention, initialStep, documents, availableDocuments = [], fundingOn = false, returnTo = null }: EditorViewProps) {
   const router = useRouter();
   const persona = readPersona(me.account.persona) ?? 'inovator';
   const [state, dispatch] = useReducer(reduce, invention, initialState);
@@ -196,10 +201,19 @@ export function EditorView({ me, invention, initialStep, documents, fundingOn = 
           {current.label}
         </h2>
         {step === 1 ? <BasicsStep values={values} errors={errors} edit={edit} /> : null}
-        {step === 2 ? <EvidenceStep values={values} errors={errors} edit={edit} hasDocuments={Boolean(documents)} /> : null}
+        {step === 2 ? (
+          <EvidenceStep
+            values={values}
+            errors={errors}
+            edit={edit}
+            hasDocuments={Boolean(documents)}
+            actingPartyId={me.active_party_id}
+            availableDocuments={availableDocuments}
+          />
+        ) : null}
         {/* Kept mounted on every step, so a transfer continues while the person moves on. */}
         {documents ? (
-          <div hidden={step !== 2} className="tr-stack">
+          <div id="dokumen" hidden={step !== 2} className="tr-stack">
             <h3 className="tr-sys-type-heading-sm">{t('Dokumen bukti')}</h3>
             {documents}
           </div>
@@ -267,7 +281,14 @@ function BasicsStep({ values, errors, edit }: StepProps) {
   );
 }
 
-function EvidenceStep({ values, errors, edit, hasDocuments }: StepProps & { hasDocuments: boolean }) {
+function EvidenceStep({
+  values,
+  errors,
+  edit,
+  hasDocuments,
+  actingPartyId,
+  availableDocuments,
+}: StepProps & { hasDocuments: boolean; actingPartyId: string; availableDocuments: DocumentView[] }) {
   function setFact(index: number, patch: Partial<DraftValues['facts'][number]>) {
     edit({ facts: values.facts.map((fact, position) => (position === index ? { ...fact, ...patch } : fact)) });
   }
@@ -277,7 +298,14 @@ function EvidenceStep({ values, errors, edit, hasDocuments }: StepProps & { hasD
   const facts = values.facts.length ? values.facts : [];
   return (
     <div className="tr-stack">
-      <h3 className="tr-sys-type-heading-sm">{t('Fakta')}</h3>
+      <TktSteps
+        value={values.readiness}
+        onChange={(readiness) => edit({ readiness })}
+        stage={values.stage}
+        actingPartyId={actingPartyId}
+        documents={availableDocuments}
+      />
+      <h3 id="fakta" className="tr-sys-type-heading-sm">{t('Fakta')}</h3>
       <p className="tr-muted">{t('Pisahkan yang sudah ada saat ini dari yang direncanakan, dan sebutkan siapa yang menyatakannya.')}</p>
       {errors.facts ? (
         <Status tone="danger" icon="alert" label={errors.facts} />
@@ -323,12 +351,12 @@ function EvidenceStep({ values, errors, edit, hasDocuments }: StepProps & { hasD
         <Button onClick={() => edit({ claims: [...values.claims, { ...EMPTY_CLAIM }] })}>{t('Tambah klaim')}</Button>
       </div>
       {hasDocuments ? null : (
-        <>
+        <div id="dokumen" className="tr-stack">
           <h3 className="tr-sys-type-heading-sm">{t('Dokumen bukti')}</h3>
           <Status tone="neutral" label={t('Segera hadir')}>
             <p>{t('Dokumen bukti dapat diunggah di langkah ini segera. Dokumen selalu privat sampai Anda membagikannya.')}</p>
           </Status>
-        </>
+        </div>
       )}
       <TextArea
         id="catatan"
@@ -355,15 +383,30 @@ function PreviewStep({ values, manager, number }: { values: DraftValues; manager
         solution={values.solution}
         maturity={labelOf(STAGES, values.stage)}
         facts={
-          facts.length ? (
-            <ul className="tr-stack">
-              {facts.map((fact, index) => (
-                <li key={index}>
-                  {`${fact.label}: `}
-                  <FactSource value={`${fact.value} ${fact.unit ?? ''}`.trim()} timing={fact.timing} provenance={fact.provenance ?? undefined} />
-                </li>
-              ))}
-            </ul>
+          values.readiness || facts.length ? (
+            <div className="tr-stack">
+              {values.readiness ? (
+                <TktBadge
+                  level={values.readiness.tkt_level}
+                  stageLabel={labelOf(STAGES, values.stage)}
+                  note={values.readiness.note}
+                  hasEvidence={Boolean(values.readiness.evidence)}
+                  showBar
+                  showMeta
+                  preview
+                />
+              ) : null}
+              {facts.length ? (
+                <ul className="tr-stack">
+                  {facts.map((fact, index) => (
+                    <li key={index}>
+                      {`${fact.label}: `}
+                      <FactSource value={`${fact.value} ${fact.unit ?? ''}`.trim()} timing={fact.timing} provenance={fact.provenance ?? undefined} />
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+            </div>
           ) : null
         }
       />

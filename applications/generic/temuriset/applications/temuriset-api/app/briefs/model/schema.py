@@ -66,6 +66,8 @@ class ShareableFile(BaseModel):
     file_state: str
     review_state: str
     fact_keys: list[str]
+    kind: Literal["document", "tkt"] = "document"
+    selected: bool = False
 
 
 class BriefSentence(BaseModel):

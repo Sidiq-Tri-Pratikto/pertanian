@@ -303,6 +303,7 @@ async def test_the_teaser_shows_only_the_brief_public_summary(
         "summary",
         "sector",
         "stage",
+        "tkt_level",
         "keywords",
         "inventor_name",
         "published_at",

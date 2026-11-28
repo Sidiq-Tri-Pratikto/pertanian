@@ -13,7 +13,7 @@ from app.access.service.service import party_names
 from app.core import clock
 from app.core.errors.base import ConflictError, FieldsInvalidError, NotFoundError
 from app.core.locale import locale
-from app.documents.service.service import document_version_number, owned_public_image
+from app.documents.service.service import document_version_number, owned_document_version, owned_public_image
 from app.identity.model.models import Principal
 from app.moderation.service.suspension import is_suspended, require_unsuspended, suspended_listings
 from app.platform.service.audit import record_audit
@@ -297,13 +297,36 @@ class PortfolioService:
         if invention.status == "ARCHIVED":
             raise ConflictError(_ARCHIVED)
         check_expected(invention.version, request.expected_version)
-        content = request.model_dump(exclude={"acting_party_id", "expected_version", "facts", "claims"})
+        readiness_provided = "readiness" in request.model_fields_set
+        evidence_version_id: UUID | None = None
+        if readiness_provided and request.readiness is not None and request.readiness.evidence is not None:
+            evidence_version_id = await owned_document_version(
+                self.session,
+                invention.managing_party_id,
+                request.readiness.evidence.document_id,
+                request.readiness.evidence.version,
+            )
+        started_successor = invention.draft_version_id is None
+        content = request.model_dump(exclude={"acting_party_id", "expected_version", "facts", "claims", "readiness"})
         await self.repository.write_draft(
             invention,
             content,
             [fact.model_dump() for fact in request.facts],
             [claim.model_dump() for claim in request.claims],
         )
+        assert invention.draft_version_id is not None  # noqa: S101 - write_draft ensures a draft exists
+        if readiness_provided:
+            if request.readiness is None:
+                await self.repository.set_readiness(invention.draft_version_id, None)
+            else:
+                await self.repository.set_readiness(
+                    invention.draft_version_id,
+                    request.readiness.tkt_level,
+                    request.readiness.note,
+                    evidence_version_id,
+                )
+        elif started_successor and invention.published_version_id is not None:
+            await self.repository.copy_readiness(invention.published_version_id, invention.draft_version_id)
         invention.version += 1
         await self.session.flush()
         return await self._view(invention, operation_id)
@@ -449,6 +472,9 @@ class PortfolioService:
             facts=[PublicFactResponse.model_validate(fact.model_dump()) for fact in version.facts],
             claims=[PublicClaimResponse.model_validate(claim.model_dump()) for claim in version.claims],
             published_at=version.published_at,
+            readiness=(
+                version.readiness.model_copy(update={"evidence": None}) if version.readiness is not None else None
+            ),
         )
 
 

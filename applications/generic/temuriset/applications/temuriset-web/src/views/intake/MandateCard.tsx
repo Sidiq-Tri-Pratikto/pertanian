@@ -2,8 +2,10 @@ import { Disclosure } from '@/components/tr/Disclosure';
 import { FinancialScope } from '@/components/tr/FinancialScope';
 import { RequirementRow } from '@/components/tr/RequirementRow';
 import { Status } from '@/components/tr/Status';
+import { Toggletip } from '@/components/tr/Toggletip';
 import { MandateActions } from '@/features/intake/MandateActions';
 import { AVAILABILITY_REASON, MANDATE_STATUS, scopeProps, type Mandate } from '@/features/intake/model';
+import { TKT_DEFINITION } from '@/features/portfolio/tkt';
 import { t } from '@/features/i18n/t';
 
 export const MANUAL_REVIEW_TAG = <span className="tr-tag tr-sys-type-support">Ditinjau manual</span>;
@@ -34,6 +36,12 @@ export function MandateCard({ mandate, editingAs }: Props) {
         {mandate.general_intake_label ? <span className="tr-tag tr-sys-type-support">{mandate.general_intake_label}</span> : null}
       </p>
       {mandate.outcome ? <p>{mandate.outcome}</p> : null}
+      {mandate.min_tkt != null ? (
+        <div className="tr-row">
+          <span className="tr-tag tr-sys-type-support-strong">{t('Mencari TKT {n} ke atas', { n: mandate.min_tkt })}</span>
+          <Toggletip label={t('Apa itu TKT?')}>{t(TKT_DEFINITION)}</Toggletip>
+        </div>
+      ) : null}
       {support ? <p className="tr-muted">{t('Dukungan: {text}', { text: support })}</p> : null}
       {mandate.financial ? <FinancialScope compact {...scopeProps(mandate.financial)} /> : null}
       {reason ? <p className="tr-muted">{t(AVAILABILITY_REASON[reason])}</p> : null}

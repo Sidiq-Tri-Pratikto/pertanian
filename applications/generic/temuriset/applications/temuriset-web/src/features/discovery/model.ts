@@ -24,7 +24,7 @@ export function readType(value: string | undefined, persona: Persona): ResultTyp
 }
 
 /** Filters that live in the address, so Back returns to the same search. */
-export const FILTER_NAMES = ['q', 'sector', 'stage', 'saved'] as const;
+export const FILTER_NAMES = ['q', 'sector', 'stage', 'min_tkt', 'saved'] as const;
 export type Filters = Partial<Record<(typeof FILTER_NAMES)[number], string>>;
 
 export function readFilters(params: Record<string, string | string[] | undefined>): Filters {
@@ -45,7 +45,13 @@ export function discoverHref(type: ResultType, filters: Filters = {}, selected?:
   return `/discover?${query.toString()}`;
 }
 
-export const FILTER_LABELS: Record<(typeof FILTER_NAMES)[number], string> = { q: 'Kata kunci', sector: 'Sektor', stage: 'Tahap', saved: 'Hanya yang disimpan' };
+export const FILTER_LABELS: Record<(typeof FILTER_NAMES)[number], string> = {
+  q: 'Kata kunci',
+  sector: 'Sektor',
+  stage: 'Tahap',
+  min_tkt: 'TKT minimum',
+  saved: 'Hanya yang disimpan',
+};
 
 export type AppliedFilter = { name: (typeof FILTER_NAMES)[number]; label: string; value: string; text: string };
 
@@ -55,14 +61,24 @@ export function appliedFilters(applied: Record<string, unknown>, stageLabel: (va
     const value = applied[name];
     if (value === undefined || value === null || value === '' || value === false) return [];
     const raw = String(value);
-    const shown = name === 'stage' ? stageLabel(raw) : raw;
-    return [{ name, label: t(FILTER_LABELS[name]), value: raw, text: name === 'saved' ? t(FILTER_LABELS[name]) : `${t(FILTER_LABELS[name])}: ${name === 'sector' ? t(shown) : shown}` }];
+    const shown = name === 'stage' ? stageLabel(raw) : name === 'min_tkt' ? t('TKT {n} ke atas', { n: raw }) : raw;
+    return [
+      {
+        name,
+        label: t(FILTER_LABELS[name]),
+        value: raw,
+        text:
+          name === 'saved'
+            ? t(FILTER_LABELS[name])
+            : `${t(FILTER_LABELS[name])}: ${name === 'sector' ? t(shown) : shown}`,
+      },
+    ];
   });
 }
 
 /** Number of narrowing filters behind the "Filter" button; the keyword has its own field. */
 export function filterCount(filters: Filters): number {
-  return (['sector', 'stage', 'saved'] as const).filter((name) => filters[name]).length;
+  return (['sector', 'stage', 'min_tkt', 'saved'] as const).filter((name) => filters[name]).length;
 }
 
 export const SECTORS = ['Air dan sanitasi', 'Pertanian', 'Perangkat lunak', 'Material', 'Manufaktur', 'Energi'];

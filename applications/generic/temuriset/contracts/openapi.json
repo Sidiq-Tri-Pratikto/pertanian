@@ -1634,6 +1634,19 @@
             "title": "Kind",
             "type": "string"
           },
+          "min_tkt": {
+            "anyOf": [
+              {
+                "maximum": 9.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min Tkt"
+          },
           "outcome": {
             "default": "",
             "maxLength": 2000,
@@ -2473,6 +2486,28 @@
         "title": "DocumentSelection",
         "type": "object"
       },
+      "DocumentVersionChoice": {
+        "additionalProperties": false,
+        "description": "One version of the managing party's own document (055).",
+        "properties": {
+          "document_id": {
+            "format": "uuid",
+            "title": "Document Id",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 1.0,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "document_id",
+          "version"
+        ],
+        "title": "DocumentVersionChoice",
+        "type": "object"
+      },
       "DocumentVersionResponse": {
         "description": "One version's three independent states.",
         "properties": {
@@ -2584,6 +2619,16 @@
             "minLength": 0,
             "title": "Problem",
             "type": "string"
+          },
+          "readiness": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ReadinessInput"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "sector": {
             "default": "",
@@ -4582,6 +4627,16 @@
             ],
             "title": "Published At"
           },
+          "readiness": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ReadinessResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "sector": {
             "title": "Sector",
             "type": "string"
@@ -6139,6 +6194,17 @@
             "title": "Kind",
             "type": "string"
           },
+          "min_tkt": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min Tkt"
+          },
           "number": {
             "title": "Number",
             "type": "integer"
@@ -6315,6 +6381,17 @@
             },
             "title": "Keywords",
             "type": "array"
+          },
+          "min_tkt": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min Tkt"
           },
           "number": {
             "title": "Number",
@@ -8405,6 +8482,16 @@
             ],
             "title": "Published At"
           },
+          "readiness": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ReadinessResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "sector": {
             "title": "Sector",
             "type": "string"
@@ -9068,6 +9155,80 @@
           "unknown_reason"
         ],
         "title": "RangeResponse",
+        "type": "object"
+      },
+      "ReadinessInput": {
+        "additionalProperties": false,
+        "description": "Self-declared technology readiness level (TKT 1-9), optional note and optional private evidence (055).",
+        "properties": {
+          "evidence": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DocumentVersionChoice"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "note": {
+            "default": "",
+            "maxLength": 500,
+            "minLength": 0,
+            "title": "Note",
+            "type": "string"
+          },
+          "tkt_level": {
+            "maximum": 9.0,
+            "minimum": 1.0,
+            "title": "Tkt Level",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "tkt_level"
+        ],
+        "title": "ReadinessInput",
+        "type": "object"
+      },
+      "ReadinessResponse": {
+        "description": "Stored TKT readiness. ``evidence`` is returned only to the managing party; never to other readers.",
+        "properties": {
+          "evidence": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DocumentVersionChoice"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "has_evidence": {
+            "title": "Has Evidence",
+            "type": "boolean"
+          },
+          "note": {
+            "title": "Note",
+            "type": "string"
+          },
+          "provenance": {
+            "const": "SELF_DECLARED",
+            "default": "SELF_DECLARED",
+            "title": "Provenance",
+            "type": "string"
+          },
+          "tkt_level": {
+            "title": "Tkt Level",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "tkt_level",
+          "note",
+          "has_evidence"
+        ],
+        "title": "ReadinessResponse",
         "type": "object"
       },
       "Recommendation": {
@@ -9966,6 +10127,19 @@
             "title": "Keywords",
             "type": "array"
           },
+          "min_tkt": {
+            "anyOf": [
+              {
+                "maximum": 9.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min Tkt"
+          },
           "outcome": {
             "default": "",
             "maxLength": 2000,
@@ -10321,9 +10495,23 @@
             "title": "File State",
             "type": "string"
           },
+          "kind": {
+            "default": "document",
+            "enum": [
+              "document",
+              "tkt"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
           "review_state": {
             "title": "Review State",
             "type": "string"
+          },
+          "selected": {
+            "default": false,
+            "title": "Selected",
+            "type": "boolean"
           },
           "title": {
             "title": "Title",
@@ -11073,6 +11261,17 @@
           "title": {
             "title": "Title",
             "type": "string"
+          },
+          "tkt_level": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tkt Level"
           }
         },
         "required": [
@@ -12574,6 +12773,24 @@
                 }
               ],
               "title": "Stage"
+            }
+          },
+          {
+            "in": "query",
+            "name": "min_tkt",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 9,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Min Tkt"
             }
           },
           {

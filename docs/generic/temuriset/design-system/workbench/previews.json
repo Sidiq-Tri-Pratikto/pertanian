@@ -85,6 +85,11 @@
     "page": false
   },
   {
+    "name": "Toggletip",
+    "group": "Overlays",
+    "page": false
+  },
+  {
     "name": "Tabs",
     "group": "Overlays",
     "page": false
