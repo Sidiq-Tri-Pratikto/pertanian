@@ -22,6 +22,7 @@ from app.intake.service.service import IntakeService
 from app.matching.engine.evaluate import ENGINE, POLICY_VERSIONS, evaluate, rank, rank_experiment
 from app.matching.engine.fit import extract_terms, join_normalized_text
 from app.matching.engine.inputs import Money, Source, Target
+from app.matching.engine.recommend import recommend
 from app.matching.model.schema import (
     MatchModelPins,
     MatchRequest,
@@ -171,6 +172,7 @@ def preview_source(version: InventionVersionResponse | PublicInventionResponse, 
         contribution=None,
         accepts_partial=False,
         documents={},
+        invention_id=str(invention_id),
         **_invention_fields([version]),
     )
 
@@ -235,6 +237,7 @@ class MatchingService:
                 budget=money,
                 accepts_partial=request.accepts_partial,
                 documents=await _evidence(self.session, owner, versions),
+                invention_id=str(request.invention_id),
                 **_invention_fields(versions),
             )
             return source, request.invention_title, [version_id]
@@ -244,6 +247,7 @@ class MatchingService:
         raise_, version_ids = await FundingService(self.session).source(principal, source_id)
         await self._guard_inventions([link.invention_id for link in raise_.inventions], lock=lock_inventions)
         versions = [await version_view(self.session, version_id) for version_id in version_ids]
+        first_invention_id = str(raise_.inventions[0].invention_id) if raise_.inventions else None
         source = Source(
             type=source_type,
             id=str(raise_.id),
@@ -255,6 +259,7 @@ class MatchingService:
             ),
             accepts_partial=raise_.accepts_partial,
             documents=await _evidence(self.session, owner, versions),
+            invention_id=first_invention_id,
             **_invention_fields(versions),
         )
         return source, raise_.subject_label, version_ids
@@ -281,7 +286,11 @@ class MatchingService:
         if experiment and experiment.artifact and await account_is_demo(self.session, principal.account_id):
             admitted = experiment.select(source, title, targets)
         evidence = set(admitted or ())
-        results = [evaluate(source, target, retrieval_evidence=target.version_id in evidence) for target in targets]
+        results = []
+        for target in targets:
+            evaluated = evaluate(source, target, retrieval_evidence=target.version_id in evidence)
+            evaluated["recommendations"] = recommend(source, target, evaluated)
+            results.append(evaluated)
         shown, excluded = rank(results) if admitted is None else rank_experiment(results, admitted)
         engine = ENGINE
         provenance = None

@@ -56,13 +56,15 @@ type EditorViewProps = {
   availableDocuments?: DocumentView[];
   /** Whether this deployment runs company funding; step 3 links to it only then. */
   fundingOn?: boolean;
+  /** Same-origin return address from a match recommendation (spec 058). */
+  returnTo?: string | null;
 };
 
 /**
  * S05: four steps. Values survive step changes, Back, failed saves and stale versions (UX-03). Every save sends
  * `expected_version` and an idempotency key; a retry of the same save reuses its key.
  */
-export function EditorView({ me, invention, initialStep, documents, availableDocuments = [], fundingOn = false }: EditorViewProps) {
+export function EditorView({ me, invention, initialStep, documents, availableDocuments = [], fundingOn = false, returnTo = null }: EditorViewProps) {
   const router = useRouter();
   const persona = readPersona(me.account.persona) ?? 'inovator';
   const [state, dispatch] = useReducer(reduce, invention, initialState);
@@ -86,7 +88,9 @@ export function EditorView({ me, invention, initialStep, documents, availableDoc
   function goTo(next: number, focusHeading = true) {
     moved.current = focusHeading;
     setStep(next);
-    window.history.replaceState(null, '', `?step=${next}`);
+    const params = new URLSearchParams({ step: String(next) });
+    if (returnTo) params.set('return', returnTo);
+    window.history.replaceState(null, '', `?${params.toString()}`);
   }
 
   function edit(patch: Partial<DraftValues>) {
@@ -134,7 +138,7 @@ export function EditorView({ me, invention, initialStep, documents, availableDoc
     publishKey.current ??= newIdempotencyKey();
     try {
       const result = await publishInvention(invention.id, me.active_party_id, version, publishKey.current);
-      router.push(`/inventions/${invention.id}?terbit=${result.version}`);
+      router.push(returnTo ?? `/inventions/${invention.id}?terbit=${result.version}`);
       router.refresh();
     } catch (error) {
       const apiError = ApiError.from(error);
@@ -162,7 +166,21 @@ export function EditorView({ me, invention, initialStep, documents, availableDoc
       title={values.title || t('Inovasi tanpa judul')}
       subtitle={t('Simpan kapan saja; aturan terbit hanya berlaku saat menerbitkan.')}
       provenance={PROVENANCE}
-      context={<ContextBar me={me} />}>
+      context={<ContextBar me={me} />}
+      back={
+        returnTo ? (
+          <Link className="tr-link" href={returnTo}>
+            {t('Kembali ke kecocokan')}
+          </Link>
+        ) : undefined
+      }>
+      {returnTo && invention.published ? (
+        <Status tone="neutral" label={t('Perubahan baru terlihat investor setelah versi baru diterbitkan.')}>
+          <p>
+            <Button onClick={() => goTo(4)}>{t('Terbitkan, lalu kembali ke kecocokan')}</Button>
+          </p>
+        </Status>
+      ) : null}
       <Steps steps={STEPS} current={String(step)} onSelect={(id) => goTo(Number(id))} />
       <SaveState state={state.status} onRetry={save} />
       {state.status === 'conflict' ? (

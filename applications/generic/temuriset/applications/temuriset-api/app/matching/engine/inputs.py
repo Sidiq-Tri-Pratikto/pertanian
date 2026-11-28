@@ -72,6 +72,7 @@ class Source:
     text_terms: tuple[str, ...] = ()
     text: str = ""
     tkt: int | None = None
+    invention_id: str | None = None
 
 
 @dataclass(frozen=True)

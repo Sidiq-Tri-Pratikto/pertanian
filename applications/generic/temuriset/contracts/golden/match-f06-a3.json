@@ -128,6 +128,22 @@
   "reasons": [
     "Tahap inovasi diterima mandat ini."
   ],
+  "recommendations": [
+    {
+      "blocking": false,
+      "dimension": "money",
+      "estimate": null,
+      "kind": "money_missing",
+      "target": {
+        "field": "budget",
+        "need_id": "<id>",
+        "source_type": "SUPPORT_REQUEST"
+      },
+      "values": {
+        "target": null
+      }
+    }
+  ],
   "relevant": true,
   "rows": [
     {

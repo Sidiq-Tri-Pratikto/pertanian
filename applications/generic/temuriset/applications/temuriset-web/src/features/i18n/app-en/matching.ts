@@ -75,4 +75,56 @@ export const MATCHING_EN: Record<string, string> = {
   '{provided} tersedia, {reviewed} sudah diperiksa, dari {applicable} syarat.': '{provided} provided, {reviewed} reviewed, of {applicable} requirements.',
   'Mandat sedang menerima pitching.': 'This mandate is currently taking pitches.',
   'Mandat sedang tidak menerima pitching.': 'This mandate is not taking pitches right now.',
+  // Recommendations (058)
+  'Cara meningkatkan kecocokan': 'How to improve the match',
+  'Lihat semua ({n})': 'See all ({n})',
+  'Langkah paling berdampak': 'Highest-impact steps',
+  'Membantu kecocokan dengan: {partners}.': 'Improves fit with: {partners}.',
+  'Perkiraan bila benar untuk produk Anda: {label} ({lower}–{upper})':
+    'Estimate if true for your product: {label} ({lower}–{upper})',
+  'Buat kebutuhan dukungan': 'Create a support need',
+  'Buat kebutuhan dukungan untuk produk ini agar dana dan bentuk kerja sama bisa dinilai.':
+    'Create a support need for this product so funding and partnership form can be scored.',
+  'Syarat “{label}”': 'Requirement “{label}”',
+  'Lengkapi syarat wajib ini agar pengajuan dapat dilanjutkan.': 'Complete this required item so your submission can proceed.',
+  'Perjelas topik yang dicari investor': 'Clarify topics the investor looks for',
+  'Investor ini mencari: {missing}. Bila sesuai dengan produk Anda, tambahkan sebagai kata kunci atau jelaskan di ringkasan.':
+    'This investor looks for: {missing}. If this fits your product, add them as keywords or explain them in the summary.',
+  'Perbarui TKT bila pengujian sudah maju': 'Update TKT if testing has progressed',
+  'Mandat mencari TKT {min} ke atas; produk Anda TKT {tkt}. Bila uji terbaru sudah mencapai tingkat itu, perbarui TKT dan lampirkan buktinya.':
+    'This mandate looks for TKT {min} or above; your product is TKT {tkt}. If recent testing reached that level, update TKT and attach evidence.',
+  'Nyatakan TKT produk Anda': 'State your product TKT',
+  'Nyatakan TKT produk Anda. Investor ini mencari TKT {min} ke atas.':
+    'State your product TKT. This investor looks for TKT {min} or above.',
+  'Tahap produk belum sesuai mandat ini': 'Product stage does not fit this mandate yet',
+  'Mandat menerima tahap {accepted}; produk Anda {stage}. Perbarui tahap hanya bila produk sudah maju; jika belum, lihat investor lain.':
+    'This mandate accepts {accepted}; your product is {stage}. Update the stage only if the product has progressed; otherwise look at other investors.',
+  'Lengkapi kisaran biaya kebutuhan ini agar investor dapat membandingkan.':
+    'Complete this need cost range so investors can compare.',
+  'Sesuaikan cakupan atau kisaran biaya': 'Review scope or cost range',
+  'Kisaran Anda ({source}) tidak beririsan dengan {target}. Pertimbangkan menerima dukungan sebagian atau menyesuaikan cakupan bila sesuai.':
+    'Your range ({source}) does not overlap {target}. Consider accepting partial support or adjusting scope if appropriate.',
+  'Periksa bentuk kerja sama': 'Review form of partnership',
+  'Mandat menerima {target}; kebutuhan Anda {source}. Ubah hanya bila bentuk itu sesuai dengan rencana Anda.':
+    'This mandate accepts {target}; your need is {source}. Change it only if that form fits your plan.',
+  'Lampirkan berkas bukti': 'Attach evidence files',
+  'Lampirkan bukti untuk: {items}.': 'Attach evidence for: {items}.',
+  'Bidang mandat berbeda dengan produk Anda': 'Mandate field differs from your product',
+  'Mandat ini untuk bidang {target}; produk Anda {source}. Bila produk juga melayani bidang itu, jelaskan di ringkasan; jika tidak, lihat investor lain.':
+    'This mandate is for {target}; your product is {source}. If your product also serves that field, explain it in the summary; otherwise look at other investors.',
+  'Penerimaan sedang tidak dibuka': 'Intake is not open right now',
+  'Investor ini sedang tidak menerima pitching. Simpan atau ikuti investor ini untuk kabar berikutnya.':
+    'This investor is not taking pitches right now. Save or follow this investor for updates.',
+  'Lihat investor lain untuk produk ini': 'See other investors for this product',
+  'Perbarui kata kunci': 'Update keywords',
+  'Perbarui TKT': 'Update TKT',
+  'Lampirkan berkas': 'Attach files',
+  'Perbarui wewenang': 'Update authority',
+  'Perbarui fakta': 'Update facts',
+  'Lengkapi kisaran': 'Complete range',
+  'Ubah bentuk kerja sama': 'Change partnership form',
+  'Kembali ke kecocokan': 'Back to matches',
+  'Perubahan baru terlihat investor setelah versi baru diterbitkan.':
+    'Investors see your changes only after you publish the new version.',
+  'Terbitkan, lalu kembali ke kecocokan': 'Publish, then return to matches',
 };

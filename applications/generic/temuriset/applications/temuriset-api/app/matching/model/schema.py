@@ -13,6 +13,20 @@ SourceType = Literal["SUPPORT_REQUEST", "FUNDING_REQUEST"]
 Result = Literal["PASS", "FAIL", "UNKNOWN"]
 DimensionId = Literal["sector", "topic", "readiness", "money", "form", "requirements", "evidence", "availability"]
 DimensionStatus = Literal["MATCH", "PARTIAL", "MISMATCH", "UNKNOWN", "NOT_APPLICABLE"]
+RecommendationKind = Literal[
+    "requirement",
+    "topic",
+    "tkt_below",
+    "tkt_missing",
+    "stage",
+    "money_missing",
+    "money_gap",
+    "form",
+    "evidence",
+    "sector",
+    "availability",
+    "no_need",
+]
 
 
 class MatchRequest(BaseModel):
@@ -64,6 +78,25 @@ class Dimension(BaseModel):
     values: dict[str, Any]
 
 
+class Estimate(BaseModel):
+    """Engine-computed what-if estimate if the applicant's product genuinely meets the condition (spec 058)."""
+
+    label: str
+    fit: FitResponse
+    gain: str
+
+
+class Recommendation(BaseModel):
+    """One honest, conditional improvement recommendation for an applicant (spec 058)."""
+
+    kind: RecommendationKind
+    blocking: bool
+    dimension: DimensionId | None
+    target: dict[str, Any]
+    values: dict[str, Any]
+    estimate: Estimate | None
+
+
 class MatchResultResponse(BaseModel):
     """One opportunity version's result. Eligibility, readiness and fit are separate on purpose."""
 
@@ -80,6 +113,7 @@ class MatchResultResponse(BaseModel):
     label: str
     fit: FitResponse
     breakdown: list[Dimension] = []
+    recommendations: list[Recommendation] = []
     reasons: list[str]
     gap: RequirementRow | None
     later: list[RequirementRow]

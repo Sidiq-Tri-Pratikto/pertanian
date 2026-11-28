@@ -164,6 +164,85 @@
     "Tahap inovasi diterima mandat ini.",
     "Berkas tersedia. Isinya belum diperiksa."
   ],
+  "recommendations": [
+    {
+      "blocking": true,
+      "dimension": "requirements",
+      "estimate": {
+        "fit": {
+          "coverage": "0.95",
+          "lower": "88.11",
+          "upper": "94.04"
+        },
+        "gain": "10.25",
+        "label": "Kecocokan kuat"
+      },
+      "kind": "requirement",
+      "target": {
+        "field": "budget",
+        "need_id": "<id>",
+        "source_type": "SUPPORT_REQUEST"
+      },
+      "values": {
+        "action": "complete-budget",
+        "field": "budget",
+        "label": "Kisaran biaya pilot",
+        "reason": "Kisaran biaya pilot untuk kebutuhan ini belum diisi.",
+        "result": "UNKNOWN"
+      }
+    },
+    {
+      "blocking": false,
+      "dimension": "topic",
+      "estimate": {
+        "fit": {
+          "coverage": "0.88",
+          "lower": "85.71",
+          "upper": "100.00"
+        },
+        "gain": "7.85",
+        "label": "Perlu konfirmasi"
+      },
+      "kind": "topic",
+      "target": {
+        "field": "keywords",
+        "invention_id": "<id>"
+      },
+      "values": {
+        "matched": [
+          "prototipe",
+          "validasi",
+          "air"
+        ],
+        "missing": [
+          "uji"
+        ]
+      }
+    },
+    {
+      "blocking": false,
+      "dimension": "evidence",
+      "estimate": {
+        "fit": {
+          "coverage": "0.88",
+          "lower": "77.86",
+          "upper": "94.04"
+        },
+        "gain": "0.00",
+        "label": "Perlu konfirmasi"
+      },
+      "kind": "evidence",
+      "target": {
+        "field": "documents",
+        "invention_id": "<id>"
+      },
+      "values": {
+        "items": [
+          "Sertifikat komersialisasi"
+        ]
+      }
+    }
+  ],
   "relevant": true,
   "rows": [
     {
