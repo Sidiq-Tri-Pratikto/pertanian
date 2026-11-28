@@ -3,10 +3,13 @@ import Link from 'next/link';
 import type { Me } from '@/api/client';
 import { EmptyState } from '@/components/tr/EmptyState';
 import { FactSource } from '@/components/tr/FactSource';
+import { ScoreBreakdown } from '@/components/tr/ScoreBreakdown';
 import { Screen } from '@/components/tr/Screen';
 import { Status } from '@/components/tr/Status';
 import { TktBadge } from '@/components/tr/TktBadge';
 import { ContextBar } from '@/features/ContextBar';
+import type { Dimension } from '@/features/discovery/breakdown';
+import { percent, score, type MatchResult } from '@/features/discovery/model';
 import { SaveButton } from '@/features/discovery/SaveButton';
 import { readPersona } from '@/features/persona';
 import { NewInventionButton } from '@/features/portfolio/NewInventionButton';
@@ -82,10 +85,12 @@ type DetailProps = {
   documents?: DocumentView[];
   /** The owner's public updates (052). */
   updates?: PublicUpdate[];
+  /** Preview fit against the viewer's own active mandates (spec 057 P2). */
+  mandateFit?: MatchResult[];
 };
 
 /** S04 detail: honest about what exists now, what is planned, and who says so (UX-04). */
-export function InventionView({ me, invention, publicView, justPublished, saved = false, documents = [], updates = [] }: DetailProps) {
+export function InventionView({ me, invention, publicView, justPublished, saved = false, documents = [], updates = [], mandateFit = [] }: DetailProps) {
   const persona = readPersona(me.account.persona) ?? 'inovator';
   const shown = invention ? (invention.published ?? invention.draft) : publicView;
   const owner = Boolean(invention);
@@ -134,6 +139,34 @@ export function InventionView({ me, invention, publicView, justPublished, saved 
           <PublicUpdatesPanel inventionId={invention!.id} actingPartyId={me.active_party_id} updates={updates} pageOn={Boolean(invention!.public_page?.enabled)} />
           <InvestorDigestToggle inventionId={invention!.id} actingPartyId={me.active_party_id} version={invention!.version} enabled={Boolean(invention!.investor_digest)} />
         </>
+      ) : null}
+      {!owner && mandateFit.length ? (
+        <section className="tr-panel tr-stack" aria-labelledby="kecocokan-mandat-anda">
+          <h2 id="kecocokan-mandat-anda" className="tr-sys-type-heading-sm">
+            {t('Kecocokan dengan mandat Anda')}
+          </h2>
+          <p className="tr-muted tr-sys-type-support">{t('Pratinjau dari profil publik')}</p>
+          <ul className="tr-stack">
+            {mandateFit.map((item) => (
+              <li key={item.opportunity_id} className="tr-card">
+                <div className="tr-card__body tr-stack">
+                  <h3 className="tr-sys-type-label">{item.title}</h3>
+                  <div className="tr-row">
+                    <Status tone="neutral" icon={null} label={t(item.label)} />
+                    <span className="tr-muted tr-sys-type-support">
+                      {t('{lower}–{upper} dari 100 · informasi {coverage}', {
+                        lower: score(item.fit.lower, 'lower'),
+                        upper: score(item.fit.upper, 'upper'),
+                        coverage: percent(item.fit.coverage),
+                      })}
+                    </span>
+                  </div>
+                  <ScoreBreakdown dimensions={((item as { breakdown?: Dimension[] }).breakdown ?? []) as Dimension[]} />
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
       ) : null}
       <section className="tr-panel tr-stack" aria-labelledby="ringkasan-inovasi">
         <h2 id="ringkasan-inovasi" className="tr-sys-type-heading-sm">

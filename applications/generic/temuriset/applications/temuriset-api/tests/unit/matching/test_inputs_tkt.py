@@ -1,4 +1,4 @@
-"""Engine inputs carry TKT and mandate minimum TKT without changing scores yet (spec 055, US3)."""
+"""Engine inputs carry TKT and mandate minimum TKT into matching (specs 055 and 057)."""
 
 from dataclasses import replace
 from uuid import uuid4
@@ -71,12 +71,20 @@ def test_target_of_carries_min_tkt() -> None:
     assert target_of(opp.model_copy(update={"min_tkt": None}), "Mitra A").min_tkt is None
 
 
-def test_tkt_fields_do_not_change_matching_scores_in_spec_055() -> None:
-    """Scores remain identical whether tkt/min_tkt are set or None (057 owns scoring)."""
+def test_met_tkt_minimum_keeps_scores_and_only_reports_tkt_in_breakdown() -> None:
+    """A TKT that meets the mandate minimum leaves every score unchanged; the breakdown only reports it (spec 057)."""
     base_source = support("F01")
     base_target = target("A1")
     assert base_source.tkt is None
     assert base_target.min_tkt is None
     before = evaluate(base_source, base_target)
     after = evaluate(replace(base_source, tkt=6), replace(base_target, min_tkt=5))
-    assert after == before
+    assert {k: v for k, v in after.items() if k != "breakdown"} == {k: v for k, v in before.items() if k != "breakdown"}
+    rows_before = {row["id"]: row for row in before["breakdown"]}
+    rows_after = {row["id"]: row for row in after["breakdown"]}
+    assert [row["score"] for row in after["breakdown"]] == [row["score"] for row in before["breakdown"]]
+    assert rows_after["readiness"]["values"]["tkt"] == 6
+    assert rows_after["readiness"]["values"]["min_tkt"] == 5
+    assert {k: v for k, v in rows_after.items() if k != "readiness"} == {
+        k: v for k, v in rows_before.items() if k != "readiness"
+    }

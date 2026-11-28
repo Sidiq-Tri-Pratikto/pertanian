@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { ApiError } from '@/api/errors';
 import { serverGet } from '@/api/server';
 import type { Invention } from '@/features/portfolio/model';
-import { requireMe } from '@/features/session';
+import { requireMe, safeReturn } from '@/features/session';
 import { fundingOn } from '@/features/needs/server';
 import { DocumentsPanel } from '@/features/documents/DocumentsPanel';
 import type { DocumentView } from '@/features/documents/model';
@@ -12,10 +12,11 @@ import { titled } from '@/features/i18n/server';
 
 export const generateMetadata = titled('Ubah inovasi');
 
-type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ step?: string }> };
+type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ step?: string; return?: string }> };
 
 export default async function EditInventionPage({ params, searchParams }: Props) {
   const { id } = await params;
+  const query = await searchParams;
   const me = await requireMe(`/inventions/${id}/edit`);
   let invention: Invention;
   try {
@@ -29,10 +30,11 @@ export default async function EditInventionPage({ params, searchParams }: Props)
     <EditorView
       me={me}
       invention={invention}
-      initialStep={Number((await searchParams).step) || 1}
+      initialStep={Number(query.step) || 1}
       documents={<DocumentsPanel me={me} initial={documents} />}
       availableDocuments={documents}
       fundingOn={await fundingOn()}
+      returnTo={safeReturn(query.return)}
     />
   );
 }

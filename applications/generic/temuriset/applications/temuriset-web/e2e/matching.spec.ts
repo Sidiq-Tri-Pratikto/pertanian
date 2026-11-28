@@ -52,7 +52,7 @@ test('J01: from Beranda through the range repair and the match to a submitted pi
   // Investor finder: open this mandate from the list, then read its card.
   await page.getByRole('button', { name: new RegExp(title) }).click();
   const card = page.getByRole('article', { name: title });
-  await expect(card.getByText('Perlu konfirmasi')).toBeVisible();
+  await expect(card.getByText('Perlu konfirmasi', { exact: true })).toBeVisible();
   await card.getByRole('link', { name: 'Lengkapi kisaran biaya' }).click();
   await expect(page).toHaveURL(new RegExp(`/support-requests/${need}\\?return=`));
 
@@ -67,7 +67,7 @@ test('J01: from Beranda through the range repair and the match to a submitted pi
 
   await expect(page).toHaveURL(new RegExp(`/matches\\?source=SUPPORT_REQUEST:${need}$`));
   await page.getByRole('button', { name: new RegExp(title) }).click();
-  await expect(card.getByText('Kecocokan kuat')).toBeVisible();
+  await expect(card.getByText('Kecocokan kuat', { exact: true })).toBeVisible();
   await card.getByText('Mengapa cocok?').click();
   await expect(card.getByText('Siap dikirim')).toBeVisible();
   await expect(card.getByText(/bukan peluang pendanaan/)).toBeVisible();

@@ -3,6 +3,120 @@
     "available": true,
     "reason": null
   },
+  "breakdown": [
+    {
+      "id": "sector",
+      "score": 100,
+      "status": "MATCH",
+      "values": {
+        "source": "Air dan sanitasi",
+        "target": [
+          "Air dan sanitasi",
+          "Pertanian",
+          "Energi"
+        ]
+      },
+      "weight": "0.15"
+    },
+    {
+      "id": "topic",
+      "score": 75,
+      "status": "PARTIAL",
+      "values": {
+        "matched": [
+          "prototipe",
+          "validasi",
+          "air"
+        ],
+        "missing": [
+          "uji"
+        ]
+      },
+      "weight": "0.45"
+    },
+    {
+      "id": "readiness",
+      "score": 100,
+      "status": "MATCH",
+      "values": {
+        "accepted_stages": [
+          "PROTOTYPE",
+          "PILOT"
+        ],
+        "min_tkt": null,
+        "stage": "PROTOTYPE",
+        "tkt": null
+      },
+      "weight": "0.15"
+    },
+    {
+      "id": "money",
+      "score": null,
+      "status": "UNKNOWN",
+      "values": {
+        "accepts_partial": true,
+        "reason": "Kisaran biaya pilot untuk kebutuhan ini belum diisi.",
+        "source": null,
+        "target": {
+          "basis": "total_period",
+          "currency": "USD",
+          "high": "40000.0000",
+          "low": "15000.0000",
+          "months": 6,
+          "scope": "biaya pilot enam bulan",
+          "subject": "partner"
+        }
+      },
+      "weight": "0.15"
+    },
+    {
+      "id": "form",
+      "score": 100,
+      "status": "MATCH",
+      "values": {
+        "source": "PROJECT",
+        "target": [
+          "PROJECT"
+        ]
+      },
+      "weight": "0.30"
+    },
+    {
+      "id": "requirements",
+      "score": 67,
+      "status": "UNKNOWN",
+      "values": {
+        "failed": [],
+        "passed": 2,
+        "total": 3,
+        "unknown": [
+          "Kisaran biaya pilot"
+        ]
+      },
+      "weight": null
+    },
+    {
+      "id": "evidence",
+      "score": 50,
+      "status": "PARTIAL",
+      "values": {
+        "applicable": 4,
+        "provided": 2,
+        "reviewed": 0
+      },
+      "weight": null
+    },
+    {
+      "id": "availability",
+      "score": 100,
+      "status": "MATCH",
+      "values": {
+        "available": true,
+        "reason": null
+      },
+      "weight": "0.15"
+    }
+  ],
   "eligibility": "NEEDS_VERIFICATION",
   "evidence": {
     "applicable": 4,
@@ -49,6 +163,85 @@
   "reasons": [
     "Tahap inovasi diterima mandat ini.",
     "Berkas tersedia. Isinya belum diperiksa."
+  ],
+  "recommendations": [
+    {
+      "blocking": true,
+      "dimension": "requirements",
+      "estimate": {
+        "fit": {
+          "coverage": "0.95",
+          "lower": "88.11",
+          "upper": "94.04"
+        },
+        "gain": "10.25",
+        "label": "Kecocokan kuat"
+      },
+      "kind": "requirement",
+      "target": {
+        "field": "budget",
+        "need_id": "<id>",
+        "source_type": "SUPPORT_REQUEST"
+      },
+      "values": {
+        "action": "complete-budget",
+        "field": "budget",
+        "label": "Kisaran biaya pilot",
+        "reason": "Kisaran biaya pilot untuk kebutuhan ini belum diisi.",
+        "result": "UNKNOWN"
+      }
+    },
+    {
+      "blocking": false,
+      "dimension": "topic",
+      "estimate": {
+        "fit": {
+          "coverage": "0.88",
+          "lower": "85.71",
+          "upper": "100.00"
+        },
+        "gain": "7.85",
+        "label": "Perlu konfirmasi"
+      },
+      "kind": "topic",
+      "target": {
+        "field": "keywords",
+        "invention_id": "<id>"
+      },
+      "values": {
+        "matched": [
+          "prototipe",
+          "validasi",
+          "air"
+        ],
+        "missing": [
+          "uji"
+        ]
+      }
+    },
+    {
+      "blocking": false,
+      "dimension": "evidence",
+      "estimate": {
+        "fit": {
+          "coverage": "0.88",
+          "lower": "77.86",
+          "upper": "94.04"
+        },
+        "gain": "0.00",
+        "label": "Perlu konfirmasi"
+      },
+      "kind": "evidence",
+      "target": {
+        "field": "documents",
+        "invention_id": "<id>"
+      },
+      "values": {
+        "items": [
+          "Sertifikat komersialisasi"
+        ]
+      }
+    }
   ],
   "relevant": true,
   "rows": [

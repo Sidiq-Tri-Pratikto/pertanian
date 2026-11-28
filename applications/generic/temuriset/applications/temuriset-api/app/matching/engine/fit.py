@@ -1,5 +1,6 @@
 """Conservative fit bounds (PRD section 10): unknown features widen the upper bound only."""
 
+import re
 from dataclasses import dataclass
 from decimal import ROUND_HALF_UP, Decimal
 
@@ -128,3 +129,129 @@ def relevance(source_keywords: tuple[str, ...], target_keywords: tuple[str, ...]
         return Decimal(0)
     stated = {word.casefold() for word in source_keywords}
     return half_up(Decimal(len(wanted & stated)) / Decimal(len(wanted)))
+
+
+_WORD_RE = re.compile(r"\w+", re.UNICODE)
+
+
+def _norm_words(text: str) -> list[str]:
+    return _WORD_RE.findall(text.casefold())
+
+
+def extract_terms(keywords: tuple[str, ...], *texts: str) -> tuple[str, ...]:
+    """Build casefolded whole-word terms (plus whole multi-word keywords) from product keywords and prose.
+
+    Args:
+        keywords (tuple[str, ...]): Stated keywords.
+        *texts (str): Product prose fields (title, summary, problem, solution).
+
+    Returns:
+        tuple[str, ...]: Deduplicated normalized terms in deterministic order.
+    """
+    seen: dict[str, None] = {}
+    for keyword in keywords:
+        words = _norm_words(keyword)
+        if not words:
+            continue
+        phrase = " ".join(words)
+        seen.setdefault(phrase, None)
+        for word in words:
+            seen.setdefault(word, None)
+    for text in texts:
+        for word in _norm_words(text):
+            seen.setdefault(word, None)
+    return tuple(seen)
+
+
+def join_normalized_text(keywords: tuple[str, ...], *texts: str) -> str:
+    """Join keywords and prose into a single space-delimited casefolded word stream for phrase checks.
+
+    Args:
+        keywords (tuple[str, ...]): Stated keywords.
+        *texts (str): Product prose fields.
+
+    Returns:
+        str: Normalized words separated by single spaces.
+    """
+    parts = [_norm_words(part) for part in (*keywords, *texts) if part]
+    return " ".join(word for words in parts for word in words)
+
+
+def topic_overlap(
+    target_keywords: tuple[str, ...],
+    source_keywords: tuple[str, ...],
+    source_terms: tuple[str, ...] = (),
+    source_text: str = "",
+) -> tuple[Decimal | None, list[str], list[str]]:
+    """Share of mandate keywords found as whole words/phrases in the product's keywords and prose (spec 057).
+
+    Args:
+        target_keywords (tuple[str, ...]): Mandate keywords.
+        source_keywords (tuple[str, ...]): Invention keywords.
+        source_terms (tuple[str, ...], optional): Pre-extracted whole-word terms from keywords + prose.
+        source_text (str, optional): Joined normalized prose for multi-word phrase checks.
+
+    Returns:
+        tuple[Decimal | None, list[str], list[str]]: Overlap in [0, 1] (None when target has no keywords),
+            matched mandate keywords, and missing mandate keywords.
+    """
+    unique_targets: list[tuple[str, str]] = []
+    seen_targets: set[str] = set()
+    for raw in target_keywords:
+        norm = " ".join(_norm_words(raw))
+        if not norm or norm in seen_targets:
+            continue
+        seen_targets.add(norm)
+        unique_targets.append((raw.strip(), norm))
+    if not unique_targets:
+        return None, [], []
+
+    term_set = set(extract_terms(source_keywords))
+    for term in source_terms:
+        words = _norm_words(term)
+        if words:
+            term_set.add(" ".join(words))
+            term_set.update(words)
+    joined_parts = [source_text.strip(), join_normalized_text(source_keywords)]
+    haystack = " " + " ".join(part for part in joined_parts if part) + " "
+
+    matched: list[str] = []
+    missing: list[str] = []
+    for label, norm in unique_targets:
+        if " " in norm:
+            hit = norm in term_set or f" {norm} " in haystack
+        else:
+            hit = norm in term_set
+        if hit:
+            matched.append(label)
+        else:
+            missing.append(label)
+    score = half_up(Decimal(len(matched)) / Decimal(len(unique_targets)))
+    return score, matched, missing
+
+
+def readiness_feature(
+    stage: str | None, accepted_stages: tuple[str, ...], tkt: int | None, min_tkt: int | None
+) -> Decimal | None:
+    """Mean of stage compatibility and TKT compatibility; parts that are unknown or unasked are omitted (spec 057).
+
+    Args:
+        stage (str | None): Invention stage.
+        accepted_stages (tuple[str, ...]): Mandate accepted stages.
+        tkt (int | None): Invention TKT level (1–9), or None.
+        min_tkt (int | None): Mandate minimum TKT preference (1–9), or None.
+
+    Returns:
+        Decimal | None: Value in [0, 1], or None when both parts are omitted.
+    """
+    parts: list[Decimal] = []
+    if stage is not None and accepted_stages:
+        parts.append(Decimal(1) if stage in accepted_stages else Decimal(0))
+    if tkt is not None and min_tkt is not None:
+        if tkt >= min_tkt:
+            parts.append(Decimal(1))
+        else:
+            parts.append(max(Decimal(0), Decimal(1) - Decimal("0.25") * Decimal(min_tkt - tkt)))
+    if not parts:
+        return None
+    return sum(parts, Decimal(0)) / Decimal(len(parts))

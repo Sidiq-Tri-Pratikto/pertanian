@@ -4,6 +4,7 @@ from dataclasses import replace
 from decimal import Decimal
 from typing import Any
 
+from app.matching.engine.fit import extract_terms, join_normalized_text
 from app.matching.engine.inputs import Money, Source, Target
 from tests.factories.inventors import F01_GAP_BUDGET, FRAISE01, INVENTIONS, SUPPORT_REQUESTS
 from tests.factories.recipients import OPPORTUNITIES, PROFILES
@@ -59,10 +60,14 @@ def target(key: str, **changes: Any) -> Target:
 
 def _invention(key: str) -> dict[str, Any]:
     content = INVENTIONS[key]["content"]
+    keywords = tuple(content["keywords"])
+    prose = (content["title"], content["summary"], content["problem"], content["solution"])
     return {
         "stage": content["stage"],
         "sector": content["sector"],
-        "keywords": tuple(content["keywords"]),
+        "keywords": keywords,
+        "text_terms": extract_terms(keywords, *prose),
+        "text": join_normalized_text(keywords, *prose),
         "facts": tuple((fact["key"], fact["timing"]) for fact in content["facts"] if fact["key"]),
         "authority": tuple(
             claim.get("status", "asserted") for claim in content.get("claims", []) if claim["kind"] == "authority"
@@ -117,6 +122,8 @@ def fraise01(*, proposed: bool = False) -> Source:
         stage=first["stage"],
         sector=first["sector"],
         keywords=first["keywords"] + second["keywords"],
+        text_terms=tuple(dict.fromkeys(first["text_terms"] + second["text_terms"])),
+        text=f"{first['text']} {second['text']}".strip(),
         relationship="EQUITY",
         entity="PROPOSED" if proposed else "IDENTIFIED",
         contribution=Money(

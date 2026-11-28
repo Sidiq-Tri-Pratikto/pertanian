@@ -6,7 +6,7 @@ from fastapi import APIRouter, Request, status
 
 from app.core.database import SessionDep
 from app.core.security import PrincipalDep
-from app.matching.model.schema import MatchRequest, MatchRunResponse
+from app.matching.model.schema import MatchRequest, MatchResultResponse, MatchRunResponse
 from app.matching.service.service import MatchingService
 from app.platform.model.schema import OperationResult
 from app.platform.service.idempotency import Idempotency, idempotent
@@ -55,3 +55,24 @@ async def read_match_run(run_id: UUID, principal: PrincipalDep, session: Session
         MatchRunResponse: The run.
     """
     return await MatchingService(session).read(principal, run_id)
+
+
+@router.get("/inventions/{invention_id}/fit", summary="Preview how a published invention fits my active mandates")
+async def preview_invention_fit(
+    invention_id: UUID,
+    principal: PrincipalDep,
+    session: SessionDep,
+    acting_party_id: UUID | None = None,
+) -> list[MatchResultResponse]:
+    """Evaluate a published invention's public projection against each of the acting party's own active mandates.
+
+    Args:
+        invention_id (UUID): The published invention.
+        principal (PrincipalDep): Who is signed in.
+        session (SessionDep): Database session.
+        acting_party_id (UUID | None, optional): Optional acting party check. Defaults to None.
+
+    Returns:
+        list[MatchResultResponse]: One preview result per active mandate; nothing is stored.
+    """
+    return await MatchingService(session).invention_fit(principal, invention_id, acting_party_id)

@@ -69,7 +69,10 @@ class Source:
     accepts_partial: bool = False
     contribution: Money | None = None
     documents: dict[str, tuple[dict[str, str], ...]] = field(default_factory=dict)
+    text_terms: tuple[str, ...] = ()
+    text: str = ""
     tkt: int | None = None
+    invention_id: str | None = None
 
 
 @dataclass(frozen=True)

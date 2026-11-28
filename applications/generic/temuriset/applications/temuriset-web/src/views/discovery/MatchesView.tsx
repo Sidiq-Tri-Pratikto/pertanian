@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import NextLink from 'next/link';
 
 import type { Me } from '@/api/client';
 import { ApiError } from '@/api/errors';
@@ -11,18 +12,55 @@ import { Screen } from '@/components/tr/Screen';
 import { Status } from '@/components/tr/Status';
 import { ContextBar } from '@/features/ContextBar';
 import { runMatch } from '@/features/discovery/api';
-import type { MatchResult, MatchRun, MatchSourceRef } from '@/features/discovery/model';
+import type { Dimension } from '@/features/discovery/breakdown';
+import { matchesHref, type MatchResult, type MatchRun, type MatchSourceRef } from '@/features/discovery/model';
+import {
+  deltasFor,
+  recommendationAction,
+  recommendationCopy,
+  scoresOf,
+  topImpactSteps,
+  type Recommendation,
+  type SavedScores,
+} from '@/features/discovery/recommendations';
 import { ExternalRoute } from '@/features/intake/ExternalRoute';
 import { readPersona } from '@/features/persona';
 import { labelTone, MatchCard } from '@/views/discovery/MatchCard';
 import { PROVENANCE } from '@/views/parts';
 import { t } from '@/features/i18n/t';
 
+function readPrevScores(sourceId: string): SavedScores | null {
+  try {
+    const raw = window.sessionStorage.getItem(`tr_match_prev_${sourceId}`);
+    return raw ? (JSON.parse(raw) as SavedScores) : null;
+  } catch {
+    return null;
+  }
+}
+
+function writePrevScores(sourceId: string, scores: SavedScores): void {
+  try {
+    window.sessionStorage.setItem(`tr_match_prev_${sourceId}`, JSON.stringify(scores));
+  } catch {
+    // Ignore storage quota or private-mode restrictions.
+  }
+}
+
 /**
  * Investor finder: a compact list of recommended mandates beside the open one. On a phone the list and the open match
  * take turns, and t('Kembali ke daftar') puts focus back on the row the person left.
  */
-function MatchList({ results, source }: { results: MatchResult[]; source: MatchSourceRef }) {
+function MatchList({
+  results,
+  source,
+  previous,
+  onRecalculate,
+}: {
+  results: MatchResult[];
+  source: MatchSourceRef;
+  previous: SavedScores | null;
+  onRecalculate: () => void;
+}) {
   const [chosen, setChosen] = useState<string | null>(null);
   const detail = useRef<HTMLDivElement>(null);
   const open = results.find((result) => result.opportunity_id === chosen) ?? results[0];
@@ -59,7 +97,12 @@ function MatchList({ results, source }: { results: MatchResult[]; source: MatchS
             {t('Kembali ke daftar')}
           </button>
         </p>
-        <MatchCard result={open} source={source} />
+        <MatchCard
+          result={open}
+          source={source}
+          deltas={deltasFor(previous, open.opportunity_id, ((open as { breakdown?: Dimension[] }).breakdown ?? []) as Dimension[])}
+          onRecalculate={onRecalculate}
+        />
       </div>
     </div>
   );
@@ -73,13 +116,21 @@ type Props = { me: Me; source: MatchSourceRef; externals: ExternalPartner[] };
 export function MatchesView({ me, source, externals }: Props) {
   const persona = readPersona(me.account.persona) ?? 'inovator';
   const [run, setRun] = useState<MatchRun | null>(null);
+  const [previous, setPrevious] = useState<SavedScores | null>(null);
   const [failure, setFailure] = useState<string | null>(null);
   const started = useRef(false);
 
   const load = useCallback(async () => {
     setFailure(null);
+    const prev = readPrevScores(source.id);
     try {
-      setRun(await runMatch(source, me.active_party_id));
+      const next = await runMatch(source, me.active_party_id);
+      setPrevious(prev);
+      setRun(next);
+      writePrevScores(
+        source.id,
+        scoresOf([...next.results, ...next.excluded] as { opportunity_id: string; breakdown?: Dimension[] }[]),
+      );
     } catch (error) {
       setFailure(error instanceof ApiError ? error.message : t('Kecocokan belum dapat dihitung. Coba lagi.'));
     }
@@ -113,12 +164,45 @@ export function MatchesView({ me, source, externals }: Props) {
       {!run && !failure ? <Status tone="neutral" label={t('Menghitung kecocokan')} live /> : null}
       {run ? (
         <>
+          {(() => {
+            const top = topImpactSteps(run.results as { partner: string; recommendations?: Recommendation[] }[]);
+            if (!top.length) return null;
+            const back = matchesHref(source);
+            return (
+              <section className="tr-panel tr-stack" aria-labelledby="langkah-paling-berdampak">
+                <h2 id="langkah-paling-berdampak" className="tr-sys-type-heading-sm">
+                  {t('Langkah paling berdampak')}
+                </h2>
+                <ul className="tr-stack">
+                  {top.map((step) => {
+                    const copy = recommendationCopy(step.recommendation);
+                    const action = recommendationAction(step.recommendation, back);
+                    return (
+                      <li key={step.key} className="tr-stack">
+                        <strong className="tr-sys-type-support-strong">{copy.title}</strong>
+                        <p className="tr-muted tr-sys-type-support">
+                          {t('Membantu kecocokan dengan: {partners}.', { partners: step.partners.join(', ') })}
+                        </p>
+                        {action ? (
+                          <div className="tr-row">
+                            <NextLink className="tr-link" href={action.href}>
+                              {action.label}
+                            </NextLink>
+                          </div>
+                        ) : null}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </section>
+            );
+          })()}
           <section className="tr-stack" aria-labelledby="direkomendasikan">
             <h2 id="direkomendasikan" className="tr-sys-type-heading-sm">
               {t('Mandat yang sesuai')}
             </h2>
             {run.results.length ? (
-              <MatchList results={run.results} source={source} />
+              <MatchList results={run.results} source={source} previous={previous} onRecalculate={() => void load()} />
             ) : (
               <EmptyState icon="search" title={t('Belum ada mandat yang sesuai')}>
                 {t('Tidak ada mandat aktif yang relevan dan memenuhi syarat masuk untuk kebutuhan ini.')}
@@ -131,7 +215,12 @@ export function MatchesView({ me, source, externals }: Props) {
               <ul className="tr-stack">
                 {run.excluded.map((result) => (
                   <li key={result.opportunity_id}>
-                    <MatchCard result={result} source={source} />
+                    <MatchCard
+                      result={result}
+                      source={source}
+                      deltas={deltasFor(previous, result.opportunity_id, ((result as { breakdown?: Dimension[] }).breakdown ?? []) as Dimension[])}
+                      onRecalculate={() => void load()}
+                    />
                   </li>
                 ))}
               </ul>

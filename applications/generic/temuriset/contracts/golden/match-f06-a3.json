@@ -3,6 +3,107 @@
     "available": true,
     "reason": null
   },
+  "breakdown": [
+    {
+      "id": "sector",
+      "score": 100,
+      "status": "MATCH",
+      "values": {
+        "source": "Energi",
+        "target": [
+          "Energi",
+          "Air dan sanitasi"
+        ]
+      },
+      "weight": "0.15"
+    },
+    {
+      "id": "topic",
+      "score": 100,
+      "status": "MATCH",
+      "values": {
+        "matched": [
+          "pendampingan",
+          "komunitas",
+          "energi"
+        ],
+        "missing": []
+      },
+      "weight": "0.45"
+    },
+    {
+      "id": "readiness",
+      "score": 100,
+      "status": "MATCH",
+      "values": {
+        "accepted_stages": [
+          "IDEA",
+          "PROTOTYPE"
+        ],
+        "min_tkt": null,
+        "stage": "IDEA",
+        "tkt": null
+      },
+      "weight": "0.15"
+    },
+    {
+      "id": "money",
+      "score": null,
+      "status": "UNKNOWN",
+      "values": {
+        "accepts_partial": true,
+        "reason": "Kisaran biaya pilot untuk kebutuhan ini belum diisi.",
+        "source": null,
+        "target": null
+      },
+      "weight": "0.15"
+    },
+    {
+      "id": "form",
+      "score": 100,
+      "status": "MATCH",
+      "values": {
+        "source": "PROJECT",
+        "target": [
+          "PROJECT"
+        ]
+      },
+      "weight": "0.30"
+    },
+    {
+      "id": "requirements",
+      "score": 100,
+      "status": "MATCH",
+      "values": {
+        "failed": [],
+        "passed": 1,
+        "total": 1,
+        "unknown": []
+      },
+      "weight": null
+    },
+    {
+      "id": "evidence",
+      "score": 100,
+      "status": "MATCH",
+      "values": {
+        "applicable": 1,
+        "provided": 1,
+        "reviewed": 0
+      },
+      "weight": null
+    },
+    {
+      "id": "availability",
+      "score": 100,
+      "status": "MATCH",
+      "values": {
+        "available": true,
+        "reason": null
+      },
+      "weight": "0.15"
+    }
+  ],
   "eligibility": "ELIGIBLE",
   "evidence": {
     "applicable": 1,
@@ -26,6 +127,22 @@
   "readiness": "READY_TO_SUBMIT",
   "reasons": [
     "Tahap inovasi diterima mandat ini."
+  ],
+  "recommendations": [
+    {
+      "blocking": false,
+      "dimension": "money",
+      "estimate": null,
+      "kind": "money_missing",
+      "target": {
+        "field": "budget",
+        "need_id": "<id>",
+        "source_type": "SUPPORT_REQUEST"
+      },
+      "values": {
+        "target": null
+      }
+    }
   ],
   "relevant": true,
   "rows": [

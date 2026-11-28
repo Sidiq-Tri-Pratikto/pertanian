@@ -3,6 +3,108 @@
     "available": true,
     "reason": null
   },
+  "breakdown": [
+    {
+      "id": "sector",
+      "score": 100,
+      "status": "MATCH",
+      "values": {
+        "source": "Perangkat lunak",
+        "target": [
+          "Perangkat lunak"
+        ]
+      },
+      "weight": "0.15"
+    },
+    {
+      "id": "topic",
+      "score": 100,
+      "status": "MATCH",
+      "values": {
+        "matched": [
+          "perangkat",
+          "lunak",
+          "lisensi",
+          "penjadwalan"
+        ],
+        "missing": []
+      },
+      "weight": "0.45"
+    },
+    {
+      "id": "readiness",
+      "score": 100,
+      "status": "MATCH",
+      "values": {
+        "accepted_stages": [
+          "WORKING"
+        ],
+        "min_tkt": null,
+        "stage": "WORKING",
+        "tkt": null
+      },
+      "weight": "0.15"
+    },
+    {
+      "id": "money",
+      "score": null,
+      "status": "UNKNOWN",
+      "values": {
+        "accepts_partial": true,
+        "reason": "Kisaran biaya pilot untuk kebutuhan ini belum diisi.",
+        "source": null,
+        "target": null
+      },
+      "weight": "0.15"
+    },
+    {
+      "id": "form",
+      "score": 100,
+      "status": "MATCH",
+      "values": {
+        "source": "LICENSE",
+        "target": [
+          "LICENSE"
+        ]
+      },
+      "weight": "0.30"
+    },
+    {
+      "id": "requirements",
+      "score": 50,
+      "status": "MISMATCH",
+      "values": {
+        "failed": [
+          "SSO yang sudah berjalan"
+        ],
+        "passed": 1,
+        "total": 2,
+        "unknown": []
+      },
+      "weight": null
+    },
+    {
+      "id": "evidence",
+      "score": 50,
+      "status": "PARTIAL",
+      "values": {
+        "applicable": 2,
+        "provided": 1,
+        "reviewed": 0
+      },
+      "weight": null
+    },
+    {
+      "id": "availability",
+      "score": 100,
+      "status": "MATCH",
+      "values": {
+        "available": true,
+        "reason": null
+      },
+      "weight": "0.15"
+    }
+  ],
   "eligibility": "INCOMPATIBLE",
   "evidence": {
     "applicable": 2,
@@ -36,6 +138,47 @@
   "readiness": "BLOCKED_FOR_THIS_TARGET",
   "reasons": [
     "Bentuk kerja sama sesuai."
+  ],
+  "recommendations": [
+    {
+      "blocking": true,
+      "dimension": "requirements",
+      "estimate": {
+        "fit": {
+          "coverage": "0.88",
+          "lower": "85.71",
+          "upper": "100.00"
+        },
+        "gain": "0.00",
+        "label": "Kecocokan kuat"
+      },
+      "kind": "requirement",
+      "target": {
+        "field": "facts",
+        "invention_id": "<id>"
+      },
+      "values": {
+        "action": null,
+        "field": "feature:sso",
+        "label": "SSO yang sudah berjalan",
+        "reason": "Fitur baru direncanakan, sedangkan mandat ini memerlukan fitur yang sudah berjalan.",
+        "result": "FAIL"
+      }
+    },
+    {
+      "blocking": false,
+      "dimension": "money",
+      "estimate": null,
+      "kind": "money_missing",
+      "target": {
+        "field": "budget",
+        "need_id": "<id>",
+        "source_type": "SUPPORT_REQUEST"
+      },
+      "values": {
+        "target": null
+      }
+    }
   ],
   "relevant": true,
   "rows": [
