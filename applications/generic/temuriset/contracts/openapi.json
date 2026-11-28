@@ -2861,6 +2861,29 @@
         "title": "ErrorRecovery",
         "type": "object"
       },
+      "Estimate": {
+        "description": "Engine-computed what-if estimate if the applicant's product genuinely meets the condition (spec 058).",
+        "properties": {
+          "fit": {
+            "$ref": "#/components/schemas/FitResponse"
+          },
+          "gain": {
+            "title": "Gain",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "fit",
+          "gain"
+        ],
+        "title": "Estimate",
+        "type": "object"
+      },
       "EvidenceResponse": {
         "description": "How much of the checklist rests on provided or reviewed evidence.",
         "properties": {
@@ -5037,6 +5060,14 @@
               "type": "string"
             },
             "title": "Reasons",
+            "type": "array"
+          },
+          "recommendations": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/Recommendation"
+            },
+            "title": "Recommendations",
             "type": "array"
           },
           "relevant": {
@@ -8860,6 +8891,84 @@
           "unknown_reason"
         ],
         "title": "RangeResponse",
+        "type": "object"
+      },
+      "Recommendation": {
+        "description": "One honest, conditional improvement recommendation for an applicant (spec 058).",
+        "properties": {
+          "blocking": {
+            "title": "Blocking",
+            "type": "boolean"
+          },
+          "dimension": {
+            "anyOf": [
+              {
+                "enum": [
+                  "sector",
+                  "topic",
+                  "readiness",
+                  "money",
+                  "form",
+                  "requirements",
+                  "evidence",
+                  "availability"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dimension"
+          },
+          "estimate": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Estimate"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "kind": {
+            "enum": [
+              "requirement",
+              "topic",
+              "tkt_below",
+              "tkt_missing",
+              "stage",
+              "money_missing",
+              "money_gap",
+              "form",
+              "evidence",
+              "sector",
+              "availability",
+              "no_need"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "target": {
+            "additionalProperties": true,
+            "title": "Target",
+            "type": "object"
+          },
+          "values": {
+            "additionalProperties": true,
+            "title": "Values",
+            "type": "object"
+          }
+        },
+        "required": [
+          "kind",
+          "blocking",
+          "dimension",
+          "target",
+          "values",
+          "estimate"
+        ],
+        "title": "Recommendation",
         "type": "object"
       },
       "RecordHandoffRequest": {

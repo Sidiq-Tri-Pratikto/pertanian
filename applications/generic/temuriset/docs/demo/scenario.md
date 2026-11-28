@@ -59,6 +59,10 @@ Masih sebagai Inovator A, buka **Kecocokan** untuk kedua kebutuhan.
 
 Buka "Mengapa cocok?" pada hasil Produk B dan Investor B. Sektor, tahap dan semua kata kunci cocok. Pada Produk A, hanya kata "desa" yang sama.
 
+### Skenario 3b: Perbaiki Produk A dari rekomendasi kecocokan
+
+Dari rincian kecocokan Produk A terhadap Investor A, buka bagian **Cara meningkatkan kecocokan** lalu ikuti tautan **Perbarui kata kunci** (atau **Perbarui TKT** setelah 056). Setelah menyimpan dan menerbitkan versi baru, tekan **Kembali ke kecocokan** untuk melihat skor aspek yang berubah secara langsung (misalnya `Topik dan detail produk 25 → 100`).
+
 ## Skenario 4: Inovator A mengajukan lebih dulu
 
 Dari hasil Produk B dan Investor B, pilih **Siapkan pitching**. Tunjukkan ringkasan "Yang akan diterima Investor B", lalu tekan **Kirim pitching**. Masuk sebagai Investor B: pitching muncul di antrean Beranda.

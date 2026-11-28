@@ -161,6 +161,59 @@
     "Berkas tersedia. Isinya belum diperiksa.",
     "Kisaran biaya beririsan pada cakupan dan periode yang sama."
   ],
+  "recommendations": [
+    {
+      "blocking": false,
+      "dimension": "topic",
+      "estimate": {
+        "fit": {
+          "coverage": "0.95",
+          "lower": "94.74",
+          "upper": "100.00"
+        },
+        "gain": "6.63",
+        "label": "Kecocokan kuat"
+      },
+      "kind": "topic",
+      "target": {
+        "field": "keywords",
+        "invention_id": "<id>"
+      },
+      "values": {
+        "matched": [
+          "prototipe",
+          "validasi",
+          "air"
+        ],
+        "missing": [
+          "uji"
+        ]
+      }
+    },
+    {
+      "blocking": false,
+      "dimension": "evidence",
+      "estimate": {
+        "fit": {
+          "coverage": "0.95",
+          "lower": "88.11",
+          "upper": "94.04"
+        },
+        "gain": "0.00",
+        "label": "Kecocokan kuat"
+      },
+      "kind": "evidence",
+      "target": {
+        "field": "documents",
+        "invention_id": "<id>"
+      },
+      "values": {
+        "items": [
+          "Sertifikat komersialisasi"
+        ]
+      }
+    }
+  ],
   "relevant": true,
   "rows": [
     {

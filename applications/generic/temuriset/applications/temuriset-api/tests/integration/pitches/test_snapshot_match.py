@@ -170,6 +170,7 @@ async def test_investor_invention_fit_preview_reads_public_only_and_hides_drafts
     assert dims["money"]["score"] is None and dims["money"]["status"] == "UNKNOWN"
     assert dims["form"]["score"] is None and dims["form"]["status"] == "UNKNOWN"
     assert dims["sector"]["score"] == 100
+    assert a1["recommendations"] == []
 
     # Own invention returns empty list (no self-matching).
     own = await rani.get(f"/api/v1/inventions/{world.inventors.inventions['F01']}/fit")

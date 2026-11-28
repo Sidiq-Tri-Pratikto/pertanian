@@ -139,6 +139,47 @@
   "reasons": [
     "Bentuk kerja sama sesuai."
   ],
+  "recommendations": [
+    {
+      "blocking": true,
+      "dimension": "requirements",
+      "estimate": {
+        "fit": {
+          "coverage": "0.88",
+          "lower": "85.71",
+          "upper": "100.00"
+        },
+        "gain": "0.00",
+        "label": "Kecocokan kuat"
+      },
+      "kind": "requirement",
+      "target": {
+        "field": "facts",
+        "invention_id": "<id>"
+      },
+      "values": {
+        "action": null,
+        "field": "feature:sso",
+        "label": "SSO yang sudah berjalan",
+        "reason": "Fitur baru direncanakan, sedangkan mandat ini memerlukan fitur yang sudah berjalan.",
+        "result": "FAIL"
+      }
+    },
+    {
+      "blocking": false,
+      "dimension": "money",
+      "estimate": null,
+      "kind": "money_missing",
+      "target": {
+        "field": "budget",
+        "need_id": "<id>",
+        "source_type": "SUPPORT_REQUEST"
+      },
+      "values": {
+        "target": null
+      }
+    }
+  ],
   "relevant": true,
   "rows": [
     {

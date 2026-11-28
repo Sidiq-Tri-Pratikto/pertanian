@@ -5501,6 +5501,17 @@ export interface components {
             retryable: boolean;
         };
         /**
+         * Estimate
+         * @description Engine-computed what-if estimate if the applicant's product genuinely meets the condition (spec 058).
+         */
+        Estimate: {
+            fit: components["schemas"]["FitResponse"];
+            /** Gain */
+            gain: string;
+            /** Label */
+            label: string;
+        };
+        /**
          * EvidenceResponse
          * @description How much of the checklist rests on provided or reviewed evidence.
          */
@@ -6462,6 +6473,11 @@ export interface components {
             readiness: "READY_TO_SUBMIT" | "NEEDS_INFORMATION" | "BLOCKED_FOR_THIS_TARGET";
             /** Reasons */
             reasons: string[];
+            /**
+             * Recommendations
+             * @default []
+             */
+            recommendations?: components["schemas"]["Recommendation"][];
             /** Relevant */
             relevant: boolean;
             /** Rows */
@@ -8075,6 +8091,30 @@ export interface components {
             subject: "partner" | "investorCheck" | "license";
             /** Unknown Reason */
             unknown_reason: ("not_determined" | "not_disclosed") | null;
+        };
+        /**
+         * Recommendation
+         * @description One honest, conditional improvement recommendation for an applicant (spec 058).
+         */
+        Recommendation: {
+            /** Blocking */
+            blocking: boolean;
+            /** Dimension */
+            dimension: ("sector" | "topic" | "readiness" | "money" | "form" | "requirements" | "evidence" | "availability") | null;
+            estimate: components["schemas"]["Estimate"] | null;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "requirement" | "topic" | "tkt_below" | "tkt_missing" | "stage" | "money_missing" | "money_gap" | "form" | "evidence" | "sector" | "availability" | "no_need";
+            /** Target */
+            target: {
+                [key: string]: unknown;
+            };
+            /** Values */
+            values: {
+                [key: string]: unknown;
+            };
         };
         /**
          * RecordHandoffRequest

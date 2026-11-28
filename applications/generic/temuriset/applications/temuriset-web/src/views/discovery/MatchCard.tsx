@@ -1,10 +1,12 @@
 import NextLink from 'next/link';
 
 import { Disclosure } from '@/components/tr/Disclosure';
+import { ImprovementList } from '@/components/tr/ImprovementList';
 import { RequirementRow } from '@/components/tr/RequirementRow';
 import { ScoreBreakdown, type ScoreDelta } from '@/components/tr/ScoreBreakdown';
 import { Status, type Tone } from '@/components/tr/Status';
 import type { Dimension } from '@/features/discovery/breakdown';
+import type { Recommendation } from '@/features/discovery/recommendations';
 import { ELIGIBILITY, matchesHref, percent, READINESS, score, type MatchResult, type MatchSourceRef } from '@/features/discovery/model';
 import { AVAILABILITY_REASON } from '@/features/intake/model';
 import { t } from '@/features/i18n/t';
@@ -50,6 +52,7 @@ export function MatchCard({ result, source, deltas, onRecalculate }: Props) {
   const intake = result.availability.available ? t('Menerima pitching') : result.availability.reason ? t(AVAILABILITY_REASON[result.availability.reason]) : t('Belum menerima pitching');
   const deciding = result.gap ? `${result.gap.result === 'FAIL' ? t('Menghalangi') : t('Perlu dilengkapi')}: ${t(result.gap.reason)}` : t('Tidak ada syarat wajib yang menghalangi');
   const breakdown = ((result as { breakdown?: Dimension[] }).breakdown ?? []) as Dimension[];
+  const recommendations = ((result as { recommendations?: Recommendation[] }).recommendations ?? []) as Recommendation[];
   return (
     <article className="tr-card" aria-labelledby={headingId}>
       <div className="tr-card__body tr-stack">
@@ -61,6 +64,7 @@ export function MatchCard({ result, source, deltas, onRecalculate }: Props) {
           <Status tone={labelTone(result)} icon={null} label={t(result.label)} />
         </p>
         <ScoreBreakdown dimensions={breakdown} deltas={deltas} onRecalculate={onRecalculate} />
+        <ImprovementList recommendations={recommendations} returnTo={matchesHref(source)} />
         <dl className="tr-facts">
           <div>
             <dt className="tr-sys-type-support-strong">{t('Penerimaan')}</dt>
