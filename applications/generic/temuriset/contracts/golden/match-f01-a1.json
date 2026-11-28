@@ -3,6 +3,126 @@
     "available": true,
     "reason": null
   },
+  "breakdown": [
+    {
+      "id": "sector",
+      "score": 100,
+      "status": "MATCH",
+      "values": {
+        "source": "Air dan sanitasi",
+        "target": [
+          "Air dan sanitasi",
+          "Pertanian",
+          "Energi"
+        ]
+      },
+      "weight": "0.15"
+    },
+    {
+      "id": "topic",
+      "score": 75,
+      "status": "PARTIAL",
+      "values": {
+        "matched": [
+          "prototipe",
+          "validasi",
+          "air"
+        ],
+        "missing": [
+          "uji"
+        ]
+      },
+      "weight": "0.45"
+    },
+    {
+      "id": "readiness",
+      "score": 100,
+      "status": "MATCH",
+      "values": {
+        "accepted_stages": [
+          "PROTOTYPE",
+          "PILOT"
+        ],
+        "min_tkt": null,
+        "stage": "PROTOTYPE",
+        "tkt": null
+      },
+      "weight": "0.15"
+    },
+    {
+      "id": "money",
+      "score": 100,
+      "status": "MATCH",
+      "values": {
+        "accepts_partial": true,
+        "reason": "Kisaran biaya beririsan pada cakupan dan periode yang sama.",
+        "source": {
+          "basis": "total_period",
+          "currency": "USD",
+          "high": "30000.0000",
+          "low": "20000.0000",
+          "months": 6,
+          "scope": "biaya pilot enam bulan",
+          "subject": null
+        },
+        "target": {
+          "basis": "total_period",
+          "currency": "USD",
+          "high": "40000.0000",
+          "low": "15000.0000",
+          "months": 6,
+          "scope": "biaya pilot enam bulan",
+          "subject": "partner"
+        }
+      },
+      "weight": "0.15"
+    },
+    {
+      "id": "form",
+      "score": 100,
+      "status": "MATCH",
+      "values": {
+        "source": "PROJECT",
+        "target": [
+          "PROJECT"
+        ]
+      },
+      "weight": "0.30"
+    },
+    {
+      "id": "requirements",
+      "score": 100,
+      "status": "MATCH",
+      "values": {
+        "failed": [],
+        "passed": 3,
+        "total": 3,
+        "unknown": []
+      },
+      "weight": null
+    },
+    {
+      "id": "evidence",
+      "score": 75,
+      "status": "PARTIAL",
+      "values": {
+        "applicable": 4,
+        "provided": 3,
+        "reviewed": 0
+      },
+      "weight": null
+    },
+    {
+      "id": "availability",
+      "score": 100,
+      "status": "MATCH",
+      "values": {
+        "available": true,
+        "reason": null
+      },
+      "weight": "0.15"
+    }
+  ],
   "eligibility": "ELIGIBLE",
   "evidence": {
     "applicable": 4,

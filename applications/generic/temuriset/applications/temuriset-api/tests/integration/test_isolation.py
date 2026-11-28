@@ -262,6 +262,7 @@ ROUTES: dict[tuple[str, str], Case] = {
         lambda _o, actor: {"acting_party_id": actor, "expected_version": 1},
         {"Idempotency-Key": "isolation-archive"},
     ),
+    ("GET", "/api/v1/inventions/{invention_id}/fit"): Case("GET", lambda o: f"/api/v1/inventions/{o.invention_id}/fit"),
     ("POST", "/api/v1/documents/upload-intents"): Case(
         "POST",
         lambda _o: "/api/v1/documents/upload-intents",

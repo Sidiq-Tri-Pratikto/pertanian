@@ -153,7 +153,7 @@ async def test_a_run_is_stored_and_reproducible(world: World) -> None:
     assert (stored["results"], stored["excluded"]) == (run["results"], run["excluded"])
     assert (stored["engine"], stored["policy_versions"]) == (
         "lexical-rules@1",
-        {"matching-weights": 1, "fit-thresholds": 1},
+        {"matching-weights": 1, "fit-thresholds": 1, "fit-features": 2},
     )
     assert stored["source"] == {**run["source"]}
     assert stranger.status_code == 404

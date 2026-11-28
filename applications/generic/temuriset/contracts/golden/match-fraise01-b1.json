@@ -3,6 +3,122 @@
     "available": true,
     "reason": null
   },
+  "breakdown": [
+    {
+      "id": "sector",
+      "score": 100,
+      "status": "MATCH",
+      "values": {
+        "source": "Material",
+        "target": [
+          "Material",
+          "Manufaktur"
+        ]
+      },
+      "weight": "0.15"
+    },
+    {
+      "id": "topic",
+      "score": 100,
+      "status": "MATCH",
+      "values": {
+        "matched": [
+          "material",
+          "sirkular",
+          "manufaktur"
+        ],
+        "missing": []
+      },
+      "weight": "0.45"
+    },
+    {
+      "id": "readiness",
+      "score": 100,
+      "status": "MATCH",
+      "values": {
+        "accepted_stages": [
+          "PROTOTYPE"
+        ],
+        "min_tkt": null,
+        "stage": "PROTOTYPE",
+        "tkt": null
+      },
+      "weight": "0.15"
+    },
+    {
+      "id": "money",
+      "score": 100,
+      "status": "MATCH",
+      "values": {
+        "accepts_partial": true,
+        "reason": "Kisaran investasi beririsan dengan kontribusi yang diinginkan, bukan dengan seluruh target.",
+        "source": {
+          "basis": null,
+          "currency": "USD",
+          "high": "100000.0000",
+          "low": "50000.0000",
+          "months": null,
+          "scope": "",
+          "subject": null
+        },
+        "target": {
+          "basis": "per_investment",
+          "currency": "USD",
+          "high": "150000.0000",
+          "low": "50000.0000",
+          "months": null,
+          "scope": "",
+          "subject": "investorCheck"
+        }
+      },
+      "weight": "0.15"
+    },
+    {
+      "id": "form",
+      "score": 100,
+      "status": "MATCH",
+      "values": {
+        "source": "EQUITY",
+        "target": [
+          "EQUITY"
+        ]
+      },
+      "weight": "0.30"
+    },
+    {
+      "id": "requirements",
+      "score": 100,
+      "status": "MATCH",
+      "values": {
+        "failed": [],
+        "passed": 3,
+        "total": 3,
+        "unknown": []
+      },
+      "weight": null
+    },
+    {
+      "id": "evidence",
+      "score": 100,
+      "status": "MATCH",
+      "values": {
+        "applicable": 3,
+        "provided": 3,
+        "reviewed": 0
+      },
+      "weight": null
+    },
+    {
+      "id": "availability",
+      "score": 100,
+      "status": "MATCH",
+      "values": {
+        "available": true,
+        "reason": null
+      },
+      "weight": "0.15"
+    }
+  ],
   "eligibility": "ELIGIBLE",
   "evidence": {
     "applicable": 3,

@@ -68,6 +68,9 @@ class Source:
     accepts_partial: bool = False
     contribution: Money | None = None
     documents: dict[str, tuple[dict[str, str], ...]] = field(default_factory=dict)
+    text_terms: tuple[str, ...] = ()
+    text: str = ""
+    tkt: int | None = None
 
 
 @dataclass(frozen=True)
@@ -89,6 +92,7 @@ class Target:
         financial (Money | None): Its financial basis, when it states a range.
         requirements (tuple[dict[str, Any], ...]): Public requirements in order.
         availability (dict[str, Any]): Whether a pitch may target it now, from intake.
+        min_tkt (int | None): Optional minimum technology readiness level preference (1–9).
     """
 
     opportunity_id: str
@@ -105,3 +109,4 @@ class Target:
     financial: Money | None
     requirements: tuple[dict[str, Any], ...]
     availability: dict[str, Any] = field(default_factory=dict)
+    min_tkt: int | None = None

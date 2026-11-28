@@ -5,9 +5,12 @@ import type { Me } from '@/api/client';
 import { Disclosure } from '@/components/tr/Disclosure';
 import { EmptyState } from '@/components/tr/EmptyState';
 import { NextStep } from '@/components/tr/NextStep';
+import { ScoreBreakdown } from '@/components/tr/ScoreBreakdown';
 import { Screen } from '@/components/tr/Screen';
 import { Status } from '@/components/tr/Status';
 import { ContextBar } from '@/features/ContextBar';
+import type { Dimension } from '@/features/discovery/breakdown';
+import { percent, score } from '@/features/discovery/model';
 import { formatDateTime } from '@/features/organizations';
 import { readPersona } from '@/features/persona';
 import { PITCH_STATUS, SOURCE_KIND, type Pitch } from '@/features/pitches/model';
@@ -24,7 +27,8 @@ import { PROVENANCE } from '@/views/parts';
 import { t } from '@/features/i18n/t';
 
 type Submission = Pitch['submissions'][number];
-type Snapshot = { opportunity?: { version?: number }; inventions?: { title: string; number: number }[] };
+type FrozenMatch = { label?: string; fit?: { lower: string; upper: string; coverage: string }; breakdown?: Dimension[] };
+type Snapshot = { opportunity?: { version?: number }; inventions?: { title: string; number: number }[]; match?: FrozenMatch };
 
 export type Room = { next: NextAction; schedule: Schedule; messages: Message[]; tasks: Task[]; relationship?: Partnership | null };
 
@@ -37,10 +41,29 @@ function pins(submission: Submission): string {
     .join(' · ');
 }
 
-function Frozen({ submission }: { submission: Submission }) {
+function Frozen({ submission, showMatch }: { submission: Submission; showMatch?: boolean }) {
+  const match = ((submission.snapshot ?? {}) as Snapshot).match;
   return (
     <div className="tr-stack">
       <p className="tr-muted tr-sys-type-support">{pins(submission)}</p>
+      {showMatch && match?.breakdown?.length ? (
+        <section className="tr-panel tr-stack" aria-label={t('Kecocokan dengan mandat Anda')}>
+          <h3 className="tr-sys-type-heading-sm">{t('Kecocokan dengan mandat Anda')}</h3>
+          <div className="tr-row">
+            {match.label ? <Status tone="neutral" icon={null} label={t(match.label)} /> : null}
+            {match.fit ? (
+              <span className="tr-muted tr-sys-type-support">
+                {t('{lower}–{upper} dari 100 · informasi {coverage}', {
+                  lower: score(match.fit.lower, 'lower'),
+                  upper: score(match.fit.upper, 'upper'),
+                  coverage: percent(match.fit.coverage),
+                })}
+              </span>
+            ) : null}
+          </div>
+          <ScoreBreakdown dimensions={match.breakdown} />
+        </section>
+      ) : null}
       <div className="tr-stack">
         {submission.brief.split('\n').map((line, index) => (
           <p key={index}>{line}</p>
@@ -77,7 +100,7 @@ export function WorkspaceView({ me, pitch, tab, files, justSent, room }: Props) 
             <p>{rejection.reason}</p>
           </Status>
         ) : null}
-        {latest ? <Frozen submission={latest} /> : null}
+        {latest ? <Frozen submission={latest} showMatch={!mine} /> : null}
       </div>
     ),
     revisi: <RevisionPanel pitch={pitch} actingPartyId={me.active_party_id} files={files} />,
@@ -102,7 +125,7 @@ export function WorkspaceView({ me, pitch, tab, files, justSent, room }: Props) 
         <h2 className="tr-sys-type-heading-sm">{t('Riwayat')}</h2>
         {pitch.submissions.map((submission) => (
           <Disclosure key={submission.number} label={t('Kiriman {n} · {time}', { n: submission.number, time: formatDateTime(submission.submitted_at, zone) })}>
-            <Frozen submission={submission} />
+            <Frozen submission={submission} showMatch={!mine} />
           </Disclosure>
         ))}
         {pitch.decisions.length ? (

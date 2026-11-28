@@ -1279,6 +1279,35 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/inventions/{invention_id}/fit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Preview how a published invention fits my active mandates
+         * @description Evaluate a published invention's public projection against each of the acting party's own active mandates.
+         *
+         *     Args:
+         *         invention_id (UUID): The published invention.
+         *         principal (PrincipalDep): Who is signed in.
+         *         session (SessionDep): Database session.
+         *         acting_party_id (UUID | None, optional): Optional acting party check. Defaults to None.
+         *
+         *     Returns:
+         *         list[MatchResultResponse]: One preview result per active mandate; nothing is stored.
+         */
+        get: operations["preview_invention_fit_api_v1_inventions__invention_id__fit_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/inventions/{invention_id}/investor-digest": {
         parameters: {
             query?: never;
@@ -5153,6 +5182,30 @@ export interface components {
             title?: string;
         };
         /**
+         * Dimension
+         * @description One aspect of a match result, scored 0–100 or None when unknown/not applicable (spec 057).
+         */
+        Dimension: {
+            /**
+             * Id
+             * @enum {string}
+             */
+            id: "sector" | "topic" | "readiness" | "money" | "form" | "requirements" | "evidence" | "availability";
+            /** Score */
+            score: number | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "MATCH" | "PARTIAL" | "MISMATCH" | "UNKNOWN" | "NOT_APPLICABLE";
+            /** Values */
+            values: {
+                [key: string]: unknown;
+            };
+            /** Weight */
+            weight: string | null;
+        };
+        /**
          * DiscoveryItem
          * @description One result card. ``card`` holds what the owner published, by subject type.
          */
@@ -6366,6 +6419,11 @@ export interface components {
          */
         MatchResultResponse: {
             availability: components["schemas"]["TargetAvailabilityResponse"];
+            /**
+             * Breakdown
+             * @default []
+             */
+            breakdown?: components["schemas"]["Dimension"][];
             /**
              * Eligibility
              * @enum {string}
@@ -11332,6 +11390,48 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["InventionResponse"];
+                };
+            };
+            /** @description Validation failed */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Failure */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    preview_invention_fit_api_v1_inventions__invention_id__fit_get: {
+        parameters: {
+            query?: {
+                acting_party_id?: string | null;
+            };
+            header?: never;
+            path: {
+                invention_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MatchResultResponse"][];
                 };
             };
             /** @description Validation failed */

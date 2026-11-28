@@ -241,6 +241,7 @@ class PitchService:
                 }
             )
         opportunity = checked["opportunity"]
+        result = checked["result"]
         return jsonable_encoder(
             {
                 "source": source,
@@ -251,7 +252,12 @@ class PitchService:
                     "version": opportunity.number,
                     "title": opportunity.title,
                 },
-                "requirements": checked["result"]["rows"],
+                "requirements": result["rows"],
+                "match": {
+                    "label": result["label"],
+                    "fit": result["fit"],
+                    "breakdown": result.get("breakdown", []),
+                },
             }
         )
 

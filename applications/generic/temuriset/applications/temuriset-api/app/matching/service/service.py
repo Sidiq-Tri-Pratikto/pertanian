@@ -20,6 +20,7 @@ from app.identity.service.accounts import account_is_demo
 from app.intake.model.schema import OpportunityResponse
 from app.intake.service.service import IntakeService
 from app.matching.engine.evaluate import ENGINE, POLICY_VERSIONS, evaluate, rank, rank_experiment
+from app.matching.engine.fit import extract_terms, join_normalized_text
 from app.matching.engine.inputs import Money, Source, Target
 from app.matching.model.schema import (
     MatchModelPins,
@@ -34,8 +35,8 @@ from app.matching.repository.sqlalchemy.repository import SqlAlchemyMatchingRepo
 from app.matching.service.retrieval_adapter import PINS, PROFILE, RetrievalExperiment
 from app.moderation.service.suspension import require_unsuspended
 from app.needs.service.service import NeedsService
-from app.portfolio.model.schema import InventionVersionResponse
-from app.portfolio.service.service import lock_moderation_target, version_view
+from app.portfolio.model.schema import InventionVersionResponse, PublicInventionResponse
+from app.portfolio.service.service import PortfolioService, lock_moderation_target, version_view
 
 
 def _decimal(text: str | None) -> Decimal | None:
@@ -96,6 +97,7 @@ def target_of(opportunity: OpportunityResponse, partner_name: str) -> Target:
             for row in opportunity.requirements
         ),
         availability=opportunity.target_availability.model_dump(),
+        min_tkt=getattr(opportunity, "min_tkt", None),
     )
 
 
@@ -114,17 +116,63 @@ async def _evidence(
     return {key: tuple(files) for key, files in documents.items()}
 
 
-def _invention_fields(versions: list[InventionVersionResponse]) -> dict[str, Any]:
+def _tkt_of(versions: list[InventionVersionResponse | PublicInventionResponse]) -> int | None:
+    levels = [
+        readiness.tkt_level
+        for version in versions
+        if (readiness := getattr(version, "readiness", None)) is not None and readiness.tkt_level is not None
+    ]
+    return min(levels) if levels else None
+
+
+def _prose_of(versions: list[InventionVersionResponse | PublicInventionResponse]) -> tuple[str, ...]:
+    parts: list[str] = []
+    for version in versions:
+        parts.extend((version.title, version.summary, version.problem, version.solution))
+    return tuple(parts)
+
+
+def _invention_fields(versions: list[InventionVersionResponse | PublicInventionResponse]) -> dict[str, Any]:
     first = versions[0] if versions else None
+    keywords = tuple(word for version in versions for word in version.keywords)
+    prose = _prose_of(versions)
     return {
         "stage": first.stage if first else None,
         "sector": first.sector if first else "",
-        "keywords": tuple(word for version in versions for word in version.keywords),
-        "facts": tuple((fact.key, fact.timing) for version in versions for fact in version.facts if fact.key),
+        "keywords": keywords,
+        "text_terms": extract_terms(keywords, *prose),
+        "text": join_normalized_text(keywords, *prose),
+        "tkt": _tkt_of(versions),
+        "facts": tuple(
+            (key, fact.timing) for version in versions for fact in version.facts if (key := getattr(fact, "key", None))
+        ),
         "authority": tuple(
             claim.status for version in versions for claim in version.claims if claim.kind == "authority"
         ),
     }
+
+
+def preview_source(version: InventionVersionResponse | PublicInventionResponse, invention_id: UUID) -> Source:
+    """Build a read-only preview source from a published invention version alone (budget, form, files omitted).
+
+    Args:
+        version (InventionVersionResponse | PublicInventionResponse): Published invention version or public view.
+        invention_id (UUID): The invention id.
+
+    Returns:
+        Source: Engine input with money, relationship form and private files left unknown.
+    """
+    return Source(
+        type="SUPPORT_REQUEST",
+        id=str(invention_id),
+        version=version.number,
+        relationship=None,
+        budget=None,
+        contribution=None,
+        accepts_partial=False,
+        documents={},
+        **_invention_fields([version]),
+    )
 
 
 class MatchingService:
@@ -315,6 +363,36 @@ class MatchingService:
             excluded=[MatchResultResponse.model_validate(row.result) for row in rows if not row.shown],
             retrieval=MatchRetrieval.model_validate(retrieval) if retrieval is not None else None,
         )
+
+    async def invention_fit(
+        self, principal: Principal, invention_id: UUID, acting_party_id: UUID | None = None
+    ) -> list[MatchResultResponse]:
+        """Preview how one published invention fits each of the acting party's own active mandates (spec 057 P2).
+
+        Reads only the invention's public projection; nothing is stored and private files are never read.
+
+        Args:
+            principal (Principal): Who is signed in.
+            invention_id (UUID): The published invention.
+            acting_party_id (UUID | None, optional): Optional acting party check. Defaults to None.
+
+        Returns:
+            list[MatchResultResponse]: One preview result per own active mandate, ordered by fit.
+        """
+        if acting_party_id is not None:
+            check_context(principal, acting_party_id)
+        public = await PortfolioService(self.session).public_view(invention_id)
+        if public.managing_party_id == principal.active_party_id:
+            return []
+        opportunities = await IntakeService(self.session).published_opportunities(principal.active_party_id)
+        if not opportunities:
+            return []
+        names = await party_names(self.session, [principal.active_party_id])
+        partner_name = names.get(principal.active_party_id, "")
+        source = preview_source(public, invention_id)
+        results = [evaluate(source, target_of(item, partner_name)) for item in opportunities]
+        shown, excluded = rank(results)
+        return [MatchResultResponse.model_validate(item) for item in (*shown, *excluded)]
 
 
 def _money_json(money: Money | None) -> dict[str, Any] | None:

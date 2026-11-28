@@ -62,7 +62,7 @@ def test_retrieval_admission_keeps_exact_fit_and_hard_rules() -> None:
     Expected:
     - Retrieval may clear the relevance abstention but cannot affect fit, requirement evidence or positive placement.
     """
-    source = support("F03", keywords=())
+    source = support("F03", keywords=(), text_terms=(), text="")
     mandate = target("D1")
     baseline = evaluate(source, mandate)
     experimental = evaluate(source, mandate, retrieval_evidence=True)

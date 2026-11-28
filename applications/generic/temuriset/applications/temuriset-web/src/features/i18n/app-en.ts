@@ -1,8 +1,11 @@
+import { MATCHING_EN } from '@/features/i18n/app-en/matching';
+
 /**
  * English for the signed-in app, keyed by the Indonesian source text that `t()` receives (revamp R7). Placeholders such
  * as `{name}` stay the same in both languages.
  */
 export const APP_EN: Record<string, string> = {
+  ...MATCHING_EN,
   "Beranda": "Home",
   "Inovasi Saya": "My inventions",
   "Temukan": "Find",

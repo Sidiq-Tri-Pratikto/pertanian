@@ -1,7 +1,7 @@
 """Matching requests and responses."""
 
 from datetime import datetime
-from typing import Literal
+from typing import Any, Literal
 from uuid import UUID
 
 from pydantic import BaseModel, Field
@@ -11,6 +11,8 @@ from app.matching.engine.retrieval import RetrievalMode
 
 SourceType = Literal["SUPPORT_REQUEST", "FUNDING_REQUEST"]
 Result = Literal["PASS", "FAIL", "UNKNOWN"]
+DimensionId = Literal["sector", "topic", "readiness", "money", "form", "requirements", "evidence", "availability"]
+DimensionStatus = Literal["MATCH", "PARTIAL", "MISMATCH", "UNKNOWN", "NOT_APPLICABLE"]
 
 
 class MatchRequest(BaseModel):
@@ -52,6 +54,16 @@ class EvidenceResponse(BaseModel):
     note: str | None
 
 
+class Dimension(BaseModel):
+    """One aspect of a match result, scored 0–100 or None when unknown/not applicable (spec 057)."""
+
+    id: DimensionId
+    score: int | None
+    status: DimensionStatus
+    weight: str | None
+    values: dict[str, Any]
+
+
 class MatchResultResponse(BaseModel):
     """One opportunity version's result. Eligibility, readiness and fit are separate on purpose."""
 
@@ -67,6 +79,7 @@ class MatchResultResponse(BaseModel):
     relevant: bool
     label: str
     fit: FitResponse
+    breakdown: list[Dimension] = []
     reasons: list[str]
     gap: RequirementRow | None
     later: list[RequirementRow]

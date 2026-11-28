@@ -7,6 +7,7 @@ signal abstains, and ``UNKNOWN`` outranks any score in the label.
 from decimal import Decimal
 from typing import Any
 
+from app.matching.engine.breakdown import build_breakdown
 from app.matching.engine.fit import (
     MIN_COVERAGE,
     POTENTIAL_COVERAGE,
@@ -16,14 +17,22 @@ from app.matching.engine.fit import (
     WEIGHTS_A,
     WEIGHTS_B,
     fit_bounds,
-    relevance,
+    readiness_feature,
     side,
+    topic_overlap,
 )
 from app.matching.engine.inputs import Source, Target
-from app.matching.engine.requirements import FAIL, PASS, UNKNOWN, evaluate_requirement
+from app.matching.engine.requirements import (
+    FAIL,
+    PASS,
+    UNKNOWN,
+    compare_budget,
+    compare_contribution,
+    evaluate_requirement,
+)
 
 ENGINE = "lexical-rules@1"
-POLICY_VERSIONS = {"matching-weights": 1, "fit-thresholds": 1}
+POLICY_VERSIONS = {"matching-weights": 1, "fit-thresholds": 1, "fit-features": 2}
 ENTRY = "SUBMISSION"
 _ELIGIBILITY_ORDER = {"ELIGIBLE": 0, "NEEDS_VERIFICATION": 1, "INCOMPATIBLE": 2}
 NO_CHECKLIST = "Belum ada checklist"
@@ -83,12 +92,26 @@ def evaluate(source: Source, target: Target, *, retrieval_evidence: bool = False
     unknown = [row for row in entry if row["result"] == UNKNOWN]
     eligibility = "INCOMPATIBLE" if failed else "NEEDS_VERIFICATION" if unknown else "ELIGIBLE"
     readiness = "BLOCKED_FOR_THIS_TARGET" if failed else "NEEDS_INFORMATION" if unknown else "READY_TO_SUBMIT"
-    overlap = relevance(source.keywords, target.keywords)
+    overlap, topic_matched, topic_missing = topic_overlap(
+        target.keywords, source.keywords, source.text_terms, source.text
+    )
+    if money is None:
+        money = (
+            compare_contribution(source, target) if source.type == "FUNDING_REQUEST" else compare_budget(source, target)
+        )
+    sector_val = _one(source.sector in target.sectors) if (source.sector and target.sectors) else None
+    readiness_val = readiness_feature(source.stage, target.accepted_stages, source.tkt, target.min_tkt)
+    form_val = (
+        None
+        if (source.relationship is None or not target.relationship_forms)
+        else _one(source.relationship in target.relationship_forms)
+    )
+    available = bool(target.availability.get("available", target.active))
     a = side(
         {
             "problem": overlap,
-            "stage": None if source.stage is None else _one(source.stage in target.accepted_stages),
-            "sector": _one(source.sector in target.sectors) if source.sector else None,
+            "stage": readiness_val,
+            "sector": sector_val,
             "financial": money.feature if money else None,
             "timing": None,
         },
@@ -97,16 +120,36 @@ def evaluate(source: Source, target: Target, *, retrieval_evidence: bool = False
     b = side(
         {
             "support": Decimal(1),
-            "form": _one(source.relationship in target.relationship_forms),
+            "form": form_val,
             "geo": Decimal(1),
-            "availability": _one(target.active),
+            "availability": _one(available),
         },
         WEIGHTS_B,
     )
     fit = fit_bounds(a, b)
     # No relevance signal means abstaining: compatible stage or geography alone never recommends a target.
-    relevant = overlap > 0 or retrieval_evidence
+    relevant = (overlap is not None and overlap > 0) or retrieval_evidence
     gap = (failed or unknown or [None])[0]
+    evidence = {
+        "provided": sum(1 for r in rows if r["verification_mode"] != "REVIEWER_CONFIRMED" and r["result"] == PASS),
+        "reviewed": sum(1 for r in rows if r["verification_mode"] == "REVIEWER_CONFIRMED" and r["result"] == PASS),
+        "applicable": len(rows),
+        "note": NO_CHECKLIST if not rows else None,
+    }
+    dimensions = build_breakdown(
+        source=source,
+        target=target,
+        rows=rows,
+        evidence=evidence,
+        sector_feature=sector_val,
+        topic_feature=overlap,
+        topic_matched=topic_matched,
+        topic_missing=topic_missing,
+        readiness_val=readiness_val,
+        money_outcome=money,
+        form_feature=form_val,
+        available=available,
+    )
     return {
         "opportunity_id": target.opportunity_id,
         "opportunity_version_id": target.version_id,
@@ -120,16 +163,12 @@ def evaluate(source: Source, target: Target, *, retrieval_evidence: bool = False
         "relevant": relevant,
         "label": _label(eligibility, relevant, fit.lower, fit.coverage),
         "fit": {"lower": str(fit.lower), "upper": str(fit.upper), "coverage": str(fit.coverage)},
+        "breakdown": dimensions,
         "reasons": [row["reason"] for row in rows if row["result"] == PASS and row["applies_at"] == ENTRY][:3],
         "gap": gap,
         "later": [row for row in rows if row["applies_at"] != ENTRY],
         "rows": rows,
-        "evidence": {
-            "provided": sum(1 for r in rows if r["verification_mode"] != "REVIEWER_CONFIRMED" and r["result"] == PASS),
-            "reviewed": sum(1 for r in rows if r["verification_mode"] == "REVIEWER_CONFIRMED" and r["result"] == PASS),
-            "applicable": len(rows),
-            "note": NO_CHECKLIST if not rows else None,
-        },
+        "evidence": evidence,
     }
 
 

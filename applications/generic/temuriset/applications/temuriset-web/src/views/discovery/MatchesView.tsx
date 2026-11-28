@@ -22,7 +22,7 @@ import { t } from '@/features/i18n/t';
  * Investor finder: a compact list of recommended mandates beside the open one. On a phone the list and the open match
  * take turns, and t('Kembali ke daftar') puts focus back on the row the person left.
  */
-function MatchList({ results, source }: { results: MatchResult[]; source: MatchSourceRef }) {
+function MatchList({ results, source, onRecalculate }: { results: MatchResult[]; source: MatchSourceRef; onRecalculate: () => void }) {
   const [chosen, setChosen] = useState<string | null>(null);
   const detail = useRef<HTMLDivElement>(null);
   const open = results.find((result) => result.opportunity_id === chosen) ?? results[0];
@@ -59,7 +59,7 @@ function MatchList({ results, source }: { results: MatchResult[]; source: MatchS
             {t('Kembali ke daftar')}
           </button>
         </p>
-        <MatchCard result={open} source={source} />
+        <MatchCard result={open} source={source} onRecalculate={onRecalculate} />
       </div>
     </div>
   );
@@ -118,7 +118,7 @@ export function MatchesView({ me, source, externals }: Props) {
               {t('Mandat yang sesuai')}
             </h2>
             {run.results.length ? (
-              <MatchList results={run.results} source={source} />
+              <MatchList results={run.results} source={source} onRecalculate={() => void load()} />
             ) : (
               <EmptyState icon="search" title={t('Belum ada mandat yang sesuai')}>
                 {t('Tidak ada mandat aktif yang relevan dan memenuhi syarat masuk untuk kebutuhan ini.')}
@@ -131,7 +131,7 @@ export function MatchesView({ me, source, externals }: Props) {
               <ul className="tr-stack">
                 {run.excluded.map((result) => (
                   <li key={result.opportunity_id}>
-                    <MatchCard result={result} source={source} />
+                    <MatchCard result={result} source={source} onRecalculate={() => void load()} />
                   </li>
                 ))}
               </ul>

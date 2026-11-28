@@ -2180,6 +2180,72 @@
         "title": "DevBookingRequest",
         "type": "object"
       },
+      "Dimension": {
+        "description": "One aspect of a match result, scored 0\u2013100 or None when unknown/not applicable (spec 057).",
+        "properties": {
+          "id": {
+            "enum": [
+              "sector",
+              "topic",
+              "readiness",
+              "money",
+              "form",
+              "requirements",
+              "evidence",
+              "availability"
+            ],
+            "title": "Id",
+            "type": "string"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score"
+          },
+          "status": {
+            "enum": [
+              "MATCH",
+              "PARTIAL",
+              "MISMATCH",
+              "UNKNOWN",
+              "NOT_APPLICABLE"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "values": {
+            "additionalProperties": true,
+            "title": "Values",
+            "type": "object"
+          },
+          "weight": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Weight"
+          }
+        },
+        "required": [
+          "id",
+          "score",
+          "status",
+          "weight",
+          "values"
+        ],
+        "title": "Dimension",
+        "type": "object"
+      },
       "DiscoveryItem": {
         "description": "One result card. ``card`` holds what the owner published, by subject type.",
         "properties": {
@@ -4889,6 +4955,14 @@
         "properties": {
           "availability": {
             "$ref": "#/components/schemas/TargetAvailabilityResponse"
+          },
+          "breakdown": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/Dimension"
+            },
+            "title": "Breakdown",
+            "type": "array"
           },
           "eligibility": {
             "enum": [
@@ -14517,6 +14591,81 @@
         "summary": "Save the draft",
         "tags": [
           "inventions"
+        ]
+      }
+    },
+    "/api/v1/inventions/{invention_id}/fit": {
+      "get": {
+        "description": "Evaluate a published invention's public projection against each of the acting party's own active mandates.\n\nArgs:\n    invention_id (UUID): The published invention.\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    acting_party_id (UUID | None, optional): Optional acting party check. Defaults to None.\n\nReturns:\n    list[MatchResultResponse]: One preview result per active mandate; nothing is stored.",
+        "operationId": "preview_invention_fit_api_v1_inventions__invention_id__fit_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "invention_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Invention Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "acting_party_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Acting Party Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/MatchResultResponse"
+                  },
+                  "title": "Response Preview Invention Fit Api V1 Inventions  Invention Id  Fit Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Preview how a published invention fits my active mandates",
+        "tags": [
+          "matching"
         ]
       }
     },
