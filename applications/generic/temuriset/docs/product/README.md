@@ -4,8 +4,8 @@ TemuRiset's product documents live under `docs/generic/temuriset/` at the pertan
 
 | Document | Authority |
 |---|---|
-| [PRD EN v1.1](../../../../../docs/generic/temuriset/01_PRD_TemuRiset_Generic_EN.md) | Canonical for behaviour: FR01–FR24, AC01–AC72, domain, API, states, fixtures |
-| [PRD ID v1.1](../../../../../docs/generic/temuriset/01_PRD_TemuRiset_Generic_ID.md) | Same requirements in Indonesian; resolve a discrepancy against the English edition |
+| [PRD EN v1.2](../../../../../docs/generic/temuriset/01_PRD_TemuRiset_Generic_EN.md) | Canonical for behaviour: FR01–FR26, AC01–AC88, domain, API, states, fixtures |
+| [PRD ID v1.2](../../../../../docs/generic/temuriset/01_PRD_TemuRiset_Generic_ID.md) | Same requirements in Indonesian; resolve a discrepancy against the English edition |
 | [Application handoff](../../../../../docs/generic/temuriset/02_Claude_Design_TemuRiset_EN.md) | Screens S01–S18, journeys J01–J05, copy, fixtures F01–F06, UX-01–UX-24 |
 | [Design system](../../../../../docs/generic/temuriset/design-system/project/README.md) | TemuRiset Design System 1.0.0-draft, `window.TR`, tokens and component contracts |
 | [Prototype handoff](../../../../../docs/generic/temuriset/app-prototype/DESIGN_HANDOFF.md) | Playable front-end simulation, route map, mock ledger and validation evidence |

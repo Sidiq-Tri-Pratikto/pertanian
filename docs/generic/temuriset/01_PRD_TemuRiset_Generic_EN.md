@@ -1,6 +1,8 @@
 # TemuRiset — Generic product requirements
 
-Version 1.1 · 31 October 2026 · Asia/Jakarta
+Version 1.2 · 28 November 2026 · Asia/Jakarta
+
+Changes in 1.2 (demo feedback): optional technology readiness level (TKT) on inventions and an optional minimum on mandates (FR03, FR09, FR25); a per-aspect match breakdown and improvement recommendations (FR11); a finder that scores each of the inventor's products against a chosen investor (FR10); a readable HTML format for investor emails without an account (FR26). Acceptance AC73–AC88. Delivery plan: `applications/generic/temuriset/docs/roadmap/revamp-2-demo-feedback.md`, specs 055–060.
 
 Status: product and architecture direction accepted by the user; detailed implementation defaults remain proposals where identified. Application and design-system behavior have not been implemented or verified against this document.
 
@@ -102,7 +104,7 @@ A personal workspace is available immediately. Organization invitations specify 
 
 One managing context can hold many inventions. Required publication fields are title, nonconfidential problem and solution summary, intended users, current stage, current capabilities and contact/management context. Support details are required when opening intake, not to save a draft. Title length is initially 5–120 characters and short summary at most 350 characters. Sector, searchable keywords and appropriate images aid discovery; a category illustration is the fallback.
 
-Use a four-step editor: basics; what exists and evidence; support and financial scope; public preview. Save drafts with visible saved/unsaved/error state. Publish an immutable version, optionally after configured review. Material edits create a draft successor while the current published version stays available until replacement approval. Archiving removes new discovery and submission availability, preserves permitted history and does not cancel existing discussions. Acceptance: AC07–AC09.
+Use a four-step editor: basics; what exists and evidence; support and financial scope; public preview. Step two also holds an optional technology readiness level (TKT 1–9) with a note and an optional evidence file (FR25). Save drafts with visible saved/unsaved/error state. Publish an immutable version, optionally after configured review. Material edits create a draft successor while the current published version stays available until replacement approval. Archiving removes new discovery and submission availability, preserves permitted history and does not cancel existing discussions. Acceptance: AC07–AC09.
 
 ### FR04 — Rights claims and deliberate disclosure
 
@@ -132,7 +134,7 @@ Partners specify subtype, sectors/problems of interest, accepted stages, geograp
 
 ### FR09 — Opportunities, mandates and direct intake
 
-A partner can publish several versioned opportunities or mandates, each with a clear outcome, scope included/excluded, offered support, accepted stages, timing, financial basis and typed requirements. Use DRAFT, ACTIVE, PAUSED, CLOSED and EXPIRED states. Applicants can read all requirements that may block their submission. Narrative criteria remain review questions until an approved typed mapping exists. No secret criterion can automatically reject a pitch.
+A partner can publish several versioned opportunities or mandates, each with a clear outcome, scope included/excluded, offered support, accepted stages, timing, financial basis and typed requirements. Use DRAFT, ACTIVE, PAUSED, CLOSED and EXPIRED states. A mandate may state an optional minimum TKT (FR25); it is a preference used by matching, not a hidden rejection. Applicants can read all requirements that may block their submission. Narrative criteria remain review questions until an approved typed mapping exists. No secret criterion can automatically reject a pitch.
 
 An active specific opportunity is the target. A versioned general-intake profile may be used only when direct pitching is enabled, labelled “based on general partner profile.” Do not combine favorable requirements from one mandate and resources from another. An external application click is tracked as an external handoff, not a submitted or accepted in-app pitch. Acceptance: AC25–AC27.
 
@@ -142,9 +144,13 @@ Provide relevant suggestions from explicit preferences or active needs, curator 
 
 Cards prioritize problem, existing solution, requested support, stage and a few reasons. Save and “less relevant” feedback affect the actor's list, not public reputation. No trend label appears from demo events or insufficient activity. Proposed trending requires at least five qualifying independent partner actors in a 14-day window, with self-events/bots excluded and per-actor caps; it remains optional and separate from fit. Acceptance: AC28–AC30.
 
+**R2 (1.2).** An inventor browsing investors can choose one of their products to rank investors by that product's fit, or open an investor to see every one of their published products scored against each of that investor's active mandates. A product without an active need is scored in labelled preview from its published version, with money and partnership form unknown; preview results are not stored and cannot be pitched. Ordering uses fit only, never popularity. Acceptance: AC82–AC84.
+
 ### FR11 — Explainable matching and requirement results
 
 The engine evaluates the selected source request/version against one opportunity or general-intake version in an authorized context. Preserve source/target purpose, evidence permissions and financial basis. Return eligibility, target-specific readiness, score bounds/coverage, provided/reviewed evidence counts, reasons, gaps and next actions. A known failed mandatory requirement cannot be compensated by semantic similarity. Show “Perlu konfirmasi” when mandatory facts are UNKNOWN and abstain from a positive shortlist for INCOMPATIBLE pairs. Detailed ranking belongs behind a secondary action. Acceptance: AC31–AC33.
+
+**R2 (1.2).** Every result also carries a breakdown of eight aspects, each scored 0–100 or unknown with its status and the raw values that explain it: field, topic and product detail, stage and TKT, money, form of partnership, required items, evidence and investor availability. Unknown is never shown as zero, and a failed required item keeps the pair ineligible whatever the other aspects score. The recipient of a pitch sees the breakdown frozen at that submission. For the applicant only, each shortfall becomes a recommendation: what the target looks for, what the source states, where to change it and an engine-computed estimate of the effect. Recommendations are conditional, never edit data and never suggest changing field or stage to score higher. Acceptance: AC77–AC81.
 
 ### FR12 — Preflight and editable brief
 
@@ -211,6 +217,14 @@ A supported composition identifies a source release, configuration schema/versio
 ### FR24 — Release, operation and recovery
 
 Maintain one source history and reproducible releases for related variants. Each environment records code, configuration, capability, adapter and database-schema versions. Shared fixes are implemented and regression-tested once, then rolled out deliberately to each supported composition. Use forward-compatible expand/migrate/contract schema changes, tested backup/restore and a deployment-specific rollback or forward-repair plan. Publishing a release does not update every deployment automatically. Operations must distinguish partial delivery failure from committed business intent. Acceptance: AC70–AC72.
+
+### FR25 — Technology readiness level (TKT) — R2
+
+An invention version may state a technology readiness level (Tingkat Kesiapterapan Teknologi, TKT) from 1 to 9 following Permenristekdikti No. 42 Tahun 2016: 1–3 basic research, 4–6 applied research, 7–9 development and commercialisation. It is optional, self-declared and labelled as such, with an optional note (at most 500 characters) and an optional evidence file owned by the managing party. Evidence stays private and reaches an investor only through a pitch grant; other readers learn only that evidence exists. Every place that shows TKT explains it in place, including the meaning of each level, through an accessible control that works by keyboard and touch. Mandates may state an optional minimum TKT. Matching uses TKT inside the stage-and-TKT aspect (FR11). Acceptance: AC73–AC76, AC88.
+
+### FR26 — Investor email presentation — R2
+
+Emails to investors who subscribe or follow without an account (confirmation, manage link, direct alert, weekly digest, follow confirmation and follow update) are sent as multipart messages: an accessible single-column HTML part and a plain-text part rendered from the same content, so both always carry the same facts and links. Each invention appears as a card with its public facts (field, stage, TKT when stated), a short summary, why the recipient receives it and one primary action. Bulk messages carry RFC 8058 one-click unsubscribe headers; unsubscribing needs no sign-in and is idempotent. The recipient can change the email language. No tracking pixels. Sign-in codes and invitations stay plain text. Acceptance: AC85–AC87.
 
 ## 6. Core model and ownership constraints
 
@@ -565,6 +579,22 @@ All scenarios below are **NOT RUN**. Implementation must supply evidence, enviro
 | AC70 | FR24 | Shared fix released to two client compositions | Both suites and version inventories required; release availability not mistaken for rollout |
 | AC71 | FR24 | Schema change deployed with supported old/new code | Expand/migrate compatibility verified; contract/removal waits for retirement |
 | AC72 | FR24 | Migration cannot be undone by code rollback | Explicit forward-repair/restore procedure and data-loss window tested/documented |
+| AC73 | FR25 | Owner saves TKT 6 with note and evidence on a draft, then publishes | Published version carries TKT 6, note, provenance SELF_DECLARED; a new draft starts with the same values |
+| AC74 | FR25 | Another party reads an invention with TKT evidence | Sees level, note and that evidence exists; never the file or its identifier outside a pitch grant |
+| AC75 | FR25 | Keyboard-only and 320 px use of the TKT picker and tooltips | Every explanation opens and closes by keyboard and touch; no overflow; axe clean |
+| AC76 | FR25 | Investor views an invention with TKT in discovery, detail, public page and a received pitch | Badge with level and stage, explanation, self-declared label and evidence note; nothing shown without TKT |
+| AC77 | FR11 | Inventor opens a match result | Eight aspects with score or unknown, status and explaining values; unknown never shown as 0 % |
+| AC78 | FR11 | A required item fails while other aspects score 100 | Result stays ineligible and labelled not a fit; the failing item is named |
+| AC79 | FR11 | Recipient opens a submitted pitch, then a resubmission | Breakdown shown is the one frozen with the submission being read |
+| AC80 | FR11 | Inventor opens a weak match | Up to five recommendations, blocking first, each conditional with a deep link and an engine estimate; none for field or stage changes |
+| AC81 | FR11 | Inventor follows a recommendation, publishes and returns | Matching reruns and the changed aspect shows its before and after values |
+| AC82 | FR10 | Inventor opens an investor in the finder | Every own published product scored against each active mandate, best first, incompatible last |
+| AC83 | FR10 | A product without an active need | Scored in labelled preview with money and form unknown; nothing stored; offered to create a need |
+| AC84 | FR10 | Inventor chooses one product in the finder | Investors ordered by that product's best fit; ordering ignores popularity |
+| AC85 | FR26 | Alert, digest and follow update are sent | Multipart HTML and text with the same facts and links; HTML under 100 KB; values escaped |
+| AC86 | FR26 | Mail client posts the one-click unsubscribe | Subscription or follow ends without sign-in; repeating is harmless; queued mail is dropped |
+| AC87 | FR26 | English subscriber receives an alert | Every word, date and stage name in English with lang="en"; reads fully with images off |
+| AC88 | FR09 | Partner sets a minimum TKT on a mandate | Applicants see it; matching treats it as a preference in the stage-and-TKT aspect |
 
 ## 24. Completion, assumptions and evidence limits
 

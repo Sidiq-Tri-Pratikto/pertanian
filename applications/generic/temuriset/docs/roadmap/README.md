@@ -6,6 +6,9 @@ Authority: the constitution, then [`architecture.md`](architecture.md) for bindi
 
 ## Pick up the next PR
 
+For specs 055–060 start with [revamp-2-demo-feedback.md](revamp-2-demo-feedback.md): it assigns two tracks, sets the merge rules and gives the prompt for an AI agent.
+
+
 1. Choose the lowest-numbered spec whose **Depends on** specs are merged. Read its `spec.md` and `plan.md`, then `architecture.md`.
 2. Create the branch with the folder's exact name, for example `git checkout -b 009-inventions-api`. Spec Kit commands depend on that shape.
 3. Run `speckit-tasks` to generate `tasks.md` against the code as it stands now. The plan's task outline is the input, not a substitute.
@@ -32,6 +35,8 @@ Never run `speckit-specify` on a seeded spec. `setup-plan.sh` keeps an existing 
 | M10 Governance | 033–035 | Optional organization review, moderation, privacy requests | R1 |
 | M11 Portability and operations | 036–041 | Import and export, deployment, restore drills, benchmarks, accessibility audit, usability kit | R1 → R2 |
 | M12 Gated adapters | 042–045 | Email, calendar, AI summary and hybrid retrieval, each behind its entry condition | R2 / L |
+| Revamp 1 | 046–054 | Investor digest, visual system, finder, decision path, bilingual, public page, updates, follow, English app | R2 |
+| Revamp 2: demo feedback | 055–060 | TKT, match breakdown, recommendations, investor finder by product, investor email; two parallel tracks, see [revamp-2-demo-feedback.md](revamp-2-demo-feedback.md) | R2 |
 
 R1 is complete when the five journeys work with permissioned or visibly synthetic data, every R1 acceptance scenario has recorded evidence, the three compositions pass, and restore and migration are exercised (PRD section 24). A milestone outcome is never claimed from a front-end simulation.
 

@@ -259,6 +259,14 @@ A visitor follows one invention with only an email (`app/subscriptions/service/f
 
 Signed-in copy goes through `t('teks Indonesia')` with English in `src/features/i18n/app-en.ts`, keyed by the Indonesian source so a missing entry falls back to Indonesian instead of a blank. The language comes from the `/en` address or the `tr_locale` cookie (the ID/EN switch, the signed-out switch, or the account language in Profil). Server components read it from a per-request `react` `cache` store that `requireMe` fills; client components from `LocaleProvider`. Shared components translate the plain text they receive, so module-level label maps stay data and are translated where they render; a test fails if `t()` ever runs while a module loads. Text people wrote is never translated.
 
+### Revamp 2 decisions (055–060, planned)
+
+- **TKT** lives in a new table `invention_readiness` (one row per invention version), never as constraints on existing tables; the compatibility guard rejects new constraints on existing tables. It is self-declared; the evidence file stays private and travels only through pitch grants. Level names live once, in `src/features/portfolio/tkt.ts`.
+- **Match breakdown** is computed in the pure engine (`app/matching/engine/breakdown.py`) and stored inside `match_results.result`; no new column. The API sends raw values, the web writes sentences. `policy_versions["fit-features"]` becomes 2 when topic reads the whole product text and readiness includes TKT.
+- **Recommendations** are what-ifs re-run through `evaluate()`, so an estimate can never disagree with a real result. Applicant only; never for the recipient.
+- **Finder fit** (`GET /fit`) is a read-only computation, not stored; products without a need are scored in labelled preview and cannot be pitched from it.
+- **Investor email** is one content model rendered to text and to HTML (stdlib only); the mailbox port carries an optional `html` part and headers; RFC 8058 one-click unsubscribe is the only route that takes a token in its URL, and it is kept out of request logs.
+
 ## Recorded deviations from the design system
 
 | ID | Deviation | Reason | Remove when |
