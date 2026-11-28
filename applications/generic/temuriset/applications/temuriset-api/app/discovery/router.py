@@ -39,6 +39,7 @@ async def discover(  # noqa: PLR0913 - one argument per filter
     amount_min: str | None = None,
     amount_max: str | None = None,
     saved: bool = False,
+    produk: str | None = None,
     cursor: str | None = None,
     limit: Limit = 20,
 ) -> DiscoveryResponse:
@@ -80,7 +81,7 @@ async def discover(  # noqa: PLR0913 - one argument per filter
         "amount_max": amount_max,
     }
     return await DiscoveryService(session).search(
-        principal, type, text=q, filters=filters, saved=saved, cursor=cursor, limit=limit
+        principal, type, text=q, filters=filters, saved=saved, produk=produk, cursor=cursor, limit=limit
     )
 
 

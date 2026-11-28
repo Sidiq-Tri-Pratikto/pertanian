@@ -2262,6 +2262,16 @@
       "DiscoveryItem": {
         "description": "One result card. ``card`` holds what the owner published, by subject type.",
         "properties": {
+          "best_fit": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartnerBestFit"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "card": {
             "additionalProperties": true,
             "title": "Card",
@@ -3416,6 +3426,118 @@
           "subject"
         ],
         "title": "FinancialResponse",
+        "type": "object"
+      },
+      "FitInvention": {
+        "description": "Summary of one of the acting party's published inventions in a fit matrix (spec 059).",
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "stage": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stage"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "tkt_level": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tkt Level"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "stage",
+          "tkt_level"
+        ],
+        "title": "FitInvention",
+        "type": "object"
+      },
+      "FitItem": {
+        "description": "One own-product \u00d7 active-mandate score, read-only and never stored (spec 059).",
+        "properties": {
+          "invention": {
+            "$ref": "#/components/schemas/FitInvention"
+          },
+          "opportunity": {
+            "$ref": "#/components/schemas/FitOpportunity"
+          },
+          "preview": {
+            "title": "Preview",
+            "type": "boolean"
+          },
+          "result": {
+            "$ref": "#/components/schemas/MatchResultResponse"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MatchSource"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "invention",
+          "source",
+          "opportunity",
+          "result",
+          "preview"
+        ],
+        "title": "FitItem",
+        "type": "object"
+      },
+      "FitOpportunity": {
+        "description": "Summary of one active mandate in a fit matrix (spec 059).",
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "partner": {
+            "title": "Partner",
+            "type": "string"
+          },
+          "partner_party_id": {
+            "format": "uuid",
+            "title": "Partner Party Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "partner_party_id",
+          "partner"
+        ],
+        "title": "FitOpportunity",
         "type": "object"
       },
       "FitResponse": {
@@ -6466,6 +6588,61 @@
           "note"
         ],
         "title": "OutcomeResponse",
+        "type": "object"
+      },
+      "PartnerBestFit": {
+        "description": "Best fit summary for one partner in the investor finder list (spec 059).",
+        "properties": {
+          "eligibility": {
+            "enum": [
+              "ELIGIBLE",
+              "NEEDS_VERIFICATION",
+              "INCOMPATIBLE"
+            ],
+            "title": "Eligibility",
+            "type": "string"
+          },
+          "fit": {
+            "$ref": "#/components/schemas/FitResponse"
+          },
+          "invention_id": {
+            "format": "uuid",
+            "title": "Invention Id",
+            "type": "string"
+          },
+          "invention_title": {
+            "title": "Invention Title",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "matching_products": {
+            "default": 0,
+            "title": "Matching Products",
+            "type": "integer"
+          },
+          "opportunity_id": {
+            "format": "uuid",
+            "title": "Opportunity Id",
+            "type": "string"
+          },
+          "preview": {
+            "default": false,
+            "title": "Preview",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "label",
+          "eligibility",
+          "fit",
+          "invention_id",
+          "invention_title",
+          "opportunity_id"
+        ],
+        "title": "PartnerBestFit",
         "type": "object"
       },
       "PartnerProfileResponse": {
@@ -12756,6 +12933,22 @@
           },
           {
             "in": "query",
+            "name": "produk",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Produk"
+            }
+          },
+          {
+            "in": "query",
             "name": "cursor",
             "required": false,
             "schema": {
@@ -13495,6 +13688,105 @@
         "summary": "Download an export with fresh authorization",
         "tags": [
           "portability"
+        ]
+      }
+    },
+    "/api/v1/fit": {
+      "get": {
+        "description": "Read-only product \u00d7 mandate fit matrix for the acting party's published products (spec 059).\n\nArgs:\n    principal (PrincipalDep): Who is signed in.\n    session (SessionDep): Database session.\n    acting_party_id (UUID | None, optional): Optional acting party check. Defaults to None.\n    partner_party_id (UUID | None, optional): Filter to one partner. Defaults to None.\n    invention_id (UUID | None, optional): Filter to one own product. Defaults to None.\n\nReturns:\n    list[FitItem]: Ordered fit items with breakdown and recommendations; never stored.",
+        "operationId": "list_fit_api_v1_fit_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "acting_party_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Acting Party Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "partner_party_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Partner Party Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "invention_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Invention Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/FitItem"
+                  },
+                  "title": "Response List Fit Api V1 Fit Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation failed"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Failure"
+          }
+        },
+        "summary": "Score my published products against active mandates",
+        "tags": [
+          "matching"
         ]
       }
     },
