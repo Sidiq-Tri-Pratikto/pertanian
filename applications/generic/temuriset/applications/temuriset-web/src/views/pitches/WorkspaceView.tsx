@@ -7,6 +7,7 @@ import { EmptyState } from '@/components/tr/EmptyState';
 import { NextStep } from '@/components/tr/NextStep';
 import { Screen } from '@/components/tr/Screen';
 import { Status } from '@/components/tr/Status';
+import { TktBadge } from '@/components/tr/TktBadge';
 import { ContextBar } from '@/features/ContextBar';
 import { formatDateTime } from '@/features/organizations';
 import { readPersona } from '@/features/persona';
@@ -24,7 +25,11 @@ import { PROVENANCE } from '@/views/parts';
 import { t } from '@/features/i18n/t';
 
 type Submission = Pitch['submissions'][number];
-type Snapshot = { opportunity?: { version?: number }; inventions?: { title: string; number: number }[] };
+type FrozenReadiness = { tkt_level?: number; note?: string | null; has_evidence?: boolean } | null;
+type Snapshot = {
+  opportunity?: { version?: number };
+  inventions?: { title: string; number: number; readiness?: FrozenReadiness }[];
+};
 
 export type Room = { next: NextAction; schedule: Schedule; messages: Message[]; tasks: Task[]; relationship?: Partnership | null };
 
@@ -38,9 +43,21 @@ function pins(submission: Submission): string {
 }
 
 function Frozen({ submission }: { submission: Submission }) {
+  const snapshot = (submission.snapshot ?? {}) as Snapshot;
+  const readinessItems = (snapshot.inventions ?? []).filter((invention) => invention.readiness?.tkt_level);
   return (
     <div className="tr-stack">
       <p className="tr-muted tr-sys-type-support">{pins(submission)}</p>
+      {readinessItems.map((invention) => (
+        <TktBadge
+          key={`${invention.title}-${invention.number}`}
+          level={invention.readiness?.tkt_level}
+          note={invention.readiness?.note}
+          hasEvidence={invention.readiness?.has_evidence}
+          showBar
+          showMeta
+        />
+      ))}
       <div className="tr-stack">
         {submission.brief.split('\n').map((line, index) => (
           <p key={index}>{line}</p>

@@ -43,7 +43,11 @@ async def refresh_invention(session: AsyncSession, invention_id: UUID) -> None:
         title=view.title,
         # Only published fields: never private notes, documents or claims' sources.
         body=_text(view.summary, view.problem, view.solution, view.intended_users, view.sector, *view.keywords),
-        filters={"sectors": [view.sector] if view.sector else [], "stages": [view.stage] if view.stage else []},
+        filters={
+            "sectors": [view.sector] if view.sector else [],
+            "stages": [view.stage] if view.stage else [],
+            "tkt_level": view.readiness.tkt_level if view.readiness is not None else None,
+        },
         card={
             "number": view.number,
             "summary": view.summary,

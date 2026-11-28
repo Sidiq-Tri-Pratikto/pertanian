@@ -147,3 +147,29 @@ export function tktLabel(level: number, stageLabel?: string | null): string {
   const detail = stageLabel?.trim() || tktLevelOf(level)?.name;
   return detail ? `TKT ${level} · ${detail}` : `TKT ${level}`;
 }
+
+const STAGE_TKT_RANGE: Record<string, readonly [number, number]> = {
+  IDEA: [1, 3],
+  PROTOTYPE: [3, 6],
+  PILOT: [5, 7],
+  WORKING: [6, 8],
+  MARKET: [8, 9],
+};
+
+/** Expected TKT range [min, max] for an invention stage, or null when stage is empty/unknown (spec 056). */
+export function expectedRange(stage: string | null | undefined): readonly [number, number] | null {
+  return stage && stage in STAGE_TKT_RANGE ? STAGE_TKT_RANGE[stage] : null;
+}
+
+/**
+ * Returns whether the chosen TKT level disagrees strongly with the invention's stage (outside expected range ± 1).
+ * Always advisory: never blocks saving or publishing.
+ */
+export function mismatch(stage: string | null | undefined, level: number | null | undefined): 'above' | 'below' | null {
+  if (typeof level !== 'number') return null;
+  const range = expectedRange(stage);
+  if (!range) return null;
+  if (level > range[1] + 1) return 'above';
+  if (level < range[0] - 1) return 'below';
+  return null;
+}

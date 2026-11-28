@@ -10,6 +10,7 @@ export type MandateReviewValues = {
   excluded: string;
   support: string;
   stages: string;
+  minTkt?: string;
   forms: string;
   timing: string;
   financial: ReactNode;
@@ -27,6 +28,7 @@ export function MandateReview({ values }: { values: MandateReviewValues }) {
     ['Tidak termasuk', values.excluded],
     ['Dukungan', values.support],
     ['Tahap yang diterima', values.stages],
+    ['TKT minimum', values.minTkt ?? ''],
     ['Bentuk kerja sama', values.forms],
     ['Waktu', values.timing],
     ['Dasar keuangan', values.financial],

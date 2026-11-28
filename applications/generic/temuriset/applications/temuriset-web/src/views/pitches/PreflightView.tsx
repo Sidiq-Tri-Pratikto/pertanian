@@ -63,6 +63,7 @@ export function PreflightView({ me, source, targetId, summaryAvailable = false }
   // One key per intent, made when the page renders and kept across retries until a final answer (FR-002).
   const key = useRef(newIdempotencyKey());
   const started = useRef(false);
+  const preselected = useRef(false);
 
   const invalidateSummary = useCallback(() => {
     summaryRevision.current += 1;
@@ -77,7 +78,12 @@ export function PreflightView({ me, source, targetId, summaryAvailable = false }
       setPreflight(fresh);
       // A brief the person already edited survives a fresh check (AC34).
       setBrief((current) => current ?? fresh.brief.text);
-      setChosen((current) => current.filter((id) => fresh.shareable_files.some((file) => file.version_id === id)));
+      if (!preselected.current) {
+        preselected.current = true;
+        setChosen(fresh.shareable_files.filter((file) => file.selected).map((file) => file.version_id));
+      } else {
+        setChosen((current) => current.filter((id) => fresh.shareable_files.some((file) => file.version_id === id)));
+      }
       setState({ kind: 'idle' });
       key.current = newIdempotencyKey();
     } catch (error) {
@@ -239,7 +245,11 @@ export function PreflightView({ me, source, targetId, summaryAvailable = false }
               key={file.version_id}
               id={`berkas-${file.version_id}`}
               label={t('{title}, versi {n}', { title: file.title, n: file.version })}
-              hint={t('Berkas tersedia · {state}', { state: t(REVIEW[file.review_state] ?? file.review_state) })}
+              hint={
+                file.kind === 'tkt'
+                  ? t('Dokumentasi TKT · {state}', { state: t(REVIEW[file.review_state] ?? file.review_state) })
+                  : t('Berkas tersedia · {state}', { state: t(REVIEW[file.review_state] ?? file.review_state) })
+              }
               checked={chosen.includes(file.version_id)}
               onChange={(on) => setChosen((current) => (on ? [...current, file.version_id] : current.filter((id) => id !== file.version_id)))}
             />

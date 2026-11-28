@@ -56,6 +56,14 @@ PRODUCT_A: dict[str, Any] = {
         ],
         "claims": [{"kind": "creator", "subject_name": "Inovator A"}],
     },
+    "readiness": {
+        "tkt_level": 4,
+        "note": "Komponen saringan telah diuji di laboratorium pada dua sampel air keruh.",
+        "evidence_photo": {
+            "title": "Dokumentasi uji laboratorium ClearSpring",
+            "colors": ((13, 148, 136), (240, 253, 250)),
+        },
+    },
     "need": {
         "outcome": "Uji lapangan saringan di dua desa",
         "support_forms": ["project_funding"],
@@ -106,6 +114,7 @@ INVESTOR_A: dict[str, Any] = {
         "sectors": ["Pertanian"],
         "keywords": ["pertanian", "panen", "irigasi", "desa"],
         "timing": "Dibuka sampai 31 Maret 2027",
+        "min_tkt": 6,
         "financial": {
             "subject": "partner",
             "basis": "total_period",
@@ -142,6 +151,7 @@ INVESTOR_B: dict[str, Any] = {
         "sectors": ["Energi"],
         "keywords": ["surya", "listrik", "desa", "baterai"],
         "timing": "Dibuka sampai 31 Maret 2027",
+        "min_tkt": 3,
         "financial": {
             "subject": "partner",
             "basis": "total_period",
@@ -178,6 +188,10 @@ PRODUCT_B: dict[str, Any] = {
             },
         ],
         "claims": [{"kind": "creator", "subject_name": "Inovator A"}],
+        "readiness": {
+            "tkt_level": 5,
+            "note": "Panel dan baterai diuji di lingkungan menyerupai rumah desa.",
+        },
     },
     "need": {
         "outcome": "Uji lapangan SolarBox di satu desa",

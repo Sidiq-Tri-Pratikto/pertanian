@@ -31,6 +31,7 @@ export default async function EditInventionPage({ params, searchParams }: Props)
       invention={invention}
       initialStep={Number((await searchParams).step) || 1}
       documents={<DocumentsPanel me={me} initial={documents} />}
+      availableDocuments={documents}
       fundingOn={await fundingOn()}
     />
   );

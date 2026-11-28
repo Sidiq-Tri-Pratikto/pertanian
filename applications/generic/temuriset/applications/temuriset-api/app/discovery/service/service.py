@@ -31,6 +31,7 @@ _FILTER_LABELS = {
     "q": "Hapus kata kunci",
     "sector": "Hapus filter sektor",
     "stage": "Hapus filter tahap",
+    "min_tkt": "Hapus filter TKT",
     "support_form": "Hapus filter bentuk dukungan",
     "region": "Hapus filter wilayah",
     "purpose": "Hapus filter tujuan kerja sama",
@@ -166,6 +167,8 @@ class DiscoveryService:
             DiscoveryResponse: The page.
         """
         active = {key: value for key, value in (filters or {}).items() if value not in (None, "")}
+        if result_type != "inventions":
+            active.pop("min_tkt", None)
         echoed = {**active, **({"q": text.strip()} if text.strip() else {}), **({"saved": True} if saved else {})}
         parsed = _money_filters(active)
         empty = DiscoveryResponse(
