@@ -6,10 +6,18 @@ from uuid import UUID
 from sqlalchemy import delete, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.portfolio.model.schema import ClaimResponse, FactResponse, InventionVersionResponse
+from app.documents.service.service import available_document_version_number
+from app.portfolio.model.schema import (
+    ClaimResponse,
+    DocumentVersionChoice,
+    FactResponse,
+    InventionVersionResponse,
+    ReadinessResponse,
+)
 from app.portfolio.repository.sqlalchemy.models import (
     InventionClaimRecord,
     InventionFactRecord,
+    InventionReadinessRecord,
     InventionRecord,
     InventionVersionRecord,
 )
@@ -118,12 +126,33 @@ class SqlAlchemyPortfolioRepository:
             .where(InventionClaimRecord.version_id == version_id)
             .order_by(InventionClaimRecord.position)
         )
+        readiness_row = await self.session.scalar(
+            select(InventionReadinessRecord).where(InventionReadinessRecord.version_id == version_id)
+        )
+        readiness = None
+        if readiness_row is not None:
+            available = (
+                await available_document_version_number(self.session, readiness_row.evidence_version_id)
+                if readiness_row.evidence_version_id is not None
+                else None
+            )
+            readiness = ReadinessResponse(
+                tkt_level=readiness_row.tkt_level,
+                note=readiness_row.note,
+                has_evidence=available is not None,
+                evidence=(
+                    DocumentVersionChoice(document_id=available[0], version=available[1])
+                    if available is not None
+                    else None
+                ),
+            )
         return InventionVersionResponse(
             number=record.number,
             state=record.state,
             facts=[FactResponse.model_validate(fact, from_attributes=True) for fact in facts],
             claims=[ClaimResponse.model_validate(claim, from_attributes=True) for claim in claims],
             published_at=record.published_at,
+            readiness=readiness,
             **{field: getattr(record, field) for field in _CONTENT},
         )
 
@@ -191,4 +220,62 @@ class SqlAlchemyPortfolioRepository:
         """
         await self.session.execute(
             update(InventionVersionRecord).where(InventionVersionRecord.id == version_id).values(**values)
+        )
+
+    async def set_readiness(
+        self,
+        version_id: UUID,
+        tkt_level: int | None,
+        note: str = "",
+        evidence_version_id: UUID | None = None,
+    ) -> None:
+        """Upsert or clear TKT readiness for one draft version (055).
+
+        Args:
+            version_id (UUID): The draft version.
+            tkt_level (int | None): Level 1-9, or None to delete any stored readiness.
+            note (str, optional): Optional note. Defaults to empty string.
+            evidence_version_id (UUID | None, optional): Optional owned evidence document version id.
+        """
+        existing = await self.session.scalar(
+            select(InventionReadinessRecord).where(InventionReadinessRecord.version_id == version_id)
+        )
+        if tkt_level is None:
+            if existing is not None:
+                await self.session.delete(existing)
+                await self.session.flush()
+            return
+        if existing is None:
+            self.session.add(
+                InventionReadinessRecord(
+                    version_id=version_id,
+                    tkt_level=tkt_level,
+                    note=note,
+                    evidence_version_id=evidence_version_id,
+                )
+            )
+        else:
+            existing.tkt_level = tkt_level
+            existing.note = note
+            existing.evidence_version_id = evidence_version_id
+            existing.version += 1
+        await self.session.flush()
+
+    async def copy_readiness(self, from_version_id: UUID, to_version_id: UUID) -> None:
+        """Copy TKT readiness from a published version to its new draft successor (055).
+
+        Args:
+            from_version_id (UUID): Source version.
+            to_version_id (UUID): New draft version.
+        """
+        existing = await self.session.scalar(
+            select(InventionReadinessRecord).where(InventionReadinessRecord.version_id == from_version_id)
+        )
+        if existing is None:
+            return
+        await self.set_readiness(
+            to_version_id,
+            existing.tkt_level,
+            existing.note,
+            existing.evidence_version_id,
         )

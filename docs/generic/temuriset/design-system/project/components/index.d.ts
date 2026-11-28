@@ -95,3 +95,5 @@ export interface IconProps { name: IconName; size?: 'small'; className?: string;
 export declare function Icon(props: IconProps): React.ReactElement;
 export interface LogoProps { href?: string; }
 export declare function Logo(props: LogoProps): React.ReactElement;
+export interface ToggletipProps { label: string; children?: Node; id?: string; }
+export declare function Toggletip(props: ToggletipProps): React.ReactElement;

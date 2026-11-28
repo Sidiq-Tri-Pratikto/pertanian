@@ -96,6 +96,7 @@ def target_of(opportunity: OpportunityResponse, partner_name: str) -> Target:
             for row in opportunity.requirements
         ),
         availability=opportunity.target_availability.model_dump(),
+        min_tkt=opportunity.min_tkt,
     )
 
 
@@ -116,6 +117,7 @@ async def _evidence(
 
 def _invention_fields(versions: list[InventionVersionResponse]) -> dict[str, Any]:
     first = versions[0] if versions else None
+    tkts = [version.readiness.tkt_level for version in versions if version.readiness is not None]
     return {
         "stage": first.stage if first else None,
         "sector": first.sector if first else "",
@@ -124,6 +126,7 @@ def _invention_fields(versions: list[InventionVersionResponse]) -> dict[str, Any
         "authority": tuple(
             claim.status for version in versions for claim in version.claims if claim.kind == "authority"
         ),
+        "tkt": min(tkts) if tkts else None,
     }
 
 

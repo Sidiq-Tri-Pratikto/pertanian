@@ -161,6 +161,7 @@ class OpportunityContent(_Input):
     sectors: Annotated[list[Tag], Field(max_length=30)] = []
     keywords: Annotated[list[Tag], Field(max_length=50)] = []
     timing: _text(500) = ""
+    min_tkt: int | None = Field(default=None, ge=1, le=9)
     financial: FinancialInput | None = None
     requirements: Annotated[list[RequirementInput], Field(max_length=MAX_REQUIREMENTS)] = []
     closes_at: AwareDatetime | None = None
@@ -240,6 +241,7 @@ class OpportunityVersionContent(BaseModel):
     sectors: list[str]
     keywords: list[str]
     timing: str
+    min_tkt: int | None = None
     financial: FinancialResponse | None
     requirements: list[RequirementResponse]
 
