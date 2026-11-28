@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 
 import { ContextBar } from '@/features/ContextBar';
 import { DemoPanel, type DemoAccount } from '@/features/demo/DemoPanel';
+import { LocaleProvider } from '@/features/i18n/LocaleProvider';
 
 import { makeMe } from './fixtures';
 
@@ -80,5 +81,21 @@ describe('demo picker (spec 021)', () => {
     render(<ContextBar me={{ ...me, account: { ...me.account, kind: 'demo' } }} />);
 
     expect(screen.getByText('Demo · Data fiktif')).toBeInTheDocument();
+  });
+
+  it('persists the English locale cookie when signing in from /en/start', async () => {
+    const user = userEvent.setup();
+    document.cookie = 'tr_locale=; path=/; max-age=0';
+    replies = [{ status: 200, body: {} }];
+    render(
+      <LocaleProvider locale="en">
+        <DemoPanel accounts={ACCOUNTS} />
+      </LocaleProvider>,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Sign in as Rani' }));
+
+    await waitFor(() => expect(router.push).toHaveBeenCalledWith('/home'));
+    expect(document.cookie).toContain('tr_locale=en');
   });
 });

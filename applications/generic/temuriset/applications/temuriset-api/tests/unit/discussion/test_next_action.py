@@ -118,3 +118,24 @@ def test_the_actions_point_at_the_room_tab_that_holds_them() -> None:
     assert (decide.action, decide.tab) == ("decide", "ringkasan")
     assert (revise.action, revise.tab) == ("answer_revision", "revisi")
     assert waiting.text.startswith("Mitra A dapat")
+
+
+def test_party_names_with_braces_are_not_double_formatted() -> None:
+    """
+    Condition:
+    - The counterparty name contains literal curly braces in both Indonesian and English locales.
+
+    Expected:
+    - ``next_action`` renders the literal name without raising a formatting error.
+    """
+    from app.core.locale import _request_locale
+
+    waiting_id = next_action("SUBMITTED", "requester", RANI, "Lab {A}", NO_SCHEDULE)
+    assert waiting_id.text.startswith("Lab {A} dapat")
+
+    token = _request_locale.set("en")
+    try:
+        waiting_en = next_action("SUBMITTED", "requester", RANI, "Lab {A}", NO_SCHEDULE)
+        assert waiting_en.text.startswith("Lab {A} can approve")
+    finally:
+        _request_locale.reset(token)

@@ -10,7 +10,8 @@ import { Button } from '@/components/tr/Button';
 import { Dialog } from '@/components/tr/Dialog';
 import { Status } from '@/components/tr/Status';
 import { homeFor, readPersona } from '@/features/persona';
-import { useMessages } from '@/features/i18n/LocaleProvider';
+import { useLocale, useMessages } from '@/features/i18n/LocaleProvider';
+import { rememberLocale } from '@/features/i18n/locale';
 
 export type DemoAccount = components['schemas']['DemoAccount'];
 
@@ -22,6 +23,7 @@ const GROUPS = [
 /** The labelled demo: sign in as a fictional account with no email, or reset every demo record (spec 021). */
 export function DemoPanel({ accounts }: { accounts: DemoAccount[] }) {
   const router = useRouter();
+  const locale = useLocale();
   const words = useMessages().demo;
   const [busy, setBusy] = useState<string | null>(null);
   const [failure, setFailure] = useState<string | null>(null);
@@ -33,6 +35,7 @@ export function DemoPanel({ accounts }: { accounts: DemoAccount[] }) {
     setFailure(null);
     try {
       await send('POST', '/api/v1/demo/sign-in', { key: account.key });
+      rememberLocale(locale);
       router.push(homeFor(readPersona(account.persona) ?? 'inovator'));
     } catch (error) {
       setFailure(ApiError.from(error).message);

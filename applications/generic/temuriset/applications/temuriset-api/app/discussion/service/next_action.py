@@ -73,7 +73,8 @@ _EN = {
 
 def _t(text: str, **values: object) -> str:
     """The text in the request's language; templates keep their ``{name}`` placeholders in both."""
-    return (_EN.get(text, text) if locale() == "en" else text).format(**values)
+    translated = _EN.get(text, text) if locale() == "en" else text
+    return translated.format(**values) if values else translated
 
 
 @dataclass(frozen=True)
