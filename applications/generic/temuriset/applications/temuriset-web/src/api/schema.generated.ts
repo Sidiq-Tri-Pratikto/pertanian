@@ -8698,8 +8698,19 @@ export interface components {
             fact_keys: string[];
             /** File State */
             file_state: string;
+            /**
+             * Kind
+             * @default document
+             * @enum {string}
+             */
+            kind?: "document" | "tkt";
             /** Review State */
             review_state: string;
+            /**
+             * Selected
+             * @default false
+             */
+            selected?: boolean;
             /** Title */
             title: string;
             /** Version */
@@ -9938,6 +9949,7 @@ export interface operations {
                 q?: string;
                 sector?: string | null;
                 stage?: string | null;
+                min_tkt?: number | null;
                 support_form?: string | null;
                 region?: string | null;
                 purpose?: string | null;

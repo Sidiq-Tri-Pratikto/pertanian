@@ -8,6 +8,7 @@ import { Icon } from '@/components/tr/Icon';
 import { InventionCard } from '@/components/tr/InventionCard';
 import { Screen } from '@/components/tr/Screen';
 import { Status } from '@/components/tr/Status';
+import { TktBadge } from '@/components/tr/TktBadge';
 import { ContextBar } from '@/features/ContextBar';
 import { ItemActions } from '@/features/discovery/ItemActions';
 import { FocusFromHash } from '@/features/discovery/FocusFromHash';
@@ -29,13 +30,16 @@ function ResultCard({ item, actingPartyId }: { item: DiscoveryItem; actingPartyI
   const card = item.card as Card;
   const actions = <ItemActions subjectType={item.subject_type} subjectId={item.subject_id} title={item.title} saved={item.saved} actingPartyId={actingPartyId} />;
   if (item.subject_type === 'INVENTION') {
+    const stageText = text(card, 'stage') ? labelOf(STAGES, text(card, 'stage') as string) : undefined;
+    const tktLevel = typeof card.tkt_level === 'number' ? card.tkt_level : null;
     return (
       <InventionCard
         title={item.title}
         category={text(card, 'sector')}
         manager={text(card, 'managing_party_name')}
         problem={text(card, 'summary')}
-        maturity={text(card, 'stage') ? labelOf(STAGES, text(card, 'stage') as string) : undefined}
+        maturity={stageText}
+        facts={tktLevel ? <TktBadge level={tktLevel} stageLabel={stageText} showMeta /> : undefined}
         reasons={item.reasons.map(reasonText)}
         action={
           <>
@@ -106,7 +110,8 @@ function rowFacts(item: DiscoveryItem): string {
   const card = item.card as Card;
   if (item.subject_type === 'INVENTION') {
     const stage = text(card, 'stage');
-    return [text(card, 'sector'), stage ? labelOf(STAGES, stage) : undefined].filter(Boolean).join(' · ');
+    const tktLevel = typeof card.tkt_level === 'number' ? `TKT ${card.tkt_level}` : undefined;
+    return [text(card, 'sector'), stage ? labelOf(STAGES, stage) : undefined, tktLevel].filter(Boolean).join(' · ');
   }
   if (item.subject_type === 'FUNDING_REQUEST') {
     const inventions = (card.inventions as { title: string }[] | undefined) ?? [];
@@ -200,6 +205,21 @@ export function DiscoverView({ me, type, filters, page, fundingOn, matchesHref, 
                 ))}
               </select>
             </div>
+            {type === 'inventions' ? (
+              <div className="tr-field">
+                <label htmlFor="filter-min-tkt" className="tr-sys-type-label">
+                  {t('TKT minimum')}
+                </label>
+                <select id="filter-min-tkt" name="min_tkt" className="tr-input tr-select" defaultValue={filters.min_tkt ?? ''}>
+                  <option value="">{t('Semua')}</option>
+                  {[3, 4, 5, 6, 7, 8, 9].map((level) => (
+                    <option key={level} value={String(level)}>
+                      {t('TKT {n} ke atas', { n: level })}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            ) : null}
             <label className="tr-row">
               <input type="checkbox" name="saved" value="true" defaultChecked={filters.saved === 'true'} />
               <span>{t('Hanya yang saya simpan')}</span>
@@ -292,7 +312,7 @@ export function DiscoverView({ me, type, filters, page, fundingOn, matchesHref, 
             ) : undefined
           }>
           {applied.length
-            ? t('Filter aktif: {list}. Syarat tidak dilonggarkan tanpa pilihan Anda.', { list: applied.map((filter) => (filter.name === 'saved' ? t(FILTER_LABELS.saved) : `${filter.label} "${filter.value}"`)).join(', ') })
+            ? `${t('Filter aktif: {list}. Syarat tidak dilonggarkan tanpa pilihan Anda.', { list: applied.map((filter) => (filter.name === 'saved' ? t(FILTER_LABELS.saved) : `${filter.label} "${filter.value}"`)).join(', ') })}${filters.min_tkt ? ` ${t('Inovasi yang belum mengisi TKT tidak ditampilkan saat filter TKT minimum aktif.')}` : ''}`
             : t('Hasil muncul setelah pemiliknya menerbitkan profil atau inovasi.')}
         </EmptyState>
       )}

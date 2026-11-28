@@ -1,6 +1,7 @@
 import Link from 'next/link';
 
 import { EmptyState } from '@/components/tr/EmptyState';
+import { TktBadge } from '@/components/tr/TktBadge';
 import { FollowForm } from '@/features/subscriptions/FollowForm';
 import type { Teaser } from '@/features/subscriptions/api';
 import { AuthShell } from '@/views/AuthShell';
@@ -43,6 +44,9 @@ export function TeaserView({ teaser, locale = 'id' }: { teaser: Teaser | null; l
             {words.summary}
           </h2>
           <p className="tr-muted">{[sectorLabel(messages, teaser.sector), stageLabel(messages, teaser.stage)].filter(Boolean).join(' · ')}</p>
+          {teaser.tkt_level ? (
+            <TktBadge level={teaser.tkt_level} stageLabel={stageLabel(messages, teaser.stage)} showMeta locale={locale} />
+          ) : null}
           {content ? <p className="tr-muted tr-sys-type-support">{words.writtenIn}</p> : null}
           <p lang={content}>{teaser.summary}</p>
           {teaser.keywords.length ? (

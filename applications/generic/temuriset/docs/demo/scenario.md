@@ -78,3 +78,9 @@ Skenario ini memakai fitur yang sudah ada dan bisa langsung diteruskan dari sken
 10. **Kabar inovasi untuk investor tanpa akun.** Berlangganan di `/langganan` dengan kata kunci "desa". Investor mendapat kabar inovasi yang sesuai.
 
 Urutan yang disarankan untuk demo pendek: 1 → 2 → 3 → 4 → 6 → 8 → 5. Skenario 5 ditutup dengan rencana ke depan.
+
+## Tunjukkan TKT (spec 056)
+
+- **Reset awal:** Produk A (ClearSpring) memiliki **TKT 4 · Uji laboratorium** dengan dokumentasi bukti privat; mandat Investor A menetapkan **TKT minimum 6**.
+- **Inovator A:** buka editor ClearSpring langkah 2 (`#tkt`), tunjukkan daftar 9 tingkat TKT beserta Toggletip penjelasan & contoh bukti, bar 9 segmen, dan catatan bahwa berkas bukti tetap privat.
+- **Investor:** buka **Jelajahi** → saring dengan **TKT minimum**, lihat lencana TKT pada daftar, kartu detail, halaman publik `/temuan/{id}` (atau `/en/inventions/{id}`), dan pratinjau berkas TKT yang otomatis tercentang di pemeriksaan sebelum pitching.

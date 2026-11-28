@@ -10209,9 +10209,23 @@
             "title": "File State",
             "type": "string"
           },
+          "kind": {
+            "default": "document",
+            "enum": [
+              "document",
+              "tkt"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
           "review_state": {
             "title": "Review State",
             "type": "string"
+          },
+          "selected": {
+            "default": false,
+            "title": "Selected",
+            "type": "boolean"
           },
           "title": {
             "title": "Title",
@@ -12473,6 +12487,24 @@
                 }
               ],
               "title": "Stage"
+            }
+          },
+          {
+            "in": "query",
+            "name": "min_tkt",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 9,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Min Tkt"
             }
           },
           {

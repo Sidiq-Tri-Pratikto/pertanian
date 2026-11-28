@@ -143,3 +143,48 @@ body {
   border-bottom: var(--tr-sys-size-border) solid var(--tr-sys-color-border-decorative);
   vertical-align: top;
 }
+
+.tr-tkt-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--tr-ref-space-8);
+}
+
+.tr-tkt-bar__track {
+  display: grid;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+  gap: var(--tr-ref-space-4);
+  width: min(14rem, 100%);
+}
+
+.tr-tkt-bar__seg {
+  display: block;
+  height: 0.5rem;
+  background: var(--tr-sys-color-surface-subtle);
+  border: var(--tr-sys-size-border) solid var(--tr-sys-color-border-decorative);
+  border-radius: var(--tr-sys-radius-control);
+}
+
+.tr-tkt-bar__seg.is-filled {
+  background: var(--tr-sys-color-action-primary-background);
+  border-color: var(--tr-sys-color-action-primary-background);
+}
+
+.tr-tkt-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--tr-ref-space-8);
+}
+
+.tr-tkt-row__label {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--tr-ref-space-8);
+  cursor: pointer;
+}
+
+.tr-tkt-row__meaning {
+  display: block;
+}
